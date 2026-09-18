@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Naija Task — Complete Tasks. Earn Naira.</title>
 
 <style>
@@ -94,6 +95,7 @@ footer {
 }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -103,176 +105,253 @@ footer {
 
 <section class="hero">
   <h2>Earn by Completing Simple Tasks</h2>
+
   <p>
     Complete available tasks, submit proof, and earn rewards
     directly into your Naija Task wallet.
   </p>
 
-  <button class="primary" onclick="showSignup()">Create Account</button>
-  <button class="secondary" onclick="showLogin()">Login</button>
+  <button class="primary" onclick="showSignup()">
+    Create Account
+  </button>
+
+  <button class="secondary" onclick="showLogin()">
+    Login
+  </button>
 </section>
 
 <div id="loginBox" class="form-box">
+
   <h2>Login to Naija Task</h2>
 
-  <input type="email" id="loginEmail" placeholder="Email address">
-  <input type="password" id="loginPassword" placeholder="Password">
+  <input
+    type="email"
+    id="loginEmail"
+    placeholder="Email address"
+  >
 
-  <button class="primary" onclick="loginUser()">Login</button>
+  <input
+    type="password"
+    id="loginPassword"
+    placeholder="Password"
+  >
+
+  <button class="primary" onclick="loginUser()">
+    Login
+  </button>
 
   <p id="loginMessage" class="message"></p>
+
 </div>
 
 <div id="signupBox" class="form-box">
+
   <h2>Create Naija Task Account</h2>
 
-  <input type="text" id="signupName" placeholder="Full name">
-  <input type="email" id="signupEmail" placeholder="Email address">
-  <input type="password" id="signupPassword" placeholder="Password">
+  <input
+    type="text"
+    id="signupName"
+    placeholder="Full name"
+  >
 
-  <button class="primary" onclick="signupUser()">Create Account</button>
+  <input
+    type="email"
+    id="signupEmail"
+    placeholder="Email address"
+  >
+
+  <input
+    type="password"
+    id="signupPassword"
+    placeholder="Password"
+  >
+
+  <button class="primary" onclick="signupUser()">
+    Create Account
+  </button>
 
   <p id="signupMessage" class="message"></p>
+
 </div>
 
 <footer>
   © 2026 Naija Task — Complete Tasks. Earn Naira.
 </footer>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const SUPABASE_URL = jwakveeiynpakunwjzkj 
-const SUPABASE_KEy = sb_publishable_NapZRj9MIkLCxU-Nw0Bydw_SCHzYvzl
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+  "YOUR_PUBLISHABLE_KEY";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
 
 function showLogin() {
+
   document.getElementById("signupBox").style.display = "none";
+
   document.getElementById("loginBox").style.display = "block";
-  document.getElementById("loginBox").scrollIntoView({behavior: "smooth"});
+
+  document.getElementById("loginBox")
+    .scrollIntoView({ behavior: "smooth" });
 }
+
 
 function showSignup() {
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("signupBox").style.display = "block";
-  document.getElementById("signupBox").scrollIntoView({behavior: "smooth"});
-}
- async function loginUser() {
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
 
-  const message = document.getElementById("loginMessage");
+  document.getElementById("loginBox").style.display = "none";
+
+  document.getElementById("signupBox").style.display = "block";
+
+  document.getElementById("signupBox")
+    .scrollIntoView({ behavior: "smooth" });
+}
+
+
+async function loginUser() {
+
+  const email =
+    document.getElementById("loginEmail").value.trim();
+
+  const password =
+    document.getElementById("loginPassword").value;
+
+  const message =
+    document.getElementById("loginMessage");
+
 
   if (!email || !password) {
-    message.textContent = "Please enter your email and password.";
+
+    message.textContent =
+      "Please enter your email and password.";
+
     return;
   }
+
 
   message.textContent = "Logging in...";
 
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
+
+  const { error } =
+    await supabaseClient.auth.signInWithPassword({
+
+      email: email,
+
+      password: password
+
+    });
+
 
   if (error) {
+
     message.textContent = error.message;
+
     return;
   }
 
-  message.textContent = "Login successful!";
-
-  setTimeout(() => {
-    window.location.href = "dashboard.html";
-  }, 1000);
-                                         }
-  async function signupUser() {
-  const name = document.getElementById("signupName").value.trim();
-  const email = document.getElementById("signupEmail").value.trim();
-  const password = document.getElementById("signupPassword").value;
-
-  const message = document.getElementById("signupMessage");
-
-  if (!name || !email || !password) {
-    message.textContent = "Please fill in all fields.";
-    return;
-  }
-
-  if (password.length < 6) {
-    message.textContent = "Password must be at least 6 characters.";
-    return;
-  }
-
-  message.textContent = "Creating your account...";
-
-  const { data, error } = await supabaseClient.auth.signUp({
-    email: email,
-    password: password,
-    options: {
-      data: {
-        full_name: name
-      }
-    }
-  });
-
-  if (error) {
-    message.textContent = error.message;
-    return;
-  }
 
   message.textContent =
-    "Account created successfully! Check your email if confirmation is required.";
-  }
-  </script>
+    "Login successful!";
+
+
+  setTimeout(() => {
+
+    window.location.href =
+      "dashboard.html";
+
+  }, 1000);
+}
+
+
 async function signupUser() {
-  const name = document.getElementById("signupName").value.trim();
-  const email = document.getElementById("signupEmail").value.trim();
-  const password = document.getElementById("signupPassword").value;
-  const message = document.getElementById("signupMessage");
+
+  const name =
+    document.getElementById("signupName").value.trim();
+
+  const email =
+    document.getElementById("signupEmail").value.trim();
+
+  const password =
+    document.getElementById("signupPassword").value;
+
+  const message =
+    document.getElementById("signupMessage");
+
 
   if (!name || !email || !password) {
-    message.textContent = "Please fill in all fields.";
+
+    message.textContent =
+      "Please fill in all fields.";
+
     return;
   }
+
 
   if (password.length < 6) {
-    message.textContent = "Password must be at least 6 characters.";
+
+    message.textContent =
+      "Password must be at least 6 characters.";
+
     return;
   }
 
-  message.textContent = "Creating your account...";
+
+  message.textContent =
+    "Creating your account...";
+
 
   try {
-    const result = await Promise.race([
-      supabaseClient.auth.signUp({
+
+    const { error } =
+      await supabaseClient.auth.signUp({
+
         email: email,
+
         password: password,
+
         options: {
+
           data: {
             full_name: name
           }
+
         }
-      }),
 
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Signup timed out. Please check your Supabase connection.")), 15000)
-      )
-    ]);
+      });
 
-    if (result.error) {
-      message.textContent = result.error.message;
+
+    if (error) {
+
+      message.textContent =
+        error.message;
+
       return;
     }
 
+
     message.textContent =
       "Account created successfully! You can now log in.";
-      
+
+
   } catch (error) {
-    message.textContent = error.message;
+
+    message.textContent =
+      error.message;
+
   }
+
 }
+
+</script>
+
 </body>
-</html>
+  </html>
