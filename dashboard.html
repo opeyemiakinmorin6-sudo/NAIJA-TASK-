@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Naija Task</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #111;
+}
+
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.balance {
+  text-align: center;
+}
+
+.balance h2 {
+  color: #0b8f3c;
+  font-size: 32px;
+}
+
+button {
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.logout {
+  background: white;
+  color: #0b8f3c;
+}
+
+.task {
+  border-top: 1px solid #ddd;
+  padding: 15px 0;
+}
+
+.task:first-child {
+  border-top: none;
+}
+
+.task button {
+  background: #0b8f3c;
+  color: white;
+}
+
+.status {
+  color: #777;
+}
+</style>
+  </head>
+  <body>
+
+<header>
+  <h1>Naija Task</h1>
+  <p>Complete Tasks. Earn Naira.</p>
+  <button class="logout" onclick="logoutUser()">Logout</button>
+</header>
+
+<div class="container">
+
+  <div class="card balance">
+    <h3>Wallet Balance</h3>
+    <h2>₦<span id="balance">0.00</span></h2>
+    <p id="activationStatus" class="status">
+      Checking account status...
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Available Tasks</h3>
+    <div id="tasks">
+      Loading tasks...
+    </div>
+  </div>
+
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_NapZRj9MIkLCxU-Nw0Bydw_SCHzYvzl 
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+async function loadDashboard() {
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const { data: profile, error } = await supabaseClient
+    .from("profiles")
+    .select("balance, is_activated, full_name")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    document.getElementById("balance").textContent = "0.00";
+    document.getElementById("activationStatus").textContent =
+      "Profile could not be loaded.";
+    return;
+  }
+
+  document.getElementById("balance").textContent =
+    Number(profile.balance || 0).toFixed(2);
+
+  document.getElementById("activationStatus").textContent =
+    profile.is_activated
+      ? "Account activated"
+      : "Account not activated";
+}
+
+loadDashboard();
+async function loadTasks() {
+  const tasksBox = document.getElementById("tasks");
+
+  const { data, error } = await supabaseClient
+    .from("tasks")
+    .select("id, title, description, reward, slots, expiry_date")
+    .eq("status", "ACTIVE")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    tasksBox.textContent = "Unable to load tasks.";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tasksBox.textContent = "No tasks available right now.";
+    return;
+  }
+
+  tasksBox.innerHTML = "";
+
+  data.forEach(task => {
+    const div = document.createElement("div");
+    div.className = "task";
+
+    div.innerHTML = `
+      <h4>${task.title}</h4>
+      <p>${task.description || ""}</p>
+      <p><strong>Reward: ₦${Number(task.reward).toFixed(2)}</strong></p>
+      <button onclick="startTask(${task.id})">View Task</button>
+    `;
+
+    tasksBox.appendChild(div);
+  });
+}
+
+function startTask(taskId) {
+  alert("Task selected. Proof submission will be added next.");
+}
+
+loadTasks();
+
+async function logoutUser() {
+  await supabaseClient.auth.signOut();
+  window.location.href = "index.html";
+  }  
