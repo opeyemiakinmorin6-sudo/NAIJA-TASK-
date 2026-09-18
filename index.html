@@ -172,11 +172,61 @@
   </footer>
 
 </body>
-  <script>
-function showLogin() {
-  alert("Login page coming next");
+  <div id="loginBox" style="display:none; padding:20px; max-width:400px; margin:20px auto; background:white; border-radius:12px;">
+  <h2>Login to TASK NAIJA</h2>
+
+  <input id="loginEmail" type="email" placeholder="Email address"
+    style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+  <input id="loginPassword" type="password" placeholder="Password"
+    style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
+
+  <button onclick="loginUser()" class="primary">Login</button>
+
+  <p id="loginMessage"></p>
+</div>
+
+<script>
+async function loginUser() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const message = document.getElementById("loginMessage");
+
+  if (!email || !password) {
+    message.textContent = "Please enter your email and password.";
+    return;
+  }
+
+  message.textContent = "Logging in...";
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  message.textContent = "Login successful!";
 }
-  </script>
+</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+  const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+<script>
+function showLogin() {
+  document.getElementById("loginBox").style.display = "block";
+}
+</script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
