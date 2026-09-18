@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Dashboard — Naija Task</title>
 
 <style>
@@ -77,67 +78,107 @@ button {
 .status {
   color: #777;
 }
+
+.activation-button {
+  background: #0b8f3c;
+  color: white;
+}
+
+#activationInfo {
+  display: none;
+  margin-top: 15px;
+}
 </style>
-  </head>
-  <body>
+</head>
+
+<body>
 
 <header>
   <h1>Naija Task</h1>
   <p>Complete Tasks. Earn Naira.</p>
-  <button class="logout" onclick="logoutUser()">Logout</button>
+
+  <button class="logout" onclick="logoutUser()">
+    Logout
+  </button>
 </header>
 
 <div class="container">
 
   <div class="card balance">
+
     <h3>Wallet Balance</h3>
-    <h2>₦<span id="balance">0.00</span></h2>
+
+    <h2>
+      ₦<span id="balance">0.00</span>
+    </h2>
+
     <p id="activationStatus" class="status">
       Checking account status...
     </p>
+
   </div>
-<div class="card" id="activationCard">
-  <h3>Account Activation</h3>
 
-  <p>
-    Activate your Naija Task account to unlock earning features
-    available to activated users.
-  </p>
 
-  <p>
-    <strong>Activation fee: ₦1,000</strong>
-  </p>
+  <div class="card" id="activationCard">
 
-  <button class="task" onclick="showActivationInfo()">
-    View Activation Details
-  </button>
+    <h3>Account Activation</h3>
 
-  <div id="activationInfo" style="display:none; margin-top:15px;">
     <p>
-      The ₦1,000 fee is an account activation/verification fee.
-      Please review the activation information before making any payment.
+      Activate your Naija Task account to unlock earning
+      features available to activated users.
     </p>
 
     <p>
-      <strong>Payment status:</strong>
-      <span id="paymentStatus">Not activated</span>
+      <strong>Activation fee: ₦1,000</strong>
     </p>
+
+    <button
+      class="activation-button"
+      onclick="showActivationInfo()"
+    >
+      View Activation Details
+    </button>
+
+    <div id="activationInfo">
+
+      <p>
+        The ₦1,000 fee is an account activation/verification fee.
+        Please review the activation information before making
+        any payment.
+      </p>
+
+      <p>
+        <strong>Payment status:</strong>
+        <span id="paymentStatus">Not activated</span>
+      </p>
+
+    </div>
+
   </div>
-</div>
+
+
   <div class="card">
+
     <h3>Available Tasks</h3>
+
     <div id="tasks">
       Loading tasks...
     </div>
+
   </div>
 
 </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY = "const SUPABASE_KEY = sb_publishable_0pDfnUCGUHNRXvfe375Iqg_4YA9xwAy
-  
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+  "YOUR_PUBLISHABLE_KEY";
 
 const supabaseClient =
   window.supabase.createClient(
@@ -146,96 +187,175 @@ const supabaseClient =
   );
 
 
-function showLogin() {
-
-  document.getElementById("signupBox").style.display = "none";
-
-  document.getElementById("loginBox").style.display = "block";
-
-  document.getElementById("loginBox")
-    .scrollIntoView({ behavior: "smooth" });
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
 async function loadDashboard() {
+
   const {
     data: { user }
   } = await supabaseClient.auth.getUser();
 
+
   if (!user) {
+
     window.location.href = "index.html";
+
     return;
   }
 
-  const { data: profile, error } = await supabaseClient
+
+  const {
+    data: profile,
+    error
+  } = await supabaseClient
     .from("profiles")
     .select("balance, is_activated, full_name")
     .eq("id", user.id)
     .single();
 
+
   if (error) {
-    document.getElementById("balance").textContent = "0.00";
+
+    document.getElementById("balance").textContent =
+      "0.00";
+
     document.getElementById("activationStatus").textContent =
       "Profile could not be loaded.";
+
     return;
   }
 
+
   document.getElementById("balance").textContent =
     Number(profile.balance || 0).toFixed(2);
+
 
   document.getElementById("activationStatus").textContent =
     profile.is_activated
       ? "Account activated"
       : "Account not activated";
+
+
+  if (profile.is_activated) {
+
+    document.getElementById("activationCard").style.display =
+      "none";
+
+  }
+
 }
 
-loadDashboard();
-async function loadTasks() {
-  const tasksBox = document.getElementById("tasks");
 
-  const { data, error } = await supabaseClient
+function showActivationInfo() {
+
+  const info =
+    document.getElementById("activationInfo");
+
+  info.style.display =
+    info.style.display === "none"
+      ? "block"
+      : "none";
+}
+
+
+async function loadTasks() {
+
+  const tasksBox =
+    document.getElementById("tasks");
+
+
+  const {
+    data,
+    error
+  } = await supabaseClient
     .from("tasks")
-    .select("id, title, description, reward, slots, expiry_date")
+    .select(
+      "id, title, description, reward, slots, expiry_date"
+    )
     .eq("status", "ACTIVE")
-    .order("created_at", { ascending: false });
+    .order("created_at", {
+      ascending: false
+    });
+
 
   if (error) {
-    tasksBox.textContent = "Unable to load tasks.";
+
+    tasksBox.textContent =
+      "Unable to load tasks.";
+
     return;
   }
 
+
   if (!data || data.length === 0) {
-    tasksBox.textContent = "No tasks available right now.";
+
+    tasksBox.textContent =
+      "No tasks available right now.";
+
     return;
   }
+
 
   tasksBox.innerHTML = "";
 
+
   data.forEach(task => {
-    const div = document.createElement("div");
-    div.className = "task";
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "task";
+
 
     div.innerHTML = `
+
       <h4>${task.title}</h4>
+
       <p>${task.description || ""}</p>
-      <p><strong>Reward: ₦${Number(task.reward).toFixed(2)}</strong></p>
-      <button onclick="startTask(${task.id})">View Task</button>
+
+      <p>
+        <strong>
+          Reward: ₦${Number(task.reward).toFixed(2)}
+        </strong>
+      </p>
+
+      <button onclick="startTask(${task.id})">
+        View Task
+      </button>
+
     `;
 
+
     tasksBox.appendChild(div);
+
   });
+
 }
 
+
 function startTask(taskId) {
-  alert("Task selected. Proof submission will be added next.");
+
+  alert(
+    "Task selected. Proof submission will be added next."
+  );
+
 }
+
+
+async function logoutUser() {
+
+  await supabaseClient.auth.signOut();
+
+  window.location.href =
+    "index.html";
+
+}
+
+
+loadDashboard();
 
 loadTasks();
 
-async function logoutUser() {
-  await supabaseClient.auth.signOut();
-  window.location.href = "index.html";
-  }  
+</script>
+
+</body>
+    </html>
