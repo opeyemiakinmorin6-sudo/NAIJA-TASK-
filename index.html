@@ -1,197 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NAIJA TASK — Complete Tasks. Earn Naira.</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naija Task — Complete Tasks. Earn Naira.</title>
 
-    body {
-      background: #f5f7f6;
-      color: #111;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #111;
+}
 
-    header {
-      background: #0b8f55;
-      color: white;
-      padding: 18px;
-      text-align: center;
-    }
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 25px 15px;
+  text-align: center;
+}
 
-    header h1 {
-      font-size: 28px;
-    }
+header h1 {
+  margin: 0;
+  font-size: 32px;
+}
 
-    header p {
-      margin-top: 6px;
-      font-size: 14px;
-    }
+header p {
+  margin: 8px 0 0;
+}
 
-    .hero {
-      padding: 45px 20px;
-      text-align: center;
-      background: white;
-    }
+.hero {
+  text-align: center;
+  padding: 45px 20px;
+}
 
-    .hero h2 {
-      font-size: 30px;
-      margin-bottom: 12px;
-    }
+.hero h2 {
+  font-size: 28px;
+}
 
-    .hero p {
-      color: #555;
-      line-height: 1.6;
-      margin-bottom: 25px;
-    }
+.hero p {
+  color: #555;
+  line-height: 1.6;
+}
 
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
+button {
+  border: none;
+  padding: 13px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 5px;
+}
 
-    button {
-      border: none;
-      padding: 13px 22px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.primary {
+  background: #0b8f3c;
+  color: white;
+}
 
-    .primary {
-      background: #0b8f55;
-      color: white;
-    }
+.secondary {
+  background: white;
+  color: #0b8f3c;
+  border: 1px solid #0b8f3c;
+}
 
-    .secondary {
-      background: #e8f5ef;
-      color: #0b8f55;
-    }
+.form-box {
+  display: none;
+  max-width: 420px;
+  margin: 20px auto;
+  padding: 25px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+}
 
-    .section {
-      padding: 30px 20px;
-      max-width: 900px;
-      margin: auto;
-    }
+.form-box input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+}
 
-    .section h3 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 23px;
-    }
+.message {
+  text-align: center;
+  margin-top: 10px;
+}
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-
-    .card {
-      background: white;
-      padding: 22px;
-      border-radius: 12px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
-    }
-
-    .card h4 {
-      margin-bottom: 8px;
-    }
-
-    .card p {
-      color: #666;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    footer {
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 22px;
-      margin-top: 20px;
-      font-size: 13px;
-    }
-  </style>
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #777;
+}
+</style>
 </head>
-
 <body>
 
-  <header>
-    <h1>NAIJA TASK</h1>
-    <p>Complete Tasks. Earn Naira.</p>
-  </header>
+<header>
+  <h1>Naija Task</h1>
+  <p>Complete Tasks. Earn Naira.</p>
+</header>
 
-  <section class="hero">
-    <h2>Earn by Completing Tasks</h2>
-    <p>
-      Discover available tasks, complete the requirements,
-      submit your proof and track your rewards.
-    </p>
+<section class="hero">
+  <h2>Earn by Completing Simple Tasks</h2>
+  <p>
+    Complete available tasks, submit proof, and earn rewards
+    directly into your Naija Task wallet.
+  </p>
 
-    <div class="buttons">
-      <button class="primary" onclick="showSignup()">Create Account</button>
- 
+  <button class="primary" onclick="showSignup()">Create Account</button>
+  <button class="secondary" onclick="showLogin()">Login</button>
+</section>
 
-      <button class="secondary" onclick="showLogin()">Login</button>
-    </div>
-  </section>
+<div id="loginBox" class="form-box">
+  <h2>Login to Naija Task</h2>
 
-  <section class="section">
-    <h3>How It Works</h3>
+  <input type="email" id="loginEmail" placeholder="Email address">
+  <input type="password" id="loginPassword" placeholder="Password">
 
-    <div class="cards">
-      <div class="card">
-        <h4>1. Register</h4>
-        <p>Create your NAIJA TASK account.</p>
-      </div>
+  <button class="primary" onclick="loginUser()">Login</button>
 
-      <div class="card">
-        <h4>2. Activate</h4>
-        <p>Complete the required account activation process.</p>
-      </div>
-
-      <div class="card">
-        <h4>3. Complete Tasks</h4>
-        <p>Choose available tasks and follow their requirements.</p>
-      </div>
-
-      <div class="card">
-        <h4>4. Submit Proof</h4>
-        <p>Send the required proof for review.</p>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    © 2026 NAIJA TASK . All rights reserved.
-  </footer>
-
-</body>
-  <div id="loginBox" style="display:none; padding:20px; max-width:400px; margin:20px auto; background:white; border-radius:12px;">
-  <h2>Login to naija task </h2>
-
-  <input id="loginEmail" type="email" placeholder="Email address"
-    style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
-
-  <input id="loginPassword" type="password" placeholder="Password"
-    style="width:100%; padding:12px; margin:8px 0; box-sizing:border-box;">
-
-  <button onclick="loginUser()" class="primary">Login</button>
-
-  <p id="loginMessage"></p>
+  <p id="loginMessage" class="message"></p>
 </div>
 
+<div id="signupBox" class="form-box">
+  <h2>Create Naija Task Account</h2>
+
+  <input type="text" id="signupName" placeholder="Full name">
+  <input type="email" id="signupEmail" placeholder="Email address">
+  <input type="password" id="signupPassword" placeholder="Password">
+
+  <button class="primary" onclick="signupUser()">Create Account</button>
+
+  <p id="signupMessage" class="message"></p>
+</div>
+
+<footer>
+  © 2026 Naija Task — Complete Tasks. Earn Naira.
+</footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-async function loginUser() {
-  const email = document.getElementById("loginEmail").value;
+const SUPABASE_URL = "YOUR_PROJECT_URL";
+const SUPABASE_KEY = "YOUR_PUBLISHABLE_KEY";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+function showLogin() {
+  document.getElementById("signupBox").style.display = "none";
+  document.getElementById("loginBox").style.display = "block";
+  document.getElementById("loginBox").scrollIntoView({behavior: "smooth"});
+}
+
+function showSignup() {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("signupBox").style.display = "block";
+  document.getElementById("signupBox").scrollIntoView({behavior: "smooth"});
+}
+ async function loginUser() {
+  const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
+
   const message = document.getElementById("loginMessage");
 
   if (!email || !password) {
@@ -201,7 +173,7 @@ async function loginUser() {
 
   message.textContent = "Logging in...";
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { error } = await supabaseClient.auth.signInWithPassword({
     email: email,
     password: password
   });
@@ -212,32 +184,49 @@ async function loginUser() {
   }
 
   message.textContent = "Login successful!";
-}
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
-  const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
-  const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 1000);
+                                         }
+  async function signupUser() {
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
 
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-<script>
-function showLogin() {
-  document.getElementById("loginBox").style.display = "block";
-}
-</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  const message = document.getElementById("signupMessage");
 
-<script>
-  const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co/rest/v1/ ";
-  const SUPABASE_KEY = ";sb_publishable_0pDfnUCGUHNRXvfe375Iqg_4YA9xwAy
+  if (!name || !email || !password) {
+    message.textContent = "Please fill in all fields.";
+    return;
+  }
 
-  const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-</script>
-    </html>
+  if (password.length < 6) {
+    message.textContent = "Password must be at least 6 characters.";
+    return;
+  }
+
+  message.textContent = "Creating your account...";
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        full_name: name
+      }
+    }
+  });
+
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+
+  message.textContent =
+    "Account created successfully! Check your email if confirmation is required.";
+  }
+  </script>
+
+</body>
+</html>
