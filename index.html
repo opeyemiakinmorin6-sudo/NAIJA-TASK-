@@ -227,6 +227,52 @@ function showSignup() {
     "Account created successfully! Check your email if confirmation is required.";
   }
   </script>
+async function signupUser() {
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const message = document.getElementById("signupMessage");
 
+  if (!name || !email || !password) {
+    message.textContent = "Please fill in all fields.";
+    return;
+  }
+
+  if (password.length < 6) {
+    message.textContent = "Password must be at least 6 characters.";
+    return;
+  }
+
+  message.textContent = "Creating your account...";
+
+  try {
+    const result = await Promise.race([
+      supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
+      }),
+
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Signup timed out. Please check your Supabase connection.")), 15000)
+      )
+    ]);
+
+    if (result.error) {
+      message.textContent = result.error.message;
+      return;
+    }
+
+    message.textContent =
+      "Account created successfully! You can now log in.";
+      
+  } catch (error) {
+    message.textContent = error.message;
+  }
+}
 </body>
 </html>
