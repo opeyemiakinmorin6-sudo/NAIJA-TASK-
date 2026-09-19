@@ -181,7 +181,139 @@ footer {
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+  "YOUR_PUBLISHABLE_KEY";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+function showLogin() {
+
+  document.getElementById("signupBox").style.display = "none";
+
+  document.getElementById("loginBox").style.display = "block";
+
+}
+
+
+function showSignup() {
+
+  document.getElementById("loginBox").style.display = "none";
+
+  document.getElementById("signupBox").style.display = "block";
+
+}
+
+
+async function loginUser() {
+
+  const email =
+    document.getElementById("loginEmail").value.trim();
+
+  const password =
+    document.getElementById("loginPassword").value;
+
+  const message =
+    document.getElementById("loginMessage");
+
+  if (!email || !password) {
+
+    message.textContent =
+      "Please enter your email and password.";
+
+    return;
+  }
+
+  message.textContent = "Logging in...";
+
+  const { error } =
+    await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+  if (error) {
+
+    message.textContent = error.message;
+
+    return;
+  }
+
+  window.location.href = "dashboard.html";
+
+}
+
+
+async function signupUser() {
+
+  const name =
+    document.getElementById("signupName").value.trim();
+
+  const email =
+    document.getElementById("signupEmail").value.trim();
+
+  const password =
+    document.getElementById("signupPassword").value;
+
+  const message =
+    document.getElementById("signupMessage");
+
+  if (!name || !email || !password) {
+
+    message.textContent =
+      "Please fill in all fields.";
+
+    return;
+  }
+
+  if (password.length < 6) {
+
+    message.textContent =
+      "Password must be at least 6 characters.";
+
+    return;
+  }
+
+  message.textContent =
+    "Creating your account...";
+
+  const { error } =
+    await supabaseClient.auth.signUp({
+
+      email: email,
+
+      password: password,
+
+      options: {
+        data: {
+          full_name: name
+        }
+      }
+
+    });
+
+  if (error) {
+
+    message.textContent = error.message;
+
+    return;
+  }
+
+  message.textContent =
+    "Account created successfully! You can now log in.";
+
+}
+
+</script>
 <script>
 
 const SUPABASE_URL = https://jwakveeiynpakunwjzkj.supabase.co/rest/v1/
