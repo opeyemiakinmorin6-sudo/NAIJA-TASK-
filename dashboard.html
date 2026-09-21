@@ -160,7 +160,31 @@ button {
   <div class="card">
 
     <h3>Available Tasks</h3>
+<div class="card">
+  <h3>Referrals</h3>
 
+  <p>
+    Share your referral link and earn rewards when eligible referrals are approved.
+  </p>
+
+  <input
+    id="referralLink"
+    type="text"
+    readonly
+    style="width:100%;padding:10px;box-sizing:border-box;margin-bottom:10px;"
+  >
+
+  <button
+    onclick="copyReferralLink()"
+    style="background:#0b8f3c;color:white;"
+  >
+    Copy Referral Link
+  </button>
+
+  <div id="referralList" style="margin-top:15px;">
+    Loading referrals...
+  </div>
+</div>
     <div id="tasks">
       Loading tasks...
     </div>
@@ -345,12 +369,75 @@ async function logoutUser() {
 
 }
 
-
 loadDashboard();
-
 loadTasks();
+loadReferrals();
 
-</script>
+async function loadReferrals() {
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) return;
+
+  const referralLink =
+    window.location.origin +
+    window.location.pathname.replace("dashboard.html", "") +
+    "?ref=" +
+    user.id;
+
+  document.getElementById("referralLink").value = referralLink;
+
+  const { data, error } = await supabaseClient
+    .from("referrals")
+    .select("referred_user_id, reward, status")
+    .eq("referrer_id", user.id)
+    .order("id", { ascending: false });
+
+  const referralList =
+    document.getElementById("referralList");
+
+  if (error) {
+    referralList.textContent = "Unable to load referrals.";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    referralList.textContent = "No referrals yet.";
+    return;
+  }
+
+  referralList.innerHTML = "";
+
+  for (const referral of data) {
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("full_name")
+      .eq("id", referral.referred_user_id)
+      .single();
+
+    const name =
+      profile?.full_name || "New user";
+
+    const item = document.createElement("p");
+
+    item.innerHTML =
+      "<strong>" + name + "</strong> — ₦" +
+      Number(referral.reward || 0).toFixed(2) +
+      " — " + referral.status;
+
+    referralList.appendChild(item);
+  }
+}
+
+function copyReferralLink() {
+  const input =
+    document.getElementById("referralLink");
+
+  navigator.clipboard.writeText(input.value);
+
+  alert("Referral link copied!");
+    }
 
 </body>
     </html>
