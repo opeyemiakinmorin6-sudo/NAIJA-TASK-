@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Naija Task — Complete Tasks. Earn Naira.</title>
-
-<style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Naija Task — Complete Tasks. Earn Naira.</title><style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -93,234 +88,64 @@ footer {
   padding: 25px;
   color: #777;
 }
-</style>
-</head>
-
-<body>
-
-<header>
+</style></head><body><header>
   <h1>Naija Task</h1>
   <p>Complete Tasks. Earn Naira.</p>
-</header>
-
-<section class="hero">
-
-  <h2>Earn by Completing Simple Tasks</h2>
-
-  <p>
+</header><section class="hero">  <h2>Earn by Completing Simple Tasks</h2>  <p>
     Complete available tasks, submit proof, and earn rewards
     directly into your Naija Task wallet.
-  </p>
-
-  <button class="primary" onclick="showSignup()">
+  </p>  <button class="primary" onclick="showSignup()">
     Create Account
-  </button>
-
-  <button class="secondary" onclick="showLogin()">
+  </button>  <button class="secondary" onclick="showLogin()">
     Login
-  </button>
+  </button></section><div id="loginBox" class="form-box">  <h2>Login to Naija Task</h2><input
+type="email"
+id="loginEmail"
+placeholder="Email address"
 
-</section>
+«»
 
-<div id="loginBox" class="form-box">
+<input
+type="password"
+id="loginPassword"
+placeholder="Password"
 
-  <h2>Login to Naija Task</h2>
-
-  <input
-    type="email"
-    id="loginEmail"
-    placeholder="Email address"
-  >
-
-  <input
-    type="password"
-    id="loginPassword"
-    placeholder="Password"
-  >
+«»
 
   <button class="primary" onclick="loginUser()">
     Login
-  </button>
+  </button>  <p id="loginMessage" class="message"></p></div><div id="signupBox" class="form-box">  <h2>Create Naija Task Account</h2><input
+type="text"
+id="signupName"
+placeholder="Full name"
 
-  <p id="loginMessage" class="message"></p>
+«»
 
-</div>
+<input
+type="email"
+id="signupEmail"
+placeholder="Email address"
 
-<div id="signupBox" class="form-box">
+«»
 
-  <h2>Create Naija Task Account</h2>
+<input
+type="password"
+id="signupPassword"
+placeholder="Password"
 
-  <input
-    type="text"
-    id="signupName"
-    placeholder="Full name"
-  >
-
-  <input
-    type="email"
-    id="signupEmail"
-    placeholder="Email address"
-  >
-
-  <input
-    type="password"
-    id="signupPassword"
-    placeholder="Password"
-  >
+«»
 
   <button class="primary" onclick="signupUser()">
     Create Account
-  </button>
-
-  <p id="signupMessage" class="message"></p>
-
-</div>
-
-<footer>
+  </button>  <p id="signupMessage" class="message"></p></div><footer>
   © 2026 Naija Task — Complete Tasks. Earn Naira.
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
+</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 const SUPABASE_KEY =
   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-function showLogin() {
-
-  document.getElementById("signupBox").style.display = "none";
-
-  document.getElementById("loginBox").style.display = "block";
-
-}
-
-
-function showSignup() {
-
-  document.getElementById("loginBox").style.display = "none";
-
-  document.getElementById("signupBox").style.display = "block";
-
-}
-
-
-async function loginUser() {
-
-  const email =
-    document.getElementById("loginEmail").value.trim();
-
-  const password =
-    document.getElementById("loginPassword").value;
-
-  const message =
-    document.getElementById("loginMessage");
-
-  if (!email || !password) {
-
-    message.textContent =
-      "Please enter your email and password.";
-
-    return;
-  }
-
-  message.textContent = "Logging in...";
-
-  const { error } =
-    await supabaseClient.auth.signInWithPassword({
-      email: email,
-      password: password
-    });
-
-  if (error) {
-
-    message.textContent = error.message;
-
-    return;
-  }
-
-  window.location.href = "dashboard.html";
-
-}
-
-
-async function signupUser() {
-
-  const name =
-    document.getElementById("signupName").value.trim();
-
-  const email =
-    document.getElementById("signupEmail").value.trim();
-
-  const password =
-    document.getElementById("signupPassword").value;
-
-  const message =
-    document.getElementById("signupMessage");
-
-  if (!name || !email || !password) {
-
-    message.textContent =
-      "Please fill in all fields.";
-
-    return;
-  }
-
-  if (password.length < 6) {
-
-    message.textContent =
-      "Password must be at least 6 characters.";
-
-    return;
-  }
-
-  message.textContent =
-    "Creating your account...";
-
-  const { error } =
-    await supabaseClient.auth.signUp({
-
-      email: email,
-
-      password: password,
-
-      options: {
-        data: {
-          full_name: name
-        }
-      }
-
-    });
-
-  if (error) {
-
-    message.textContent = error.message;
-
-    return;
-  }
-
-  message.textContent =
-    "Account created successfully! You can now log in.";
-
-}
-
-</script>
-<script>
-
-const SUPABASE_URL = https://jwakveeiynpakunwjzkj.supabase.co/rest/v1/
-  
-
-const SUPABASE_KEY = sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D
-  
 
 const supabaseClient =
   window.supabase.createClient(
@@ -362,7 +187,6 @@ async function loginUser() {
   const message =
     document.getElementById("loginMessage");
 
-
   if (!email || !password) {
 
     message.textContent =
@@ -371,10 +195,8 @@ async function loginUser() {
     return;
   }
 
-
   message.textContent =
     "Logging in...";
-
 
   const { error } =
     await supabaseClient.auth.signInWithPassword({
@@ -385,7 +207,6 @@ async function loginUser() {
 
     });
 
-
   if (error) {
 
     message.textContent =
@@ -394,10 +215,8 @@ async function loginUser() {
     return;
   }
 
-
   message.textContent =
     "Login successful!";
-
 
   setTimeout(() => {
 
@@ -405,7 +224,6 @@ async function loginUser() {
       "dashboard.html";
 
   }, 1000);
-
 }
 
 
@@ -423,7 +241,6 @@ async function signupUser() {
   const message =
     document.getElementById("signupMessage");
 
-
   if (!name || !email || !password) {
 
     message.textContent =
@@ -431,7 +248,6 @@ async function signupUser() {
 
     return;
   }
-
 
   if (password.length < 6) {
 
@@ -441,10 +257,8 @@ async function signupUser() {
     return;
   }
 
-
   message.textContent =
     "Creating your account...";
-
 
   try {
 
@@ -465,7 +279,6 @@ async function signupUser() {
 
       });
 
-
     if (error) {
 
       message.textContent =
@@ -473,7 +286,6 @@ async function signupUser() {
 
       return;
     }
-
 
     message.textContent =
       "Account created successfully! You can now log in.";
@@ -487,7 +299,5 @@ async function signupUser() {
 
 }
 
-</script>
-
-</body>
-                                 </html> 
+</script></body>
+</html>
