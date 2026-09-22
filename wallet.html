@@ -4,9 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Wallet — Naija Task</title>
+<title>Wallet — NAIJA TASK</title>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -21,33 +25,24 @@ header {
   text-align: center;
 }
 
+header h1 {
+  margin: 0 0 6px;
+}
+
+header p {
+  margin: 0;
+}
+
 .container {
   max-width: 600px;
   margin: auto;
   padding: 20px;
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-
-.balance {
-  text-align: center;
-}
-
-.balance h2 {
-  color: #0b8f3c;
-  font-size: 32px;
-}
-
 .nav {
   display: grid;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .nav a {
@@ -56,21 +51,59 @@ header {
   color: #0b8f3c;
   text-decoration: none;
   padding: 13px;
-  border-radius: 8px;
+  border-radius: 9px;
   text-align: center;
   font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.balance {
+  text-align: center;
+}
+
+.balance h3 {
+  margin-top: 0;
+}
+
+.balance h2 {
+  color: #0b8f3c;
+  font-size: 34px;
+  margin: 12px 0;
+}
+
+.status {
+  color: #777;
+  font-size: 14px;
 }
 
 .transaction {
-  border-top: 1px solid #ddd;
-  padding: 12px 0;
+  border-top: 1px solid #eee;
+  padding: 15px 0;
 }
 
 .transaction:first-child {
   border-top: none;
+  padding-top: 5px;
 }
 
-.status {
+.transaction p {
+  margin: 7px 0;
+}
+
+.transaction small {
+  color: #777;
+}
+
+.message {
+  text-align: center;
   color: #777;
 }
 </style>
@@ -79,21 +112,22 @@ header {
 <body>
 
 <header>
-  <h1>Naija Task</h1>
+  <h1>NAIJA TASK</h1>
   <p>My Wallet</p>
 </header>
 
 <div class="container">
 
   <div class="nav">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="tasks.html">Tasks</a>
-    <a href="referrals.html">Referrals</a>
-    <a href="withdraw.html">Withdraw</a>
-    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="task.html">📋 Tasks</a>
+    <a href="referrals.html">👥 Referrals</a>
+    <a href="withdrawal.html">💸 Withdraw</a>
+    <a href="profile.html">👤 Profile</a>
   </div>
 
   <div class="card balance">
+
     <h3>Wallet Balance</h3>
 
     <h2>
@@ -103,14 +137,19 @@ header {
     <p id="walletStatus" class="status">
       Loading wallet...
     </p>
+
   </div>
 
   <div class="card">
+
     <h3>Wallet Transactions</h3>
 
     <div id="transactions">
-      Loading transactions...
+      <p class="message">
+        Loading transactions...
+      </p>
     </div>
+
   </div>
 
 </div>
@@ -118,11 +157,16 @@ header {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
+/*
+  Put your current Supabase publishable key here.
+  Do NOT use the secret/service-role key.
+*/
+const SUPABASE_KEY =
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 const supabaseClient =
   window.supabase.createClient(
@@ -130,16 +174,30 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
+
 async function loadWallet() {
 
+  const walletStatus =
+    document.getElementById("walletStatus");
+
+  const transactionsBox =
+    document.getElementById("transactions");
+
+
   const {
-    data: { user }
+    data: { user },
+    error: userError
   } = await supabaseClient.auth.getUser();
 
-  if (!user) {
-    window.location.href = "index.html";
+
+  if (userError || !user) {
+
+    window.location.href =
+      "index.html";
+
     return;
   }
+
 
   const {
     data: profile,
@@ -150,17 +208,29 @@ async function loadWallet() {
     .eq("id", user.id)
     .single();
 
+
   if (profileError) {
-    document.getElementById("walletStatus").textContent =
+
+    console.error(profileError);
+
+    walletStatus.textContent =
       "Unable to load wallet.";
+
     return;
   }
 
-  document.getElementById("balance").textContent =
-    Number(profile.balance || 0).toFixed(2);
 
-  document.getElementById("walletStatus").textContent =
+  document.getElementById(
+    "balance"
+  ).textContent =
+    Number(
+      profile?.balance || 0
+    ).toFixed(2);
+
+
+  walletStatus.textContent =
     "Wallet loaded successfully.";
+
 
   const {
     data: transactions,
@@ -170,27 +240,43 @@ async function loadWallet() {
     .select(
       "id, type, amount, description, reference, status, created_at"
     )
-    .eq("user_id", user.id)
-    .order("created_at", {
-      ascending: false
-    });
+    .eq(
+      "user_id",
+      user.id
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    );
 
-  const box =
-    document.getElementById("transactions");
 
   if (transactionError) {
-    box.textContent =
-      "Unable to load transactions.";
+
+    console.error(transactionError);
+
+    transactionsBox.innerHTML =
+      '<p class="message">Unable to load transactions.</p>';
+
     return;
   }
 
-  if (!transactions || transactions.length === 0) {
-    box.textContent =
-      "No wallet transactions yet.";
+
+  if (
+    !transactions ||
+    transactions.length === 0
+  ) {
+
+    transactionsBox.innerHTML =
+      '<p class="message">No wallet transactions yet.</p>';
+
     return;
   }
 
-  box.innerHTML = "";
+
+  transactionsBox.innerHTML = "";
+
 
   transactions.forEach(transaction => {
 
@@ -200,31 +286,58 @@ async function loadWallet() {
     div.className =
       "transaction";
 
-    div.innerHTML = `
-      <strong>
-        ${transaction.type || "Transaction"}
-      </strong>
 
-      <p>
-        Amount: ₦${Number(
-          transaction.amount || 0
-        ).toFixed(2)}
-      </p>
+    const title =
+      document.createElement("strong");
 
-      <p>
-        ${transaction.description || ""}
-      </p>
+    title.textContent =
+      transaction.type ||
+      "Transaction";
 
-      <small>
-        Status: ${transaction.status || "N/A"}
-      </small>
-    `;
 
-    box.appendChild(div);
+    const amount =
+      document.createElement("p");
+
+    amount.textContent =
+      "Amount: ₦" +
+      Number(
+        transaction.amount || 0
+      ).toFixed(2);
+
+
+    const description =
+      document.createElement("p");
+
+    description.textContent =
+      transaction.description ||
+      "";
+
+
+    const status =
+      document.createElement("small");
+
+    status.textContent =
+      "Status: " +
+      (
+        transaction.status ||
+        "N/A"
+      );
+
+
+    div.appendChild(title);
+    div.appendChild(amount);
+    div.appendChild(description);
+    div.appendChild(status);
+
+    transactionsBox.appendChild(div);
+
   });
+
 }
 
+
 loadWallet();
+
 </script>
 
 </body>
