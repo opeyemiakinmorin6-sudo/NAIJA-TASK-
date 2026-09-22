@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Referrals — Naija Task</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #111;
+}
+
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.nav {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.nav a {
+  display: block;
+  background: white;
+  color: #0b8f3c;
+  text-decoration: none;
+  padding: 13px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+button {
+  background: #0b8f3c;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+}
+
+.referral {
+  border-top: 1px solid #ddd;
+  padding: 12px 0;
+}
+
+.referral:first-child {
+  border-top: none;
+}
+
+.status {
+  color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Naija Task</h1>
+  <p>Referrals</p>
+</header>
+
+<div class="container">
+
+  <div class="nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="wallet.html">Wallet</a>
+    <a href="withdraw.html">Withdraw</a>
+    <a href="profile.html">Profile</a>
+  </div>
+
+  <div class="card">
+    <h3>Your Referral Link</h3>
+
+    <input
+      id="referralLink"
+      type="text"
+      readonly
+    >
+
+    <button onclick="copyReferralLink()">
+      Copy Referral Link
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>Your Referrals</h3>
+
+    <div id="referralList">
+      Loading referrals...
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY = "";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+async function loadReferrals() {
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const referralLink =
+    window.location.origin +
+    window.location.pathname.replace(
+      "referrals.html",
+      ""
+    ) +
+    "?ref=" +
+    user.id;
+
+  document.getElementById(
+    "referralLink"
+  ).value = referralLink;
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("referrals")
+    .select(
+      "referred_user_id, reward, status"
+    )
+    .eq("referrer_id", user.id)
+    .order("id", {
+      ascending: false
+    });
+
+  const referralList =
+    document.getElementById(
+      "referralList"
+    );
+
+  if (error) {
+    referralList.textContent =
+      "Unable to load referrals.";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    referralList.textContent =
+      "No referrals yet.";
+    return;
+  }
+
+  referralList.innerHTML = "";
+
+  for (const referral of data) {
+
+    const {
+      data: profile
+    } = await supabaseClient
+      .from("profiles")
+      .select("full_name")
+      .eq(
+        "id",
+        referral.referred_user_id
+      )
+      .single();
+
+    const name =
+      profile?.full_name ||
+      "New user";
+
+    const item =
+      document.createElement("div");
+
+    item.className = "referral";
+
+    item.innerHTML =
+      "<strong>" +
+      name +
+      "</strong>" +
+      "<p>Reward: ₦" +
+      Number(
+        referral.reward || 0
+      ).toFixed(2) +
+      "</p>" +
+      "<p>Status: " +
+      (referral.status || "N/A") +
+      "</p>";
+
+    referralList.appendChild(item);
+  }
+}
+
+function copyReferralLink() {
+
+  const input =
+    document.getElementById(
+      "referralLink"
+    );
+
+  navigator.clipboard
+    .writeText(input.value);
+
+  alert(
+    "Referral link copied!"
+  );
+}
+
+loadReferrals();
+</script>
+
+</body>
+  </html>
