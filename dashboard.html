@@ -286,8 +286,10 @@ async function loadTasks() {
     error
   } = await supabaseClient
     .from("tasks")
-    .select(
-      "id, title, description, reward, slots, expiry_date"
+    
+   .select(
+  "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions"
+)
     )
     .eq("active", true) 
     .order("created_at", {
@@ -332,6 +334,11 @@ async function loadTasks() {
       <p>${task.description || ""}</p>
 
       <p>
+<p>
+  <strong>Proof:</strong>
+  ${task.proof_required ? (task.proof_type || "text") : "No proof required"}
+</p>
+
         <strong>
           Reward: ₦${Number(task.reward).toFixed(2)}
         </strong>
