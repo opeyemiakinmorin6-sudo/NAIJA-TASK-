@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Wallet — Naija Task</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #111;
+}
+
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.balance {
+  text-align: center;
+}
+
+.balance h2 {
+  color: #0b8f3c;
+  font-size: 32px;
+}
+
+.nav {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.nav a {
+  display: block;
+  background: white;
+  color: #0b8f3c;
+  text-decoration: none;
+  padding: 13px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.transaction {
+  border-top: 1px solid #ddd;
+  padding: 12px 0;
+}
+
+.transaction:first-child {
+  border-top: none;
+}
+
+.status {
+  color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Naija Task</h1>
+  <p>My Wallet</p>
+</header>
+
+<div class="container">
+
+  <div class="nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="referrals.html">Referrals</a>
+    <a href="withdraw.html">Withdraw</a>
+    <a href="profile.html">Profile</a>
+  </div>
+
+  <div class="card balance">
+    <h3>Wallet Balance</h3>
+
+    <h2>
+      ₦<span id="balance">0.00</span>
+    </h2>
+
+    <p id="walletStatus" class="status">
+      Loading wallet...
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Wallet Transactions</h3>
+
+    <div id="transactions">
+      Loading transactions...
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY = "";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+async function loadWallet() {
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const {
+    data: profile,
+    error: profileError
+  } = await supabaseClient
+    .from("profiles")
+    .select("balance")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    document.getElementById("walletStatus").textContent =
+      "Unable to load wallet.";
+    return;
+  }
+
+  document.getElementById("balance").textContent =
+    Number(profile.balance || 0).toFixed(2);
+
+  document.getElementById("walletStatus").textContent =
+    "Wallet loaded successfully.";
+
+  const {
+    data: transactions,
+    error: transactionError
+  } = await supabaseClient
+    .from("wallet_transactions")
+    .select(
+      "id, type, amount, description, reference, status, created_at"
+    )
+    .eq("user_id", user.id)
+    .order("created_at", {
+      ascending: false
+    });
+
+  const box =
+    document.getElementById("transactions");
+
+  if (transactionError) {
+    box.textContent =
+      "Unable to load transactions.";
+    return;
+  }
+
+  if (!transactions || transactions.length === 0) {
+    box.textContent =
+      "No wallet transactions yet.";
+    return;
+  }
+
+  box.innerHTML = "";
+
+  transactions.forEach(transaction => {
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "transaction";
+
+    div.innerHTML = `
+      <strong>
+        ${transaction.type || "Transaction"}
+      </strong>
+
+      <p>
+        Amount: ₦${Number(
+          transaction.amount || 0
+        ).toFixed(2)}
+      </p>
+
+      <p>
+        ${transaction.description || ""}
+      </p>
+
+      <small>
+        Status: ${transaction.status || "N/A"}
+      </small>
+    `;
+
+    box.appendChild(div);
+  });
+}
+
+loadWallet();
+</script>
+
+</body>
+</html>
