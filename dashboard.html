@@ -358,13 +358,61 @@ async function loadTasks() {
 }
 
 
-function startTask(taskId) {
 
-  alert(
-    "Task selected. Proof submission will be added next."
+
+  async function startTask(taskId) {
+
+  const { data: task, error } = await supabaseClient
+    .from("tasks")
+    .select("id, title, description, reward, proof_type, proof_required")
+    .eq("id", taskId)
+    .single();
+
+  if (error || !task) {
+    alert("Unable to load this task.");
+    return;
+  }
+
+  const proof = prompt(
+    "Complete the task first, then enter your proof" +
+    (task.proof_type ? " (" + task.proof_type + ")" : "") +
+    ":"
   );
 
-}
+  if (proof === null) return;
+
+  if (task.proof_required && !proof.trim()) {
+    alert("Proof is required.");
+    return;
+  }
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    alert("Please log in again.");
+    return;
+  }
+
+  const { error: submissionError } = await supabaseClient
+    .from("task_submissions")
+    .insert({
+      user_id: user.id,
+      task_id: task.id,
+      proof: proof.trim(),
+      status: "PENDING"
+    });
+
+  if (submissionError) {
+    alert("Submission failed: " + submissionError.message);
+    return;
+  }
+
+  alert("Task submitted successfully. Your proof is now pending review.");
+  }
+    
+  
+
+
 
 
 async function logoutUser() {
