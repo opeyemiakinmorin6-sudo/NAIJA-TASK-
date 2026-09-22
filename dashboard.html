@@ -17,7 +17,7 @@ body {
 header {
   background: #0b8f3c;
   color: white;
-  padding: 20px;
+  padding: 25px 20px;
   text-align: center;
 }
 
@@ -39,54 +39,29 @@ header h1 {
   box-shadow: 0 3px 12px rgba(0,0,0,0.08);
 }
 
-.balance {
+.menu {
+  display: grid;
+  gap: 12px;
+}
+
+.menu a {
+  display: block;
+  padding: 16px;
+  background: #0b8f3c;
+  color: white;
+  text-decoration: none;
   text-align: center;
-}
-
-.balance h2 {
-  color: #0b8f3c;
-  font-size: 32px;
-}
-
-button {
-  border: none;
-  padding: 12px 18px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 15px;
+  border-radius: 10px;
+  font-weight: bold;
 }
 
 .logout {
   background: white;
   color: #0b8f3c;
-}
-
-.task {
-  border-top: 1px solid #ddd;
-  padding: 15px 0;
-}
-
-.task:first-child {
-  border-top: none;
-}
-
-.task button {
-  background: #0b8f3c;
-  color: white;
-}
-
-.status {
-  color: #777;
-}
-
-.activation-button {
-  background: #0b8f3c;
-  color: white;
-}
-
-#activationInfo {
-  display: none;
-  margin-top: 15px;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  margin-top: 10px;
 }
 </style>
 </head>
@@ -94,111 +69,70 @@ button {
 <body>
 
 <header>
+
   <h1>Naija Task</h1>
+
   <p>Complete Tasks. Earn Naira.</p>
 
   <button class="logout" onclick="logoutUser()">
     Logout
   </button>
+
 </header>
 
 <div class="container">
 
-  <div class="card balance">
+  <div class="card">
 
-    <h3>Wallet Balance</h3>
+    <h3>Welcome</h3>
 
-    <h2>
-      ₦<span id="balance">0.00</span>
-    </h2>
-
-    <p id="activationStatus" class="status">
-      Checking account status...
+    <p id="welcomeText">
+      Checking account...
     </p>
 
   </div>
-
-
-  <div class="card" id="activationCard">
-
-    <h3>Account Activation</h3>
-
-    <p>
-      Activate your Naija Task account to unlock earning
-      features available to activated users.
-    </p>
-
-    <p>
-      <strong>Activation fee: ₦1,000</strong>
-    </p>
-
-    <button
-      class="activation-button"
-      onclick="showActivationInfo()"
-    >
-      View Activation Details
-    </button>
-
-    <div id="activationInfo">
-
-      <p>
-        The ₦1,000 fee is an account activation/verification fee.
-        Please review the activation information before making
-        any payment.
-      </p>
-
-      <p>
-        <strong>Payment status:</strong>
-        <span id="paymentStatus">Not activated</span>
-      </p>
-
-    </div>
-
-  </div>
-
 
   <div class="card">
 
-    <h3>Available Tasks</h3>
-<div class="card">
-  <h3>Referrals</h3>
+    <h3>My Account</h3>
 
-  <p>
-    Share your referral link and earn rewards when eligible referrals are approved.
-  </p>
+    <div class="menu">
 
-  <input
-    id="referralLink"
-    type="text"
-    readonly
-    style="width:100%;padding:10px;box-sizing:border-box;margin-bottom:10px;"
-  >
+      <a href="tasks.html">
+        📋 Tasks
+      </a>
 
-  <button
-    onclick="copyReferralLink()"
-    style="background:#0b8f3c;color:white;"
-  >
-    Copy Referral Link
-  </button>
+      <a href="wallet.html">
+        💰 Wallet
+      </a>
 
-  <div id="referralList" style="margin-top:15px;">
-    Loading referrals...
-  </div>
-</div>
-    <div id="tasks">
-      Loading tasks...
+      <a href="referrals.html">
+        👥 Referrals
+      </a>
+
+      <a href="withdraw.html">
+        💸 Withdraw
+      </a>
+
+      <a href="profile.html">
+        👤 Profile
+      </a>
+
     </div>
 
   </div>
 
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-  const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY = "";
+
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
@@ -206,213 +140,35 @@ const supabaseClient =
   );
 
 
-async function loadDashboard() {
+async function checkUser() {
 
   const {
     data: { user }
   } = await supabaseClient.auth.getUser();
 
-
   if (!user) {
 
-    window.location.href = "index.html";
+    window.location.href =
+      "index.html";
 
     return;
   }
 
+  const { data: profile } =
+    await supabaseClient
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
 
-  const {
-    data: profile,
-    error
-  } = await supabaseClient
-    .from("profiles")
-    .select("balance, is_activated, full_name")
-    .eq("id", user.id)
-    .single();
+  const name =
+    profile?.full_name ||
+    user.email ||
+    "User";
 
-
-  if (error) {
-
-    document.getElementById("balance").textContent =
-      "0.00";
-
-    document.getElementById("activationStatus").textContent =
-      "Profile could not be loaded.";
-
-    return;
-  }
-
-
-  document.getElementById("balance").textContent =
-    Number(profile.balance || 0).toFixed(2);
-
-
-  document.getElementById("activationStatus").textContent =
-    profile.is_activated
-      ? "Account activated"
-      : "Account not activated";
-
-
-  if (profile.is_activated) {
-
-    document.getElementById("activationCard").style.display =
-      "none";
-
-  }
-
+  document.getElementById("welcomeText").textContent =
+    "Welcome, " + name + "!";
 }
-
-
-function showActivationInfo() {
-
-  const info =
-    document.getElementById("activationInfo");
-
-  info.style.display =
-    info.style.display === "none"
-      ? "block"
-      : "none";
-}
-
-
-async function loadTasks() {
-
-  const tasksBox =
-    document.getElementById("tasks");
-
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("tasks")
-    
-   .select(
-  "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions"
-)
-    )
-    .eq("active", true) 
-    .order("created_at", {
-      ascending: false
-    });
-
-
-  if (error) {
-
-    tasksBox.textContent =
-      "Unable to load tasks.";
-
-    return;
-  }
-
-
-  if (!data || data.length === 0) {
-
-    tasksBox.textContent =
-      "No tasks available right now.";
-
-    return;
-  }
-
-
-  tasksBox.innerHTML = "";
-
-
-  data.forEach(task => {
-
-    const div =
-      document.createElement("div");
-
-    div.className =
-      "task";
-
-
-    div.innerHTML = `
-
-      <h4>${task.title}</h4>
-
-      <p>${task.description || ""}</p>
-
-      <p>
-<p>
-  <strong>Proof:</strong>
-  ${task.proof_required ? (task.proof_type || "text") : "No proof required"}
-</p>
-
-        <strong>
-          Reward: ₦${Number(task.reward).toFixed(2)}
-        </strong>
-      </p>
-
-      <button onclick="startTask(${task.id})">
-        View Task
-      </button>
-
-    `;
-
-
-    tasksBox.appendChild(div);
-
-  });
-
-}
-
-
-
-
-  async function startTask(taskId) {
-
-  const { data: task, error } = await supabaseClient
-    .from("tasks")
-    .select("id, title, description, reward, proof_type, proof_required")
-    .eq("id", taskId)
-    .single();
-
-  if (error || !task) {
-    alert("Unable to load this task.");
-    return;
-  }
-
-  const proof = prompt(
-    "Complete the task first, then enter your proof" +
-    (task.proof_type ? " (" + task.proof_type + ")" : "") +
-    ":"
-  );
-
-  if (proof === null) return;
-
-  if (task.proof_required && !proof.trim()) {
-    alert("Proof is required.");
-    return;
-  }
-
-  const { data: { user } } = await supabaseClient.auth.getUser();
-
-  if (!user) {
-    alert("Please log in again.");
-    return;
-  }
-
-  const { error: submissionError } = await supabaseClient
-    .from("task_submissions")
-    .insert({
-      user_id: user.id,
-      task_id: task.id,
-      proof: proof.trim(),
-      status: "PENDING"
-    });
-
-  if (submissionError) {
-    alert("Submission failed: " + submissionError.message);
-    return;
-  }
-
-  alert("Task submitted successfully. Your proof is now pending review.");
-  }
-    
-  
-
-
 
 
 async function logoutUser() {
@@ -421,78 +177,12 @@ async function logoutUser() {
 
   window.location.href =
     "index.html";
-
 }
 
-loadDashboard();
-loadTasks();
-loadReferrals();
 
-async function loadReferrals() {
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
+checkUser();
 
-  if (!user) return;
-
-  const referralLink =
-    window.location.origin +
-    window.location.pathname.replace("dashboard.html", "") +
-    "?ref=" +
-    user.id;
-
-  document.getElementById("referralLink").value = referralLink;
-
-  const { data, error } = await supabaseClient
-    .from("referrals")
-    .select("referred_user_id, reward, status")
-    .eq("referrer_id", user.id)
-    .order("id", { ascending: false });
-
-  const referralList =
-    document.getElementById("referralList");
-
-  if (error) {
-    referralList.textContent = "Unable to load referrals.";
-    return;
-  }
-
-  if (!data || data.length === 0) {
-    referralList.textContent = "No referrals yet.";
-    return;
-  }
-
-  referralList.innerHTML = "";
-
-  for (const referral of data) {
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("full_name")
-      .eq("id", referral.referred_user_id)
-      .single();
-
-    const name =
-      profile?.full_name || "New user";
-
-    const item = document.createElement("p");
-
-    item.innerHTML =
-      "<strong>" + name + "</strong> — ₦" +
-      Number(referral.reward || 0).toFixed(2) +
-      " — " + referral.status;
-
-    referralList.appendChild(item);
-  }
-}
-
-function copyReferralLink() {
-  const input =
-    document.getElementById("referralLink");
-
-  navigator.clipboard.writeText(input.value);
-
-  alert("Referral link copied!");
-    }
+</script>
 
 </body>
-    </html>
+</html>
