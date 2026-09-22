@@ -3,10 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-8
-<title>Referrals — Naija Task</title>
+
+<title>Referrals — NAIJA TASK</title>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -21,24 +25,24 @@ header {
   text-align: center;
 }
 
+header h1 {
+  margin: 0 0 6px;
+}
+
+header p {
+  margin: 0;
+}
+
 .container {
   max-width: 600px;
   margin: auto;
   padding: 20px;
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-
 .nav {
   display: grid;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .nav a {
@@ -47,39 +51,55 @@ header {
   color: #0b8f3c;
   text-decoration: none;
   padding: 13px;
-  border-radius: 8px;
+  border-radius: 9px;
   text-align: center;
   font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
 }
 
 input {
   width: 100%;
-  padding: 12px;
-  box-sizing: border-box;
+  padding: 13px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin: 8px 0 10px;
+  font-size: 14px;
 }
 
 button {
+  width: 100%;
   background: #0b8f3c;
   color: white;
   border: none;
-  padding: 12px 18px;
+  padding: 13px;
   border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
 }
 
 .referral {
-  border-top: 1px solid #ddd;
-  padding: 12px 0;
+  border-top: 1px solid #eee;
+  padding: 14px 0;
 }
 
 .referral:first-child {
   border-top: none;
 }
 
+.referral p {
+  margin: 7px 0;
+}
+
 .status {
-  color: #777;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -87,18 +107,18 @@ button {
 <body>
 
 <header>
-  <h1>Naija Task</h1>
+  <h1>NAIJA TASK</h1>
   <p>Referrals</p>
 </header>
 
 <div class="container">
 
   <div class="nav">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="tasks.html">Tasks</a>
-    <a href="wallet.html">Wallet</a>
-    <a href="withdraw.html">Withdraw</a>
-    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="task.html">📋 Tasks</a>
+    <a href="wallet.html">💰 Wallet</a>
+    <a href="withdrawal.html">💸 Withdraw</a>
+    <a href="profile.html">👤 Profile</a>
   </div>
 
   <div class="card">
@@ -128,10 +148,16 @@ button {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+/*
+  Put your current publishable key here.
+  Do NOT use the secret/service-role key.
+*/
+const SUPABASE_KEY =
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 const supabaseClient =
   window.supabase.createClient(
@@ -139,13 +165,15 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
+
 async function loadReferrals() {
 
   const {
-    data: { user }
+    data: { user },
+    error: userError
   } = await supabaseClient.auth.getUser();
 
-  if (!user) {
+  if (userError || !user) {
     window.location.href = "index.html";
     return;
   }
@@ -163,6 +191,7 @@ async function loadReferrals() {
     "referralLink"
   ).value = referralLink;
 
+
   const {
     data,
     error
@@ -171,31 +200,50 @@ async function loadReferrals() {
     .select(
       "referred_user_id, reward, status"
     )
-    .eq("referrer_id", user.id)
+    .eq(
+      "referrer_user_id",
+      user.id
+    )
     .order("id", {
       ascending: false
     });
+
 
   const referralList =
     document.getElementById(
       "referralList"
     );
 
+
   if (error) {
+    console.error(error);
+
     referralList.textContent =
       "Unable to load referrals.";
+
     return;
   }
 
+
   if (!data || data.length === 0) {
+
     referralList.textContent =
       "No referrals yet.";
+
     return;
   }
+
 
   referralList.innerHTML = "";
 
+
   for (const referral of data) {
+
+    const item =
+      document.createElement("div");
+
+    item.className = "referral";
+
 
     const {
       data: profile
@@ -208,49 +256,69 @@ async function loadReferrals() {
       )
       .single();
 
+
     const name =
       profile?.full_name ||
       "New user";
 
-    const item =
-      document.createElement("div");
-
-    item.className = "referral";
 
     item.innerHTML =
       "<strong>" +
       name +
       "</strong>" +
+
       "<p>Reward: ₦" +
       Number(
         referral.reward || 0
       ).toFixed(2) +
       "</p>" +
-      "<p>Status: " +
-      (referral.status || "N/A") +
+
+      "<p class='status'>Status: " +
+      (
+        referral.status ||
+        "PENDING"
+      ) +
       "</p>";
+
 
     referralList.appendChild(item);
   }
 }
 
-function copyReferralLink() {
+
+async function copyReferralLink() {
 
   const input =
     document.getElementById(
       "referralLink"
     );
 
-  navigator.clipboard
-    .writeText(input.value);
+  try {
 
-  alert(
-    "Referral link copied!"
-  );
+    await navigator.clipboard.writeText(
+      input.value
+    );
+
+    alert(
+      "Referral link copied!"
+    );
+
+  } catch (error) {
+
+    input.select();
+
+    document.execCommand("copy");
+
+    alert(
+      "Referral link copied!"
+    );
+  }
 }
 
+
 loadReferrals();
+
 </script>
 
 </body>
-  </html>
+</html>
