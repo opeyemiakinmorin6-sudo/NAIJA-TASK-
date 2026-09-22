@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Tasks — Naija Task</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #111;
+}
+
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.task {
+  border-top: 1px solid #ddd;
+  padding: 15px 0;
+}
+
+.task:first-child {
+  border-top: none;
+}
+
+.task button {
+  background: #0b8f3c;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+}
+
+.nav {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.nav a {
+  display: block;
+  background: white;
+  color: #0b8f3c;
+  text-decoration: none;
+  padding: 13px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Naija Task</h1>
+  <p>Available Tasks</p>
+</header>
+
+<div class="container">
+
+  <div class="nav">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="wallet.html">Wallet</a>
+    <a href="referrals.html">Referrals</a>
+    <a href="withdraw.html">Withdraw</a>
+    <a href="profile.html">Profile</a>
+  </div>
+
+  <div class="card">
+    <h3>Available Tasks</h3>
+
+    <div id="tasks">
+      Loading tasks...
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY = "";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+async function loadTasks() {
+
+  const tasksBox =
+    document.getElementById("tasks");
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("tasks")
+    .select(
+      "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions"
+    )
+    .eq("active", true)
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+    tasksBox.textContent =
+      "Unable to load tasks.";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tasksBox.textContent =
+      "No tasks available right now.";
+    return;
+  }
+
+  tasksBox.innerHTML = "";
+
+  data.forEach(task => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "task";
+
+    div.innerHTML = `
+      <h4>${task.title}</h4>
+
+      <p>${task.description || ""}</p>
+
+      <p>
+        <strong>
+          Reward: ₦${Number(task.reward || 0).toFixed(2)}
+        </strong>
+      </p>
+
+      <p>
+        <strong>Proof:</strong>
+        ${
+          task.proof_required
+            ? (task.proof_type || "text")
+            : "No proof required"
+        }
+      </p>
+
+      <button onclick="startTask(${task.id})">
+        Complete Task
+      </button>
+    `;
+
+    tasksBox.appendChild(div);
+  });
+}
+
+async function startTask(taskId) {
+
+  const {
+    data: task,
+    error
+  } = await supabaseClient
+    .from("tasks")
+    .select(
+      "id, title, description, reward, proof_type, proof_required"
+    )
+    .eq("id", taskId)
+    .single();
+
+  if (error || !task) {
+    alert("Unable to load this task.");
+    return;
+  }
+
+  const proof = prompt(
+    "Complete the task first, then enter your proof" +
+    (task.proof_type
+      ? " (" + task.proof_type + ")"
+      : "") +
+    ":"
+  );
+
+  if (proof === null) return;
+
+  if (
+    task.proof_required &&
+    !proof.trim()
+  ) {
+    alert("Proof is required.");
+    return;
+  }
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    alert("Please log in again.");
+    return;
+  }
+
+  const {
+    error: submissionError
+  } = await supabaseClient
+    .from("task_submissions")
+    .insert({
+      user_id: user.id,
+      task_id: task.id,
+      proof: proof.trim(),
+      status: "PENDING"
+    });
+
+  if (submissionError) {
+    alert(
+      "Submission failed: " +
+      submissionError.message
+    );
+    return;
+  }
+
+  alert(
+    "Task submitted successfully. Your proof is pending review."
+  );
+}
+
+loadTasks();
+</script>
+
+</body>
+  </html>
