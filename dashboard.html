@@ -1,191 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dashboard — Naija Task</title>
+  <title>Dashboard — NAIJA TASK</title>
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5fff7;
-  color: #111;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-header {
-  background: #0b8f3c;
-  color: white;
-  padding: 25px 20px;
-  text-align: center;
-}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5fff7;
+      color: #111;
+    }
 
-header h1 {
-  margin: 0;
-}
+    header {
+      background: #0b8f3c;
+      color: white;
+      padding: 24px 20px;
+      text-align: center;
+    }
 
-.container {
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
-}
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
 
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
+    header p {
+      margin: 7px 0 16px;
+      opacity: 0.95;
+    }
 
-.menu {
-  display: grid;
-  gap: 12px;
-}
+    .logout {
+      border: 1px solid white;
+      background: white;
+      color: #0b8f3c;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-.menu a {
-  display: block;
-  padding: 16px;
-  background: #0b8f3c;
-  color: white;
-  text-decoration: none;
-  text-align: center;
-  border-radius: 10px;
-  font-weight: bold;
-}
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
 
-.logout {
-  background: white;
-  color: #0b8f3c;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-</style>
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .card h2,
+    .card h3 {
+      margin-top: 0;
+    }
+
+    #welcomeText {
+      margin-bottom: 0;
+      color: #555;
+    }
+
+    .menu {
+      display: grid;
+      gap: 11px;
+    }
+
+    .menu a {
+      display: block;
+      padding: 15px;
+      background: #0b8f3c;
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
+    .menu a:active {
+      transform: scale(0.98);
+    }
+
+    .status {
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+
+    .error {
+      color: #b00020;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
+  <header>
+    <h1>NAIJA TASK</h1>
+    <p>Complete Tasks. Earn Naira.</p>
 
-  <h1>Naija Task</h1>
+    <button class="logout" onclick="logoutUser()">
+      Logout
+    </button>
+  </header>
 
-  <p>Complete Tasks. Earn Naira.</p>
+  <main class="container">
 
-  <button class="logout" onclick="logoutUser()">
-    Logout
-  </button>
+    <section class="card">
+      <h2>Welcome</h2>
 
-</header>
+      <p id="welcomeText">
+        Checking your account...
+      </p>
 
-<div class="container">
+      <p id="statusText" class="status"></p>
+    </section>
 
-  <div class="card">
+    <section class="card">
+      <h3>My Account</h3>
 
-    <h3>Welcome</h3>
+      <div class="menu">
 
-    <p id="welcomeText">
-      Checking account...
-    </p>
+        <a href="task.html">
+          📋 Tasks
+        </a>
 
-  </div>
+        <a href="wallet.html">
+          💰 Wallet
+        </a>
 
-  <div class="card">
+        <a href="referrals.html">
+          👥 Referrals
+        </a>
 
-    <h3>My Account</h3>
+        <a href="withdrawal.html">
+          💸 Withdrawal
+        </a>
 
-    <div class="menu">
+        <a href="profile.html">
+          👤 Profile
+        </a>
 
-      <a href="tasks.html">
-        📋 Tasks
-      </a>
+      </div>
+    </section>
 
-      <a href="wallet.html">
-        💰 Wallet
-      </a>
+  </main>
 
-      <a href="referrals.html">
-        👥 Referrals
-      </a>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-      
-      <a href="withdrawal.html">
-        💸 Withdrawal
-      </a>
-        
-     
+  <script>
+    const SUPABASE_URL =
+      "https://jwakveeiynpakunwjzkj.supabase.co";
 
-      <a href="profile.html">
-        👤 Profile
-      </a>
+    /*
+      Use ONLY your Supabase publishable/anon key here.
+      Never put a Supabase secret/service-role key in HTML.
+    */
+    const SUPABASE_KEY =
+      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-    </div>
-
-  </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-
-const SUPABASE_URL =
-  "https://jwakveeiynpakunwjzkj.supabase.co";
-
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
 
 
-async function checkUser() {
+    async function checkUser() {
 
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
+      const welcomeText =
+        document.getElementById("welcomeText");
 
-  if (!user) {
+      const statusText =
+        document.getElementById("statusText");
 
-    window.location.href =
-      "index.html";
+      try {
 
-    return;
-  }
+        const {
+          data: { user },
+          error: userError
+        } = await supabaseClient.auth.getUser();
 
-  const { data: profile } =
-    await supabaseClient
-      .from("profiles")
-      .select("full_name")
-      .eq("id", user.id)
-      .single();
+        if (userError || !user) {
+          window.location.href = "index.html";
+          return;
+        }
 
-  const name =
-    profile?.full_name ||
-    user.email ||
-    "User";
+        const {
+          data: profile,
+          error: profileError
+        } = await supabaseClient
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .maybeSingle();
 
-  document.getElementById("welcomeText").textContent =
-    "Welcome, " + name + "!";
-}
+        if (profileError) {
+          console.error(profileError);
+
+          welcomeText.textContent =
+            "Welcome, " + (user.email || "User") + ".";
+
+          statusText.textContent =
+            "Your account is active.";
+          return;
+        }
+
+        const name =
+          profile?.full_name ||
+          user.email ||
+          "User";
+
+        welcomeText.textContent =
+          "Welcome, " + name + "!";
+
+        statusText.textContent = "";
+
+      } catch (error) {
+
+        console.error(error);
+
+        statusText.textContent =
+          "Unable to load your account.";
+
+        statusText.classList.add("error");
+      }
+    }
 
 
-async function logoutUser() {
+    async function logoutUser() {
 
-  await supabaseClient.auth.signOut();
+      try {
 
-  window.location.href =
-    "index.html";
-}
+        await supabaseClient.auth.signOut();
+
+      } finally {
+
+        window.location.href =
+          "index.html";
+      }
+    }
 
 
-checkUser();
-
-</script>
+    checkUser();
+  </script>
 
 </body>
-</html>
+  </html>
