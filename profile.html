@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Profile — Naija Task</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #111;
+}
+
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  margin: 8px 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  background: #0b8f3c;
+  color: white;
+  font-size: 15px;
+}
+
+nav a {
+  display: inline-block;
+  margin: 5px;
+  color: #0b8f3c;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.logout {
+  background: white;
+  color: #0b8f3c;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Naija Task</h1>
+  <p>My Profile</p>
+
+  <button class="logout" onclick="logoutUser()">
+    Logout
+  </button>
+</header>
+
+<div class="container">
+
+  <div class="card">
+
+    <h3>Navigation</h3>
+
+    <nav>
+      <a href="dashboard.html">Home</a>
+      <a href="tasks.html">Tasks</a>
+      <a href="wallet.html">Wallet</a>
+      <a href="referrals.html">Referrals</a>
+      <a href="withdraw.html">Withdraw</a>
+    </nav>
+
+  </div>
+
+  <div class="card">
+
+    <h3>My Profile</h3>
+
+    <label>Full Name</label>
+    <input id="fullName" type="text" placeholder="Enter your full name">
+
+    <label>Phone Number</label>
+    <input id="phone" type="text" placeholder="Enter your phone number">
+
+    <label>Email</label>
+    <input id="email" type="email" readonly>
+
+    <button onclick="saveProfile()">
+      Save Profile
+    </button>
+
+    <p id="message"></p>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY = "";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+async function loadProfile() {
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  document.getElementById("email").value =
+    user.email || "";
+
+  const { data, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("full_name, phone")
+      .eq("id", user.id)
+      .single();
+
+  if (error) {
+    document.getElementById("message").textContent =
+      "Unable to load profile.";
+    return;
+  }
+
+  document.getElementById("fullName").value =
+    data.full_name || "";
+
+  document.getElementById("phone").value =
+    data.phone || "";
+}
+
+
+async function saveProfile() {
+
+  const {
+    data: { user }
+  } = await supabaseClient.auth.getUser();
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const fullName =
+    document.getElementById("fullName").value.trim();
+
+  const phone =
+    document.getElementById("phone").value.trim();
+
+  const { error } =
+    await supabaseClient
+      .from("profiles")
+      .update({
+        full_name: fullName,
+        phone: phone
+      })
+      .eq("id", user.id);
+
+  if (error) {
+    document.getElementById("message").textContent =
+      "Unable to save profile.";
+    return;
+  }
+
+  document.getElementById("message").textContent =
+    "Profile saved successfully.";
+}
+
+
+async function logoutUser() {
+
+  await supabaseClient.auth.signOut();
+
+  window.location.href = "index.html";
+}
+
+
+loadProfile();
+
+</script>
+
+</body>
+  </html>
