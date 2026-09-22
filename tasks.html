@@ -4,9 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tasks — Naija Task</title>
+<title>Tasks — NAIJA TASK</title>
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -22,6 +26,10 @@ header {
 }
 
 header h1 {
+  margin: 0 0 6px;
+}
+
+header p {
   margin: 0;
 }
 
@@ -31,35 +39,10 @@ header h1 {
   padding: 20px;
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 12px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-
-.task {
-  border-top: 1px solid #ddd;
-  padding: 15px 0;
-}
-
-.task:first-child {
-  border-top: none;
-}
-
-.task button {
-  background: #0b8f3c;
-  color: white;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 8px;
-}
-
 .nav {
   display: grid;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .nav a {
@@ -68,9 +51,59 @@ header h1 {
   color: #0b8f3c;
   text-decoration: none;
   padding: 13px;
-  border-radius: 8px;
+  border-radius: 9px;
   text-align: center;
   font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.task {
+  border-top: 1px solid #eee;
+  padding: 16px 0;
+}
+
+.task:first-child {
+  border-top: none;
+  padding-top: 5px;
+}
+
+.task h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.task p {
+  line-height: 1.5;
+}
+
+.reward {
+  color: #0b8f3c;
+  font-weight: bold;
+}
+
+.task button {
+  width: 100%;
+  background: #0b8f3c;
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.message {
+  text-align: center;
+  color: #666;
 }
 </style>
 </head>
@@ -78,25 +111,25 @@ header h1 {
 <body>
 
 <header>
-  <h1>Naija Task</h1>
+  <h1>NAIJA TASK</h1>
   <p>Available Tasks</p>
 </header>
 
 <div class="container">
 
   <div class="nav">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="wallet.html">Wallet</a>
-    <a href="referrals.html">Referrals</a>
-    <a href="withdraw.html">Withdraw</a>
-    <a href="profile.html">Profile</a>
+    <a href="dashboard.html">🏠 Dashboard</a>
+    <a href="wallet.html">💰 Wallet</a>
+    <a href="referrals.html">👥 Referrals</a>
+    <a href="withdrawal.html">💸 Withdraw</a>
+    <a href="profile.html">👤 Profile</a>
   </div>
 
   <div class="card">
     <h3>Available Tasks</h3>
 
     <div id="tasks">
-      Loading tasks...
+      <p class="message">Loading tasks...</p>
     </div>
   </div>
 
@@ -105,10 +138,16 @@ header h1 {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+/*
+  Put your current Supabase publishable key here.
+  Do NOT use the secret/service-role key.
+*/
+const SUPABASE_KEY =
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 const supabaseClient =
   window.supabase.createClient(
@@ -116,19 +155,22 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
+
 async function loadTasks() {
 
   const tasksBox =
     document.getElementById("tasks");
 
   const {
-    data: { user }
+    data: { user },
+    error: userError
   } = await supabaseClient.auth.getUser();
 
-  if (!user) {
+  if (userError || !user) {
     window.location.href = "index.html";
     return;
   }
+
 
   const {
     data,
@@ -143,19 +185,29 @@ async function loadTasks() {
       ascending: false
     });
 
+
   if (error) {
-    tasksBox.textContent =
-      "Unable to load tasks.";
+
+    console.error(error);
+
+    tasksBox.innerHTML =
+      '<p class="message">Unable to load tasks.</p>';
+
     return;
   }
+
 
   if (!data || data.length === 0) {
-    tasksBox.textContent =
-      "No tasks available right now.";
+
+    tasksBox.innerHTML =
+      '<p class="message">No tasks available right now.</p>';
+
     return;
   }
 
+
   tasksBox.innerHTML = "";
+
 
   data.forEach(task => {
 
@@ -164,34 +216,64 @@ async function loadTasks() {
 
     div.className = "task";
 
-    div.innerHTML = `
-      <h4>${task.title}</h4>
 
-      <p>${task.description || ""}</p>
+    const title =
+      document.createElement("h4");
 
-      <p>
-        <strong>
-          Reward: ₦${Number(task.reward || 0).toFixed(2)}
-        </strong>
-      </p>
+    title.textContent =
+      task.title || "Task";
 
-      <p>
-        <strong>Proof:</strong>
-        ${
-          task.proof_required
-            ? (task.proof_type || "text")
-            : "No proof required"
-        }
-      </p>
 
-      <button onclick="startTask(${task.id})">
-        Complete Task
-      </button>
-    `;
+    const description =
+      document.createElement("p");
+
+    description.textContent =
+      task.description || "";
+
+
+    const reward =
+      document.createElement("p");
+
+    reward.className = "reward";
+
+    reward.textContent =
+      "Reward: ₦" +
+      Number(task.reward || 0).toFixed(2);
+
+
+    const proof =
+      document.createElement("p");
+
+    proof.innerHTML =
+      "<strong>Proof:</strong> " +
+      (
+        task.proof_required
+          ? (task.proof_type || "Text")
+          : "No proof required"
+      );
+
+
+    const button =
+      document.createElement("button");
+
+    button.textContent =
+      "Complete Task";
+
+    button.onclick = function() {
+      startTask(task.id);
+    };
+
+
+    div.appendChild(title);
+    div.appendChild(description);
+    div.appendChild(reward);
+    div.appendChild(proof);
+    div.appendChild(button);
 
     tasksBox.appendChild(div);
   });
 }
+
 
 async function startTask(taskId) {
 
@@ -206,37 +288,79 @@ async function startTask(taskId) {
     .eq("id", taskId)
     .single();
 
+
   if (error || !task) {
-    alert("Unable to load this task.");
+
+    alert(
+      "Unable to load this task."
+    );
+
     return;
   }
 
-  const proof = prompt(
-    "Complete the task first, then enter your proof" +
-    (task.proof_type
-      ? " (" + task.proof_type + ")"
-      : "") +
-    ":"
-  );
 
-  if (proof === null) return;
+  let proof = "";
 
-  if (
-    task.proof_required &&
-    !proof.trim()
-  ) {
-    alert("Proof is required.");
-    return;
+
+  if (task.proof_required) {
+
+    proof = prompt(
+      "Complete the task first, then enter your proof." +
+      "\n\nProof type: " +
+      (task.proof_type || "text")
+    );
+
+
+    if (proof === null) {
+      return;
+    }
+
+
+    proof = proof.trim();
+
+
+    if (!proof) {
+
+      alert(
+        "Proof is required."
+      );
+
+      return;
+    }
+
+  } else {
+
+    proof = prompt(
+      "Complete the task first. Add any proof or note if required:"
+    );
+
+
+    if (proof === null) {
+      return;
+    }
+
+    proof = proof.trim();
   }
+
 
   const {
-    data: { user }
+    data: { user },
+    error: userError
   } = await supabaseClient.auth.getUser();
 
-  if (!user) {
-    alert("Please log in again.");
+
+  if (userError || !user) {
+
+    alert(
+      "Please log in again."
+    );
+
+    window.location.href =
+      "index.html";
+
     return;
   }
+
 
   const {
     error: submissionError
@@ -245,24 +369,32 @@ async function startTask(taskId) {
     .insert({
       user_id: user.id,
       task_id: task.id,
-      proof: proof.trim(),
+      proof: proof,
       status: "PENDING"
     });
 
+
   if (submissionError) {
+
+    console.error(submissionError);
+
     alert(
       "Submission failed: " +
       submissionError.message
     );
+
     return;
   }
+
 
   alert(
     "Task submitted successfully. Your proof is pending review."
   );
 }
 
+
 loadTasks();
+
 </script>
 
 </body>
