@@ -3,410 +3,529 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAIJA TASK — Login</title>
 
-  <title>NAIJA TASK — Complete Tasks. Earn Naira.</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
       background: #f5fff7;
-      color: #111;
+      color: #17221a;
+      min-height: 100vh;
     }
 
     header {
       background: #0b8f3c;
       color: white;
       text-align: center;
-      padding: 28px 16px;
+      padding: 38px 20px 32px;
+      border-radius: 0 0 30px 30px;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 32px;
+    .logo {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: .5px;
     }
 
-    header p {
-      margin: 8px 0 0;
-      font-size: 16px;
+    .tagline {
+      margin-top: 8px;
+      font-size: 14px;
+      opacity: .9;
     }
 
-    .hero {
-      text-align: center;
-      padding: 45px 20px 30px;
+    .container {
+      padding: 22px 16px 40px;
+      max-width: 480px;
+      margin: auto;
     }
 
-    .hero h2 {
-      margin: 0 0 15px;
-      font-size: 27px;
-    }
-
-    .hero p {
-      max-width: 520px;
-      margin: 0 auto 25px;
-      color: #555;
-      line-height: 1.6;
-    }
-
-    .buttons {
+    .switch {
       display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      background: #e4f4e8;
+      padding: 5px;
+      border-radius: 13px;
+      margin-bottom: 18px;
     }
 
-    button {
+    .switch button {
+      width: 50%;
       border: none;
-      padding: 14px 24px;
-      border-radius: 9px;
-      font-size: 16px;
-      font-weight: bold;
+      padding: 12px;
+      border-radius: 10px;
+      background: transparent;
+      font-weight: 700;
+      color: #4e5b52;
       cursor: pointer;
     }
 
-    .primary {
-      background: #0b8f3c;
-      color: white;
-    }
-
-    .secondary {
+    .switch button.active {
       background: white;
       color: #0b8f3c;
-      border: 2px solid #0b8f3c;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
     }
 
-    .form-box {
-      display: none;
-      width: calc(100% - 30px);
-      max-width: 430px;
-      margin: 20px auto;
-      padding: 25px;
+    .card {
       background: white;
-      border-radius: 14px;
-      box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+      padding: 22px;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.07);
     }
 
-    .form-box h2 {
-      margin-top: 0;
-      text-align: center;
-      color: #0b8f3c;
+    h2 {
+      font-size: 22px;
+      margin-bottom: 6px;
     }
 
-    .form-box input {
+    .subtitle {
+      color: #68736b;
+      font-size: 13px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    input {
       width: 100%;
-      padding: 14px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
+      padding: 13px;
+      border: 1px solid #d8e3da;
+      border-radius: 11px;
       outline: none;
+      font-size: 14px;
+      background: #fbfefc;
     }
 
-    .form-box input:focus {
+    input:focus {
       border-color: #0b8f3c;
     }
 
-    .form-box .submit-button {
-      width: 100%;
-      margin-top: 12px;
+    .ref-note {
+      font-size: 11px;
+      color: #68736b;
+      margin-top: 5px;
     }
 
-    .close-button {
+    .main-btn {
       width: 100%;
-      margin-top: 8px;
-      background: #eee;
-      color: #333;
+      border: none;
+      background: #0b8f3c;
+      color: white;
+      padding: 14px;
+      border-radius: 11px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .main-btn:disabled {
+      opacity: .7;
+      cursor: not-allowed;
     }
 
     .message {
-      min-height: 22px;
-      text-align: center;
-      margin: 12px 0 0;
-      line-height: 1.5;
-      font-size: 14px;
+      display: none;
+      margin-top: 13px;
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.4;
     }
 
-    footer {
-      text-align: center;
-      padding: 30px 15px;
-      color: #777;
-      font-size: 14px;
+    .message.show {
+      display: block;
     }
 
-    @media (max-width: 480px) {
-      header h1 {
-        font-size: 29px;
-      }
+    .message.error {
+      background: #fff0f0;
+      color: #a32323;
+    }
 
-      .hero h2 {
-        font-size: 24px;
-      }
+    .message.success {
+      background: #edf9f0;
+      color: #08752e;
+    }
 
-      .buttons {
-        flex-direction: column;
-        align-items: center;
-      }
+    .info {
+      margin-top: 20px;
+      padding: 16px;
+      background: #effaf2;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #435047;
+    }
 
-      .buttons button {
-        width: 100%;
-        max-width: 320px;
-      }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #758078;
+      font-size: 12px;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <h1>NAIJA TASK</h1>
-    <p>Complete Tasks. Earn Naira.</p>
-  </header>
+<header>
+  <div class="logo">NAIJA TASK</div>
+  <div class="tagline">Complete Tasks. Earn Naira.</div>
+</header>
 
+<main class="container">
 
-  <main>
+  <div class="switch">
+    <button id="loginTab" class="active" onclick="showLogin()">
+      Login
+    </button>
 
-    <section class="hero">
+    <button id="signupTab" onclick="showSignup()">
+      Sign Up
+    </button>
+  </div>
 
-      <h2>Earn by Completing Simple Tasks</h2>
+  <!-- LOGIN -->
 
-      <p>
-        Complete available tasks, submit proof, and earn rewards
-        into your NAIJA TASK wallet.
-      </p>
+  <section id="loginCard" class="card">
 
-      <div class="buttons">
+    <h2>Welcome back</h2>
 
-        <button
-          type="button"
-          class="primary"
-          onclick="showSignup()">
-          Create Account
-        </button>
+    <p class="subtitle">
+      Login to access your NAIJA TASK account.
+    </p>
 
-        <button
-          type="button"
-          class="secondary"
-          onclick="showLogin()">
-          Login
-        </button>
+    <form id="loginForm">
 
+      <div class="field">
+        <label>Email</label>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="Enter your email"
+          required
+        >
       </div>
 
-    </section>
+      <div class="field">
+        <label>Password</label>
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Enter your password"
+          required
+        >
+      </div>
 
-
-    <!-- LOGIN -->
-
-    <section
-      id="loginBox"
-      class="form-box"
-      aria-label="Login form">
-
-      <h2>Login to NAIJA TASK</h2>
-
-      <input
-        type="email"
-        id="loginEmail"
-        placeholder="Email address"
-        autocomplete="email">
-
-      <input
-        type="password"
-        id="loginPassword"
-        placeholder="Password"
-        autocomplete="current-password">
-
-      <button
-        type="button"
-        class="primary submit-button"
-        onclick="loginUser()">
+      <button id="loginButton" class="main-btn" type="submit">
         Login
       </button>
 
-      <p
-        id="loginMessage"
-        class="message"
-        aria-live="polite">
-      </p>
+      <div id="loginMessage" class="message"></div>
 
-      <button
-        type="button"
-        class="close-button"
-        onclick="hideForms()">
-        Close
-      </button>
+    </form>
 
-    </section>
+  </section>
 
 
-    <!-- SIGN UP -->
+  <!-- SIGNUP -->
 
-    <section
-      id="signupBox"
-      class="form-box"
-      aria-label="Create account form">
+  <section id="signupCard" class="card hidden">
 
-      <h2>Create NAIJA TASK Account</h2>
+    <h2>Create your account</h2>
 
-      <input
-        type="text"
-        id="signupName"
-        placeholder="Full name"
-        autocomplete="name">
+    <p class="subtitle">
+      Join NAIJA TASK and start completing available tasks.
+    </p>
 
-      <input
-        type="email"
-        id="signupEmail"
-        placeholder="Email address"
-        autocomplete="email">
+    <form id="signupForm">
 
-      <input
-        type="password"
-        id="signupPassword"
-        placeholder="Password"
-        autocomplete="new-password">
+      <div class="field">
+        <label>Full Name</label>
+        <input
+          type="text"
+          id="fullName"
+          placeholder="Enter your full name"
+          required
+        >
+      </div>
 
-      <button
-        type="button"
-        class="primary submit-button"
-        onclick="signupUser()">
+      <div class="field">
+        <label>Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          placeholder="08012345678"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input
+          type="email"
+          id="signupEmail"
+          placeholder="Enter your email"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <input
+          type="password"
+          id="signupPassword"
+          placeholder="Create a password"
+          minlength="6"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label>Referral Code</label>
+
+        <input
+          type="text"
+          id="referralCode"
+          placeholder="Optional"
+        >
+
+        <div class="ref-note">
+          If you joined through someone's referral link, it will be filled automatically.
+        </div>
+      </div>
+
+      <button id="signupButton" class="main-btn" type="submit">
         Create Account
       </button>
 
-      <p
-        id="signupMessage"
-        class="message"
-        aria-live="polite">
-      </p>
+      <div id="signupMessage" class="message"></div>
 
-      <button
-        type="button"
-        class="close-button"
-        onclick="hideForms()">
-        Close
-      </button>
+    </form>
 
-    </section>
+  </section>
 
-  </main>
+  <div class="info">
+    <strong>How it works</strong><br>
+    Create your account, complete available tasks, submit the required proof,
+    and approved earnings are added to your wallet.
+  </div>
 
+  <div class="footer">
+    © 2026 NAIJA TASK
+  </div>
 
-  <footer>
-    © 2026 NAIJA TASK — Complete Tasks. Earn Naira.
-  </footer>
+</main>
 
+<script>
 
-  <!-- SUPABASE -->
+  const SUPABASE_URL =
+    "https://jwakveeiynpakunwjzkj.supabase.co";
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  /*
+    Put your CURRENT Supabase PUBLISHABLE key here.
 
-  <script>
+    Do NOT use the secret/service-role key.
+  */
 
-    const SUPABASE_URL =
-      "https://jwakveeiynpakunwjzkj.supabase.co";
+  const SUPABASE_KEY =
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-    /*
-      Your Supabase publishable key goes here.
-      Do not use a secret/service-role key.
-    */
-
-    const SUPABASE_KEY =
-      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
 
-    function showLogin() {
+  /* ---------------------------
+     PAGE SWITCHING
+  ---------------------------- */
 
-      document.getElementById("signupBox").style.display = "none";
+  function showLogin() {
 
-      document.getElementById("loginBox").style.display = "block";
+    document.getElementById("loginCard")
+      .classList.remove("hidden");
 
-      document.getElementById("loginBox").scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
+    document.getElementById("signupCard")
+      .classList.add("hidden");
 
-    }
+    document.getElementById("loginTab")
+      .classList.add("active");
 
-
-    function showSignup() {
-
-      document.getElementById("loginBox").style.display = "none";
-
-      document.getElementById("signupBox").style.display = "block";
-
-      document.getElementById("signupBox").scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-    }
+    document.getElementById("signupTab")
+      .classList.remove("active");
+  }
 
 
-    function hideForms() {
+  function showSignup() {
 
-      document.getElementById("loginBox").style.display = "none";
+    document.getElementById("signupCard")
+      .classList.remove("hidden");
 
-      document.getElementById("signupBox").style.display = "none";
+    document.getElementById("loginCard")
+      .classList.add("hidden");
 
-    }
+    document.getElementById("signupTab")
+      .classList.add("active");
+
+    document.getElementById("loginTab")
+      .classList.remove("active");
+  }
 
 
-    async function signupUser() {
+  /* ---------------------------
+     REFERRAL LINK
+  ---------------------------- */
 
-      const name =
-        document.getElementById("signupName").value.trim();
+  const urlParams =
+    new URLSearchParams(window.location.search);
+
+  const referralFromLink =
+    urlParams.get("ref");
+
+  if (referralFromLink) {
+
+    document.getElementById("referralCode")
+      .value = referralFromLink;
+
+    showSignup();
+  }
+
+
+  /* ---------------------------
+     MESSAGE
+  ---------------------------- */
+
+  function showMessage(element, text, type) {
+
+    element.textContent = text;
+
+    element.className =
+      "message show " + type;
+  }
+
+
+  /* ---------------------------
+     LOGIN
+  ---------------------------- */
+
+  document.getElementById("loginForm")
+    .addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      const button =
+        document.getElementById("loginButton");
+
+      const message =
+        document.getElementById("loginMessage");
 
       const email =
-        document.getElementById("signupEmail").value.trim();
+        document.getElementById("loginEmail")
+          .value.trim();
 
       const password =
-        document.getElementById("signupPassword").value;
+        document.getElementById("loginPassword")
+          .value;
+
+      button.disabled = true;
+      button.textContent = "Logging in...";
+
+      message.className = "message";
+      message.textContent = "";
+
+      const { data, error } =
+        await supabaseClient.auth
+          .signInWithPassword({
+            email: email,
+            password: password
+          });
+
+      if (error) {
+
+        button.disabled = false;
+        button.textContent = "Login";
+
+        showMessage(
+          message,
+          error.message,
+          "error"
+        );
+
+        return;
+      }
+
+      button.textContent = "Opening account...";
+
+      window.location.href =
+        "dashboard.html";
+    });
+
+
+  /* ---------------------------
+     SIGNUP
+  ---------------------------- */
+
+  document.getElementById("signupForm")
+    .addEventListener("submit", async function(event) {
+
+      event.preventDefault();
+
+      const button =
+        document.getElementById("signupButton");
 
       const message =
         document.getElementById("signupMessage");
 
+      const fullName =
+        document.getElementById("fullName")
+          .value.trim();
 
+      const phone =
+        document.getElementById("phone")
+          .value.trim();
+
+      const email =
+        document.getElementById("signupEmail")
+          .value.trim();
+
+      const password =
+        document.getElementById("signupPassword")
+          .value;
+
+      const referralCode =
+        document.getElementById("referralCode")
+          .value.trim();
+
+      button.disabled = true;
+      button.textContent = "Creating account...";
+
+      message.className = "message";
       message.textContent = "";
 
-
-      if (!name || !email || !password) {
-
-        message.textContent =
-          "Please fill in all fields.";
-
-        return;
-      }
-
-
-      if (password.length < 6) {
-
-        message.textContent =
-          "Password must be at least 6 characters.";
-
-        return;
-      }
-
-
-      message.textContent =
-        "Creating your account...";
-
-
-      try {
-
-        const {
-          data,
-          error
-        } = await supabaseClient.auth.signUp({
+      const { data, error } =
+        await supabaseClient.auth.signUp({
 
           email: email,
 
@@ -414,149 +533,69 @@
 
           options: {
             data: {
-              full_name: name
+              full_name: fullName,
+              phone: phone,
+              referral_code: referralCode || null
             }
           }
 
         });
 
 
-        if (error) {
+      if (error) {
 
-          message.textContent =
-            error.message;
+        button.disabled = false;
+        button.textContent = "Create Account";
 
-          return;
-        }
-
-
-        if (data.user) {
-
-  await supabaseClient
-    .from("profiles")
-    .upsert({
-      id: data.user.id,
-      full_name: name
-    });
-
-  if (data.session) { 
-
-          
-
-            message.textContent =
-              "Account created successfully. Opening your dashboard...";
-
-            setTimeout(() => {
-
-              window.location.href =
-                "dashboard.html";
-
-            }, 700);
-
-          } else {
-
-            message.textContent =
-              "Account created. Please check your email to confirm your account.";
-
-          }
-
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-        message.textContent =
-          "Something went wrong. Please try again.";
-
-      }
-
-    }
-
-
-    async function loginUser() {
-
-      const email =
-        document.getElementById("loginEmail").value.trim();
-
-      const password =
-        document.getElementById("loginPassword").value;
-
-      const message =
-        document.getElementById("loginMessage");
-
-
-      message.textContent = "";
-
-
-      if (!email || !password) {
-
-        message.textContent =
-          "Please enter your email and password.";
+        showMessage(
+          message,
+          error.message,
+          "error"
+        );
 
         return;
       }
 
 
-      message.textContent =
-        "Logging in...";
+      /*
+        Supabase may require email confirmation.
+        We show the result inside the form.
+      */
 
+      if (data.user && data.session) {
 
-      try {
+        button.textContent =
+          "Account created!";
 
-        const {
-          data,
-          error
-        } = await supabaseClient.auth.signInWithPassword({
+        showMessage(
+          message,
+          "Account created successfully. Opening your account...",
+          "success"
+        );
 
-          email: email,
+        setTimeout(function() {
 
-          password: password
+          window.location.href =
+            "dashboard.html";
 
-        });
+        }, 1000);
 
+      } else {
 
-        if (error) {
+        button.disabled = false;
+        button.textContent =
+          "Create Account";
 
-          message.textContent =
-            error.message;
-
-          return;
-        }
-
-
-        if (data.user) {
-          await supabaseClient
-  .from("profiles")
-  .upsert({
-    id: data.user.id,
-    full_name: name
-  });
-
-          message.textContent =
-            "Login successful. Opening your dashboard...";
-
-          setTimeout(() => {
-
-            window.location.href =
-              "dashboard.html";
-
-          }, 500);
-
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-        message.textContent =
-          "Something went wrong. Please try again.";
-
+        showMessage(
+          message,
+          "Account created. Please check your email to confirm your account before logging in.",
+          "success"
+        );
       }
 
-    }
+    });
 
-  </script>
+</script>
 
 </body>
-</html>
+          </html>
