@@ -3,256 +3,587 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NAIJA TASK — Dashboard</title>
 
-  <title>Dashboard — NAIJA TASK</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
     }
 
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
       background: #f5fff7;
-      color: #111;
+      color: #17251b;
+      padding-bottom: 78px;
     }
 
-    header {
+    .header {
       background: #0b8f3c;
       color: white;
-      padding: 24px 20px;
-      text-align: center;
+      padding: 20px 16px 28px;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 28px;
+    .header-inner {
+      max-width: 720px;
+      margin: auto;
     }
 
-    header p {
-      margin: 7px 0 16px;
-      opacity: 0.95;
+    .brand {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 22px;
     }
 
-    .logout {
-      border: 1px solid white;
-      background: white;
-      color: #0b8f3c;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
+    .welcome {
+      font-size: 14px;
+      opacity: .9;
+      margin-bottom: 5px;
+    }
+
+    .name {
+      font-size: 25px;
+      font-weight: 800;
     }
 
     .container {
-      width: 100%;
-      max-width: 600px;
+      max-width: 720px;
       margin: auto;
-      padding: 20px;
+      padding: 0 14px;
     }
 
-    .card {
+    .balance-card {
       background: white;
+      margin-top: -18px;
+      border-radius: 18px;
       padding: 20px;
-      margin-bottom: 16px;
-      border-radius: 14px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 5px 18px rgba(0,0,0,.08);
+      position: relative;
     }
 
-    .card h2,
-    .card h3 {
-      margin-top: 0;
+    .balance-label {
+      color: #718078;
+      font-size: 13px;
     }
 
-    #welcomeText {
-      margin-bottom: 0;
-      color: #555;
+    .balance {
+      color: #0b8f3c;
+      font-size: 30px;
+      font-weight: 800;
+      margin: 7px 0 16px;
     }
 
-    .menu {
+    .balance-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .balance-actions a {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      padding: 11px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .withdraw-btn {
+      background: #0b8f3c;
+      color: white;
+    }
+
+    .wallet-btn {
+      background: #e9f8ee;
+      color: #087531;
+    }
+
+    .section {
+      margin-top: 23px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 11px;
+    }
+
+    .section-title h2 {
+      font-size: 18px;
+    }
+
+    .section-title a {
+      color: #0b8f3c;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .quick-grid {
       display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 11px;
     }
 
-    .menu a {
+    .quick-card {
+      background: white;
+      border: 1px solid #e3eee6;
+      border-radius: 15px;
+      padding: 16px;
+      text-decoration: none;
+      color: #17251b;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+
+    .quick-icon {
+      width: 43px;
+      height: 43px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: #e9f8ee;
+      font-size: 21px;
+      margin-bottom: 10px;
+    }
+
+    .quick-card h3 {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .quick-card p {
+      color: #718078;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .task-preview {
+      background: white;
+      border: 1px solid #e3eee6;
+      border-radius: 15px;
+      padding: 16px;
+    }
+
+    .task-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 0;
+      border-bottom: 1px solid #edf2ee;
+    }
+
+    .task-row:last-child {
+      border-bottom: none;
+    }
+
+    .task-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .task-icon {
+      width: 38px;
+      height: 38px;
+      background: #e9f8ee;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .task-info strong {
       display: block;
-      padding: 15px;
-      background: #0b8f3c;
-      color: white;
+      font-size: 13px;
+    }
+
+    .task-info small {
+      color: #7b877f;
+      font-size: 10px;
+    }
+
+    .reward {
+      color: #0b8f3c;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .activity {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+
+    .activity-card {
+      background: white;
+      border: 1px solid #e3eee6;
+      border-radius: 13px;
+      padding: 14px 8px;
+      text-align: center;
+    }
+
+    .activity-card strong {
+      display: block;
+      color: #0b8f3c;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .activity-card span {
+      color: #718078;
+      font-size: 10px;
+    }
+
+    .logout {
+      width: 100%;
+      border: 1px solid #f0dada;
+      background: white;
+      color: #d33a3a;
+      padding: 13px;
+      border-radius: 11px;
+      margin-top: 24px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e3eae5;
+      z-index: 50;
+    }
+
+    .bottom-inner {
+      max-width: 720px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .bottom-nav a {
       text-decoration: none;
       text-align: center;
-      border-radius: 10px;
-      font-weight: bold;
+      color: #758079;
+      padding: 10px 2px 8px;
+      font-size: 10px;
     }
 
-    .menu a:active {
-      transform: scale(0.98);
+    .bottom-nav a span {
+      display: block;
+      font-size: 19px;
+      margin-bottom: 3px;
     }
 
-    .status {
+    .bottom-nav a.active {
+      color: #0b8f3c;
+      font-weight: 700;
+    }
+
+    #loading {
       text-align: center;
-      color: #777;
-      font-size: 14px;
-      margin-top: 15px;
+      padding: 50px 15px;
+      color: #718078;
     }
 
-    .error {
-      color: #b00020;
+    @media (max-width: 380px) {
+      .activity-card strong {
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <header>
-    <h1>NAIJA TASK</h1>
-    <p>Complete Tasks. Earn Naira.</p>
+  <div class="header">
+    <div class="header-inner">
+      <div class="brand">NAIJA TASK</div>
+      <div class="welcome">Welcome back</div>
+      <div class="name" id="userName">User 👋</div>
+    </div>
+  </div>
 
-    <button class="logout" onclick="logoutUser()">
-      Logout
-    </button>
-  </header>
+  <div id="loading">Loading your dashboard...</div>
 
-  <main class="container">
+  <main class="container" id="dashboard" style="display:none;">
 
-    <section class="card">
-      <h2>Welcome</h2>
+    <!-- BALANCE -->
+    <div class="balance-card">
+      <div class="balance-label">Available Balance</div>
 
-      <p id="welcomeText">
-        Checking your account...
-      </p>
+      <div class="balance" id="balance">
+        ₦0.00
+      </div>
 
-      <p id="statusText" class="status"></p>
-    </section>
-
-    <section class="card">
-      <h3>My Account</h3>
-
-      <div class="menu">
-
-        <a href="task.html">
-          📋 Tasks
+      <div class="balance-actions">
+        <a href="withdrawal.html" class="withdraw-btn">
+          Withdraw
         </a>
 
-        <a href="wallet.html">
-          💰 Wallet
+        <a href="wallet.html" class="wallet-btn">
+          View Wallet
+        </a>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <section class="section">
+
+      <div class="section-title">
+        <h2>Quick Actions</h2>
+      </div>
+
+      <div class="quick-grid">
+
+        <a href="task.html" class="quick-card">
+          <div class="quick-icon">📋</div>
+          <h3>Complete Tasks</h3>
+          <p>Complete available tasks and earn rewards.</p>
         </a>
 
-        <a href="referrals.html">
-          👥 Referrals
+        <a href="referrals.html" class="quick-card">
+          <div class="quick-icon">👥</div>
+          <h3>Refer & Earn</h3>
+          <p>Invite friends and earn referral rewards.</p>
         </a>
 
-        <a href="withdrawal.html">
-          💸 Withdrawal
+        <a href="wallet.html" class="quick-card">
+          <div class="quick-icon">💰</div>
+          <h3>My Wallet</h3>
+          <p>View your balance and transaction history.</p>
         </a>
 
-        <a href="profile.html">
-          👤 Profile
+        <a href="profile.html" class="quick-card">
+          <div class="quick-icon">👤</div>
+          <h3>My Profile</h3>
+          <p>Manage your account information.</p>
         </a>
 
       </div>
     </section>
 
+    <!-- TASK PREVIEW -->
+    <section class="section">
+
+      <div class="section-title">
+        <h2>Available Tasks</h2>
+        <a href="task.html">View All →</a>
+      </div>
+
+      <div class="task-preview">
+
+        <div class="task-row">
+          <div class="task-info">
+            <div class="task-icon">📱</div>
+            <div>
+              <strong>Social Media Tasks</strong>
+              <small>Follow, like and engage</small>
+            </div>
+          </div>
+          <div class="reward">Earn</div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-info">
+            <div class="task-icon">▶️</div>
+            <div>
+              <strong>YouTube Tasks</strong>
+              <small>Subscribe and interact</small>
+            </div>
+          </div>
+          <div class="reward">Earn</div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-info">
+            <div class="task-icon">📲</div>
+            <div>
+              <strong>App Tasks</strong>
+              <small>Download and complete tasks</small>
+            </div>
+          </div>
+          <div class="reward">Earn</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section class="section">
+
+      <div class="section-title">
+        <h2>My Activity</h2>
+      </div>
+
+      <div class="activity">
+
+        <div class="activity-card">
+          <strong id="taskCount">0</strong>
+          <span>Tasks Done</span>
+        </div>
+
+        <div class="activity-card">
+          <strong id="referralCount">0</strong>
+          <span>Referrals</span>
+        </div>
+
+        <div class="activity-card">
+          <strong id="approvedCount">0</strong>
+          <span>Approved</span>
+        </div>
+
+      </div>
+    </section>
+
+    <button class="logout" id="logoutBtn">
+      Log Out
+    </button>
+
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SIMPLE BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="bottom-inner">
+
+      <a href="dashboard.html" class="active">
+        <span>🏠</span>
+        Home
+      </a>
+
+      <a href="task.html">
+        <span>📋</span>
+        Tasks
+      </a>
+
+      <a href="wallet.html">
+        <span>💰</span>
+        Wallet
+      </a>
+
+      <a href="profile.html">
+        <span>👤</span>
+        Profile
+      </a>
+
+    </div>
+  </nav>
 
   <script>
+
     const SUPABASE_URL =
       "https://jwakveeiynpakunwjzkj.supabase.co";
 
-    /*
-      Use ONLY your Supabase publishable/anon key here.
-      Never put a Supabase secret/service-role key in HTML.
-    */
-    const SUPABASE_KEY =
-      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+    const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
+    const { createClient } = supabase;
 
+    const db = createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
-    async function checkUser() {
+    async function loadDashboard() {
 
-      const welcomeText =
-        document.getElementById("welcomeText");
+      const {
+        data: { session }
+      } = await db.auth.getSession();
 
-      const statusText =
-        document.getElementById("statusText");
-
-      try {
-
-        const {
-          data: { user },
-          error: userError
-        } = await supabaseClient.auth.getUser();
-
-        if (userError || !user) {
-          window.location.href = "index.html";
-          return;
-        }
-
-        const {
-          data: profile,
-          error: profileError
-        } = await supabaseClient
-          .from("profiles")
-          .select("full_name")
-          .eq("id", user.id)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error(profileError);
-
-          welcomeText.textContent =
-            "Welcome, " + (user.email || "User") + ".";
-
-          statusText.textContent =
-            "Your account is active.";
-          return;
-        }
-
-        const name =
-          profile?.full_name ||
-          user.email ||
-          "User";
-
-        welcomeText.textContent =
-          "Welcome, " + name + "!";
-
-        statusText.textContent = "";
-
-      } catch (error) {
-
-        console.error(error);
-
-        statusText.textContent =
-          "Unable to load your account.";
-
-        statusText.classList.add("error");
+      if (!session) {
+        window.location.href = "index.html";
+        return;
       }
+
+      const user = session.user;
+
+      /* PROFILE */
+
+      const { data: profile } = await db
+        .from("profiles")
+        .select("full_name, balance")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile) {
+
+        document.getElementById("userName").textContent =
+          (profile.full_name || "User") + " 👋";
+
+        document.getElementById("balance").textContent =
+          "₦" +
+          Number(profile.balance || 0).toLocaleString(
+            "en-NG",
+            {
+              minimumFractionDigits: 2
+            }
+          );
+      }
+
+      /* TASK ACTIVITY */
+
+      const { count: taskCount } = await db
+        .from("task_submissions")
+        .select("id", {
+          count: "exact",
+          head: true
+        })
+        .eq("user_id", user.id);
+
+      document.getElementById("taskCount").textContent =
+        taskCount || 0;
+
+      /* APPROVED TASKS */
+
+      const { count: approvedCount } = await db
+        .from("task_submissions")
+        .select("id", {
+          count: "exact",
+          head: true
+        })
+        .eq("user_id", user.id)
+        .eq("status", "APPROVED");
+
+      document.getElementById("approvedCount").textContent =
+        approvedCount || 0;
+
+      /* REFERRALS */
+
+      const { count: referralCount } = await db
+        .from("referrals")
+        .select("id", {
+          count: "exact",
+          head: true
+        })
+        .eq("referrer_user_id", user.id);
+
+      document.getElementById("referralCount").textContent =
+        referralCount || 0;
+
+      document.getElementById("loading").style.display =
+        "none";
+
+      document.getElementById("dashboard").style.display =
+        "block";
     }
 
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", async () => {
 
-    async function logoutUser() {
+        await db.auth.signOut();
 
-      try {
+        window.location.href = "index.html";
+      });
 
-        await supabaseClient.auth.signOut();
+    loadDashboard();
 
-      } finally {
-
-        window.location.href =
-          "index.html";
-      }
-    }
-
-
-    checkUser();
   </script>
 
 </body>
