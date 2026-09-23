@@ -517,6 +517,12 @@
 
 
         if (data.user) {
+          await supabaseClient
+  .from("profiles")
+  .upsert({
+    id: data.user.id,
+    full_name: name
+  });
 
           message.textContent =
             "Login successful. Opening your dashboard...";
