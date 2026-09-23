@@ -432,7 +432,16 @@
 
         if (data.user) {
 
-          if (data.session) {
+  await supabaseClient
+    .from("profiles")
+    .upsert({
+      id: data.user.id,
+      full_name: name
+    });
+
+  if (data.session) { 
+
+          
 
             message.textContent =
               "Account created successfully. Opening your dashboard...";
