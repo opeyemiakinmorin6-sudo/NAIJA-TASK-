@@ -18,13 +18,13 @@ body {
   font-family: Arial, sans-serif;
   background: #f5fff7;
   color: #17251b;
-  padding-bottom: 75px;
 }
 
 header {
   background: #0b8f3c;
   color: white;
-  padding: 22px 16px 25px;
+  padding: 22px 16px 27px;
+  border-radius: 0 0 25px 25px;
 }
 
 .header-inner {
@@ -38,6 +38,11 @@ header {
   font-size: 13px;
   display: inline-block;
   margin-bottom: 20px;
+}
+
+.page-icon {
+  font-size: 27px;
+  margin-bottom: 7px;
 }
 
 header h1 {
@@ -54,14 +59,15 @@ header p {
 .container {
   max-width: 720px;
   margin: auto;
-  padding: 18px 14px;
+  padding: 20px 14px 35px;
 }
 
 .title-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 13px;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .title-row h2 {
@@ -76,6 +82,7 @@ header p {
   border-radius: 20px;
   font-size: 11px;
   font-weight: bold;
+  white-space: nowrap;
 }
 
 .task-card {
@@ -144,6 +151,7 @@ header p {
   font-size: 11px;
   color: #657268;
   line-height: 1.7;
+  white-space: pre-line;
 }
 
 .complete-btn {
@@ -159,50 +167,31 @@ header p {
   cursor: pointer;
 }
 
+.complete-btn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
 .message {
   background: white;
   border-radius: 15px;
-  padding: 30px 18px;
+  padding: 32px 18px;
   text-align: center;
   color: #718078;
   font-size: 13px;
   line-height: 1.6;
+  box-shadow: 0 3px 12px rgba(0,0,0,.04);
 }
 
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  border-top: 1px solid #e3eae5;
-  z-index: 20;
-}
-
-.bottom-inner {
-  max-width: 720px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.bottom-nav a {
-  text-decoration: none;
-  color: #758079;
-  text-align: center;
-  padding: 9px 2px 8px;
-  font-size: 10px;
-}
-
-.bottom-nav a span {
-  display: block;
-  font-size: 19px;
-  margin-bottom: 3px;
-}
-
-.bottom-nav a.active {
-  color: #0b8f3c;
-  font-weight: bold;
+.refresh-btn {
+  margin-top: 15px;
+  border: none;
+  background: #0b8f3c;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -216,65 +205,64 @@ header p {
       ← Back to Dashboard
     </a>
 
-    <h1>Available Tasks</h1>
-    <p>Complete tasks and earn Naira.</p>
+    <div class="page-icon">
+      📋
+    </div>
+
+    <h1>Tasks</h1>
+
+    <p>
+      Complete tasks and earn Naira.
+    </p>
 
   </div>
 </header>
 
-<div class="container">
+
+<main class="container">
 
   <div class="title-row">
-    <h2>Tasks for you</h2>
-    <div class="task-count" id="taskCount">0 tasks</div>
+
+    <h2>
+      Available Tasks
+    </h2>
+
+    <div
+      class="task-count"
+      id="taskCount">
+      0 tasks
+    </div>
+
   </div>
+
 
   <div id="tasks">
+
     <div class="message">
+      ⏳<br><br>
       Loading available tasks...
     </div>
-  </div>
-
-</div>
-
-<nav class="bottom-nav">
-  <div class="bottom-inner">
-
-    <a href="dashboard.html">
-      <span>🏠</span>
-      Home
-    </a>
-
-    <a href="task.html" class="active">
-      <span>📋</span>
-      Tasks
-    </a>
-
-    <a href="wallet.html">
-      <span>💰</span>
-      Wallet
-    </a>
-
-    <a href="profile.html">
-      <span>👤</span>
-      Profile
-    </a>
 
   </div>
-</nav>
+
+</main>
+
 
 <script>
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
+
 /*
-  Enter your CURRENT SUPABASE PUBLISHABLE KEY here.
-  Do NOT use the secret/service-role key.
+  KEEP YOUR CURRENT SUPABASE
+  PUBLISHABLE KEY HERE.
+
+  DO NOT USE THE SECRET/SERVICE-ROLE KEY.
 */
+
 const SUPABASE_KEY =
-  
-  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D
 
 
 const db =
@@ -289,6 +277,7 @@ async function loadTasks() {
   const tasksBox =
     document.getElementById("tasks");
 
+
   try {
 
     const {
@@ -296,8 +285,12 @@ async function loadTasks() {
       error: userError
     } = await db.auth.getUser();
 
+
     if (userError || !user) {
-      window.location.href = "index.html";
+
+      window.location.href =
+        "index.html";
+
       return;
     }
 
@@ -321,10 +314,21 @@ async function loadTasks() {
       console.error(error);
 
       tasksBox.innerHTML =
-        '<div class="message">' +
-        'Unable to load tasks.<br><br>' +
-        'Please try again later.' +
-        '</div>';
+        `
+        <div class="message">
+          ❌<br><br>
+          Unable to load tasks right now.
+          <br>
+          Please try again later.
+          <br><br>
+
+          <button
+            class="refresh-btn"
+            onclick="loadTasks()">
+            Try Again
+          </button>
+        </div>
+        `;
 
       return;
     }
@@ -336,12 +340,17 @@ async function loadTasks() {
         "taskCount"
       ).textContent = "0 tasks";
 
+
       tasksBox.innerHTML =
-        '<div class="message">' +
-        'No tasks are available right now.' +
-        '<br><br>' +
-        'Please check again later.' +
-        '</div>';
+        `
+        <div class="message">
+          📋<br><br>
+          <strong>No tasks available</strong>
+          <br><br>
+          There are no available tasks for you right now.
+          Please check again later.
+        </div>
+        `;
 
       return;
     }
@@ -351,31 +360,38 @@ async function loadTasks() {
       "taskCount"
     ).textContent =
       data.length +
-      (data.length === 1 ? " task" : " tasks");
+      (data.length === 1
+        ? " task"
+        : " tasks");
 
 
     tasksBox.innerHTML = "";
 
 
-    data.forEach(task => {
+    data.forEach(function(task) {
 
       const card =
         document.createElement("div");
 
-      card.className = "task-card";
+      card.className =
+        "task-card";
 
 
       const top =
         document.createElement("div");
 
-      top.className = "task-top";
+      top.className =
+        "task-top";
 
 
       const icon =
         document.createElement("div");
 
-      icon.className = "task-icon";
-      icon.textContent = "📋";
+      icon.className =
+        "task-icon";
+
+      icon.textContent =
+        "📋";
 
 
       const info =
@@ -385,9 +401,12 @@ async function loadTasks() {
       const title =
         document.createElement("div");
 
-      title.className = "task-title";
+      title.className =
+        "task-title";
+
       title.textContent =
-        task.title || "Task";
+        task.title ||
+        "Task";
 
 
       const description =
@@ -438,28 +457,46 @@ async function loadTasks() {
         ).toLocaleString("en-NG");
 
 
-      rewardBox.appendChild(rewardLabel);
-      rewardBox.appendChild(reward);
+      rewardBox.appendChild(
+        rewardLabel
+      );
+
+      rewardBox.appendChild(
+        reward
+      );
 
 
       const details =
         document.createElement("div");
 
-      details.className = "details";
+      details.className =
+        "details";
 
-      let proofText =
+
+      const proofText =
         task.proof_required
           ? (task.proof_type || "Text")
           : "Not required";
 
+
       details.textContent =
-        "Proof: " + proofText;
+        "🧾 Proof: " +
+        proofText;
+
 
       if (task.requirements) {
 
         details.textContent +=
-          "\nRequirements: " +
+          "\n📝 Requirements: " +
           task.requirements;
+      }
+
+
+      if (task.expiry_date) {
+
+        details.textContent +=
+          "\n⏰ Deadline: " +
+          task.expiry_date;
       }
 
 
@@ -472,9 +509,15 @@ async function loadTasks() {
       button.textContent =
         "Complete Task";
 
+
       button.onclick =
         function() {
-          startTask(task.id);
+
+          startTask(
+            task.id,
+            button
+          );
+
         };
 
 
@@ -483,129 +526,220 @@ async function loadTasks() {
       card.appendChild(details);
       card.appendChild(button);
 
+
       tasksBox.appendChild(card);
 
     });
+
 
   } catch (error) {
 
     console.error(error);
 
     tasksBox.innerHTML =
-      '<div class="message">' +
-      'Something went wrong while loading tasks.' +
-      '</div>';
+      `
+      <div class="message">
+        ❌<br><br>
+        Something went wrong while loading tasks.
+        <br><br>
+
+        <button
+          class="refresh-btn"
+          onclick="loadTasks()">
+          Try Again
+        </button>
+      </div>
+      `;
+
   }
+
 }
 
 
-async function startTask(taskId) {
+async function startTask(
+  taskId,
+  button
+) {
 
-  const {
-    data: task,
-    error
-  } = await db
-    .from("tasks")
-    .select(
-      "id, title, description, reward, proof_type, proof_required"
-    )
-    .eq("id", taskId)
-    .single();
+  button.disabled = true;
+
+  button.textContent =
+    "Loading...";
 
 
-  if (error || !task) {
+  try {
+
+    const {
+      data: task,
+      error
+    } = await db
+      .from("tasks")
+      .select(
+        "id, title, description, reward, proof_type, proof_required"
+      )
+      .eq("id", taskId)
+      .single();
+
+
+    if (error || !task) {
+
+      alert(
+        "Unable to load this task."
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        "Complete Task";
+
+      return;
+    }
+
+
+    let proof = "";
+
+
+    if (task.proof_required) {
+
+      proof = prompt(
+        "Complete the task first, then enter your proof.\n\nProof type: " +
+        (task.proof_type || "Text")
+      );
+
+
+      if (proof === null) {
+
+        button.disabled = false;
+
+        button.textContent =
+          "Complete Task";
+
+        return;
+      }
+
+
+      proof =
+        proof.trim();
+
+
+      if (!proof) {
+
+        alert(
+          "Proof is required."
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+          "Complete Task";
+
+        return;
+      }
+
+    } else {
+
+      proof = prompt(
+        "Complete the task first.\n\nAdd your proof or note:"
+      );
+
+
+      if (proof === null) {
+
+        button.disabled = false;
+
+        button.textContent =
+          "Complete Task";
+
+        return;
+      }
+
+      proof =
+        proof.trim();
+
+    }
+
+
+    const {
+      data: { user }
+    } =
+      await db.auth.getUser();
+
+
+    if (!user) {
+
+      window.location.href =
+        "index.html";
+
+      return;
+    }
+
+
+    const {
+      error: submissionError
+    } =
+      await db
+        .from("task_submissions")
+        .insert({
+
+          user_id: user.id,
+
+          task_id: task.id,
+
+          proof: proof,
+
+          status: "PENDING"
+
+        });
+
+
+    if (submissionError) {
+
+      console.error(
+        submissionError
+      );
+
+      alert(
+        "Submission failed: " +
+        submissionError.message
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        "Complete Task";
+
+      return;
+    }
+
 
     alert(
-      "Unable to load this task."
-    );
-
-    return;
-  }
-
-
-  let proof = "";
-
-
-  if (task.proof_required) {
-
-    proof = prompt(
-      "Complete the task first, then enter your proof.\n\nProof type: " +
-      (task.proof_type || "Text")
+      "✅ Task submitted successfully.\n\nYour proof is now pending review."
     );
 
 
-    if (proof === null) {
-      return;
-    }
+    button.textContent =
+      "Submitted ✓";
 
 
-    proof = proof.trim();
+    button.disabled =
+      true;
 
 
-    if (!proof) {
+  } catch (error) {
 
-      alert("Proof is required.");
-
-      return;
-    }
-
-  } else {
-
-    proof = prompt(
-      "Complete the task first.\n\nAdd your proof or note:"
-    );
-
-
-    if (proof === null) {
-      return;
-    }
-
-    proof = proof.trim();
-  }
-
-
-  const {
-    data: { user }
-  } = await db.auth.getUser();
-
-
-  if (!user) {
-
-    window.location.href =
-      "index.html";
-
-    return;
-  }
-
-
-  const {
-    error: submissionError
-  } = await db
-    .from("task_submissions")
-    .insert({
-      user_id: user.id,
-      task_id: task.id,
-      proof: proof,
-      status: "PENDING"
-    });
-
-
-  if (submissionError) {
-
-    console.error(submissionError);
+    console.error(error);
 
     alert(
-      "Submission failed: " +
-      submissionError.message
+      "Something went wrong. Please try again."
     );
 
-    return;
+    button.disabled = false;
+
+    button.textContent =
+      "Complete Task";
+
   }
 
-
-  alert(
-    "Task submitted successfully. Your proof is now pending review."
-  );
 }
 
 
