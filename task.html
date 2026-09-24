@@ -294,14 +294,17 @@ async function loadTasks() {
       return;
     }
 
+       const {
+  data,
+  error
+} = await db
+  .from("tasks")
+  .select(
+    "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active"
+  )
+  .eq("active", true); 
 
-    const {
-      data,
-      error
-    } = await db
-      .from("tasks")
-      .select(
-        "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions"
+    
       )
       .eq("active", true)
       .order("created_at", {
