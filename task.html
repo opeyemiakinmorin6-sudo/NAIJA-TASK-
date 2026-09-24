@@ -294,7 +294,7 @@ async function loadTasks() {
       return;
     }
 
-       const {
+     const {
   data,
   error
 } = await db
@@ -302,14 +302,11 @@ async function loadTasks() {
   .select(
     "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active"
   )
-  .eq("active", true); 
+  .eq("active", true)
+  .order("created_at", {
+    ascending: false
+  }); 
 
-    
-      )
-      .eq("active", true)
-      .order("created_at", {
-        ascending: false
-      });
 
 
     if (error) {
