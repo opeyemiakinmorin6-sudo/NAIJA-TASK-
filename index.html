@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>NAIJA TASK — Login & Sign Up</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -63,6 +64,7 @@
       color: #4e5b52;
       font-weight: 700;
       font-size: 14px;
+      cursor: pointer;
     }
 
     .switch button.active {
@@ -131,10 +133,12 @@
       font-size: 15px;
       font-weight: 800;
       margin-top: 5px;
+      cursor: pointer;
     }
 
     .main-btn:disabled {
       opacity: .7;
+      cursor: not-allowed;
     }
 
     .message {
@@ -197,15 +201,13 @@
     <button
       id="loginTab"
       class="active"
-      type="button"
-      onclick="showLogin()">
+      type="button">
       Login
     </button>
 
     <button
       id="signupTab"
-      type="button"
-      onclick="showSignup()">
+      type="button">
       Sign Up
     </button>
 
@@ -225,26 +227,26 @@
     <form id="loginForm">
 
       <div class="field">
-        <label>Email</label>
+        <label for="loginEmail">Email</label>
 
         <input
           id="loginEmail"
           type="email"
           placeholder="Enter your email"
+          autocomplete="email"
           required>
       </div>
 
-
       <div class="field">
-        <label>Password</label>
+        <label for="loginPassword">Password</label>
 
         <input
           id="loginPassword"
           type="password"
           placeholder="Enter your password"
+          autocomplete="current-password"
           required>
       </div>
-
 
       <button
         id="loginButton"
@@ -273,53 +275,53 @@
     <form id="signupForm">
 
       <div class="field">
-        <label>Full Name</label>
+        <label for="fullName">Full Name</label>
 
         <input
           id="fullName"
           type="text"
           placeholder="Enter your full name"
+          autocomplete="name"
           required>
       </div>
 
-
       <div class="field">
-        <label>Phone Number</label>
+        <label for="phone">Phone Number</label>
 
         <input
           id="phone"
           type="tel"
           placeholder="08012345678"
+          autocomplete="tel"
           required>
       </div>
 
-
       <div class="field">
-        <label>Email</label>
+        <label for="signupEmail">Email</label>
 
         <input
           id="signupEmail"
           type="email"
           placeholder="Enter your email"
+          autocomplete="email"
           required>
       </div>
 
-
       <div class="field">
-        <label>Password</label>
+        <label for="signupPassword">Password</label>
 
         <input
           id="signupPassword"
           type="password"
           minlength="6"
           placeholder="Create a password"
+          autocomplete="new-password"
           required>
       </div>
 
-
       <div class="field">
 
-        <label>Referral Code</label>
+        <label for="referralCode">Referral Code</label>
 
         <input
           id="referralCode"
@@ -331,7 +333,6 @@
         </div>
 
       </div>
-
 
       <button
         id="signupButton"
@@ -363,26 +364,60 @@
 
 <script>
 
+  /* ================================
+     SUPABASE CONNECTION
+     ================================ */
+
   const SUPABASE_URL =
     "https://jwakveeiynpakunwjzkj.supabase.co";
 
-
   /*
-    INSERT YOUR CURRENT SUPABASE PUBLISHABLE KEY BELOW.
+    PUT YOUR CURRENT SUPABASE
+    PUBLISHABLE KEY BETWEEN THE QUOTES.
 
-    Do NOT use the secret/service-role key.
+    DO NOT USE THE SECRET/SERVICE-ROLE KEY.
   */
 
   const SUPABASE_KEY =
         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
-  const supabaseClient =
-    supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
+  let supabaseClient;
+
+
+  /* ================================
+     START SUPABASE
+     ================================ */
+
+  try {
+
+    if (
+      typeof supabase === "undefined"
+    ) {
+      throw new Error(
+        "Supabase library did not load."
+      );
+    }
+
+    supabaseClient =
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+  } catch (error) {
+
+    console.error(
+      "Supabase initialization error:",
+      error
     );
 
+  }
+
+
+  /* ================================
+     PAGE SWITCHING
+     ================================ */
 
   function showLogin() {
 
@@ -424,7 +459,31 @@
   }
 
 
-  function showMessage(element, text, type) {
+  document
+    .getElementById("loginTab")
+    .addEventListener(
+      "click",
+      showLogin
+    );
+
+
+  document
+    .getElementById("signupTab")
+    .addEventListener(
+      "click",
+      showSignup
+    );
+
+
+  /* ================================
+     MESSAGE
+     ================================ */
+
+  function showMessage(
+    element,
+    text,
+    type
+  ) {
 
     element.textContent = text;
 
@@ -433,10 +492,14 @@
   }
 
 
-  /* REFERRAL LINK */
+  /* ================================
+     REFERRAL LINK
+     ================================ */
 
   const params =
-    new URLSearchParams(window.location.search);
+    new URLSearchParams(
+      window.location.search
+    );
 
   const referral =
     params.get("ref");
@@ -451,92 +514,326 @@
   }
 
 
-  /* LOGIN */
+  /* ================================
+     LOGIN
+     ================================ */
 
   document
     .getElementById("loginForm")
-    .addEventListener("submit", async function(event) {
+    .addEventListener(
+      "submit",
+      async function(event) {
 
-      event.preventDefault();
+        event.preventDefault();
 
-      const button =
-        document.getElementById("loginButton");
+        const button =
+          document.getElementById(
+            "loginButton"
+          );
 
-      const message =
-        document.getElementById("loginMessage");
+        const message =
+          document.getElementById(
+            "loginMessage"
+          );
 
-      button.disabled = true;
-      button.textContent = "Logging in...";
+        button.disabled = true;
 
-      message.className = "message";
-      message.textContent = "";
+        button.textContent =
+          "Logging in...";
 
+        message.className =
+          "message";
 
-      const email =
-        document
-          .getElementById("loginEmail")
-          .value.trim();
-
-      const password =
-        document
-          .getElementById("loginPassword")
-          .value;
-
-
-      const { error } =
-        await supabaseClient.auth
-          .signInWithPassword({
-            email,
-            password
-          });
+        message.textContent = "";
 
 
-      if (error) {
+        if (!supabaseClient) {
 
-        button.disabled = false;
-        button.textContent = "Login";
+          showMessage(
+            message,
+            "Supabase is not connected. Check your publishable key.",
+            "error"
+          );
 
-        showMessage(
-          message,
-          error.message,
-          "error"
-        );
+          button.disabled = false;
 
-        return;
+          button.textContent =
+            "Login";
+
+          return;
+        }
+
+
+        const email =
+          document
+            .getElementById(
+              "loginEmail"
+            )
+            .value
+            .trim();
+
+        const password =
+          document
+            .getElementById(
+              "loginPassword"
+            )
+            .value;
+
+
+        try {
+
+          const {
+            data,
+            error
+          } =
+            await supabaseClient.auth
+              .signInWithPassword({
+                email,
+                password
+              });
+
+
+          if (error) {
+            throw error;
+          }
+
+
+          if (!data.session) {
+
+            throw new Error(
+              "Login succeeded, but no active session was created."
+            );
+
+          }
+
+
+          button.textContent =
+            "Opening account...";
+
+
+          window.location.href =
+            "dashboard.html";
+
+
+        } catch (error) {
+
+          console.error(
+            "Login error:",
+            error
+          );
+
+          showMessage(
+            message,
+            error.message ||
+            "Unable to login. Please try again.",
+            "error"
+          );
+
+          button.disabled = false;
+
+          button.textContent =
+            "Login";
+        }
+
       }
+    );
 
 
-      button.textContent =
-        "Opening account...";
-
-      window.location.href =
-        "dashboard.html";
-
-    });
-
-
-  /* SIGN UP */
+  /* ================================
+     SIGN UP
+     ================================ */
 
   document
     .getElementById("signupForm")
-    .addEventListener("submit", async function(event) {
+    .addEventListener(
+      "submit",
+      async function(event) {
 
-      event.preventDefault();
+        event.preventDefault();
 
-      const button =
-        document.getElementById("signupButton");
+        const button =
+          document.getElementById(
+            "signupButton"
+          );
 
-      const message =
-        document.getElementById("signupMessage");
+        const message =
+          document.getElementById(
+            "signupMessage"
+          );
 
-      button.disabled = true;
-      button.textContent = "Creating account...";
+        button.disabled = true;
 
-      message.className = "message";
-      message.textContent = "";
+        button.textContent =
+          "Creating account...";
+
+        message.className =
+          "message";
+
+        message.textContent = "";
 
 
-      const fullName =
-        document
-          .getElementById("fullName")
-          .
+        if (!supabaseClient) {
+
+          showMessage(
+            message,
+            "Supabase is not connected. Check your publishable key.",
+            "error"
+          );
+
+          button.disabled = false;
+
+          button.textContent =
+            "Create Account";
+
+          return;
+        }
+
+
+        const fullName =
+          document
+            .getElementById(
+              "fullName"
+            )
+            .value
+            .trim();
+
+        const phone =
+          document
+            .getElementById(
+              "phone"
+            )
+            .value
+            .trim();
+
+        const email =
+          document
+            .getElementById(
+              "signupEmail"
+            )
+            .value
+            .trim();
+
+        const password =
+          document
+            .getElementById(
+              "signupPassword"
+            )
+            .value;
+
+        const referralCode =
+          document
+            .getElementById(
+              "referralCode"
+            )
+            .value
+            .trim();
+
+
+        try {
+
+          const {
+            data,
+            error
+          } =
+            await supabaseClient.auth
+              .signUp({
+
+                email: email,
+
+                password: password,
+
+                options: {
+
+                  data: {
+                    full_name: fullName,
+                    phone: phone,
+                    referral_code: referralCode
+                  }
+
+                }
+
+              });
+
+
+          if (error) {
+            throw error;
+          }
+
+
+          if (
+            data.user &&
+            data.session
+          ) {
+
+            showMessage(
+              message,
+              "Account created successfully. Opening your account...",
+              "success"
+            );
+
+            button.textContent =
+              "Account created!";
+
+            setTimeout(
+              function() {
+
+                window.location.href =
+                  "dashboard.html";
+
+              },
+              800
+            );
+
+            return;
+          }
+
+
+          if (data.user) {
+
+            showMessage(
+              message,
+              "Account created successfully. Please check your email to confirm your account before logging in.",
+              "success"
+            );
+
+            button.disabled = false;
+
+            button.textContent =
+              "Create Account";
+
+            return;
+          }
+
+
+          throw new Error(
+            "Account could not be created. Please try again."
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            "Signup error:",
+            error
+          );
+
+          showMessage(
+            message,
+            error.message ||
+            "Unable to create account. Please try again.",
+            "error"
+          );
+
+          button.disabled = false;
+
+          button.textContent =
+            "Create Account";
+        }
+
+      }
+    );
+
+</script>
+
+</body>
+          </html> 
