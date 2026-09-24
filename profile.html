@@ -21,16 +21,27 @@ body {
 header {
   background: #0b8f3c;
   color: white;
-  padding: 20px;
+  padding: 24px 20px;
   text-align: center;
 }
 
 header h1 {
-  margin: 0 0 6px;
+  margin: 0;
+  font-size: 26px;
 }
 
 header p {
-  margin: 0 0 15px;
+  margin: 7px 0 18px;
+}
+
+.logout {
+  border: none;
+  padding: 10px 22px;
+  border-radius: 20px;
+  background: white;
+  color: #0b8f3c;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .container {
@@ -43,28 +54,18 @@ header p {
   background: white;
   padding: 20px;
   margin-bottom: 16px;
-  border-radius: 14px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
 }
 
-nav {
-  display: grid;
-  gap: 10px;
-}
-
-nav a {
-  display: block;
-  padding: 12px;
-  background: #f5fff7;
+.card h2 {
+  margin-top: 0;
   color: #0b8f3c;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 8px;
 }
 
 label {
   display: block;
-  margin-top: 12px;
+  margin-top: 16px;
   font-weight: bold;
 }
 
@@ -73,7 +74,7 @@ input {
   padding: 13px;
   margin-top: 7px;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 9px;
   font-size: 15px;
 }
 
@@ -82,30 +83,37 @@ input:focus {
   border-color: #0b8f3c;
 }
 
-button {
+button.save {
   width: 100%;
   border: none;
-  padding: 13px;
-  border-radius: 8px;
+  padding: 14px;
+  margin-top: 20px;
+  border-radius: 9px;
   background: #0b8f3c;
   color: white;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 15px;
-}
-
-.logout {
-  width: auto;
-  background: white;
-  color: #0b8f3c;
-  margin-top: 0;
 }
 
 #message {
+  text-align: center;
   margin-top: 15px;
   font-weight: bold;
-  text-align: center;
+}
+
+.links {
+  display: grid;
+  gap: 10px;
+}
+
+.links a {
+  text-decoration: none;
+  padding: 13px;
+  border-radius: 9px;
+  background: #f5fff7;
+  color: #0b8f3c;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -124,20 +132,7 @@ button {
 <div class="container">
 
   <div class="card">
-    <h3>Navigation</h3>
-
-    <nav>
-      <a href="dashboard.html">🏠 Home</a>
-      <a href="task.html">📋 Tasks</a>
-      <a href="wallet.html">💰 Wallet</a>
-      <a href="referrals.html">👥 Referrals</a>
-      <a href="withdrawal.html">💸 Withdraw</a>
-    </nav>
-  </div>
-
-  <div class="card">
-
-    <h3>My Profile</h3>
+    <h2>Account Information</h2>
 
     <label for="fullName">Full Name</label>
     <input
@@ -153,19 +148,30 @@ button {
       placeholder="Enter your phone number"
     >
 
-    <label for="email">Email</label>
+    <label for="email">Email Address</label>
     <input
       id="email"
       type="email"
       readonly
     >
 
-    <button onclick="saveProfile()">
+    <button class="save" onclick="saveProfile()">
       Save Profile
     </button>
 
     <p id="message"></p>
+  </div>
 
+  <div class="card">
+    <h2>Quick Links</h2>
+
+    <div class="links">
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="task.html">📋 Tasks</a>
+      <a href="wallet.html">💰 Wallet</a>
+      <a href="withdrawal.html">💸 Withdraw</a>
+      <a href="referrals.html">👥 Referrals</a>
+    </div>
   </div>
 
 </div>
@@ -178,11 +184,15 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  PUT YOUR NEW SUPABASE PUBLISHABLE KEY HERE.
+  Enter your CURRENT SUPABASE PUBLISHABLE KEY below.
   Do NOT use the secret/service-role key.
 */
 const SUPABASE_KEY =
+     
   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  
+  
+
 
 const supabaseClient =
   window.supabase.createClient(
@@ -195,10 +205,10 @@ async function loadProfile() {
 
   const {
     data: { user },
-    error: userError
+    error
   } = await supabaseClient.auth.getUser();
 
-  if (userError || !user) {
+  if (error || !user) {
     window.location.href = "index.html";
     return;
   }
@@ -206,14 +216,14 @@ async function loadProfile() {
   document.getElementById("email").value =
     user.email || "";
 
-  const { data, error } =
+  const { data, error: profileError } =
     await supabaseClient
       .from("profiles")
       .select("full_name, phone")
       .eq("id", user.id)
       .single();
 
-  if (error) {
+  if (profileError) {
     document.getElementById("message").textContent =
       "Unable to load profile.";
     return;
@@ -231,6 +241,8 @@ async function saveProfile() {
 
   const message =
     document.getElementById("message");
+
+  message.textContent = "Saving...";
 
   const {
     data: { user }
