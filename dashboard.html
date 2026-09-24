@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>NAIJA TASK — Dashboard</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,7 +19,7 @@
       font-family: Arial, sans-serif;
       background: #f5fff7;
       color: #17221a;
-      padding-bottom: 82px;
+      min-height: 100vh;
     }
 
     header {
@@ -35,8 +36,8 @@
 
     .welcome {
       margin-top: 22px;
-      font-size: 13px;
-      opacity: .9;
+      font-size: 14px;
+      opacity: .92;
     }
 
     .name {
@@ -68,7 +69,11 @@
     .container {
       max-width: 520px;
       margin: auto;
-      padding: 22px 16px;
+      padding: 22px 16px 35px;
+    }
+
+    .section {
+      margin-bottom: 28px;
     }
 
     .section-title {
@@ -76,6 +81,8 @@
       font-weight: 800;
       margin-bottom: 13px;
     }
+
+    /* QUICK ACCESS */
 
     .actions {
       display: grid;
@@ -91,18 +98,32 @@
       color: #17221a;
       box-shadow: 0 4px 16px rgba(0,0,0,.06);
       font-weight: 800;
+      transition: transform .15s;
+    }
+
+    .action:active {
+      transform: scale(.97);
     }
 
     .action-icon {
       display: block;
-      color: #0b8f3c;
-      font-size: 23px;
+      font-size: 27px;
       margin-bottom: 9px;
     }
 
-    .overview {
-      margin-top: 28px;
+    .action-text {
+      font-size: 15px;
     }
+
+    .action-description {
+      display: block;
+      margin-top: 5px;
+      color: #68736b;
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    /* OVERVIEW */
 
     .overview-card {
       background: white;
@@ -132,8 +153,9 @@
       font-weight: 800;
     }
 
+    /* START EARNING */
+
     .info {
-      margin-top: 28px;
       background: white;
       border-radius: 18px;
       padding: 19px;
@@ -152,6 +174,20 @@
       line-height: 1.6;
     }
 
+    .start-button {
+      display: block;
+      margin-top: 15px;
+      background: #0b8f3c;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      padding: 13px;
+      border-radius: 12px;
+      font-weight: 800;
+    }
+
+    /* LOADING / ERROR */
+
     .loading {
       color: #68736b;
       font-size: 13px;
@@ -162,37 +198,31 @@
       font-size: 13px;
     }
 
-    .bottom-nav {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 70px;
+    /* LOGOUT */
+
+    .logout-button {
+      width: 100%;
+      border: none;
       background: white;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      box-shadow: 0 -4px 18px rgba(0,0,0,.08);
-      z-index: 100;
+      color: #b32626;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 4px 16px rgba(0,0,0,.06);
+      cursor: pointer;
     }
 
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-decoration: none;
-      color: #68736b;
-      font-size: 11px;
-      font-weight: 700;
-    }
+    /* MOBILE */
 
-    .nav-item.active {
-      color: #0b8f3c;
-    }
+    @media (max-width: 360px) {
+      .actions {
+        grid-template-columns: 1fr;
+      }
 
-    .nav-icon {
-      font-size: 20px;
-      margin-bottom: 4px;
+      .balance {
+        font-size: 27px;
+      }
     }
   </style>
 </head>
@@ -201,9 +231,13 @@
 
 <header>
 
-  <div class="brand">NAIJA TASK</div>
+  <div class="brand">
+    NAIJA TASK
+  </div>
 
-  <div class="welcome">Welcome back</div>
+  <div class="welcome">
+    👋 Welcome back
+  </div>
 
   <div class="name" id="userName">
     Loading...
@@ -212,7 +246,7 @@
   <div class="balance-card">
 
     <div class="balance-label">
-      Available Balance
+      💰 Available Balance
     </div>
 
     <div class="balance" id="balance">
@@ -226,9 +260,10 @@
 
 <main class="container">
 
+
   <!-- QUICK ACCESS -->
 
-  <section>
+  <section class="section">
 
     <div class="section-title">
       Quick Access
@@ -237,23 +272,67 @@
     <div class="actions">
 
       <a class="action" href="task.html">
-        <span class="action-icon">✓</span>
-        Tasks
+        <span class="action-icon">📋</span>
+
+        <span class="action-text">
+          Tasks
+        </span>
+
+        <span class="action-description">
+          Complete tasks & earn
+        </span>
       </a>
+
 
       <a class="action" href="wallet.html">
-        <span class="action-icon">₦</span>
-        Wallet
+        <span class="action-icon">💰</span>
+
+        <span class="action-text">
+          Wallet
+        </span>
+
+        <span class="action-description">
+          View your earnings
+        </span>
       </a>
 
+
       <a class="action" href="withdrawal.html">
-        <span class="action-icon">↗</span>
-        Withdraw
+        <span class="action-icon">💸</span>
+
+        <span class="action-text">
+          Withdraw
+        </span>
+
+        <span class="action-description">
+          Request payment
+        </span>
       </a>
+
 
       <a class="action" href="referrals.html">
         <span class="action-icon">👥</span>
-        Referrals
+
+        <span class="action-text">
+          Referrals
+        </span>
+
+        <span class="action-description">
+          Invite & earn
+        </span>
+      </a>
+
+
+      <a class="action" href="profile.html">
+        <span class="action-icon">👤</span>
+
+        <span class="action-text">
+          Profile
+        </span>
+
+        <span class="action-description">
+          Manage your account
+        </span>
       </a>
 
     </div>
@@ -263,37 +342,47 @@
 
   <!-- ACCOUNT OVERVIEW -->
 
-  <section class="overview">
+  <section class="section">
 
     <div class="section-title">
-      Account Overview
+      📊 Account Overview
     </div>
 
     <div class="overview-card">
 
       <div class="overview-row">
+
         <span class="overview-label">
-          Completed Tasks
+          📋 Completed Tasks
         </span>
 
         <strong
           class="overview-value"
           id="completedTasks">
-          <span class="loading">Loading...</span>
+
+          <span class="loading">
+            Loading...
+          </span>
+
         </strong>
+
       </div>
 
 
       <div class="overview-row">
 
         <span class="overview-label">
-          Pending Tasks
+          ⏳ Pending Tasks
         </span>
 
         <strong
           class="overview-value"
           id="pendingTasks">
-          <span class="loading">Loading...</span>
+
+          <span class="loading">
+            Loading...
+          </span>
+
         </strong>
 
       </div>
@@ -302,13 +391,66 @@
       <div class="overview-row">
 
         <span class="overview-label">
-          Account Status
+          💵 Total Earned
+        </span>
+
+        <strong
+          class="overview-value"
+          id="totalEarned">
+
+          ₦0.00
+
+        </strong>
+
+      </div>
+
+
+      <div class="overview-row">
+
+        <span class="overview-label">
+          💸 Total Withdrawn
+        </span>
+
+        <strong
+          class="overview-value"
+          id="totalWithdrawn">
+
+          ₦0.00
+
+        </strong>
+
+      </div>
+
+
+      <div class="overview-row">
+
+        <span class="overview-label">
+          👥 Referrals
+        </span>
+
+        <strong
+          class="overview-value"
+          id="referralCount">
+
+          0
+
+        </strong>
+
+      </div>
+
+
+      <div class="overview-row">
+
+        <span class="overview-label">
+          🔐 Account Status
         </span>
 
         <strong
           class="overview-value"
           id="accountStatus">
+
           Active
+
         </strong>
 
       </div>
@@ -318,69 +460,50 @@
   </section>
 
 
-  <!-- INFORMATION -->
+  <!-- START EARNING -->
 
-  <section class="info">
+  <section class="section">
 
-    <div class="info-title">
-      Start Earning
-    </div>
+    <div class="info">
 
-    <div class="info-text">
-      Browse available tasks, complete the required work,
-      submit your proof, and wait for the task to be reviewed.
-      Approved task earnings are added to your wallet.
+      <div class="info-title">
+        🚀 Start Earning
+      </div>
+
+      <div class="info-text">
+        Browse available tasks, complete the required work,
+        submit your proof, and wait for the task to be reviewed.
+        Approved task earnings are added to your wallet.
+      </div>
+
+      <a
+        class="start-button"
+        href="task.html">
+
+        📋 Browse Tasks
+
+      </a>
+
     </div>
 
   </section>
 
+
+  <!-- LOGOUT -->
+
+  <section class="section">
+
+    <button
+      class="logout-button"
+      id="logoutButton">
+
+      🚪 Log Out
+
+    </button>
+
+  </section>
+
 </main>
-
-
-<!-- BOTTOM NAVIGATION -->
-
-<nav class="bottom-nav">
-
-  <a
-    class="nav-item active"
-    href="dashboard.html">
-
-    <span class="nav-icon">⌂</span>
-    Home
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    href="task.html">
-
-    <span class="nav-icon">✓</span>
-    Tasks
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    href="wallet.html">
-
-    <span class="nav-icon">₦</span>
-    Wallet
-
-  </a>
-
-
-  <a
-    class="nav-item"
-    href="profile.html">
-
-    <span class="nav-icon">●</span>
-    Profile
-
-  </a>
-
-</nav>
 
 
 <script>
@@ -388,8 +511,14 @@
   const SUPABASE_URL =
     "https://jwakveeiynpakunwjzkj.supabase.co";
 
+
+  /*
+    KEEP YOUR EXISTING SUPABASE PUBLISHABLE KEY HERE.
+    Do NOT use the secret/service-role key.
+  */
+
   const SUPABASE_KEY =
-         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+    sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D
 
 
   const supabaseClient =
@@ -420,6 +549,10 @@
     await loadProfile(user.id);
 
     await loadActivity(user.id);
+
+    await loadTransactions(user.id);
+
+    await loadReferrals(user.id);
   }
 
 
@@ -507,6 +640,123 @@
     document.getElementById("pendingTasks")
       .textContent = pending;
   }
+
+
+  async function loadTransactions(userId) {
+
+    const { data, error } =
+      await supabaseClient
+        .from("wallet_transactions")
+        .select("amount, type, status")
+        .eq("user_id", userId);
+
+
+    if (error || !data) {
+      return;
+    }
+
+
+    let earned = 0;
+    let withdrawn = 0;
+
+
+    data.forEach(function(item) {
+
+      const amount =
+        Number(item.amount || 0);
+
+
+      const type =
+        String(item.type || "")
+          .toUpperCase();
+
+
+      const status =
+        String(item.status || "")
+          .toUpperCase();
+
+
+      if (
+        status === "APPROVED" ||
+        status === "COMPLETED"
+      ) {
+
+        if (
+          type === "EARNING" ||
+          type === "TASK" ||
+          type === "CREDIT"
+        ) {
+
+          earned += amount;
+
+        }
+
+
+        if (
+          type === "WITHDRAWAL" ||
+          type === "DEBIT"
+        ) {
+
+          withdrawn += amount;
+
+        }
+
+      }
+
+    });
+
+
+    document.getElementById("totalEarned")
+      .textContent =
+      "₦" +
+      earned.toLocaleString("en-NG", {
+        minimumFractionDigits: 2
+      });
+
+
+    document.getElementById("totalWithdrawn")
+      .textContent =
+      "₦" +
+      withdrawn.toLocaleString("en-NG", {
+        minimumFractionDigits: 2
+      });
+  }
+
+
+  async function loadReferrals(userId) {
+
+    const { data, error } =
+      await supabaseClient
+        .from("referrals")
+        .select("id")
+        .eq("referrer_id", userId);
+
+
+    if (error || !data) {
+      return;
+    }
+
+
+    document.getElementById("referralCount")
+      .textContent = data.length;
+  }
+
+
+  document.getElementById("logoutButton")
+    .addEventListener("click", async function() {
+
+      const { error } =
+        await supabaseClient.auth.signOut();
+
+
+      if (!error) {
+
+        window.location.href =
+          "index.html";
+
+      }
+
+    });
 
 
   loadDashboard();
