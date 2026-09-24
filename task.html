@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 * {
   box-sizing: border-box;
 }
@@ -85,12 +86,15 @@ header p {
   white-space: nowrap;
 }
 
+
+/* TASK CARD */
+
 .task-card {
   background: white;
   border: 1px solid #e3eee6;
   border-radius: 16px;
   padding: 17px;
-  margin-bottom: 13px;
+  margin-bottom: 15px;
   box-shadow: 0 3px 12px rgba(0,0,0,.05);
 }
 
@@ -146,31 +150,185 @@ header p {
   font-weight: 800;
 }
 
-.details {
+
+/* STATUS */
+
+.task-status {
+  display: inline-block;
   margin-top: 12px;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  padding: 6px 10px;
+  border-radius: 20px;
   font-size: 11px;
-  color: #657268;
-  line-height: 1.7;
-  white-space: pre-line;
+  font-weight: 800;
 }
 
-.complete-btn {
+
+/* START BUTTON */
+
+.start-task-btn {
   width: 100%;
-  margin-top: 13px;
+  margin-top: 14px;
   border: none;
   background: #0b8f3c;
   color: white;
   padding: 13px;
   border-radius: 10px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
 
-.complete-btn:disabled {
+.start-task-btn:disabled {
   opacity: .65;
   cursor: not-allowed;
 }
+
+
+/* TASK DETAILS */
+
+.task-details {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e8eee9;
+}
+
+.task-details.open {
+  display: block;
+}
+
+.detail-heading {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.detail-box {
+  background: #f7fbf8;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 13px;
+}
+
+.detail-label {
+  font-size: 11px;
+  color: #718078;
+  margin-bottom: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detail-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #27342b;
+  white-space: pre-line;
+}
+
+
+/* TASK LINK */
+
+.task-link {
+  display: block;
+  background: #0b8f3c;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  margin-top: 9px;
+}
+
+
+/* PROOF */
+
+.proof-section {
+  margin-top: 18px;
+}
+
+.proof-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.proof-subtitle {
+  color: #718078;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 13px;
+}
+
+.proof-field {
+  margin-bottom: 13px;
+}
+
+.proof-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.proof-field input,
+.proof-field textarea {
+  width: 100%;
+  border: 1px solid #d9e5dc;
+  background: white;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+
+.proof-field input:focus,
+.proof-field textarea:focus {
+  border-color: #0b8f3c;
+}
+
+.proof-field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.proof-type {
+  display: inline-block;
+  background: #eef7f0;
+  color: #0b8f3c;
+  padding: 6px 9px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 13px;
+}
+
+
+/* SUBMIT */
+
+.submit-proof-btn {
+  width: 100%;
+  border: none;
+  background: #0b8f3c;
+  color: white;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.submit-proof-btn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+
+/* MESSAGE */
 
 .message {
   background: white;
@@ -193,12 +351,26 @@ header p {
   font-weight: 700;
   cursor: pointer;
 }
+
+.success-message {
+  display: none;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 12px;
+}
+
 </style>
 </head>
+
 
 <body>
 
 <header>
+
   <div class="header-inner">
 
     <a href="dashboard.html" class="back">
@@ -216,6 +388,7 @@ header p {
     </p>
 
   </div>
+
 </header>
 
 
@@ -262,7 +435,7 @@ const SUPABASE_URL =
 */
 
 const SUPABASE_KEY =
-      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
 const db =
@@ -272,11 +445,17 @@ const db =
   );
 
 
+let currentUser = null;
+
+
+/* =========================
+   LOAD TASKS
+========================= */
+
 async function loadTasks() {
 
   const tasksBox =
     document.getElementById("tasks");
-
 
   try {
 
@@ -294,19 +473,22 @@ async function loadTasks() {
       return;
     }
 
-     const {
-  data,
-  error
-} = await db
-  .from("tasks")
-  .select(
-    "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active"
-  )
-  .eq("active", true)
-  .order("created_at", {
-    ascending: false
-  }); 
 
+    currentUser = user;
+
+
+    const {
+      data,
+      error
+    } = await db
+      .from("tasks")
+      .select(
+        "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active"
+      )
+      .eq("active", true)
+      .order("created_at", {
+        ascending: false
+      });
 
 
     if (error) {
@@ -345,8 +527,11 @@ async function loadTasks() {
         `
         <div class="message">
           📋<br><br>
+
           <strong>No tasks available</strong>
+
           <br><br>
+
           There are no available tasks for you right now.
           Please check again later.
         </div>
@@ -370,181 +555,7 @@ async function loadTasks() {
 
     data.forEach(function(task) {
 
-      const card =
-        document.createElement("div");
-
-      card.className =
-        "task-card";
-
-
-      const top =
-        document.createElement("div");
-
-      top.className =
-        "task-top";
-
-
-      const icon =
-        document.createElement("div");
-
-      icon.className =
-        "task-icon";
-
-      
-        const taskTitle = (task.title || "").toLowerCase();
-
-if (taskTitle.includes("tiktok")) {
-  icon.textContent = "🎵";
-} else if (taskTitle.includes("youtube")) {
-  icon.textContent = "▶️";
-} else if (taskTitle.includes("instagram")) {
-  icon.textContent = "📸";
-} else if (taskTitle.includes("facebook")) {
-  icon.textContent = "📘";
-} else if (
-  taskTitle.includes("download") ||
-  taskTitle.includes("app")
-) {
-  icon.textContent = "📱";
-} else {
-  icon.textContent = "📋";
-}
-
-
-      const info =
-        document.createElement("div");
-
-
-      const title =
-        document.createElement("div");
-
-      title.className =
-        "task-title";
-
-      title.textContent =
-        task.title ||
-        "Task";
-
-
-      const description =
-        document.createElement("p");
-
-      description.className =
-        "task-description";
-
-      description.textContent =
-        task.description ||
-        "Complete this task according to the instructions.";
-
-
-      info.appendChild(title);
-      info.appendChild(description);
-
-      top.appendChild(icon);
-      top.appendChild(info);
-
-
-      const rewardBox =
-        document.createElement("div");
-
-      rewardBox.className =
-        "reward-box";
-
-
-      const rewardLabel =
-        document.createElement("span");
-
-      rewardLabel.className =
-        "reward-label";
-
-      rewardLabel.textContent =
-        "TASK REWARD";
-
-
-      const reward =
-        document.createElement("span");
-
-      reward.className =
-        "reward";
-
-      reward.textContent =
-        "₦" +
-        Number(
-          task.reward || 0
-        ).toLocaleString("en-NG");
-
-
-      rewardBox.appendChild(
-        rewardLabel
-      );
-
-      rewardBox.appendChild(
-        reward
-      );
-
-
-      const details =
-        document.createElement("div");
-
-      details.className =
-        "details";
-
-
-      const proofText =
-        task.proof_required
-          ? (task.proof_type || "Text")
-          : "Not required";
-
-
-      details.textContent =
-        "🧾 Proof: " +
-        proofText;
-
-
-      if (task.requirements) {
-
-        details.textContent +=
-          "\n📝 Requirements: " +
-          task.requirements;
-      }
-
-
-      if (task.expiry_date) {
-
-        details.textContent +=
-          "\n⏰ Deadline: " +
-          task.expiry_date;
-      }
-
-
-      const button =
-        document.createElement("button");
-
-      button.className =
-        "complete-btn";
-
-      button.textContent =
-        "Complete Task";
-
-
-      button.onclick =
-        function() {
-
-          startTask(
-            task.id,
-            button
-          );
-
-        };
-
-
-      card.appendChild(top);
-      card.appendChild(rewardBox);
-      card.appendChild(details);
-      card.appendChild(button);
-
-
-      tasksBox.appendChild(card);
+      createTaskCard(task);
 
     });
 
@@ -573,108 +584,644 @@ if (taskTitle.includes("tiktok")) {
 }
 
 
-async function startTask(
-  taskId,
+/* =========================
+   CREATE TASK CARD
+========================= */
+
+function createTaskCard(task) {
+
+  const tasksBox =
+    document.getElementById("tasks");
+
+
+  const card =
+    document.createElement("div");
+
+  card.className =
+    "task-card";
+
+
+  /* ICON */
+
+  const top =
+    document.createElement("div");
+
+  top.className =
+    "task-top";
+
+
+  const icon =
+    document.createElement("div");
+
+  icon.className =
+    "task-icon";
+
+
+  const taskTitle =
+    (task.title || "").toLowerCase();
+
+
+  if (taskTitle.includes("tiktok")) {
+
+    icon.textContent = "🎵";
+
+  } else if (taskTitle.includes("youtube")) {
+
+    icon.textContent = "▶️";
+
+  } else if (taskTitle.includes("instagram")) {
+
+    icon.textContent = "📸";
+
+  } else if (taskTitle.includes("facebook")) {
+
+    icon.textContent = "📘";
+
+  } else if (
+    taskTitle.includes("download") ||
+    taskTitle.includes("app")
+  ) {
+
+    icon.textContent = "📱";
+
+  } else {
+
+    icon.textContent = "📋";
+
+  }
+
+
+  const info =
+    document.createElement("div");
+
+
+  const title =
+    document.createElement("div");
+
+  title.className =
+    "task-title";
+
+  title.textContent =
+    task.title ||
+    "Task";
+
+
+  const description =
+    document.createElement("p");
+
+  description.className =
+    "task-description";
+
+  description.textContent =
+    task.description ||
+    "Complete this task according to the instructions.";
+
+
+  info.appendChild(title);
+  info.appendChild(description);
+
+
+  top.appendChild(icon);
+  top.appendChild(info);
+
+
+  /* REWARD */
+
+  const rewardBox =
+    document.createElement("div");
+
+  rewardBox.className =
+    "reward-box";
+
+
+  const rewardLabel =
+    document.createElement("span");
+
+  rewardLabel.className =
+    "reward-label";
+
+  rewardLabel.textContent =
+    "TASK REWARD";
+
+
+  const reward =
+    document.createElement("span");
+
+  reward.className =
+    "reward";
+
+  reward.textContent =
+    "₦" +
+    Number(
+      task.reward || 0
+    ).toLocaleString("en-NG");
+
+
+  rewardBox.appendChild(
+    rewardLabel
+  );
+
+  rewardBox.appendChild(
+    reward
+  );
+
+
+  /* STATUS */
+
+  const status =
+    document.createElement("div");
+
+  status.className =
+    "task-status";
+
+  status.textContent =
+    "● AVAILABLE";
+
+
+  /* START BUTTON */
+
+  const startButton =
+    document.createElement("button");
+
+  startButton.className =
+    "start-task-btn";
+
+  startButton.textContent =
+    "▶ Start Task";
+
+
+  /* DETAILS */
+
+  const details =
+    document.createElement("div");
+
+  details.className =
+    "task-details";
+
+
+  /* DETAILS HEADING */
+
+  const detailsHeading =
+    document.createElement("div");
+
+  detailsHeading.className =
+    "detail-heading";
+
+  detailsHeading.textContent =
+    "Task Details";
+
+
+  details.appendChild(
+    detailsHeading
+  );
+
+
+  /* INSTRUCTIONS */
+
+  const instructionsBox =
+    document.createElement("div");
+
+  instructionsBox.className =
+    "detail-box";
+
+
+  instructionsBox.innerHTML =
+    `
+    <div class="detail-label">
+      📋 What you need to do
+    </div>
+
+    <div class="detail-text">
+      ${escapeHTML(
+        task.description ||
+        "Complete the task according to the instructions."
+      )}
+    </div>
+    `;
+
+
+  details.appendChild(
+    instructionsBox
+  );
+
+
+  /* REQUIREMENTS */
+
+  if (task.requirements) {
+
+    const requirementsBox =
+      document.createElement("div");
+
+    requirementsBox.className =
+      "detail-box";
+
+
+    requirementsBox.innerHTML =
+      `
+      <div class="detail-label">
+        📝 Requirements
+      </div>
+
+      <div class="detail-text">
+        ${escapeHTML(
+          task.requirements
+        )}
+      </div>
+      `;
+
+
+    details.appendChild(
+      requirementsBox
+    );
+
+  }
+
+
+  /* DEADLINE */
+
+  if (task.expiry_date) {
+
+    const deadlineBox =
+      document.createElement("div");
+
+    deadlineBox.className =
+      "detail-box";
+
+
+    deadlineBox.innerHTML =
+      `
+      <div class="detail-label">
+        ⏰ Deadline
+      </div>
+
+      <div class="detail-text">
+        ${escapeHTML(
+          String(task.expiry_date)
+        )}
+      </div>
+      `;
+
+
+    details.appendChild(
+      deadlineBox
+    );
+
+  }
+
+
+  /* PROOF SECTION */
+
+  const proofSection =
+    document.createElement("div");
+
+  proofSection.className =
+    "proof-section";
+
+
+  const proofTitle =
+    document.createElement("div");
+
+  proofTitle.className =
+    "proof-title";
+
+  proofTitle.textContent =
+    "Submit Proof";
+
+
+  const proofSubtitle =
+    document.createElement("div");
+
+  proofSubtitle.className =
+    "proof-subtitle";
+
+  proofSubtitle.textContent =
+    "Complete the task first, then submit the required proof below.";
+
+
+  proofSection.appendChild(
+    proofTitle
+  );
+
+  proofSection.appendChild(
+    proofSubtitle
+  );
+
+
+  const proofType =
+    document.createElement("div");
+
+  proofType.className =
+    "proof-type";
+
+
+  proofType.textContent =
+    "Proof type: " +
+    getProofType(task);
+
+
+  proofSection.appendChild(
+    proofType
+  );
+
+
+  /* DYNAMIC PROOF FIELD */
+
+  const fieldContainer =
+    document.createElement("div");
+
+
+  buildProofField(
+    fieldContainer,
+    task
+  );
+
+
+  proofSection.appendChild(
+    fieldContainer
+  );
+
+
+  /* SUBMIT */
+
+  const submitButton =
+    document.createElement("button");
+
+  submitButton.className =
+    "submit-proof-btn";
+
+  submitButton.textContent =
+    "Submit Proof";
+
+
+  submitButton.onclick =
+    function() {
+
+      submitProof(
+        task,
+        fieldContainer,
+        submitButton
+      );
+
+    };
+
+
+  proofSection.appendChild(
+    submitButton
+  );
+
+
+  /* SUCCESS */
+
+  const success =
+    document.createElement("div");
+
+  success.className =
+    "success-message";
+
+  success.textContent =
+    "✅ Your proof has been submitted and is waiting for review.";
+
+
+  proofSection.appendChild(
+    success
+  );
+
+
+  details.appendChild(
+    proofSection
+  );
+
+
+  /* OPEN DETAILS */
+
+  startButton.onclick =
+    function() {
+
+      details.classList.toggle(
+        "open"
+      );
+
+
+      if (
+        details.classList.contains("open")
+      ) {
+
+        startButton.textContent =
+          "▲ Hide Task Details";
+
+      } else {
+
+        startButton.textContent =
+          "▶ Start Task";
+
+      }
+
+    };
+
+
+  card.appendChild(top);
+
+  card.appendChild(rewardBox);
+
+  card.appendChild(status);
+
+  card.appendChild(startButton);
+
+  card.appendChild(details);
+
+
+  tasksBox.appendChild(card);
+
+}
+
+
+/* =========================
+   PROOF TYPE
+========================= */
+
+function getProofType(task) {
+
+  if (!task.proof_required) {
+
+    return "Optional";
+
+  }
+
+
+  return String(
+    task.proof_type || "Text"
+  );
+
+}
+
+
+/* =========================
+   BUILD PROOF FIELD
+========================= */
+
+function buildProofField(
+  container,
+  task
+) {
+
+  const type =
+    String(
+      task.proof_type || "Text"
+    ).toLowerCase();
+
+
+  if (
+    type.includes("username")
+  ) {
+
+    container.innerHTML =
+      `
+      <div class="proof-field">
+
+        <label>
+          👤 Your Username
+        </label>
+
+        <input
+          type="text"
+          class="proof-input"
+          placeholder="@yourusername"
+        >
+
+      </div>
+      `;
+
+    return;
+  }
+
+
+  if (
+    type.includes("url") ||
+    type.includes("link")
+  ) {
+
+    container.innerHTML =
+      `
+      <div class="proof-field">
+
+        <label>
+          🔗 Proof URL
+        </label>
+
+        <input
+          type="url"
+          class="proof-input"
+          placeholder="https://..."
+        >
+
+      </div>
+      `;
+
+    return;
+  }
+
+
+  if (
+    type.includes("reference")
+  ) {
+
+    container.innerHTML =
+      `
+      <div class="proof-field">
+
+        <label>
+          🔖 Reference ID
+        </label>
+
+        <input
+          type="text"
+          class="proof-input"
+          placeholder="Enter reference ID"
+        >
+
+      </div>
+      `;
+
+    return;
+  }
+
+
+  if (
+    type.includes("screenshot")
+  ) {
+
+    container.innerHTML =
+      `
+      <div class="proof-field">
+
+        <label>
+          📸 Screenshot
+        </label>
+
+        <input
+          type="file"
+          class="proof-input"
+          accept="image/*"
+        >
+
+      </div>
+
+      <div class="proof-field">
+
+        <label>
+          📝 Description
+        </label>
+
+        <textarea
+          class="proof-input"
+          placeholder="Briefly describe what you completed..."
+        ></textarea>
+
+      </div>
+      `;
+
+    return;
+  }
+
+
+  /* DEFAULT TEXT */
+
+  container.innerHTML =
+    `
+    <div class="proof-field">
+
+      <label>
+        📝 Your Proof
+      </label>
+
+      <textarea
+        class="proof-input"
+        placeholder="Describe what you completed..."
+      ></textarea>
+
+    </div>
+    `;
+
+}
+
+
+/* =========================
+   SUBMIT PROOF
+========================= */
+
+async function submitProof(
+  task,
+  container,
   button
 ) {
 
   button.disabled = true;
 
   button.textContent =
-    "Loading...";
+    "Submitting...";
 
 
   try {
-
-    const {
-      data: task,
-      error
-    } = await db
-      .from("tasks")
-      .select(
-        "id, title, description, reward, proof_type, proof_required"
-      )
-      .eq("id", taskId)
-      .single();
-
-
-    if (error || !task) {
-
-      alert(
-        "Unable to load this task."
-      );
-
-      button.disabled = false;
-
-      button.textContent =
-        "Complete Task";
-
-      return;
-    }
-
-
-    let proof = "";
-
-
-    if (task.proof_required) {
-
-      proof = prompt(
-        "Complete the task first, then enter your proof.\n\nProof type: " +
-        (task.proof_type || "Text")
-      );
-
-
-      if (proof === null) {
-
-        button.disabled = false;
-
-        button.textContent =
-          "Complete Task";
-
-        return;
-      }
-
-
-      proof =
-        proof.trim();
-
-
-      if (!proof) {
-
-        alert(
-          "Proof is required."
-        );
-
-        button.disabled = false;
-
-        button.textContent =
-          "Complete Task";
-
-        return;
-      }
-
-    } else {
-
-      proof = prompt(
-        "Complete the task first.\n\nAdd your proof or note:"
-      );
-
-
-      if (proof === null) {
-
-        button.disabled = false;
-
-        button.textContent =
-          "Complete Task";
-
-        return;
-      }
-
-      proof =
-        proof.trim();
-
-    }
-
 
     const {
       data: { user }
@@ -691,8 +1238,109 @@ async function startTask(
     }
 
 
+    const input =
+      container.querySelector(
+        ".proof-input"
+      );
+
+
+    if (!input) {
+
+      alert(
+        "Please enter your proof."
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        "Submit Proof";
+
+      return;
+    }
+
+
+    let proofValue = "";
+
+
+    /*
+      For screenshots we currently
+      collect the description.
+
+      Actual screenshot storage will
+      be connected after we set up the
+      Supabase Storage bucket.
+    */
+
+    if (
+      input.type === "file"
+    ) {
+
+      const file =
+        input.files[0];
+
+
+      if (!file) {
+
+        alert(
+          "Please select your screenshot."
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+          "Submit Proof";
+
+        return;
+      }
+
+
+      const description =
+        container.querySelector(
+          "textarea"
+        );
+
+
+      proofValue =
+        "Screenshot selected: " +
+        file.name;
+
+
+      if (
+        description &&
+        description.value.trim()
+      ) {
+
+        proofValue +=
+          "\nDescription: " +
+          description.value.trim();
+
+      }
+
+    } else {
+
+      proofValue =
+        input.value.trim();
+
+    }
+
+
+    if (!proofValue) {
+
+      alert(
+        "Please enter your proof."
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        "Submit Proof";
+
+      return;
+    }
+
+
     const {
-      error: submissionError
+      error
     } =
       await db
         .from("task_submissions")
@@ -702,44 +1350,48 @@ async function startTask(
 
           task_id: task.id,
 
-          proof: proof,
+          proof: proofValue,
 
           status: "PENDING"
 
         });
 
 
-    if (submissionError) {
+    if (error) {
 
-      console.error(
-        submissionError
-      );
+      console.error(error);
 
       alert(
         "Submission failed: " +
-        submissionError.message
+        error.message
       );
 
       button.disabled = false;
 
       button.textContent =
-        "Complete Task";
+        "Submit Proof";
 
       return;
     }
-
-
-    alert(
-      "✅ Task submitted successfully.\n\nYour proof is now pending review."
-    );
 
 
     button.textContent =
       "Submitted ✓";
 
 
-    button.disabled =
-      true;
+    const success =
+      container.parentElement
+        .querySelector(
+          ".success-message"
+        );
+
+
+    if (success) {
+
+      success.style.display =
+        "block";
+
+    }
 
 
   } catch (error) {
@@ -753,12 +1405,30 @@ async function startTask(
     button.disabled = false;
 
     button.textContent =
-      "Complete Task";
+      "Submit Proof";
 
   }
 
 }
 
+
+/* =========================
+   SECURITY
+========================= */
+
+function escapeHTML(value) {
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/* START */
 
 loadTasks();
 
