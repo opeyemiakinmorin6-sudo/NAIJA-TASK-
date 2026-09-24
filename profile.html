@@ -21,27 +21,33 @@ body {
 header {
   background: #0b8f3c;
   color: white;
-  padding: 24px 20px;
-  text-align: center;
+  padding: 18px 20px 22px;
+}
+
+.header-inner {
+  max-width: 600px;
+  margin: auto;
+}
+
+.back {
+  display: inline-block;
+  background: white;
+  color: #0b8f3c;
+  text-decoration: none;
+  border: 2px solid white;
+  padding: 10px 15px;
+  border-radius: 9px;
+  font-weight: bold;
+  margin-bottom: 18px;
 }
 
 header h1 {
-  margin: 0;
-  font-size: 26px;
+  margin: 0 0 6px;
+  font-size: 25px;
 }
 
 header p {
-  margin: 7px 0 18px;
-}
-
-.logout {
-  border: none;
-  padding: 10px 22px;
-  border-radius: 20px;
-  background: white;
-  color: #0b8f3c;
-  font-weight: bold;
-  cursor: pointer;
+  margin: 0;
 }
 
 .container {
@@ -83,6 +89,11 @@ input:focus {
   border-color: #0b8f3c;
 }
 
+input[readonly] {
+  background: #f3f3f3;
+  color: #666;
+}
+
 button.save {
   width: 100%;
   border: none;
@@ -96,24 +107,40 @@ button.save {
   cursor: pointer;
 }
 
+button.save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.logout {
+  width: 100%;
+  border: 1px solid #d32f2f;
+  padding: 13px;
+  border-radius: 9px;
+  background: white;
+  color: #d32f2f;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 #message {
   text-align: center;
   margin-top: 15px;
   font-weight: bold;
 }
 
-.links {
-  display: grid;
-  gap: 10px;
+.success {
+  color: #0b8f3c;
 }
 
-.links a {
-  text-decoration: none;
-  padding: 13px;
-  border-radius: 9px;
-  background: #f5fff7;
-  color: #0b8f3c;
-  font-weight: bold;
+.error {
+  color: #d32f2f;
+}
+
+.loading {
+  text-align: center;
+  color: #777;
 }
 </style>
 </head>
@@ -121,60 +148,99 @@ button.save {
 <body>
 
 <header>
-  <h1>NAIJA TASK</h1>
-  <p>My Profile</p>
+  <div class="header-inner">
 
-  <button class="logout" onclick="logoutUser()">
-    Logout
-  </button>
+    <a href="dashboard.html" class="back">
+      ← Back to Dashboard
+    </a>
+
+    <h1>👤 My Profile</h1>
+    <p>Manage your account information</p>
+
+  </div>
 </header>
+
 
 <div class="container">
 
   <div class="card">
+
     <h2>Account Information</h2>
 
-    <label for="fullName">Full Name</label>
-    <input
-      id="fullName"
-      type="text"
-      placeholder="Enter your full name"
-    >
+    <p id="loadingMessage" class="loading">
+      Loading profile...
+    </p>
 
-    <label for="phone">Phone Number</label>
-    <input
-      id="phone"
-      type="tel"
-      placeholder="Enter your phone number"
-    >
+    <div id="profileForm" style="display:none;">
 
-    <label for="email">Email Address</label>
-    <input
-      id="email"
-      type="email"
-      readonly
-    >
+      <label for="fullName">
+        Full Name
+      </label>
 
-    <button class="save" onclick="saveProfile()">
-      Save Profile
-    </button>
+      <input
+        id="fullName"
+        type="text"
+        placeholder="Enter your full name"
+      >
 
-    <p id="message"></p>
+
+      <label for="phone">
+        Phone Number
+      </label>
+
+      <input
+        id="phone"
+        type="tel"
+        placeholder="Enter your phone number"
+      >
+
+
+      <label for="email">
+        Email Address
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        readonly
+      >
+
+
+      <button
+        id="saveButton"
+        class="save"
+        onclick="saveProfile()"
+      >
+        Save Profile
+      </button>
+
+      <p id="message"></p>
+
+    </div>
+
   </div>
 
-  <div class="card">
-    <h2>Quick Links</h2>
 
-    <div class="links">
-      <a href="dashboard.html">🏠 Dashboard</a>
-      <a href="task.html">📋 Tasks</a>
-      <a href="wallet.html">💰 Wallet</a>
-      <a href="withdrawal.html">💸 Withdraw</a>
-      <a href="referrals.html">👥 Referrals</a>
-    </div>
+  <div class="card">
+
+    <h2>🔐 Account</h2>
+
+    <p>
+      Your account information is connected to your
+      NAIJA TASK account.
+    </p>
+
+    <button
+      class="logout"
+      onclick="logoutUser()"
+    >
+      🚪 Logout
+    </button>
+
   </div>
 
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -184,14 +250,12 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  Enter your CURRENT SUPABASE PUBLISHABLE KEY below.
+  Put your CURRENT Supabase publishable key here.
+
   Do NOT use the secret/service-role key.
 */
 const SUPABASE_KEY =
-     
-  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-  
-  
+  sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D
 
 
 const supabaseClient =
@@ -203,93 +267,234 @@ const supabaseClient =
 
 async function loadProfile() {
 
+  const loadingMessage =
+    document.getElementById(
+      "loadingMessage"
+    );
+
+  const profileForm =
+    document.getElementById(
+      "profileForm"
+    );
+
+
   const {
     data: { user },
-    error
-  } = await supabaseClient.auth.getUser();
+    error: authError
+  } =
+    await supabaseClient.auth.getUser();
 
-  if (error || !user) {
-    window.location.href = "index.html";
+
+  if (authError || !user) {
+
+    window.location.href =
+      "index.html";
+
     return;
+
   }
 
-  document.getElementById("email").value =
+
+  document.getElementById(
+    "email"
+  ).value =
     user.email || "";
 
-  const { data, error: profileError } =
+
+  const {
+    data,
+    error: profileError
+  } =
     await supabaseClient
       .from("profiles")
-      .select("full_name, phone")
-      .eq("id", user.id)
+      .select(
+        "full_name, phone"
+      )
+      .eq(
+        "id",
+        user.id
+      )
       .single();
 
+
   if (profileError) {
-    document.getElementById("message").textContent =
-      "Unable to load profile.";
+
+    console.error(
+      profileError
+    );
+
+    loadingMessage.textContent =
+      "Unable to load your profile.";
+
+    loadingMessage.className =
+      "error";
+
     return;
+
   }
 
-  document.getElementById("fullName").value =
+
+  document.getElementById(
+    "fullName"
+  ).value =
     data?.full_name || "";
 
-  document.getElementById("phone").value =
+
+  document.getElementById(
+    "phone"
+  ).value =
     data?.phone || "";
+
+
+  loadingMessage.style.display =
+    "none";
+
+  profileForm.style.display =
+    "block";
+
 }
 
 
 async function saveProfile() {
 
   const message =
-    document.getElementById("message");
+    document.getElementById(
+      "message"
+    );
 
-  message.textContent = "Saving...";
+  const saveButton =
+    document.getElementById(
+      "saveButton"
+    );
+
+
+  message.textContent =
+    "Saving...";
+
+  message.className = "";
+
+
+  saveButton.disabled =
+    true;
+
 
   const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
+    data: { user },
+    error: authError
+  } =
+    await supabaseClient.auth.getUser();
 
-  if (!user) {
-    window.location.href = "index.html";
+
+  if (authError || !user) {
+
+    window.location.href =
+      "index.html";
+
     return;
+
   }
+
 
   const fullName =
-    document.getElementById("fullName").value.trim();
+    document.getElementById(
+      "fullName"
+    ).value.trim();
+
 
   const phone =
-    document.getElementById("phone").value.trim();
+    document.getElementById(
+      "phone"
+    ).value.trim();
+
 
   if (!fullName) {
+
     message.textContent =
       "Please enter your full name.";
+
+    message.className =
+      "error";
+
+    saveButton.disabled =
+      false;
+
     return;
+
   }
 
-  const { error } =
+
+  const {
+    error
+  } =
     await supabaseClient
       .from("profiles")
       .update({
-        full_name: fullName,
-        phone: phone
+        full_name:
+          fullName,
+        phone:
+          phone
       })
-      .eq("id", user.id);
+      .eq(
+        "id",
+        user.id
+      );
+
 
   if (error) {
+
+    console.error(
+      error
+    );
+
     message.textContent =
       "Unable to save profile.";
+
+    message.className =
+      "error";
+
+    saveButton.disabled =
+      false;
+
     return;
+
   }
+
 
   message.textContent =
     "Profile saved successfully.";
+
+  message.className =
+    "success";
+
+
+  saveButton.disabled =
+    false;
+
 }
 
 
 async function logoutUser() {
 
-  await supabaseClient.auth.signOut();
+  const {
+    error
+  } =
+    await supabaseClient.auth.signOut();
 
-  window.location.href = "index.html";
+
+  if (error) {
+
+    alert(
+      "Unable to logout. Please try again."
+    );
+
+    return;
+
+  }
+
+
+  window.location.href =
+    "index.html";
+
 }
 
 
