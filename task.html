@@ -262,7 +262,7 @@ const SUPABASE_URL =
 */
 
 const SUPABASE_KEY =
-  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  
 
 
 const db =
@@ -390,8 +390,25 @@ async function loadTasks() {
       icon.className =
         "task-icon";
 
-      icon.textContent =
-        "📋";
+      
+        const taskTitle = (task.title || "").toLowerCase();
+
+if (taskTitle.includes("tiktok")) {
+  icon.textContent = "🎵";
+} else if (taskTitle.includes("youtube")) {
+  icon.textContent = "▶️";
+} else if (taskTitle.includes("instagram")) {
+  icon.textContent = "📸";
+} else if (taskTitle.includes("facebook")) {
+  icon.textContent = "📘";
+} else if (
+  taskTitle.includes("download") ||
+  taskTitle.includes("app")
+) {
+  icon.textContent = "📱";
+} else {
+  icon.textContent = "📋";
+}
 
 
       const info =
