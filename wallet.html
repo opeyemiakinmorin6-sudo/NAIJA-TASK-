@@ -21,40 +21,36 @@ body {
 header {
   background: #0b8f3c;
   color: white;
-  padding: 20px;
-  text-align: center;
+  padding: 18px 20px;
+}
+
+.header-inner {
+  max-width: 600px;
+  margin: auto;
+}
+
+.back {
+  display: inline-block;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  margin-bottom: 14px;
 }
 
 header h1 {
-  margin: 0 0 6px;
+  margin: 0 0 5px;
+  font-size: 25px;
 }
 
 header p {
   margin: 0;
+  opacity: 0.95;
 }
 
 .container {
   max-width: 600px;
   margin: auto;
   padding: 20px;
-}
-
-.nav {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.nav a {
-  display: block;
-  background: white;
-  color: #0b8f3c;
-  text-decoration: none;
-  padding: 13px;
-  border-radius: 9px;
-  text-align: center;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .card {
@@ -69,8 +65,12 @@ header p {
   text-align: center;
 }
 
+.balance-icon {
+  font-size: 38px;
+}
+
 .balance h3 {
-  margin-top: 0;
+  margin: 8px 0;
 }
 
 .balance h2 {
@@ -82,6 +82,54 @@ header p {
 .status {
   color: #777;
   font-size: 14px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat {
+  background: #f5fff7;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: 25px;
+}
+
+.stat-title {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-top: 6px;
+}
+
+.stat-value {
+  display: block;
+  color: #0b8f3c;
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.withdraw-btn {
+  display: block;
+  background: #0b8f3c;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+.withdraw-btn:hover {
+  opacity: 0.9;
 }
 
 .transaction {
@@ -100,11 +148,41 @@ header p {
 
 .transaction small {
   color: #777;
+  display: block;
+  margin-top: 5px;
+}
+
+.transaction-type {
+  font-weight: bold;
+  color: #111;
+}
+
+.amount {
+  font-weight: bold;
+}
+
+.positive {
+  color: #0b8f3c;
+}
+
+.negative {
+  color: #c62828;
 }
 
 .message {
   text-align: center;
   color: #777;
+  padding: 15px 0;
+}
+
+.error {
+  color: #c62828;
+}
+
+.loading {
+  text-align: center;
+  color: #777;
+  padding: 15px 0;
 }
 </style>
 </head>
@@ -112,23 +190,28 @@ header p {
 <body>
 
 <header>
-  <h1>NAIJA TASK</h1>
-  <p>My Wallet</p>
+  <div class="header-inner">
+
+    <a href="dashboard.html" class="back">
+      ← Back to Dashboard
+    </a>
+
+    <h1>💰 My Wallet</h1>
+    <p>Manage your NAIJA TASK earnings</p>
+
+  </div>
 </header>
+
 
 <div class="container">
 
-  <div class="nav">
-    <a href="dashboard.html">🏠 Dashboard</a>
-    <a href="tasks.html">📋 Tasks</a>
-    <a href="referrals.html">👥 Referrals</a>
-    <a href="withdrawals.html">💸 Withdrawals</a>
-    <a href="profile.html">👤 Profile</a>
-  </div>
+  <!-- BALANCE -->
 
   <div class="card balance">
 
-    <h3>Wallet Balance</h3>
+    <div class="balance-icon">💰</div>
+
+    <h3>Available Balance</h3>
 
     <h2>
       ₦<span id="balance">0.00</span>
@@ -138,21 +221,82 @@ header p {
       Loading wallet...
     </p>
 
+    <a
+      href="withdrawals.html"
+      class="withdraw-btn"
+    >
+      💸 Withdraw Money
+    </a>
+
   </div>
+
+
+  <!-- WALLET SUMMARY -->
 
   <div class="card">
 
-    <h3>Wallet Transactions</h3>
+    <h3>📊 Wallet Summary</h3>
+
+    <div class="stats">
+
+      <div class="stat">
+
+        <span class="stat-icon">💵</span>
+
+        <span class="stat-title">
+          Total Earned
+        </span>
+
+        <span
+          class="stat-value"
+          id="totalEarned"
+        >
+          ₦0.00
+        </span>
+
+      </div>
+
+
+      <div class="stat">
+
+        <span class="stat-icon">💸</span>
+
+        <span class="stat-title">
+          Total Withdrawn
+        </span>
+
+        <span
+          class="stat-value"
+          id="totalWithdrawn"
+        >
+          ₦0.00
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- TRANSACTIONS -->
+
+  <div class="card">
+
+    <h3>📜 Wallet Transactions</h3>
 
     <div id="transactions">
-      <p class="message">
+
+      <p class="loading">
         Loading transactions...
       </p>
+
     </div>
 
   </div>
 
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -162,12 +306,13 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  Put your CURRENT Supabase publishable key here.
+  Keep your CURRENT Supabase publishable key here.
+
   Do NOT use the secret/service-role key.
 */
 const SUPABASE_KEY =
-  
-  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D
+
 
 const supabaseClient =
   window.supabase.createClient(
@@ -176,19 +321,70 @@ const supabaseClient =
   );
 
 
+function formatNaira(amount) {
+
+  return Number(
+    amount || 0
+  ).toLocaleString(
+    "en-NG",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  );
+
+}
+
+
+function isEarning(type) {
+
+  const value =
+    String(type || "").toUpperCase();
+
+  return (
+    value.includes("EARNING") ||
+    value.includes("TASK") ||
+    value.includes("CREDIT")
+  );
+
+}
+
+
+function isWithdrawal(type) {
+
+  const value =
+    String(type || "").toUpperCase();
+
+  return (
+    value.includes("WITHDRAW") ||
+    value.includes("DEBIT")
+  );
+
+}
+
+
 async function loadWallet() {
 
   const walletStatus =
-    document.getElementById("walletStatus");
+    document.getElementById(
+      "walletStatus"
+    );
 
   const transactionsBox =
-    document.getElementById("transactions");
+    document.getElementById(
+      "transactions"
+    );
 
+
+  /*
+    Check logged-in user
+  */
 
   const {
     data: { user },
     error: userError
-  } = await supabaseClient.auth.getUser();
+  } =
+    await supabaseClient.auth.getUser();
 
 
   if (userError || !user) {
@@ -197,17 +393,23 @@ async function loadWallet() {
       "index.html";
 
     return;
+
   }
 
+
+  /*
+    Load wallet balance
+  */
 
   const {
     data: profile,
     error: profileError
-  } = await supabaseClient
-    .from("profiles")
-    .select("balance")
-    .eq("id", user.id)
-    .single();
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select("balance")
+      .eq("id", user.id)
+      .single();
 
 
   if (profileError) {
@@ -217,52 +419,141 @@ async function loadWallet() {
     walletStatus.textContent =
       "Unable to load wallet.";
 
+    walletStatus.className =
+      "status error";
+
     return;
+
   }
 
 
   document.getElementById(
     "balance"
   ).textContent =
-    Number(
+    formatNaira(
       profile?.balance || 0
-    ).toFixed(2);
+    );
+
+
+  /*
+    Load transactions
+  */
+
+  const {
+    data: transactions,
+    error: transactionError
+  } =
+    await supabaseClient
+      .from("wallet_transactions")
+      .select(
+        "id, type, amount, description, reference, status, created_at"
+      )
+      .eq(
+        "user_id",
+        user.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      );
+
+
+  if (transactionError) {
+
+    console.error(
+      transactionError
+    );
+
+    walletStatus.textContent =
+      "Wallet loaded, but transactions could not be loaded.";
+
+    walletStatus.className =
+      "status error";
+
+    transactionsBox.innerHTML =
+      `
+        <p class="message error">
+          Unable to load transactions.
+        </p>
+      `;
+
+    return;
+
+  }
 
 
   walletStatus.textContent =
     "Wallet loaded successfully.";
 
+  walletStatus.className =
+    "status";
 
-  const {
-    data: transactions,
-    error: transactionError
-  } = await supabaseClient
-    .from("wallet_transactions")
-    .select(
-      "id, type, amount, description, reference, status, created_at"
-    )
-    .eq(
-      "user_id",
-      user.id
-    )
-    .order(
-      "created_at",
-      {
-        ascending: false
+
+  /*
+    Calculate real totals
+  */
+
+  let totalEarned = 0;
+  let totalWithdrawn = 0;
+
+
+  (transactions || []).forEach(
+    transaction => {
+
+      const amount =
+        Number(
+          transaction.amount || 0
+        );
+
+
+      if (
+        isEarning(
+          transaction.type
+        )
+      ) {
+
+        totalEarned += amount;
+
       }
+
+
+      if (
+        isWithdrawal(
+          transaction.type
+        )
+      ) {
+
+        totalWithdrawn += amount;
+
+      }
+
+    }
+  );
+
+
+  document.getElementById(
+    "totalEarned"
+  ).textContent =
+    "₦" +
+    formatNaira(
+      totalEarned
     );
 
 
-  if (transactionError) {
+  document.getElementById(
+    "totalWithdrawn"
+  ).textContent =
+    "₦" +
+    formatNaira(
+      totalWithdrawn
+    );
 
-    console.error(transactionError);
 
-    transactionsBox.innerHTML =
-      '<p class="message">Unable to load transactions.</p>';
-
-    return;
-  }
-
+  /*
+    No transactions
+  */
 
   if (
     !transactions ||
@@ -270,69 +561,173 @@ async function loadWallet() {
   ) {
 
     transactionsBox.innerHTML =
-      '<p class="message">No wallet transactions yet.</p>';
+      `
+        <p class="message">
+          No wallet transactions yet.
+        </p>
+      `;
 
     return;
+
   }
 
+
+  /*
+    Display transactions
+  */
 
   transactionsBox.innerHTML = "";
 
 
-  transactions.forEach(transaction => {
+  transactions.forEach(
+    transaction => {
 
-    const div =
-      document.createElement("div");
+      const div =
+        document.createElement(
+          "div"
+        );
 
-    div.className =
-      "transaction";
-
-
-    const title =
-      document.createElement("strong");
-
-    title.textContent =
-      transaction.type ||
-      "Transaction";
+      div.className =
+        "transaction";
 
 
-    const amount =
-      document.createElement("p");
+      const title =
+        document.createElement(
+          "div"
+        );
 
-    amount.textContent =
-      "Amount: ₦" +
-      Number(
-        transaction.amount || 0
-      ).toFixed(2);
+      title.className =
+        "transaction-type";
 
-
-    const description =
-      document.createElement("p");
-
-    description.textContent =
-      transaction.description ||
-      "";
+      title.textContent =
+        transaction.type ||
+        "Transaction";
 
 
-    const status =
-      document.createElement("small");
+      const amount =
+        document.createElement(
+          "p"
+        );
 
-    status.textContent =
-      "Status: " +
-      (
-        transaction.status ||
-        "N/A"
+      const amountNumber =
+        Number(
+          transaction.amount || 0
+        );
+
+
+      const withdrawal =
+        isWithdrawal(
+          transaction.type
+        );
+
+
+      amount.className =
+        withdrawal
+          ? "amount negative"
+          : "amount positive";
+
+
+      amount.textContent =
+        (withdrawal
+          ? "- ₦"
+          : "+ ₦") +
+        formatNaira(
+          Math.abs(
+            amountNumber
+          )
+        );
+
+
+      const description =
+        document.createElement(
+          "p"
+        );
+
+      description.textContent =
+        transaction.description ||
+        "No description";
+
+
+      const status =
+        document.createElement(
+          "small"
+        );
+
+      status.textContent =
+        "Status: " +
+        (
+          transaction.status ||
+          "N/A"
+        );
+
+
+      if (
+        transaction.reference
+      ) {
+
+        const reference =
+          document.createElement(
+            "small"
+          );
+
+        reference.textContent =
+          "Reference: " +
+          transaction.reference;
+
+        div.appendChild(
+          reference
+        );
+
+      }
+
+
+      if (
+        transaction.created_at
+      ) {
+
+        const date =
+          document.createElement(
+            "small"
+          );
+
+        date.textContent =
+          "Date: " +
+          new Date(
+            transaction.created_at
+          ).toLocaleString(
+            "en-NG"
+          );
+
+        div.appendChild(
+          date
+        );
+
+      }
+
+
+      div.prepend(
+        title
+      );
+
+      div.appendChild(
+        amount
+      );
+
+      div.appendChild(
+        description
+      );
+
+      div.appendChild(
+        status
       );
 
 
-    div.appendChild(title);
-    div.appendChild(amount);
-    div.appendChild(description);
-    div.appendChild(status);
+      transactionsBox.appendChild(
+        div
+      );
 
-    transactionsBox.appendChild(div);
-
-  });
+    }
+  );
 
 }
 
