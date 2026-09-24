@@ -24,7 +24,7 @@ body {
 header {
   background: #0b8f3c;
   color: white;
-  padding: 20px 16px 25px;
+  padding: 22px 16px 25px;
 }
 
 .header-inner {
@@ -159,10 +159,6 @@ header p {
   cursor: pointer;
 }
 
-.complete-btn:active {
-  transform: scale(.98);
-}
-
 .message {
   background: white;
   border-radius: 15px;
@@ -170,6 +166,7 @@ header p {
   text-align: center;
   color: #718078;
   font-size: 13px;
+  line-height: 1.6;
 }
 
 .bottom-nav {
@@ -271,16 +268,20 @@ header p {
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
+/*
+  Enter your CURRENT SUPABASE PUBLISHABLE KEY here.
+  Do NOT use the secret/service-role key.
+*/
 const SUPABASE_KEY =
-   =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-const { createClient } = supabase;
 
-const db = createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const db =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
 async function loadTasks() {
@@ -288,211 +289,213 @@ async function loadTasks() {
   const tasksBox =
     document.getElementById("tasks");
 
-  const {
-    data: { user },
-    error: userError
-  } = await db.auth.getUser();
+  try {
 
-  if (userError || !user) {
+    const {
+      data: { user },
+      error: userError
+    } = await db.auth.getUser();
 
-    window.location.href =
-      "index.html";
+    if (userError || !user) {
+      window.location.href = "index.html";
+      return;
+    }
 
-    return;
-  }
+
+    const {
+      data,
+      error
+    } = await db
+      .from("tasks")
+      .select(
+        "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions"
+      )
+      .eq("active", true)
+      .order("created_at", {
+        ascending: false
+      });
 
 
-  const {
-    data,
-    error
-  } = await db
-    .from("tasks")
-    .select(
-      "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions"
-    )
-    .eq("active", true)
-    .order("created_at", {
-      ascending: false
+    if (error) {
+
+      console.error(error);
+
+      tasksBox.innerHTML =
+        '<div class="message">' +
+        'Unable to load tasks.<br><br>' +
+        'Please try again later.' +
+        '</div>';
+
+      return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+      document.getElementById(
+        "taskCount"
+      ).textContent = "0 tasks";
+
+      tasksBox.innerHTML =
+        '<div class="message">' +
+        'No tasks are available right now.' +
+        '<br><br>' +
+        'Please check again later.' +
+        '</div>';
+
+      return;
+    }
+
+
+    document.getElementById(
+      "taskCount"
+    ).textContent =
+      data.length +
+      (data.length === 1 ? " task" : " tasks");
+
+
+    tasksBox.innerHTML = "";
+
+
+    data.forEach(task => {
+
+      const card =
+        document.createElement("div");
+
+      card.className = "task-card";
+
+
+      const top =
+        document.createElement("div");
+
+      top.className = "task-top";
+
+
+      const icon =
+        document.createElement("div");
+
+      icon.className = "task-icon";
+      icon.textContent = "📋";
+
+
+      const info =
+        document.createElement("div");
+
+
+      const title =
+        document.createElement("div");
+
+      title.className = "task-title";
+      title.textContent =
+        task.title || "Task";
+
+
+      const description =
+        document.createElement("p");
+
+      description.className =
+        "task-description";
+
+      description.textContent =
+        task.description ||
+        "Complete this task according to the instructions.";
+
+
+      info.appendChild(title);
+      info.appendChild(description);
+
+      top.appendChild(icon);
+      top.appendChild(info);
+
+
+      const rewardBox =
+        document.createElement("div");
+
+      rewardBox.className =
+        "reward-box";
+
+
+      const rewardLabel =
+        document.createElement("span");
+
+      rewardLabel.className =
+        "reward-label";
+
+      rewardLabel.textContent =
+        "TASK REWARD";
+
+
+      const reward =
+        document.createElement("span");
+
+      reward.className =
+        "reward";
+
+      reward.textContent =
+        "₦" +
+        Number(
+          task.reward || 0
+        ).toLocaleString("en-NG");
+
+
+      rewardBox.appendChild(rewardLabel);
+      rewardBox.appendChild(reward);
+
+
+      const details =
+        document.createElement("div");
+
+      details.className = "details";
+
+      let proofText =
+        task.proof_required
+          ? (task.proof_type || "Text")
+          : "Not required";
+
+      details.textContent =
+        "Proof: " + proofText;
+
+      if (task.requirements) {
+
+        details.textContent +=
+          "\nRequirements: " +
+          task.requirements;
+      }
+
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "complete-btn";
+
+      button.textContent =
+        "Complete Task";
+
+      button.onclick =
+        function() {
+          startTask(task.id);
+        };
+
+
+      card.appendChild(top);
+      card.appendChild(rewardBox);
+      card.appendChild(details);
+      card.appendChild(button);
+
+      tasksBox.appendChild(card);
+
     });
 
-
-  if (error) {
+  } catch (error) {
 
     console.error(error);
 
     tasksBox.innerHTML =
-      '<div class="message">Unable to load tasks right now.</div>';
-
-    return;
+      '<div class="message">' +
+      'Something went wrong while loading tasks.' +
+      '</div>';
   }
-
-
-  if (!data || data.length === 0) {
-
-    document.getElementById("taskCount").textContent =
-      "0 tasks";
-
-    tasksBox.innerHTML =
-      '<div class="message">No tasks are available right now.<br><br>Please check again later.</div>';
-
-    return;
-  }
-
-
-  document.getElementById("taskCount").textContent =
-    data.length +
-    (data.length === 1 ? " task" : " tasks");
-
-
-  tasksBox.innerHTML = "";
-
-
-  data.forEach(task => {
-
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "task-card";
-
-
-    const top =
-      document.createElement("div");
-
-    top.className =
-      "task-top";
-
-
-    const icon =
-      document.createElement("div");
-
-    icon.className =
-      "task-icon";
-
-    icon.textContent =
-      "📋";
-
-
-    const info =
-      document.createElement("div");
-
-
-    const title =
-      document.createElement("div");
-
-    title.className =
-      "task-title";
-
-    title.textContent =
-      task.title || "Task";
-
-
-    const description =
-      document.createElement("p");
-
-    description.className =
-      "task-description";
-
-    description.textContent =
-      task.description ||
-      "Complete this task according to the instructions.";
-
-
-    info.appendChild(title);
-    info.appendChild(description);
-
-    top.appendChild(icon);
-    top.appendChild(info);
-
-
-    const rewardBox =
-      document.createElement("div");
-
-    rewardBox.className =
-      "reward-box";
-
-
-    const rewardLabel =
-      document.createElement("span");
-
-    rewardLabel.className =
-      "reward-label";
-
-    rewardLabel.textContent =
-      "TASK REWARD";
-
-
-    const reward =
-      document.createElement("span");
-
-    reward.className =
-      "reward";
-
-    reward.textContent =
-      "₦" +
-      Number(task.reward || 0).toLocaleString(
-        "en-NG"
-      );
-
-
-    rewardBox.appendChild(rewardLabel);
-    rewardBox.appendChild(reward);
-
-
-    const details =
-      document.createElement("div");
-
-    details.className =
-      "details";
-
-
-    let detailsText =
-      "Proof: " +
-      (
-        task.proof_required
-          ? (task.proof_type || "Text")
-          : "Not required"
-      );
-
-
-    if (task.requirements) {
-
-      detailsText +=
-        "<br>Requirements: " +
-        task.requirements;
-    }
-
-
-    details.innerHTML =
-      detailsText;
-
-
-    const button =
-      document.createElement("button");
-
-    button.className =
-      "complete-btn";
-
-    button.textContent =
-      "Complete Task";
-
-
-    button.onclick =
-      function() {
-
-        startTask(task.id);
-      };
-
-
-    card.appendChild(top);
-    card.appendChild(rewardBox);
-    card.appendChild(details);
-    card.appendChild(button);
-
-    tasksBox.appendChild(card);
-
-  });
-
 }
 
 
@@ -541,9 +544,7 @@ async function startTask(taskId) {
 
     if (!proof) {
 
-      alert(
-        "Proof is required."
-      );
+      alert("Proof is required.");
 
       return;
     }
@@ -605,7 +606,6 @@ async function startTask(taskId) {
   alert(
     "Task submitted successfully. Your proof is now pending review."
   );
-
 }
 
 
