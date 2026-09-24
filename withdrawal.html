@@ -16,21 +16,23 @@ body {
   font-family: Arial, sans-serif;
   background: #f5fff7;
   color: #111;
+  padding-bottom: 30px;
 }
 
 header {
   background: #0b8f3c;
   color: white;
-  padding: 20px;
+  padding: 24px 20px;
   text-align: center;
 }
 
 header h1 {
-  margin: 0 0 6px;
+  margin: 0;
+  font-size: 26px;
 }
 
 header p {
-  margin: 0;
+  margin: 7px 0 0;
 }
 
 .container {
@@ -39,10 +41,90 @@ header p {
   padding: 20px;
 }
 
+.card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: #0b8f3c;
+}
+
+.info {
+  background: #f5fff7;
+  padding: 14px;
+  border-radius: 10px;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #0b8f3c;
+}
+
+button {
+  width: 100%;
+  background: #0b8f3c;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-top: 14px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.withdrawal {
+  border-top: 1px solid #eee;
+  padding: 15px 0;
+}
+
+.withdrawal:first-child {
+  border-top: none;
+}
+
+.withdrawal p {
+  margin: 7px 0;
+}
+
+.withdrawal small {
+  color: #666;
+}
+
+.message {
+  text-align: center;
+  color: #777;
+  line-height: 1.6;
+}
+
 .nav {
   display: grid;
   gap: 10px;
-  margin-bottom: 16px;
 }
 
 .nav a {
@@ -56,70 +138,6 @@ header p {
   font-weight: bold;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 16px;
-  border-radius: 14px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-}
-
-.info {
-  background: #f5fff7;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
-
-input {
-  width: 100%;
-  padding: 13px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  font-size: 15px;
-}
-
-button {
-  width: 100%;
-  background: #0b8f3c;
-  color: white;
-  border: none;
-  padding: 13px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: bold;
-}
-
-.status {
-  margin-top: 14px;
-  color: #555;
-  text-align: center;
-}
-
-.withdrawal {
-  border-top: 1px solid #eee;
-  padding: 15px 0;
-}
-
-.withdrawal:first-child {
-  border-top: none;
-  padding-top: 5px;
-}
-
-.withdrawal p {
-  margin: 7px 0;
-}
-
-.withdrawal small {
-  color: #777;
-}
-
-.message {
-  text-align: center;
-  color: #777;
-}
 </style>
 </head>
 
@@ -127,26 +145,18 @@ button {
 
 <header>
   <h1>NAIJA TASK</h1>
-  <p>Withdraw</p>
+  <p>Withdraw Earnings</p>
 </header>
 
 <div class="container">
 
-  <div class="nav">
-    <a href="dashboard.html">🏠 Dashboard</a>
-    <a href="task.html">📋 Tasks</a>
-    <a href="wallet.html">💰 Wallet</a>
-    <a href="referrals.html">👥 Referrals</a>
-    <a href="profile.html">👤 Profile</a>
-  </div>
-
   <div class="card">
 
-    <h3>Request Withdrawal</h3>
+    <h2>Request Withdrawal</h2>
 
     <div class="info">
-      <p>Minimum withdrawal: <strong>₦1,500</strong></p>
-      <p>Withdrawal fee: <strong>₦100</strong></p>
+      <div>Minimum withdrawal: <strong>₦1,500</strong></div>
+      <div>Withdrawal fee: <strong>₦100</strong></div>
     </div>
 
     <input
@@ -154,7 +164,7 @@ button {
       type="number"
       min="1500"
       inputmode="numeric"
-      placeholder="Withdrawal amount"
+      placeholder="Enter withdrawal amount"
     >
 
     <input
@@ -171,7 +181,10 @@ button {
       placeholder="10-digit account number"
     >
 
-    <button onclick="requestWithdrawal()">
+    <button
+      id="withdrawButton"
+      onclick="requestWithdrawal()"
+    >
       Request Withdrawal
     </button>
 
@@ -179,9 +192,10 @@ button {
 
   </div>
 
+
   <div class="card">
 
-    <h3>Withdrawal History</h3>
+    <h2>Withdrawal History</h2>
 
     <div id="withdrawals">
       <p class="message">
@@ -191,7 +205,23 @@ button {
 
   </div>
 
+
+  <div class="card">
+
+    <h2>Navigation</h2>
+
+    <div class="nav">
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="task.html">📋 Tasks</a>
+      <a href="wallet.html">💰 Wallet</a>
+      <a href="referrals.html">👥 Referrals</a>
+      <a href="profile.html">👤 Profile</a>
+    </div>
+
+  </div>
+
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -201,11 +231,13 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  Put your current Supabase publishable key here.
+  Enter your CURRENT SUPABASE PUBLISHABLE KEY here.
   Do NOT use the secret/service-role key.
 */
 const SUPABASE_KEY =
+   
   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
 
 const supabaseClient =
   window.supabase.createClient(
@@ -221,154 +253,167 @@ async function requestWithdrawal() {
       "withdrawStatus"
     );
 
+  const button =
+    document.getElementById(
+      "withdrawButton"
+    );
+
+
   status.textContent =
     "Checking wallet...";
 
-
-  const {
-    data: { user },
-    error: userError
-  } = await supabaseClient.auth.getUser();
+  button.disabled = true;
 
 
-  if (userError || !user) {
+  try {
 
-    window.location.href =
-      "index.html";
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
 
-    return;
-  }
+
+    if (userError || !user) {
+
+      window.location.href =
+        "index.html";
+
+      return;
+    }
 
 
-  const amount =
-    Number(
+    const amount =
+      Number(
+        document.getElementById(
+          "amount"
+        ).value
+      );
+
+
+    const bankName =
       document.getElementById(
-        "amount"
-      ).value
-    );
+        "bankName"
+      ).value.trim();
 
 
-  const bankName =
+    const accountNumber =
+      document.getElementById(
+        "accountNumber"
+      ).value.trim();
+
+
+    if (!amount || amount < 1500) {
+
+      status.textContent =
+        "Minimum withdrawal is ₦1,500.";
+
+      return;
+    }
+
+
+    if (!bankName) {
+
+      status.textContent =
+        "Enter your bank name.";
+
+      return;
+    }
+
+
+    if (!/^\d{10}$/.test(accountNumber)) {
+
+      status.textContent =
+        "Enter a valid 10-digit account number.";
+
+      return;
+    }
+
+
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from("profiles")
+      .select("balance")
+      .eq("id", user.id)
+      .single();
+
+
+    if (profileError) {
+
+      console.error(profileError);
+
+      status.textContent =
+        "Unable to check wallet balance.";
+
+      return;
+    }
+
+
+    const balance =
+      Number(profile?.balance || 0);
+
+
+    if (balance < amount) {
+
+      status.textContent =
+        "Insufficient wallet balance.";
+
+      return;
+    }
+
+
+    status.textContent =
+      "Submitting withdrawal...";
+
+
+    const {
+      error
+    } = await supabaseClient
+      .from("withdrawals")
+      .insert({
+        user_id: user.id,
+        amount: amount,
+        bank_name: bankName,
+        account_number: accountNumber,
+        status: "PENDING"
+      });
+
+
+    if (error) {
+
+      console.error(error);
+
+      status.textContent =
+        "Withdrawal request failed.";
+
+      return;
+    }
+
+
+    status.textContent =
+      "Withdrawal request submitted successfully.";
+
+
+    document.getElementById(
+      "amount"
+    ).value = "";
+
     document.getElementById(
       "bankName"
-    ).value.trim();
+    ).value = "";
 
-
-  const accountNumber =
     document.getElementById(
       "accountNumber"
-    ).value.trim();
+    ).value = "";
 
 
-  if (!amount || amount < 1500) {
+    loadWithdrawals();
 
-    status.textContent =
-      "Minimum withdrawal is ₦1,500.";
+  } finally {
 
-    return;
+    button.disabled = false;
   }
-
-
-  if (!bankName) {
-
-    status.textContent =
-      "Enter your bank name.";
-
-    return;
-  }
-
-
-  if (!/^\d{10}$/.test(accountNumber)) {
-
-    status.textContent =
-      "Enter a valid 10-digit account number.";
-
-    return;
-  }
-
-
-  const {
-    data: profile,
-    error: profileError
-  } = await supabaseClient
-    .from("profiles")
-    .select("balance")
-    .eq("id", user.id)
-    .single();
-
-
-  if (profileError) {
-
-    console.error(profileError);
-
-    status.textContent =
-      "Unable to check wallet balance.";
-
-    return;
-  }
-
-
-  const balance =
-    Number(
-      profile?.balance || 0
-    );
-
-
-  if (balance < amount) {
-
-    status.textContent =
-      "Insufficient wallet balance.";
-
-    return;
-  }
-
-
-  status.textContent =
-    "Submitting withdrawal...";
-
-
-  const {
-    error
-  } = await supabaseClient
-    .from("withdrawals")
-    .insert({
-      user_id: user.id,
-      amount: amount,
-      bank_name: bankName,
-      account_number: accountNumber,
-      status: "PENDING"
-    });
-
-
-  if (error) {
-
-    console.error(error);
-
-    status.textContent =
-      "Withdrawal request failed.";
-
-    return;
-  }
-
-
-  status.textContent =
-    "Withdrawal request submitted successfully.";
-
-
-  document.getElementById(
-    "amount"
-  ).value = "";
-
-  document.getElementById(
-    "bankName"
-  ).value = "";
-
-  document.getElementById(
-    "accountNumber"
-  ).value = "";
-
-
-  loadWithdrawals();
 }
 
 
@@ -458,7 +503,7 @@ async function loadWithdrawals() {
       "₦" +
       Number(
         withdrawal.amount || 0
-      ).toFixed(2);
+      ).toLocaleString("en-NG");
 
 
     const bank =
@@ -486,7 +531,7 @@ async function loadWithdrawals() {
       "Status: " +
       (
         withdrawal.status ||
-        "N/A"
+        "PENDING"
       );
 
 
@@ -505,4 +550,4 @@ loadWithdrawals();
 </script>
 
 </body>
-      </html>
+  </html>
