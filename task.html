@@ -427,15 +427,9 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 
-/*
-  KEEP YOUR CURRENT SUPABASE
-  PUBLISHABLE KEY HERE.
-
-  DO NOT USE THE SECRET/SERVICE-ROLE KEY.
-*/
-
 const SUPABASE_KEY =
-  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
 
 
 const db =
@@ -478,44 +472,43 @@ async function loadTasks() {
 
 
     const {
-  data,
-  error
-} = await db
-  .from("tasks")
-  .select(
-    "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active, task_type, task_link"
-  )
-  .eq("active", true)
-  .order("created_at", {
-    ascending: false
-  });
+      data,
+      error
+    } = await db
+      .from("tasks")
+      .select(
+        "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active, task_type, task_link"
+      )
+      .eq("active", true)
+      .order("created_at", {
+        ascending: false
+      });
 
 
-if (error) {
+    if (error) {
 
-  console.error(error);
+      console.error(error);
 
-  tasksBox.innerHTML =
-    `
-    <div class="message">
-      ❌<br><br>
-      Unable to load tasks right now.
-      <br>
-      Please try again later.
-      <br><br>
+      tasksBox.innerHTML =
+        `
+        <div class="message">
+          ❌<br><br>
+          Unable to load tasks right now.
+          <br>
+          Please try again later.
+          <br><br>
 
-      <button
-        class="refresh-btn"
-        onclick="loadTasks()">
-        Try Again
-      </button>
-    </div>
-    `;
+          <button
+            class="refresh-btn"
+            onclick="loadTasks()">
+            Try Again
+          </button>
+        </div>
+        `;
 
-  return;
-}
-     
-    
+      return;
+    }
+
 
     if (!data || data.length === 0) {
 
@@ -619,55 +612,69 @@ function createTaskCard(task) {
 
 
   const taskType =
-  (task.task_type || "").toLowerCase();
-
-const taskTitle =
-  (task.title || "").toLowerCase();
-
-if (taskType.includes("tiktok") || taskTitle.includes("tiktok")) {
-  icon.textContent = "🎵";
-} else if (taskType.includes("youtube") || taskTitle.includes("youtube")) {
-  icon.textContent = "▶️";
-} else if (taskType.includes("instagram") || taskTitle.includes("instagram")) {
-  icon.textContent = "📸";
-} else if (taskType.includes("facebook") || taskTitle.includes("facebook")) {
-  icon.textContent = "📘";
-} else if (taskType.includes("telegram") || taskTitle.includes("telegram")) {
-  icon.textContent = "✈️";
-} else if (taskType.includes("website") || taskTitle.includes("website")) {
-  icon.textContent = "🌐";
-} else if (taskType.includes("app") || taskTitle.includes("app")) {
-  icon.textContent = "📱";
-} else if (taskType.includes("survey") || taskTitle.includes("survey")) {
-  icon.textContent = "📝";
-} else {
-  icon.textContent = "📋";
-}
-    
+    (task.task_type || "").toLowerCase();
 
 
-  if (taskTitle.includes("tiktok")) {
+  const taskTitle =
+    (task.title || "").toLowerCase();
+
+
+  if (
+    taskType.includes("tiktok") ||
+    taskTitle.includes("tiktok")
+  ) {
 
     icon.textContent = "🎵";
 
-  } else if (taskTitle.includes("youtube")) {
+  } else if (
+    taskType.includes("youtube") ||
+    taskTitle.includes("youtube")
+  ) {
 
     icon.textContent = "▶️";
 
-  } else if (taskTitle.includes("instagram")) {
+  } else if (
+    taskType.includes("instagram") ||
+    taskTitle.includes("instagram")
+  ) {
 
     icon.textContent = "📸";
 
-  } else if (taskTitle.includes("facebook")) {
+  } else if (
+    taskType.includes("facebook") ||
+    taskTitle.includes("facebook")
+  ) {
 
     icon.textContent = "📘";
 
   } else if (
-    taskTitle.includes("download") ||
-    taskTitle.includes("app")
+    taskType.includes("telegram") ||
+    taskTitle.includes("telegram")
+  ) {
+
+    icon.textContent = "✈️";
+
+  } else if (
+    taskType.includes("website") ||
+    taskTitle.includes("website")
+  ) {
+
+    icon.textContent = "🌐";
+
+  } else if (
+    taskType.includes("app") ||
+    taskTitle.includes("app") ||
+    taskTitle.includes("download")
   ) {
 
     icon.textContent = "📱";
+
+  } else if (
+    taskType.includes("survey") ||
+    taskTitle.includes("survey")
+  ) {
+
+    icon.textContent = "📝";
 
   } else {
 
@@ -861,39 +868,39 @@ if (taskType.includes("tiktok") || taskTitle.includes("tiktok")) {
 
   }
 
-/* TASK LINK */
 
-if (task.task_link) {
+  /* TASK LINK */
 
-  const linkBox =
-    document.createElement("div");
+  if (task.task_link) {
 
-  linkBox.className =
-    "detail-box";
+    const linkBox =
+      document.createElement("div");
 
-  linkBox.innerHTML =
-    `
-    <div class="detail-label">
-      🔗 TASK LINK
-    </div>
+    linkBox.className =
+      "detail-box";
 
-    <a
-      class="task-link"
-      href="${escapeHTML(task.task_link)}"
-      target="_blank"
-      rel="noopener noreferrer">
-      Open Task →
-    </a>
-    `;
+    linkBox.innerHTML =
+      `
+      <div class="detail-label">
+        🔗 TASK LINK
+      </div>
 
-  details.appendChild(linkBox);
+      <a
+        class="task-link"
+        href="${escapeHTML(task.task_link)}"
+        target="_blank"
+        rel="noopener noreferrer">
+        Open Task →
+      </a>
+      `;
 
-}
+    details.appendChild(
+      linkBox
+    );
+
+  }
 
 
-/* DEADLINE */
-
-if (task.expiry_date) {
   /* DEADLINE */
 
   if (task.expiry_date) {
@@ -1318,15 +1325,6 @@ async function submitProof(
 
     let proofValue = "";
 
-
-    /*
-      For screenshots we currently
-      collect the description.
-
-      Actual screenshot storage will
-      be connected after we set up the
-      Supabase Storage bucket.
-    */
 
     if (
       input.type === "file"
