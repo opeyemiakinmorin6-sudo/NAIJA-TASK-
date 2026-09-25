@@ -186,7 +186,7 @@ header p {
 }
 
 
-/* TASK DETAILS */
+/* DETAILS */
 
 .task-details {
   display: none;
@@ -215,7 +215,7 @@ header p {
 .detail-label {
   font-size: 11px;
   color: #718078;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -225,12 +225,52 @@ header p {
   line-height: 1.6;
   color: #27342b;
   white-space: pre-line;
+  word-break: break-word;
 }
 
 
-/* TASK LINK */
+/* COPY ROW */
+
+.copy-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.copy-content {
+  flex: 1;
+  background: white;
+  border: 1px solid #dfe9e2;
+  border-radius: 9px;
+  padding: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.copy-btn {
+  border: none;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  border-radius: 9px;
+  padding: 0 13px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+
+/* LINKS */
+
+.link-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
 .task-link {
+  flex: 1;
+  min-width: 150px;
   display: block;
   background: #0b8f3c;
   color: white;
@@ -240,7 +280,16 @@ header p {
   border-radius: 10px;
   font-size: 13px;
   font-weight: 800;
-  margin-top: 9px;
+}
+
+.link-copy-btn {
+  border: none;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  padding: 12px 15px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 
@@ -260,6 +309,17 @@ header p {
   color: #718078;
   font-size: 12px;
   line-height: 1.5;
+  margin-bottom: 13px;
+}
+
+.proof-type {
+  display: inline-block;
+  background: #eef7f0;
+  color: #0b8f3c;
+  padding: 6px 9px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
   margin-bottom: 13px;
 }
 
@@ -296,14 +356,30 @@ header p {
   resize: vertical;
 }
 
-.proof-type {
-  display: inline-block;
-  background: #eef7f0;
-  color: #0b8f3c;
-  padding: 6px 9px;
-  border-radius: 8px;
+
+/* IMAGE PREVIEW */
+
+.image-preview {
+  display: none;
+  width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  border-radius: 10px;
+  margin-top: 10px;
+  border: 1px solid #d9e5dc;
+  background: white;
+}
+
+
+/* UPLOAD INFO */
+
+.upload-info {
+  background: #eef8f1;
+  color: #52705c;
+  border-radius: 9px;
+  padding: 10px;
   font-size: 11px;
-  font-weight: 800;
+  line-height: 1.5;
   margin-bottom: 13px;
 }
 
@@ -396,13 +472,9 @@ header p {
 
   <div class="title-row">
 
-    <h2>
-      Available Tasks
-    </h2>
+    <h2>Available Tasks</h2>
 
-    <div
-      class="task-count"
-      id="taskCount">
+    <div class="task-count" id="taskCount">
       0 tasks
     </div>
 
@@ -423,13 +495,22 @@ header p {
 
 <script>
 
+/* =========================
+   SUPABASE
+========================= */
+
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 
+/*
+  KEEP YOUR EXISTING PUBLISHABLE KEY HERE.
+  Do NOT use the secret/service-role key.
+*/
 const SUPABASE_KEY =
-      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
+      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
+  
+  
 
 
 const db =
@@ -476,8 +557,8 @@ async function loadTasks() {
       error
     } = await db
       .from("tasks")
-      .select("id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active, task_type, task_link, uploader_username, copy_text, post_link, upload_required")
-        
+      .select(
+        "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active, task_type, task_link, uploader_username, copy_text, post_link, upload_required"
       )
       .eq("active", true)
       .order("created_at", {
@@ -489,8 +570,7 @@ async function loadTasks() {
 
       console.error(error);
 
-      tasksBox.innerHTML =
-        `
+      tasksBox.innerHTML = `
         <div class="message">
           ❌<br><br>
           Unable to load tasks right now.
@@ -504,7 +584,7 @@ async function loadTasks() {
             Try Again
           </button>
         </div>
-        `;
+      `;
 
       return;
     }
@@ -517,8 +597,7 @@ async function loadTasks() {
       ).textContent = "0 tasks";
 
 
-      tasksBox.innerHTML =
-        `
+      tasksBox.innerHTML = `
         <div class="message">
           📋<br><br>
 
@@ -529,7 +608,7 @@ async function loadTasks() {
           There are no available tasks for you right now.
           Please check again later.
         </div>
-        `;
+      `;
 
       return;
     }
@@ -558,8 +637,7 @@ async function loadTasks() {
 
     console.error(error);
 
-    tasksBox.innerHTML =
-      `
+    tasksBox.innerHTML = `
       <div class="message">
         ❌<br><br>
         Something went wrong while loading tasks.
@@ -571,7 +649,7 @@ async function loadTasks() {
           Try Again
         </button>
       </div>
-      `;
+    `;
 
   }
 
@@ -694,8 +772,7 @@ function createTaskCard(task) {
     "task-title";
 
   title.textContent =
-    task.title ||
-    "Task";
+    task.title || "Task";
 
 
   const description =
@@ -791,8 +868,6 @@ function createTaskCard(task) {
     "task-details";
 
 
-  /* DETAILS HEADING */
-
   const detailsHeading =
     document.createElement("div");
 
@@ -808,7 +883,7 @@ function createTaskCard(task) {
   );
 
 
-  /* INSTRUCTIONS */
+  /* TASK / UPLOADER DESCRIPTION */
 
   const instructionsBox =
     document.createElement("div");
@@ -817,10 +892,9 @@ function createTaskCard(task) {
     "detail-box";
 
 
-  instructionsBox.innerHTML =
-    `
+  instructionsBox.innerHTML = `
     <div class="detail-label">
-      📋 What you need to do
+      📝 Task Instructions
     </div>
 
     <div class="detail-text">
@@ -829,12 +903,88 @@ function createTaskCard(task) {
         "Complete the task according to the instructions."
       )}
     </div>
-    `;
+  `;
 
 
   details.appendChild(
     instructionsBox
   );
+
+
+  /* UPLOADER USERNAME */
+
+  if (task.uploader_username) {
+
+    const ownerBox =
+      document.createElement("div");
+
+    ownerBox.className =
+      "detail-box";
+
+
+    const ownerRow =
+      document.createElement("div");
+
+    ownerRow.className =
+      "copy-row";
+
+
+    const ownerContent =
+      document.createElement("div");
+
+    ownerContent.className =
+      "copy-content";
+
+    ownerContent.textContent =
+      task.uploader_username;
+
+
+    const ownerCopy =
+      document.createElement("button");
+
+    ownerCopy.className =
+      "copy-btn";
+
+    ownerCopy.textContent =
+      "Copy";
+
+
+    ownerCopy.onclick =
+      function() {
+
+        copyText(
+          task.uploader_username,
+          ownerCopy
+        );
+
+      };
+
+
+    ownerRow.appendChild(
+      ownerContent
+    );
+
+    ownerRow.appendChild(
+      ownerCopy
+    );
+
+
+    ownerBox.innerHTML = `
+      <div class="detail-label">
+        👤 Uploader / Owner
+      </div>
+    `;
+
+    ownerBox.appendChild(
+      ownerRow
+    );
+
+
+    details.appendChild(
+      ownerBox
+    );
+
+  }
 
 
   /* REQUIREMENTS */
@@ -848,10 +998,9 @@ function createTaskCard(task) {
       "detail-box";
 
 
-    requirementsBox.innerHTML =
-      `
+    requirementsBox.innerHTML = `
       <div class="detail-label">
-        📝 Requirements
+        📌 Requirements
       </div>
 
       <div class="detail-text">
@@ -859,11 +1008,84 @@ function createTaskCard(task) {
           task.requirements
         )}
       </div>
-      `;
+    `;
 
 
     details.appendChild(
       requirementsBox
+    );
+
+  }
+
+
+  /* COPY TEXT */
+
+  if (task.copy_text) {
+
+    const copyBox =
+      document.createElement("div");
+
+    copyBox.className =
+      "detail-box";
+
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "detail-label";
+
+    label.textContent =
+      "📋 Copy Text";
+
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "copy-row";
+
+
+    const content =
+      document.createElement("div");
+
+    content.className =
+      "copy-content";
+
+    content.textContent =
+      task.copy_text;
+
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "copy-btn";
+
+    button.textContent =
+      "Copy";
+
+
+    button.onclick =
+      function() {
+
+        copyText(
+          task.copy_text,
+          button
+        );
+
+      };
+
+
+    row.appendChild(content);
+    row.appendChild(button);
+
+    copyBox.appendChild(label);
+    copyBox.appendChild(row);
+
+
+    details.appendChild(
+      copyBox
     );
 
   }
@@ -879,23 +1101,163 @@ function createTaskCard(task) {
     linkBox.className =
       "detail-box";
 
-    linkBox.innerHTML =
-      `
-      <div class="detail-label">
-        🔗 TASK LINK
-      </div>
 
-      <a
-        class="task-link"
-        href="${escapeHTML(task.task_link)}"
-        target="_blank"
-        rel="noopener noreferrer">
-        Open Task →
-      </a>
-      `;
+    linkBox.innerHTML = `
+      <div class="detail-label">
+        🔗 Task Link
+      </div>
+    `;
+
+
+    const actions =
+      document.createElement("div");
+
+    actions.className =
+      "link-actions";
+
+
+    const openLink =
+      document.createElement("a");
+
+    openLink.className =
+      "task-link";
+
+    openLink.href =
+      task.task_link;
+
+    openLink.target =
+      "_blank";
+
+    openLink.rel =
+      "noopener noreferrer";
+
+    openLink.textContent =
+      "Open Task →";
+
+
+    const copyLink =
+      document.createElement("button");
+
+    copyLink.className =
+      "link-copy-btn";
+
+    copyLink.textContent =
+      "Copy Link";
+
+
+    copyLink.onclick =
+      function() {
+
+        copyText(
+          task.task_link,
+          copyLink
+        );
+
+      };
+
+
+    actions.appendChild(
+      openLink
+    );
+
+    actions.appendChild(
+      copyLink
+    );
+
+
+    linkBox.appendChild(
+      actions
+    );
+
 
     details.appendChild(
       linkBox
+    );
+
+  }
+
+
+  /* POST LINK */
+
+  if (task.post_link) {
+
+    const postBox =
+      document.createElement("div");
+
+    postBox.className =
+      "detail-box";
+
+
+    postBox.innerHTML = `
+      <div class="detail-label">
+        📢 Post Link
+      </div>
+    `;
+
+
+    const actions =
+      document.createElement("div");
+
+    actions.className =
+      "link-actions";
+
+
+    const openPost =
+      document.createElement("a");
+
+    openPost.className =
+      "task-link";
+
+    openPost.href =
+      task.post_link;
+
+    openPost.target =
+      "_blank";
+
+    openPost.rel =
+      "noopener noreferrer";
+
+    openPost.textContent =
+      "Open Post →";
+
+
+    const copyPost =
+      document.createElement("button");
+
+    copyPost.className =
+      "link-copy-btn";
+
+    copyPost.textContent =
+      "Copy Link";
+
+
+    copyPost.onclick =
+      function() {
+
+        copyText(
+          task.post_link,
+          copyPost
+        );
+
+      };
+
+
+    actions.appendChild(
+      openPost
+    );
+
+    actions.appendChild(
+      copyPost
+    );
+
+
+    postBox.appendChild(
+      actions
+    );
+
+
+    details.appendChild(
+      postBox
     );
 
   }
@@ -912,18 +1274,17 @@ function createTaskCard(task) {
       "detail-box";
 
 
-    deadlineBox.innerHTML =
-      `
+    deadlineBox.innerHTML = `
       <div class="detail-label">
         ⏰ Deadline
       </div>
 
       <div class="detail-text">
         ${escapeHTML(
-          String(task.expiry_date)
+          formatDate(task.expiry_date)
         )}
       </div>
-      `;
+    `;
 
 
     details.appendChild(
@@ -977,7 +1338,6 @@ function createTaskCard(task) {
   proofType.className =
     "proof-type";
 
-
   proofType.textContent =
     "Proof type: " +
     getProofType(task);
@@ -988,7 +1348,7 @@ function createTaskCard(task) {
   );
 
 
-  /* DYNAMIC PROOF FIELD */
+  /* PROOF FIELD */
 
   const fieldContainer =
     document.createElement("div");
@@ -1005,7 +1365,7 @@ function createTaskCard(task) {
   );
 
 
-  /* SUBMIT */
+  /* SUBMIT BUTTON */
 
   const submitButton =
     document.createElement("button");
@@ -1056,7 +1416,7 @@ function createTaskCard(task) {
   );
 
 
-  /* OPEN DETAILS */
+  /* OPEN / CLOSE */
 
   startButton.onclick =
     function() {
@@ -1084,13 +1444,9 @@ function createTaskCard(task) {
 
 
   card.appendChild(top);
-
   card.appendChild(rewardBox);
-
   card.appendChild(status);
-
   card.appendChild(startButton);
-
   card.appendChild(details);
 
 
@@ -1105,12 +1461,13 @@ function createTaskCard(task) {
 
 function getProofType(task) {
 
-  if (!task.proof_required) {
-
+  if (!task.proof_required && !task.upload_required) {
     return "Optional";
-
   }
 
+  if (task.upload_required) {
+    return "Screenshot / Image";
+  }
 
   return String(
     task.proof_type || "Text"
@@ -1134,12 +1491,141 @@ function buildProofField(
     ).toLowerCase();
 
 
+  /*
+    IMAGE UPLOAD
+
+    upload_required can force an image upload
+    even if proof_type is not "screenshot".
+  */
+
+  if (
+    task.upload_required ||
+    type.includes("screenshot") ||
+    type.includes("image") ||
+    type.includes("photo")
+  ) {
+
+    container.innerHTML = `
+
+      <div class="upload-info">
+        📸 Upload a clear screenshot or picture showing
+        that you completed the task.
+      </div>
+
+      <div class="proof-field">
+
+        <label>
+          📸 Upload Picture
+        </label>
+
+        <input
+          type="file"
+          class="proof-input"
+          accept="image/*"
+        >
+
+        <img
+          class="image-preview"
+          alt="Proof preview"
+        >
+
+      </div>
+
+      <div class="proof-field">
+
+        <label>
+          📝 Proof Description
+        </label>
+
+        <textarea
+          class="proof-description"
+          placeholder="Briefly explain what the screenshot shows..."
+        ></textarea>
+
+      </div>
+    `;
+
+
+    const fileInput =
+      container.querySelector(
+        ".proof-input"
+      );
+
+
+    const preview =
+      container.querySelector(
+        ".image-preview"
+      );
+
+
+    fileInput.addEventListener(
+      "change",
+      function() {
+
+        const file =
+          fileInput.files[0];
+
+
+        if (!file) {
+
+          preview.style.display =
+            "none";
+
+          return;
+
+        }
+
+
+        if (!file.type.startsWith("image/")) {
+
+          alert(
+            "Please select an image file."
+          );
+
+          fileInput.value = "";
+
+          preview.style.display =
+            "none";
+
+          return;
+
+        }
+
+
+        const reader =
+          new FileReader();
+
+
+        reader.onload =
+          function(event) {
+
+            preview.src =
+              event.target.result;
+
+            preview.style.display =
+              "block";
+
+          };
+
+
+        reader.readAsDataURL(file);
+
+      }
+    );
+
+
+    return;
+  }
+
+
+  /* USERNAME */
+
   if (
     type.includes("username")
   ) {
 
-    container.innerHTML =
-      `
+    container.innerHTML = `
+
       <div class="proof-field">
 
         <label>
@@ -1153,19 +1639,21 @@ function buildProofField(
         >
 
       </div>
-      `;
+    `;
 
     return;
   }
 
+
+  /* URL */
 
   if (
     type.includes("url") ||
     type.includes("link")
   ) {
 
-    container.innerHTML =
-      `
+    container.innerHTML = `
+
       <div class="proof-field">
 
         <label>
@@ -1179,18 +1667,20 @@ function buildProofField(
         >
 
       </div>
-      `;
+    `;
 
     return;
   }
 
 
+  /* REFERENCE */
+
   if (
     type.includes("reference")
   ) {
 
-    container.innerHTML =
-      `
+    container.innerHTML = `
+
       <div class="proof-field">
 
         <label>
@@ -1204,45 +1694,7 @@ function buildProofField(
         >
 
       </div>
-      `;
-
-    return;
-  }
-
-
-  if (
-    type.includes("screenshot")
-  ) {
-
-    container.innerHTML =
-      `
-      <div class="proof-field">
-
-        <label>
-          📸 Screenshot
-        </label>
-
-        <input
-          type="file"
-          class="proof-input"
-          accept="image/*"
-        >
-
-      </div>
-
-      <div class="proof-field">
-
-        <label>
-          📝 Description
-        </label>
-
-        <textarea
-          class="proof-input"
-          placeholder="Briefly describe what you completed..."
-        ></textarea>
-
-      </div>
-      `;
+    `;
 
     return;
   }
@@ -1250,8 +1702,8 @@ function buildProofField(
 
   /* DEFAULT TEXT */
 
-  container.innerHTML =
-    `
+  container.innerHTML = `
+
     <div class="proof-field">
 
       <label>
@@ -1264,7 +1716,7 @@ function buildProofField(
       ></textarea>
 
     </div>
-    `;
+  `;
 
 }
 
@@ -1302,6 +1754,208 @@ async function submitProof(
     }
 
 
+    const type =
+      String(
+        task.proof_type || "Text"
+      ).toLowerCase();
+
+
+    const fileInput =
+      container.querySelector(
+        'input[type="file"]'
+      );
+
+
+    const descriptionInput =
+      container.querySelector(
+        ".proof-description"
+      );
+
+
+    /*
+      IMAGE PROOF
+    */
+
+    if (
+      fileInput
+    ) {
+
+      const file =
+        fileInput.files[0];
+
+
+      if (!file) {
+
+        alert(
+          "Please select a picture first."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+      }
+
+
+      if (
+        !file.type.startsWith("image/")
+      ) {
+
+        alert(
+          "Please select an image file."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+      }
+
+
+      /*
+        File size limit:
+        5MB
+      */
+
+      if (
+        file.size > 5 * 1024 * 1024
+      ) {
+
+        alert(
+          "Image must be 5MB or smaller."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+      }
+
+
+      /*
+        Unique storage path
+      */
+
+      const fileExtension =
+        file.name.split(".").pop();
+
+
+      const filePath =
+        user.id +
+        "/" +
+        task.id +
+        "/" +
+        Date.now() +
+        "." +
+        fileExtension;
+
+
+      /*
+        Upload to Supabase Storage
+        bucket name: task-proofs
+      */
+
+      const {
+        error: uploadError
+      } =
+        await db.storage
+          .from("task-proofs")
+          .upload(
+            filePath,
+            file,
+            {
+              cacheControl: "3600",
+              upsert: false
+            }
+          );
+
+
+      if (uploadError) {
+
+        console.error(uploadError);
+
+        alert(
+          "Picture upload failed: " +
+          uploadError.message
+        );
+
+        resetSubmitButton(button);
+
+        return;
+      }
+
+
+      const description =
+        descriptionInput
+          ? descriptionInput.value.trim()
+          : "";
+
+
+      const proofData =
+        JSON.stringify({
+
+          type: "screenshot",
+
+          storage_path:
+            filePath,
+
+          file_name:
+            file.name,
+
+          description:
+            description
+
+        });
+
+
+      const {
+        error: submitError
+      } =
+        await db
+          .from("task_submissions")
+          .insert({
+
+            user_id:
+              user.id,
+
+            task_id:
+              task.id,
+
+            proof:
+              proofData,
+
+            status:
+              "PENDING"
+
+          });
+
+
+      if (submitError) {
+
+        console.error(
+          submitError
+        );
+
+        alert(
+          "Proof submission failed: " +
+          submitError.message
+        );
+
+        resetSubmitButton(button);
+
+        return;
+      }
+
+
+      showSuccess(
+        button
+      );
+
+      return;
+    }
+
+
+    /*
+      NORMAL TEXT / USERNAME / URL / REFERENCE
+    */
+
     const input =
       container.querySelector(
         ".proof-input"
@@ -1314,69 +1968,14 @@ async function submitProof(
         "Please enter your proof."
       );
 
-      button.disabled = false;
-
-      button.textContent =
-        "Submit Proof";
+      resetSubmitButton(button);
 
       return;
     }
 
 
-    let proofValue = "";
-
-
-    if (
-      input.type === "file"
-    ) {
-
-      const file =
-        input.files[0];
-
-
-      if (!file) {
-
-        alert(
-          "Please select your screenshot."
-        );
-
-        button.disabled = false;
-
-        button.textContent =
-          "Submit Proof";
-
-        return;
-      }
-
-
-      const description =
-        container.querySelector(
-          "textarea"
-        );
-
-
-      proofValue =
-        "Screenshot selected: " +
-        file.name;
-
-
-      if (
-        description &&
-        description.value.trim()
-      ) {
-
-        proofValue +=
-          "\nDescription: " +
-          description.value.trim();
-
-      }
-
-    } else {
-
-      proofValue =
-        input.value.trim();
-
-    }
+    let proofValue =
+      input.value.trim();
 
 
     if (!proofValue) {
@@ -1385,13 +1984,28 @@ async function submitProof(
         "Please enter your proof."
       );
 
-      button.disabled = false;
-
-      button.textContent =
-        "Submit Proof";
+      resetSubmitButton(button);
 
       return;
     }
+
+
+    /*
+      Save structured proof
+      while remaining compatible
+      with the existing text column.
+    */
+
+    const proofData =
+      JSON.stringify({
+
+        type:
+          type,
+
+        value:
+          proofValue
+
+      });
 
 
     const {
@@ -1401,13 +2015,17 @@ async function submitProof(
         .from("task_submissions")
         .insert({
 
-          user_id: user.id,
+          user_id:
+            user.id,
 
-          task_id: task.id,
+          task_id:
+            task.id,
 
-          proof: proofValue,
+          proof:
+            proofData,
 
-          status: "PENDING"
+          status:
+            "PENDING"
 
         });
 
@@ -1421,32 +2039,15 @@ async function submitProof(
         error.message
       );
 
-      button.disabled = false;
-
-      button.textContent =
-        "Submit Proof";
+      resetSubmitButton(button);
 
       return;
     }
 
 
-    button.textContent =
-      "Submitted ✓";
-
-
-    const success =
-      container.parentElement
-        .querySelector(
-          ".success-message"
-        );
-
-
-    if (success) {
-
-      success.style.display =
-        "block";
-
-    }
+    showSuccess(
+      button
+    );
 
 
   } catch (error) {
@@ -1457,10 +2058,140 @@ async function submitProof(
       "Something went wrong. Please try again."
     );
 
-    button.disabled = false;
+    resetSubmitButton(button);
+
+  }
+
+}
+
+
+/* =========================
+   SUCCESS
+========================= */
+
+function showSuccess(button) {
+
+  button.textContent =
+    "Submitted ✓";
+
+
+  const proofSection =
+    button.parentElement;
+
+
+  const success =
+    proofSection.querySelector(
+      ".success-message"
+    );
+
+
+  if (success) {
+
+    success.style.display =
+      "block";
+
+  }
+
+}
+
+
+/* =========================
+   RESET BUTTON
+========================= */
+
+function resetSubmitButton(button) {
+
+  button.disabled =
+    false;
+
+  button.textContent =
+    "Submit Proof";
+
+}
+
+
+/* =========================
+   COPY
+========================= */
+
+async function copyText(
+  value,
+  button
+) {
+
+  try {
+
+    await navigator.clipboard.writeText(
+      String(value)
+    );
+
+
+    const oldText =
+      button.textContent;
+
 
     button.textContent =
-      "Submit Proof";
+      "Copied ✓";
+
+
+    setTimeout(
+      function() {
+
+        button.textContent =
+          oldText;
+
+      },
+      1500
+    );
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Copy failed. Please copy it manually."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   DATE
+========================= */
+
+function formatDate(value) {
+
+  try {
+
+    const date =
+      new Date(value);
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return String(value);
+
+    }
+
+
+    return date.toLocaleString(
+      "en-NG",
+      {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }
+    );
+
+  } catch (error) {
+
+    return String(value);
 
   }
 
@@ -1474,16 +2205,33 @@ async function submitProof(
 function escapeHTML(value) {
 
   return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 
-/* START */
+/* =========================
+   START
+========================= */
 
 loadTasks();
 
