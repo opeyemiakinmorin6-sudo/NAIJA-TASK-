@@ -1,238 +1,472 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>NAIJA TASK — Dashboard</title>
+<title>NAIJA TASK — Dashboard</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5fff7;
-      color: #17221a;
-      min-height: 100vh;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #17221a;
+  min-height: 100vh;
+  padding-bottom: 82px;
+}
 
-    header {
-      background: #0b8f3c;
-      color: white;
-      padding: 24px 18px 30px;
-      border-radius: 0 0 28px 28px;
-    }
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
 
-    .brand {
-      font-size: 24px;
-      font-weight: 900;
-    }
+button {
+  font-family: inherit;
+}
 
-    .welcome {
-      margin-top: 22px;
-      font-size: 14px;
-      opacity: .92;
-    }
+/* HEADER */
 
-    .name {
-      margin-top: 5px;
-      font-size: 23px;
-      font-weight: 800;
-    }
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 22px 16px 28px;
+  border-radius: 0 0 28px 28px;
+}
 
-    .balance-card {
-      background: white;
-      color: #17221a;
-      margin-top: 20px;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 8px 25px rgba(0,0,0,.10);
-    }
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .balance-label {
-      color: #68736b;
-      font-size: 13px;
-    }
+.brand {
+  font-size: 23px;
+  font-weight: 900;
+}
 
-    .balance {
-      margin-top: 7px;
-      font-size: 31px;
-      font-weight: 900;
-    }
+.notification-button {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.16);
+  color: white;
+  font-size: 19px;
+}
 
-    .container {
-      max-width: 520px;
-      margin: auto;
-      padding: 22px 16px 35px;
-    }
+.welcome {
+  margin-top: 20px;
+  font-size: 13px;
+  opacity: .9;
+}
 
-    .section {
-      margin-bottom: 28px;
-    }
+.name {
+  margin-top: 5px;
+  font-size: 23px;
+  font-weight: 800;
+}
 
-    .section-title {
-      font-size: 19px;
-      font-weight: 800;
-      margin-bottom: 13px;
-    }
+/* BALANCE */
 
-    /* QUICK ACCESS */
+.balance-card {
+  background: white;
+  color: #17221a;
+  margin-top: 19px;
+  padding: 19px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,.10);
+}
 
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
+.balance-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .action {
-      background: white;
-      border-radius: 17px;
-      padding: 18px;
-      text-decoration: none;
-      color: #17221a;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06);
-      font-weight: 800;
-      transition: transform .15s;
-    }
+.balance-label {
+  color: #68736b;
+  font-size: 12px;
+}
 
-    .action:active {
-      transform: scale(.97);
-    }
+.balance {
+  margin-top: 7px;
+  font-size: 30px;
+  font-weight: 900;
+}
 
-    .action-icon {
-      display: block;
-      font-size: 27px;
-      margin-bottom: 9px;
-    }
+.wallet-link {
+  border: 0;
+  background: #e9f8ee;
+  color: #087832;
+  padding: 8px 11px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
 
-    .action-text {
-      font-size: 15px;
-    }
+/* MAIN */
 
-    .action-description {
-      display: block;
-      margin-top: 5px;
-      color: #68736b;
-      font-size: 11px;
-      font-weight: 400;
-    }
+.container {
+  max-width: 560px;
+  margin: auto;
+  padding: 20px 15px 30px;
+}
 
-    /* OVERVIEW */
+.section {
+  margin-bottom: 24px;
+}
 
-    .overview-card {
-      background: white;
-      border-radius: 18px;
-      padding: 5px 18px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06);
-    }
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
 
-    .overview-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 0;
-      border-bottom: 1px solid #edf1ee;
-      font-size: 14px;
-    }
+.section-link {
+  color: #0b8f3c;
+  font-size: 12px;
+  font-weight: 800;
+}
 
-    .overview-row:last-child {
-      border-bottom: none;
-    }
+/* QUICK ACTIONS */
 
-    .overview-label {
-      color: #68736b;
-    }
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
 
-    .overview-value {
-      font-weight: 800;
-    }
+.quick {
+  border: 0;
+  background: white;
+  border-radius: 15px;
+  padding: 13px 5px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+  color: #17221a;
+}
 
-    /* START EARNING */
+.quick-icon {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 7px;
+}
 
-    .info {
-      background: white;
-      border-radius: 18px;
-      padding: 19px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06);
-    }
+.quick-text {
+  font-size: 10px;
+  font-weight: 800;
+}
 
-    .info-title {
-      font-size: 17px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
+/* STATS */
 
-    .info-text {
-      color: #68736b;
-      font-size: 13px;
-      line-height: 1.6;
-    }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
 
-    .start-button {
-      display: block;
-      margin-top: 15px;
-      background: #0b8f3c;
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      padding: 13px;
-      border-radius: 12px;
-      font-weight: 800;
-    }
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
 
-    /* LOADING / ERROR */
+.stat-icon {
+  font-size: 19px;
+}
 
-    .loading {
-      color: #68736b;
-      font-size: 13px;
-    }
+.stat-label {
+  display: block;
+  margin-top: 8px;
+  color: #68736b;
+  font-size: 11px;
+}
 
-    .error {
-      color: #b32626;
-      font-size: 13px;
-    }
+.stat-value {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 900;
+}
 
-    /* LOGOUT */
+/* JOB CARD */
 
-    .logout-button {
-      width: 100%;
-      border: none;
-      background: white;
-      color: #b32626;
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 800;
-      box-shadow: 0 4px 16px rgba(0,0,0,.06);
-      cursor: pointer;
-    }
+.job-card {
+  background: white;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
 
-    /* MOBILE */
+.job-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
 
-    @media (max-width: 360px) {
-      .actions {
-        grid-template-columns: 1fr;
-      }
+.job-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: #e9f8ee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+}
 
-      .balance {
-        font-size: 27px;
-      }
-    }
-  </style>
+.job-title {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.job-description {
+  margin-top: 4px;
+  color: #68736b;
+  font-size: 11px;
+}
+
+.job-button {
+  display: block;
+  margin-top: 13px;
+  background: #0b8f3c;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  padding: 12px;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* MENU CARDS */
+
+.menu-card {
+  background: white;
+  border-radius: 17px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
+
+.menu-item {
+  width: 100%;
+  border: 0;
+  background: white;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  color: #17221a;
+  border-bottom: 1px solid #edf1ee;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: #eef9f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.menu-content {
+  flex: 1;
+}
+
+.menu-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.menu-description {
+  display: block;
+  margin-top: 3px;
+  color: #68736b;
+  font-size: 10px;
+}
+
+.menu-arrow {
+  color: #9aa39c;
+  font-size: 18px;
+}
+
+/* HOME PANELS */
+
+.panel {
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+
+/* SUB MENU */
+
+.sub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.sub-card {
+  border: 0;
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
+
+.sub-card-icon {
+  font-size: 23px;
+}
+
+.sub-card-title {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.sub-card-description {
+  display: block;
+  margin-top: 4px;
+  color: #68736b;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* INFO */
+
+.info {
+  background: white;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
+
+.info-title {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.info-text {
+  margin-top: 7px;
+  color: #68736b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* BOTTOM NAV */
+
+.bottom-nav {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 68px;
+  background: white;
+  border-top: 1px solid #e6ece8;
+  box-shadow: 0 -4px 18px rgba(0,0,0,.07);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.nav-button {
+  width: 20%;
+  height: 100%;
+  border: 0;
+  background: white;
+  color: #7a847d;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.nav-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.nav-button.active {
+  color: #0b8f3c;
+}
+
+/* LOGOUT */
+
+.logout-button {
+  width: 100%;
+  border: 0;
+  background: white;
+  color: #b32626;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
+
+/* LOADING */
+
+.loading {
+  color: #68736b;
+  font-size: 11px;
+}
+
+/* MOBILE */
+
+@media (max-width: 370px) {
+
+  .quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .balance {
+    font-size: 27px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header>
 
-  <div class="brand">
-    NAIJA TASK
+  <div class="header-top">
+
+    <div class="brand">
+      NAIJA TASK
+    </div>
+
+    <button
+      class="notification-button"
+      onclick="showMessage('Notifications will appear here.')">
+      🔔
+    </button>
+
   </div>
 
   <div class="welcome">
@@ -245,12 +479,26 @@
 
   <div class="balance-card">
 
-    <div class="balance-label">
-      💰 Available Balance
-    </div>
+    <div class="balance-top">
 
-    <div class="balance" id="balance">
-      ₦0.00
+      <div>
+
+        <div class="balance-label">
+          💰 Available Balance
+        </div>
+
+        <div class="balance" id="balance">
+          ₦0.00
+        </div>
+
+      </div>
+
+      <button
+        class="wallet-link"
+        onclick="showPanel('wallet')">
+        Wallet →
+      </button>
+
     </div>
 
   </div>
@@ -261,198 +509,105 @@
 <main class="container">
 
 
-  <!-- QUICK ACCESS -->
+<!-- ================= HOME ================= -->
+
+<section
+  id="homePanel"
+  class="panel active">
 
   <section class="section">
 
     <div class="section-title">
-      Quick Access
+      Quick Actions
     </div>
 
-    <div class="actions">
+    <div class="quick-grid">
 
-      <a class="action" href="task.html">
-        <span class="action-icon">📋</span>
+      <button
+        class="quick"
+        onclick="window.location.href='task.html'">
 
-        <span class="action-text">
-          Tasks
-        </span>
+        <span class="quick-icon">💼</span>
+        <span class="quick-text">Do a Job</span>
 
-        <span class="action-description">
-          Complete tasks & earn
-        </span>
-      </a>
+      </button>
 
 
-      <a class="action" href="wallet.html">
-        <span class="action-icon">💰</span>
+      <button
+        class="quick"
+        onclick="showPanel('proof')">
 
-        <span class="action-text">
-          Wallet
-        </span>
+        <span class="quick-icon">📋</span>
+        <span class="quick-text">Proof</span>
 
-        <span class="action-description">
-          View your earnings
-        </span>
-      </a>
+      </button>
 
 
-      <a class="action" href="withdrawal.html">
-        <span class="action-icon">💸</span>
+      <button
+        class="quick"
+        onclick="window.location.href='withdrawal.html'">
 
-        <span class="action-text">
-          Withdraw
-        </span>
+        <span class="quick-icon">💸</span>
+        <span class="quick-text">Withdraw</span>
 
-        <span class="action-description">
-          Request payment
-        </span>
-      </a>
+      </button>
 
 
-      <a class="action" href="referrals.html">
-        <span class="action-icon">👥</span>
+      <button
+        class="quick"
+        onclick="showPanel('more')">
 
-        <span class="action-text">
-          Referrals
-        </span>
+        <span class="quick-icon">☰</span>
+        <span class="quick-text">More</span>
 
-        <span class="action-description">
-          Invite & earn
-        </span>
-      </a>
-
-
-      <a class="action" href="profile.html">
-        <span class="action-icon">👤</span>
-
-        <span class="action-text">
-          Profile
-        </span>
-
-        <span class="action-description">
-          Manage your account
-        </span>
-      </a>
+      </button>
 
     </div>
 
   </section>
 
 
-  <!-- ACCOUNT OVERVIEW -->
-
   <section class="section">
 
     <div class="section-title">
-      📊 Account Overview
+      Account Overview
     </div>
 
-    <div class="overview-card">
+    <div class="stats-grid">
 
-      <div class="overview-row">
-
-        <span class="overview-label">
-          📋 Completed Tasks
-        </span>
-
-        <strong
-          class="overview-value"
-          id="completedTasks">
-
-          <span class="loading">
-            Loading...
-          </span>
-
-        </strong>
-
+      <div class="stat-card">
+        <span class="stat-icon">✅</span>
+        <span class="stat-label">Completed Jobs</span>
+        <span
+          class="stat-value"
+          id="completedTasks">0</span>
       </div>
 
 
-      <div class="overview-row">
-
-        <span class="overview-label">
-          ⏳ Pending Tasks
-        </span>
-
-        <strong
-          class="overview-value"
-          id="pendingTasks">
-
-          <span class="loading">
-            Loading...
-          </span>
-
-        </strong>
-
+      <div class="stat-card">
+        <span class="stat-icon">⏳</span>
+        <span class="stat-label">Pending Proof</span>
+        <span
+          class="stat-value"
+          id="pendingTasks">0</span>
       </div>
 
 
-      <div class="overview-row">
-
-        <span class="overview-label">
-          💵 Total Earned
-        </span>
-
-        <strong
-          class="overview-value"
-          id="totalEarned">
-
-          ₦0.00
-
-        </strong>
-
+      <div class="stat-card">
+        <span class="stat-icon">💵</span>
+        <span class="stat-label">Total Earned</span>
+        <span
+          class="stat-value"
+          id="totalEarned">₦0.00</span>
       </div>
 
 
-      <div class="overview-row">
-
-        <span class="overview-label">
-          💸 Total Withdrawn
-        </span>
-
-        <strong
-          class="overview-value"
-          id="totalWithdrawn">
-
-          ₦0.00
-
-        </strong>
-
-      </div>
-
-
-      <div class="overview-row">
-
-        <span class="overview-label">
-          👥 Referrals
-        </span>
-
-        <strong
-          class="overview-value"
-          id="referralCount">
-
-          0
-
-        </strong>
-
-      </div>
-
-
-      <div class="overview-row">
-
-        <span class="overview-label">
-          🔐 Account Status
-        </span>
-
-        <strong
-          class="overview-value"
-          id="accountStatus">
-
-          Active
-
-        </strong>
-
+      <div class="stat-card">
+        <span class="stat-icon">👥</span>
+        <span class="stat-label">Referrals</span>
+        <span
+          class="stat-value"
+          id="referralCount">0</span>
       </div>
 
     </div>
@@ -460,7 +615,61 @@
   </section>
 
 
-  <!-- START EARNING -->
+  <section class="section">
+
+    <div class="section-title">
+
+      Available Jobs
+
+      <button
+        class="section-link"
+        onclick="window.location.href='task.html'">
+        View all
+      </button>
+
+    </div>
+
+    <div class="job-card">
+
+      <div class="job-head">
+
+        <div class="job-icon">
+          📋
+        </div>
+
+        <div>
+
+          <div class="job-title">
+            Available Tasks
+          </div>
+
+          <div class="job-description">
+            Find available jobs and complete them to earn.
+          </div>
+
+        </div>
+
+      </div>
+
+      <div
+        class="job-description"
+        style="margin-top:12px">
+
+        Available task slots:
+        <strong id="availableTasks">Loading...</strong>
+
+      </div>
+
+      <a
+        class="job-button"
+        href="task.html">
+        Browse Jobs
+      </a>
+
+    </div>
+
+  </section>
+
 
   <section class="section">
 
@@ -471,25 +680,624 @@
       </div>
 
       <div class="info-text">
-        Browse available tasks, complete the required work,
-        submit your proof, and wait for the task to be reviewed.
-        Approved task earnings are added to your wallet.
+        Choose a job, follow its instructions,
+        complete the required work and submit your
+        proof. Approved submissions can generate
+        wallet earnings according to the task rules.
       </div>
 
-      <a
-        class="start-button"
-        href="task.html">
+    </div>
 
-        📋 Browse Tasks
+  </section>
 
-      </a>
+</section>
+
+
+<!-- ================= JOBS ================= -->
+
+<section
+  id="jobsPanel"
+  class="panel">
+
+  <section class="section">
+
+    <div class="section-title">
+      💼 Jobs
+    </div>
+
+    <div class="sub-grid">
+
+      <button
+        class="sub-card"
+        onclick="window.location.href='task.html'">
+
+        <span class="sub-card-icon">🔎</span>
+
+        <span class="sub-card-title">
+          Do a Job
+        </span>
+
+        <span class="sub-card-description">
+          Browse available tasks.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Applied Jobs page will be connected next.')">
+
+        <span class="sub-card-icon">📨</span>
+
+        <span class="sub-card-title">
+          Applied Jobs
+        </span>
+
+        <span class="sub-card-description">
+          Track jobs you applied for.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Completed Jobs will be connected to your task history.')">
+
+        <span class="sub-card-icon">✅</span>
+
+        <span class="sub-card-title">
+          Completed Jobs
+        </span>
+
+        <span class="sub-card-description">
+          View finished work.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Retry will show rejected tasks that can be resubmitted.')">
+
+        <span class="sub-card-icon">🔄</span>
+
+        <span class="sub-card-title">
+          Retry
+        </span>
+
+        <span class="sub-card-description">
+          Resubmit eligible work.
+        </span>
+
+      </button>
 
     </div>
 
   </section>
 
 
-  <!-- LOGOUT -->
+  <section class="section">
+
+    <div class="section-title">
+      For Job Posters
+    </div>
+
+    <div class="menu-card">
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Post a Job will be built as the job creation flow.')">
+
+        <span class="menu-icon">➕</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Post a Job</span>
+          <span class="menu-description">
+            Create a task and choose its slots, reward and proof requirements.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="showMessage('My Ads will show jobs you have posted.')">
+
+        <span class="menu-icon">📢</span>
+
+        <span class="menu-content">
+          <span class="menu-title">My Ads</span>
+          <span class="menu-description">
+            Manage your posted jobs.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Submission management will be connected to the admin/job poster workflow.')">
+
+        <span class="menu-icon">👥</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Manage Submissions</span>
+          <span class="menu-description">
+            Review worker submissions.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+    </div>
+
+  </section>
+
+</section>
+
+
+<!-- ================= PROOF ================= -->
+
+<section
+  id="proofPanel"
+  class="panel">
+
+  <section class="section">
+
+    <div class="section-title">
+      📋 Proof Center
+    </div>
+
+    <div class="info">
+
+      <div class="info-title">
+        Submit and track your proof
+      </div>
+
+      <div class="info-text">
+        Your proof moves through review before
+        an eligible reward is credited.
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="section">
+
+    <div class="sub-grid">
+
+      <button
+        class="sub-card"
+        onclick="window.location.href='task.html'">
+
+        <span class="sub-card-icon">📤</span>
+
+        <span class="sub-card-title">
+          Upload Proof
+        </span>
+
+        <span class="sub-card-description">
+          Complete a task and submit its required proof.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Pending proof will be connected to task_submissions.')">
+
+        <span class="sub-card-icon">⏳</span>
+
+        <span class="sub-card-title">
+          Pending
+        </span>
+
+        <span class="sub-card-description">
+          Proof waiting for review.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Approved proof history will be connected to task_submissions.')">
+
+        <span class="sub-card-icon">✅</span>
+
+        <span class="sub-card-title">
+          Approved
+        </span>
+
+        <span class="sub-card-description">
+          Successfully reviewed submissions.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Rejected proof history will be connected to task_submissions.')">
+
+        <span class="sub-card-icon">❌</span>
+
+        <span class="sub-card-title">
+          Rejected
+        </span>
+
+        <span class="sub-card-description">
+          See rejection reasons.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Cancelled proof will appear here.')">
+
+        <span class="sub-card-icon">🚫</span>
+
+        <span class="sub-card-title">
+          Cancelled
+        </span>
+
+        <span class="sub-card-description">
+          Cancelled submissions.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Eligible rejected tasks will appear here for retry.')">
+
+        <span class="sub-card-icon">🔄</span>
+
+        <span class="sub-card-title">
+          Retry
+        </span>
+
+        <span class="sub-card-description">
+          Resubmit eligible proof.
+        </span>
+
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <section class="section">
+
+    <div class="menu-card">
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Appeals will be connected to the appeals system.')">
+
+        <span class="menu-icon">⚖️</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Appeals</span>
+          <span class="menu-description">
+            Challenge an eligible rejected submission.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+    </div>
+
+  </section>
+
+</section>
+
+
+<!-- ================= WALLET ================= -->
+
+<section
+  id="walletPanel"
+  class="panel">
+
+  <section class="section">
+
+    <div class="section-title">
+      💰 Wallet
+    </div>
+
+    <div class="stat-card">
+
+      <span class="stat-label">
+        Available Balance
+      </span>
+
+      <span
+        class="stat-value"
+        id="walletBalance">
+        ₦0.00
+      </span>
+
+    </div>
+
+  </section>
+
+
+  <section class="section">
+
+    <div class="sub-grid">
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Deposit/Funding will be connected to a real payment method before activation.')">
+
+        <span class="sub-card-icon">➕</span>
+
+        <span class="sub-card-title">
+          Fund Wallet
+        </span>
+
+        <span class="sub-card-description">
+          Add funds when the funding system is connected.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="window.location.href='withdrawal.html'">
+
+        <span class="sub-card-icon">💸</span>
+
+        <span class="sub-card-title">
+          Withdraw
+        </span>
+
+        <span class="sub-card-description">
+          Request an eligible withdrawal.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Transaction history will be connected to wallet_transactions.')">
+
+        <span class="sub-card-icon">🧾</span>
+
+        <span class="sub-card-title">
+          Transactions
+        </span>
+
+        <span class="sub-card-description">
+          View wallet activity.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Airtime will be connected to a legitimate Nigerian airtime API before transactions are enabled.')">
+
+        <span class="sub-card-icon">📱</span>
+
+        <span class="sub-card-title">
+          Airtime
+        </span>
+
+        <span class="sub-card-description">
+          Airtime purchase service.
+        </span>
+
+      </button>
+
+
+      <button
+        class="sub-card"
+        onclick="showMessage('Data service will be connected after the airtime system.')">
+
+        <span class="sub-card-icon">📶</span>
+
+        <span class="sub-card-title">
+          Data
+        </span>
+
+        <span class="sub-card-description">
+          Mobile data service.
+        </span>
+
+      </button>
+
+    </div>
+
+  </section>
+
+</section>
+
+
+<!-- ================= MORE ================= -->
+
+<section
+  id="morePanel"
+  class="panel">
+
+  <section class="section">
+
+    <div class="section-title">
+      ☰ More
+    </div>
+
+    <div class="menu-card">
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Marketplace will be built as a separate buying and selling area.')">
+
+        <span class="menu-icon">🛒</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Marketplace</span>
+          <span class="menu-description">
+            Buy and sell products or services.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="window.location.href='referrals.html'">
+
+        <span class="menu-icon">👥</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Referrals</span>
+          <span class="menu-description">
+            Invite users and track eligible rewards.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Appeals will be connected to the proof review system.')">
+
+        <span class="menu-icon">⚖️</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Appeals</span>
+          <span class="menu-description">
+            Manage eligible disputes.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="window.location.href='profile.html'">
+
+        <span class="menu-icon">👤</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Profile</span>
+          <span class="menu-description">
+            Manage your account information.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Settings will contain account preferences and security.')">
+
+        <span class="menu-icon">⚙️</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Settings</span>
+          <span class="menu-description">
+            Account preferences.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Security will contain password, MFA, verified phone and sessions.')">
+
+        <span class="menu-icon">🛡️</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Security</span>
+          <span class="menu-description">
+            Password, 2FA, verified phone and sessions.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="showMessage('Help and support will be added here.')">
+
+        <span class="menu-icon">❓</span>
+
+        <span class="menu-content">
+          <span class="menu-title">Help & Support</span>
+          <span class="menu-description">
+            Get help with NAIJA TASK.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+
+      <button
+        class="menu-item"
+        onclick="showMessage('NAIJA TASK — Complete Tasks. Earn Naira.')">
+
+        <span class="menu-icon">ℹ️</span>
+
+        <span class="menu-content">
+          <span class="menu-title">About NAIJA TASK</span>
+          <span class="menu-description">
+            Platform information and rules.
+          </span>
+        </span>
+
+        <span class="menu-arrow">›</span>
+
+      </button>
+
+    </div>
+
+  </section>
+
 
   <section class="section">
 
@@ -503,247 +1311,465 @@
 
   </section>
 
+</section>
+
 </main>
+
+
+<!-- BOTTOM NAVIGATION -->
+
+<nav class="bottom-nav">
+
+  <button
+    class="nav-button active"
+    data-panel="home"
+    onclick="showPanel('home')">
+
+    <span class="nav-icon">🏠</span>
+    Home
+
+  </button>
+
+
+  <button
+    class="nav-button"
+    data-panel="jobs"
+    onclick="showPanel('jobs')">
+
+    <span class="nav-icon">💼</span>
+    Jobs
+
+  </button>
+
+
+  <button
+    class="nav-button"
+    data-panel="proof"
+    onclick="showPanel('proof')">
+
+    <span class="nav-icon">📋</span>
+    Proof
+
+  </button>
+
+
+  <button
+    class="nav-button"
+    data-panel="wallet"
+    onclick="showPanel('wallet')">
+
+    <span class="nav-icon">💰</span>
+    Wallet
+
+  </button>
+
+
+  <button
+    class="nav-button"
+    data-panel="more"
+    onclick="showPanel('more')">
+
+    <span class="nav-icon">☰</span>
+    More
+
+  </button>
+
+</nav>
 
 
 <script>
 
-  const SUPABASE_URL =
-    "https://jwakveeiynpakunwjzkj.supabase.co";
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+/*
+  PUT YOUR EXISTING SUPABASE
+  PUBLISHABLE/ANON KEY HERE.
+
+  DO NOT USE:
+  - secret key
+  - service-role key
+*/
+
+const SUPABASE_KEY =
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
-  /*
-    KEEP YOUR EXISTING SUPABASE PUBLISHABLE KEY HERE.
-    Do NOT use the secret/service-role key.
-  */
-
-  const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
-  const supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
+/* =========================
+   NAVIGATION
+========================= */
+
+function showPanel(panelName) {
+
+  document
+    .querySelectorAll(".panel")
+    .forEach(function(panel) {
+
+      panel.classList.remove("active");
+
+    });
+
+
+  const target =
+    document.getElementById(
+      panelName + "Panel"
     );
 
 
-  async function loadDashboard() {
+  if (target) {
 
-    const {
-      data: { user },
-      error
-    } =
-      await supabaseClient.auth.getUser();
+    target.classList.add("active");
 
-
-    if (error || !user) {
-
-      window.location.href =
-        "index.html";
-
-      return;
-    }
-
-
-    await loadProfile(user.id);
-
-    await loadActivity(user.id);
-
-    await loadTransactions(user.id);
-
-    await loadReferrals(user.id);
   }
 
 
-  async function loadProfile(userId) {
+  document
+    .querySelectorAll(".nav-button")
+    .forEach(function(button) {
 
-    const { data, error } =
-      await supabaseClient
-        .from("profiles")
-        .select("full_name, balance")
-        .eq("id", userId)
-        .maybeSingle();
-
-
-    if (error) {
-
-      document.getElementById("userName")
-        .innerHTML =
-        '<span class="error">Unable to load account</span>';
-
-      return;
-    }
-
-
-    if (data) {
-
-      document.getElementById("userName")
-        .textContent =
-        data.full_name || "NAIJA TASK User";
-
-
-      document.getElementById("balance")
-        .textContent =
-        "₦" +
-        Number(data.balance || 0)
-          .toLocaleString("en-NG", {
-            minimumFractionDigits: 2
-          });
-    }
-  }
-
-
-  async function loadActivity(userId) {
-
-    const { data, error } =
-      await supabaseClient
-        .from("task_submissions")
-        .select("status")
-        .eq("user_id", userId);
-
-
-    if (error) {
-
-      document.getElementById("completedTasks")
-        .textContent = "0";
-
-      document.getElementById("pendingTasks")
-        .textContent = "0";
-
-      return;
-    }
-
-
-    const completed =
-      (data || []).filter(function(item) {
-
-        return String(item.status)
-          .toUpperCase() === "APPROVED";
-
-      }).length;
-
-
-    const pending =
-      (data || []).filter(function(item) {
-
-        return String(item.status)
-          .toUpperCase() === "PENDING";
-
-      }).length;
-
-
-    document.getElementById("completedTasks")
-      .textContent = completed;
-
-
-    document.getElementById("pendingTasks")
-      .textContent = pending;
-  }
-
-
-  async function loadTransactions(userId) {
-
-    const { data, error } =
-      await supabaseClient
-        .from("wallet_transactions")
-        .select("amount, type, status")
-        .eq("user_id", userId);
-
-
-    if (error || !data) {
-      return;
-    }
-
-
-    let earned = 0;
-    let withdrawn = 0;
-
-
-    data.forEach(function(item) {
-
-      const amount =
-        Number(item.amount || 0);
-
-
-      const type =
-        String(item.type || "")
-          .toUpperCase();
-
-
-      const status =
-        String(item.status || "")
-          .toUpperCase();
-
+      button.classList.remove("active");
 
       if (
-        status === "APPROVED" ||
-        status === "COMPLETED"
+        button.dataset.panel === panelName
       ) {
 
-        if (
-          type === "EARNING" ||
-          type === "TASK" ||
-          type === "CREDIT"
-        ) {
-
-          earned += amount;
-
-        }
-
-
-        if (
-          type === "WITHDRAWAL" ||
-          type === "DEBIT"
-        ) {
-
-          withdrawn += amount;
-
-        }
+        button.classList.add("active");
 
       }
 
     });
 
 
-    document.getElementById("totalEarned")
-      .textContent =
-      "₦" +
-      earned.toLocaleString("en-NG", {
-        minimumFractionDigits: 2
-      });
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
 
 
-    document.getElementById("totalWithdrawn")
-      .textContent =
-      "₦" +
-      withdrawn.toLocaleString("en-NG", {
-        minimumFractionDigits: 2
-      });
+/* =========================
+   MESSAGE
+========================= */
+
+function showMessage(message) {
+
+  alert(message);
+
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+async function loadDashboard() {
+
+  const {
+    data: { user },
+    error
+  } =
+    await supabaseClient.auth.getUser();
+
+
+  if (error || !user) {
+
+    window.location.href =
+      "index.html";
+
+    return;
+
   }
 
 
-  async function loadReferrals(userId) {
+  await loadProfile(user.id);
 
-    const { data, error } =
-      await supabaseClient
-        .from("referrals")
-        .select("id")
-        .eq("referrer_id", userId);
+  await loadActivity(user.id);
+
+  await loadTransactions(user.id);
+
+  await loadReferrals(user.id);
+
+  await loadAvailableTasks();
+
+}
 
 
-    if (error || !data) {
-      return;
+/* =========================
+   PROFILE
+========================= */
+
+async function loadProfile(userId) {
+
+  const { data, error } =
+    await supabaseClient
+      .from("profiles")
+      .select("full_name, balance")
+      .eq("id", userId)
+      .maybeSingle();
+
+
+  if (error) {
+
+    document.getElementById("userName")
+      .textContent =
+      "NAIJA TASK User";
+
+    return;
+
+  }
+
+
+  if (data) {
+
+    const name =
+      data.full_name ||
+      "NAIJA TASK User";
+
+
+    const balance =
+      Number(data.balance || 0);
+
+
+    document.getElementById("userName")
+      .textContent = name;
+
+
+    const formatted =
+      "₦" +
+      balance.toLocaleString(
+        "en-NG",
+        {
+          minimumFractionDigits: 2
+        }
+      );
+
+
+    document.getElementById("balance")
+      .textContent = formatted;
+
+
+    document.getElementById("walletBalance")
+      .textContent = formatted;
+
+  }
+
+}
+
+
+/* =========================
+   TASK ACTIVITY
+========================= */
+
+async function loadActivity(userId) {
+
+  const { data, error } =
+    await supabaseClient
+      .from("task_submissions")
+      .select("status")
+      .eq("user_id", userId);
+
+
+  if (error || !data) {
+
+    document.getElementById(
+      "completedTasks"
+    ).textContent = "0";
+
+
+    document.getElementById(
+      "pendingTasks"
+    ).textContent = "0";
+
+    return;
+
+  }
+
+
+  const completed =
+    data.filter(function(item) {
+
+      return String(item.status)
+        .toUpperCase() === "APPROVED";
+
+    }).length;
+
+
+  const pending =
+    data.filter(function(item) {
+
+      return String(item.status)
+        .toUpperCase() === "PENDING";
+
+    }).length;
+
+
+  document.getElementById(
+    "completedTasks"
+  ).textContent = completed;
+
+
+  document.getElementById(
+    "pendingTasks"
+  ).textContent = pending;
+
+}
+
+
+/* =========================
+   WALLET TRANSACTIONS
+========================= */
+
+async function loadTransactions(userId) {
+
+  const { data, error } =
+    await supabaseClient
+      .from("wallet_transactions")
+      .select("amount, type, status")
+      .eq("user_id", userId);
+
+
+  if (error || !data) {
+
+    return;
+
+  }
+
+
+  let earned = 0;
+
+
+  data.forEach(function(item) {
+
+    const amount =
+      Number(item.amount || 0);
+
+
+    const type =
+      String(item.type || "")
+        .toUpperCase();
+
+
+    const status =
+      String(item.status || "")
+        .toUpperCase();
+
+
+    if (
+      status === "APPROVED" ||
+      status === "COMPLETED"
+    ) {
+
+      if (
+        type === "EARNING" ||
+        type === "TASK" ||
+        type === "CREDIT"
+      ) {
+
+        earned += amount;
+
+      }
+
     }
 
+  });
 
-    document.getElementById("referralCount")
-      .textContent = data.length;
+
+  document.getElementById(
+    "totalEarned"
+  ).textContent =
+    "₦" +
+    earned.toLocaleString(
+      "en-NG",
+      {
+        minimumFractionDigits: 2
+      }
+    );
+
+}
+
+
+/* =========================
+   REFERRALS
+========================= */
+
+async function loadReferrals(userId) {
+
+  const { data, error } =
+    await supabaseClient
+      .from("referrals")
+      .select("id")
+      .eq("referrer_id", userId);
+
+
+  if (error || !data) {
+
+    return;
+
   }
 
 
-  document.getElementById("logoutButton")
-    .addEventListener("click", async function() {
+  document.getElementById(
+    "referralCount"
+  ).textContent =
+    data.length;
+
+}
+
+
+/* =========================
+   AVAILABLE TASKS
+========================= */
+
+async function loadAvailableTasks() {
+
+  const { count, error } =
+    await supabaseClient
+      .from("tasks")
+      .select("id", {
+        count: "exact",
+        head: true
+      });
+
+
+  if (error) {
+
+    document.getElementById(
+      "availableTasks"
+    ).textContent = "0";
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    "availableTasks"
+  ).textContent =
+    count || 0;
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+document
+  .getElementById("logoutButton")
+  .addEventListener(
+    "click",
+    async function() {
 
       const { error } =
         await supabaseClient.auth.signOut();
@@ -754,12 +1780,23 @@
         window.location.href =
           "index.html";
 
+      } else {
+
+        alert(
+          "Unable to log out. Please try again."
+        );
+
       }
 
-    });
+    }
+  );
 
 
-  loadDashboard();
+/* =========================
+   START
+========================= */
+
+loadDashboard();
 
 </script>
 
