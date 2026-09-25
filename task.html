@@ -482,8 +482,10 @@ async function loadTasks() {
       error
     } = await db
       .from("tasks")
-      .select(
-        "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active"
+       .select(
+    "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active, task_type, task_link"
+ )
+       
       )
       .eq("active", true)
       .order("created_at", {
@@ -617,8 +619,32 @@ function createTaskCard(task) {
     "task-icon";
 
 
-  const taskTitle =
-    (task.title || "").toLowerCase();
+  const taskType =
+  (task.task_type || "").toLowerCase();
+
+const taskTitle =
+  (task.title || "").toLowerCase();
+
+if (taskType.includes("tiktok") || taskTitle.includes("tiktok")) {
+  icon.textContent = "🎵";
+} else if (taskType.includes("youtube") || taskTitle.includes("youtube")) {
+  icon.textContent = "▶️";
+} else if (taskType.includes("instagram") || taskTitle.includes("instagram")) {
+  icon.textContent = "📸";
+} else if (taskType.includes("facebook") || taskTitle.includes("facebook")) {
+  icon.textContent = "📘";
+} else if (taskType.includes("telegram") || taskTitle.includes("telegram")) {
+  icon.textContent = "✈️";
+} else if (taskType.includes("website") || taskTitle.includes("website")) {
+  icon.textContent = "🌐";
+} else if (taskType.includes("app") || taskTitle.includes("app")) {
+  icon.textContent = "📱";
+} else if (taskType.includes("survey") || taskTitle.includes("survey")) {
+  icon.textContent = "📝";
+} else {
+  icon.textContent = "📋";
+}
+    
 
 
   if (taskTitle.includes("tiktok")) {
@@ -836,7 +862,39 @@ function createTaskCard(task) {
 
   }
 
+/* TASK LINK */
 
+if (task.task_link) {
+
+  const linkBox =
+    document.createElement("div");
+
+  linkBox.className =
+    "detail-box";
+
+  linkBox.innerHTML =
+    `
+    <div class="detail-label">
+      🔗 TASK LINK
+    </div>
+
+    <a
+      class="task-link"
+      href="${escapeHTML(task.task_link)}"
+      target="_blank"
+      rel="noopener noreferrer">
+      Open Task →
+    </a>
+    `;
+
+  details.appendChild(linkBox);
+
+}
+
+
+/* DEADLINE */
+
+if (task.expiry_date) {
   /* DEADLINE */
 
   if (task.expiry_date) {
