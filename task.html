@@ -478,45 +478,44 @@ async function loadTasks() {
 
 
     const {
-      data,
-      error
-    } = await db
-      .from("tasks")
-       .select(
+  data,
+  error
+} = await db
+  .from("tasks")
+  .select(
     "id, title, description, reward, slots, expiry_date, requirements, proof_type, proof_required, max_completions, active, task_type, task_link"
- )
-       
-      )
-      .eq("active", true)
-      .order("created_at", {
-        ascending: false
-      });
+  )
+  .eq("active", true)
+  .order("created_at", {
+    ascending: false
+  });
 
 
-    if (error) {
+if (error) {
 
-      console.error(error);
+  console.error(error);
 
-      tasksBox.innerHTML =
-        `
-        <div class="message">
-          ❌<br><br>
-          Unable to load tasks right now.
-          <br>
-          Please try again later.
-          <br><br>
+  tasksBox.innerHTML =
+    `
+    <div class="message">
+      ❌<br><br>
+      Unable to load tasks right now.
+      <br>
+      Please try again later.
+      <br><br>
 
-          <button
-            class="refresh-btn"
-            onclick="loadTasks()">
-            Try Again
-          </button>
-        </div>
-        `;
+      <button
+        class="refresh-btn"
+        onclick="loadTasks()">
+        Try Again
+      </button>
+    </div>
+    `;
 
-      return;
-    }
-
+  return;
+}
+     
+    
 
     if (!data || data.length === 0) {
 
