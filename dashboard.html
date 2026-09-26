@@ -1,503 +1,850 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>NAIJA TASK — Dashboard</title>
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Tasks — NAIJA TASK</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background: #f5fff7;
-  color: #17221a;
-  min-height: 100vh;
-  padding-bottom: 82px;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4faf6;
+  color: #18251d;
 }
 
 button,
-a {
-  -webkit-tap-highlight-color: transparent;
+input,
+textarea {
+  font-family: inherit;
 }
 
 button {
-  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* HEADER */
 
 header {
-  background: #0b8f3c;
+  background: linear-gradient(145deg,#0b8f3c,#087b34);
   color: white;
-  padding: 22px 16px 28px;
   border-radius: 0 0 28px 28px;
+  padding: 18px 16px 25px;
+  box-shadow: 0 5px 20px rgba(11,143,60,.15);
+}
+
+.header-inner {
+  width: 100%;
+  max-width: 760px;
+  margin: auto;
 }
 
 .header-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
 }
 
-.brand {
-  font-size: 23px;
-  font-weight: 900;
-}
-
-.notification-button {
-  width: 42px;
-  height: 42px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255,255,255,.16);
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: white;
-  font-size: 19px;
-}
-
-.welcome {
-  margin-top: 20px;
+  text-decoration: none;
   font-size: 13px;
-  opacity: .9;
+  font-weight: 700;
+  opacity: .95;
 }
 
-.name {
-  margin-top: 5px;
-  font-size: 23px;
-  font-weight: 800;
-}
-
-/* BALANCE */
-
-.balance-card {
-  background: white;
-  color: #17221a;
-  margin-top: 19px;
-  padding: 19px;
+.header-badge {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.18);
   border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,.10);
-}
-
-.balance-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.balance-label {
-  color: #68736b;
-  font-size: 12px;
-}
-
-.balance {
-  margin-top: 7px;
-  font-size: 30px;
-  font-weight: 900;
-}
-
-.wallet-link {
-  border: 0;
-  background: #e9f8ee;
-  color: #087832;
-  padding: 8px 11px;
-  border-radius: 10px;
-  font-size: 11px;
+  padding: 6px 10px;
+  font-size: 10px;
   font-weight: 800;
+}
+
+.page-heading {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.page-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background: rgba(255,255,255,.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+}
+
+header h1 {
+  margin: 0 0 5px;
+  font-size: 25px;
+  letter-spacing: -.3px;
+}
+
+header p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: .9;
 }
 
 /* MAIN */
 
 .container {
-  max-width: 560px;
+  width: 100%;
+  max-width: 760px;
   margin: auto;
-  padding: 20px 15px 30px;
+  padding: 19px 14px 40px;
 }
 
-.section {
-  margin-bottom: 24px;
-}
+/* PAGE BAR */
 
-.section-title {
+.page-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.page-title {
+  margin: 0;
   font-size: 18px;
   font-weight: 900;
-  margin-bottom: 12px;
 }
 
-.section-link {
-  color: #0b8f3c;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-/* QUICK ACTIONS */
-
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 9px;
-}
-
-.quick {
-  border: 0;
-  background: white;
-  border-radius: 15px;
-  padding: 13px 5px;
-  text-align: center;
-  box-shadow: 0 4px 14px rgba(0,0,0,.05);
-  color: #17221a;
-}
-
-.quick-icon {
-  display: block;
-  font-size: 22px;
-  margin-bottom: 7px;
-}
-
-.quick-text {
-  font-size: 10px;
-  font-weight: 800;
-}
-
-/* STATS */
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 16px;
-  padding: 15px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.05);
-}
-
-.stat-icon {
-  font-size: 19px;
-}
-
-.stat-label {
-  display: block;
-  margin-top: 8px;
-  color: #68736b;
+.page-subtitle {
+  margin: 4px 0 0;
+  color: #75837a;
   font-size: 11px;
 }
 
-.stat-value {
-  display: block;
-  margin-top: 4px;
-  font-size: 18px;
+.task-count {
+  flex-shrink: 0;
+  background: #e7f7ec;
+  color: #0b8f3c;
+  border-radius: 20px;
+  padding: 7px 10px;
+  font-size: 10px;
   font-weight: 900;
 }
 
-/* JOB CARD */
+/* CARD */
 
-.job-card {
+.task-card {
   background: white;
+  border: 1px solid #e1ebe4;
   border-radius: 18px;
+  margin-bottom: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,.045);
+}
+
+.task-card-main {
   padding: 16px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.05);
 }
 
-.job-head {
+.task-top {
   display: flex;
-  align-items: center;
-  gap: 11px;
+  align-items: flex-start;
+  gap: 12px;
 }
 
-.job-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 13px;
-  background: #e9f8ee;
+.task-icon {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 14px;
+  background: #e8f8ed;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 21px;
+  font-size: 23px;
 }
 
-.job-title {
+.task-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-title {
+  margin: 2px 0 5px;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.task-description {
+  margin: 0;
+  color: #738077;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.task-type {
+  display: inline-block;
+  margin-top: 7px;
+  background: #eef8f1;
+  color: #0b8f3c;
+  border-radius: 7px;
+  padding: 5px 7px;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+/* SUMMARY */
+
+.summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.summary-box {
+  background: #f6faf7;
+  border: 1px solid #e5eee8;
+  border-radius: 12px;
+  padding: 11px;
+}
+
+.summary-label {
+  display: block;
+  color: #78847c;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.summary-value {
+  color: #17251b;
   font-size: 15px;
   font-weight: 900;
 }
 
-.job-description {
-  margin-top: 4px;
-  color: #68736b;
-  font-size: 11px;
+.summary-value.reward-value {
+  color: #0b8f3c;
 }
 
-.job-button {
-  display: block;
-  margin-top: 13px;
-  background: #0b8f3c;
-  color: white;
-  text-decoration: none;
-  text-align: center;
-  padding: 12px;
-  border-radius: 11px;
-  font-size: 13px;
-  font-weight: 800;
+/* SLOT */
+
+.slot-section {
+  margin-top: 14px;
 }
 
-/* MENU CARDS */
-
-.menu-card {
-  background: white;
-  border-radius: 17px;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0,0,0,.05);
-}
-
-.menu-item {
-  width: 100%;
-  border: 0;
-  background: white;
-  padding: 15px;
+.slot-top {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 13px;
-  text-align: left;
-  color: #17221a;
-  border-bottom: 1px solid #edf1ee;
+  margin-bottom: 6px;
 }
 
-.menu-item:last-child {
-  border-bottom: none;
-}
-
-.menu-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
-  background: #eef9f1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.menu-content {
-  flex: 1;
-}
-
-.menu-title {
-  display: block;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.menu-description {
-  display: block;
-  margin-top: 3px;
-  color: #68736b;
+.slot-label {
+  color: #748079;
   font-size: 10px;
 }
 
-.menu-arrow {
-  color: #9aa39c;
-  font-size: 18px;
-}
-
-/* HOME PANELS */
-
-.panel {
-  display: none;
-}
-
-.panel.active {
-  display: block;
-}
-
-/* SUB MENU */
-
-.sub-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.sub-card {
-  border: 0;
-  background: white;
-  border-radius: 16px;
-  padding: 16px;
-  text-align: left;
-  box-shadow: 0 4px 14px rgba(0,0,0,.05);
-}
-
-.sub-card-icon {
-  font-size: 23px;
-}
-
-.sub-card-title {
-  display: block;
-  margin-top: 8px;
-  font-size: 13px;
+.slot-number {
+  color: #0b8f3c;
+  font-size: 10px;
   font-weight: 900;
 }
 
-.sub-card-description {
+.slot-bar {
+  height: 6px;
+  background: #e9eee9;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.slot-progress {
+  height: 100%;
+  background: #0b8f3c;
+  border-radius: 20px;
+}
+
+/* STATUS */
+
+.task-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 13px;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  border-radius: 20px;
+  padding: 6px 9px;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #0b8f3c;
+  border-radius: 50%;
+}
+
+/* BUTTON */
+
+.start-task-btn {
+  width: 100%;
+  margin-top: 14px;
+  border: none;
+  background: #0b8f3c;
+  color: white;
+  padding: 13px;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.start-task-btn.open {
+  background: #086f2f;
+}
+
+/* DETAILS */
+
+.task-details {
+  display: none;
+  padding: 0 16px 17px;
+}
+
+.task-details.open {
   display: block;
-  margin-top: 4px;
-  color: #68736b;
-  font-size: 10px;
-  line-height: 1.4;
 }
 
-/* INFO */
-
-.info {
-  background: white;
-  border-radius: 18px;
-  padding: 18px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.05);
+.details-divider {
+  border-top: 1px solid #e8eee9;
+  padding-top: 17px;
 }
 
-.info-title {
+.detail-heading {
+  margin: 0 0 11px;
   font-size: 16px;
   font-weight: 900;
 }
 
-.info-text {
-  margin-top: 7px;
-  color: #68736b;
-  font-size: 12px;
-  line-height: 1.6;
+.detail-intro {
+  background: #edf9f1;
+  border: 1px solid #dcefe2;
+  border-radius: 12px;
+  padding: 12px;
+  color: #41604b;
+  font-size: 11px;
+  line-height: 1.65;
+  margin-bottom: 13px;
 }
 
-/* BOTTOM NAV */
-
-.bottom-nav {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 68px;
-  background: white;
-  border-top: 1px solid #e6ece8;
-  box-shadow: 0 -4px 18px rgba(0,0,0,.07);
+.section-heading {
   display: flex;
-  justify-content: space-around;
   align-items: center;
+  gap: 7px;
+  margin: 17px 0 9px;
 }
 
-.nav-button {
-  width: 20%;
-  height: 100%;
-  border: 0;
+.section-heading-icon {
+  width: 27px;
+  height: 27px;
+  border-radius: 8px;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.section-heading-text {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.detail-box {
+  background: #f7faf8;
+  border: 1px solid #e4ece6;
+  border-radius: 12px;
+  padding: 13px;
+  margin-bottom: 10px;
+}
+
+.detail-label {
+  color: #748079;
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.detail-text {
+  color: #2d3b32;
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+/* STEPS */
+
+.steps-box {
   background: white;
-  color: #7a847d;
-  font-size: 10px;
-  font-weight: 700;
+  border: 1px solid #e2ebe5;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 11px;
 }
 
-.nav-icon {
-  display: block;
-  font-size: 20px;
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px;
+  border-bottom: 1px solid #edf2ee;
+}
+
+.step:last-child {
+  border-bottom: none;
+}
+
+.step-number {
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  border-radius: 50%;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.step-text {
+  color: #3c4b42;
+  font-size: 11px;
+  line-height: 1.55;
+  padding-top: 3px;
+}
+
+/* COPY */
+
+.copy-row {
+  display: flex;
+  gap: 7px;
+}
+
+.copy-content {
+  flex: 1;
+  min-width: 0;
+  background: white;
+  border: 1px solid #dfe8e1;
+  border-radius: 9px;
+  padding: 10px;
+  color: #29372f;
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.copy-btn {
+  border: none;
+  background: #e7f7ec;
+  color: #0b8f3c;
+  border-radius: 9px;
+  padding: 0 12px;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* LINKS */
+
+.link-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.task-link {
+  flex: 1;
+  min-width: 0;
+  background: #0b8f3c;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  padding: 11px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.link-copy-btn {
+  border: none;
+  background: #e7f7ec;
+  color: #0b8f3c;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* WARNING */
+
+.task-warning {
+  background: #fff9ea;
+  border: 1px solid #f1dfb5;
+  color: #6d5725;
+  border-radius: 11px;
+  padding: 12px;
+  margin-top: 13px;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+.task-warning-title {
+  font-weight: 900;
   margin-bottom: 4px;
 }
 
-.nav-button.active {
-  color: #0b8f3c;
+/* CHECKLIST */
+
+.checklist-box {
+  background: #f4fbf6;
+  border: 1px solid #dcebe0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 11px;
 }
 
-/* LOGOUT */
-
-.logout-button {
-  width: 100%;
-  border: 0;
-  background: white;
-  color: #b32626;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 800;
-  box-shadow: 0 4px 14px rgba(0,0,0,.05);
-}
-
-/* LOADING */
-
-.loading {
-  color: #68736b;
+.checklist-title {
   font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 9px;
 }
 
-/* MOBILE */
-
-@media (max-width: 370px) {
-
-  .quick-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .balance {
-    font-size: 27px;
-  }
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 7px;
+  color: #526158;
+  font-size: 10px;
+  line-height: 1.5;
 }
+
+.check-item:last-child {
+  margin-bottom: 0;
+}
+
+.check-icon {
+  color: #0b8f3c;
+  font-weight: 900;
+}
+
+/* PROOF */
+
+.proof-container {
+  margin-top: 18px;
+  border-top: 1px solid #e7eee9;
+  padding-top: 18px;
+}
+
+.proof-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.proof-subtitle {
+  margin: 0;
+  color: #758179;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.proof-type {
+  display: inline-flex;
+  align-items: center;
+  background: #e8f8ed;
+  color: #0b8f3c;
+  border-radius: 8px;
+  padding: 7px 9px;
+  margin: 12px 0;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+/* PROOF FIELD */
+
+.proof-field {
+  margin-bottom: 12px;
+}
+
+.proof-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: #28372e;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.proof-field input,
+.proof-field textarea {
+  width: 100%;
+  border: 1px solid #d7e3da;
+  background: white;
+  color: #25332b;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 12px;
+  outline: none;
+}
+
+.proof-field input:focus,
+.proof-field textarea:focus {
+  border-color: #0b8f3c;
+  box-shadow: 0 0 0 3px rgba(11,143,60,.08);
+}
+
+.proof-field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* UPLOAD */
+
+.photo-required {
+  background: #eaf8ee;
+  border: 1px solid #cfe8d6;
+  color: #176b36;
+  border-radius: 11px;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.upload-info {
+  background: #edf8f0;
+  border-radius: 9px;
+  padding: 10px;
+  color: #4f6d59;
+  font-size: 10px;
+  line-height: 1.55;
+  margin-bottom: 11px;
+}
+
+.image-preview {
+  display: none;
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  margin-top: 9px;
+  background: #f8fbf9;
+  border: 1px solid #dce7df;
+  border-radius: 10px;
+}
+
+/* SUBMIT */
+
+.submit-proof-btn {
+  width: 100%;
+  border: none;
+  background: #0b8f3c;
+  color: white;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.submit-proof-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.success-message {
+  display: none;
+  background: #e7f8ec;
+  border: 1px solid #cfead7;
+  color: #0b8f3c;
+  border-radius: 10px;
+  padding: 11px;
+  margin-top: 10px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+/* MESSAGES */
+
+.message {
+  background: white;
+  border: 1px solid #e2ebe5;
+  border-radius: 17px;
+  padding: 38px 18px;
+  text-align: center;
+  color: #758179;
+  font-size: 12px;
+  line-height: 1.65;
+  box-shadow: 0 4px 15px rgba(0,0,0,.035);
+}
+
+.message-icon {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.message-title {
+  color: #25342b;
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.refresh-btn {
+  margin-top: 13px;
+  border: none;
+  background: #0b8f3c;
+  color: white;
+  padding: 11px 17px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width:480px) {
+
+  header {
+    padding-top: 16px;
+  }
+
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .task-card-main {
+    padding: 14px;
+  }
+
+  .task-details {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .link-actions {
+    flex-direction: column;
+  }
+
+  .task-link {
+    width: 100%;
+  }
+
+  .link-copy-btn {
+    width: 100%;
+    padding: 11px;
+  }
+
+  .copy-btn {
+    padding: 0 10px;
+  }
+
+}
+
+@media (max-width:350px) {
+
+  .page-heading {
+    gap: 9px;
+  }
+
+  .page-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+
+  .task-title {
+    font-size: 15px;
+  }
+
+}
+
 </style>
+
 </head>
 
 <body>
 
 <header>
 
-  <div class="header-top">
+  <div class="header-inner">
 
-    <div class="brand">
-      NAIJA TASK
+    <div class="header-top">
+
+      <a href="dashboard.html" class="back">
+        ← Dashboard
+      </a>
+
+      <div class="header-badge">
+        NAIJA TASK
+      </div>
+
     </div>
 
-    <button
-      class="notification-button"
-      onclick="showMessage('Notifications will appear here.')">
-      🔔
-    </button>
+    <div class="page-heading">
 
-  </div>
-
-  <div class="welcome">
-    👋 Welcome back
-  </div>
-
-  <div class="name" id="userName">
-    Loading...
-  </div>
-
-  <div class="balance-card">
-
-    <div class="balance-top">
+      <div class="page-icon">
+        📋
+      </div>
 
       <div>
 
-        <div class="balance-label">
-          💰 Available Balance
-        </div>
+        <h1>
+          Available Tasks
+        </h1>
 
-        <div class="balance" id="balance">
-          ₦0.00
-        </div>
+        <p>
+          Complete genuine tasks and earn Naira.
+        </p>
 
       </div>
-
-      <button
-        class="wallet-link"
-        onclick="showPanel('wallet')">
-        Wallet →
-      </button>
 
     </div>
 
@@ -505,1300 +852,2349 @@ header {
 
 </header>
 
-
 <main class="container">
 
+  <div class="page-bar">
 
-<!-- ================= HOME ================= -->
+    <div>
 
-<section
-  id="homePanel"
-  class="panel active">
+      <h2 class="page-title">
+        Tasks
+      </h2>
 
-  <section class="section">
-
-    <div class="section-title">
-      Quick Actions
-    </div>
-
-    <div class="quick-grid">
-
-      <button
-        class="quick"
-        onclick="window.location.href='task.html'">
-
-        <span class="quick-icon">💼</span>
-        <span class="quick-text">Do a Job</span>
-
-      </button>
-
-
-      <button
-        class="quick"
-        onclick="showPanel('proof')">
-
-        <span class="quick-icon">📋</span>
-        <span class="quick-text">Proof</span>
-
-      </button>
-
-
-      <button
-        class="quick"
-        onclick="window.location.href='withdrawal.html'">
-
-        <span class="quick-icon">💸</span>
-        <span class="quick-text">Withdraw</span>
-
-      </button>
-
-
-      <button
-        class="quick"
-        onclick="showPanel('more')">
-
-        <span class="quick-icon">☰</span>
-        <span class="quick-text">More</span>
-
-      </button>
+      <p class="page-subtitle">
+        Choose a task and follow its instructions carefully.
+      </p>
 
     </div>
 
-  </section>
-
-
-  <section class="section">
-
-    <div class="section-title">
-      Account Overview
+    <div class="task-count" id="taskCount">
+      0 tasks
     </div>
 
-    <div class="stats-grid">
+  </div>
 
-      <div class="stat-card">
-        <span class="stat-icon">✅</span>
-        <span class="stat-label">Completed Jobs</span>
-        <span
-          class="stat-value"
-          id="completedTasks">0</span>
+  <div id="tasks">
+
+    <div class="message">
+
+      <div class="message-icon">
+        ⏳
       </div>
 
-
-      <div class="stat-card">
-        <span class="stat-icon">⏳</span>
-        <span class="stat-label">Pending Proof</span>
-        <span
-          class="stat-value"
-          id="pendingTasks">0</span>
+      <div class="message-title">
+        Loading tasks
       </div>
 
-
-      <div class="stat-card">
-        <span class="stat-icon">💵</span>
-        <span class="stat-label">Total Earned</span>
-        <span
-          class="stat-value"
-          id="totalEarned">₦0.00</span>
-      </div>
-
-
-      <div class="stat-card">
-        <span class="stat-icon">👥</span>
-        <span class="stat-label">Referrals</span>
-        <span
-          class="stat-value"
-          id="referralCount">0</span>
-      </div>
+      Please wait while available tasks are loaded.
 
     </div>
 
-  </section>
-
-
-  <section class="section">
-
-    <div class="section-title">
-
-      Available Jobs
-
-      <button
-        class="section-link"
-        onclick="window.location.href='task.html'">
-        View all
-      </button>
-
-    </div>
-
-    <div class="job-card">
-
-      <div class="job-head">
-
-        <div class="job-icon">
-          📋
-        </div>
-
-        <div>
-
-          <div class="job-title">
-            Available Tasks
-          </div>
-
-          <div class="job-description">
-            Find available jobs and complete them to earn.
-          </div>
-
-        </div>
-
-      </div>
-
-      <div
-        class="job-description"
-        style="margin-top:12px">
-
-        Available task slots:
-        <strong id="availableTasks">Loading...</strong>
-
-      </div>
-
-      <a
-        class="job-button"
-        href="task.html">
-        Browse Jobs
-      </a>
-
-    </div>
-
-  </section>
-
-
-  <section class="section">
-
-    <div class="info">
-
-      <div class="info-title">
-        🚀 Start Earning
-      </div>
-
-      <div class="info-text">
-        Choose a job, follow its instructions,
-        complete the required work and submit your
-        proof. Approved submissions can generate
-        wallet earnings according to the task rules.
-      </div>
-
-    </div>
-
-  </section>
-
-</section>
-
-
-<!-- ================= JOBS ================= -->
-
-<section
-  id="jobsPanel"
-  class="panel">
-
-  <section class="section">
-
-    <div class="section-title">
-      💼 Jobs
-    </div>
-
-    <div class="sub-grid">
-
-      <button
-        class="sub-card"
-        onclick="window.location.href='task.html'">
-
-        <span class="sub-card-icon">🔎</span>
-
-        <span class="sub-card-title">
-          Do a Job
-        </span>
-
-        <span class="sub-card-description">
-          Browse available tasks.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Applied Jobs page will be connected next.')">
-
-        <span class="sub-card-icon">📨</span>
-
-        <span class="sub-card-title">
-          Applied Jobs
-        </span>
-
-        <span class="sub-card-description">
-          Track jobs you applied for.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Completed Jobs will be connected to your task history.')">
-
-        <span class="sub-card-icon">✅</span>
-
-        <span class="sub-card-title">
-          Completed Jobs
-        </span>
-
-        <span class="sub-card-description">
-          View finished work.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Retry will show rejected tasks that can be resubmitted.')">
-
-        <span class="sub-card-icon">🔄</span>
-
-        <span class="sub-card-title">
-          Retry
-        </span>
-
-        <span class="sub-card-description">
-          Resubmit eligible work.
-        </span>
-
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <section class="section">
-
-    <div class="section-title">
-      For Job Posters
-    </div>
-
-    <div class="menu-card">
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Post a Job will be built as the job creation flow.')">
-
-        <span class="menu-icon">➕</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Post a Job</span>
-          <span class="menu-description">
-            Create a task and choose its slots, reward and proof requirements.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="showMessage('My Ads will show jobs you have posted.')">
-
-        <span class="menu-icon">📢</span>
-
-        <span class="menu-content">
-          <span class="menu-title">My Ads</span>
-          <span class="menu-description">
-            Manage your posted jobs.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Submission management will be connected to the admin/job poster workflow.')">
-
-        <span class="menu-icon">👥</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Manage Submissions</span>
-          <span class="menu-description">
-            Review worker submissions.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-    </div>
-
-  </section>
-
-</section>
-
-
-<!-- ================= PROOF ================= -->
-
-<section
-  id="proofPanel"
-  class="panel">
-
-  <section class="section">
-
-    <div class="section-title">
-      📋 Proof Center
-    </div>
-
-    <div class="info">
-
-      <div class="info-title">
-        Submit and track your proof
-      </div>
-
-      <div class="info-text">
-        Your proof moves through review before
-        an eligible reward is credited.
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <section class="section">
-
-    <div class="sub-grid">
-
-      <button
-        class="sub-card"
-        onclick="window.location.href='task.html'">
-
-        <span class="sub-card-icon">📤</span>
-
-        <span class="sub-card-title">
-          Upload Proof
-        </span>
-
-        <span class="sub-card-description">
-          Complete a task and submit its required proof.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Pending proof will be connected to task_submissions.')">
-
-        <span class="sub-card-icon">⏳</span>
-
-        <span class="sub-card-title">
-          Pending
-        </span>
-
-        <span class="sub-card-description">
-          Proof waiting for review.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Approved proof history will be connected to task_submissions.')">
-
-        <span class="sub-card-icon">✅</span>
-
-        <span class="sub-card-title">
-          Approved
-        </span>
-
-        <span class="sub-card-description">
-          Successfully reviewed submissions.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Rejected proof history will be connected to task_submissions.')">
-
-        <span class="sub-card-icon">❌</span>
-
-        <span class="sub-card-title">
-          Rejected
-        </span>
-
-        <span class="sub-card-description">
-          See rejection reasons.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Cancelled proof will appear here.')">
-
-        <span class="sub-card-icon">🚫</span>
-
-        <span class="sub-card-title">
-          Cancelled
-        </span>
-
-        <span class="sub-card-description">
-          Cancelled submissions.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Eligible rejected tasks will appear here for retry.')">
-
-        <span class="sub-card-icon">🔄</span>
-
-        <span class="sub-card-title">
-          Retry
-        </span>
-
-        <span class="sub-card-description">
-          Resubmit eligible proof.
-        </span>
-
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <section class="section">
-
-    <div class="menu-card">
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Appeals will be connected to the appeals system.')">
-
-        <span class="menu-icon">⚖️</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Appeals</span>
-          <span class="menu-description">
-            Challenge an eligible rejected submission.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-    </div>
-
-  </section>
-
-</section>
-
-
-<!-- ================= WALLET ================= -->
-
-<section
-  id="walletPanel"
-  class="panel">
-
-  <section class="section">
-
-    <div class="section-title">
-      💰 Wallet
-    </div>
-
-    <div class="stat-card">
-
-      <span class="stat-label">
-        Available Balance
-      </span>
-
-      <span
-        class="stat-value"
-        id="walletBalance">
-        ₦0.00
-      </span>
-
-    </div>
-
-  </section>
-
-
-  <section class="section">
-
-    <div class="sub-grid">
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Deposit/Funding will be connected to a real payment method before activation.')">
-
-        <span class="sub-card-icon">➕</span>
-
-        <span class="sub-card-title">
-          Fund Wallet
-        </span>
-
-        <span class="sub-card-description">
-          Add funds when the funding system is connected.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="window.location.href='withdrawal.html'">
-
-        <span class="sub-card-icon">💸</span>
-
-        <span class="sub-card-title">
-          Withdraw
-        </span>
-
-        <span class="sub-card-description">
-          Request an eligible withdrawal.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Transaction history will be connected to wallet_transactions.')">
-
-        <span class="sub-card-icon">🧾</span>
-
-        <span class="sub-card-title">
-          Transactions
-        </span>
-
-        <span class="sub-card-description">
-          View wallet activity.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Airtime will be connected to a legitimate Nigerian airtime API before transactions are enabled.')">
-
-        <span class="sub-card-icon">📱</span>
-
-        <span class="sub-card-title">
-          Airtime
-        </span>
-
-        <span class="sub-card-description">
-          Airtime purchase service.
-        </span>
-
-      </button>
-
-
-      <button
-        class="sub-card"
-        onclick="showMessage('Data service will be connected after the airtime system.')">
-
-        <span class="sub-card-icon">📶</span>
-
-        <span class="sub-card-title">
-          Data
-        </span>
-
-        <span class="sub-card-description">
-          Mobile data service.
-        </span>
-
-      </button>
-
-    </div>
-
-  </section>
-
-</section>
-
-
-<!-- ================= MORE ================= -->
-
-<section
-  id="morePanel"
-  class="panel">
-
-  <section class="section">
-
-    <div class="section-title">
-      ☰ More
-    </div>
-
-    <div class="menu-card">
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Marketplace will be built as a separate buying and selling area.')">
-
-        <span class="menu-icon">🛒</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Marketplace</span>
-          <span class="menu-description">
-            Buy and sell products or services.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="window.location.href='referrals.html'">
-
-        <span class="menu-icon">👥</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Referrals</span>
-          <span class="menu-description">
-            Invite users and track eligible rewards.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Appeals will be connected to the proof review system.')">
-
-        <span class="menu-icon">⚖️</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Appeals</span>
-          <span class="menu-description">
-            Manage eligible disputes.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="window.location.href='profile.html'">
-
-        <span class="menu-icon">👤</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Profile</span>
-          <span class="menu-description">
-            Manage your account information.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Settings will contain account preferences and security.')">
-
-        <span class="menu-icon">⚙️</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Settings</span>
-          <span class="menu-description">
-            Account preferences.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Security will contain password, MFA, verified phone and sessions.')">
-
-        <span class="menu-icon">🛡️</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Security</span>
-          <span class="menu-description">
-            Password, 2FA, verified phone and sessions.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="showMessage('Help and support will be added here.')">
-
-        <span class="menu-icon">❓</span>
-
-        <span class="menu-content">
-          <span class="menu-title">Help & Support</span>
-          <span class="menu-description">
-            Get help with NAIJA TASK.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-
-      <button
-        class="menu-item"
-        onclick="showMessage('NAIJA TASK — Complete Tasks. Earn Naira.')">
-
-        <span class="menu-icon">ℹ️</span>
-
-        <span class="menu-content">
-          <span class="menu-title">About NAIJA TASK</span>
-          <span class="menu-description">
-            Platform information and rules.
-          </span>
-        </span>
-
-        <span class="menu-arrow">›</span>
-
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <section class="section">
-
-    <button
-      class="logout-button"
-      id="logoutButton">
-
-      🚪 Log Out
-
-    </button>
-
-  </section>
-
-</section>
+  </div>
 
 </main>
 
-
-<!-- BOTTOM NAVIGATION -->
-
-<nav class="bottom-nav">
-
-  <button
-    class="nav-button active"
-    data-panel="home"
-    onclick="showPanel('home')">
-
-    <span class="nav-icon">🏠</span>
-    Home
-
-  </button>
-
-
-  <button
-    class="nav-button"
-    data-panel="jobs"
-    onclick="showPanel('jobs')">
-
-    <span class="nav-icon">💼</span>
-    Jobs
-
-  </button>
-
-
-  <button
-    class="nav-button"
-    data-panel="proof"
-    onclick="showPanel('proof')">
-
-    <span class="nav-icon">📋</span>
-    Proof
-
-  </button>
-
-
-  <button
-    class="nav-button"
-    data-panel="wallet"
-    onclick="showPanel('wallet')">
-
-    <span class="nav-icon">💰</span>
-    Wallet
-
-  </button>
-
-
-  <button
-    class="nav-button"
-    data-panel="more"
-    onclick="showPanel('more')">
-
-    <span class="nav-icon">☰</span>
-    More
-
-  </button>
-
-</nav>
-
-
 <script>
 
-/* =========================
+/* =========================================================
    SUPABASE
-========================= */
+========================================================= */
 
 const SUPABASE_URL =
-  "https://jwakveeiynpakunwjzkj.supabase.co";
+"https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  PUT YOUR EXISTING SUPABASE
-  PUBLISHABLE/ANON KEY HERE.
-
-  DO NOT USE:
-  - secret key
-  - service-role key
+  PASTE YOUR EXISTING SUPABASE PUBLISHABLE KEY HERE.
+  Do not use a secret/service-role key.
 */
 
 const SUPABASE_KEY =
-  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  
+
+const db =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let currentUser = null;
 
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+/* =========================================================
+   LOAD TASKS
+========================================================= */
 
+async function loadTasks() {
 
-/* =========================
-   NAVIGATION
-========================= */
+  const tasksBox =
+    document.getElementById("tasks");
 
-function showPanel(panelName) {
+  try {
 
-  document
-    .querySelectorAll(".panel")
-    .forEach(function(panel) {
+    const {
+      data: authData,
+      error: authError
+    } = await db.auth.getUser();
 
-      panel.classList.remove("active");
+    if (
+      authError ||
+      !authData ||
+      !authData.user
+    ) {
+
+      window.location.href =
+        "index.html";
+
+      return;
+
+    }
+
+    currentUser =
+      authData.user;
+
+    const {
+      data,
+      error
+    } = await db
+      .from("tasks")
+      .select(`
+        id,
+        title,
+        description,
+        reward,
+        slots,
+        expiry_date,
+        requirements,
+        proof_type,
+        proof_required,
+        max_completions,
+        active,
+        task_type,
+        task_link,
+        uploader_username,
+        copy_text,
+        post_link,
+        upload_required
+      `)
+      .eq("active", true)
+      .order("created_at", {
+        ascending: false
+      });
+
+    if (error) {
+
+      console.error(error);
+
+      showError(
+        "Unable to load tasks",
+        error.message || "There was a problem loading available tasks."
+      );
+
+      return;
+
+    }
+
+    if (
+      !data ||
+      data.length === 0
+    ) {
+
+      document.getElementById(
+        "taskCount"
+      ).textContent = "0 tasks";
+
+      tasksBox.innerHTML = `
+
+        <div class="message">
+
+          <div class="message-icon">
+            📋
+          </div>
+
+          <div class="message-title">
+            No tasks available
+          </div>
+
+          There are no available tasks for you right now.
+
+          <br>
+
+          Please check again later.
+
+          <br>
+
+          <button
+            class="refresh-btn"
+            onclick="loadTasks()"
+          >
+            Refresh Tasks
+          </button>
+
+        </div>
+
+      `;
+
+      return;
+
+    }
+
+    document.getElementById(
+      "taskCount"
+    ).textContent =
+      data.length +
+      (
+        data.length === 1
+          ? " task"
+          : " tasks"
+      );
+
+    tasksBox.innerHTML = "";
+
+    data.forEach(function(task) {
+
+      createTaskCard(task);
 
     });
 
+  }
+  catch (error) {
 
-  const target =
-    document.getElementById(
-      panelName + "Panel"
+    console.error(error);
+
+    showError(
+      "Something went wrong",
+      "Please try again."
     );
 
+  }
 
-  if (target) {
+}
 
-    target.classList.add("active");
+
+/* =========================================================
+   CREATE CARD
+========================================================= */
+
+function createTaskCard(task) {
+
+  const tasksBox =
+    document.getElementById("tasks");
+
+  const card =
+    document.createElement("div");
+
+  card.className =
+    "task-card";
+
+  const main =
+    document.createElement("div");
+
+  main.className =
+    "task-card-main";
+
+  /* TOP */
+
+  const top =
+    document.createElement("div");
+
+  top.className =
+    "task-top";
+
+  const icon =
+    document.createElement("div");
+
+  icon.className =
+    "task-icon";
+
+  icon.textContent =
+    getTaskIcon(task);
+
+  const heading =
+    document.createElement("div");
+
+  heading.className =
+    "task-heading";
+
+  const title =
+    document.createElement("div");
+
+  title.className =
+    "task-title";
+
+  title.textContent =
+    task.title || "Task";
+
+  const description =
+    document.createElement("p");
+
+  description.className =
+    "task-description";
+
+  description.textContent =
+    task.description ||
+    "Complete this task according to the instructions.";
+
+  heading.appendChild(title);
+  heading.appendChild(description);
+
+  if (task.task_type) {
+
+    const type =
+      document.createElement("span");
+
+    type.className =
+      "task-type";
+
+    type.textContent =
+      formatTaskType(task.task_type);
+
+    heading.appendChild(type);
+
+  }
+
+  top.appendChild(icon);
+  top.appendChild(heading);
+
+  main.appendChild(top);
+
+
+  /* SUMMARY */
+
+  const summary =
+    document.createElement("div");
+
+  summary.className =
+    "summary-row";
+
+  const rewardBox =
+    document.createElement("div");
+
+  rewardBox.className =
+    "summary-box";
+
+  const rewardLabel =
+    document.createElement("span");
+
+  rewardLabel.className =
+    "summary-label";
+
+  rewardLabel.textContent =
+    "Task Reward";
+
+  const rewardValue =
+    document.createElement("span");
+
+  rewardValue.className =
+    "summary-value reward-value";
+
+  rewardValue.textContent =
+    "₦" +
+    Number(task.reward || 0)
+      .toLocaleString("en-NG");
+
+  rewardBox.appendChild(rewardLabel);
+  rewardBox.appendChild(rewardValue);
+
+  const slotBox =
+    document.createElement("div");
+
+  slotBox.className =
+    "summary-box";
+
+  const slotLabel =
+    document.createElement("span");
+
+  slotLabel.className =
+    "summary-label";
+
+  slotLabel.textContent =
+    "Availability";
+
+  const slotValue =
+    document.createElement("span");
+
+  slotValue.className =
+    "summary-value";
+
+  const slots =
+    Number(task.slots || 0);
+
+  slotValue.textContent =
+    slots > 0
+      ? slots +
+        (slots === 1 ? " slot" : " slots")
+      : "Check";
+
+  slotBox.appendChild(slotLabel);
+  slotBox.appendChild(slotValue);
+
+  summary.appendChild(rewardBox);
+  summary.appendChild(slotBox);
+
+  main.appendChild(summary);
+
+
+  /* SLOT BAR */
+
+  const slotSection =
+    document.createElement("div");
+
+  slotSection.className =
+    "slot-section";
+
+  const slotTop =
+    document.createElement("div");
+
+  slotTop.className =
+    "slot-top";
+
+  const slotLabelText =
+    document.createElement("span");
+
+  slotLabelText.className =
+    "slot-label";
+
+  slotLabelText.textContent =
+    "Available slots";
+
+  const slotNumber =
+    document.createElement("span");
+
+  slotNumber.className =
+    "slot-number";
+
+  slotNumber.textContent =
+    slots > 0
+      ? slots + " remaining"
+      : "Availability varies";
+
+  slotTop.appendChild(slotLabelText);
+  slotTop.appendChild(slotNumber);
+
+  const bar =
+    document.createElement("div");
+
+  bar.className =
+    "slot-bar";
+
+  const progress =
+    document.createElement("div");
+
+  progress.className =
+    "slot-progress";
+
+  progress.style.width =
+    slots > 0 ? "100%" : "0%";
+
+  bar.appendChild(progress);
+
+  slotSection.appendChild(slotTop);
+  slotSection.appendChild(bar);
+
+  main.appendChild(slotSection);
+
+
+  /* STATUS */
+
+  const status =
+    document.createElement("div");
+
+  status.className =
+    "task-status";
+
+  const statusDot =
+    document.createElement("span");
+
+  statusDot.className =
+    "status-dot";
+
+  status.appendChild(statusDot);
+  status.appendChild(
+    document.createTextNode(" AVAILABLE")
+  );
+
+  main.appendChild(status);
+
+
+  /* START */
+
+  const startButton =
+    document.createElement("button");
+
+  startButton.className =
+    "start-task-btn";
+
+  startButton.textContent =
+    "▶ Start Task";
+
+  main.appendChild(startButton);
+
+
+  /* DETAILS */
+
+  const details =
+    document.createElement("div");
+
+  details.className =
+    "task-details";
+
+  const divider =
+    document.createElement("div");
+
+  divider.className =
+    "details-divider";
+
+  details.appendChild(divider);
+
+  const detailsHeading =
+    document.createElement("h3");
+
+  detailsHeading.className =
+    "detail-heading";
+
+  detailsHeading.textContent =
+    "Task Details";
+
+  divider.appendChild(detailsHeading);
+
+
+  const intro =
+    document.createElement("div");
+
+  intro.className =
+    "detail-intro";
+
+  intro.textContent =
+    "Read the instructions carefully, complete the task yourself, then submit genuine proof. Your reward is credited only after the submission has been reviewed and approved.";
+
+  divider.appendChild(intro);
+
+
+  /* HOW TO COMPLETE */
+
+  addSectionHeading(
+    divider,
+    "📖",
+    "How to Complete"
+  );
+
+  const stepsBox =
+    document.createElement("div");
+
+  stepsBox.className =
+    "steps-box";
+
+  const steps = [
+    "Read the task instructions completely.",
+    "Open the task link or post when provided.",
+    "Complete the requested action yourself.",
+    "Follow every requirement given by the task owner.",
+    "Take a clear photo/screenshot as proof.",
+    "Enter any additional proof requested.",
+    "Submit your proof and wait for review."
+  ];
+
+  steps.forEach(function(stepText, index) {
+
+    const step =
+      document.createElement("div");
+
+    step.className =
+      "step";
+
+    const number =
+      document.createElement("div");
+
+    number.className =
+      "step-number";
+
+    number.textContent =
+      index + 1;
+
+    const text =
+      document.createElement("div");
+
+    text.className =
+      "step-text";
+
+    text.textContent =
+      stepText;
+
+    step.appendChild(number);
+    step.appendChild(text);
+
+    stepsBox.appendChild(step);
+
+  });
+
+  divider.appendChild(stepsBox);
+
+
+  /* INSTRUCTIONS */
+
+  if (task.description) {
+
+    addSectionHeading(
+      divider,
+      "📝",
+      "Task Instructions"
+    );
+
+    divider.appendChild(
+      createDetailBox(
+        "Instructions",
+        task.description
+      )
+    );
 
   }
 
 
-  document
-    .querySelectorAll(".nav-button")
-    .forEach(function(button) {
+  /* REQUIREMENTS */
 
-      button.classList.remove("active");
+  if (task.requirements) {
 
-      if (
-        button.dataset.panel === panelName
-      ) {
+    addSectionHeading(
+      divider,
+      "📌",
+      "Requirements"
+    );
 
-        button.classList.add("active");
+    divider.appendChild(
+      createDetailBox(
+        "Requirements",
+        task.requirements
+      )
+    );
+
+  }
+
+
+  /* OWNER */
+
+  if (task.uploader_username) {
+
+    addSectionHeading(
+      divider,
+      "👤",
+      "Task Owner"
+    );
+
+    const ownerBox =
+      document.createElement("div");
+
+    ownerBox.className =
+      "detail-box";
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "detail-label";
+
+    label.textContent =
+      "Uploader Username";
+
+    ownerBox.appendChild(label);
+
+    ownerBox.appendChild(
+      createCopyRow(
+        task.uploader_username
+      )
+    );
+
+    divider.appendChild(ownerBox);
+
+  }
+
+
+  /* COPY TEXT */
+
+  if (task.copy_text) {
+
+    addSectionHeading(
+      divider,
+      "📋",
+      "Text To Copy"
+    );
+
+    const copyBox =
+      document.createElement("div");
+
+    copyBox.className =
+      "detail-box";
+
+    copyBox.appendChild(
+      createCopyRow(
+        task.copy_text
+      )
+    );
+
+    divider.appendChild(copyBox);
+
+  }
+
+
+  /* TASK LINK */
+
+  if (task.task_link) {
+
+    addSectionHeading(
+      divider,
+      "🔗",
+      "Task Link"
+    );
+
+    divider.appendChild(
+      createLinkBox(
+        task.task_link,
+        "Open Task →"
+      )
+    );
+
+  }
+
+
+  /* POST LINK */
+
+  if (task.post_link) {
+
+    addSectionHeading(
+      divider,
+      "📢",
+      "Post Link"
+    );
+
+    divider.appendChild(
+      createLinkBox(
+        task.post_link,
+        "Open Post →"
+      )
+    );
+
+  }
+
+
+  /* DEADLINE */
+
+  if (task.expiry_date) {
+
+    addSectionHeading(
+      divider,
+      "⏰",
+      "Deadline"
+    );
+
+    divider.appendChild(
+      createDetailBox(
+        "Task deadline",
+        formatDate(task.expiry_date)
+      )
+    );
+
+  }
+
+
+  /* WARNING */
+
+  const warning =
+    document.createElement("div");
+
+  warning.className =
+    "task-warning";
+
+  const warningTitle =
+    document.createElement("div");
+
+  warningTitle.className =
+    "task-warning-title";
+
+  warningTitle.textContent =
+    "⚠️ Important";
+
+  warning.appendChild(warningTitle);
+
+  warning.appendChild(
+    document.createTextNode(
+      "Complete the task yourself. Do not submit fake, edited, reused, or unrelated proof. Submission does not mean automatic payment; the proof must first be reviewed and approved."
+    )
+  );
+
+  divider.appendChild(warning);
+
+
+  /* CHECKLIST */
+
+  const checklist =
+    document.createElement("div");
+
+  checklist.className =
+    "checklist-box";
+
+  const checklistTitle =
+    document.createElement("div");
+
+  checklistTitle.className =
+    "checklist-title";
+
+  checklistTitle.textContent =
+    "✓ Before You Submit";
+
+  checklist.appendChild(checklistTitle);
+
+  const checklistItems = [
+    "I completed the task myself.",
+    "My photo clearly shows the required action.",
+    "The proof belongs to this task.",
+    "The information I entered is correct."
+  ];
+
+  checklistItems.forEach(function(item) {
+
+    const check =
+      document.createElement("div");
+
+    check.className =
+      "check-item";
+
+    const icon =
+      document.createElement("span");
+
+    icon.className =
+      "check-icon";
+
+    icon.textContent =
+      "✓";
+
+    const text =
+      document.createElement("span");
+
+    text.textContent =
+      item;
+
+    check.appendChild(icon);
+    check.appendChild(text);
+
+    checklist.appendChild(check);
+
+  });
+
+  divider.appendChild(checklist);
+
+
+  /* =======================================================
+     PROOF
+  ======================================================= */
+
+  const proofContainer =
+    document.createElement("div");
+
+  proofContainer.className =
+    "proof-container";
+
+  const proofTitle =
+    document.createElement("h3");
+
+  proofTitle.className =
+    "proof-title";
+
+  proofTitle.textContent =
+    "Submit Proof";
+
+  const proofSubtitle =
+    document.createElement("p");
+
+  proofSubtitle.className =
+    "proof-subtitle";
+
+  proofSubtitle.textContent =
+    "Photo proof is required for every task. Additional fields appear only when required.";
+
+  proofContainer.appendChild(proofTitle);
+  proofContainer.appendChild(proofSubtitle);
+
+
+  const proofType =
+    document.createElement("div");
+
+  proofType.className =
+    "proof-type";
+
+  proofType.textContent =
+    getProofType(task);
+
+  proofContainer.appendChild(proofType);
+
+
+  const fieldContainer =
+    document.createElement("div");
+
+  buildProofField(
+    fieldContainer,
+    task
+  );
+
+  proofContainer.appendChild(fieldContainer);
+
+
+  const submitButton =
+    document.createElement("button");
+
+  submitButton.className =
+    "submit-proof-btn";
+
+  submitButton.textContent =
+    "Submit Proof";
+
+  submitButton.onclick =
+    function() {
+
+      submitProof(
+        task,
+        fieldContainer,
+        submitButton
+      );
+
+    };
+
+  proofContainer.appendChild(submitButton);
+
+
+  const success =
+    document.createElement("div");
+
+  success.className =
+    "success-message";
+
+  success.textContent =
+    "✅ Proof submitted successfully. It is now waiting for review.";
+
+  proofContainer.appendChild(success);
+
+  divider.appendChild(proofContainer);
+
+
+  /* OPEN / CLOSE */
+
+  startButton.onclick =
+    function() {
+
+      const isOpen =
+        details.classList.toggle("open");
+
+      if (isOpen) {
+
+        startButton.textContent =
+          "▲ Hide Task Details";
+
+        startButton.classList.add("open");
+
+      }
+      else {
+
+        startButton.textContent =
+          "▶ Start Task";
+
+        startButton.classList.remove("open");
 
       }
 
+    };
+
+
+  card.appendChild(main);
+  card.appendChild(details);
+
+  tasksBox.appendChild(card);
+
+}
+
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+function addSectionHeading(
+  parent,
+  icon,
+  title
+) {
+
+  const heading =
+    document.createElement("div");
+
+  heading.className =
+    "section-heading";
+
+  const iconBox =
+    document.createElement("div");
+
+  iconBox.className =
+    "section-heading-icon";
+
+  iconBox.textContent =
+    icon;
+
+  const text =
+    document.createElement("div");
+
+  text.className =
+    "section-heading-text";
+
+  text.textContent =
+    title;
+
+  heading.appendChild(iconBox);
+  heading.appendChild(text);
+
+  parent.appendChild(heading);
+
+}
+
+
+/* =========================================================
+   DETAIL BOX
+========================================================= */
+
+function createDetailBox(
+  labelText,
+  value
+) {
+
+  const box =
+    document.createElement("div");
+
+  box.className =
+    "detail-box";
+
+  const label =
+    document.createElement("div");
+
+  label.className =
+    "detail-label";
+
+  label.textContent =
+    labelText;
+
+  const text =
+    document.createElement("div");
+
+  text.className =
+    "detail-text";
+
+  text.textContent =
+    value;
+
+  box.appendChild(label);
+  box.appendChild(text);
+
+  return box;
+
+}
+
+
+/* =========================================================
+   COPY ROW
+========================================================= */
+
+function createCopyRow(value) {
+
+  const row =
+    document.createElement("div");
+
+  row.className =
+    "copy-row";
+
+  const content =
+    document.createElement("div");
+
+  content.className =
+    "copy-content";
+
+  content.textContent =
+    value;
+
+  const button =
+    document.createElement("button");
+
+  button.className =
+    "copy-btn";
+
+  button.textContent =
+    "Copy";
+
+  button.onclick =
+    function() {
+
+      copyText(
+        value,
+        button
+      );
+
+    };
+
+  row.appendChild(content);
+  row.appendChild(button);
+
+  return row;
+
+}
+
+
+/* =========================================================
+   LINK BOX
+========================================================= */
+
+function createLinkBox(
+  url,
+  buttonText
+) {
+
+  const box =
+    document.createElement("div");
+
+  box.className =
+    "detail-box";
+
+  const actions =
+    document.createElement("div");
+
+  actions.className =
+    "link-actions";
+
+  const open =
+    document.createElement("a");
+
+  open.className =
+    "task-link";
+
+  open.href =
+    url;
+
+  open.target =
+    "_blank";
+
+  open.rel =
+    "noopener noreferrer";
+
+  open.textContent =
+    buttonText;
+
+  const copy =
+    document.createElement("button");
+
+  copy.className =
+    "link-copy-btn";
+
+  copy.textContent =
+    "Copy Link";
+
+  copy.onclick =
+    function() {
+
+      copyText(
+        url,
+        copy
+      );
+
+    };
+
+  actions.appendChild(open);
+  actions.appendChild(copy);
+
+  box.appendChild(actions);
+
+  return box;
+
+}
+
+
+/* =========================================================
+   ICON
+========================================================= */
+
+function getTaskIcon(task) {
+
+  const type =
+    String(task.task_type || "")
+      .toLowerCase();
+
+  const title =
+    String(task.title || "")
+      .toLowerCase();
+
+  const text =
+    type + " " + title;
+
+  if (text.includes("tiktok")) return "🎵";
+  if (text.includes("youtube")) return "▶️";
+  if (text.includes("instagram")) return "📸";
+  if (text.includes("facebook")) return "📘";
+  if (text.includes("telegram")) return "✈️";
+  if (text.includes("whatsapp")) return "💬";
+  if (text.includes("website") || text.includes("web")) return "🌐";
+  if (text.includes("app") || text.includes("download")) return "📱";
+  if (text.includes("survey")) return "📝";
+  if (text.includes("follow")) return "➕";
+  if (text.includes("like")) return "❤️";
+
+  return "📋";
+
+}
+
+
+/* =========================================================
+   TASK TYPE
+========================================================= */
+
+function formatTaskType(value) {
+
+  const text =
+    String(value || "").trim();
+
+  if (!text) {
+    return "General Task";
+  }
+
+  return text
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, function(letter) {
+      return letter.toUpperCase();
     });
 
+}
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
+
+/* =========================================================
+   GET ADDITIONAL PROOF TYPES
+========================================================= */
+
+function getAdditionalProofTypes(task) {
+
+  const raw =
+    String(task.proof_type || "")
+      .trim()
+      .toLowerCase();
+
+  if (!raw) {
+    return [];
+  }
+
+  const normalized =
+    raw
+      .replace(/\|/g, ",")
+      .replace(/\+/g, ",")
+      .replace(/\//g, ",")
+      .replace(/;/g, ",");
+
+  const parts =
+    normalized
+      .split(",")
+      .map(function(item) {
+        return item.trim();
+      })
+      .filter(Boolean);
+
+  const result = [];
+
+  parts.forEach(function(part) {
+
+    let type = null;
+
+    if (
+      part.includes("username") ||
+      part.includes("user name")
+    ) {
+
+      type = "username";
+
+    }
+    else if (
+      part === "url" ||
+      part.includes("proof url") ||
+      part.includes("website url") ||
+      part.includes("link")
+    ) {
+
+      type = "url";
+
+    }
+    else if (
+      part.includes("reference") ||
+      part.includes("ref id") ||
+      part.includes("reference id")
+    ) {
+
+      type = "reference";
+
+    }
+    else if (
+      part === "text" ||
+      part.includes("description") ||
+      part.includes("proof text")
+    ) {
+
+      type = "text";
+
+    }
+
+    /*
+      Photo/screenshot/image are deliberately ignored
+      here because PHOTO IS ALWAYS REQUIRED separately.
+    */
+
+    if (
+      type &&
+      !result.includes(type)
+    ) {
+
+      result.push(type);
+
+    }
+
   });
-}
 
-
-/* =========================
-   MESSAGE
-========================= */
-
-function showMessage(message) {
-
-  alert(message);
+  return result;
 
 }
 
 
-/* =========================
-   DASHBOARD
-========================= */
+/* =========================================================
+   PROOF TYPE DISPLAY
+========================================================= */
 
-async function loadDashboard() {
+function getProofType(task) {
 
-  const {
-    data: { user },
-    error
-  } =
-    await supabaseClient.auth.getUser();
+  const extras =
+    getAdditionalProofTypes(task);
 
+  if (extras.length === 0) {
 
-  if (error || !user) {
-
-    window.location.href =
-      "index.html";
-
-    return;
+    return "📷 Photo Proof — Required";
 
   }
 
+  const labels =
+    extras.map(function(type) {
 
-  await loadProfile(user.id);
+      if (type === "username") {
+        return "👤 Username";
+      }
 
-  await loadActivity(user.id);
+      if (type === "url") {
+        return "🔗 URL";
+      }
 
-  await loadTransactions(user.id);
+      if (type === "reference") {
+        return "🔖 Reference ID";
+      }
 
-  await loadReferrals(user.id);
+      if (type === "text") {
+        return "📝 Text";
+      }
 
-  await loadAvailableTasks();
+      return type;
+
+    });
+
+  return (
+    "📷 Photo Required + " +
+    labels.join(" + ")
+  );
 
 }
 
 
-/* =========================
-   PROFILE
-========================= */
+/* =========================================================
+   BUILD PROOF FIELD
+========================================================= */
 
-async function loadProfile(userId) {
+function buildProofField(
+  container,
+  task
+) {
 
-  const { data, error } =
-    await supabaseClient
-      .from("profiles")
-      .select("full_name, balance")
-      .eq("id", userId)
-      .maybeSingle();
+  container.innerHTML = "";
 
 
-  if (error) {
+  /* -------------------------------------------------------
+     PHOTO — ALWAYS REQUIRED
+  ------------------------------------------------------- */
 
-    document.getElementById("userName")
-      .textContent =
-      "NAIJA TASK User";
+  const photoRequired =
+    document.createElement("div");
 
-    return;
+  photoRequired.className =
+    "photo-required";
 
-  }
+  photoRequired.textContent =
+    "📷 Photo proof is required for EVERY task. Upload a clear photo or screenshot showing your completed task.";
 
-
-  if (data) {
-
-    const name =
-      data.full_name ||
-      "NAIJA TASK User";
+  container.appendChild(photoRequired);
 
 
-    const balance =
-      Number(data.balance || 0);
+  const uploadInfo =
+    document.createElement("div");
+
+  uploadInfo.className =
+    "upload-info";
+
+  uploadInfo.textContent =
+    "Maximum image size: 5MB. Accepted image formats depend on your device/browser.";
+
+  container.appendChild(uploadInfo);
 
 
-    document.getElementById("userName")
-      .textContent = name;
+  const photoField =
+    document.createElement("div");
+
+  photoField.className =
+    "proof-field";
+
+  const photoLabel =
+    document.createElement("label");
+
+  photoLabel.textContent =
+    "📸 Upload Photo / Screenshot *";
+
+  const fileInput =
+    document.createElement("input");
+
+  fileInput.type =
+    "file";
+
+  fileInput.className =
+    "proof-photo";
+
+  fileInput.accept =
+    "image/*";
+
+  fileInput.required =
+    true;
+
+  const preview =
+    document.createElement("img");
+
+  preview.className =
+    "image-preview";
+
+  preview.alt =
+    "Proof preview";
+
+  photoField.appendChild(photoLabel);
+  photoField.appendChild(fileInput);
+  photoField.appendChild(preview);
+
+  container.appendChild(photoField);
 
 
-    const formatted =
-      "₦" +
-      balance.toLocaleString(
-        "en-NG",
+  fileInput.addEventListener(
+    "change",
+    function() {
+
+      const file =
+        fileInput.files &&
+        fileInput.files[0];
+
+      if (!file) {
+
+        preview.style.display =
+          "none";
+
+        preview.removeAttribute("src");
+
+        return;
+
+      }
+
+      if (
+        !file.type.startsWith("image/")
+      ) {
+
+        alert(
+          "Please select an image file."
+        );
+
+        fileInput.value =
+          "";
+
+        preview.style.display =
+          "none";
+
+        return;
+
+      }
+
+      if (
+        file.size >
+        5 * 1024 * 1024
+      ) {
+
+        alert(
+          "Image must be 5MB or smaller."
+        );
+
+        fileInput.value =
+          "";
+
+        preview.style.display =
+          "none";
+
+        return;
+
+      }
+
+      const reader =
+        new FileReader();
+
+      reader.onload =
+        function(event) {
+
+          preview.src =
+            event.target.result;
+
+          preview.style.display =
+            "block";
+
+        };
+
+      reader.readAsDataURL(file);
+
+    }
+  );
+
+
+  /* -------------------------------------------------------
+     ADDITIONAL PROOF
+  ------------------------------------------------------- */
+
+  const extras =
+    getAdditionalProofTypes(task);
+
+  extras.forEach(function(type) {
+
+    if (type === "username") {
+
+      createUsernameField(container);
+
+    }
+
+    if (type === "url") {
+
+      createUrlField(container);
+
+    }
+
+    if (type === "reference") {
+
+      createReferenceField(container);
+
+    }
+
+    if (type === "text") {
+
+      createTextField(container);
+
+    }
+
+  });
+
+}
+
+
+/* =========================================================
+   USERNAME FIELD
+========================================================= */
+
+function createUsernameField(container) {
+
+  const field =
+    document.createElement("div");
+
+  field.className =
+    "proof-field";
+
+  const label =
+    document.createElement("label");
+
+  label.textContent =
+    "👤 Your Username *";
+
+  const input =
+    document.createElement("input");
+
+  input.type =
+    "text";
+
+  input.className =
+    "extra-username";
+
+  input.placeholder =
+    "@yourusername";
+
+  input.autocomplete =
+    "off";
+
+  input.required =
+    true;
+
+  field.appendChild(label);
+  field.appendChild(input);
+
+  container.appendChild(field);
+
+}
+
+
+/* =========================================================
+   URL FIELD
+========================================================= */
+
+function createUrlField(container) {
+
+  const field =
+    document.createElement("div");
+
+  field.className =
+    "proof-field";
+
+  const label =
+    document.createElement("label");
+
+  label.textContent =
+    "🔗 Proof URL *";
+
+  const input =
+    document.createElement("input");
+
+  input.type =
+    "url";
+
+  input.className =
+    "extra-url";
+
+  input.placeholder =
+    "https://...";
+
+  input.autocomplete =
+    "off";
+
+  input.required =
+    true;
+
+  field.appendChild(label);
+  field.appendChild(input);
+
+  container.appendChild(field);
+
+}
+
+
+/* =========================================================
+   REFERENCE FIELD
+========================================================= */
+
+function createReferenceField(container) {
+
+  const field =
+    document.createElement("div");
+
+  field.className =
+    "proof-field";
+
+  const label =
+    document.createElement("label");
+
+  label.textContent =
+    "🔖 Reference ID *";
+
+  const input =
+    document.createElement("input");
+
+  input.type =
+    "text";
+
+  input.className =
+    "extra-reference";
+
+  input.placeholder =
+    "Enter reference ID";
+
+  input.autocomplete =
+    "off";
+
+  input.required =
+    true;
+
+  field.appendChild(label);
+  field.appendChild(input);
+
+  container.appendChild(field);
+
+}
+
+
+/* =========================================================
+   TEXT FIELD
+========================================================= */
+
+function createTextField(container) {
+
+  const field =
+    document.createElement("div");
+
+  field.className =
+    "proof-field";
+
+  const label =
+    document.createElement("label");
+
+  label.textContent =
+    "📝 Proof Description *";
+
+  const textarea =
+    document.createElement("textarea");
+
+  textarea.className =
+    "extra-text";
+
+  textarea.placeholder =
+    "Describe what you completed...";
+
+  textarea.required =
+    true;
+
+  field.appendChild(label);
+  field.appendChild(textarea);
+
+  container.appendChild(field);
+
+}
+
+
+/* =========================================================
+   SUBMIT PROOF
+========================================================= */
+
+async function submitProof(
+  task,
+  container,
+  button
+) {
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Submitting...";
+
+  try {
+
+    const {
+      data: authData,
+      error: userError
+    } = await db.auth.getUser();
+
+    if (
+      userError ||
+      !authData ||
+      !authData.user
+    ) {
+
+      window.location.href =
+        "index.html";
+
+      return;
+
+    }
+
+    const user =
+      authData.user;
+
+
+    /* -------------------------------------------------------
+       PHOTO REQUIRED
+    ------------------------------------------------------- */
+
+    const photoInput =
+      container.querySelector(
+        ".proof-photo"
+      );
+
+    if (!photoInput) {
+
+      alert(
+        "Photo upload field is missing. Please refresh the page."
+      );
+
+      resetSubmitButton(button);
+
+      return;
+
+    }
+
+    const file =
+      photoInput.files &&
+      photoInput.files[0];
+
+    if (!file) {
+
+      alert(
+        "Please upload a photo or screenshot before submitting."
+      );
+
+      resetSubmitButton(button);
+
+      return;
+
+    }
+
+    if (
+      !file.type.startsWith("image/")
+    ) {
+
+      alert(
+        "Please select an image file."
+      );
+
+      resetSubmitButton(button);
+
+      return;
+
+    }
+
+    if (
+      file.size >
+      5 * 1024 * 1024
+    ) {
+
+      alert(
+        "Image must be 5MB or smaller."
+      );
+
+      resetSubmitButton(button);
+
+      return;
+
+    }
+
+
+    /* -------------------------------------------------------
+       ADDITIONAL FIELDS
+    ------------------------------------------------------- */
+
+    const additional = {};
+
+
+    const usernameInput =
+      container.querySelector(
+        ".extra-username"
+      );
+
+    if (usernameInput) {
+
+      const value =
+        usernameInput.value.trim();
+
+      if (!value) {
+
+        alert(
+          "Please enter your username."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+
+      }
+
+      if (value.length < 2) {
+
+        alert(
+          "Please enter a valid username."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+
+      }
+
+      additional.username =
+        value;
+
+    }
+
+
+    const urlInput =
+      container.querySelector(
+        ".extra-url"
+      );
+
+    if (urlInput) {
+
+      const value =
+        urlInput.value.trim();
+
+      if (!value) {
+
+        alert(
+          "Please enter the proof URL."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+
+      }
+
+      try {
+
+        const parsed =
+          new URL(value);
+
+        if (
+          parsed.protocol !== "http:" &&
+          parsed.protocol !== "https:"
+        ) {
+
+          throw new Error(
+            "Invalid URL"
+          );
+
+        }
+
+      }
+      catch (error) {
+
+        alert(
+          "Please enter a valid URL starting with https:// or http://"
+        );
+
+        resetSubmitButton(button);
+
+        return;
+
+      }
+
+      additional.url =
+        value;
+
+    }
+
+
+    const referenceInput =
+      container.querySelector(
+        ".extra-reference"
+      );
+
+    if (referenceInput) {
+
+      const value =
+        referenceInput.value.trim();
+
+      if (!value) {
+
+        alert(
+          "Please enter the reference ID."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+
+      }
+
+      if (value.length < 2) {
+
+        alert(
+          "Please enter a valid reference ID."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+
+      }
+
+      additional.reference =
+        value;
+
+    }
+
+
+    const textInput =
+      container.querySelector(
+        ".extra-text"
+      );
+
+    if (textInput) {
+
+      const value =
+        textInput.value.trim();
+
+      if (!value) {
+
+        alert(
+          "Please enter the proof description."
+        );
+
+        resetSubmitButton(button);
+
+        return;
+
+      }
+
+      additional.text =
+        value;
+
+    }
+
+
+    /* -------------------------------------------------------
+       STORAGE
+    ------------------------------------------------------- */
+
+    const originalName =
+      String(file.name || "proof");
+
+    const extension =
+      originalName.includes(".")
+        ? originalName
+            .split(".")
+            .pop()
+            .toLowerCase()
+        : "jpg";
+
+    const safeExtension =
+      /^[a-z0-9]+$/i.test(extension)
+        ? extension
+        : "jpg";
+
+    const filePath =
+      user.id +
+      "/" +
+      task.id +
+      "/" +
+      Date.now() +
+      "." +
+      safeExtension;
+
+
+    const {
+      error: uploadError
+    } = await db.storage
+      .from("task proof")
+      .upload(
+        filePath,
+        file,
         {
-          minimumFractionDigits: 2
+          cacheControl: "3600",
+          upsert: false
         }
       );
 
 
-    document.getElementById("balance")
-      .textContent = formatted;
+    if (uploadError) {
 
+      console.error(
+        uploadError
+      );
 
-    document.getElementById("walletBalance")
-      .textContent = formatted;
+      alert(
+        "Picture upload failed: " +
+        uploadError.message
+      );
 
-  }
+      resetSubmitButton(button);
 
-}
-
-
-/* =========================
-   TASK ACTIVITY
-========================= */
-
-async function loadActivity(userId) {
-
-  const { data, error } =
-    await supabaseClient
-      .from("task_submissions")
-      .select("status")
-      .eq("user_id", userId);
-
-
-  if (error || !data) {
-
-    document.getElementById(
-      "completedTasks"
-    ).textContent = "0";
-
-
-    document.getElementById(
-      "pendingTasks"
-    ).textContent = "0";
-
-    return;
-
-  }
-
-
-  const completed =
-    data.filter(function(item) {
-
-      return String(item.status)
-        .toUpperCase() === "APPROVED";
-
-    }).length;
-
-
-  const pending =
-    data.filter(function(item) {
-
-      return String(item.status)
-        .toUpperCase() === "PENDING";
-
-    }).length;
-
-
-  document.getElementById(
-    "completedTasks"
-  ).textContent = completed;
-
-
-  document.getElementById(
-    "pendingTasks"
-  ).textContent = pending;
-
-}
-
-
-/* =========================
-   WALLET TRANSACTIONS
-========================= */
-
-async function loadTransactions(userId) {
-
-  const { data, error } =
-    await supabaseClient
-      .from("wallet_transactions")
-      .select("amount, type, status")
-      .eq("user_id", userId);
-
-
-  if (error || !data) {
-
-    return;
-
-  }
-
-
-  let earned = 0;
-
-
-  data.forEach(function(item) {
-
-    const amount =
-      Number(item.amount || 0);
-
-
-    const type =
-      String(item.type || "")
-        .toUpperCase();
-
-
-    const status =
-      String(item.status || "")
-        .toUpperCase();
-
-
-    if (
-      status === "APPROVED" ||
-      status === "COMPLETED"
-    ) {
-
-      if (
-        type === "EARNING" ||
-        type === "TASK" ||
-        type === "CREDIT"
-      ) {
-
-        earned += amount;
-
-      }
+      return;
 
     }
 
-  });
 
+    /* -------------------------------------------------------
+       ONE UNIFIED PROOF RECORD
+    ------------------------------------------------------- */
 
-  document.getElementById(
-    "totalEarned"
-  ).textContent =
-    "₦" +
-    earned.toLocaleString(
-      "en-NG",
-      {
-        minimumFractionDigits: 2
-      }
-    );
+    const proofData =
+      JSON.stringify({
 
-}
+        photo: {
 
+          type: "photo",
 
-/* =========================
-   REFERRALS
-========================= */
+          storage_path:
+            filePath,
 
-async function loadReferrals(userId) {
+          file_name:
+            originalName
 
-  const { data, error } =
-    await supabaseClient
-      .from("referrals")
-      .select("id")
-      .eq("referrer_id", userId);
+        },
 
+        additional:
+          additional
 
-  if (error || !data) {
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "referralCount"
-  ).textContent =
-    data.length;
-
-}
-
-
-/* =========================
-   AVAILABLE TASKS
-========================= */
-
-async function loadAvailableTasks() {
-
-  const { count, error } =
-    await supabaseClient
-      .from("tasks")
-      .select("id", {
-        count: "exact",
-        head: true
       });
 
 
-  if (error) {
+    const {
+      error: submitError
+    } = await db
+      .from("task_submissions")
+      .insert({
 
-    document.getElementById(
-      "availableTasks"
-    ).textContent = "0";
+        user_id:
+          user.id,
 
-    return;
+        task_id:
+          task.id,
+
+        proof:
+          proofData,
+
+        status:
+          "PENDING"
+
+      });
+
+
+    if (submitError) {
+
+      console.error(
+        submitError
+      );
+
+      alert(
+        "Proof submission failed: " +
+        submitError.message
+      );
+
+      resetSubmitButton(button);
+
+      return;
+
+    }
+
+
+    showSuccess(button);
 
   }
+  catch (error) {
 
+    console.error(error);
 
-  document.getElementById(
-    "availableTasks"
-  ).textContent =
-    count || 0;
+    alert(
+      "Something went wrong. Please try again."
+    );
+
+    resetSubmitButton(button);
+
+  }
 
 }
 
 
-/* =========================
-   LOGOUT
-========================= */
+/* =========================================================
+   SUCCESS
+========================================================= */
 
-document
-  .getElementById("logoutButton")
-  .addEventListener(
-    "click",
-    async function() {
+function showSuccess(button) {
 
-      const { error } =
-        await supabaseClient.auth.signOut();
+  button.textContent =
+    "Submitted ✓";
+
+  button.disabled =
+    true;
+
+  const proofContainer =
+    button.parentElement;
+
+  const success =
+    proofContainer.querySelector(
+      ".success-message"
+    );
+
+  if (success) {
+
+    success.style.display =
+      "block";
+
+  }
+
+}
 
 
-      if (!error) {
+/* =========================================================
+   RESET BUTTON
+========================================================= */
 
-        window.location.href =
-          "index.html";
+function resetSubmitButton(button) {
 
-      } else {
+  button.disabled =
+    false;
 
-        alert(
-          "Unable to log out. Please try again."
-        );
+  button.textContent =
+    "Submit Proof";
 
-      }
+}
+
+
+/* =========================================================
+   COPY
+========================================================= */
+
+async function copyText(
+  value,
+  button
+) {
+
+  try {
+
+    await navigator.clipboard.writeText(
+      String(value)
+    );
+
+    const oldText =
+      button.textContent;
+
+    button.textContent =
+      "Copied ✓";
+
+    setTimeout(function() {
+
+      button.textContent =
+        oldText;
+
+    }, 1500);
+
+  }
+  catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Copy failed. Please copy it manually."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   DATE
+========================================================= */
+
+function formatDate(value) {
+
+  try {
+
+    const date =
+      new Date(value);
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return String(value);
 
     }
-  );
+
+    return date.toLocaleString(
+      "en-NG",
+      {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }
+    );
+
+  }
+  catch (error) {
+
+    return String(value);
+
+  }
+
+}
 
 
-/* =========================
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(
+  title,
+  message
+) {
+
+  const tasksBox =
+    document.getElementById("tasks");
+
+  tasksBox.innerHTML = "";
+
+  const box =
+    document.createElement("div");
+
+  box.className =
+    "message";
+
+  const icon =
+    document.createElement("div");
+
+  icon.className =
+    "message-icon";
+
+  icon.textContent =
+    "⚠️";
+
+  const titleBox =
+    document.createElement("div");
+
+  titleBox.className =
+    "message-title";
+
+  titleBox.textContent =
+    title;
+
+  const messageBox =
+    document.createElement("div");
+
+  messageBox.textContent =
+    message;
+
+  const button =
+    document.createElement("button");
+
+  button.className =
+    "refresh-btn";
+
+  button.textContent =
+    "Try Again";
+
+  button.onclick =
+    loadTasks;
+
+  box.appendChild(icon);
+  box.appendChild(titleBox);
+  box.appendChild(messageBox);
+  box.appendChild(button);
+
+  tasksBox.appendChild(box);
+
+}
+
+
+/* =========================================================
    START
-========================= */
+========================================================= */
 
-loadDashboard();
+loadTasks();
 
 </script>
 
 </body>
+
   </html>
