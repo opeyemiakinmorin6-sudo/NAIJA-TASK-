@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,665 +10,672 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
 }
 
 body{
   margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f4faf6;
-  color:#18251d;
-}
-
-button,input,textarea{
-  font-family:inherit;
-}
-
-button{
-  cursor:pointer;
+  font-family:Arial, sans-serif;
+  background:#f5fff7;
+  color:#123;
 }
 
 header{
-  background:linear-gradient(145deg,#0b8f3c,#087b34);
-  color:#fff;
-  border-radius:0 0 25px 25px;
-  padding:16px 14px 21px;
-}
-
-.header-inner,
-.container{
-  width:100%;
-  max-width:760px;
-  margin:auto;
-}
-
-.header-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:18px;
-}
-
-.back{
+  background:#0b8f3c;
   color:white;
-  text-decoration:none;
-  font-size:13px;
-  font-weight:800;
+  padding:15px;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
 }
 
-.badge{
-  background:rgba(255,255,255,.15);
-  padding:6px 10px;
-  border-radius:20px;
-  font-size:10px;
-  font-weight:900;
-}
-
-.heading{
-  display:flex;
-  gap:11px;
-  align-items:center;
-}
-
-.page-icon{
-  width:46px;
-  height:46px;
-  border-radius:14px;
-  background:rgba(255,255,255,.15);
+.header-row{
   display:flex;
   align-items:center;
-  justify-content:center;
-  font-size:23px;
+  gap:12px;
 }
 
-h1{
-  margin:0 0 4px;
-  font-size:23px;
+.back-btn{
+  border:0;
+  background:white;
+  color:#0b8f3c;
+  padding:9px 13px;
+  border-radius:9px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-header p{
-  margin:0;
-  font-size:11px;
+.header-title{
+  font-size:20px;
+  font-weight:bold;
+}
+
+.header-sub{
+  font-size:12px;
   opacity:.9;
+  margin-top:3px;
 }
 
 .container{
-  padding:17px 12px 40px;
+  max-width:700px;
+  margin:auto;
+  padding:15px;
 }
 
-.page-bar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:13px;
+.notice{
+  background:white;
+  border-left:5px solid #0b8f3c;
+  padding:13px;
+  border-radius:10px;
+  margin-bottom:15px;
+  box-shadow:0 2px 7px rgba(0,0,0,.06);
 }
 
-.page-title{
-  margin:0;
-  font-size:18px;
-  font-weight:900;
+.notice strong{
+  display:block;
+  margin-bottom:5px;
 }
 
-.page-subtitle{
-  margin:3px 0 0;
-  color:#758179;
-  font-size:10px;
-}
-
-.count{
-  background:#e7f7ec;
+#taskCount{
+  font-weight:bold;
   color:#0b8f3c;
-  padding:7px 10px;
-  border-radius:20px;
-  font-size:10px;
-  font-weight:900;
-  white-space:nowrap;
 }
-
-/* =========================
-   TASK CARD
-========================= */
 
 .task-card{
-  background:#fff;
-  border:1px solid #e1ebe4;
-  border-radius:17px;
-  overflow:hidden;
-  margin-bottom:13px;
-  box-shadow:0 4px 14px rgba(0,0,0,.045);
-}
-
-.main{
-  padding:13px;
+  background:white;
+  border-radius:15px;
+  margin-bottom:15px;
+  padding:15px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+  border:1px solid #e1eee5;
 }
 
 .task-top{
   display:flex;
-  gap:11px;
   align-items:flex-start;
+  gap:12px;
 }
 
-.icon{
-  width:47px;
-  height:47px;
-  min-width:47px;
-  border-radius:14px;
-  background:#f0f8f2;
+.task-icon{
+  width:50px;
+  height:50px;
+  border-radius:13px;
+  background:#e9f8ee;
   display:flex;
-  align-items:center;
   justify-content:center;
-  overflow:hidden;
-}
-
-.icon img{
-  width:29px;
-  height:29px;
-  object-fit:contain;
-}
-
-.icon-fallback{
-  font-size:22px;
+  align-items:center;
+  font-size:27px;
+  flex-shrink:0;
 }
 
 .task-title{
-  margin:2px 0 4px;
-  font-size:15px;
-  font-weight:900;
-  line-height:1.3;
+  font-size:17px;
+  font-weight:bold;
+  margin-bottom:5px;
 }
 
-.description{
-  margin:0;
-  color:#738077;
-  font-size:10.5px;
-  line-height:1.45;
-
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
+.task-owner{
+  color:#666;
+  font-size:12px;
 }
 
-.platform{
-  display:inline-block;
-  margin-top:6px;
-  padding:4px 7px;
-  border-radius:7px;
-  background:#eef8f1;
-  color:#0b8f3c;
-  font-size:8px;
-  font-weight:900;
+.reward{
+  margin-left:auto;
+  background:#0b8f3c;
+  color:white;
+  padding:7px 9px;
+  border-radius:8px;
+  font-weight:bold;
+  white-space:nowrap;
 }
 
-.summary{
-  display:grid;
-  grid-template-columns:1fr 1fr;
+.task-meta{
+  display:flex;
+  flex-wrap:wrap;
   gap:7px;
   margin-top:12px;
 }
 
-.summary-box{
-  background:#f7faf8;
-  border:1px solid #e5eee8;
-  border-radius:11px;
-  padding:8px;
+.meta{
+  background:#f1f7f3;
+  padding:7px 9px;
+  border-radius:8px;
+  font-size:12px;
 }
 
-.label{
-  display:block;
-  color:#78847c;
-  font-size:8px;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-bottom:4px;
-}
-
-.value{
-  font-size:14px;
-  font-weight:900;
-}
-
-.reward{
-  color:#0b8f3c;
-}
-
-.start{
+.start-btn{
   width:100%;
   border:0;
   background:#0b8f3c;
   color:white;
-  padding:11px;
-  border-radius:9px;
-  margin-top:11px;
-  font-size:12px;
-  font-weight:900;
+  padding:12px;
+  margin-top:13px;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:15px;
 }
-
-.start.open{
-  background:#086f2f;
-}
-
-/* =========================
-   COMPACT DETAILS
-========================= */
 
 .details{
   display:none;
-  padding:0 13px 14px;
+  margin-top:15px;
+  border-top:1px solid #e5e5e5;
+  padding-top:15px;
 }
 
 .details.open{
   display:block;
 }
 
-.divider{
-  border-top:1px solid #e7eee9;
-  padding-top:11px;
+.section{
+  background:#f8fcf9;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:12px;
 }
 
-.compact-info{
-  background:#f7faf8;
-  border:1px solid #e3ebe5;
-  border-radius:11px;
-  padding:10px;
-  margin-bottom:8px;
-}
-
-.info-label{
-  color:#78847c;
-  font-size:8px;
-  font-weight:900;
-  text-transform:uppercase;
-  margin-bottom:5px;
-}
-
-.info-text{
-  color:#2d3b32;
-  font-size:11px;
-  line-height:1.5;
-  white-space:pre-line;
-  word-break:break-word;
-}
-
-.creator{
-  background:#edf9f1;
-  border:1px solid #dcefe2;
-}
-
-.creator strong{
+.section-title{
+  font-weight:bold;
   color:#0b8f3c;
-}
-
-.action-row{
-  display:flex;
-  gap:7px;
-  margin:8px 0;
-}
-
-.open-link{
-  flex:1;
-  background:#0b8f3c;
-  color:#fff;
-  text-decoration:none;
-  text-align:center;
-  padding:10px;
-  border-radius:9px;
-  font-size:10px;
-  font-weight:900;
-}
-
-.copy-link{
-  border:0;
-  background:#e7f7ec;
-  color:#0b8f3c;
-  padding:0 11px;
-  border-radius:9px;
-  font-size:9px;
-  font-weight:900;
-}
-
-.copy-row{
-  display:flex;
-  gap:6px;
-}
-
-.copy-content{
-  flex:1;
-  background:#fff;
-  border:1px solid #dfe8e1;
-  border-radius:8px;
-  padding:9px;
-  font-size:11px;
-  word-break:break-word;
-}
-
-.copy-btn{
-  border:0;
-  background:#e7f7ec;
-  color:#0b8f3c;
-  border-radius:8px;
-  padding:0 10px;
-  font-size:9px;
-  font-weight:900;
-}
-
-.requirement{
-  margin-top:8px;
-}
-
-.requirement-list{
-  margin:0;
-  padding-left:17px;
-  color:#39483f;
-  font-size:10.5px;
-  line-height:1.55;
-}
-
-/* =========================
-   PROOF
-========================= */
-
-.proof{
-  margin-top:11px;
-  padding-top:11px;
-  border-top:1px solid #e7eee9;
-}
-
-.proof-heading{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin-bottom:8px;
-}
-
-.proof-title{
-  margin:0;
-  font-size:14px;
-  font-weight:900;
-}
-
-.proof-badge{
-  background:#e7f8ec;
-  color:#0b8f3c;
-  padding:5px 7px;
-  border-radius:7px;
-  font-size:8px;
-  font-weight:900;
-}
-
-.field{
-  margin-bottom:9px;
-}
-
-.field label{
-  display:block;
-  margin-bottom:5px;
-  font-size:10px;
-  font-weight:900;
-}
-
-.required{
-  color:#c62828;
-  font-size:8px;
-  font-weight:900;
-}
-
-.field input,
-.field textarea{
-  width:100%;
-  border:1px solid #d7e3da;
-  background:#fff;
-  border-radius:9px;
-  padding:10px;
-  font-size:11px;
-  outline:none;
-}
-
-.field textarea{
-  min-height:70px;
-  resize:vertical;
-}
-
-.field input:focus,
-.field textarea:focus{
-  border-color:#0b8f3c;
-}
-
-.upload-info{
-  background:#edf8f0;
-  border-radius:8px;
-  padding:8px;
-  color:#4f6d59;
-  font-size:9px;
-  line-height:1.45;
-  margin-bottom:8px;
-}
-
-.preview{
-  display:none;
-  width:100%;
-  max-height:190px;
-  object-fit:contain;
-  margin-top:7px;
-  border:1px solid #dce7df;
-  border-radius:9px;
-}
-
-.submit{
-  width:100%;
-  border:0;
-  background:#0b8f3c;
-  color:#fff;
-  padding:11px;
-  border-radius:9px;
-  font-size:12px;
-  font-weight:900;
-}
-
-.submit:disabled{
-  opacity:.6;
-}
-
-.success{
-  display:none;
-  background:#e7f8ec;
-  border:1px solid #cfead7;
-  color:#0b8f3c;
-  border-radius:9px;
-  padding:9px;
-  margin-top:8px;
-  font-size:10px;
-  font-weight:700;
-}
-
-.warning{
-  background:#fff9ea;
-  border:1px solid #f1dfb5;
-  color:#6d5725;
-  border-radius:9px;
-  padding:8px;
-  margin:8px 0;
-  font-size:9px;
-  line-height:1.45;
-}
-
-.message{
-  background:#fff;
-  border:1px solid #e2ebe5;
-  border-radius:16px;
-  padding:35px 17px;
-  text-align:center;
-  color:#758179;
-  font-size:11px;
-  line-height:1.6;
-}
-
-.message-icon{
-  font-size:28px;
   margin-bottom:7px;
 }
 
-.message-title{
-  color:#25342b;
+.description{
+  line-height:1.5;
   font-size:14px;
-  font-weight:900;
-  margin-bottom:4px;
+  white-space:pre-wrap;
 }
 
-.refresh{
-  margin-top:12px;
+.link-row{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+
+.link-btn,
+.copy-btn{
+  border:0;
+  padding:10px;
+  border-radius:9px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.link-btn{
+  background:#0b8f3c;
+  color:white;
+  flex:1;
+}
+
+.copy-btn{
+  background:#dff3e5;
+  color:#0b8f3c;
+}
+
+form{
+  margin-top:10px;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin:11px 0 5px;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  padding:11px;
+  border:1px solid #ccdacf;
+  border-radius:9px;
+  font-size:14px;
+  outline:none;
+  background:white;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#0b8f3c;
+}
+
+.file-box{
+  border:2px dashed #9ccbab;
+  border-radius:10px;
+  padding:14px;
+  background:#f8fff9;
+}
+
+.file-note{
+  font-size:12px;
+  color:#666;
+  margin-top:5px;
+}
+
+.preview{
+  width:100%;
+  max-height:220px;
+  object-fit:contain;
+  margin-top:10px;
+  border-radius:9px;
+  display:none;
+}
+
+.submit-btn{
+  width:100%;
   border:0;
   background:#0b8f3c;
-  color:#fff;
-  padding:10px 16px;
+  color:white;
+  padding:13px;
+  margin-top:15px;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.submit-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.message{
+  padding:11px;
   border-radius:9px;
-  font-size:10px;
-  font-weight:900;
+  margin-top:10px;
+  display:none;
+  font-size:13px;
 }
 
-@media(max-width:480px){
-
-  .action-row{
-    flex-direction:column;
-  }
-
-  .copy-link{
-    padding:10px;
-  }
+.success{
+  background:#e6f8eb;
+  color:#12652f;
 }
+
+.error{
+  background:#ffe9e9;
+  color:#a50000;
+}
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
+  background:white;
+  border-radius:14px;
+  color:#666;
+}
+
+.loading{
+  text-align:center;
+  padding:30px;
+  color:#0b8f3c;
+  font-weight:bold;
+}
+
+.small{
+  font-size:12px;
+  color:#666;
+}
+
+.required{
+  color:#d00000;
+}
+
+.status-box{
+  padding:10px;
+  border-radius:9px;
+  background:#fff8dc;
+  color:#725900;
+  font-size:13px;
+  margin-top:10px;
+}
+
+@media(max-width:450px){
+
+  .task-top{
+    align-items:flex-start;
+  }
+
+  .reward{
+    font-size:12px;
+  }
+
+  .task-title{
+    font-size:15px;
+  }
+
+}
+
 </style>
+
 </head>
 
 <body>
 
 <header>
-  <div class="header-inner">
 
-    <div class="header-top">
-      <a href="dashboard.html" class="back">← Dashboard</a>
-      <div class="badge">NAIJA TASK</div>
-    </div>
+  <div class="header-row">
 
-    <div class="heading">
-      <div class="page-icon">📋</div>
+    <button class="back-btn" onclick="goBack()">
+      ← Back
+    </button>
 
-      <div>
-        <h1>Available Tasks</h1>
-        <p>Complete genuine tasks and earn Naira.</p>
-      </div>
+    <div>
+      <div class="header-title">NAIJA TASK</div>
+      <div class="header-sub">Available Tasks</div>
     </div>
 
   </div>
+
 </header>
+
 
 <main class="container">
 
-  <div class="page-bar">
+  <div class="notice">
+
+    <strong>Complete tasks and earn ₦</strong>
 
     <div>
-      <h2 class="page-title">Tasks</h2>
-      <p class="page-subtitle">
-        Choose a task and complete the instructions.
-      </p>
+      Follow the task instructions carefully.
+      Upload the required proof after completing the task.
     </div>
 
-    <div class="count" id="taskCount">
-      0 tasks
-    </div>
-
-  </div>
-
-  <div id="tasks">
-
-    <div class="message">
-      <div class="message-icon">⏳</div>
-      <div class="message-title">Loading tasks</div>
-      Please wait while available tasks are loaded.
+    <div style="margin-top:7px;">
+      Available tasks:
+      <span id="taskCount">0</span>
     </div>
 
   </div>
+
+
+  <div id="loading" class="loading">
+    Loading tasks...
+  </div>
+
+
+  <div id="errorBox" class="message error"></div>
+
+
+  <div id="tasksList"></div>
 
 </main>
 
 
 <script>
 
-/* =========================================================
-   SUPABASE
-========================================================= */
+/* =====================================================
+   NAIJA TASK — TASK PAGE
+   ===================================================== */
+
+/*
+  IMPORTANT:
+
+  Keep your existing Supabase URL.
+
+  Put your own Supabase publishable key below.
+  Do NOT share the key publicly.
+*/
 
 const SUPABASE_URL =
-"https://jwakveeiynpakunwjzkj.supabase.co";
+  "https://jwakveeiynpakunwjzkj.supabase.co";
 
 const SUPABASE_KEY =
         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-const db =
-window.supabase.createClient(
+
+const db = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
-let currentUser=null;
+
+/* =====================================================
+   BASIC FUNCTIONS
+   ===================================================== */
+
+function goBack(){
+
+  if(document.referrer){
+    history.back();
+  }else{
+    window.location.href = "dashboard.html";
+  }
+
+}
 
 
-/* =========================================================
-   REAL BRAND LOGOS
-========================================================= */
+function escapeHTML(value){
 
-const PLATFORM_LOGOS={
+  if(value === null || value === undefined){
+    return "";
+  }
 
-  TikTok:"https://cdn.simpleicons.org/tiktok",
-
-  YouTube:"https://cdn.simpleicons.org/youtube",
-
-  Instagram:"https://cdn.simpleicons.org/instagram",
-
-  Facebook:"https://cdn.simpleicons.org/facebook",
-
-  Telegram:"https://cdn.simpleicons.org/telegram",
-
-  WhatsApp:"https://cdn.simpleicons.org/whatsapp",
-
-  X:"https://cdn.simpleicons.org/x"
-
-};
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
 
 
-/* =========================================================
+function showError(message){
+
+  const box = document.getElementById("errorBox");
+
+  box.textContent = message;
+  box.style.display = "block";
+
+}
+
+
+function formatDate(date){
+
+  if(!date){
+    return "No deadline";
+  }
+
+  const d = new Date(date);
+
+  if(isNaN(d.getTime())){
+    return "No deadline";
+  }
+
+  return d.toLocaleDateString(
+    "en-NG",
+    {
+      day:"numeric",
+      month:"short",
+      year:"numeric"
+    }
+  );
+
+}
+
+
+function formatRequirements(requirements){
+
+  if(!requirements){
+    return "Follow the task description.";
+  }
+
+  if(Array.isArray(requirements)){
+    return requirements.join("\n");
+  }
+
+  if(typeof requirements === "object"){
+
+    return Object.entries(requirements)
+      .map(([key,value]) => `${key}: ${value}`)
+      .join("\n");
+
+  }
+
+  return String(requirements);
+
+}
+
+
+function getTaskIcon(task){
+
+  const text = (
+    (task.title || "") +
+    " " +
+    (task.description || "") +
+    " " +
+    (task.task_type || "")
+  ).toLowerCase();
+
+  if(text.includes("tiktok")){
+    return "🎵";
+  }
+
+  if(text.includes("youtube")){
+    return "▶️";
+  }
+
+  if(text.includes("instagram")){
+    return "📸";
+  }
+
+  if(text.includes("facebook")){
+    return "📘";
+  }
+
+  if(text.includes("telegram")){
+    return "✈️";
+  }
+
+  if(text.includes("survey")){
+    return "📝";
+  }
+
+  if(
+    text.includes("app") ||
+    text.includes("download")
+  ){
+    return "📱";
+  }
+
+  if(
+    text.includes("website") ||
+    text.includes("web")
+  ){
+    return "🌐";
+  }
+
+  return "✅";
+
+}
+
+
+function formatType(type){
+
+  if(!type){
+    return "Task";
+  }
+
+  return String(type)
+    .replace(/_/g," ")
+    .replace(/\b\w/g,
+      letter => letter.toUpperCase()
+    );
+
+}
+
+
+function getSafeExtension(file){
+
+  const name = file.name || "";
+
+  const parts = name.split(".");
+
+  if(parts.length < 2){
+    return "jpg";
+  }
+
+  const ext = parts.pop().toLowerCase();
+
+  const allowed = [
+    "jpg",
+    "jpeg",
+    "png",
+    "webp"
+  ];
+
+  return allowed.includes(ext)
+    ? ext
+    : "jpg";
+
+}
+
+
+/* =====================================================
+   CURRENT USER
+   ===================================================== */
+
+async function getCurrentUser(){
+
+  const {
+    data,
+    error
+  } = await db.auth.getUser();
+
+  if(error){
+    throw error;
+  }
+
+  if(!data || !data.user){
+
+    window.location.href = "index.html";
+
+    return null;
+  }
+
+  return data.user;
+
+}
+
+
+/* =====================================================
    LOAD TASKS
-========================================================= */
+   ===================================================== */
 
 async function loadTasks(){
 
-  const box=
-    document.getElementById("tasks");
+  const loading =
+    document.getElementById("loading");
+
+  const list =
+    document.getElementById("tasksList");
 
   try{
 
-    const {
-      data:{user},
-      error:userError
-    }=
-    await db.auth.getUser();
+    const user = await getCurrentUser();
 
-    if(userError || !user){
-
-      location.href="index.html";
+    if(!user){
       return;
-
     }
 
-    currentUser=user;
+
+    /*
+      Only use columns that the task page actually needs.
+    */
 
     const {
-      data,
+      data: tasks,
       error
-    }=
-    await db
+    } = await db
       .from("tasks")
       .select(`
         id,
@@ -678,8 +686,6 @@ async function loadTasks(){
         expiry_date,
         requirements,
         proof_type,
-        proof_required,
-        max_completions,
         active,
         task_type,
         task_link,
@@ -688,44 +694,38 @@ async function loadTasks(){
         post_link,
         upload_required
       `)
-      .eq("active",true);
+      .eq("active", true)
+      .order("created_at", {
+        ascending:false
+      });
+
 
     if(error){
-
-      console.error(error);
-
-      showError(
-        "Unable to load tasks",
-        error.message
-      );
-
-      return;
+      throw error;
     }
 
-    if(!data || data.length===0){
 
-      document.getElementById("taskCount")
-        .textContent="0 tasks";
+    loading.style.display = "none";
 
-      box.innerHTML=`
-        <div class="message">
 
-          <div class="message-icon">📋</div>
+    if(!tasks || tasks.length === 0){
 
-          <div class="message-title">
-            No tasks available
+      document.getElementById(
+        "taskCount"
+      ).textContent = "0";
+
+      list.innerHTML = `
+        <div class="empty">
+
+          <div style="font-size:40px;">
+            📭
           </div>
 
-          There are no available tasks right now.
+          <h3>No tasks available</h3>
 
-          <br>
-
-          <button
-            class="refresh"
-            onclick="loadTasks()"
-          >
-            Refresh Tasks
-          </button>
+          <div>
+            New tasks will appear here when they are posted.
+          </div>
 
         </div>
       `;
@@ -733,654 +733,461 @@ async function loadTasks(){
       return;
     }
 
-    document.getElementById("taskCount")
-      .textContent=
-      data.length+
-      (data.length===1 ? " task":" tasks");
 
-    box.innerHTML="";
+    document.getElementById(
+      "taskCount"
+    ).textContent = tasks.length;
 
-    data.forEach(createTaskCard);
+
+    list.innerHTML = "";
+
+
+    tasks.forEach(task => {
+
+      list.appendChild(
+        createTaskCard(task)
+      );
+
+    });
 
   }
   catch(error){
 
     console.error(error);
 
+    loading.style.display = "none";
+
     showError(
-      "Something went wrong",
-      "Please try again."
+      "Unable to load tasks: " +
+      (error.message || "Unknown error")
     );
 
   }
+
 }
 
 
-/* =========================================================
+/* =====================================================
    CREATE TASK CARD
-========================================================= */
+   ===================================================== */
 
 function createTaskCard(task){
 
-  const card=
+  const card =
     document.createElement("div");
 
-  card.className="task-card";
+  card.className = "task-card";
 
-  const main=
-    document.createElement("div");
 
-  main.className="main";
+  const icon =
+    getTaskIcon(task);
 
-  main.innerHTML=`
+
+  const reward =
+    Number(task.reward || 0);
+
+
+  const slots =
+    task.slots === null ||
+    task.slots === undefined
+      ? "Available"
+      : task.slots;
+
+
+  card.innerHTML = `
 
     <div class="task-top">
 
-      <div class="icon">
-        ${getTaskIcon(task)}
+      <div class="task-icon">
+        ${icon}
       </div>
 
-      <div style="flex:1">
+      <div style="flex:1;">
 
         <div class="task-title">
-          ${escapeHTML(
-            task.title || "Task"
-          )}
+          ${escapeHTML(task.title || "Untitled Task")}
         </div>
 
-        <p class="description">
-          ${escapeHTML(
-            task.description ||
-            "Complete this task according to the poster's instructions."
-          )}
-        </p>
+        <div class="task-owner">
+          Posted by:
+          <strong>
+            ${escapeHTML(
+              task.uploader_username ||
+              "NAIJA TASK"
+            )}
+          </strong>
+        </div>
 
-        <span class="platform">
-          ${escapeHTML(
-            getPlatform(task)
-          )}
-        </span>
+      </div>
 
+      <div class="reward">
+        ₦${reward.toLocaleString()}
       </div>
 
     </div>
 
-    <div class="summary">
 
-      <div class="summary-box">
+    <div class="task-meta">
 
-        <span class="label">
-          Task Reward
-        </span>
-
-        <span class="value reward">
-          ₦${Number(
-            task.reward||0
-          ).toLocaleString("en-NG")}
-        </span>
-
+      <div class="meta">
+        📌 ${formatType(task.task_type)}
       </div>
 
-      <div class="summary-box">
+      <div class="meta">
+        👥 Slots: ${escapeHTML(slots)}
+      </div>
 
-        <span class="label">
-          Available Slots
-        </span>
-
-        <span class="value">
-          ${
-            Number(task.slots||0)>0
-            ? Number(task.slots)+" slots"
-            : "Check"
-          }
-        </span>
-
+      <div class="meta">
+        📅 ${formatDate(task.expiry_date)}
       </div>
 
     </div>
 
-    <button class="start">
-      ▶ Start Task
+
+    <button
+      class="start-btn"
+      type="button"
+    >
+      Start Task
     </button>
+
+
+    <div class="details"></div>
+
   `;
 
 
-  const details=
-    document.createElement("div");
+  const startButton =
+    card.querySelector(".start-btn");
 
-  details.className="details";
-
-
-  const divider=
-    document.createElement("div");
-
-  divider.className="divider";
-
-  details.appendChild(divider);
+  const details =
+    card.querySelector(".details");
 
 
-  buildDetails(
-    divider,
-    task
+  startButton.addEventListener(
+    "click",
+    () => {
+
+      if(details.classList.contains("open")){
+
+        details.classList.remove("open");
+
+        startButton.textContent =
+          "Start Task";
+
+        return;
+      }
+
+
+      details.innerHTML =
+        buildDetails(task);
+
+
+      details.classList.add("open");
+
+      startButton.textContent =
+        "Close Task";
+
+
+      setupProofForm(
+        details,
+        task
+      );
+
+    }
   );
 
 
-  const start=
-    main.querySelector(".start");
+  return card;
 
-
-  start.onclick=async()=>{
-
-    const opened=
-      details.classList.toggle("open");
-
-    if(opened){
-
-      start.textContent=
-        "▲ Close Task";
-
-      start.classList.add("open");
-
-    }
-    else{
-
-      start.textContent=
-        "▶ Start Task";
-
-      start.classList.remove("open");
-
-    }
-
-  };
-
-
-  card.appendChild(main);
-  card.appendChild(details);
-
-  document
-    .getElementById("tasks")
-    .appendChild(card);
 }
 
 
-/* =========================================================
-   BUILD COMPACT DETAILS
-========================================================= */
+/* =====================================================
+   TASK DETAILS
+   ===================================================== */
 
-function buildDetails(parent,task){
+function buildDetails(task){
 
-  /* CREATOR INSTRUCTIONS */
+  const link =
+    task.task_link ||
+    task.post_link ||
+    "";
 
-  const creator=
-    document.createElement("div");
 
-  creator.className=
-    "compact-info creator";
+  const copyText =
+    task.copy_text || "";
 
-  creator.innerHTML=`
 
-    <div class="info-label">
-      Creator's Instructions
-    </div>
-
-    <div class="info-text">
-      ${escapeHTML(
-        task.description ||
-        "Follow the task instructions carefully."
-      )}
-    </div>
-
-  `;
-
-  parent.appendChild(creator);
-
-
-  /* CREATOR USERNAME */
-
-  if(task.uploader_username){
-
-    const box=
-      document.createElement("div");
-
-    box.className="compact-info";
-
-    box.innerHTML=`
-
-      <div class="info-label">
-        Creator Username
-      </div>
-
-    `;
-
-    box.appendChild(
-      copyRow(
-        task.uploader_username,
-        "Copy Username"
-      )
-    );
-
-    parent.appendChild(box);
-  }
-
-
-  /* REQUIRED COMMENT */
-
-  if(task.copy_text){
-
-    const box=
-      document.createElement("div");
-
-    box.className="compact-info";
-
-    box.innerHTML=`
-
-      <div class="info-label">
-        Required Comment
-      </div>
-
-    `;
-
-    box.appendChild(
-      copyRow(
-        task.copy_text,
-        "Copy Comment"
-      )
-    );
-
-    parent.appendChild(box);
-  }
-
-
-  /* TASK LINK */
-
-  if(task.task_link){
-
-    const box=
-      document.createElement("div");
-
-    box.className="compact-info";
-
-    box.innerHTML=`
-
-      <div class="info-label">
-        ${escapeHTML(
-          getPlatform(task)
-        )} Task Link
-      </div>
-
-    `;
-
-    const row=
-      document.createElement("div");
-
-    row.className="action-row";
-
-    const open=
-      document.createElement("a");
-
-    open.className="open-link";
-
-    open.href=task.task_link;
-
-    open.target="_blank";
-
-    open.rel=
-      "noopener noreferrer";
-
-    open.textContent=
-      "🔗 Open "+
-      getPlatform(task);
-
-
-    const copy=
-      document.createElement("button");
-
-    copy.className="copy-link";
-
-    copy.textContent=
-      "Copy Link";
-
-
-    copy.onclick=async()=>{
-
-      try{
-
-        await navigator.clipboard
-          .writeText(task.task_link);
-
-        copy.textContent=
-          "Copied ✓";
-
-        setTimeout(()=>{
-
-          copy.textContent=
-            "Copy Link";
-
-        },1500);
-
-      }
-      catch(e){
-
-        alert(
-          "Copy failed. Please copy the link manually."
-        );
-
-      }
-
-    };
-
-
-    row.appendChild(open);
-    row.appendChild(copy);
-
-    box.appendChild(row);
-
-    parent.appendChild(box);
-  }
-
-
-  /* POST LINK */
-
-  if(
-    task.post_link &&
-    task.post_link!==task.task_link
-  ){
-
-    const box=
-      document.createElement("div");
-
-    box.className="compact-info";
-
-    box.innerHTML=`
-
-      <div class="info-label">
-        Post Link
-      </div>
-
-    `;
-
-    const row=
-      document.createElement("div");
-
-    row.className="action-row";
-
-    const open=
-      document.createElement("a");
-
-    open.className="open-link";
-
-    open.href=
-      task.post_link;
-
-    open.target="_blank";
-
-    open.rel=
-      "noopener noreferrer";
-
-    open.textContent=
-      "📢 Open Post";
-
-
-    const copy=
-      document.createElement("button");
-
-    copy.className="copy-link";
-
-    copy.textContent=
-      "Copy Link";
-
-
-    copy.onclick=async()=>{
-
-      try{
-
-        await navigator.clipboard
-          .writeText(task.post_link);
-
-        copy.textContent=
-          "Copied ✓";
-
-        setTimeout(()=>{
-
-          copy.textContent=
-            "Copy Link";
-
-        },1500);
-
-      }
-      catch(e){
-
-        alert(
-          "Copy failed."
-        );
-
-      }
-
-    };
-
-
-    row.appendChild(open);
-    row.appendChild(copy);
-
-    box.appendChild(row);
-
-    parent.appendChild(box);
-  }
-
-
-  /* REQUIREMENTS */
-
-  const requirements=
+  const requirements =
     formatRequirements(
       task.requirements
     );
 
-  if(requirements){
 
-    const box=
-      document.createElement("div");
+  return `
 
-    box.className=
-      "compact-info requirement";
+    <div class="section">
 
-    box.innerHTML=`
-
-      <div class="info-label">
-        Poster Requirements
+      <div class="section-title">
+        📋 Task Description
       </div>
 
-      <div class="info-text">
-        ${escapeHTML(requirements)}
-      </div>
-
-    `;
-
-    parent.appendChild(box);
-  }
-
-
-  /* DEADLINE */
-
-  if(task.expiry_date){
-
-    const box=
-      document.createElement("div");
-
-    box.className=
-      "compact-info";
-
-    box.innerHTML=`
-
-      <div class="info-label">
-        Deadline
-      </div>
-
-      <div class="info-text">
+      <div class="description">
         ${escapeHTML(
-          formatDate(task.expiry_date)
+          task.description ||
+          "No description provided."
         )}
       </div>
 
-    `;
-
-    parent.appendChild(box);
-  }
+    </div>
 
 
-  /* SHORT WARNING */
+    <div class="section">
 
-  const warning=
-    document.createElement("div");
+      <div class="section-title">
+        👤 Task Owner
+      </div>
 
-  warning.className="warning";
-
-  warning.innerHTML=
-    "<b>⚠️ Submit genuine proof.</b> "+
-    "Fake, reused or unrelated proof may be rejected.";
-
-  parent.appendChild(warning);
-
-
-  /* WORKER PROOF */
-
-  buildWorkerProof(
-    parent,
-    task
-  );
-}
-
-
-/* =========================================================
-   WORKER PROOF
-========================================================= */
-
-function buildWorkerProof(parent,task){
-
-  const proof=
-    document.createElement("div");
-
-  proof.className="proof";
-
-  proof.innerHTML=`
-
-    <div class="proof-heading">
-
-      <h3 class="proof-title">
-        Submit Your Proof
-      </h3>
-
-      <div class="proof-badge">
-        PHOTO REQUIRED
+      <div>
+        ${escapeHTML(
+          task.uploader_username ||
+          "NAIJA TASK"
+        )}
       </div>
 
     </div>
 
 
-    <div class="field">
+    <div class="section">
 
-      <label>
-        👤 Your Username / Account Used
-        <span class="required">
-          REQUIRED
-        </span>
-      </label>
+      <div class="section-title">
+        📌 Task Requirements
+      </div>
 
-      <input
-        class="worker-username"
-        type="text"
-        placeholder="@yourusername"
-        autocomplete="off"
-      >
+      <div class="description">
+        ${escapeHTML(requirements)}
+      </div>
 
     </div>
 
 
-    <div class="field">
+    ${
+      link
+      ?
+      `
+      <div class="section">
 
-      <label>
-        💬 Your Comment / Report
-        <span class="required">
-          REQUIRED
-        </span>
-      </label>
+        <div class="section-title">
+          🔗 Task Link
+        </div>
 
-      <textarea
-        class="worker-comment"
-        placeholder="Tell the poster what you completed..."
-      ></textarea>
+        <div class="link-row">
 
-    </div>
+          <button
+            class="link-btn"
+            type="button"
+            onclick="openTaskLink(${JSON.stringify(link)})"
+          >
+            Open Task
+          </button>
 
+          <button
+            class="copy-btn"
+            type="button"
+            onclick="copyText(${JSON.stringify(link)})"
+          >
+            Copy
+          </button>
 
-    ${buildExtraWorkerField(task)}
+        </div>
 
-
-    <div class="upload-info">
-      📷 Upload a clear photo or screenshot showing
-      that you completed the task. Maximum 5MB.
-    </div>
-
-
-    <div class="field">
-
-      <label>
-        📷 Photo Proof
-        <span class="required">
-          REQUIRED
-        </span>
-      </label>
-
-      <input
-        class="photo-input"
-        type="file"
-        accept="image/*"
-      >
-
-      <img
-        class="preview"
-        alt="Proof preview"
-      >
-
-    </div>
+      </div>
+      `
+      :
+      ""
+    }
 
 
-    <button class="submit">
-      Submit Proof
-    </button>
+    ${
+      copyText
+      ?
+      `
+      <div class="section">
+
+        <div class="section-title">
+          📄 Text To Copy
+        </div>
+
+        <div class="description">
+          ${escapeHTML(copyText)}
+        </div>
+
+        <button
+          class="copy-btn"
+          style="margin-top:8px;"
+          type="button"
+          onclick="copyText(${JSON.stringify(copyText)})"
+        >
+          Copy Text
+        </button>
+
+      </div>
+      `
+      :
+      ""
+    }
 
 
-    <div class="success">
-      ✅ Proof submitted successfully and is waiting for review.
+    <div class="section">
+
+      <div class="section-title">
+        🧾 Submit Your Proof
+      </div>
+
+      <div class="small">
+        Complete the task first, then submit your proof below.
+      </div>
+
+      <div class="status-box">
+        📸 Photo proof is required for this task.
+      </div>
+
+
+      <form class="proof-form">
+
+        <label>
+          Username / Account Used
+          <span class="required">*</span>
+        </label>
+
+        <input
+          type="text"
+          name="worker_username"
+          placeholder="@username or account used"
+          required
+        >
+
+
+        <label>
+          Comment / Report
+          <span class="required">*</span>
+        </label>
+
+        <textarea
+          name="worker_comment"
+          placeholder="Tell the task owner what you completed..."
+          required
+        ></textarea>
+
+
+        <label>
+          Extra Proof Link
+        </label>
+
+        <input
+          type="url"
+          name="worker_link"
+          placeholder="Optional proof link"
+        >
+
+
+        <label>
+          Photo Proof
+          <span class="required">*</span>
+        </label>
+
+        <div class="file-box">
+
+          <input
+            type="file"
+            name="proof_photo"
+            accept="image/jpeg,image/png,image/webp"
+            required
+          >
+
+          <div class="file-note">
+            Upload a clear screenshot/photo.
+            Maximum size: 5MB.
+          </div>
+
+          <img
+            class="preview"
+            alt="Proof preview"
+          >
+
+        </div>
+
+
+        <div
+          class="message form-message"
+        ></div>
+
+
+        <button
+          class="submit-btn"
+          type="submit"
+        >
+          Submit Proof
+        </button>
+
+      </form>
+
     </div>
 
   `;
 
+}
 
-  parent.appendChild(proof);
+
+/* =====================================================
+   PROOF FORM
+   ===================================================== */
+
+function setupProofForm(details, task){
+
+  const form =
+    details.querySelector(".proof-form");
+
+  if(!form){
+    return;
+  }
 
 
-  const fileInput=
-    proof.querySelector(
-      ".photo-input"
+  const photo =
+    form.querySelector(
+      'input[name="proof_photo"]'
     );
 
-  const preview=
-    proof.querySelector(
-      ".preview"
-    );
+
+  const preview =
+    form.querySelector(".preview");
 
 
-  fileInput.addEventListener(
+  photo.addEventListener(
     "change",
-    ()=>{
+    () => {
 
-      const file=
-        fileInput.files[0];
+      const file =
+        photo.files[0];
 
       if(!file){
+        preview.style.display = "none";
+        return;
+      }
 
-        preview.style.display=
-          "none";
+
+      if(file.size > 5 * 1024 * 1024){
+
+        showFormMessage(
+          form,
+          "Photo is larger than 5MB.",
+          true
+        );
+
+        photo.value = "";
+
+        preview.style.display = "none";
 
         return;
       }
@@ -1388,44 +1195,34 @@ function buildWorkerProof(parent,task){
 
       if(!file.type.startsWith("image/")){
 
-        alert(
-          "Please select an image."
+        showFormMessage(
+          form,
+          "Please select an image file.",
+          true
         );
 
-        fileInput.value="";
+        photo.value = "";
+
+        preview.style.display = "none";
 
         return;
       }
 
 
-      if(
-        file.size >
-        5*1024*1024
-      ){
-
-        alert(
-          "Photo must be 5MB or smaller."
-        );
-
-        fileInput.value="";
-
-        return;
-      }
-
-
-      const reader=
+      const reader =
         new FileReader();
 
 
-      reader.onload=e=>{
+      reader.onload =
+        event => {
 
-        preview.src=
-          e.target.result;
+          preview.src =
+            event.target.result;
 
-        preview.style.display=
-          "block";
+          preview.style.display =
+            "block";
 
-      };
+        };
 
 
       reader.readAsDataURL(file);
@@ -1434,222 +1231,141 @@ function buildWorkerProof(parent,task){
   );
 
 
-  proof.querySelector(
-    ".submit"
-  ).onclick=()=>{
+  form.addEventListener(
+    "submit",
+    async event => {
 
-    submitProof(
-      task,
-      proof
-    );
+      event.preventDefault();
 
-  };
+      await submitProof(
+        form,
+        task
+      );
+
+    }
+  );
+
 }
 
 
-/* =========================================================
-   EXTRA PROOF FIELD
-========================================================= */
-
-function buildExtraWorkerField(task){
-
-  const type=
-    String(
-      task.proof_type||""
-    ).toLowerCase();
-
-
-  if(
-    type.includes("url") ||
-    type.includes("link")
-  ){
-
-    return `
-
-      <div class="field">
-
-        <label>
-          🔗 Your Proof Link
-        </label>
-
-        <input
-          class="extra-proof"
-          type="url"
-          placeholder="https://..."
-        >
-
-      </div>
-
-    `;
-
-  }
-
-
-  if(
-    type.includes("reference")
-  ){
-
-    return `
-
-      <div class="field">
-
-        <label>
-          🔖 Your Reference ID
-        </label>
-
-        <input
-          class="extra-proof"
-          type="text"
-          placeholder="Enter reference ID"
-        >
-
-      </div>
-
-    `;
-
-  }
-
-
-  return "";
-}
-
-
-/* =========================================================
+/* =====================================================
    SUBMIT PROOF
-========================================================= */
+   ===================================================== */
 
-async function submitProof(task,proof){
+async function submitProof(form, task){
 
-  const button=
-    proof.querySelector(
-      ".submit"
-    );
-
-  const username=
-    proof.querySelector(
-      ".worker-username"
-    ).value.trim();
-
-  const comment=
-    proof.querySelector(
-      ".worker-comment"
-    ).value.trim();
-
-  const photoInput=
-    proof.querySelector(
-      ".photo-input"
-    );
-
-  const extra=
-    proof.querySelector(
-      ".extra-proof"
-    );
-
-  const extraValue=
-    extra
-    ? extra.value.trim()
-    : "";
+  const button =
+    form.querySelector(".submit-btn");
 
 
-  if(!username){
-
-    alert(
-      "Please enter the username/account you used."
-    );
-
-    return;
-  }
-
-
-  if(!comment){
-
-    alert(
-      "Please enter your comment/report."
-    );
-
-    return;
-  }
-
-
-  const file=
-    photoInput.files[0];
-
-
-  if(!file){
-
-    alert(
-      "Photo proof is required for every task."
-    );
-
-    return;
-  }
-
-
-  if(
-    !file.type.startsWith("image/")
-  ){
-
-    alert(
-      "Please select an image."
-    );
-
-    return;
-  }
-
-
-  if(
-    file.size >
-    5*1024*1024
-  ){
-
-    alert(
-      "Photo must be 5MB or smaller."
-    );
-
-    return;
-  }
-
-
-  button.disabled=true;
-
-  button.textContent=
-    "Checking Task...";
+  const message =
+    form.querySelector(".form-message");
 
 
   try{
 
-    const {
-      data:{user},
-      error:userError
-    }=
-    await db.auth.getUser();
+    button.disabled = true;
+
+    button.textContent =
+      "Checking...";
 
 
-    if(
-      userError ||
-      !user
-    ){
+    const user =
+      await getCurrentUser();
 
-      location.href=
-        "index.html";
 
+    if(!user){
       return;
     }
 
 
-    /* =========================================
-       CHECK DUPLICATE SUBMISSION
-    ========================================= */
+    const workerUsername =
+      form
+        .querySelector(
+          '[name="worker_username"]'
+        )
+        .value
+        .trim();
+
+
+    const workerComment =
+      form
+        .querySelector(
+          '[name="worker_comment"]'
+        )
+        .value
+        .trim();
+
+
+    const workerLink =
+      form
+        .querySelector(
+          '[name="worker_link"]'
+        )
+        .value
+        .trim();
+
+
+    const photo =
+      form
+        .querySelector(
+          '[name="proof_photo"]'
+        )
+        .files[0];
+
+
+    if(!workerUsername){
+
+      throw new Error(
+        "Enter the username or account you used."
+      );
+
+    }
+
+
+    if(!workerComment){
+
+      throw new Error(
+        "Enter your comment/report."
+      );
+
+    }
+
+
+    if(!photo){
+
+      throw new Error(
+        "Photo proof is required."
+      );
+
+    }
+
+
+    if(photo.size > 5 * 1024 * 1024){
+
+      throw new Error(
+        "Photo must be 5MB or smaller."
+      );
+
+    }
+
+
+    button.textContent =
+      "Checking previous proof...";
+
+
+    /*
+      Prevent duplicate pending/approved submissions.
+    */
 
     const {
-      data:existing,
-      error:existingError
-    }=
-    await db
+      data: existing,
+      error: existingError
+    } = await db
       .from("task_submissions")
       .select("id,status")
-      .eq("user_id",user.id)
-      .eq("task_id",task.id)
+      .eq("user_id", user.id)
+      .eq("task_id", task.id)
       .in(
         "status",
         ["PENDING","APPROVED"]
@@ -1658,72 +1374,45 @@ async function submitProof(task,proof){
 
 
     if(existingError){
-
-      console.error(
-        existingError
-      );
-
-      alert(
-        "Could not check your previous submission: "+
-        existingError.message
-      );
-
-      resetButton(button);
-
-      return;
+      throw existingError;
     }
 
 
-    if(
-      existing &&
-      existing.length>0
-    ){
+    if(existing && existing.length > 0){
 
-      alert(
-        "You have already submitted this task."
+      throw new Error(
+        "You already submitted this task."
       );
 
-      resetButton(button);
-
-      return;
     }
 
 
-    /* =========================================
+    /* =================================================
        UPLOAD PHOTO
-    ========================================= */
+       ================================================= */
 
-    button.textContent=
-      "Uploading Photo...";
-
-
-    const extension=
-      file.name
-        .split(".")
-        .pop()
-        .toLowerCase();
+    button.textContent =
+      "Uploading photo...";
 
 
-    const path=
-      user.id+
-      "/"+
-      task.id+
-      "/"+
-      Date.now()+
-      "."+
-      extension;
+    const extension =
+      getSafeExtension(photo);
+
+
+    const filePath =
+      `${user.id}/${task.id}/${Date.now()}.${extension}`;
 
 
     const {
-      error:uploadError
-    }=
-    await db.storage
+      error: uploadError
+    } = await db
+      .storage
       .from("task proof")
       .upload(
-        path,
-        file,
+        filePath,
+        photo,
         {
-          cacheControl:"3600",
+          contentType:photo.type,
           upsert:false
         }
       );
@@ -1731,71 +1420,56 @@ async function submitProof(task,proof){
 
     if(uploadError){
 
-      console.error(
-        uploadError
-      );
-
-      alert(
-        "Photo upload failed: "+
+      throw new Error(
+        "Photo upload failed: " +
         uploadError.message
       );
 
-      resetButton(button);
-
-      return;
     }
 
 
-    /* =========================================
+    /* =================================================
        SAVE PROOF
-    ========================================= */
+       ================================================= */
 
-    button.textContent=
-      "Submitting Proof...";
+    button.textContent =
+      "Saving proof...";
 
 
-    const proofData={
+    const proofData = {
 
       photo:{
-        storage_path:path,
-        file_name:file.name
+        bucket:"task proof",
+        path:filePath,
+        name:photo.name,
+        type:photo.type,
+        size:photo.size
       },
 
-      worker:{
-        username:username,
-        comment:comment,
-        extra:extraValue
-      },
+      worker_username:
+        workerUsername,
 
-      poster_requirements:{
+      worker_comment:
+        workerComment,
 
-        creator_username:
-          task.uploader_username || "",
+      worker_link:
+        workerLink,
 
-        required_comment:
-          task.copy_text || "",
+      task_owner:
+        task.uploader_username || "",
 
-        description:
-          task.description || "",
+      task_requirements:
+        task.requirements || null,
 
-        platform:
-          getPlatform(task),
-
-        task_link:
-          task.task_link || "",
-
-        post_link:
-          task.post_link || ""
-
-      }
+      submitted_at:
+        new Date().toISOString()
 
     };
 
 
     const {
-      error
-    }=
-    await db
+      error: insertError
+    } = await db
       .from("task_submissions")
       .insert({
 
@@ -1804,423 +1478,194 @@ async function submitProof(task,proof){
         task_id:task.id,
 
         proof:
-          JSON.stringify(
-            proofData
-          ),
+          JSON.stringify(proofData),
 
         status:"PENDING"
 
       });
 
 
-    if(error){
+    if(insertError){
 
-      console.error(error);
+      /*
+        If database saving fails after the image
+        uploaded successfully, remove the image.
+      */
 
-      alert(
-        "Proof submission failed: "+
-        error.message
+      await db
+        .storage
+        .from("task proof")
+        .remove([filePath]);
+
+
+      throw new Error(
+        "Proof submission failed: " +
+        insertError.message
       );
 
-      resetButton(button);
-
-      return;
     }
 
 
-    button.textContent=
-      "Submitted ✓";
-
-
-    const success=
-      proof.querySelector(
-        ".success"
-      );
-
-    success.style.display=
-      "block";
-
-
-    /* Disable the form after success */
-
-    proof.querySelectorAll(
-      "input,textarea"
-    ).forEach(
-      element=>{
-        element.disabled=true;
-      }
+    showFormMessage(
+      form,
+      "✅ Proof submitted successfully. It is now waiting for review.",
+      false
     );
+
+
+    form
+      .querySelectorAll(
+        "input, textarea, button"
+      )
+      .forEach(element => {
+
+        element.disabled = true;
+
+      });
+
+
+    button.textContent =
+      "Proof Submitted";
+
 
   }
   catch(error){
 
     console.error(error);
 
-    alert(
-      "Something went wrong. Please try again."
+
+    showFormMessage(
+      form,
+      error.message ||
+      "Something went wrong.",
+      true
     );
 
-    resetButton(button);
-  }
-}
 
+    button.disabled = false;
 
-/* =========================================================
-   LOGO / PLATFORM
-========================================================= */
-
-function getPlatform(task){
-
-  const type=
-    String(
-      task.task_type||""
-    ).toLowerCase();
-
-  const title=
-    String(
-      task.title||""
-    ).toLowerCase();
-
-  const text=
-    type+" "+title;
-
-
-  if(text.includes("tiktok"))
-    return "TikTok";
-
-  if(text.includes("youtube"))
-    return "YouTube";
-
-  if(text.includes("instagram"))
-    return "Instagram";
-
-  if(text.includes("facebook"))
-    return "Facebook";
-
-  if(text.includes("telegram"))
-    return "Telegram";
-
-  if(text.includes("whatsapp"))
-    return "WhatsApp";
-
-  if(
-    text.includes("twitter") ||
-    text.includes(" x ") ||
-    text==="x"
-  )
-    return "X";
-
-  if(text.includes("website"))
-    return "Website";
-
-  if(
-    text.includes("web")
-  )
-    return "Website";
-
-  if(
-    text.includes("app")
-  )
-    return "App";
-
-  if(
-    text.includes("survey")
-  )
-    return "Survey";
-
-
-  return task.task_type
-    ? formatType(
-        task.task_type
-      )
-    : "General";
-}
-
-
-function getTaskIcon(task){
-
-  const platform=
-    getPlatform(task);
-
-  const logo=
-    PLATFORM_LOGOS[
-      platform
-    ];
-
-
-  if(logo){
-
-    return `
-
-      <img
-        src="${logo}"
-        alt="${escapeHTML(platform)}"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='block';"
-      >
-
-      <span
-        class="icon-fallback"
-        style="display:none"
-      >
-        📋
-      </span>
-
-    `;
+    button.textContent =
+      "Submit Proof";
 
   }
 
-
-  if(platform==="Website")
-    return `<span class="icon-fallback">🌐</span>`;
-
-  if(platform==="App")
-    return `<span class="icon-fallback">📱</span>`;
-
-  if(platform==="Survey")
-    return `<span class="icon-fallback">📝</span>`;
-
-  return `<span class="icon-fallback">📋</span>`;
 }
 
 
-/* =========================================================
-   COPY
-========================================================= */
+/* =====================================================
+   FORM MESSAGE
+   ===================================================== */
 
-function copyRow(value,text="Copy"){
-
-  const row=
-    document.createElement("div");
-
-  row.className="copy-row";
-
-
-  const content=
-    document.createElement("div");
-
-  content.className=
-    "copy-content";
-
-  content.textContent=
-    value;
-
-
-  const button=
-    document.createElement("button");
-
-  button.className=
-    "copy-btn";
-
-  button.textContent=
-    text;
-
-
-  button.onclick=async()=>{
-
-    try{
-
-      await navigator.clipboard
-        .writeText(
-          String(value)
-        );
-
-      const old=
-        button.textContent;
-
-      button.textContent=
-        "Copied ✓";
-
-
-      setTimeout(()=>{
-
-        button.textContent=
-          old;
-
-      },1500);
-
-    }
-    catch(e){
-
-      alert(
-        "Copy failed. Please copy manually."
-      );
-
-    }
-
-  };
-
-
-  row.appendChild(content);
-  row.appendChild(button);
-
-  return row;
-}
-
-
-/* =========================================================
-   REQUIREMENTS
-========================================================= */
-
-function formatRequirements(value){
-
-  if(!value)
-    return "";
-
-  if(typeof value==="string")
-    return value;
-
-  if(Array.isArray(value))
-    return value.join("\n");
-
-  if(typeof value==="object"){
-
-    return Object.entries(value)
-      .map(
-        ([key,val])=>
-          key+": "+val
-      )
-      .join("\n");
-  }
-
-  return String(value);
-}
-
-
-/* =========================================================
-   DATE
-========================================================= */
-
-function formatDate(value){
-
-  const date=
-    new Date(value);
-
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  )
-    return String(value);
-
-
-  return date.toLocaleString(
-    "en-NG",
-    {
-      dateStyle:"medium",
-      timeStyle:"short"
-    }
-  );
-}
-
-
-/* =========================================================
-   TYPE
-========================================================= */
-
-function formatType(value){
-
-  return String(value||"")
-    .replace(
-      /[_-]+/g,
-      " "
-    )
-    .replace(
-      /\b\w/g,
-      l=>l.toUpperCase()
-    );
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHTML(value){
-
-  return String(value)
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-}
-
-
-/* =========================================================
-   RESET BUTTON
-========================================================= */
-
-function resetButton(button){
-
-  button.disabled=false;
-
-  button.textContent=
-    "Submit Proof";
-}
-
-
-/* =========================================================
-   ERROR
-========================================================= */
-
-function showError(
-  title,
-  message
+function showFormMessage(
+  form,
+  message,
+  isError
 ){
 
-  document.getElementById(
-    "tasks"
-  ).innerHTML=`
+  const box =
+    form.querySelector(
+      ".form-message"
+    );
 
-    <div class="message">
 
-      <div class="message-icon">
-        ⚠️
-      </div>
+  box.textContent =
+    message;
 
-      <div class="message-title">
-        ${escapeHTML(title)}
-      </div>
 
-      ${escapeHTML(message)}
+  box.className =
+    "message form-message " +
+    (isError ? "error" : "success");
 
-      <br>
 
-      <button
-        class="refresh"
-        onclick="loadTasks()"
-      >
-        Try Again
-      </button>
+  box.style.display =
+    "block";
 
-    </div>
-
-  `;
 }
 
 
-/* =========================================================
+/* =====================================================
+   OPEN LINK
+   ===================================================== */
+
+function openTaskLink(link){
+
+  if(!link){
+    return;
+  }
+
+
+  let finalLink =
+    String(link).trim();
+
+
+  if(
+    !finalLink.startsWith("http://") &&
+    !finalLink.startsWith("https://")
+  ){
+
+    finalLink =
+      "https://" + finalLink;
+
+  }
+
+
+  window.open(
+    finalLink,
+    "_blank"
+  );
+
+}
+
+
+/* =====================================================
+   COPY TEXT
+   ===================================================== */
+
+async function copyText(text){
+
+  try{
+
+    await navigator.clipboard.writeText(
+      text
+    );
+
+    alert("Copied successfully.");
+
+  }
+  catch(error){
+
+    /*
+      Fallback for older Android browsers.
+    */
+
+    const input =
+      document.createElement("textarea");
+
+    input.value =
+      text;
+
+    document.body.appendChild(input);
+
+    input.select();
+
+    document.execCommand("copy");
+
+    input.remove();
+
+    alert("Copied successfully.");
+
+  }
+
+}
+
+
+/* =====================================================
    START
-========================================================= */
+   ===================================================== */
 
 loadTasks();
 
 </script>
 
 </body>
-                           </html>
+  </html>
