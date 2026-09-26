@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Transactions — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5fff7;
+  color: #111;
+}
+
+header {
+  background: #0b8f3c;
+  color: white;
+  padding: 18px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.back {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  font-size: 22px;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  opacity: .9;
+  margin-top: 3px;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  padding: 16px;
+}
+
+.summary {
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.06);
+}
+
+.summary-title {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.balance {
+  color: #0b8f3c;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px 0 12px;
+}
+
+.transaction {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.05);
+}
+
+.transaction-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.transaction-type {
+  font-weight: bold;
+  font-size: 15px;
+  text-transform: capitalize;
+}
+
+.amount {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.amount.credit {
+  color: #0b8f3c;
+}
+
+.amount.debit {
+  color: #d93025;
+}
+
+.description {
+  color: #555;
+  font-size: 14px;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.details {
+  margin-top: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.detail span:first-child {
+  color: #777;
+}
+
+.detail span:last-child {
+  text-align: right;
+  word-break: break-word;
+}
+
+.status {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status.approved,
+.status.completed,
+.status.success,
+.status.successful {
+  background: #e7f8ed;
+  color: #087b34;
+}
+
+.status.pending {
+  background: #fff6dc;
+  color: #946200;
+}
+
+.status.rejected,
+.status.failed,
+.status.cancelled {
+  background: #fdeaea;
+  color: #c62828;
+}
+
+.status.unknown {
+  background: #eee;
+  color: #555;
+}
+
+.loading,
+.empty,
+.error {
+  background: white;
+  border-radius: 15px;
+  padding: 25px 18px;
+  text-align: center;
+  color: #666;
+  box-shadow: 0 3px 10px rgba(0,0,0,.05);
+}
+
+.error {
+  color: #c62828;
+}
+
+.retry {
+  margin-top: 12px;
+  border: none;
+  background: #0b8f3c;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.bottom-space {
+  height: 30px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-row">
+    <a href="dashboard.html" class="back">‹</a>
+
+    <div>
+      <div class="header-title">Transactions</div>
+      <div class="header-subtitle">
+        Your account activity
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="summary">
+    <div class="summary-title">Current Balance</div>
+    <div class="balance" id="balance">₦0.00</div>
+  </div>
+
+  <div class="section-title">
+    Transaction History
+  </div>
+
+  <div id="transactionsList">
+    <div class="loading">
+      Loading transactions...
+    </div>
+  </div>
+
+  <div class="bottom-space"></div>
+
+</div>
+
+<script>
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+/*
+  IMPORTANT:
+  Paste your existing Supabase publishable key here.
+  Do NOT use your secret/service-role key.
+*/
+const SUPABASE_KEY =
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+const list = document.getElementById("transactionsList");
+const balanceElement = document.getElementById("balance");
+
+function money(value) {
+  const number = Number(value || 0);
+
+  return "₦" + number.toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function escapeHTML(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getAmountClass(type, amount) {
+
+  const text = String(type || "").toLowerCase();
+
+  if (
+    text.includes("withdraw") ||
+    text.includes("debit") ||
+    text.includes("fee") ||
+    Number(amount) < 0
+  ) {
+    return "debit";
+  }
+
+  return "credit";
+}
+
+function formatDate(value) {
+
+  if (!value) {
+    return "Date unavailable";
+  }
+
+  const date = new Date(value);
+
+  if (isNaN(date.getTime())) {
+    return escapeHTML(value);
+  }
+
+  return date.toLocaleString("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
+function statusClass(status) {
+
+  const value = String(status || "").toLowerCase();
+
+  if (
+    value === "approved" ||
+    value === "completed" ||
+    value === "success" ||
+    value === "successful"
+  ) {
+    return value;
+  }
+
+  if (value === "pending") {
+    return "pending";
+  }
+
+  if (
+    value === "rejected" ||
+    value === "failed" ||
+    value === "cancelled"
+  ) {
+    return value;
+  }
+
+  return "unknown";
+}
+
+async function loadBalance(userId) {
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("balance")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!error && data) {
+    balanceElement.textContent =
+      money(data.balance);
+  }
+}
+
+async function loadTransactions() {
+
+  list.innerHTML = `
+    <div class="loading">
+      Loading transactions...
+    </div>
+  `;
+
+  const {
+    data: authData,
+    error: authError
+  } = await supabaseClient.auth.getUser();
+
+  if (authError || !authData.user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const user = authData.user;
+
+  await loadBalance(user.id);
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("transactions")
+    .select(
+      "user_id,type,amount,description,reference,status"
+    )
+    .eq("user_id", user.id)
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+
+    console.error(error);
+
+    list.innerHTML = `
+      <div class="error">
+        <strong>Unable to load transactions.</strong>
+        <br><br>
+        Please check your connection and try again.
+
+        <br>
+
+        <button
+          class="retry"
+          onclick="loadTransactions()">
+          Try Again
+        </button>
+      </div>
+    `;
+
+    return;
+  }
+
+  if (!data || data.length === 0) {
+
+    list.innerHTML = `
+      <div class="empty">
+        <div style="font-size:35px;">💳</div>
+
+        <h3>No transactions yet</h3>
+
+        <p>
+          Your earnings, withdrawals and other
+          account activity will appear here.
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
+  list.innerHTML = data.map(transaction => {
+
+    const type =
+      transaction.type || "Transaction";
+
+    const amount =
+      Number(transaction.amount || 0);
+
+    const amountClass =
+      getAmountClass(type, amount);
+
+    const status =
+      transaction.status || "Unknown";
+
+    return `
+      <div class="transaction">
+
+        <div class="transaction-top">
+
+          <div class="transaction-type">
+            ${escapeHTML(type)}
+          </div>
+
+          <div class="amount ${amountClass}">
+            ${amountClass === "debit" ? "-" : "+"}
+            ${money(Math.abs(amount))}
+          </div>
+
+        </div>
+
+        ${
+          transaction.description
+          ? `
+            <div class="description">
+              ${escapeHTML(transaction.description)}
+            </div>
+          `
+          : ""
+        }
+
+        <div class="details">
+
+          <div class="detail">
+            <span>Status</span>
+
+            <span>
+              <span class="status ${statusClass(status)}">
+                ${escapeHTML(status)}
+              </span>
+            </span>
+          </div>
+
+          ${
+            transaction.reference
+            ? `
+              <div class="detail">
+                <span>Reference</span>
+                <span>
+                  ${escapeHTML(transaction.reference)}
+                </span>
+              </div>
+            `
+            : ""
+          }
+
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+}
+
+loadTransactions();
+</script>
+
+</body>
+  </html>
