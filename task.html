@@ -417,20 +417,15 @@ select:focus{
    NAIJA TASK — TASK PAGE
    ===================================================== */
 
-/*
-  IMPORTANT:
-
-  Keep your existing Supabase URL.
-
-  Put your own Supabase publishable key below.
-  Do NOT share the key publicly.
-*/
-
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
+/*
+  KEEP YOUR EXISTING SUPABASE PUBLISHABLE KEY HERE.
+  Do not share it publicly.
+*/
 const SUPABASE_KEY =
-        "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
 const db = window.supabase.createClient(
@@ -648,6 +643,28 @@ async function getCurrentUser(){
 
 
 /* =====================================================
+   EXPIRY CHECK
+   ===================================================== */
+
+function isTaskExpired(task){
+
+  if(!task.expiry_date){
+    return false;
+  }
+
+  const expiry =
+    new Date(task.expiry_date);
+
+  if(isNaN(expiry.getTime())){
+    return false;
+  }
+
+  return new Date() > expiry;
+
+}
+
+
+/* =====================================================
    LOAD TASKS
    ===================================================== */
 
@@ -666,11 +683,6 @@ async function loadTasks(){
     if(!user){
       return;
     }
-
-
-    /*
-      Only use columns that the task page actually needs.
-    */
 
     const {
       data: tasks,
@@ -692,7 +704,8 @@ async function loadTasks(){
         uploader_username,
         copy_text,
         post_link,
-        upload_required
+        upload_required,
+        created_at
       `)
       .eq("active", true)
       .order("created_at", {
@@ -794,6 +807,10 @@ function createTaskCard(task){
       : task.slots;
 
 
+  const expired =
+    isTaskExpired(task);
+
+
   card.innerHTML = `
 
     <div class="task-top">
@@ -847,8 +864,9 @@ function createTaskCard(task){
     <button
       class="start-btn"
       type="button"
+      ${expired ? "disabled" : ""}
     >
-      Start Task
+      ${expired ? "Task Expired" : "Start Task"}
     </button>
 
 
@@ -862,6 +880,19 @@ function createTaskCard(task){
 
   const details =
     card.querySelector(".details");
+
+
+  if(expired){
+
+    startButton.style.background =
+      "#999";
+
+    startButton.style.cursor =
+      "not-allowed";
+
+    return card;
+
+  }
 
 
   startButton.addEventListener(
@@ -923,6 +954,10 @@ function buildDetails(task){
     formatRequirements(
       task.requirements
     );
+
+
+  const expired =
+    isTaskExpired(task);
 
 
   return `
@@ -1053,85 +1088,96 @@ function buildDetails(task){
         📸 Photo proof is required for this task.
       </div>
 
+      ${
+        expired
+        ?
+        `
+        <div class="message error" style="display:block;">
+          This task has expired and can no longer receive submissions.
+        </div>
+        `
+        :
+        `
+        <form class="proof-form">
 
-      <form class="proof-form">
-
-        <label>
-          Username / Account Used
-          <span class="required">*</span>
-        </label>
-
-        <input
-          type="text"
-          name="worker_username"
-          placeholder="@username or account used"
-          required
-        >
-
-
-        <label>
-          Comment / Report
-          <span class="required">*</span>
-        </label>
-
-        <textarea
-          name="worker_comment"
-          placeholder="Tell the task owner what you completed..."
-          required
-        ></textarea>
-
-
-        <label>
-          Extra Proof Link
-        </label>
-
-        <input
-          type="url"
-          name="worker_link"
-          placeholder="Optional proof link"
-        >
-
-
-        <label>
-          Photo Proof
-          <span class="required">*</span>
-        </label>
-
-        <div class="file-box">
+          <label>
+            Username / Account Used
+            <span class="required">*</span>
+          </label>
 
           <input
-            type="file"
-            name="proof_photo"
-            accept="image/jpeg,image/png,image/webp"
+            type="text"
+            name="worker_username"
+            placeholder="@username or account used"
             required
           >
 
-          <div class="file-note">
-            Upload a clear screenshot/photo.
-            Maximum size: 5MB.
-          </div>
 
-          <img
-            class="preview"
-            alt="Proof preview"
+          <label>
+            Comment / Report
+            <span class="required">*</span>
+          </label>
+
+          <textarea
+            name="worker_comment"
+            placeholder="Tell the task owner what you completed..."
+            required
+          ></textarea>
+
+
+          <label>
+            Extra Proof Link
+          </label>
+
+          <input
+            type="url"
+            name="worker_link"
+            placeholder="Optional proof link"
           >
 
-        </div>
+
+          <label>
+            Photo Proof
+            <span class="required">*</span>
+          </label>
+
+          <div class="file-box">
+
+            <input
+              type="file"
+              name="proof_photo"
+              accept="image/jpeg,image/png,image/webp"
+              required
+            >
+
+            <div class="file-note">
+              Upload a clear screenshot/photo.
+              Maximum size: 5MB.
+            </div>
+
+            <img
+              class="preview"
+              alt="Proof preview"
+            >
+
+          </div>
 
 
-        <div
-          class="message form-message"
-        ></div>
+          <div
+            class="message form-message"
+          ></div>
 
 
-        <button
-          class="submit-btn"
-          type="submit"
-        >
-          Submit Proof
-        </button>
+          <button
+            class="submit-btn"
+            type="submit"
+          >
+            Submit Proof
+          </button>
 
-      </form>
+        </form>
+        `
+      }
 
     </div>
 
@@ -1193,11 +1239,18 @@ function setupProofForm(details, task){
       }
 
 
-      if(!file.type.startsWith("image/")){
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ];
+
+
+      if(!allowedTypes.includes(file.type)){
 
         showFormMessage(
           form,
-          "Please select an image file.",
+          "Only JPG, JPEG, PNG or WEBP images are allowed.",
           true
         );
 
@@ -1262,12 +1315,37 @@ async function submitProof(form, task){
     form.querySelector(".form-message");
 
 
+  /*
+    Prevent a second submission while the first one
+    is still being processed.
+  */
+
+  if(button.disabled){
+    return;
+  }
+
+
   try{
 
     button.disabled = true;
 
     button.textContent =
       "Checking...";
+
+
+    /*
+      Final expiry check immediately before submission.
+      This prevents submission if the task expires while
+      the worker is completing it.
+    */
+
+    if(isTaskExpired(task)){
+
+      throw new Error(
+        "This task has expired and can no longer be submitted."
+      );
+
+    }
 
 
     const user =
@@ -1332,10 +1410,43 @@ async function submitProof(form, task){
     }
 
 
+    if(workerLink){
+
+      try{
+
+        new URL(workerLink);
+
+      }catch(error){
+
+        throw new Error(
+          "Please enter a valid Extra Proof Link."
+        );
+
+      }
+
+    }
+
+
     if(!photo){
 
       throw new Error(
         "Photo proof is required."
+      );
+
+    }
+
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp"
+    ];
+
+
+    if(!allowedTypes.includes(photo.type)){
+
+      throw new Error(
+        "Only JPG, JPEG, PNG or WEBP images are allowed."
       );
 
     }
@@ -1488,8 +1599,8 @@ async function submitProof(form, task){
     if(insertError){
 
       /*
-        If database saving fails after the image
-        uploaded successfully, remove the image.
+        Remove the uploaded image if the database
+        submission fails.
       */
 
       await db
@@ -1633,10 +1744,6 @@ async function copyText(text){
 
   }
   catch(error){
-
-    /*
-      Fallback for older Android browsers.
-    */
 
     const input =
       document.createElement("textarea");
