@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Post a Job — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f5fff7;
+  color:#17221a;
+  padding-bottom:40px;
+}
+
+button,
+input,
+textarea,
+select{
+  font-family:inherit;
+}
+
+.header{
+  background:#0b8f3c;
+  color:white;
+  padding:20px 16px 25px;
+  border-radius:0 0 28px 28px;
+}
+
+.header-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.back{
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.15);
+  color:white;
+  font-size:20px;
+}
+
+.header-title{
+  font-size:21px;
+  font-weight:900;
+}
+
+.header-subtitle{
+  margin-top:8px;
+  font-size:12px;
+  opacity:.9;
+}
+
+.container{
+  max-width:560px;
+  margin:auto;
+  padding:18px 15px 40px;
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:17px;
+  margin-bottom:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,.06);
+}
+
+.card-title{
+  font-size:16px;
+  font-weight:900;
+  margin-bottom:14px;
+}
+
+label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:7px;
+}
+
+.field{
+  margin-bottom:15px;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  border:1px solid #dce7df;
+  border-radius:12px;
+  padding:13px;
+  font-size:13px;
+  outline:none;
+  background:#fbfffc;
+  color:#17221a;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#0b8f3c;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.option{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px;
+  border:1px solid #e0e9e3;
+  border-radius:14px;
+  margin-bottom:9px;
+  background:#fbfffc;
+}
+
+.option-left{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.option-icon{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  background:#e9f8ee;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:19px;
+  flex-shrink:0;
+}
+
+.option-name{
+  font-size:13px;
+  font-weight:900;
+}
+
+.option-description{
+  margin-top:3px;
+  font-size:10px;
+  color:#68736b;
+  line-height:1.4;
+}
+
+/* SWITCH */
+
+.switch{
+  position:relative;
+  width:48px;
+  height:27px;
+  flex-shrink:0;
+}
+
+.switch input{
+  display:none;
+}
+
+.slider{
+  position:absolute;
+  inset:0;
+  background:#cbd5ce;
+  border-radius:30px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.slider:before{
+  content:"";
+  position:absolute;
+  width:21px;
+  height:21px;
+  left:3px;
+  top:3px;
+  background:white;
+  border-radius:50%;
+  transition:.2s;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+
+.switch input:checked + .slider{
+  background:#0b8f3c;
+}
+
+.switch input:checked + .slider:before{
+  transform:translateX(21px);
+}
+
+.required-box{
+  background:#e9f8ee;
+  border:1px solid #ccebd6;
+  border-radius:13px;
+  padding:12px;
+  font-size:11px;
+  color:#087832;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+
+.timer-box{
+  display:none;
+  margin-top:10px;
+  padding:13px;
+  background:#f1fff5;
+  border:1px solid #d2eedb;
+  border-radius:13px;
+}
+
+.timer-box.show{
+  display:block;
+}
+
+.publish-button{
+  width:100%;
+  border:0;
+  border-radius:14px;
+  padding:15px;
+  background:#0b8f3c;
+  color:white;
+  font-size:14px;
+  font-weight:900;
+  box-shadow:0 6px 18px rgba(11,143,60,.2);
+}
+
+.publish-button:disabled{
+  opacity:.6;
+}
+
+.status{
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  font-size:12px;
+  display:none;
+}
+
+.status.show{
+  display:block;
+}
+
+.status.error{
+  background:#fff0f0;
+  color:#a52323;
+}
+
+.status.success{
+  background:#e9f8ee;
+  color:#087832;
+}
+
+.summary-item{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:9px 0;
+  border-bottom:1px solid #edf1ee;
+  font-size:11px;
+}
+
+.summary-item:last-child{
+  border-bottom:0;
+}
+
+.summary-label{
+  color:#68736b;
+}
+
+.summary-value{
+  font-weight:800;
+  text-align:right;
+}
+
+.small-note{
+  margin-top:7px;
+  color:#68736b;
+  font-size:10px;
+  line-height:1.5;
+}
+
+@media(max-width:370px){
+
+  .row{
+    grid-template-columns:1fr;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+  <div class="header-top">
+
+    <button
+      class="back"
+      onclick="window.location.href='dashboard.html'">
+      ←
+    </button>
+
+    <div>
+
+      <div class="header-title">
+        Post a Job
+      </div>
+
+      <div class="header-subtitle">
+        Create a task and choose exactly what proof workers must submit.
+      </div>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- BASIC DETAILS -->
+
+<section class="card">
+
+  <div class="card-title">
+    📋 Task Details
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Task Title
+    </label>
+
+    <input
+      id="taskTitle"
+      type="text"
+      placeholder="Example: Follow our TikTok account">
+
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Task Type
+    </label>
+
+    <select id="taskType">
+
+      <option value="general">
+        General Task
+      </option>
+
+      <option value="tiktok">
+        TikTok
+      </option>
+
+      <option value="youtube">
+        YouTube
+      </option>
+
+      <option value="instagram">
+        Instagram
+      </option>
+
+      <option value="facebook">
+        Facebook
+      </option>
+
+      <option value="app_download">
+        App Download
+      </option>
+
+      <option value="website">
+        Website
+      </option>
+
+      <option value="other">
+        Other
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Task Description
+    </label>
+
+    <textarea
+      id="taskDescription"
+      placeholder="Explain exactly what the worker must do..."></textarea>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Task Link
+    </label>
+
+    <input
+      id="taskLink"
+      type="url"
+      placeholder="https://...">
+
+  </div>
+
+
+  <div class="row">
+
+    <div class="field">
+
+      <label>
+        Reward (₦)
+      </label>
+
+      <input
+        id="reward"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="50">
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Available Slots
+      </label>
+
+      <input
+        id="slots"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="10">
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- PROOF REQUIREMENTS -->
+
+<section class="card">
+
+  <div class="card-title">
+    📸 Proof Requirements
+  </div>
+
+  <div class="required-box">
+
+    📷 <strong>Photo proof is always required.</strong><br>
+
+    Every task must allow the worker to upload photo proof.
+    You can then choose which additional information is required.
+
+  </div>
+
+
+  <!-- PHOTO -->
+
+  <div class="option">
+
+    <div class="option-left">
+
+      <div class="option-icon">
+        📷
+      </div>
+
+      <div>
+
+        <div class="option-name">
+          Photo Upload
+        </div>
+
+        <div class="option-description">
+          Always required for every task.
+        </div>
+
+      </div>
+
+    </div>
+
+    <strong style="color:#0b8f3c;font-size:11px;">
+      REQUIRED
+    </strong>
+
+  </div>
+
+
+  <!-- USERNAME -->
+
+  <div class="option">
+
+    <div class="option-left">
+
+      <div class="option-icon">
+        👤
+      </div>
+
+      <div>
+
+        <div class="option-name">
+          Username
+        </div>
+
+        <div class="option-description">
+          Ask the worker to provide a social media username.
+        </div>
+
+      </div>
+
+    </div>
+
+    <label class="switch">
+
+      <input
+        type="checkbox"
+        id="usernameRequired">
+
+      <span class="slider"></span>
+
+    </label>
+
+  </div>
+
+
+  <!-- TEXT -->
+
+  <div class="option">
+
+    <div class="option-left">
+
+      <div class="option-icon">
+        📝
+      </div>
+
+      <div>
+
+        <div class="option-name">
+          Text / Description
+        </div>
+
+        <div class="option-description">
+          Require the worker to write additional information.
+        </div>
+
+      </div>
+
+    </div>
+
+    <label class="switch">
+
+      <input
+        type="checkbox"
+        id="textRequired">
+
+      <span class="slider"></span>
+
+    </label>
+
+  </div>
+
+
+  <!-- URL -->
+
+  <div class="option">
+
+    <div class="option-left">
+
+      <div class="option-icon">
+        🔗
+      </div>
+
+      <div>
+
+        <div class="option-name">
+          URL / Link
+        </div>
+
+        <div class="option-description">
+          Require a link as part of the proof.
+        </div>
+
+      </div>
+
+    </div>
+
+    <label class="switch">
+
+      <input
+        type="checkbox"
+        id="urlRequired">
+
+      <span class="slider"></span>
+
+    </label>
+
+  </div>
+
+
+  <!-- REFERENCE -->
+
+  <div class="option">
+
+    <div class="option-left">
+
+      <div class="option-icon">
+        🆔
+      </div>
+
+      <div>
+
+        <div class="option-name">
+          Reference ID
+        </div>
+
+        <div class="option-description">
+          Require an order, reference or confirmation ID.
+        </div>
+
+      </div>
+
+    </div>
+
+    <label class="switch">
+
+      <input
+        type="checkbox"
+        id="referenceRequired">
+
+      <span class="slider"></span>
+
+    </label>
+
+  </div>
+
+
+  <!-- WATCH TIMER -->
+
+  <div class="option">
+
+    <div class="option-left">
+
+      <div class="option-icon">
+        ▶️
+      </div>
+
+      <div>
+
+        <div class="option-name">
+          Watch Timer
+        </div>
+
+        <div class="option-description">
+          Optional. Use this when workers must watch content for a set time.
+        </div>
+
+      </div>
+
+    </div>
+
+    <label class="switch">
+
+      <input
+        type="checkbox"
+        id="watchTimer">
+
+      <span class="slider"></span>
+
+    </label>
+
+  </div>
+
+
+  <!-- TIMER SETTINGS -->
+
+  <div
+    id="timerBox"
+    class="timer-box">
+
+    <label>
+      Watch Duration (seconds)
+    </label>
+
+    <input
+      id="watchSeconds"
+      type="number"
+      min="1"
+      step="1"
+      placeholder="60">
+
+    <div class="small-note">
+      The worker will only see the timer when this option is enabled.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- SUMMARY -->
+
+<section class="card">
+
+  <div class="card-title">
+    👀 Task Summary
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Photo
+    </span>
+
+    <span class="summary-value">
+      Always required
+    </span>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Username
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryUsername">
+      Not required
+    </span>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Text
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryText">
+      Not required
+    </span>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      URL
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryUrl">
+      Not required
+    </span>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Reference ID
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryReference">
+      Not required
+    </span>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Watch Timer
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryTimer">
+      OFF
+    </span>
+
+  </div>
+
+</section>
+
+
+<!-- PUBLISH -->
+
+<section class="card">
+
+  <button
+    class="publish-button"
+    id="publishButton">
+
+    🚀 Publish Task
+
+  </button>
+
+
+  <div
+    id="status"
+    class="status">
+  </div>
+
+</section>
+
+
+</main>
+
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+/*
+  IMPORTANT:
+  Put your EXISTING publishable/anon key below.
+
+  Do NOT use a secret/service-role key.
+*/
+
+const SUPABASE_KEY =
+  "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const watchTimer =
+  document.getElementById("watchTimer");
+
+const timerBox =
+  document.getElementById("timerBox");
+
+const watchSeconds =
+  document.getElementById("watchSeconds");
+
+
+/* =========================
+   TIMER TOGGLE
+========================= */
+
+watchTimer.addEventListener(
+  "change",
+  function(){
+
+    if(this.checked){
+
+      timerBox.classList.add("show");
+
+    }else{
+
+      timerBox.classList.remove("show");
+
+      watchSeconds.value = "";
+
+    }
+
+    updateSummary();
+
+  }
+);
+
+
+/* =========================
+   SUMMARY
+========================= */
+
+function updateSummary(){
+
+  document.getElementById(
+    "summaryUsername"
+  ).textContent =
+    document.getElementById(
+      "usernameRequired"
+    ).checked
+      ? "Required"
+      : "Not required";
+
+
+  document.getElementById(
+    "summaryText"
+  ).textContent =
+    document.getElementById(
+      "textRequired"
+    ).checked
+      ? "Required"
+      : "Not required";
+
+
+  document.getElementById(
+    "summaryUrl"
+  ).textContent =
+    document.getElementById(
+      "urlRequired"
+    ).checked
+      ? "Required"
+      : "Not required";
+
+
+  document.getElementById(
+    "summaryReference"
+  ).textContent =
+    document.getElementById(
+      "referenceRequired"
+    ).checked
+      ? "Required"
+      : "Not required";
+
+
+  document.getElementById(
+    "summaryTimer"
+  ).textContent =
+    watchTimer.checked
+      ? (
+          watchSeconds.value
+            ? watchSeconds.value + " seconds"
+            : "ON"
+        )
+      : "OFF";
+
+}
+
+
+/* Update summary whenever a requirement changes */
+
+[
+  "usernameRequired",
+  "textRequired",
+  "urlRequired",
+  "referenceRequired"
+].forEach(function(id){
+
+  document
+    .getElementById(id)
+    .addEventListener(
+      "change",
+      updateSummary
+    );
+
+});
+
+
+watchSeconds.addEventListener(
+  "input",
+  updateSummary
+);
+
+
+/* =========================
+   STATUS
+========================= */
+
+function showStatus(message,type){
+
+  const status =
+    document.getElementById("status");
+
+  status.textContent = message;
+
+  status.className =
+    "status show " + type;
+
+}
+
+
+/* =========================
+   PUBLISH TASK
+========================= */
+
+document
+  .getElementById("publishButton")
+  .addEventListener(
+    "click",
+    async function(){
+
+      const button = this;
+
+      const title =
+        document.getElementById(
+          "taskTitle"
+        ).value.trim();
+
+      const taskType =
+        document.getElementById(
+          "taskType"
+        ).value;
+
+      const description =
+        document.getElementById(
+          "taskDescription"
+        ).value.trim();
+
+      const taskLink =
+        document.getElementById(
+          "taskLink"
+        ).value.trim();
+
+      const reward =
+        Number(
+          document.getElementById(
+            "reward"
+          ).value
+        );
+
+      const slots =
+        Number(
+          document.getElementById(
+            "slots"
+          ).value
+        );
+
+
+      const usernameRequired =
+        document.getElementById(
+          "usernameRequired"
+        ).checked;
+
+      const textRequired =
+        document.getElementById(
+          "textRequired"
+        ).checked;
+
+      const urlRequired =
+        document.getElementById(
+          "urlRequired"
+        ).checked;
+
+      const referenceRequired =
+        document.getElementById(
+          "referenceRequired"
+        ).checked;
+
+      const watchTimerEnabled =
+        watchTimer.checked;
+
+      const watchDuration =
+        watchTimerEnabled
+          ? Number(watchSeconds.value)
+          : 0;
+
+
+      /* VALIDATION */
+
+      if(!title){
+
+        showStatus(
+          "Please enter a task title.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if(!description){
+
+        showStatus(
+          "Please enter the task description.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if(!reward || reward <= 0){
+
+        showStatus(
+          "Enter a valid reward.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if(!slots || slots <= 0){
+
+        showStatus(
+          "Enter the number of available slots.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if(watchTimerEnabled){
+
+        if(!watchDuration || watchDuration <= 0){
+
+          showStatus(
+            "Enter the watch duration in seconds.",
+            "error"
+          );
+
+          return;
+
+        }
+
+      }
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Publishing...";
+
+
+      try{
+
+        /* Check logged-in user */
+
+        const {
+          data: { user },
+          error: userError
+        } =
+          await supabaseClient.auth.getUser();
+
+
+        if(userError || !user){
+
+          window.location.href =
+            "index.html";
+
+          return;
+
+        }
+
+
+        /*
+          Create task.
+
+          NOTE:
+          These column names must exist in
+          your Supabase tasks table.
+        */
+
+        const { data, error } =
+          await supabaseClient
+            .from("tasks")
+            .insert({
+
+              title: title,
+
+              description: description,
+
+              reward: reward,
+
+              slots: slots,
+
+              link: taskLink || null,
+
+              task_type: taskType,
+
+              photo_required: true,
+
+              username_required:
+                usernameRequired,
+
+              text_required:
+                textRequired,
+
+              url_required:
+                urlRequired,
+
+              reference_required:
+                referenceRequired,
+
+              watch_timer_enabled:
+                watchTimerEnabled,
+
+              watch_seconds:
+                watchDuration,
+
+              created_by:
+                user.id
+
+            })
+            .select()
+            .single();
+
+
+        if(error){
+
+          console.error(error);
+
+          showStatus(
+            "Task could not be published: " +
+            error.message,
+            "error"
+          );
+
+          button.disabled = false;
+
+          button.textContent =
+            "🚀 Publish Task";
+
+          return;
+
+        }
+
+
+        showStatus(
+          "Task published successfully.",
+          "success"
+        );
+
+
+        button.textContent =
+          "✅ Task Published";
+
+
+        setTimeout(function(){
+
+          window.location.href =
+            "dashboard.html";
+
+        },1200);
+
+
+      }catch(error){
+
+        console.error(error);
+
+        showStatus(
+          "Something went wrong while publishing the task.",
+          "error"
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+          "🚀 Publish Task";
+
+      }
+
+    }
+  );
+
+
+/* =========================
+   INITIAL SUMMARY
+========================= */
+
+updateSummary();
+
+</script>
+
+</body>
+  </html>
