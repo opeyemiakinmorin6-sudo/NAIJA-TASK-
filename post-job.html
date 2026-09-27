@@ -306,12 +306,10 @@ textarea{
 
   <div id="message" class="message"></div>
 
-
   <div class="poster-box">
     <strong>Task Poster</strong><br>
     Create your job and clearly tell Taskers exactly what you want them to do.
   </div>
-
 
   <div class="notice">
     <strong>Payment approval is required.</strong><br>
@@ -334,7 +332,6 @@ textarea{
       maxlength="150"
     >
 
-
     <label for="category">Task Category</label>
 
     <select id="category">
@@ -350,11 +347,8 @@ textarea{
       <option value="telegram">Telegram</option>
       <option value="whatsapp">WhatsApp</option>
       <option value="linkedin">LinkedIn</option>
-
-      <!-- NEW -->
       <option value="spotify">Spotify</option>
       <option value="audiomack">Audiomack</option>
-
       <option value="pinterest">Pinterest</option>
       <option value="reddit">Reddit</option>
       <option value="threads">Threads</option>
@@ -377,11 +371,9 @@ textarea{
 
     </select>
 
-
     <div id="priceRule" class="price-rule">
       Social task reward range: ₦3 – ₦999
     </div>
-
 
     <label for="description">
       Task Description / Instructions
@@ -396,7 +388,6 @@ textarea{
       Write the complete instructions the Tasker must follow.
     </div>
 
-
     <label for="taskLink">
       Social / Task Link
     </label>
@@ -410,7 +401,6 @@ textarea{
     <div class="help">
       Taskers will be able to open this link directly.
     </div>
-
 
     <label for="copyText">
       Copy Text
@@ -549,7 +539,6 @@ textarea{
       Enter an amount within the allowed range.
     </div>
 
-
     <label for="slots">
       Available Slots
     </label>
@@ -561,7 +550,6 @@ textarea{
       step="1"
       placeholder="Example: 50"
     >
-
 
     <div class="money-box">
 
@@ -650,7 +638,6 @@ textarea{
 
     </div>
 
-
     <div id="timerBox" class="timer-box">
 
       <label for="watchDuration">
@@ -659,25 +646,11 @@ textarea{
 
       <select id="watchDuration">
 
-        <option value="15">
-          15 seconds
-        </option>
-
-        <option value="30">
-          30 seconds
-        </option>
-
-        <option value="60">
-          1 minute
-        </option>
-
-        <option value="120">
-          2 minutes
-        </option>
-
-        <option value="300">
-          5 minutes
-        </option>
+        <option value="15">15 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="60">1 minute</option>
+        <option value="120">2 minutes</option>
+        <option value="300">5 minutes</option>
 
       </select>
 
@@ -757,18 +730,20 @@ textarea{
 
 <script>
 
-/* ================================
+/* =========================================
    SUPABASE
-================================ */
+========================================= */
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  Put your existing Supabase publishable
-  key here locally.
+================================================
+PASTE YOUR EXISTING SUPABASE PUBLISHABLE KEY
+BETWEEN THE QUOTES BELOW.
 
-  Do NOT paste it into chat.
+DO NOT PASTE THE KEY INTO CHAT.
+================================================
 */
 
 const SUPABASE_KEY =
@@ -778,7 +753,14 @@ const SUPABASE_KEY =
 const supabaseClient =
   window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_KEY
+    SUPABASE_KEY,
+    {
+      auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+      }
+    }
   );
 
 
@@ -789,9 +771,9 @@ const publishBtn =
   document.getElementById("publishBtn");
 
 
-/* ================================
+/* =========================================
    MESSAGE
-================================ */
+========================================= */
 
 function showMessage(text,type){
 
@@ -811,50 +793,140 @@ function showMessage(text,type){
 }
 
 
-/* ================================
-   CHECK POSTER
-================================ */
+/* =========================================
+   GET AUTHENTICATED SESSION
+========================================= */
 
-async function checkPoster(){
+async function getAuthenticatedUser(){
+
+  /*
+    First check the current Supabase session.
+  */
+
+  let {
+    data:sessionData,
+    error:sessionError
+  } =
+    await supabaseClient.auth.getSession();
+
+
+  if(sessionError){
+
+    console.error(
+      "Session error:",
+      sessionError
+    );
+
+    return null;
+
+  }
+
+
+  let session =
+    sessionData?.session;
+
+
+  /*
+    If the session is missing, try refreshing it.
+  */
+
+  if(!session){
+
+    const {
+      data:refreshData,
+      error:refreshError
+    } =
+      await supabaseClient.auth.refreshSession();
+
+
+    if(refreshError){
+
+      console.error(
+        "Session refresh error:",
+        refreshError
+      );
+
+      return null;
+
+    }
+
+    session =
+      refreshData?.session;
+
+  }
+
+
+  if(!session){
+
+    return null;
+
+  }
+
+
+  /*
+    Get the authenticated user from
+    the active Supabase session.
+  */
 
   const {
-    data,
-    error
+    data:userData,
+    error:userError
   } =
     await supabaseClient.auth.getUser();
 
-  if(error){
+
+  if(userError){
 
     console.error(
-      "Authentication error:",
-      error
+      "User error:",
+      userError
     );
 
-    window.location.href =
-      "poster-login.html";
+    return null;
+
+  }
+
+
+  if(!userData?.user){
 
     return null;
 
   }
 
-  if(!data || !data.user){
 
-    window.location.href =
-      "poster-login.html";
+  return userData.user;
 
-    return null;
+}
 
-  }
+
+/* =========================================
+   CHECK POSTER
+========================================= */
+
+async function checkPoster(){
 
   const user =
-    data.user;
+    await getAuthenticatedUser();
+
+
+  if(!user){
+
+    window.location.href =
+      "poster-login.html";
+
+    return null;
+
+  }
+
 
   const metadata =
     user.user_metadata || {};
 
+
   const isPoster =
     metadata.user_type === "task_poster" ||
     metadata.role === "task_poster";
+
 
   if(!isPoster){
 
@@ -867,14 +939,15 @@ async function checkPoster(){
 
   }
 
+
   return user;
 
 }
 
 
-/* ================================
+/* =========================================
    LOGOUT
-================================ */
+========================================= */
 
 document
   .getElementById("logoutBtn")
@@ -891,16 +964,11 @@ document
   );
 
 
-/* ================================
+/* =========================================
    CATEGORY
-================================ */
+========================================= */
 
 function getCategoryType(category){
-
-  /*
-    Spotify and Audiomack are included
-    as SOCIAL categories.
-  */
 
   const socialCategories = [
 
@@ -913,10 +981,8 @@ function getCategoryType(category){
     "telegram",
     "whatsapp",
     "linkedin",
-
     "spotify",
     "audiomack",
-
     "pinterest",
     "reddit",
     "threads",
@@ -934,6 +1000,7 @@ function getCategoryType(category){
 
   ];
 
+
   if(
     socialCategories.includes(category)
   ){
@@ -942,11 +1009,13 @@ function getCategoryType(category){
 
   }
 
+
   if(category === "website"){
 
     return "website";
 
   }
+
 
   if(category === "app_download"){
 
@@ -954,14 +1023,15 @@ function getCategoryType(category){
 
   }
 
+
   return "other";
 
 }
 
 
-/* ================================
+/* =========================================
    REWARD LIMITS
-================================ */
+========================================= */
 
 function getRewardLimits(){
 
@@ -975,14 +1045,9 @@ function getRewardLimits(){
   if(type === "social"){
 
     return {
-
       min:3,
-
       max:999,
-
-      text:
-        "Social task reward range: ₦3 – ₦999"
-
+      text:"Social task reward range: ₦3 – ₦999"
     };
 
   }
@@ -994,28 +1059,18 @@ function getRewardLimits(){
   ){
 
     return {
-
       min:10,
-
       max:999,
-
-      text:
-        "Website/App Download reward range: ₦10 – ₦999"
-
+      text:"Website/App Download reward range: ₦10 – ₦999"
     };
 
   }
 
 
   return {
-
     min:3,
-
     max:999,
-
-    text:
-      "Reward range: ₦3 – ₦999"
-
+    text:"Reward range: ₦3 – ₦999"
   };
 
 }
@@ -1058,9 +1113,9 @@ function updateRewardRules(){
 }
 
 
-/* ================================
+/* =========================================
    FUNDING
-================================ */
+========================================= */
 
 function calculateFunding(){
 
@@ -1107,19 +1162,17 @@ function calculateFunding(){
 }
 
 
-/* ================================
+/* =========================================
    VALIDATE REWARD
-================================ */
+========================================= */
 
 function validateReward(){
 
   const rewardInput =
     document.getElementById("reward");
 
-
   const reward =
     Number(rewardInput.value);
-
 
   const limits =
     getRewardLimits();
@@ -1159,9 +1212,9 @@ function validateReward(){
 }
 
 
-/* ================================
+/* =========================================
    ACTIONS
-================================ */
+========================================= */
 
 function getSelectedActions(){
 
@@ -1196,9 +1249,9 @@ function updateActionsSummary(){
 }
 
 
-/* ================================
+/* =========================================
    SUMMARY
-================================ */
+========================================= */
 
 function updateSummary(){
 
@@ -1264,9 +1317,9 @@ function updateSummary(){
 }
 
 
-/* ================================
+/* =========================================
    TIMER
-================================ */
+========================================= */
 
 document
   .getElementById("proofTimer")
@@ -1285,9 +1338,9 @@ document
   );
 
 
-/* ================================
+/* =========================================
    PROOF REQUIREMENTS
-================================ */
+========================================= */
 
 function getProofRequirements(){
 
@@ -1376,9 +1429,9 @@ function getProofRequirements(){
 }
 
 
-/* ================================
+/* =========================================
    EVENTS
-================================ */
+========================================= */
 
 document
   .getElementById("category")
@@ -1433,9 +1486,9 @@ document
   });
 
 
-/* ================================
+/* =========================================
    CREATE JOB
-================================ */
+========================================= */
 
 publishBtn.addEventListener(
   "click",
@@ -1446,11 +1499,9 @@ publishBtn.addEventListener(
 
 
     /*
-      Get the actual logged-in user.
-
-      This UID is used for:
-      created_by
-      poster_id
+      IMPORTANT:
+      Get the authenticated session user
+      immediately before inserting.
     */
 
     const user =
@@ -1458,6 +1509,11 @@ publishBtn.addEventListener(
 
 
     if(!user){
+
+      showMessage(
+        "Your poster session has expired. Please log in again.",
+        "error"
+      );
 
       return;
 
@@ -1518,9 +1574,9 @@ publishBtn.addEventListener(
       getSelectedActions();
 
 
-    /* ================================
+    /* =====================================
        VALIDATION
-    ================================= */
+    ===================================== */
 
     if(!title){
 
@@ -1632,16 +1688,99 @@ publishBtn.addEventListener(
     publishBtn.disabled =
       true;
 
-
     publishBtn.textContent =
       "Creating Job...";
 
 
     try{
 
-      /* ================================
+      /* =====================================
+         FINAL SESSION CHECK
+      ===================================== */
+
+      const {
+        data:finalSessionData,
+        error:finalSessionError
+      } =
+        await supabaseClient.auth.getSession();
+
+
+      if(finalSessionError){
+
+        throw finalSessionError;
+
+      }
+
+
+      const session =
+        finalSessionData?.session;
+
+
+      if(!session){
+
+        throw new Error(
+          "No active Supabase session. Please log in again."
+        );
+
+      }
+
+
+      const authenticatedUserId =
+        session.user.id;
+
+
+      if(!authenticatedUserId){
+
+        throw new Error(
+          "Supabase could not identify your account."
+        );
+
+      }
+
+
+      /*
+        IMPORTANT RLS VALUE:
+
+        created_by MUST equal auth.uid()
+        for the logged-in authenticated user.
+      */
+
+      const taskPayload = {
+
+        title:title,
+
+        description:description,
+
+        reward:reward,
+
+        slots:slots,
+
+        task_type:category,
+
+        task_link:link || null,
+
+        copy_text:copyText || null,
+
+        created_by:authenticatedUserId,
+
+        requirements:requirements,
+
+        active:false,
+
+        status:"PAYMENT_REQUIRED"
+
+      };
+
+
+      console.log(
+        "Creating task for authenticated user:",
+        authenticatedUserId
+      );
+
+
+      /* =====================================
          CREATE TASK
-      ================================= */
+      ===================================== */
 
       const {
         data:taskData,
@@ -1649,37 +1788,7 @@ publishBtn.addEventListener(
       } =
         await supabaseClient
           .from("tasks")
-          .insert({
-
-            title:title,
-
-            description:description,
-
-            reward:reward,
-
-            slots:slots,
-
-            task_type:category,
-
-            task_link:link || null,
-
-            copy_text:copyText || null,
-
-            /*
-              IMPORTANT FOR RLS:
-              This is the authenticated
-              Supabase user's UUID.
-            */
-
-            created_by:user.id,
-
-            requirements:requirements,
-
-            active:false,
-
-            status:"PAYMENT_REQUIRED"
-
-          })
+          .insert(taskPayload)
           .select("id")
           .single();
 
@@ -1687,18 +1796,49 @@ publishBtn.addEventListener(
       if(taskError){
 
         console.error(
-          "Task creation error:",
+          "TASK INSERT ERROR:",
           taskError
         );
+
+        /*
+          Give a useful RLS message rather than
+          a confusing generic error.
+        */
+
+        if(
+          taskError.code === "42501" ||
+          (
+            taskError.message &&
+            taskError.message
+              .toLowerCase()
+              .includes("row-level security")
+          )
+        ){
+
+          throw new Error(
+            "NAIJA TASK could not create the job because Supabase rejected the authenticated user. Your account session is active, but the tasks INSERT policy is not accepting this user."
+          );
+
+        }
+
 
         throw taskError;
 
       }
 
 
-      /* ================================
+      if(!taskData?.id){
+
+        throw new Error(
+          "The job was created but Supabase did not return its ID."
+        );
+
+      }
+
+
+      /* =====================================
          CREATE PAYMENT RECORD
-      ================================= */
+      ===================================== */
 
       const {
         error:paymentError
@@ -1707,7 +1847,7 @@ publishBtn.addEventListener(
           .from("poster_payments")
           .insert({
 
-            poster_id:user.id,
+            poster_id:authenticatedUserId,
 
             task_id:taskData.id,
 
@@ -1746,7 +1886,7 @@ publishBtn.addEventListener(
           )
           .eq(
             "created_by",
-            user.id
+            authenticatedUserId
           );
 
 
@@ -1755,9 +1895,9 @@ publishBtn.addEventListener(
       }
 
 
-      /* ================================
+      /* =====================================
          PAYMENT PAGE
-      ================================= */
+      ===================================== */
 
       window.location.href =
         "poster-payment.html?task_id=" +
@@ -1768,7 +1908,10 @@ publishBtn.addEventListener(
     }
     catch(error){
 
-      console.error(error);
+      console.error(
+        "CREATE JOB FAILED:",
+        error
+      );
 
 
       showMessage(
@@ -1791,9 +1934,9 @@ publishBtn.addEventListener(
 );
 
 
-/* ================================
+/* =========================================
    INITIAL
-================================ */
+========================================= */
 
 updateRewardRules();
 
@@ -1804,4 +1947,4 @@ checkPoster();
 </script>
 
 </body>
-        </html>
+  </html>
