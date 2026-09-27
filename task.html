@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -10,338 +9,292 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
 *{
   box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
 body{
-  margin:0;
   font-family:Arial,Helvetica,sans-serif;
   background:#f5fff7;
-  color:#17231c;
+  color:#18251d;
 }
 
 header{
   background:#0b8f3c;
   color:#fff;
-  padding:14px 15px;
+  padding:17px 16px;
   position:sticky;
   top:0;
-  z-index:100;
+  z-index:20;
   box-shadow:0 2px 10px rgba(0,0,0,.12);
 }
 
-.header-row{
+.header-inner{
   max-width:700px;
   margin:auto;
   display:flex;
   align-items:center;
-  gap:12px;
+  justify-content:space-between;
 }
 
-.back-btn{
-  border:0;
-  background:#fff;
-  color:#0b8f3c;
-  padding:9px 13px;
-  border-radius:9px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.header-title{
-  font-size:19px;
+.brand{
+  font-size:21px;
   font-weight:800;
 }
 
-.header-sub{
+.subtitle{
   font-size:12px;
   opacity:.9;
   margin-top:3px;
 }
 
+.back-btn{
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  border-radius:9px;
+  padding:9px 12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
 .container{
   max-width:700px;
   margin:auto;
-  padding:15px;
+  padding:18px 14px 40px;
 }
 
-.notice{
+.top-info{
   background:#fff;
-  border:1px solid #dfeee4;
-  border-left:4px solid #0b8f3c;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  border:1px solid #dcefe1;
+  border-radius:15px;
+  padding:16px;
+  margin-bottom:16px;
 }
 
-.notice-title{
-  font-size:15px;
-  font-weight:800;
-  margin-bottom:5px;
+.top-info h1{
+  font-size:22px;
+  margin-bottom:6px;
 }
 
-.notice-text{
-  color:#5c6961;
-  font-size:13px;
+.top-info p{
+  color:#647067;
+  font-size:14px;
   line-height:1.5;
 }
 
-.count-line{
-  margin-top:10px;
-  font-size:13px;
-  color:#5c6961;
+.loading,
+.empty,
+.error{
+  background:#fff;
+  border:1px solid #dcefe1;
+  border-radius:15px;
+  padding:25px 16px;
+  text-align:center;
 }
 
-#taskCount{
-  color:#0b8f3c;
-  font-weight:800;
+.error{
+  color:#b42318;
 }
 
 .task-card{
   background:#fff;
-  border:1px solid #dfeae2;
-  border-radius:15px;
-  margin-bottom:15px;
-  padding:15px;
-  box-shadow:0 3px 12px rgba(0,0,0,.06);
-}
-
-.task-top{
-  display:flex;
-  align-items:flex-start;
-  gap:12px;
-}
-
-.task-icon{
-  width:50px;
-  height:50px;
-  border-radius:12px;
-  background:#f0f8f3;
-  border:1px solid #dfebe3;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-shrink:0;
+  border:1px solid #dcefe1;
+  border-radius:17px;
+  margin-bottom:16px;
   overflow:hidden;
+  box-shadow:0 4px 14px rgba(20,70,35,.06);
 }
 
-.task-icon img{
-  width:31px;
-  height:31px;
-  object-fit:contain;
+.task-head{
+  padding:16px;
+  border-bottom:1px solid #edf3ee;
 }
 
-.task-icon-fallback{
-  font-size:20px;
-  font-weight:800;
-  color:#0b8f3c;
-}
-
-.task-main{
-  flex:1;
-  min-width:0;
-}
-
-.task-title{
-  font-size:16px;
-  font-weight:800;
-  line-height:1.3;
-  margin-bottom:5px;
-}
-
-.task-owner{
-  color:#68736d;
-  font-size:12px;
-}
-
-.reward{
-  margin-left:auto;
-  background:#0b8f3c;
-  color:#fff;
-  padding:7px 9px;
-  border-radius:8px;
-  font-size:13px;
-  font-weight:800;
-  white-space:nowrap;
-}
-
-.task-meta{
+.platform-row{
   display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-  margin-top:13px;
-}
-
-.meta{
-  background:#f4f8f5;
-  border:1px solid #e4ece6;
-  padding:7px 9px;
-  border-radius:8px;
-  font-size:11px;
-  color:#526058;
-}
-
-.start-btn{
-  width:100%;
-  border:0;
-  background:#0b8f3c;
-  color:#fff;
-  padding:12px;
-  margin-top:13px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  font-size:14px;
-}
-
-.start-btn:disabled{
-  background:#a3aaa6;
-  cursor:not-allowed;
-}
-
-.details{
-  display:none;
-  margin-top:15px;
-  border-top:1px solid #e4ebe6;
-  padding-top:15px;
-}
-
-.details.open{
-  display:block;
-}
-
-.section{
-  background:#f9fcfa;
-  border:1px solid #e5eee8;
-  padding:13px;
-  border-radius:11px;
+  align-items:center;
+  gap:11px;
   margin-bottom:12px;
 }
 
-.section-title{
-  font-size:13px;
+.platform-icon{
+  width:42px;
+  height:42px;
+  border-radius:11px;
+  object-fit:contain;
+  background:#f2f7f3;
+  padding:7px;
+}
+
+.platform-fallback{
+  width:42px;
+  height:42px;
+  border-radius:11px;
+  background:#0b8f3c;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-weight:800;
-  color:#0b8f3c;
+}
+
+.platform-name{
+  font-size:13px;
+  color:#647067;
+  font-weight:700;
+}
+
+.task-title{
+  font-size:19px;
+  font-weight:800;
+  margin-top:3px;
+}
+
+.task-meta{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:14px;
+}
+
+.meta-box{
+  background:#f7faf8;
+  border-radius:10px;
+  padding:10px;
+}
+
+.meta-label{
+  font-size:11px;
+  color:#748078;
+  margin-bottom:4px;
+}
+
+.meta-value{
+  font-size:14px;
+  font-weight:800;
+}
+
+.reward{
+  color:#087f35;
+}
+
+.task-body{
+  padding:16px;
+}
+
+.section{
+  margin-bottom:17px;
+}
+
+.section-title{
+  font-size:14px;
+  font-weight:800;
   margin-bottom:8px;
 }
 
 .description{
-  line-height:1.55;
+  color:#4d5b52;
   font-size:14px;
+  line-height:1.6;
   white-space:pre-wrap;
-  color:#26342c;
 }
 
-.owner-name{
-  font-size:14px;
-  font-weight:700;
-}
-
-.platform-line{
-  display:flex;
-  align-items:center;
-  gap:9px;
+.owner{
+  display:inline-block;
+  background:#edf9f0;
+  color:#087f35;
+  border-radius:8px;
+  padding:7px 10px;
   font-size:13px;
   font-weight:700;
 }
 
-.platform-line img{
-  width:25px;
-  height:25px;
+.link-box{
+  background:#f6faf7;
+  border:1px solid #dfece2;
+  border-radius:12px;
+  padding:12px;
 }
 
-.url-box{
-  background:#fff;
-  border:1px solid #d8e4dc;
-  padding:10px;
-  border-radius:8px;
-  font-size:12px;
-  word-break:break-all;
+.task-link{
+  display:block;
+  color:#0877d1;
+  font-size:13px;
   line-height:1.45;
-  color:#38453e;
+  word-break:break-all;
+  text-decoration:underline;
+  margin-bottom:10px;
 }
 
-.link-row{
+.action-row{
   display:flex;
   gap:8px;
-  margin-top:9px;
+  flex-wrap:wrap;
 }
 
-.link-btn,
-.copy-btn{
+.action-btn{
   border:0;
-  padding:10px 12px;
   border-radius:9px;
-  cursor:pointer;
+  padding:10px 13px;
   font-weight:800;
-  font-size:12px;
+  cursor:pointer;
+  font-size:13px;
 }
 
-.link-btn{
+.open-btn{
+  background:#0877d1;
+  color:#fff;
+}
+
+.copy-btn{
+  background:#eaf5ed;
+  color:#087f35;
+}
+
+.copy-btn.copied{
   background:#0b8f3c;
   color:#fff;
-  flex:1;
 }
 
-.copy-btn{
-  background:#e2f3e7;
-  color:#087632;
-}
-
-.copy-btn:active,
-.link-btn:active,
-.start-btn:active,
-.submit-btn:active{
-  transform:scale(.98);
-}
-
-.copy-status{
-  display:none;
-  color:#087632;
-  font-size:12px;
-  font-weight:700;
-  margin-top:7px;
-}
-
-.copy-status.show{
-  display:block;
-}
-
-.copy-content{
-  background:#fff;
-  border:1px solid #d8e4dc;
-  padding:11px;
-  border-radius:8px;
-  white-space:pre-wrap;
-  word-break:break-word;
+.copy-text{
+  background:#f6faf7;
+  border:1px solid #dfece2;
+  border-radius:12px;
+  padding:12px;
   font-size:13px;
   line-height:1.5;
+  white-space:pre-wrap;
+  word-break:break-word;
 }
 
 form{
-  margin-top:10px;
+  margin-top:8px;
 }
 
-label{
+label.field-label{
   display:block;
-  font-size:12px;
+  font-size:13px;
   font-weight:800;
-  margin:12px 0 6px;
+  margin-bottom:6px;
 }
 
-input,
+.field{
+  margin-bottom:14px;
+}
+
+input[type="text"],
+input[type="url"],
 textarea{
   width:100%;
-  padding:11px;
-  border:1px solid #ccd9d0;
-  border-radius:9px;
+  border:1px solid #ccdacf;
+  border-radius:10px;
+  padding:12px;
   font-size:14px;
   outline:none;
   background:#fff;
-  color:#17231c;
 }
 
 textarea{
@@ -352,2209 +305,1296 @@ textarea{
 input:focus,
 textarea:focus{
   border-color:#0b8f3c;
+  box-shadow:0 0 0 3px rgba(11,143,60,.08);
 }
 
-.file-box{
-  border:2px dashed #a6cdb1;
-  border-radius:10px;
-  padding:14px;
-  background:#f8fff9;
-}
-
-.file-note{
-  font-size:11px;
-  color:#66716b;
-  margin-top:6px;
-  line-height:1.4;
-}
-
-.preview{
+/* BIG PHOTO UPLOAD */
+.photo-upload{
+  position:relative;
   width:100%;
-  max-height:230px;
-  object-fit:contain;
-  margin-top:10px;
-  border-radius:9px;
+  min-height:150px;
+  border:3px dashed #0b8f3c;
+  border-radius:16px;
+  background:#effbf2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  overflow:hidden;
+  transition:.2s;
+}
+
+.photo-upload:active{
+  transform:scale(.985);
+  background:#e4f7e9;
+}
+
+.photo-upload input[type="file"]{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:pointer;
+  z-index:5;
+}
+
+.upload-content{
+  padding:18px;
+  pointer-events:none;
+}
+
+.upload-icon{
+  font-size:42px;
+  line-height:1;
+  margin-bottom:8px;
+}
+
+.upload-title{
+  font-size:17px;
+  font-weight:900;
+  color:#087f35;
+  letter-spacing:.2px;
+}
+
+.upload-subtitle{
+  font-size:12px;
+  color:#607068;
+  margin-top:6px;
+}
+
+.photo-preview{
   display:none;
-  background:#eef5f0;
+  width:100%;
+  max-height:300px;
+  object-fit:contain;
+  border-radius:13px;
+  margin-top:10px;
+  background:#f2f2f2;
+}
+
+.photo-selected{
+  border-style:solid;
+}
+
+.photo-selected .upload-content{
+  display:none;
 }
 
 .submit-btn{
   width:100%;
   border:0;
+  border-radius:12px;
   background:#0b8f3c;
   color:#fff;
-  padding:13px;
-  margin-top:15px;
-  border-radius:10px;
-  font-weight:800;
+  padding:14px;
+  font-size:15px;
+  font-weight:900;
   cursor:pointer;
 }
 
 .submit-btn:disabled{
-  opacity:.6;
+  opacity:.65;
   cursor:not-allowed;
 }
 
 .message{
-  padding:11px;
-  border-radius:9px;
-  margin-top:10px;
   display:none;
-  font-size:12px;
-  line-height:1.4;
-}
-
-.success{
-  background:#e7f7eb;
-  color:#12632e;
-}
-
-.error{
-  background:#ffeaea;
-  color:#a30000;
-}
-
-.status-box{
-  padding:10px;
-  border-radius:9px;
-  background:#eef8f1;
-  color:#216438;
-  font-size:12px;
-  line-height:1.4;
-  margin-top:10px;
-}
-
-.empty{
-  text-align:center;
-  padding:40px 15px;
-  background:#fff;
-  border:1px solid #e0ebe3;
-  border-radius:14px;
-  color:#66716b;
-}
-
-.empty-title{
-  font-size:16px;
-  font-weight:800;
-  color:#26342c;
-  margin-bottom:6px;
-}
-
-.loading{
-  text-align:center;
-  padding:35px;
-  color:#0b8f3c;
-  font-weight:700;
+  margin-top:12px;
+  padding:11px;
+  border-radius:10px;
   font-size:13px;
-}
-
-.small{
-  font-size:12px;
-  color:#66716b;
   line-height:1.45;
 }
 
-.required{
-  color:#c00000;
+.message.success{
+  display:block;
+  background:#e9f8ed;
+  color:#087f35;
 }
 
-.tracking-note{
-  font-size:11px;
-  color:#737d77;
-  margin-top:8px;
+.message.error{
+  display:block;
+  background:#fff0ef;
+  color:#b42318;
 }
 
-@media(max-width:450px){
-
-  .task-title{
-    font-size:15px;
-  }
-
-  .reward{
-    font-size:12px;
-    padding:6px 8px;
-  }
-
-  .task-icon{
-    width:46px;
-    height:46px;
-  }
-
-  .task-icon img{
-    width:28px;
-    height:28px;
-  }
-
-  .link-row{
-    flex-direction:column;
-  }
-
-  .link-btn,
-  .copy-btn{
-    width:100%;
-  }
-
+.start-btn{
+  width:100%;
+  border:0;
+  border-radius:11px;
+  padding:13px;
+  background:#0b8f3c;
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+  cursor:pointer;
 }
 
+.expired{
+  background:#fff1f0;
+  color:#b42318;
+  border-radius:10px;
+  padding:10px;
+  font-size:13px;
+  font-weight:700;
+  text-align:center;
+}
+
+@media(max-width:420px){
+  .task-meta{
+    grid-template-columns:1fr;
+  }
+}
 </style>
 </head>
-
 
 <body>
 
 <header>
-
-  <div class="header-row">
-
-    <button
-      class="back-btn"
-      type="button"
-      onclick="goBack()"
-    >
-      ← Back
-    </button>
-
+  <div class="header-inner">
     <div>
-      <div class="header-title">NAIJA TASK</div>
-      <div class="header-sub">Available Tasks</div>
+      <div class="brand">NAIJA TASK</div>
+      <div class="subtitle">Complete tasks. Earn money.</div>
     </div>
 
+    <button class="back-btn" onclick="goBack()">Back</button>
   </div>
-
 </header>
-
 
 <main class="container">
 
-  <div class="notice">
-
-    <div class="notice-title">
-      Available Tasks
-    </div>
-
-    <div class="notice-text">
-      Choose a task, read the instructions carefully,
-      complete it on the required platform and submit
-      clear proof for review.
-    </div>
-
-    <div class="count-line">
-      Available tasks:
-      <span id="taskCount">0</span>
-    </div>
-
+  <div class="top-info">
+    <h1>Available Tasks</h1>
+    <p>
+      Complete genuine tasks and submit clear proof for review.
+      Photo proof is required for every task.
+    </p>
   </div>
 
-
-  <div id="loading" class="loading">
+  <div id="tasksArea" class="loading">
     Loading tasks...
   </div>
 
-
-  <div id="errorBox" class="message error"></div>
-
-
-  <div id="tasksList"></div>
-
 </main>
 
-
 <script>
-
-/* =====================================================
-   NAIJA TASK — TASK PAGE
-   ===================================================== */
-
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
-
 /*
-  IMPORTANT:
-  Paste your existing Supabase publishable key here.
-  Do not paste a service-role key.
+  PUT YOUR EXISTING SUPABASE PUBLISHABLE KEY HERE.
+  Do not change the location of this line.
 */
 const SUPABASE_KEY =
-      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D"; 
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-const db =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+const tasksArea = document.getElementById("tasksArea");
 
+let currentUser = null;
 
-/* =====================================================
-   PLATFORM INFORMATION
-   ===================================================== */
-
-const PLATFORM_INFO = {
-
-  tiktok:{
-    name:"TikTok",
-    logo:"https://cdn.simpleicons.org/tiktok"
-  },
-
-  youtube:{
-    name:"YouTube",
-    logo:"https://cdn.simpleicons.org/youtube"
-  },
-
-  instagram:{
-    name:"Instagram",
-    logo:"https://cdn.simpleicons.org/instagram"
-  },
-
-  facebook:{
-    name:"Facebook",
-    logo:"https://cdn.simpleicons.org/facebook"
-  },
-
-  x:{
-    name:"X",
-    logo:"https://cdn.simpleicons.org/x"
-  },
-
-  twitter:{
-    name:"X (Twitter)",
-    logo:"https://cdn.simpleicons.org/x"
-  },
-
-  snapchat:{
-    name:"Snapchat",
-    logo:"https://cdn.simpleicons.org/snapchat"
-  },
-
-  telegram:{
-    name:"Telegram",
-    logo:"https://cdn.simpleicons.org/telegram"
-  },
-
-  whatsapp:{
-    name:"WhatsApp",
-    logo:"https://cdn.simpleicons.org/whatsapp"
-  },
-
-  linkedin:{
-    name:"LinkedIn",
-    logo:"https://cdn.simpleicons.org/linkedin"
-  },
-
-  pinterest:{
-    name:"Pinterest",
-    logo:"https://cdn.simpleicons.org/pinterest"
-  },
-
-  reddit:{
-    name:"Reddit",
-    logo:"https://cdn.simpleicons.org/reddit"
-  },
-
-  threads:{
-    name:"Threads",
-    logo:"https://cdn.simpleicons.org/threads"
-  },
-
-  discord:{
-    name:"Discord",
-    logo:"https://cdn.simpleicons.org/discord"
-  },
-
-  messenger:{
-    name:"Messenger",
-    logo:"https://cdn.simpleicons.org/messenger"
-  },
-
-  twitch:{
-    name:"Twitch",
-    logo:"https://cdn.simpleicons.org/twitch"
-  },
-
-  tumblr:{
-    name:"Tumblr",
-    logo:"https://cdn.simpleicons.org/tumblr"
-  },
-
-  quora:{
-    name:"Quora",
-    logo:"https://cdn.simpleicons.org/quora"
-  },
-
-  medium:{
-    name:"Medium",
-    logo:"https://cdn.simpleicons.org/medium"
-  },
-
-  vk:{
-    name:"VK",
-    logo:"https://cdn.simpleicons.org/vk"
-  },
-
-  wechat:{
-    name:"WeChat",
-    logo:"https://cdn.simpleicons.org/wechat"
-  },
-
-  line:{
-    name:"LINE",
-    logo:"https://cdn.simpleicons.org/line"
-  },
-
-  signal:{
-    name:"Signal",
-    logo:"https://cdn.simpleicons.org/signal"
-  },
-
-  google:{
-    name:"Google",
-    logo:"https://cdn.simpleicons.org/google"
-  },
-
-  website:{
-    name:"Website",
-    logo:"https://cdn.simpleicons.org/googlechrome"
-  },
-
-  app_download:{
-    name:"App Download",
-    logo:"https://cdn.simpleicons.org/googleplay"
-  },
-
-  survey:{
-    name:"Survey",
-    logo:"https://cdn.simpleicons.org/surveymonkey"
-  },
-
-  other:{
-    name:"Other",
-    logo:""
-  }
-
+const platformIcons = {
+  TikTok: "https://cdn.simpleicons.org/tiktok",
+  YouTube: "https://cdn.simpleicons.org/youtube",
+  Instagram: "https://cdn.simpleicons.org/instagram",
+  Facebook: "https://cdn.simpleicons.org/facebook",
+  "X": "https://cdn.simpleicons.org/x",
+  Twitter: "https://cdn.simpleicons.org/x",
+  Snapchat: "https://cdn.simpleicons.org/snapchat",
+  Telegram: "https://cdn.simpleicons.org/telegram",
+  WhatsApp: "https://cdn.simpleicons.org/whatsapp",
+  LinkedIn: "https://cdn.simpleicons.org/linkedin",
+  Pinterest: "https://cdn.simpleicons.org/pinterest",
+  Reddit: "https://cdn.simpleicons.org/reddit",
+  Threads: "https://cdn.simpleicons.org/threads",
+  Discord: "https://cdn.simpleicons.org/discord",
+  Messenger: "https://cdn.simpleicons.org/messenger",
+  Twitch: "https://cdn.simpleicons.org/twitch",
+  Tumblr: "https://cdn.simpleicons.org/tumblr",
+  Quora: "https://cdn.simpleicons.org/quora",
+  Medium: "https://cdn.simpleicons.org/medium",
+  VK: "https://cdn.simpleicons.org/vk",
+  WeChat: "https://cdn.simpleicons.org/wechat",
+  LINE: "https://cdn.simpleicons.org/line",
+  Signal: "https://cdn.simpleicons.org/signal",
+  Google: "https://cdn.simpleicons.org/google",
+  Spotify: "https://cdn.simpleicons.org/spotify",
+  Audiomack: "https://cdn.simpleicons.org/audiomack"
 };
 
-
-/* =====================================================
-   BASIC FUNCTIONS
-   ===================================================== */
-
 function goBack(){
-
-  if(document.referrer){
+  if(history.length > 1){
     history.back();
   }else{
-    window.location.href =
-      "dashboard.html";
+    window.location.href = "dashboard.html";
   }
-
 }
 
+async function getCurrentUser(){
+  const {data,error} = await db.auth.getUser();
 
-function escapeHTML(value){
-
-  if(
-    value === null ||
-    value === undefined
-  ){
-    return "";
+  if(error || !data.user){
+    window.location.href = "index.html";
+    return null;
   }
 
-  return String(value)
+  currentUser = data.user;
+  return data.user;
+}
+
+function escapeHTML(value){
+  return String(value ?? "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
-
 }
 
+function normalizeUrl(url){
+  if(!url) return "";
 
-function showError(message){
+  let value = String(url).trim();
 
-  const box =
-    document.getElementById("errorBox");
+  if(!value) return "";
 
-  box.textContent = message;
-
-  box.style.display = "block";
-
-}
-
-
-function formatDate(date){
-
-  if(!date){
-    return "No deadline";
+  if(!/^https?:\/\//i.test(value)){
+    value = "https://" + value;
   }
+
+  return value;
+}
+
+function isTaskExpired(task){
+  if(!task.expiry_date) return false;
+
+  return new Date(task.expiry_date).getTime() <= Date.now();
+}
+
+function formatExpiry(date){
+  if(!date) return "No expiry";
 
   const d = new Date(date);
 
-  if(isNaN(d.getTime())){
-    return "No deadline";
+  if(Number.isNaN(d.getTime())){
+    return "No expiry";
   }
 
-  return d.toLocaleDateString(
-    "en-NG",
-    {
-      day:"numeric",
-      month:"short",
-      year:"numeric"
-    }
-  );
-
+  return d.toLocaleString();
 }
 
+function getPlatformHTML(type){
+  const name = type || "Task";
+  const icon = platformIcons[name];
 
-function formatType(type){
-
-  if(!type){
-    return "Other";
-  }
-
-  const key =
-    String(type)
-      .toLowerCase()
-      .replace(/[\s-]+/g,"_");
-
-
-  if(PLATFORM_INFO[key]){
-    return PLATFORM_INFO[key].name;
-  }
-
-
-  return String(type)
-    .replace(/_/g," ")
-    .replace(/\b\w/g,
-      letter =>
-        letter.toUpperCase()
-    );
-
-}
-
-
-/* =====================================================
-   PLATFORM LOGO
-   ===================================================== */
-
-function getPlatformKey(task){
-
-  const raw =
-    String(
-      task.task_type || ""
-    )
-    .toLowerCase()
-    .trim()
-    .replace(/[\s-]+/g,"_");
-
-
-  if(PLATFORM_INFO[raw]){
-    return raw;
-  }
-
-
-  const text = (
-    (task.title || "") +
-    " " +
-    (task.description || "")
-  ).toLowerCase();
-
-
-  const keys = [
-    "tiktok",
-    "youtube",
-    "instagram",
-    "facebook",
-    "snapchat",
-    "telegram",
-    "whatsapp",
-    "linkedin",
-    "pinterest",
-    "reddit",
-    "threads",
-    "discord",
-    "messenger",
-    "twitch",
-    "tumblr",
-    "quora",
-    "medium",
-    "wechat",
-    "signal",
-    "google"
-  ];
-
-
-  for(const key of keys){
-
-    if(text.includes(key)){
-      return key;
-    }
-
-  }
-
-
-  if(text.includes("twitter")){
-    return "x";
-  }
-
-  if(text.includes("website")){
-    return "website";
-  }
-
-  if(
-    text.includes("download") ||
-    text.includes("app")
-  ){
-    return "app_download";
-  }
-
-  if(text.includes("survey")){
-    return "survey";
-  }
-
-
-  return "other";
-
-}
-
-
-function getPlatformHTML(task){
-
-  const key =
-    getPlatformKey(task);
-
-  const platform =
-    PLATFORM_INFO[key] ||
-    PLATFORM_INFO.other;
-
-
-  if(platform.logo){
-
+  if(icon){
     return `
       <img
-        src="${platform.logo}"
-        alt="${escapeHTML(platform.name)}"
-        onerror="this.style.display='none';"
+        class="platform-icon"
+        src="${icon}"
+        alt="${escapeHTML(name)}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
       >
+      <div class="platform-fallback" style="display:none;">
+        NT
+      </div>
     `;
-
   }
 
-
   return `
-    <div class="task-icon-fallback">
+    <div class="platform-fallback">
       NT
     </div>
   `;
-
 }
 
-
-/* =====================================================
-   CURRENT USER
-   ===================================================== */
-
-async function getCurrentUser(){
-
-  const {
-    data,
-    error
-  } = await db.auth.getUser();
-
-
-  if(error){
-    throw error;
-  }
-
-
-  if(
-    !data ||
-    !data.user
-  ){
-
-    window.location.href =
-      "index.html";
-
-    return null;
-
-  }
-
-
-  return data.user;
-
-}
-
-
-/* =====================================================
-   EXPIRY
-   ===================================================== */
-
-function isTaskExpired(task){
-
-  if(!task.expiry_date){
-    return false;
-  }
-
-  const expiry =
-    new Date(task.expiry_date);
-
-
-  if(isNaN(expiry.getTime())){
-    return false;
-  }
-
-
-  return new Date() > expiry;
-
-}
-
-
-/* =====================================================
-   START TASK TRACKING
-   ===================================================== */
-
-async function trackTaskStart(task){
-
-  const user =
-    await getCurrentUser();
-
-
-  if(!user){
-    return false;
-  }
-
-
-  const {
-    error
-  } = await db
-    .from("task_activity")
-    .insert({
-
-      task_id:task.id,
-
-      user_id:user.id,
-
-      activity_type:"TASK_STARTED"
-
-    });
-
-
-  if(error){
-
-    console.error(
-      "Task tracking error:",
-      error
-    );
-
-    /*
-      Do not stop the Tasker from opening
-      the task if tracking fails.
-    */
-
-  }
-
-
-  return true;
-
-}
-
-
-/* =====================================================
-   LOAD TASKS
-   ===================================================== */
-
-async function loadTasks(){
-
-  const loading =
-    document.getElementById(
-      "loading"
-    );
-
-
-  const list =
-    document.getElementById(
-      "tasksList"
-    );
-
-
-  try{
-
-    const user =
-      await getCurrentUser();
-
-
-    if(!user){
-      return;
-    }
-
-
-    const {
-      data:tasks,
-      error
-    } = await db
-      .from("tasks")
-      .select(`
-        id,
-        title,
-        description,
-        reward,
-        slots,
-        expiry_date,
-        requirements,
-        proof_type,
-        active,
-        task_type,
-        task_link,
-        uploader_username,
-        copy_text,
-        post_link,
-        upload_required,
-        created_at
-      `)
-      .eq("active",true)
-      .order(
-        "created_at",
-        {
-          ascending:false
-        }
-      );
-
-
-    if(error){
-      throw error;
-    }
-
-
-    loading.style.display =
-      "none";
-
-
-    if(
-      !tasks ||
-      tasks.length === 0
-    ){
-
-      document.getElementById(
-        "taskCount"
-      ).textContent = "0";
-
-
-      list.innerHTML = `
-
-        <div class="empty">
-
-          <div class="empty-title">
-            No tasks available
-          </div>
-
-          <div>
-            New tasks will appear here
-            when they are posted.
-          </div>
-
+function taskLinkHTML(task,index){
+  const link = normalizeUrl(task.task_link || task.post_link || "");
+
+  if(!link){
+    return `
+      <div class="link-box">
+        <div style="font-size:13px;color:#68756c;">
+          No task link was provided.
         </div>
-
-      `;
-
-      return;
-
-    }
-
-
-    document.getElementById(
-      "taskCount"
-    ).textContent =
-      tasks.length;
-
-
-    list.innerHTML = "";
-
-
-    tasks.forEach(task => {
-
-      list.appendChild(
-        createTaskCard(task)
-      );
-
-    });
-
+      </div>
+    `;
   }
-  catch(error){
-
-    console.error(error);
-
-
-    loading.style.display =
-      "none";
-
-
-    showError(
-      "Unable to load tasks: " +
-      (
-        error.message ||
-        "Unknown error"
-      )
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   CREATE TASK CARD
-   ===================================================== */
-
-function createTaskCard(task){
-
-  const card =
-    document.createElement("div");
-
-
-  card.className =
-    "task-card";
-
-
-  const reward =
-    Number(
-      task.reward || 0
-    );
-
-
-  const slots =
-    task.slots === null ||
-    task.slots === undefined
-      ? "Available"
-      : task.slots;
-
-
-  const expired =
-    isTaskExpired(task);
-
-
-  const platform =
-    formatType(
-      task.task_type
-    );
-
-
-  card.innerHTML = `
-
-    <div class="task-top">
-
-      <div class="task-icon">
-        ${getPlatformHTML(task)}
-      </div>
-
-
-      <div class="task-main">
-
-        <div class="task-title">
-          ${escapeHTML(
-            task.title ||
-            "Untitled Task"
-          )}
-        </div>
-
-        <div class="task-owner">
-          Posted by:
-          <strong>
-            ${escapeHTML(
-              task.uploader_username ||
-              "NAIJA TASK"
-            )}
-          </strong>
-        </div>
-
-      </div>
-
-
-      <div class="reward">
-        ₦${reward.toLocaleString()}
-      </div>
-
-    </div>
-
-
-    <div class="task-meta">
-
-      <div class="meta">
-        ${escapeHTML(platform)}
-      </div>
-
-      <div class="meta">
-        Slots: ${escapeHTML(slots)}
-      </div>
-
-      <div class="meta">
-        ${escapeHTML(
-          formatDate(
-            task.expiry_date
-          )
-        )}
-      </div>
-
-    </div>
-
-
-    <button
-      class="start-btn"
-      type="button"
-      ${expired ? "disabled" : ""}
-    >
-      ${
-        expired
-          ? "Task Expired"
-          : "Start Task"
-      }
-    </button>
-
-
-    <div class="details"></div>
-
-  `;
-
-
-  const startButton =
-    card.querySelector(
-      ".start-btn"
-    );
-
-
-  const details =
-    card.querySelector(
-      ".details"
-    );
-
-
-  if(expired){
-
-    return card;
-
-  }
-
-
-  startButton.addEventListener(
-    "click",
-    async () => {
-
-      if(
-        details.classList.contains(
-          "open"
-        )
-      ){
-
-        details.classList.remove(
-          "open"
-        );
-
-        startButton.textContent =
-          "Start Task";
-
-        return;
-
-      }
-
-
-      startButton.disabled =
-        true;
-
-
-      startButton.textContent =
-        "Opening...";
-
-
-      /*
-        Record the Tasker starting
-        the task.
-      */
-
-      await trackTaskStart(task);
-
-
-      details.innerHTML =
-        buildDetails(task);
-
-
-      details.classList.add(
-        "open"
-      );
-
-
-      startButton.disabled =
-        false;
-
-
-      startButton.textContent =
-        "Close Task";
-
-
-      setupProofForm(
-        details,
-        task
-      );
-
-    }
-  );
-
-
-  return card;
-
-}
-
-
-/* =====================================================
-   TASK DETAILS
-   ===================================================== */
-
-function buildDetails(task){
-
-  const link =
-    task.task_link ||
-    task.post_link ||
-    "";
-
-
-  const copyText =
-    task.copy_text ||
-    "";
-
-
-  const expired =
-    isTaskExpired(task);
-
-
-  const platformKey =
-    getPlatformKey(task);
-
-
-  const platform =
-    PLATFORM_INFO[
-      platformKey
-    ] ||
-    PLATFORM_INFO.other;
-
 
   return `
+    <div class="link-box">
 
-    <div class="section">
+      <a
+        class="task-link"
+        href="${escapeHTML(link)}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >${escapeHTML(link)}</a>
 
-      <div class="section-title">
-        Task Instructions
-      </div>
-
-      <div class="description">
-        ${escapeHTML(
-          task.description ||
-          "No instructions provided."
-        )}
-      </div>
-
-    </div>
-
-
-    <div class="section">
-
-      <div class="section-title">
-        Platform
-      </div>
-
-      <div class="platform-line">
-
-        ${
-          platform.logo
-          ?
-          `
-          <img
-            src="${platform.logo}"
-            alt="${escapeHTML(
-              platform.name
-            )}"
-            onerror="this.style.display='none';"
-          >
-          `
-          :
-          ""
-        }
-
-        <span>
-          ${escapeHTML(
-            platform.name
-          )}
-        </span>
-
-      </div>
-
-    </div>
-
-
-    <div class="section">
-
-      <div class="section-title">
-        Task Owner
-      </div>
-
-      <div class="owner-name">
-        ${escapeHTML(
-          task.uploader_username ||
-          "NAIJA TASK"
-        )}
-      </div>
-
-    </div>
-
-
-    ${
-      link
-      ?
-      `
-
-      <div class="section">
-
-        <div class="section-title">
-          Task Link
-        </div>
-
-        <div class="url-box">
-          ${escapeHTML(link)}
-        </div>
-
-        <div class="link-row">
-
-          <button
-            class="link-btn"
-            type="button"
-            onclick="openTaskLink(${JSON.stringify(link)})"
-          >
-            Open Link
-          </button>
-
-          <button
-            class="copy-btn"
-            type="button"
-            onclick="copyTaskLink(this, ${JSON.stringify(link)})"
-          >
-            Copy Link
-          </button>
-
-        </div>
-
-        <div class="copy-status">
-          Link copied successfully.
-        </div>
-
-      </div>
-
-      `
-      :
-      `
-      <div class="section">
-
-        <div class="section-title">
-          Task Link
-        </div>
-
-        <div class="small">
-          No external link was provided for this task.
-        </div>
-
-      </div>
-
-      `
-    }
-
-
-    ${
-      copyText
-      ?
-      `
-
-      <div class="section">
-
-        <div class="section-title">
-          Text / Comment To Use
-        </div>
-
-        <div class="copy-content">
-          ${escapeHTML(copyText)}
-        </div>
+      <div class="action-row">
 
         <button
-          class="copy-btn"
-          style="margin-top:9px;width:100%;"
           type="button"
-          onclick="copyTaskText(this, ${JSON.stringify(copyText)})"
+          class="action-btn open-btn"
+          onclick="openTaskLink(${index})"
+        >
+          Open Task
+        </button>
+
+        <button
+          type="button"
+          class="action-btn copy-btn"
+          id="copyLinkBtn-${index}"
+          onclick="copyTaskLink(${index})"
+        >
+          Copy Link
+        </button>
+
+      </div>
+
+    </div>
+  `;
+}
+
+function copyButtonHTML(task,index){
+  const text = task.copy_text || "";
+
+  if(!text){
+    return "";
+  }
+
+  return `
+    <div class="section">
+
+      <div class="section-title">
+        Copy Text
+      </div>
+
+      <div class="copy-text" id="copyText-${index}">
+        ${escapeHTML(text)}
+      </div>
+
+      <div class="action-row" style="margin-top:9px;">
+
+        <button
+          type="button"
+          class="action-btn copy-btn"
+          id="copyTextBtn-${index}"
+          onclick="copyTaskText(${index})"
         >
           Copy Text
         </button>
 
-        <div class="copy-status">
-          Text copied successfully.
-        </div>
-
       </div>
 
-      `
-      :
-      ""
-    }
+    </div>
+  `;
+}
 
+function taskCard(task,index){
 
-    <div class="section">
+  const expired = isTaskExpired(task);
 
-      <div class="section-title">
-        Submit Proof
-      </div>
+  const link = task.task_link || task.post_link || "";
 
-      <div class="small">
-        Complete the task first, then submit
-        clear proof for the task owner to review.
-      </div>
+  return `
+    <article class="task-card">
 
+      <div class="task-head">
 
-      <div class="status-box">
-        Photo proof is required for every task.
-      </div>
+        <div class="platform-row">
 
+          ${getPlatformHTML(task.task_type)}
 
-      ${
-        expired
-        ?
-        `
-
-        <div
-          class="message error"
-          style="display:block;"
-        >
-          This task has expired and can no longer
-          receive submissions.
-        </div>
-
-        `
-        :
-        `
-
-        <form class="proof-form">
-
-          <label>
-            Username / Account Used
-            <span class="required">*</span>
-          </label>
-
-          <input
-            type="text"
-            name="worker_username"
-            placeholder="@username or account used"
-            required
-          >
-
-
-          <label>
-            Comment / Report
-            <span class="required">*</span>
-          </label>
-
-          <textarea
-            name="worker_comment"
-            placeholder="Tell the task owner what you completed..."
-            required
-          ></textarea>
-
-
-          <label>
-            Extra Proof Link
-          </label>
-
-          <input
-            type="url"
-            name="worker_link"
-            placeholder="Optional proof link"
-          >
-
-
-          <label>
-            Photo Proof
-            <span class="required">*</span>
-          </label>
-
-          <div class="file-box">
-
-            <input
-              type="file"
-              name="proof_photo"
-              accept="image/jpeg,image/png,image/webp"
-              required
-            >
-
-            <div class="file-note">
-              JPG, JPEG, PNG or WEBP.
-              Maximum size: 5MB.
+          <div>
+            <div class="platform-name">
+              ${escapeHTML(task.task_type || "General Task")}
             </div>
 
-            <img
-              class="preview"
-              alt="Proof preview"
+            <div class="task-title">
+              ${escapeHTML(task.title)}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="task-meta">
+
+          <div class="meta-box">
+            <div class="meta-label">Reward</div>
+            <div class="meta-value reward">
+              ₦${Number(task.reward || 0).toLocaleString()}
+            </div>
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-label">Available Slots</div>
+            <div class="meta-value">
+              ${Number(task.slots || 0).toLocaleString()}
+            </div>
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-label">Expires</div>
+            <div class="meta-value">
+              ${escapeHTML(formatExpiry(task.expiry_date))}
+            </div>
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-label">Status</div>
+            <div class="meta-value reward">
+              LIVE
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="task-body">
+
+        <div class="section">
+
+          <div class="section-title">
+            Task Description
+          </div>
+
+          <div class="description">
+            ${escapeHTML(task.description || "Follow the instructions provided by the task poster.")}
+          </div>
+
+        </div>
+
+        <div class="section">
+
+          <div class="section-title">
+            Task Poster
+          </div>
+
+          <span class="owner">
+            ${escapeHTML(task.uploader_username || "Task Poster")}
+          </span>
+
+        </div>
+
+        <div class="section">
+
+          <div class="section-title">
+            Task Link
+          </div>
+
+          ${taskLinkHTML(task,index)}
+
+        </div>
+
+        ${copyButtonHTML(task,index)}
+
+        ${
+          expired
+          ?
+          `<div class="expired">
+             This task has expired and cannot receive new submissions.
+           </div>`
+          :
+          `
+          <div class="section">
+
+            <div class="section-title">
+              Start Task
+            </div>
+
+            <button
+              class="start-btn"
+              type="button"
+              onclick="showProofForm(${index})"
             >
+              Start Task & Submit Proof
+            </button>
 
           </div>
 
+          <div id="proof-${index}" style="display:none;">
 
-          <div class="message form-message"></div>
+            <div class="section">
 
+              <div class="section-title">
+                Submit Proof
+              </div>
 
-          <button
-            class="submit-btn"
-            type="submit"
-          >
-            Submit Proof
-          </button>
+              <div class="description" style="margin-bottom:12px;">
+                Complete the task first. Then provide your account username,
+                comment/report, and a clear photo or screenshot as proof.
+              </div>
 
-        </form>
+              <form onsubmit="submitProof(event,${index})">
 
-        `
-      }
+                <div class="field">
 
-    </div>
+                  <label class="field-label">
+                    Username / Account Used *
+                  </label>
 
+                  <input
+                    type="text"
+                    id="username-${index}"
+                    placeholder="Enter the username you used"
+                    required
+                  >
+
+                </div>
+
+                <div class="field">
+
+                  <label class="field-label">
+                    Comment / Report *
+                  </label>
+
+                  <textarea
+                    id="comment-${index}"
+                    placeholder="Tell the poster what you completed..."
+                    required
+                  ></textarea>
+
+                </div>
+
+                <div class="field">
+
+                  <label class="field-label">
+                    Extra Proof Link
+                  </label>
+
+                  <input
+                    type="url"
+                    id="proofLink-${index}"
+                    placeholder="https://..."
+                  >
+
+                </div>
+
+                <div class="field">
+
+                  <label class="field-label">
+                    Photo Proof *
+                  </label>
+
+                  <div
+                    class="photo-upload"
+                    id="photoUpload-${index}"
+                  >
+
+                    <input
+                      type="file"
+                      id="photo-${index}"
+                      accept="image/jpeg,image/png,image/webp"
+                      required
+                      onchange="handlePhotoSelect(event,${index})"
+                    >
+
+                    <div class="upload-content">
+
+                      <div class="upload-icon">
+                        📷
+                      </div>
+
+                      <div class="upload-title">
+                        TAP TO UPLOAD PHOTO
+                      </div>
+
+                      <div class="upload-subtitle">
+                        Choose a photo or screenshot from your phone
+                      </div>
+
+                      <div class="upload-subtitle">
+                        JPG, PNG or WEBP • Maximum 5MB
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <img
+                    id="preview-${index}"
+                    class="photo-preview"
+                    alt="Proof preview"
+                  >
+
+                </div>
+
+                <button
+                  type="submit"
+                  class="submit-btn"
+                  id="submit-${index}"
+                >
+                  Submit Proof
+                </button>
+
+                <div
+                  id="message-${index}"
+                  class="message"
+                ></div>
+
+              </form>
+
+            </div>
+
+          </div>
+          `
+        }
+
+      </div>
+
+    </article>
   `;
-
 }
 
+let loadedTasks = [];
 
-/* =====================================================
-   PROOF FORM
-   ===================================================== */
+async function loadTasks(){
 
-function setupProofForm(
-  details,
-  task
-){
+  tasksArea.className = "loading";
+  tasksArea.innerHTML = "Loading tasks...";
 
-  const form =
-    details.querySelector(
-      ".proof-form"
-    );
+  /*
+    Only LIVE tasks are shown to Taskers.
+  */
+  const {data,error} = await db
+    .from("tasks")
+    .select(`
+      id,
+      title,
+      description,
+      reward,
+      slots,
+      expiry_date,
+      requirements,
+      proof_type,
+      active,
+      status,
+      task_type,
+      task_link,
+      uploader_username,
+      copy_text,
+      post_link,
+      upload_required,
+      created_at
+    `)
+    .eq("active",true)
+    .eq("status","LIVE")
+    .order("created_at",{ascending:false});
 
+  if(error){
 
-  if(!form){
+    console.error(error);
+
+    tasksArea.className = "error";
+
+    tasksArea.innerHTML = `
+      <strong>Unable to load tasks.</strong>
+      <br><br>
+      Please refresh the page and try again.
+    `;
+
     return;
   }
 
+  loadedTasks = (data || []).filter(task => !isTaskExpired(task));
 
-  const photo =
-    form.querySelector(
-      'input[name="proof_photo"]'
-    );
+  if(!loadedTasks.length){
 
+    tasksArea.className = "empty";
 
-  const preview =
-    form.querySelector(
-      ".preview"
-    );
+    tasksArea.innerHTML = `
+      <strong>No live tasks available right now.</strong>
+      <br><br>
+      Check again later for new tasks.
+    `;
 
-
-  photo.addEventListener(
-    "change",
-    () => {
-
-      const file =
-        photo.files[0];
-
-
-      if(!file){
-
-        preview.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      if(
-        file.size >
-        5 * 1024 * 1024
-      ){
-
-        showFormMessage(
-          form,
-          "Photo is larger than 5MB.",
-          true
-        );
-
-        photo.value = "";
-
-        preview.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-      ];
-
-
-      if(
-        !allowedTypes.includes(
-          file.type
-        )
-      ){
-
-        showFormMessage(
-          form,
-          "Only JPG, JPEG, PNG or WEBP images are allowed.",
-          true
-        );
-
-        photo.value = "";
-
-        preview.style.display =
-          "none";
-
-        return;
-
-      }
-
-
-      const reader =
-        new FileReader();
-
-
-      reader.onload =
-        event => {
-
-          preview.src =
-            event.target.result;
-
-          preview.style.display =
-            "block";
-
-        };
-
-
-      reader.readAsDataURL(
-        file
-      );
-
-    }
-  );
-
-
-  form.addEventListener(
-    "submit",
-    async event => {
-
-      event.preventDefault();
-
-      await submitProof(
-        form,
-        task
-      );
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   SUBMIT PROOF
-   ===================================================== */
-
-async function submitProof(
-  form,
-  task
-){
-
-  const button =
-    form.querySelector(
-      ".submit-btn"
-    );
-
-
-  if(button.disabled){
     return;
   }
 
+  tasksArea.className = "";
+
+  tasksArea.innerHTML = loadedTasks
+    .map((task,index) => taskCard(task,index))
+    .join("");
+}
+
+function showProofForm(index){
+
+  const box = document.getElementById(`proof-${index}`);
+
+  if(!box) return;
+
+  box.style.display = "block";
+
+  box.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+  trackTaskStart(loadedTasks[index]);
+}
+
+async function trackTaskStart(task){
+
+  if(!currentUser || !task) return;
 
   try{
 
-    button.disabled =
-      true;
+    await db
+      .from("task_activity")
+      .insert({
+        task_id:task.id,
+        user_id:currentUser.id,
+        activity_type:"STARTED"
+      });
 
-    button.textContent =
-      "Checking...";
+  }catch(error){
 
+    console.log("Activity tracking skipped:",error);
 
-    if(
-      isTaskExpired(task)
-    ){
+  }
+}
 
-      throw new Error(
-        "This task has expired and can no longer be submitted."
-      );
+function handlePhotoSelect(event,index){
 
+  const file = event.target.files?.[0];
+
+  const uploadBox =
+    document.getElementById(`photoUpload-${index}`);
+
+  const preview =
+    document.getElementById(`preview-${index}`);
+
+  if(!file) return;
+
+  if(!file.type.startsWith("image/")){
+
+    event.target.value = "";
+
+    alert("Please choose an image file.");
+
+    return;
+  }
+
+  if(file.size > 5 * 1024 * 1024){
+
+    event.target.value = "";
+
+    alert("Photo must be 5MB or smaller.");
+
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+
+    preview.src = e.target.result;
+
+    preview.style.display = "block";
+
+    uploadBox.classList.add("photo-selected");
+
+  };
+
+  reader.readAsDataURL(file);
+}
+
+async function openTaskLink(index){
+
+  const task = loadedTasks[index];
+
+  if(!task) return;
+
+  const raw =
+    task.task_link ||
+    task.post_link ||
+    "";
+
+  const url = normalizeUrl(raw);
+
+  if(!url){
+
+    alert("This task does not have a link.");
+
+    return;
+  }
+
+  /*
+    Open the actual task separately.
+    NAIJA TASK stays open.
+  */
+  const newWindow = window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
+  /*
+    Some Android browsers block window.open.
+    In that case, use a real anchor as fallback.
+  */
+  if(!newWindow){
+
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+  }
+}
+
+async function copyTextReliable(text){
+
+  if(!text) return false;
+
+  try{
+
+    if(navigator.clipboard &&
+       window.isSecureContext){
+
+      await navigator.clipboard.writeText(text);
+
+      return true;
     }
 
+  }catch(error){
 
-    const user =
-      await getCurrentUser();
+    console.log("Clipboard API failed:",error);
 
+  }
 
-    if(!user){
-      return;
-    }
+  try{
 
+    const textarea = document.createElement("textarea");
 
-    const workerUsername =
-      form
-        .querySelector(
-          '[name="worker_username"]'
-        )
-        .value
-        .trim();
+    textarea.value = text;
 
+    textarea.setAttribute("readonly","");
 
-    const workerComment =
-      form
-        .querySelector(
-          '[name="worker_comment"]'
-        )
-        .value
-        .trim();
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    textarea.style.opacity = "0";
 
+    document.body.appendChild(textarea);
 
-    const workerLink =
-      form
-        .querySelector(
-          '[name="worker_link"]'
-        )
-        .value
-        .trim();
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0,text.length);
 
+    const copied =
+      document.execCommand("copy");
 
-    const photo =
-      form
-        .querySelector(
-          '[name="proof_photo"]'
-        )
-        .files[0];
+    textarea.remove();
 
+    return copied;
 
-    if(!workerUsername){
+  }catch(error){
 
-      throw new Error(
-        "Enter the username or account you used."
-      );
+    console.error("Copy failed:",error);
 
-    }
+    return false;
+  }
+}
 
+async function copyTaskLink(index){
 
-    if(!workerComment){
+  const task = loadedTasks[index];
 
-      throw new Error(
-        "Enter your comment/report."
-      );
+  if(!task) return;
 
-    }
+  const link =
+    normalizeUrl(
+      task.task_link ||
+      task.post_link ||
+      ""
+    );
 
+  if(!link){
 
-    if(workerLink){
+    alert("There is no task link to copy.");
 
-      try{
+    return;
+  }
 
-        new URL(workerLink);
+  const button =
+    document.getElementById(`copyLinkBtn-${index}`);
 
-      }catch(error){
+  const success =
+    await copyTextReliable(link);
 
-        throw new Error(
-          "Please enter a valid Extra Proof Link."
-        );
+  if(success){
 
-      }
+    const oldText = button.innerText;
 
-    }
+    button.innerText = "Copied ✓";
+    button.classList.add("copied");
 
+    setTimeout(() => {
 
-    if(!photo){
+      button.innerText = oldText;
+      button.classList.remove("copied");
 
-      throw new Error(
-        "Photo proof is required."
-      );
+    },1800);
 
-    }
+  }else{
 
+    alert(
+      "Copy was blocked by your browser. Long-press the link and choose Copy."
+    );
 
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp"
-    ];
+  }
+}
 
+async function copyTaskText(index){
 
-    if(
-      !allowedTypes.includes(
-        photo.type
-      )
-    ){
+  const task = loadedTasks[index];
 
-      throw new Error(
-        "Only JPG, JPEG, PNG or WEBP images are allowed."
-      );
+  if(!task || !task.copy_text) return;
 
-    }
+  const button =
+    document.getElementById(`copyTextBtn-${index}`);
 
+  const success =
+    await copyTextReliable(task.copy_text);
 
-    if(
-      photo.size >
-      5 * 1024 * 1024
-    ){
+  if(success){
 
-      throw new Error(
-        "Photo must be 5MB or smaller."
-      );
+    const oldText = button.innerText;
 
-    }
+    button.innerText = "Copied ✓";
+    button.classList.add("copied");
 
+    setTimeout(() => {
 
-    /* ================================================
-       DUPLICATE CHECK
-       ================================================ */
+      button.innerText = oldText;
+      button.classList.remove("copied");
 
-    button.textContent =
-      "Checking previous proof...";
+    },1800);
 
+  }else{
 
-    const {
-      data:existing,
-      error:existingError
-    } = await db
-      .from("task_submissions")
-      .select("id,status")
-      .eq(
-        "user_id",
-        user.id
-      )
-      .eq(
-        "task_id",
-        task.id
-      )
-      .in(
-        "status",
-        [
-          "PENDING",
-          "APPROVED"
-        ]
-      )
-      .limit(1);
+    alert(
+      "Copy was blocked by your browser. Select the text and copy it manually."
+    );
 
+  }
+}
+
+function showMessage(index,type,text){
+
+  const box =
+    document.getElementById(`message-${index}`);
+
+  if(!box) return;
+
+  box.className = `message ${type}`;
+
+  box.textContent = text;
+}
+
+async function submitProof(event,index){
+
+  event.preventDefault();
+
+  const task = loadedTasks[index];
+
+  if(!task){
+
+    alert("Task not found.");
+
+    return;
+  }
+
+  if(!currentUser){
+
+    alert("Please log in again.");
+
+    window.location.href = "index.html";
+
+    return;
+  }
+
+  if(isTaskExpired(task)){
+
+    showMessage(
+      index,
+      "error",
+      "This task has expired."
+    );
+
+    return;
+  }
+
+  const username =
+    document
+      .getElementById(`username-${index}`)
+      .value
+      .trim();
+
+  const comment =
+    document
+      .getElementById(`comment-${index}`)
+      .value
+      .trim();
+
+  const proofLink =
+    document
+      .getElementById(`proofLink-${index}`)
+      .value
+      .trim();
+
+  const fileInput =
+    document.getElementById(`photo-${index}`);
+
+  const file =
+    fileInput.files?.[0];
+
+  if(!username){
+
+    showMessage(
+      index,
+      "error",
+      "Enter the username or account you used."
+    );
+
+    return;
+  }
+
+  if(!comment){
+
+    showMessage(
+      index,
+      "error",
+      "Please enter your comment or report."
+    );
+
+    return;
+  }
+
+  if(!file){
+
+    showMessage(
+      index,
+      "error",
+      "Photo proof is required. Tap the large upload box and choose a photo."
+    );
+
+    return;
+  }
+
+  if(file.size > 5 * 1024 * 1024){
+
+    showMessage(
+      index,
+      "error",
+      "Photo must be 5MB or smaller."
+    );
+
+    return;
+  }
+
+  const submitButton =
+    document.getElementById(`submit-${index}`);
+
+  submitButton.disabled = true;
+  submitButton.innerText = "Uploading proof...";
+
+  showMessage(
+    index,
+    "success",
+    "Uploading your photo proof..."
+  );
+
+  let uploadedPath = null;
+
+  try{
+
+    /*
+      Check for an existing active submission.
+      Rejected submissions can be submitted again.
+    */
+    const {data:existing,error:existingError} =
+      await db
+        .from("task_submissions")
+        .select("id,status")
+        .eq("task_id",task.id)
+        .eq("user_id",currentUser.id)
+        .in("status",["PENDING","APPROVED"])
+        .limit(1);
 
     if(existingError){
       throw existingError;
     }
 
-
-    if(
-      existing &&
-      existing.length > 0
-    ){
+    if(existing && existing.length){
 
       throw new Error(
-        "You already submitted this task."
+        "You have already submitted this task."
       );
-
     }
-
-
-    /* ================================================
-       PHOTO UPLOAD
-       ================================================ */
-
-    button.textContent =
-      "Uploading photo...";
-
 
     const extension =
-      getSafeExtension(photo);
+      file.name.includes(".")
+      ? file.name.split(".").pop().toLowerCase()
+      : "jpg";
 
+    uploadedPath =
+      `${currentUser.id}/${task.id}/${Date.now()}.${extension}`;
 
-    const filePath =
-      `${user.id}/${task.id}/${Date.now()}.${extension}`;
-
-
-    const {
-      error:uploadError
-    } = await db
-      .storage
-      .from("task proof")
-      .upload(
-        filePath,
-        photo,
-        {
-          contentType:photo.type,
-          upsert:false
-        }
-      );
-
-
-    if(uploadError){
-
-      throw new Error(
-        "Photo upload failed: " +
-        uploadError.message
-      );
-
-    }
-
-
-    /* ================================================
-       SAVE PROOF
-       ================================================ */
-
-    button.textContent =
-      "Saving proof...";
-
-
-    const proofData = {
-
-      photo:{
-        bucket:"task proof",
-        path:filePath,
-        name:photo.name,
-        type:photo.type,
-        size:photo.size
-      },
-
-      worker_username:
-        workerUsername,
-
-      worker_comment:
-        workerComment,
-
-      worker_link:
-        workerLink,
-
-      task_owner:
-        task.uploader_username ||
-        "",
-
-      submitted_at:
-        new Date().toISOString()
-
-    };
-
-
-    const {
-      error:insertError
-    } = await db
-      .from("task_submissions")
-      .insert({
-
-        user_id:user.id,
-
-        task_id:task.id,
-
-        proof:
-          JSON.stringify(
-            proofData
-          ),
-
-        status:"PENDING"
-
-      });
-
-
-    if(insertError){
-
+    const {error:uploadError} =
       await db
         .storage
         .from("task proof")
-        .remove([
-          filePath
-        ]);
+        .upload(
+          uploadedPath,
+          file,
+          {
+            contentType:file.type,
+            upsert:false
+          }
+        );
 
-
-      throw new Error(
-        "Proof submission failed: " +
-        insertError.message
-      );
-
+    if(uploadError){
+      throw uploadError;
     }
 
+    const proof = {
 
-    showFormMessage(
-      form,
-      "Proof submitted successfully. It is now waiting for review.",
-      false
+      photo:{
+        bucket:"task proof",
+        path:uploadedPath,
+        name:file.name,
+        type:file.type,
+        size:file.size
+      },
+
+      worker_username:username,
+
+      worker_comment:comment,
+
+      worker_link:proofLink,
+
+      task_owner:
+        task.uploader_username || null,
+
+      submitted_at:
+        new Date().toISOString()
+    };
+
+    submitButton.innerText =
+      "Saving submission...";
+
+    const {error:insertError} =
+      await db
+        .from("task_submissions")
+        .insert({
+
+          user_id:currentUser.id,
+
+          task_id:task.id,
+
+          proof:proof,
+
+          status:"PENDING"
+
+        });
+
+    if(insertError){
+      throw insertError;
+    }
+
+    showMessage(
+      index,
+      "success",
+      "Proof submitted successfully. Your photo will be reviewed by the task poster."
     );
 
+    submitButton.innerText =
+      "Proof Submitted ✓";
 
-    form
-      .querySelectorAll(
-        "input, textarea, button"
-      )
-      .forEach(
-        element => {
+    /*
+      Disable the form after successful submission.
+    */
+    const form =
+      event.target;
+
+    form.querySelectorAll("input,textarea,button")
+      .forEach(element => {
+
+        if(element !== submitButton){
           element.disabled = true;
         }
-      );
 
+      });
 
-    button.textContent =
-      "Proof Submitted";
-
-  }
-  catch(error){
+  }catch(error){
 
     console.error(error);
 
+    /*
+      If the database insert failed after photo upload,
+      remove the orphaned photo.
+    */
+    if(uploadedPath){
 
-    showFormMessage(
-      form,
-      error.message ||
-      "Something went wrong.",
-      true
-    );
+      try{
 
+        await db
+          .storage
+          .from("task proof")
+          .remove([uploadedPath]);
 
-    button.disabled =
-      false;
+      }catch(removeError){
 
+        console.log(
+          "Could not remove uploaded proof:",
+          removeError
+        );
 
-    button.textContent =
+      }
+
+    }
+
+    submitButton.disabled = false;
+    submitButton.innerText =
       "Submit Proof";
 
+    showMessage(
+      index,
+      "error",
+      error?.message ||
+      "Something went wrong while submitting your proof."
+    );
   }
-
 }
 
+async function startPage(){
 
-/* =====================================================
-   FILE EXTENSION
-   ===================================================== */
+  const user =
+    await getCurrentUser();
 
-function getSafeExtension(file){
+  if(!user) return;
 
-  const name =
-    file.name || "";
-
-
-  const parts =
-    name.split(".");
-
-
-  if(parts.length < 2){
-    return "jpg";
-  }
-
-
-  const ext =
-    parts
-      .pop()
-      .toLowerCase();
-
-
-  const allowed = [
-    "jpg",
-    "jpeg",
-    "png",
-    "webp"
-  ];
-
-
-  return allowed.includes(ext)
-    ? ext
-    : "jpg";
-
+  await loadTasks();
 }
 
-
-/* =====================================================
-   FORM MESSAGE
-   ===================================================== */
-
-function showFormMessage(
-  form,
-  message,
-  isError
-){
-
-  const box =
-    form.querySelector(
-      ".form-message"
-    );
-
-
-  box.textContent =
-    message;
-
-
-  box.className =
-    "message form-message " +
-    (
-      isError
-        ? "error"
-        : "success"
-    );
-
-
-  box.style.display =
-    "block";
-
-}
-
-
-/* =====================================================
-   OPEN LINK
-   ===================================================== */
-
-function openTaskLink(link){
-
-  if(!link){
-
-    alert(
-      "No link was provided for this task."
-    );
-
-    return;
-
-  }
-
-
-  let finalLink =
-    String(link).trim();
-
-
-  if(
-    !finalLink.startsWith(
-      "http://"
-    ) &&
-    !finalLink.startsWith(
-      "https://"
-    )
-  ){
-
-    finalLink =
-      "https://" +
-      finalLink;
-
-  }
-
-
-  /*
-    Open the exact saved task URL.
-  */
-
-  window.location.href =
-    finalLink;
-
-}
-
-
-/* =====================================================
-   COPY SYSTEM
-   ===================================================== */
-
-async function copyValue(text){
-
-  /*
-    Modern clipboard
-  */
-
-  if(
-    navigator.clipboard &&
-    window.isSecureContext
-  ){
-
-    await navigator.clipboard.writeText(
-      text
-    );
-
-    return true;
-
-  }
-
-
-  /*
-    Android/browser fallback
-  */
-
-  const textarea =
-    document.createElement(
-      "textarea"
-    );
-
-
-  textarea.value =
-    text;
-
-
-  textarea.style.position =
-    "fixed";
-
-  textarea.style.left =
-    "-9999px";
-
-  textarea.style.top =
-    "0";
-
-
-  document.body.appendChild(
-    textarea
-  );
-
-
-  textarea.focus();
-
-  textarea.select();
-
-  textarea.setSelectionRange(
-    0,
-    textarea.value.length
-  );
-
-
-  const success =
-    document.execCommand(
-      "copy"
-    );
-
-
-  textarea.remove();
-
-
-  if(!success){
-
-    throw new Error(
-      "Copy was blocked by the browser."
-    );
-
-  }
-
-
-  return true;
-
-}
-
-
-async function copyTaskLink(
-  button,
-  text
-){
-
-  const section =
-    button.closest(
-      ".section"
-    );
-
-
-  const status =
-    section.querySelector(
-      ".copy-status"
-    );
-
-
-  try{
-
-    await copyValue(text);
-
-
-    status.textContent =
-      "Link copied successfully.";
-
-    status.classList.add(
-      "show"
-    );
-
-
-    setTimeout(
-      () => {
-        status.classList.remove(
-          "show"
-        );
-      },
-      2500
-    );
-
-  }
-  catch(error){
-
-    status.textContent =
-      "Copy failed. Press and hold the link to copy it.";
-
-    status.classList.add(
-      "show"
-    );
-
-  }
-
-}
-
-
-async function copyTaskText(
-  button,
-  text
-){
-
-  const section =
-    button.closest(
-      ".section"
-    );
-
-
-  const status =
-    section.querySelector(
-      ".copy-status"
-    );
-
-
-  try{
-
-    await copyValue(text);
-
-
-    status.textContent =
-      "Text copied successfully.";
-
-    status.classList.add(
-      "show"
-    );
-
-
-    setTimeout(
-      () => {
-        status.classList.remove(
-          "show"
-        );
-      },
-      2500
-    );
-
-  }
-  catch(error){
-
-    status.textContent =
-      "Copy failed. Press and hold the text to copy it.";
-
-    status.classList.add(
-      "show"
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   START
-   ===================================================== */
-
-loadTasks();
-
+startPage();
 </script>
 
 </body>
