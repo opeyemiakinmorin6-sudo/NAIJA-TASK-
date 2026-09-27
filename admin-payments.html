@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Payments — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5fff7;
+  color:#17231b;
+}
+
+header{
+  background:#0b8f3c;
+  color:white;
+  padding:18px 16px;
+}
+
+.header-inner{
+  max-width:900px;
+  margin:auto;
+}
+
+.brand{
+  font-size:21px;
+  font-weight:800;
+}
+
+.subtitle{
+  margin-top:4px;
+  font-size:13px;
+  opacity:.9;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:18px 14px 40px;
+}
+
+.back{
+  display:inline-block;
+  margin-bottom:16px;
+  color:#0b8f3c;
+  text-decoration:none;
+  font-weight:700;
+}
+
+.page-title{
+  font-size:24px;
+  margin-bottom:6px;
+}
+
+.page-description{
+  color:#657168;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:18px;
+}
+
+.notice{
+  display:none;
+  padding:13px;
+  border-radius:10px;
+  margin-bottom:15px;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.notice.success{
+  display:block;
+  background:#eaf8ef;
+  border:1px solid #bfe5cb;
+  color:#086b2f;
+}
+
+.notice.error{
+  display:block;
+  background:#fff0f0;
+  border:1px solid #edc4c4;
+  color:#a02020;
+}
+
+.card{
+  background:white;
+  border:1px solid #dcefe2;
+  border-radius:16px;
+  padding:17px;
+  margin-bottom:15px;
+  box-shadow:0 5px 18px rgba(0,0,0,.04);
+}
+
+.job-header{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  margin-bottom:14px;
+}
+
+.job-title{
+  font-size:18px;
+  font-weight:800;
+  line-height:1.3;
+}
+
+.status{
+  background:#fff4d8;
+  color:#775600;
+  border:1px solid #efd48c;
+  border-radius:20px;
+  padding:6px 10px;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.details{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.detail{
+  background:#f7faf8;
+  border-radius:10px;
+  padding:11px;
+}
+
+.label{
+  display:block;
+  color:#718077;
+  font-size:11px;
+  margin-bottom:4px;
+}
+
+.value{
+  font-weight:700;
+  font-size:14px;
+  word-break:break-word;
+}
+
+.amount{
+  color:#087d35;
+  font-size:19px;
+}
+
+.reference{
+  background:#f7faf8;
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:14px;
+}
+
+.reference strong{
+  display:block;
+  font-size:12px;
+  color:#718077;
+  margin-bottom:5px;
+}
+
+.reference span{
+  font-weight:700;
+  word-break:break-all;
+}
+
+.proof-link{
+  display:block;
+  color:#075ec9;
+  text-decoration:underline;
+  font-weight:700;
+  margin-bottom:15px;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+}
+
+button{
+  flex:1;
+  border:none;
+  border-radius:10px;
+  padding:13px;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+}
+
+.approve{
+  background:#0b8f3c;
+  color:white;
+}
+
+.refresh{
+  background:#eef5f0;
+  color:#185f32;
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
+  color:#68746c;
+}
+
+.loading{
+  text-align:center;
+  padding:35px;
+  color:#68746c;
+}
+
+@media(max-width:520px){
+
+  .job-header{
+    display:block;
+  }
+
+  .status{
+    display:inline-block;
+    margin-top:9px;
+  }
+
+  .details{
+    grid-template-columns:1fr;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">NAIJA TASK</div>
+    <div class="subtitle">Admin Payment Review</div>
+  </div>
+</header>
+
+<main class="container">
+
+  <a class="back" href="dashboard.html">← Admin Dashboard</a>
+
+  <h1 class="page-title">Payment Approval</h1>
+
+  <p class="page-description">
+    Review poster payments before their jobs become available to Taskers.
+  </p>
+
+  <div id="notice" class="notice"></div>
+
+  <div id="loading" class="loading">
+    Checking admin access...
+  </div>
+
+  <div id="content"></div>
+
+</main>
+
+<script>
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const loading = document.getElementById("loading");
+const content = document.getElementById("content");
+const notice = document.getElementById("notice");
+
+let currentUser = null;
+
+function naira(value){
+  return "₦" + Number(value || 0).toLocaleString("en-NG");
+}
+
+function showNotice(message,type){
+
+  notice.className = "notice " + type;
+  notice.textContent = message;
+}
+
+function hideNotice(){
+
+  notice.className = "notice";
+  notice.textContent = "";
+}
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+/*
+  Check that the currently logged-in account
+  is actually registered inside admin_users.
+*/
+async function checkAdmin(){
+
+  const {
+    data:{user},
+    error
+  } = await db.auth.getUser();
+
+  if(error || !user){
+
+    window.location.href = "index.html";
+    return false;
+  }
+
+  currentUser = user;
+
+  const {
+    data:admin,
+    error:adminError
+  } = await db
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id",user.id)
+    .maybeSingle();
+
+  if(adminError){
+
+    throw adminError;
+  }
+
+  if(!admin){
+
+    throw new Error(
+      "This account is not registered as an Admin."
+    );
+  }
+
+  return true;
+}
+
+
+/*
+  Load payments waiting for Admin review.
+*/
+async function loadPayments(){
+
+  hideNotice();
+
+  content.innerHTML = "";
+
+  loading.style.display = "block";
+  loading.textContent = "Loading payments...";
+
+  try{
+
+    const isAdmin = await checkAdmin();
+
+    if(!isAdmin){
+      return;
+    }
+
+    const {
+      data:payments,
+      error:paymentError
+    } = await db
+      .from("poster_payments")
+      .select("*")
+      .eq("status","UNDER_REVIEW")
+      .order("created_at",{ascending:true});
+
+    if(paymentError){
+      throw paymentError;
+    }
+
+    loading.style.display = "none";
+
+    if(!payments || payments.length === 0){
+
+      content.innerHTML = `
+        <div class="card empty">
+          <strong>No payments waiting for review.</strong>
+          <p style="margin-top:7px;">
+            New poster payments will appear here after they submit proof.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    for(const payment of payments){
+
+      await renderPayment(payment);
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    loading.style.display = "none";
+
+    showNotice(
+      error.message || "Unable to load payments.",
+      "error"
+    );
+  }
+}
+
+
+/*
+  Get the related task and build the review card.
+*/
+async function renderPayment(payment){
+
+  const {
+    data:task,
+    error:taskError
+  } = await db
+    .from("tasks")
+    .select("*")
+    .eq("id",payment.task_id)
+    .maybeSingle();
+
+  if(taskError){
+    console.error(taskError);
+    return;
+  }
+
+  if(!task){
+    return;
+  }
+
+  const total =
+    Number(task.reward || 0) *
+    Number(task.slots || 0);
+
+  const card = document.createElement("div");
+
+  card.className = "card";
+
+  card.innerHTML = `
+    <div class="job-header">
+
+      <div class="job-title">
+        ${escapeHtml(task.title || "Untitled Job")}
+      </div>
+
+      <div class="status">
+        UNDER REVIEW
+      </div>
+
+    </div>
+
+    <div class="details">
+
+      <div class="detail">
+        <span class="label">Reward per Tasker</span>
+        <span class="value">${naira(task.reward)}</span>
+      </div>
+
+      <div class="detail">
+        <span class="label">Slots</span>
+        <span class="value">
+          ${Number(task.slots || 0).toLocaleString()}
+        </span>
+      </div>
+
+      <div class="detail">
+        <span class="label">Required Funding</span>
+        <span class="value amount">
+          ${naira(total)}
+        </span>
+      </div>
+
+      <div class="detail">
+        <span class="label">Payment Method</span>
+        <span class="value">
+          ${escapeHtml(payment.payment_method || "—")}
+        </span>
+      </div>
+
+    </div>
+
+    <div class="reference">
+
+      <strong>Transaction Reference</strong>
+
+      <span>
+        ${escapeHtml(payment.payment_reference || "Not provided")}
+      </span>
+
+    </div>
+
+    ${
+      payment.proof_url
+      ?
+      `<a
+        class="proof-link"
+        href="${escapeHtml(payment.proof_url)}"
+        target="_blank"
+        rel="noopener">
+        View Payment Screenshot
+      </a>`
+      :
+      `<div style="color:#a02020;font-size:13px;margin-bottom:15px;">
+        No payment screenshot was submitted.
+      </div>`
+    }
+
+    <div class="actions">
+
+      <button
+        class="approve"
+        data-payment-id="${payment.id}">
+        Approve Payment & Make LIVE
+      </button>
+
+      <button
+        class="refresh"
+        onclick="loadPayments()">
+        Refresh
+      </button>
+
+    </div>
+  `;
+
+  content.appendChild(card);
+
+  const approveButton =
+    card.querySelector(".approve");
+
+  approveButton.addEventListener(
+    "click",
+    () => approvePayment(
+      payment.id,
+      approveButton,
+      card
+    )
+  );
+}
+
+
+/*
+  Approval is performed by the secure
+  database function created earlier.
+*/
+async function approvePayment(
+  paymentId,
+  button,
+  card
+){
+
+  const confirmed = confirm(
+    "Confirm that you have reviewed this payment proof and want to make this job LIVE?"
+  );
+
+  if(!confirmed){
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Approving...";
+
+  try{
+
+    const {
+      data,
+      error
+    } = await db.rpc(
+      "admin_approve_poster_payment",
+      {
+        p_payment_id:paymentId
+      }
+    );
+
+    if(error){
+      throw error;
+    }
+
+    /*
+      Remove the approved payment from
+      the pending review list.
+    */
+    card.remove();
+
+    showNotice(
+      "Payment approved successfully. The job is now LIVE and can be shown to Taskers.",
+      "success"
+    );
+
+    if(content.children.length === 0){
+
+      const empty = document.createElement("div");
+
+      empty.className = "card empty";
+
+      empty.innerHTML = `
+        <strong>No payments waiting for review.</strong>
+        <p style="margin-top:7px;">
+          All pending payments have been reviewed.
+        </p>
+      `;
+
+      content.appendChild(empty);
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+    button.disabled = false;
+    button.textContent =
+      "Approve Payment & Make LIVE";
+
+    showNotice(
+      error.message || "Payment approval failed.",
+      "error"
+    );
+  }
+}
+
+loadPayments();
+</script>
+
+</body>
+  </html>
