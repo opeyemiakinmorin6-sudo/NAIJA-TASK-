@@ -301,7 +301,6 @@ textarea{
 
 </header>
 
-
 <div class="container">
 
   <div id="message" class="message"></div>
@@ -315,9 +314,6 @@ textarea{
     <strong>Payment approval is required.</strong><br>
     Your job will not become available to Taskers until the required funding has been paid and approved by the NAIJA TASK admin.
   </div>
-
-
-  <!-- JOB DETAILS -->
 
   <div class="card">
 
@@ -413,9 +409,6 @@ textarea{
     ></textarea>
 
   </div>
-
-
-  <!-- ACTIONS -->
 
   <div class="card">
 
@@ -515,9 +508,6 @@ textarea{
 
   </div>
 
-
-  <!-- REWARD -->
-
   <div class="card">
 
     <h2>Reward & Slots</h2>
@@ -581,9 +571,6 @@ textarea{
 
   </div>
 
-
-  <!-- PROOF REQUIREMENTS -->
-
   <div class="card">
 
     <h2>Proof Requirements</h2>
@@ -645,21 +632,16 @@ textarea{
       </label>
 
       <select id="watchDuration">
-
         <option value="15">15 seconds</option>
         <option value="30">30 seconds</option>
         <option value="60">1 minute</option>
         <option value="120">2 minutes</option>
         <option value="300">5 minutes</option>
-
       </select>
 
     </div>
 
   </div>
-
-
-  <!-- SUMMARY -->
 
   <div class="card">
 
@@ -711,7 +693,6 @@ textarea{
 
   </div>
 
-
   <button
     id="publishBtn"
     class="publish-btn"
@@ -720,13 +701,11 @@ textarea{
     Continue to Payment
   </button>
 
-
   <a href="index.html" class="back">
     ← Back to NAIJA TASK
   </a>
 
 </div>
-
 
 <script>
 
@@ -738,16 +717,12 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-================================================
-PASTE YOUR EXISTING SUPABASE PUBLISHABLE KEY
-BETWEEN THE QUOTES BELOW.
-
-DO NOT PASTE THE KEY INTO CHAT.
-================================================
+  PASTE YOUR EXISTING SUPABASE PUBLISHABLE KEY
+  BETWEEN THE QUOTES BELOW.
 */
 
 const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
 const supabaseClient =
@@ -794,41 +769,24 @@ function showMessage(text,type){
 
 
 /* =========================================
-   GET AUTHENTICATED SESSION
+   AUTHENTICATED USER
 ========================================= */
 
 async function getAuthenticatedUser(){
 
-  /*
-    First check the current Supabase session.
-  */
-
-  let {
-    data:sessionData,
-    error:sessionError
+  const {
+    data,
+    error
   } =
     await supabaseClient.auth.getSession();
 
-
-  if(sessionError){
-
-    console.error(
-      "Session error:",
-      sessionError
-    );
-
+  if(error){
+    console.error("Session error:",error);
     return null;
-
   }
 
-
   let session =
-    sessionData?.session;
-
-
-  /*
-    If the session is missing, try refreshing it.
-  */
+    data?.session;
 
   if(!session){
 
@@ -838,35 +796,21 @@ async function getAuthenticatedUser(){
     } =
       await supabaseClient.auth.refreshSession();
 
-
     if(refreshError){
-
       console.error(
-        "Session refresh error:",
+        "Refresh error:",
         refreshError
       );
-
       return null;
-
     }
 
     session =
       refreshData?.session;
-
   }
-
 
   if(!session){
-
     return null;
-
   }
-
-
-  /*
-    Get the authenticated user from
-    the active Supabase session.
-  */
 
   const {
     data:userData,
@@ -874,28 +818,15 @@ async function getAuthenticatedUser(){
   } =
     await supabaseClient.auth.getUser();
 
-
   if(userError){
-
     console.error(
       "User error:",
       userError
     );
-
     return null;
-
   }
 
-
-  if(!userData?.user){
-
-    return null;
-
-  }
-
-
-  return userData.user;
-
+  return userData?.user || null;
 }
 
 
@@ -908,25 +839,20 @@ async function checkPoster(){
   const user =
     await getAuthenticatedUser();
 
-
   if(!user){
 
     window.location.href =
       "poster-login.html";
 
     return null;
-
   }
-
 
   const metadata =
     user.user_metadata || {};
 
-
   const isPoster =
     metadata.user_type === "task_poster" ||
     metadata.role === "task_poster";
-
 
   if(!isPoster){
 
@@ -936,12 +862,9 @@ async function checkPoster(){
       "poster-login.html";
 
     return null;
-
   }
 
-
   return user;
-
 }
 
 
@@ -965,7 +888,7 @@ document
 
 
 /* =========================================
-   CATEGORY
+   CATEGORY TYPE
 ========================================= */
 
 function getCategoryType(category){
@@ -1000,32 +923,21 @@ function getCategoryType(category){
 
   ];
 
-
   if(
     socialCategories.includes(category)
   ){
-
     return "social";
-
   }
-
 
   if(category === "website"){
-
     return "website";
-
   }
-
 
   if(category === "app_download"){
-
     return "app_download";
-
   }
 
-
   return "other";
-
 }
 
 
@@ -1041,7 +953,6 @@ function getRewardLimits(){
   const type =
     getCategoryType(category);
 
-
   if(type === "social"){
 
     return {
@@ -1051,7 +962,6 @@ function getRewardLimits(){
     };
 
   }
-
 
   if(
     type === "website" ||
@@ -1066,13 +976,11 @@ function getRewardLimits(){
 
   }
 
-
   return {
     min:3,
     max:999,
     text:"Reward range: ₦3 – ₦999"
   };
-
 }
 
 
@@ -1084,19 +992,16 @@ function updateRewardRules(){
   const reward =
     document.getElementById("reward");
 
-
   reward.min =
     limits.min;
 
   reward.max =
     limits.max;
 
-
   document
     .getElementById("priceRule")
     .textContent =
       limits.text;
-
 
   document
     .getElementById("rewardHelp")
@@ -1107,9 +1012,7 @@ function updateRewardRules(){
       limits.max +
       ".";
 
-
   validateReward();
-
 }
 
 
@@ -1124,41 +1027,33 @@ function calculateFunding(){
       document.getElementById("reward").value
     ) || 0;
 
-
   const slots =
     Number(
       document.getElementById("slots").value
     ) || 0;
 
-
   const funding =
     reward * slots;
-
 
   document.getElementById("calcReward")
     .textContent =
       reward.toLocaleString();
 
-
   document.getElementById("calcSlots")
     .textContent =
       slots.toLocaleString();
-
 
   document.getElementById("calcFunding")
     .textContent =
       funding.toLocaleString();
 
-
   document.getElementById("calcTotal")
     .textContent =
       funding.toLocaleString();
 
-
   document.getElementById("summaryFunding")
     .textContent =
       funding.toLocaleString();
-
 }
 
 
@@ -1177,15 +1072,12 @@ function validateReward(){
   const limits =
     getRewardLimits();
 
-
   if(!reward){
 
     rewardInput.setCustomValidity("");
 
     return false;
-
   }
-
 
   if(
     reward < limits.min ||
@@ -1201,14 +1093,11 @@ function validateReward(){
     );
 
     return false;
-
   }
-
 
   rewardInput.setCustomValidity("");
 
   return true;
-
 }
 
 
@@ -1225,9 +1114,7 @@ function getSelectedActions(){
       )
     )
     .map(function(item){
-
       return item.value;
-
     });
 
 }
@@ -1237,7 +1124,6 @@ function updateActionsSummary(){
 
   const actions =
     getSelectedActions();
-
 
   document
     .getElementById("summaryActions")
@@ -1259,27 +1145,22 @@ function updateSummary(){
     document.getElementById("title")
       .value.trim();
 
-
   const reward =
     document.getElementById("reward")
       .value || "0";
-
 
   const slots =
     document.getElementById("slots")
       .value || "0";
 
-
   const link =
     document.getElementById("taskLink")
       .value.trim();
-
 
   document
     .getElementById("summaryTitle")
     .textContent =
       title || "Not entered";
-
 
   document
     .getElementById("summaryCategory")
@@ -1289,13 +1170,11 @@ function updateSummary(){
         .selectedOptions[0]
         .textContent.trim();
 
-
   document
     .getElementById("summaryReward")
     .textContent =
       Number(reward)
         .toLocaleString();
-
 
   document
     .getElementById("summarySlots")
@@ -1303,17 +1182,14 @@ function updateSummary(){
       Number(slots)
         .toLocaleString();
 
-
   document
     .getElementById("summaryLink")
     .textContent =
       link || "Not provided";
 
-
   updateActionsSummary();
 
   calculateFunding();
-
 }
 
 
@@ -1346,61 +1222,45 @@ function getProofRequirements(){
 
   const requirements = [];
 
-
   if(
     document
       .getElementById("proofPhoto")
       .checked
   ){
-
     requirements.push("photo");
-
   }
-
 
   if(
     document
       .getElementById("proofUsername")
       .checked
   ){
-
     requirements.push("username");
-
   }
-
 
   if(
     document
       .getElementById("proofText")
       .checked
   ){
-
     requirements.push("text");
-
   }
-
 
   if(
     document
       .getElementById("proofUrl")
       .checked
   ){
-
     requirements.push("url");
-
   }
-
 
   if(
     document
       .getElementById("proofReference")
       .checked
   ){
-
     requirements.push("reference_id");
-
   }
-
 
   if(
     document
@@ -1423,9 +1283,7 @@ function getProofRequirements(){
 
   }
 
-
   return requirements;
-
 }
 
 
@@ -1461,9 +1319,7 @@ document
       function(){
 
         if(id === "reward"){
-
           validateReward();
-
         }
 
         updateSummary();
@@ -1488,6 +1344,7 @@ document
 
 /* =========================================
    CREATE JOB
+   NOW USES SECURE RPC
 ========================================= */
 
 publishBtn.addEventListener(
@@ -1497,16 +1354,8 @@ publishBtn.addEventListener(
     message.style.display =
       "none";
 
-
-    /*
-      IMPORTANT:
-      Get the authenticated session user
-      immediately before inserting.
-    */
-
     const user =
       await checkPoster();
-
 
     if(!user){
 
@@ -1516,7 +1365,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1525,30 +1373,25 @@ publishBtn.addEventListener(
         .getElementById("title")
         .value.trim();
 
-
     const category =
       document
         .getElementById("category")
         .value;
-
 
     const description =
       document
         .getElementById("description")
         .value.trim();
 
-
     const link =
       document
         .getElementById("taskLink")
         .value.trim();
 
-
     const copyText =
       document
         .getElementById("copyText")
         .value.trim();
-
 
     const reward =
       Number(
@@ -1557,7 +1400,6 @@ publishBtn.addEventListener(
           .value
       );
 
-
     const slots =
       Number(
         document
@@ -1565,18 +1407,14 @@ publishBtn.addEventListener(
           .value
       );
 
-
     const limits =
       getRewardLimits();
-
 
     const actions =
       getSelectedActions();
 
 
-    /* =====================================
-       VALIDATION
-    ===================================== */
+    /* VALIDATION */
 
     if(!title){
 
@@ -1586,7 +1424,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1598,7 +1435,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1614,7 +1450,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1634,7 +1469,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1649,7 +1483,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1661,7 +1494,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1677,7 +1509,6 @@ publishBtn.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1695,25 +1526,23 @@ publishBtn.addEventListener(
     try{
 
       /* =====================================
-         FINAL SESSION CHECK
+         FINAL SESSION
       ===================================== */
 
       const {
-        data:finalSessionData,
-        error:finalSessionError
+        data:sessionData,
+        error:sessionError
       } =
         await supabaseClient.auth.getSession();
 
 
-      if(finalSessionError){
-
-        throw finalSessionError;
-
+      if(sessionError){
+        throw sessionError;
       }
 
 
       const session =
-        finalSessionData?.session;
+        sessionData?.session;
 
 
       if(!session){
@@ -1721,7 +1550,6 @@ publishBtn.addEventListener(
         throw new Error(
           "No active Supabase session. Please log in again."
         );
-
       }
 
 
@@ -1734,16 +1562,12 @@ publishBtn.addEventListener(
         throw new Error(
           "Supabase could not identify your account."
         );
-
       }
 
 
-      /*
-        IMPORTANT RLS VALUE:
-
-        created_by MUST equal auth.uid()
-        for the logged-in authenticated user.
-      */
+      /* =====================================
+         TASK DATA
+      ===================================== */
 
       const taskPayload = {
 
@@ -1757,83 +1581,84 @@ publishBtn.addEventListener(
 
         task_type:category,
 
-        task_link:link || null,
+        task_link:
+          link || null,
 
-        copy_text:copyText || null,
+        copy_text:
+          copyText || null,
 
-        created_by:authenticatedUserId,
+        /*
+          The database function will replace
+          this with auth.uid().
+        */
+        created_by:
+          authenticatedUserId,
 
-        requirements:requirements,
+        requirements:
+          requirements,
 
         active:false,
 
-        status:"PAYMENT_REQUIRED"
+        status:
+          "PAYMENT_REQUIRED"
 
       };
 
 
       console.log(
-        "Creating task for authenticated user:",
-        authenticatedUserId
+        "Creating poster task through secure RPC."
       );
 
 
       /* =====================================
-         CREATE TASK
+         SECURE TASK CREATION
       ===================================== */
 
       const {
         data:taskData,
         error:taskError
       } =
-        await supabaseClient
-          .from("tasks")
-          .insert(taskPayload)
-          .select("id")
-          .single();
+        await supabaseClient.rpc(
+          "create_poster_task",
+          {
+            p_task:
+              taskPayload
+          }
+        );
 
 
       if(taskError){
 
         console.error(
-          "TASK INSERT ERROR:",
+          "CREATE TASK RPC ERROR:",
           taskError
         );
 
-        /*
-          Give a useful RLS message rather than
-          a confusing generic error.
-        */
-
-        if(
-          taskError.code === "42501" ||
-          (
-            taskError.message &&
-            taskError.message
-              .toLowerCase()
-              .includes("row-level security")
-          )
-        ){
-
-          throw new Error(
-            "NAIJA TASK could not create the job because Supabase rejected the authenticated user. Your account session is active, but the tasks INSERT policy is not accepting this user."
-          );
-
-        }
-
-
-        throw taskError;
-
+        throw new Error(
+          taskError.message ||
+          "Supabase could not create the job."
+        );
       }
 
 
-      if(!taskData?.id){
+      /*
+        The RPC returns the newly-created
+        tasks row.
+      */
+
+      if(
+        !taskData ||
+        !taskData.id
+      ){
 
         throw new Error(
           "The job was created but Supabase did not return its ID."
         );
-
       }
+
+
+      const taskId =
+        taskData.id;
 
 
       /* =====================================
@@ -1847,19 +1672,26 @@ publishBtn.addEventListener(
           .from("poster_payments")
           .insert({
 
-            poster_id:authenticatedUserId,
+            poster_id:
+              authenticatedUserId,
 
-            task_id:taskData.id,
+            task_id:
+              taskId,
 
-            amount:totalFunding,
+            amount:
+              totalFunding,
 
-            payment_method:null,
+            payment_method:
+              null,
 
-            payment_reference:null,
+            payment_reference:
+              null,
 
-            proof_url:null,
+            proof_url:
+              null,
 
-            status:"PENDING"
+            status:
+              "PENDING"
 
           });
 
@@ -1873,8 +1705,8 @@ publishBtn.addEventListener(
 
 
         /*
-          Clean up the task if payment
-          record could not be created.
+          Try to remove the task if the
+          payment record cannot be created.
         */
 
         await supabaseClient
@@ -1882,7 +1714,7 @@ publishBtn.addEventListener(
           .delete()
           .eq(
             "id",
-            taskData.id
+            taskId
           )
           .eq(
             "created_by",
@@ -1890,19 +1722,27 @@ publishBtn.addEventListener(
           );
 
 
-        throw paymentError;
-
+        throw new Error(
+          paymentError.message ||
+          "The job was created but the payment record could not be created."
+        );
       }
 
 
       /* =====================================
-         PAYMENT PAGE
+         GO TO PAYMENT
       ===================================== */
+
+      showMessage(
+        "Job created. Continue to payment.",
+        "success"
+      );
+
 
       window.location.href =
         "poster-payment.html?task_id=" +
         encodeURIComponent(
-          taskData.id
+          taskId
         );
 
     }
@@ -1923,7 +1763,6 @@ publishBtn.addEventListener(
 
       publishBtn.disabled =
         false;
-
 
       publishBtn.textContent =
         "Continue to Payment";
@@ -1947,4 +1786,4 @@ checkPoster();
 </script>
 
 </body>
-  </html>
+        </html>
