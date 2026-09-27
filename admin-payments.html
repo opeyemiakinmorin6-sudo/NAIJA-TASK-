@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
   margin:0;
@@ -23,7 +25,7 @@ body{
 
 header{
   background:#0b8f3c;
-  color:white;
+  color:#fff;
   padding:18px 16px;
 }
 
@@ -46,12 +48,12 @@ header{
 .container{
   max-width:900px;
   margin:auto;
-  padding:18px 14px 40px;
+  padding:18px 14px 45px;
 }
 
 .back{
   display:inline-block;
-  margin-bottom:16px;
+  margin-bottom:17px;
   color:#0b8f3c;
   text-decoration:none;
   font-weight:700;
@@ -93,7 +95,7 @@ header{
 }
 
 .card{
-  background:white;
+  background:#fff;
   border:1px solid #dcefe2;
   border-radius:16px;
   padding:17px;
@@ -106,13 +108,13 @@ header{
   justify-content:space-between;
   gap:12px;
   align-items:flex-start;
-  margin-bottom:14px;
+  margin-bottom:15px;
 }
 
 .job-title{
   font-size:18px;
   font-weight:800;
-  line-height:1.3;
+  line-height:1.35;
 }
 
 .status{
@@ -161,7 +163,7 @@ header{
   background:#f7faf8;
   border-radius:10px;
   padding:12px;
-  margin-bottom:14px;
+  margin-bottom:15px;
 }
 
 .reference strong{
@@ -176,12 +178,42 @@ header{
   word-break:break-all;
 }
 
-.proof-link{
+.proof-box{
+  background:#f7faf8;
+  border:1px solid #e2ebe4;
+  border-radius:12px;
+  padding:13px;
+  margin-bottom:15px;
+}
+
+.proof-title{
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:9px;
+}
+
+.proof-image{
   display:block;
+  width:100%;
+  max-height:420px;
+  object-fit:contain;
+  border-radius:10px;
+  background:#eef2ef;
+  margin-bottom:10px;
+}
+
+.proof-link{
+  display:inline-block;
   color:#075ec9;
   text-decoration:underline;
   font-weight:700;
-  margin-bottom:15px;
+  font-size:14px;
+}
+
+.no-proof{
+  color:#a02020;
+  font-size:13px;
+  line-height:1.4;
 }
 
 .actions{
@@ -201,7 +233,7 @@ button{
 
 .approve{
   background:#0b8f3c;
-  color:white;
+  color:#fff;
 }
 
 .refresh{
@@ -216,8 +248,12 @@ button:disabled{
 
 .empty{
   text-align:center;
-  padding:35px 15px;
+  padding:38px 15px;
   color:#68746c;
+}
+
+.empty strong{
+  color:#25332a;
 }
 
 .loading{
@@ -244,7 +280,12 @@ button:disabled{
   .actions{
     flex-direction:column;
   }
+
+  .proof-image{
+    max-height:350px;
+  }
 }
+
 </style>
 </head>
 
@@ -259,9 +300,13 @@ button:disabled{
 
 <main class="container">
 
-  <a class="back" href="dashboard.html">← Admin Dashboard</a>
+  <a class="back" href="dashboard.html">
+    ← Admin Dashboard
+  </a>
 
-  <h1 class="page-title">Payment Approval</h1>
+  <h1 class="page-title">
+    Payment Approval
+  </h1>
 
   <p class="page-description">
     Review poster payments before their jobs become available to Taskers.
@@ -278,8 +323,16 @@ button:disabled{
 </main>
 
 <script>
-const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
 const db = window.supabase.createClient(
@@ -287,27 +340,34 @@ const db = window.supabase.createClient(
   SUPABASE_KEY
 );
 
-const loading = document.getElementById("loading");
-const content = document.getElementById("content");
-const notice = document.getElementById("notice");
+
+/* =========================================================
+   PAGE ELEMENTS
+========================================================= */
+
+const loading =
+  document.getElementById("loading");
+
+const content =
+  document.getElementById("content");
+
+const notice =
+  document.getElementById("notice");
 
 let currentUser = null;
 
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
 function naira(value){
-  return "₦" + Number(value || 0).toLocaleString("en-NG");
+
+  return "₦" +
+    Number(value || 0)
+    .toLocaleString("en-NG");
 }
 
-function showNotice(message,type){
-
-  notice.className = "notice " + type;
-  notice.textContent = message;
-}
-
-function hideNotice(){
-
-  notice.className = "notice";
-  notice.textContent = "";
-}
 
 function escapeHtml(value){
 
@@ -320,24 +380,47 @@ function escapeHtml(value){
 }
 
 
-/*
-  Check that the currently logged-in account
-  is actually registered inside admin_users.
-*/
+function showNotice(message,type){
+
+  notice.className =
+    "notice " + type;
+
+  notice.textContent =
+    message;
+}
+
+
+function hideNotice(){
+
+  notice.className =
+    "notice";
+
+  notice.textContent =
+    "";
+}
+
+
+/* =========================================================
+   CHECK LOGIN + ADMIN STATUS
+========================================================= */
+
 async function checkAdmin(){
 
   const {
     data:{user},
-    error
+    error:authError
   } = await db.auth.getUser();
 
-  if(error || !user){
+  if(authError || !user){
 
-    window.location.href = "index.html";
+    window.location.href =
+      "index.html";
+
     return false;
   }
 
   currentUser = user;
+
 
   const {
     data:admin,
@@ -348,10 +431,12 @@ async function checkAdmin(){
     .eq("user_id",user.id)
     .maybeSingle();
 
+
   if(adminError){
 
     throw adminError;
   }
+
 
   if(!admin){
 
@@ -360,29 +445,86 @@ async function checkAdmin(){
     );
   }
 
+
   return true;
 }
 
 
-/*
-  Load payments waiting for Admin review.
-*/
+/* =========================================================
+   CREATE TEMPORARY PAYMENT SCREENSHOT URL
+========================================================= */
+
+async function createProofUrl(path){
+
+  if(!path){
+    return null;
+  }
+
+
+  /*
+    The payment proof bucket is PRIVATE.
+
+    This creates a temporary signed URL
+    instead of exposing the storage file publicly.
+  */
+
+  const {
+    data,
+    error
+  } = await db.storage
+    .from("payment proof")
+    .createSignedUrl(
+      path,
+      3600
+    );
+
+
+  if(error){
+
+    console.error(
+      "Signed URL error:",
+      error
+    );
+
+    return null;
+  }
+
+
+  return data?.signedUrl || null;
+}
+
+
+/* =========================================================
+   LOAD PENDING PAYMENTS
+========================================================= */
+
 async function loadPayments(){
 
   hideNotice();
 
   content.innerHTML = "";
 
-  loading.style.display = "block";
-  loading.textContent = "Loading payments...";
+  loading.style.display =
+    "block";
+
+  loading.textContent =
+    "Checking admin access...";
+
 
   try{
 
-    const isAdmin = await checkAdmin();
+    const isAdmin =
+      await checkAdmin();
+
 
     if(!isAdmin){
       return;
     }
+
+
+    loading.textContent =
+      "Loading payments...";
+
 
     const {
       data:payments,
@@ -391,51 +533,97 @@ async function loadPayments(){
       .from("poster_payments")
       .select("*")
       .eq("status","UNDER_REVIEW")
-      .order("created_at",{ascending:true});
+      .order(
+        "created_at",
+        {ascending:true}
+      );
+
 
     if(paymentError){
       throw paymentError;
     }
 
-    loading.style.display = "none";
 
-    if(!payments || payments.length === 0){
+    loading.style.display =
+      "none";
 
-      content.innerHTML = `
-        <div class="card empty">
-          <strong>No payments waiting for review.</strong>
-          <p style="margin-top:7px;">
-            New poster payments will appear here after they submit proof.
-          </p>
-        </div>
-      `;
+
+    if(
+      !payments ||
+      payments.length === 0
+    ){
+
+      showEmptyState(
+        "No payments waiting for review.",
+        "New poster payments will appear here after they submit proof."
+      );
 
       return;
     }
 
-    for(const payment of payments){
+
+    /*
+      Render each pending payment.
+    */
+
+    for(
+      const payment of payments
+    ){
 
       await renderPayment(payment);
     }
+
 
   }catch(error){
 
     console.error(error);
 
-    loading.style.display = "none";
+    loading.style.display =
+      "none";
 
     showNotice(
-      error.message || "Unable to load payments.",
+      error.message ||
+      "Unable to load payments.",
       "error"
     );
   }
 }
 
 
-/*
-  Get the related task and build the review card.
-*/
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+function showEmptyState(
+  title,
+  description
+){
+
+  content.innerHTML = `
+    <div class="card empty">
+
+      <strong>
+        ${escapeHtml(title)}
+      </strong>
+
+      <p style="margin-top:7px;">
+        ${escapeHtml(description)}
+      </p>
+
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   RENDER PAYMENT
+========================================================= */
+
 async function renderPayment(payment){
+
+  /*
+    Get related task.
+  */
 
   const {
     data:task,
@@ -446,28 +634,133 @@ async function renderPayment(payment){
     .eq("id",payment.task_id)
     .maybeSingle();
 
+
   if(taskError){
-    console.error(taskError);
+
+    console.error(
+      "Task error:",
+      taskError
+    );
+
     return;
   }
+
 
   if(!task){
     return;
   }
 
+
   const total =
     Number(task.reward || 0) *
     Number(task.slots || 0);
 
-  const card = document.createElement("div");
 
-  card.className = "card";
+  /*
+    Create secure temporary screenshot URL.
+  */
+
+  let proofUrl = null;
+
+  if(payment.proof_url){
+
+    proofUrl =
+      await createProofUrl(
+        payment.proof_url
+      );
+  }
+
+
+  /*
+    Create card.
+  */
+
+  const card =
+    document.createElement("div");
+
+  card.className =
+    "card";
+
+
+  let proofHtml = "";
+
+
+  if(proofUrl){
+
+    proofHtml = `
+
+      <div class="proof-box">
+
+        <div class="proof-title">
+          Payment Screenshot
+        </div>
+
+        <img
+          class="proof-image"
+          src="${escapeHtml(proofUrl)}"
+          alt="Payment proof"
+        >
+
+        <a
+          class="proof-link"
+          href="${escapeHtml(proofUrl)}"
+          target="_blank"
+          rel="noopener">
+          Open Screenshot
+        </a>
+
+      </div>
+
+    `;
+
+  }else if(payment.proof_url){
+
+    proofHtml = `
+
+      <div class="proof-box">
+
+        <div class="proof-title">
+          Payment Screenshot
+        </div>
+
+        <div class="no-proof">
+          The screenshot could not be opened.
+          Check the payment-proof storage policy.
+        </div>
+
+      </div>
+
+    `;
+
+  }else{
+
+    proofHtml = `
+
+      <div class="proof-box">
+
+        <div class="proof-title">
+          Payment Screenshot
+        </div>
+
+        <div class="no-proof">
+          No payment screenshot was submitted.
+        </div>
+
+      </div>
+
+    `;
+  }
+
 
   card.innerHTML = `
+
     <div class="job-header">
 
       <div class="job-title">
-        ${escapeHtml(task.title || "Untitled Job")}
+        ${escapeHtml(
+          task.title ||
+          "Untitled Job"
+        )}
       </div>
 
       <div class="status">
@@ -476,117 +769,200 @@ async function renderPayment(payment){
 
     </div>
 
+
     <div class="details">
 
       <div class="detail">
-        <span class="label">Reward per Tasker</span>
-        <span class="value">${naira(task.reward)}</span>
-      </div>
 
-      <div class="detail">
-        <span class="label">Slots</span>
-        <span class="value">
-          ${Number(task.slots || 0).toLocaleString()}
+        <span class="label">
+          Reward per Tasker
         </span>
+
+        <span class="value">
+          ${naira(task.reward)}
+        </span>
+
       </div>
 
+
       <div class="detail">
-        <span class="label">Required Funding</span>
+
+        <span class="label">
+          Slots
+        </span>
+
+        <span class="value">
+          ${
+            Number(
+              task.slots || 0
+            ).toLocaleString()
+          }
+        </span>
+
+      </div>
+
+
+      <div class="detail">
+
+        <span class="label">
+          Required Funding
+        </span>
+
         <span class="value amount">
           ${naira(total)}
         </span>
+
       </div>
 
+
       <div class="detail">
-        <span class="label">Payment Method</span>
-        <span class="value">
-          ${escapeHtml(payment.payment_method || "—")}
+
+        <span class="label">
+          Payment Method
         </span>
+
+        <span class="value">
+          ${
+            escapeHtml(
+              payment.payment_method ||
+              "—"
+            )
+          }
+        </span>
+
       </div>
 
     </div>
 
+
     <div class="reference">
 
-      <strong>Transaction Reference</strong>
+      <strong>
+        Transaction Reference
+      </strong>
 
       <span>
-        ${escapeHtml(payment.payment_reference || "Not provided")}
+        ${
+          escapeHtml(
+            payment.payment_reference ||
+            "Not provided"
+          )
+        }
       </span>
 
     </div>
 
-    ${
-      payment.proof_url
-      ?
-      `<a
-        class="proof-link"
-        href="${escapeHtml(payment.proof_url)}"
-        target="_blank"
-        rel="noopener">
-        View Payment Screenshot
-      </a>`
-      :
-      `<div style="color:#a02020;font-size:13px;margin-bottom:15px;">
-        No payment screenshot was submitted.
-      </div>`
-    }
+
+    ${proofHtml}
+
 
     <div class="actions">
 
       <button
         class="approve"
         data-payment-id="${payment.id}">
+
         Approve Payment & Make LIVE
+
       </button>
 
+
       <button
-        class="refresh"
-        onclick="loadPayments()">
+        class="refresh">
+
         Refresh
+
       </button>
 
     </div>
+
   `;
+
 
   content.appendChild(card);
 
+
   const approveButton =
-    card.querySelector(".approve");
+    card.querySelector(
+      ".approve"
+    );
+
+
+  const refreshButton =
+    card.querySelector(
+      ".refresh"
+    );
+
 
   approveButton.addEventListener(
     "click",
-    () => approvePayment(
-      payment.id,
-      approveButton,
-      card
-    )
+    function(){
+
+      approvePayment(
+        payment.id,
+        approveButton,
+        card
+      );
+
+    }
+  );
+
+
+  refreshButton.addEventListener(
+    "click",
+    function(){
+
+      loadPayments();
+
+    }
   );
 }
 
 
-/*
-  Approval is performed by the secure
-  database function created earlier.
-*/
+/* =========================================================
+   APPROVE PAYMENT
+========================================================= */
+
 async function approvePayment(
   paymentId,
   button,
   card
 ){
 
-  const confirmed = confirm(
-    "Confirm that you have reviewed this payment proof and want to make this job LIVE?"
-  );
+  /*
+    Final confirmation before
+    changing the job to LIVE.
+  */
+
+  const confirmed =
+    window.confirm(
+      "Confirm that you have reviewed the payment proof and want to make this job LIVE?"
+    );
+
 
   if(!confirmed){
     return;
   }
 
-  button.disabled = true;
-  button.textContent = "Approving...";
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Approving...";
+
 
   try{
+
+    /*
+      IMPORTANT:
+
+      This calls the secure database
+      function created earlier.
+
+      The browser does NOT directly
+      change the job to LIVE.
+    */
 
     const {
       data,
@@ -594,57 +970,83 @@ async function approvePayment(
     } = await db.rpc(
       "admin_approve_poster_payment",
       {
-        p_payment_id:paymentId
+        p_payment_id:
+          paymentId
       }
     );
+
 
     if(error){
       throw error;
     }
 
+
+    console.log(
+      "Approval result:",
+      data
+    );
+
+
     /*
-      Remove the approved payment from
-      the pending review list.
+      Remove approved payment
+      from pending list.
     */
+
     card.remove();
+
 
     showNotice(
       "Payment approved successfully. The job is now LIVE and can be shown to Taskers.",
       "success"
     );
 
-    if(content.children.length === 0){
 
-      const empty = document.createElement("div");
+    /*
+      If nothing remains,
+      show empty state.
+    */
 
-      empty.className = "card empty";
+    if(
+      content.children.length === 0
+    ){
 
-      empty.innerHTML = `
-        <strong>No payments waiting for review.</strong>
-        <p style="margin-top:7px;">
-          All pending payments have been reviewed.
-        </p>
-      `;
-
-      content.appendChild(empty);
+      showEmptyState(
+        "No payments waiting for review.",
+        "All pending payments have been reviewed."
+      );
     }
+
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Approval error:",
+      error
+    );
 
-    button.disabled = false;
+
+    button.disabled =
+      false;
+
     button.textContent =
       "Approve Payment & Make LIVE";
 
+
     showNotice(
-      error.message || "Payment approval failed.",
+      error.message ||
+      "Payment approval failed.",
       "error"
     );
   }
 }
 
+
+/* =========================================================
+   START
+========================================================= */
+
 loadPayments();
+
 </script>
 
 </body>
