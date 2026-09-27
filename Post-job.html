@@ -63,6 +63,7 @@ select{
   margin-top:8px;
   font-size:12px;
   opacity:.9;
+  line-height:1.5;
 }
 
 .container{
@@ -83,6 +84,14 @@ select{
   font-size:16px;
   font-weight:900;
   margin-bottom:14px;
+}
+
+.card-subtitle{
+  color:#68736b;
+  font-size:11px;
+  line-height:1.5;
+  margin-top:-7px;
+  margin-bottom:15px;
 }
 
 label{
@@ -116,8 +125,14 @@ select:focus{
 }
 
 textarea{
-  min-height:110px;
+  min-height:140px;
   resize:vertical;
+  line-height:1.5;
+}
+
+textarea::placeholder,
+input::placeholder{
+  color:#8b968e;
 }
 
 .row{
@@ -125,6 +140,21 @@ textarea{
   grid-template-columns:1fr 1fr;
   gap:10px;
 }
+
+/* INFO BOX */
+
+.info-box{
+  background:#e9f8ee;
+  border:1px solid #ccebd6;
+  border-radius:13px;
+  padding:12px;
+  font-size:11px;
+  color:#087832;
+  line-height:1.6;
+  margin-bottom:15px;
+}
+
+/* PROOF OPTIONS */
 
 .option{
   display:flex;
@@ -211,16 +241,13 @@ textarea{
   transform:translateX(21px);
 }
 
-.required-box{
-  background:#e9f8ee;
-  border:1px solid #ccebd6;
-  border-radius:13px;
-  padding:12px;
-  font-size:11px;
-  color:#087832;
-  line-height:1.5;
-  margin-bottom:12px;
+/* OPTIONAL COPY */
+
+.copy-box{
+  margin-top:4px;
 }
+
+/* TIMER */
 
 .timer-box{
   display:none;
@@ -234,6 +261,34 @@ textarea{
 .timer-box.show{
   display:block;
 }
+
+/* SUMMARY */
+
+.summary-item{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:9px 0;
+  border-bottom:1px solid #edf1ee;
+  font-size:11px;
+}
+
+.summary-item:last-child{
+  border-bottom:0;
+}
+
+.summary-label{
+  color:#68736b;
+}
+
+.summary-value{
+  font-weight:800;
+  text-align:right;
+  max-width:60%;
+  word-break:break-word;
+}
+
+/* PUBLISH */
 
 .publish-button{
   width:100%;
@@ -257,6 +312,7 @@ textarea{
   border-radius:12px;
   font-size:12px;
   display:none;
+  line-height:1.5;
 }
 
 .status.show{
@@ -271,28 +327,6 @@ textarea{
 .status.success{
   background:#e9f8ee;
   color:#087832;
-}
-
-.summary-item{
-  display:flex;
-  justify-content:space-between;
-  gap:15px;
-  padding:9px 0;
-  border-bottom:1px solid #edf1ee;
-  font-size:11px;
-}
-
-.summary-item:last-child{
-  border-bottom:0;
-}
-
-.summary-label{
-  color:#68736b;
-}
-
-.summary-value{
-  font-weight:800;
-  text-align:right;
 }
 
 .small-note{
@@ -332,7 +366,7 @@ textarea{
       </div>
 
       <div class="header-subtitle">
-        Create a task and choose exactly what proof workers must submit.
+        Create your own job instructions and choose the proof workers need to submit.
       </div>
 
     </div>
@@ -345,25 +379,31 @@ textarea{
 <main class="container">
 
 
-<!-- BASIC DETAILS -->
+<!-- =========================
+     JOB DETAILS
+========================= -->
 
 <section class="card">
 
   <div class="card-title">
-    📋 Task Details
+    📋 Job Details
+  </div>
+
+  <div class="card-subtitle">
+    Write the job exactly the way you want the worker to understand it.
   </div>
 
 
   <div class="field">
 
     <label>
-      Task Title
+      Job Title
     </label>
 
     <input
       id="taskTitle"
       type="text"
-      placeholder="Example: Follow our TikTok account">
+      placeholder="Example: Promote our new product">
 
   </div>
 
@@ -371,13 +411,13 @@ textarea{
   <div class="field">
 
     <label>
-      Task Type
+      Job Category
     </label>
 
     <select id="taskType">
 
       <option value="general">
-        General Task
+        General
       </option>
 
       <option value="tiktok">
@@ -396,12 +436,20 @@ textarea{
         Facebook
       </option>
 
+      <option value="telegram">
+        Telegram
+      </option>
+
       <option value="app_download">
-        App Download
+        App / Download
       </option>
 
       <option value="website">
         Website
+      </option>
+
+      <option value="survey">
+        Survey
       </option>
 
       <option value="other">
@@ -416,12 +464,16 @@ textarea{
   <div class="field">
 
     <label>
-      Task Description
+      Job Description / Instructions
     </label>
 
     <textarea
       id="taskDescription"
-      placeholder="Explain exactly what the worker must do..."></textarea>
+      placeholder="Explain exactly what the worker must do. You can write any instructions that fit your job."></textarea>
+
+    <div class="small-note">
+      The worker will see your instructions on the Perform Task page.
+    </div>
 
   </div>
 
@@ -429,13 +481,35 @@ textarea{
   <div class="field">
 
     <label>
-      Task Link
+      Open Link
     </label>
 
     <input
       id="taskLink"
       type="url"
       placeholder="https://...">
+
+    <div class="small-note">
+      Optional. When provided, workers can tap Open Link to visit it.
+    </div>
+
+  </div>
+
+
+  <div class="field">
+
+    <label>
+      Copy Text
+    </label>
+
+    <textarea
+      id="copyText"
+      style="min-height:85px"
+      placeholder="Optional text workers may need to copy and use..."></textarea>
+
+    <div class="small-note">
+      Optional. This can be a comment, code, message, username, text or anything else.
+    </div>
 
   </div>
 
@@ -478,7 +552,9 @@ textarea{
 </section>
 
 
-<!-- PROOF REQUIREMENTS -->
+<!-- =========================
+     PROOF
+========================= -->
 
 <section class="card">
 
@@ -486,12 +562,18 @@ textarea{
     📸 Proof Requirements
   </div>
 
-  <div class="required-box">
+  <div class="card-subtitle">
+    Choose what the worker must submit to prove that the job was completed.
+  </div>
 
-    📷 <strong>Photo proof is always required.</strong><br>
 
-    Every task must allow the worker to upload photo proof.
-    You can then choose which additional information is required.
+  <div class="info-box">
+
+    💡 <strong>Make the proof match your instructions.</strong><br>
+
+    For example, if you ask for a screenshot, enable Photo.
+    If you ask for an ID, enable Reference ID.
+    You can select more than one.
 
   </div>
 
@@ -509,20 +591,26 @@ textarea{
       <div>
 
         <div class="option-name">
-          Photo Upload
+          Photo / Screenshot
         </div>
 
         <div class="option-description">
-          Always required for every task.
+          Worker uploads a photo or screenshot as proof.
         </div>
 
       </div>
 
     </div>
 
-    <strong style="color:#0b8f3c;font-size:11px;">
-      REQUIRED
-    </strong>
+    <label class="switch">
+
+      <input
+        type="checkbox"
+        id="photoRequired">
+
+      <span class="slider"></span>
+
+    </label>
 
   </div>
 
@@ -544,7 +632,7 @@ textarea{
         </div>
 
         <div class="option-description">
-          Ask the worker to provide a social media username.
+          Worker provides a username or account name.
         </div>
 
       </div>
@@ -577,11 +665,11 @@ textarea{
       <div>
 
         <div class="option-name">
-          Text / Description
+          Text / Answer
         </div>
 
         <div class="option-description">
-          Require the worker to write additional information.
+          Worker writes an answer, explanation or other information.
         </div>
 
       </div>
@@ -618,7 +706,7 @@ textarea{
         </div>
 
         <div class="option-description">
-          Require a link as part of the proof.
+          Worker submits a link as part of the proof.
         </div>
 
       </div>
@@ -638,7 +726,7 @@ textarea{
   </div>
 
 
-  <!-- REFERENCE -->
+  <!-- REFERENCE ID -->
 
   <div class="option">
 
@@ -655,7 +743,7 @@ textarea{
         </div>
 
         <div class="option-description">
-          Require an order, reference or confirmation ID.
+          Worker provides an order, registration or confirmation ID.
         </div>
 
       </div>
@@ -692,7 +780,7 @@ textarea{
         </div>
 
         <div class="option-description">
-          Optional. Use this when workers must watch content for a set time.
+          Use when your job requires workers to watch content for a set time.
         </div>
 
       </div>
@@ -712,8 +800,6 @@ textarea{
   </div>
 
 
-  <!-- TIMER SETTINGS -->
-
   <div
     id="timerBox"
     class="timer-box">
@@ -730,7 +816,7 @@ textarea{
       placeholder="60">
 
     <div class="small-note">
-      The worker will only see the timer when this option is enabled.
+      Example: enter 60 for a one-minute watch requirement.
     </div>
 
   </div>
@@ -738,12 +824,59 @@ textarea{
 </section>
 
 
-<!-- SUMMARY -->
+<!-- =========================
+     SUMMARY
+========================= -->
 
 <section class="card">
 
   <div class="card-title">
-    👀 Task Summary
+    👀 Job Summary
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Description
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryDescription">
+      Not written
+    </span>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Open Link
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryLink">
+      Not added
+    </span>
+
+  </div>
+
+
+  <div class="summary-item">
+
+    <span class="summary-label">
+      Copy Text
+    </span>
+
+    <span
+      class="summary-value"
+      id="summaryCopy">
+      Not added
+    </span>
+
   </div>
 
 
@@ -753,8 +886,10 @@ textarea{
       Photo
     </span>
 
-    <span class="summary-value">
-      Always required
+    <span
+      class="summary-value"
+      id="summaryPhoto">
+      Not required
     </span>
 
   </div>
@@ -837,7 +972,9 @@ textarea{
 </section>
 
 
-<!-- PUBLISH -->
+<!-- =========================
+     PUBLISH
+========================= -->
 
 <section class="card">
 
@@ -845,7 +982,7 @@ textarea{
     class="publish-button"
     id="publishButton">
 
-    🚀 Publish Task
+    🚀 Publish Job
 
   </button>
 
@@ -870,16 +1007,16 @@ textarea{
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
-/*
-  IMPORTANT:
-  Put your EXISTING publishable/anon key below.
 
-  Do NOT use a secret/service-role key.
+/*
+  Put your existing PUBLIC/PUBLISHABLE
+  Supabase key here.
+
+  Never use a service-role/secret key.
 */
 
 const SUPABASE_KEY =
-  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D
 
 
 const supabaseClient =
@@ -902,9 +1039,18 @@ const timerBox =
 const watchSeconds =
   document.getElementById("watchSeconds");
 
+const taskDescription =
+  document.getElementById("taskDescription");
+
+const taskLink =
+  document.getElementById("taskLink");
+
+const copyText =
+  document.getElementById("copyText");
+
 
 /* =========================
-   TIMER TOGGLE
+   TIMER
 ========================= */
 
 watchTimer.addEventListener(
@@ -934,6 +1080,50 @@ watchTimer.addEventListener(
 ========================= */
 
 function updateSummary(){
+
+  const description =
+    taskDescription.value.trim();
+
+  const link =
+    taskLink.value.trim();
+
+  const copy =
+    copyText.value.trim();
+
+
+  document.getElementById(
+    "summaryDescription"
+  ).textContent =
+    description
+      ? "Added"
+      : "Not written";
+
+
+  document.getElementById(
+    "summaryLink"
+  ).textContent =
+    link
+      ? "Added"
+      : "Not added";
+
+
+  document.getElementById(
+    "summaryCopy"
+  ).textContent =
+    copy
+      ? "Added"
+      : "Not added";
+
+
+  document.getElementById(
+    "summaryPhoto"
+  ).textContent =
+    document.getElementById(
+      "photoRequired"
+    ).checked
+      ? "Required"
+      : "Not required";
+
 
   document.getElementById(
     "summaryUsername"
@@ -989,41 +1179,52 @@ function updateSummary(){
 }
 
 
-/* Update summary whenever a requirement changes */
+/* =========================
+   LIVE SUMMARY
+========================= */
 
 [
+  "taskDescription",
+  "taskLink",
+  "copyText",
+  "photoRequired",
   "usernameRequired",
   "textRequired",
   "urlRequired",
-  "referenceRequired"
+  "referenceRequired",
+  "watchSeconds"
 ].forEach(function(id){
 
-  document
-    .getElementById(id)
-    .addEventListener(
-      "change",
-      updateSummary
-    );
+  const element =
+    document.getElementById(id);
+
+  element.addEventListener(
+    "input",
+    updateSummary
+  );
+
+  element.addEventListener(
+    "change",
+    updateSummary
+  );
 
 });
-
-
-watchSeconds.addEventListener(
-  "input",
-  updateSummary
-);
 
 
 /* =========================
    STATUS
 ========================= */
 
-function showStatus(message,type){
+function showStatus(
+  message,
+  type
+){
 
   const status =
     document.getElementById("status");
 
-  status.textContent = message;
+  status.textContent =
+    message;
 
   status.className =
     "status show " + type;
@@ -1032,7 +1233,7 @@ function showStatus(message,type){
 
 
 /* =========================
-   PUBLISH TASK
+   PUBLISH JOB
 ========================= */
 
 document
@@ -1043,25 +1244,32 @@ document
 
       const button = this;
 
+
+      /* BASIC DATA */
+
       const title =
         document.getElementById(
           "taskTitle"
         ).value.trim();
+
 
       const taskType =
         document.getElementById(
           "taskType"
         ).value;
 
-      const description =
-        document.getElementById(
-          "taskDescription"
-        ).value.trim();
 
-      const taskLink =
-        document.getElementById(
-          "taskLink"
-        ).value.trim();
+      const description =
+        taskDescription.value.trim();
+
+
+      const link =
+        taskLink.value.trim();
+
+
+      const copy =
+        copyText.value.trim();
+
 
       const reward =
         Number(
@@ -1069,6 +1277,7 @@ document
             "reward"
           ).value
         );
+
 
       const slots =
         Number(
@@ -1078,41 +1287,60 @@ document
         );
 
 
+      /* PROOF */
+
+      const photoRequired =
+        document.getElementById(
+          "photoRequired"
+        ).checked;
+
+
       const usernameRequired =
         document.getElementById(
           "usernameRequired"
         ).checked;
+
 
       const textRequired =
         document.getElementById(
           "textRequired"
         ).checked;
 
+
       const urlRequired =
         document.getElementById(
           "urlRequired"
         ).checked;
+
 
       const referenceRequired =
         document.getElementById(
           "referenceRequired"
         ).checked;
 
+
+      /* TIMER */
+
       const watchTimerEnabled =
         watchTimer.checked;
 
+
       const watchDuration =
         watchTimerEnabled
-          ? Number(watchSeconds.value)
+          ? Number(
+              watchSeconds.value
+            )
           : 0;
 
 
-      /* VALIDATION */
+      /* =========================
+         VALIDATION
+      ========================= */
 
       if(!title){
 
         showStatus(
-          "Please enter a task title.",
+          "Please enter a job title.",
           "error"
         );
 
@@ -1124,7 +1352,7 @@ document
       if(!description){
 
         showStatus(
-          "Please enter the task description.",
+          "Please write the job description and instructions.",
           "error"
         );
 
@@ -1157,9 +1385,50 @@ document
       }
 
 
+      if(link){
+
+        try{
+
+          new URL(link);
+
+        }catch(e){
+
+          showStatus(
+            "Please enter a valid Open Link.",
+            "error"
+          );
+
+          return;
+
+        }
+
+      }
+
+
+      if(
+        !photoRequired &&
+        !usernameRequired &&
+        !textRequired &&
+        !urlRequired &&
+        !referenceRequired
+      ){
+
+        showStatus(
+          "Choose at least one proof requirement.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
       if(watchTimerEnabled){
 
-        if(!watchDuration || watchDuration <= 0){
+        if(
+          !watchDuration ||
+          watchDuration <= 0
+        ){
 
           showStatus(
             "Enter the watch duration in seconds.",
@@ -1181,72 +1450,168 @@ document
 
       try{
 
-        /* Check logged-in user */
+        /* =========================
+           CHECK USER
+        ========================= */
 
         const {
-          data: { user },
+          data: {
+            user
+          },
           error: userError
         } =
           await supabaseClient.auth.getUser();
 
 
-        if(userError || !user){
+        if(
+          userError ||
+          !user
+        ){
 
-          window.location.href =
-            "index.html";
+          showStatus(
+            "Please log in before posting a job.",
+            "error"
+          );
+
+          button.disabled = false;
+
+          button.textContent =
+            "🚀 Publish Job";
 
           return;
 
         }
 
 
-        /*
-          Create task.
+        /* =========================
+           PROOF TYPE
+        ========================= */
 
-          NOTE:
-          These column names must exist in
-          your Supabase tasks table.
-        */
+        const proofTypes = [];
 
-        const { data, error } =
+
+        if(photoRequired){
+
+          proofTypes.push(
+            "photo"
+          );
+
+        }
+
+
+        if(usernameRequired){
+
+          proofTypes.push(
+            "username"
+          );
+
+        }
+
+
+        if(textRequired){
+
+          proofTypes.push(
+            "text"
+          );
+
+        }
+
+
+        if(urlRequired){
+
+          proofTypes.push(
+            "url"
+          );
+
+        }
+
+
+        if(referenceRequired){
+
+          proofTypes.push(
+            "reference_id"
+          );
+
+        }
+
+
+        /* =========================
+           REQUIREMENTS JSON
+        ========================= */
+
+        const requirements = {
+
+          photo_required:
+            photoRequired,
+
+          username_required:
+            usernameRequired,
+
+          text_required:
+            textRequired,
+
+          url_required:
+            urlRequired,
+
+          reference_required:
+            referenceRequired,
+
+          watch_timer_enabled:
+            watchTimerEnabled,
+
+          watch_seconds:
+            watchDuration,
+
+          proof_types:
+            proofTypes
+
+        };
+
+
+        /* =========================
+           INSERT TASK
+        ========================= */
+
+        const {
+          data,
+          error
+        } =
           await supabaseClient
             .from("tasks")
             .insert({
 
-              title: title,
+              title:
+                title,
 
-              description: description,
+              description:
+                description,
 
-              reward: reward,
+              reward:
+                reward,
 
-              slots: slots,
+              slots:
+                slots,
 
-              link: taskLink || null,
+              task_type:
+                taskType,
 
-              task_type: taskType,
+              task_link:
+                link || null,
 
-              photo_required: true,
-
-              username_required:
-                usernameRequired,
-
-              text_required:
-                textRequired,
-
-              url_required:
-                urlRequired,
-
-              reference_required:
-                referenceRequired,
-
-              watch_timer_enabled:
-                watchTimerEnabled,
-
-              watch_seconds:
-                watchDuration,
+              copy_text:
+                copy || null,
 
               created_by:
-                user.id
+                user.id,
+
+              requirements:
+                requirements,
+
+              active:
+                true,
+
+              status:
+                "active"
 
             })
             .select()
@@ -1255,7 +1620,10 @@ document
 
         if(error){
 
-          console.error(error);
+          console.error(
+            "Publish error:",
+            error
+          );
 
           showStatus(
             "Task could not be published: " +
@@ -1263,47 +1631,58 @@ document
             "error"
           );
 
-          button.disabled = false;
+          button.disabled =
+            false;
 
           button.textContent =
-            "🚀 Publish Task";
+            "🚀 Publish Job";
 
           return;
 
         }
 
 
+        /* =========================
+           SUCCESS
+        ========================= */
+
         showStatus(
-          "Task published successfully.",
+          "Job published successfully. Workers can now see your instructions.",
           "success"
         );
 
 
         button.textContent =
-          "✅ Task Published";
+          "✅ Job Published";
 
 
-        setTimeout(function(){
+        setTimeout(
+          function(){
 
-          window.location.href =
-            "dashboard.html";
+            window.location.href =
+              "dashboard.html";
 
-        },1200);
+          },
+          1200
+        );
 
 
       }catch(error){
 
-        console.error(error);
+        console.error(
+          error
+        );
 
         showStatus(
-          "Something went wrong while publishing the task.",
+          "Something went wrong while publishing the job.",
           "error"
         );
 
-        button.disabled = false;
+        button.disabled =
+          false;
 
         button.textContent =
-          "🚀 Publish Task";
+          "🚀 Publish Job";
 
       }
 
@@ -1312,7 +1691,7 @@ document
 
 
 /* =========================
-   INITIAL SUMMARY
+   INITIAL
 ========================= */
 
 updateSummary();
@@ -1320,4 +1699,4 @@ updateSummary();
 </script>
 
 </body>
-  </html>
+  </html> 
