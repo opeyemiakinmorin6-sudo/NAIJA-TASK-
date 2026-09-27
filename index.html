@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
   margin:0;
@@ -102,6 +103,13 @@ header{
   border-radius:11px;
   font-size:15px;
   font-weight:800;
+  margin-bottom:9px;
+}
+
+.role-btn.secondary{
+  background:#eef8f1;
+  color:#0b8f3c;
+  border:1px solid #cfe8d6;
 }
 
 .auth-area{
@@ -252,6 +260,20 @@ input:focus{
   color:#68736b;
   font-size:12px;
 }
+
+.poster-login{
+  text-align:center;
+  margin-top:10px;
+  font-size:12px;
+  color:#68736b;
+}
+
+.poster-login a{
+  color:#0b8f3c;
+  text-decoration:none;
+  font-weight:800;
+}
+
 </style>
 
 </head>
@@ -285,8 +307,13 @@ input:focus{
   </h1>
 
   <p class="join-subtitle">
-    Complete available tasks, submit proof and earn rewards.
+    Choose how you want to use NAIJA TASK.
   </p>
+
+
+  <!-- ==========================
+       TASKER
+  =========================== -->
 
   <div class="role-card">
 
@@ -307,13 +334,58 @@ input:focus{
       href="#"
       class="role-btn"
       onclick="openTaskerAuth('signup'); return false;">
-      Join as a Tasker
+      Tasker Sign Up
+    </a>
+
+    <a
+      href="#"
+      class="role-btn secondary"
+      onclick="openTaskerAuth('login'); return false;">
+      Tasker Login
+    </a>
+
+  </div>
+
+
+  <!-- ==========================
+       POSTER
+  =========================== -->
+
+  <div class="role-card">
+
+    <div class="role-icon">
+      🏢
+    </div>
+
+    <h2>
+      Post a Job
+    </h2>
+
+    <p>
+      Create paid tasks, set your reward and
+      slots, fund your job and reach Taskers.
+    </p>
+
+    <a
+      href="poster-signup.html"
+      class="role-btn">
+      Poster Sign Up
+    </a>
+
+    <a
+      href="poster-login.html"
+      class="role-btn secondary">
+      Poster Login
     </a>
 
   </div>
 
 </section>
 
+
+<!-- ==========================
+     TASKER AUTH
+=========================== -->
 
 <section
   id="taskerAuth"
@@ -539,8 +611,15 @@ input:focus{
 
   <br>
 
-  Taskers complete available jobs and submit proof.
+  <strong>Taskers:</strong>
+  Complete available jobs and submit proof.
   Rewards are released after approved proof.
+
+  <br><br>
+
+  <strong>Posters:</strong>
+  Create jobs, fund them and wait for approval
+  before they become available to Taskers.
 
 </div>
 
@@ -554,18 +633,22 @@ input:focus{
 
 <script>
 
+/* =================================
+   SUPABASE
+================================= */
+
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 
 /*
-  IMPORTANT:
-  Put your current publishable key below.
-  Do NOT use a service-role/secret key.
+  Put your EXISTING publishable key here.
+
+  Do NOT use a service-role or secret key.
 */
 
 const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
 
 
 let supabaseClient = null;
@@ -574,7 +657,11 @@ let supabaseClient = null;
 try{
 
   if(typeof supabase === "undefined"){
-    throw new Error("Supabase library did not load.");
+
+    throw new Error(
+      "Supabase library did not load."
+    );
+
   }
 
   supabaseClient =
@@ -593,40 +680,49 @@ try{
 }
 
 
-/* ================================
+/* =================================
    HIDDEN ADMIN ACCESS
-================================ */
+================================= */
 
 let logoTaps = 0;
 let logoTimer = null;
 
 document
   .getElementById("siteLogo")
-  .addEventListener("click", function(){
+  .addEventListener(
+    "click",
+    function(){
 
-    logoTaps++;
+      logoTaps++;
 
-    clearTimeout(logoTimer);
+      clearTimeout(logoTimer);
 
-    logoTimer = setTimeout(function(){
-      logoTaps = 0;
-    }, 1800);
+      logoTimer =
+        setTimeout(
+          function(){
 
-    if(logoTaps >= 5){
+            logoTaps = 0;
 
-      logoTaps = 0;
+          },
+          1800
+        );
 
-      window.location.href =
-        "admin-login.html";
+      if(logoTaps >= 5){
+
+        logoTaps = 0;
+
+        window.location.href =
+          "admin-login.html";
+
+      }
 
     }
+  );
 
-  });
 
-
-/* ================================
+/* =================================
    TASKER AUTH
-================================ */
+================================= */
 
 function openTaskerAuth(mode){
 
@@ -639,9 +735,13 @@ function openTaskerAuth(mode){
     .classList.remove("hidden");
 
   if(mode === "signup"){
+
     showSignup();
+
   }else{
+
     showLogin();
+
   }
 
 }
@@ -718,9 +818,9 @@ document
   );
 
 
-/* ================================
+/* =================================
    MESSAGES
-================================ */
+================================= */
 
 function showMessage(
   element,
@@ -728,7 +828,8 @@ function showMessage(
   type
 ){
 
-  element.textContent = text;
+  element.textContent =
+    text;
 
   element.className =
     "message show " + type;
@@ -736,9 +837,9 @@ function showMessage(
 }
 
 
-/* ================================
+/* =================================
    REFERRAL
-================================ */
+================================= */
 
 const params =
   new URLSearchParams(
@@ -753,16 +854,17 @@ if(referral){
 
   document
     .getElementById("referralCode")
-    .value = referral;
+    .value =
+      referral;
 
   openTaskerAuth("signup");
 
 }
 
 
-/* ================================
-   LOGIN
-================================ */
+/* =================================
+   TASKER LOGIN
+================================= */
 
 document
   .getElementById("loginForm")
@@ -782,7 +884,8 @@ document
           "loginMessage"
         );
 
-      button.disabled = true;
+      button.disabled =
+        true;
 
       button.textContent =
         "Logging in...";
@@ -790,7 +893,8 @@ document
       message.className =
         "message";
 
-      message.textContent = "";
+      message.textContent =
+        "";
 
       if(!supabaseClient){
 
@@ -800,11 +904,16 @@ document
           "error"
         );
 
-        button.disabled = false;
-        button.textContent = "Login";
+        button.disabled =
+          false;
+
+        button.textContent =
+          "Login";
 
         return;
+
       }
+
 
       const email =
         document
@@ -812,10 +921,12 @@ document
           .value
           .trim();
 
+
       const password =
         document
           .getElementById("loginPassword")
           .value;
+
 
       try{
 
@@ -825,13 +936,19 @@ document
         } =
           await supabaseClient.auth
             .signInWithPassword({
+
               email,
               password
+
             });
 
+
         if(error){
+
           throw error;
+
         }
+
 
         if(!data.session){
 
@@ -841,11 +958,42 @@ document
 
         }
 
+
+        /*
+          Make sure a Poster account
+          cannot enter the Tasker dashboard.
+        */
+
+        const metadata =
+          data.user.user_metadata || {};
+
+        const role =
+          metadata.role ||
+          metadata.user_type ||
+          "";
+
+
+        if(
+          role === "task_poster" ||
+          role === "poster"
+        ){
+
+          await supabaseClient.auth.signOut();
+
+          throw new Error(
+            "This is a Poster account. Please use Poster Login."
+          );
+
+        }
+
+
         button.textContent =
           "Opening account...";
 
+
         window.location.href =
           "dashboard.html";
+
 
       }catch(error){
 
@@ -861,8 +1009,11 @@ document
           "error"
         );
 
-        button.disabled = false;
-        button.textContent = "Login";
+        button.disabled =
+          false;
+
+        button.textContent =
+          "Login";
 
       }
 
@@ -870,9 +1021,9 @@ document
   );
 
 
-/* ================================
-   SIGN UP
-================================ */
+/* =================================
+   TASKER SIGNUP
+================================= */
 
 document
   .getElementById("signupForm")
@@ -881,6 +1032,7 @@ document
     async function(event){
 
       event.preventDefault();
+
 
       const button =
         document.getElementById(
@@ -892,15 +1044,20 @@ document
           "signupMessage"
         );
 
-      button.disabled = true;
+
+      button.disabled =
+        true;
 
       button.textContent =
         "Creating account...";
 
+
       message.className =
         "message";
 
-      message.textContent = "";
+      message.textContent =
+        "";
+
 
       if(!supabaseClient){
 
@@ -910,11 +1067,16 @@ document
           "error"
         );
 
-        button.disabled = false;
-        button.textContent = "Create Account";
+        button.disabled =
+          false;
+
+        button.textContent =
+          "Create Account";
 
         return;
+
       }
+
 
       const fullName =
         document
@@ -922,11 +1084,13 @@ document
           .value
           .trim();
 
+
       const phone =
         document
           .getElementById("phone")
           .value
           .trim();
+
 
       const email =
         document
@@ -934,16 +1098,19 @@ document
           .value
           .trim();
 
+
       const password =
         document
           .getElementById("signupPassword")
           .value;
+
 
       const referralCode =
         document
           .getElementById("referralCode")
           .value
           .trim();
+
 
       try{
 
@@ -954,27 +1121,37 @@ document
           await supabaseClient.auth
             .signUp({
 
-              email: email,
+              email:email,
 
-              password: password,
+              password:password,
 
               options:{
 
                 data:{
-                  full_name: fullName,
-                  phone: phone,
-                  referral_code: referralCode,
-                  user_type: "tasker",
-                  role: "tasker"
+
+                  full_name:fullName,
+
+                  phone:phone,
+
+                  referral_code:referralCode,
+
+                  user_type:"tasker",
+
+                  role:"tasker"
+
                 }
 
               }
 
             });
 
+
         if(error){
+
           throw error;
+
         }
+
 
         if(
           data.user &&
@@ -987,8 +1164,10 @@ document
             "success"
           );
 
+
           button.textContent =
             "Account created!";
+
 
           setTimeout(
             function(){
@@ -1000,8 +1179,11 @@ document
             800
           );
 
+
           return;
+
         }
+
 
         if(data.user){
 
@@ -1011,16 +1193,23 @@ document
             "success"
           );
 
-          button.disabled = false;
+
+          button.disabled =
+            false;
+
           button.textContent =
             "Create Account";
 
+
           return;
+
         }
+
 
         throw new Error(
           "Account could not be created. Please try again."
         );
+
 
       }catch(error){
 
@@ -1029,6 +1218,7 @@ document
           error
         );
 
+
         showMessage(
           message,
           error.message ||
@@ -1036,7 +1226,10 @@ document
           "error"
         );
 
-        button.disabled = false;
+
+        button.disabled =
+          false;
+
         button.textContent =
           "Create Account";
 
@@ -1048,4 +1241,4 @@ document
 </script>
 
 </body>
-          </html>
+  </html>
