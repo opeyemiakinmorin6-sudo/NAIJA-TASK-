@@ -421,11 +421,10 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  KEEP YOUR EXISTING SUPABASE PUBLISHABLE KEY HERE.
-  Do not share it publicly.
+  Paste your existing Supabase publishable key here.
 */
 const SUPABASE_KEY =
-   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D
 
 
 const db = window.supabase.createClient(
@@ -1024,7 +1023,7 @@ function buildDetails(task){
             type="button"
             onclick="openTaskLink(${JSON.stringify(link)})"
           >
-            Open Task
+            🔗 Open Link
           </button>
 
           <button
@@ -1315,11 +1314,6 @@ async function submitProof(form, task){
     form.querySelector(".form-message");
 
 
-  /*
-    Prevent a second submission while the first one
-    is still being processed.
-  */
-
   if(button.disabled){
     return;
   }
@@ -1332,12 +1326,6 @@ async function submitProof(form, task){
     button.textContent =
       "Checking...";
 
-
-    /*
-      Final expiry check immediately before submission.
-      This prevents submission if the task expires while
-      the worker is completing it.
-    */
 
     if(isTaskExpired(task)){
 
@@ -1464,10 +1452,6 @@ async function submitProof(form, task){
     button.textContent =
       "Checking previous proof...";
 
-
-    /*
-      Prevent duplicate pending/approved submissions.
-    */
 
     const {
       data: existing,
@@ -1598,11 +1582,6 @@ async function submitProof(form, task){
 
     if(insertError){
 
-      /*
-        Remove the uploaded image if the database
-        submission fails.
-      */
-
       await db
         .storage
         .from("task proof")
@@ -1701,6 +1680,11 @@ function showFormMessage(
 function openTaskLink(link){
 
   if(!link){
+
+    alert(
+      "No link was provided for this task."
+    );
+
     return;
   }
 
@@ -1720,10 +1704,13 @@ function openTaskLink(link){
   }
 
 
-  window.open(
-    finalLink,
-    "_blank"
-  );
+  /*
+    Directly redirect the worker to the exact
+    link saved by the task poster.
+  */
+
+  window.location.href =
+    finalLink;
 
 }
 
