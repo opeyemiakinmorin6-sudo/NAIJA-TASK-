@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Pay for Job — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial, sans-serif;
+  background:#f5fff7;
+  color:#17221a;
+}
+
+header{
+  background:#0b8f3c;
+  color:white;
+  padding:18px;
+}
+
+.header-inner{
+  max-width:650px;
+  margin:auto;
+}
+
+header h1{
+  font-size:21px;
+  margin-bottom:5px;
+}
+
+header p{
+  font-size:13px;
+  opacity:.9;
+}
+
+.container{
+  max-width:650px;
+  margin:20px auto;
+  padding:0 15px 40px;
+}
+
+.back{
+  display:inline-block;
+  margin-bottom:15px;
+  color:#0b8f3c;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.card{
+  background:white;
+  border:1px solid #dcefe1;
+  border-radius:15px;
+  padding:18px;
+  margin-bottom:15px;
+  box-shadow:0 3px 12px rgba(0,0,0,.04);
+}
+
+.card h2{
+  font-size:18px;
+  margin-bottom:15px;
+}
+
+.job-title{
+  font-size:19px;
+  font-weight:bold;
+  margin-bottom:7px;
+}
+
+.muted{
+  color:#68756c;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.amount-box{
+  background:#f0fff4;
+  border:1px solid #c8ead2;
+  border-radius:14px;
+  padding:18px;
+  margin-top:15px;
+}
+
+.amount-label{
+  font-size:13px;
+  color:#657168;
+  margin-bottom:5px;
+}
+
+.amount{
+  color:#087a32;
+  font-size:30px;
+  font-weight:bold;
+}
+
+.bank-row{
+  padding:13px 0;
+  border-bottom:1px solid #edf2ee;
+}
+
+.bank-row:last-child{
+  border-bottom:0;
+}
+
+.bank-label{
+  font-size:12px;
+  color:#718078;
+  margin-bottom:4px;
+}
+
+.bank-value{
+  font-size:16px;
+  font-weight:bold;
+  word-break:break-word;
+}
+
+input[type="text"],
+input[type="file"]{
+  width:100%;
+  padding:13px;
+  border:1px solid #cfdcd2;
+  border-radius:10px;
+  background:white;
+  font-size:14px;
+}
+
+input:focus{
+  outline:none;
+  border-color:#0b8f3c;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  font-size:14px;
+  margin-bottom:7px;
+}
+
+.field{
+  margin-top:16px;
+}
+
+button{
+  width:100%;
+  border:0;
+  border-radius:11px;
+  padding:14px;
+  background:#0b8f3c;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.6;
+}
+
+.message{
+  display:none;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:15px;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.success{
+  background:#eaf8ef;
+  color:#087a32;
+  border:1px solid #bde2c8;
+}
+
+.error{
+  background:#fff0f0;
+  color:#a52222;
+  border:1px solid #efc2c2;
+}
+
+.warning{
+  background:#fff8e8;
+  color:#765500;
+  border:1px solid #ead69b;
+}
+
+.loading{
+  text-align:center;
+  padding:35px 10px;
+  color:#657168;
+}
+
+.hidden{
+  display:none;
+}
+
+.small{
+  font-size:12px;
+  color:#6c776f;
+  margin-top:7px;
+  line-height:1.5;
+}
+
+@media(max-width:500px){
+  .container{
+    margin-top:15px;
+  }
+
+  .amount{
+    font-size:26px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>NAIJA TASK</h1>
+    <p>Fund your job before Taskers can start it.</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <a href="poster-dashboard.html" class="back">← Back to Poster Dashboard</a>
+
+  <div id="loading" class="loading">
+    Loading payment details...
+  </div>
+
+  <div id="content" class="hidden">
+
+    <div id="message" class="message"></div>
+
+    <!-- JOB -->
+    <div class="card">
+      <h2>Job Funding</h2>
+
+      <div id="jobTitle" class="job-title">Loading...</div>
+      <div id="jobInfo" class="muted"></div>
+
+      <div class="amount-box">
+        <div class="amount-label">Total amount required</div>
+        <div id="amount" class="amount">₦0</div>
+        <div class="small">
+          This is the amount required to fund the Tasker rewards for this job.
+        </div>
+      </div>
+    </div>
+
+    <!-- BANK -->
+    <div class="card">
+      <h2>Make Your Transfer</h2>
+
+      <div id="bankDetails">
+        Loading bank details...
+      </div>
+
+      <div class="small">
+        Transfer the exact amount shown above. Keep your transaction reference
+        and payment screenshot.
+      </div>
+    </div>
+
+    <!-- PAYMENT -->
+    <div class="card">
+
+      <h2>Submit Payment</h2>
+
+      <div id="alreadySubmitted"
+           class="message warning">
+        Your payment has already been submitted and is waiting for confirmation.
+      </div>
+
+      <form id="paymentForm">
+
+        <div class="field">
+          <label for="reference">
+            Transaction Reference
+          </label>
+
+          <input
+            type="text"
+            id="reference"
+            placeholder="Enter your transfer reference"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="proof">
+            Payment Screenshot
+          </label>
+
+          <input
+            type="file"
+            id="proof"
+            accept="image/*"
+            required
+          >
+
+          <div class="small">
+            Upload a clear screenshot showing the successful transfer.
+          </div>
+        </div>
+
+        <div class="field">
+          <button type="submit" id="submitBtn">
+            Submit Payment
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+let currentUser = null;
+let currentTask = null;
+let currentPayment = null;
+
+const loading = document.getElementById("loading");
+const content = document.getElementById("content");
+const message = document.getElementById("message");
+
+function showMessage(text, type){
+  message.textContent = text;
+  message.className = "message " + type;
+  message.style.display = "block";
+}
+
+function money(value){
+  return "₦" + Number(value || 0).toLocaleString("en-NG");
+}
+
+function getTaskId(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("task_id");
+}
+
+async function loadPage(){
+
+  const taskId = getTaskId();
+
+  if(!taskId){
+    loading.innerHTML =
+      "No job was selected for payment.";
+    return;
+  }
+
+  const { data: { user }, error: userError } =
+    await db.auth.getUser();
+
+  if(userError || !user){
+    loading.innerHTML =
+      "Please log in as a Task Poster first.";
+    return;
+  }
+
+  currentUser = user;
+
+  // Get the job
+  const { data: task, error: taskError } =
+    await db
+      .from("tasks")
+      .select("*")
+      .eq("id", taskId)
+      .eq("created_by", user.id)
+      .single();
+
+  if(taskError || !task){
+
+    loading.innerHTML =
+      "This job could not be found or you do not have access to it.";
+
+    return;
+  }
+
+  currentTask = task;
+
+  // Get payment record
+  const { data: payment, error: paymentError } =
+    await db
+      .from("poster_payments")
+      .select("*")
+      .eq("task_id", task.id)
+      .eq("poster_id", user.id)
+      .order("created_at", { ascending:false })
+      .limit(1)
+      .maybeSingle();
+
+  if(paymentError){
+
+    console.error(paymentError);
+
+    loading.innerHTML =
+      "Unable to load the payment record.";
+
+    return;
+  }
+
+  currentPayment = payment;
+
+  // Job information
+  document.getElementById("jobTitle").textContent =
+    task.title || "Untitled Job";
+
+  document.getElementById("jobInfo").textContent =
+    `${task.task_type || "General"} • ` +
+    `${task.slots || 0} slots • ` +
+    `${money(task.reward)} per Tasker`;
+
+  document.getElementById("amount").textContent =
+    money(task.reward * task.slots);
+
+  // Bank settings
+  await loadBankDetails();
+
+  // Existing payment
+  if(payment){
+
+    if(payment.status === "CONFIRMED"){
+
+      showMessage(
+        "This job has already been funded and the payment was confirmed.",
+        "success"
+      );
+
+      document.getElementById("paymentForm").classList.add("hidden");
+
+    }else if(payment.status === "PENDING"){
+
+      document.getElementById("alreadySubmitted").style.display =
+        "block";
+
+      if(payment.payment_reference){
+        document.getElementById("reference").value =
+          payment.payment_reference;
+      }
+
+      document.getElementById("submitBtn").textContent =
+        "Payment Already Submitted";
+
+      document.getElementById("submitBtn").disabled = true;
+
+      document.getElementById("proof").required = false;
+
+    }else if(payment.status === "REJECTED"){
+
+      showMessage(
+        "Your previous payment submission was rejected. Please make sure the transfer details and screenshot are correct, then submit again.",
+        "error"
+      );
+
+    }
+  }
+
+  loading.style.display = "none";
+  content.classList.remove("hidden");
+}
+
+async function loadBankDetails(){
+
+  const bankDetails =
+    document.getElementById("bankDetails");
+
+  const { data, error } =
+    await db
+      .from("payment_settings")
+      .select("*")
+      .eq("active", true)
+      .order("created_at", { ascending:false })
+      .limit(1)
+      .maybeSingle();
+
+  if(error || !data){
+
+    bankDetails.innerHTML = `
+      <div class="message error" style="display:block;">
+        Payment account details are currently unavailable.
+        Please contact NAIJA TASK support.
+      </div>
+    `;
+
+    document.getElementById("submitBtn").disabled = true;
+
+    return;
+  }
+
+  bankDetails.innerHTML = `
+
+    <div class="bank-row">
+      <div class="bank-label">Bank</div>
+      <div class="bank-value">
+        ${escapeHtml(data.bank_name)}
+      </div>
+    </div>
+
+    <div class="bank-row">
+      <div class="bank-label">Account Name</div>
+      <div class="bank-value">
+        ${escapeHtml(data.account_name)}
+      </div>
+    </div>
+
+    <div class="bank-row">
+      <div class="bank-label">Account Number</div>
+      <div class="bank-value">
+        ${escapeHtml(data.account_number)}
+      </div>
+    </div>
+
+    ${
+      data.instructions
+      ? `
+        <div class="bank-row">
+          <div class="bank-label">Instructions</div>
+          <div class="bank-value" style="font-size:14px;font-weight:normal;line-height:1.5;">
+            ${escapeHtml(data.instructions)}
+          </div>
+        </div>
+      `
+      : ""
+    }
+
+  `;
+}
+
+function escapeHtml(value){
+
+  return String(value || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+document.getElementById("paymentForm")
+.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  if(!currentUser || !currentTask){
+    return;
+  }
+
+  const reference =
+    document.getElementById("reference")
+      .value.trim();
+
+  const file =
+    document.getElementById("proof").files[0];
+
+  if(!reference){
+
+    showMessage(
+      "Enter your transaction reference.",
+      "error"
+    );
+
+    return;
+  }
+
+  if(!file){
+
+    showMessage(
+      "Upload your payment screenshot.",
+      "error"
+    );
+
+    return;
+  }
+
+  if(!file.type.startsWith("image/")){
+
+    showMessage(
+      "Please upload an image file.",
+      "error"
+    );
+
+    return;
+  }
+
+  if(file.size > 5 * 1024 * 1024){
+
+    showMessage(
+      "Payment screenshot must be 5MB or smaller.",
+      "error"
+    );
+
+    return;
+  }
+
+  const submitBtn =
+    document.getElementById("submitBtn");
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Uploading payment...";
+
+  try{
+
+    const extension =
+      file.name.split(".").pop().toLowerCase();
+
+    const filePath =
+      `${currentUser.id}/${currentTask.id}/${Date.now()}.${extension}`;
+
+    /*
+      IMPORTANT:
+      Create a Supabase Storage bucket named:
+
+      payment proof
+
+      and allow image uploads.
+    */
+
+    const { error: uploadError } =
+      await db.storage
+        .from("payment proof")
+        .upload(
+          filePath,
+          file,
+          {
+            contentType:file.type,
+            upsert:false
+          }
+        );
+
+    if(uploadError){
+
+      console.error(uploadError);
+
+      throw new Error(
+        "Payment screenshot upload failed."
+      );
+    }
+
+    const {
+      data: publicUrlData
+    } =
+      db.storage
+        .from("payment proof")
+        .getPublicUrl(filePath);
+
+    const proofUrl =
+      publicUrlData.publicUrl;
+
+    // Existing payment record
+    if(currentPayment){
+
+      const { error:updateError } =
+        await db
+          .from("poster_payments")
+          .update({
+            payment_reference:reference,
+            proof_url:proofUrl,
+            status:"PENDING"
+          })
+          .eq("id", currentPayment.id)
+          .eq("poster_id", currentUser.id);
+
+      if(updateError){
+
+        console.error(updateError);
+
+        throw new Error(
+          "Payment submission could not be saved."
+        );
+      }
+
+    }else{
+
+      const total =
+        Number(currentTask.reward || 0) *
+        Number(currentTask.slots || 0);
+
+      const { error:insertError } =
+        await db
+          .from("poster_payments")
+          .insert({
+            poster_id:currentUser.id,
+            task_id:currentTask.id,
+            amount:total,
+            payment_method:"BANK_TRANSFER",
+            payment_reference:reference,
+            proof_url:proofUrl,
+            status:"PENDING"
+          });
+
+      if(insertError){
+
+        console.error(insertError);
+
+        throw new Error(
+          "Payment submission could not be saved."
+        );
+      }
+    }
+
+    showMessage(
+      "Payment submitted successfully. Your payment is now waiting for confirmation.",
+      "success"
+    );
+
+    submitBtn.textContent =
+      "Payment Submitted";
+
+    document.getElementById("reference").disabled =
+      true;
+
+    document.getElementById("proof").disabled =
+      true;
+
+  }catch(error){
+
+    console.error(error);
+
+    showMessage(
+      error.message ||
+      "Something went wrong while submitting payment.",
+      "error"
+    );
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Payment";
+  }
+
+});
+
+loadPage();
+</script>
+
+</body>
+  </html>
