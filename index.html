@@ -5,12 +5,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>NAIJA TASK — Earn & Post Jobs</title>
+<title>NAIJA TASK — Earn Naira</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
 *{
   box-sizing:border-box;
   margin:0;
@@ -35,6 +34,8 @@ header{
 .logo{
   font-size:30px;
   font-weight:900;
+  user-select:none;
+  cursor:default;
 }
 
 .tagline{
@@ -48,10 +49,6 @@ header{
   margin:auto;
   padding:22px 16px 40px;
 }
-
-/* =========================
-   JOIN SECTION
-========================= */
 
 .join-title{
   text-align:center;
@@ -70,14 +67,14 @@ header{
 
 .role-card{
   background:white;
-  padding:20px;
+  padding:22px;
   border-radius:20px;
   margin-bottom:14px;
   box-shadow:0 6px 20px rgba(0,0,0,.07);
 }
 
 .role-icon{
-  font-size:32px;
+  font-size:30px;
   margin-bottom:10px;
 }
 
@@ -106,14 +103,6 @@ header{
   font-size:15px;
   font-weight:800;
 }
-
-.poster-btn{
-  background:#17221a;
-}
-
-/* =========================
-   AUTH AREA
-========================= */
 
 .auth-area{
   margin-top:25px;
@@ -263,7 +252,6 @@ input:focus{
   color:#68736b;
   font-size:12px;
 }
-
 </style>
 
 </head>
@@ -272,7 +260,14 @@ input:focus{
 
 <header>
 
-  <div class="logo">NAIJA TASK</div>
+  <!-- Hidden admin access:
+       Tap the logo 5 times quickly. -->
+
+  <div
+    class="logo"
+    id="siteLogo">
+    NAIJA TASK
+  </div>
 
   <div class="tagline">
     Complete Tasks. Earn Naira.
@@ -283,23 +278,15 @@ input:focus{
 
 <main class="container">
 
-
-<!-- =========================
-     PUBLIC JOINING AREA
-========================= -->
-
 <section id="joinArea">
 
   <h1 class="join-title">
-    🚀 Join NAIJA TASK
+    Join NAIJA TASK
   </h1>
 
   <p class="join-subtitle">
-    Choose how you want to use NAIJA TASK.
+    Complete available tasks, submit proof and earn rewards.
   </p>
-
-
-  <!-- TASKER -->
 
   <div class="role-card">
 
@@ -325,48 +312,16 @@ input:focus{
 
   </div>
 
-
-  <!-- TASK POSTER -->
-
-  <div class="role-card">
-
-    <div class="role-icon">
-      📢
-    </div>
-
-    <h2>
-      Post a Job
-    </h2>
-
-    <p>
-      Have a business, product or social-media task?
-      Create a job, set your reward and let Taskers complete it.
-    </p>
-
-    <a
-      href="poster-signup.html"
-      class="role-btn poster-btn">
-      Post a Job
-    </a>
-
-  </div>
-
 </section>
 
-
-<!-- =========================
-     TASKER AUTH
-========================= -->
 
 <section
   id="taskerAuth"
   class="auth-area hidden">
 
-
   <div class="login-note">
     Tasker account
   </div>
-
 
   <div class="switch">
 
@@ -374,17 +329,13 @@ input:focus{
       id="loginTab"
       class="active"
       type="button">
-
       Login
-
     </button>
 
     <button
       id="signupTab"
       type="button">
-
       Sign Up
-
     </button>
 
   </div>
@@ -404,9 +355,7 @@ input:focus{
       Login to your NAIJA TASK Tasker account.
     </p>
 
-
     <form id="loginForm">
-
 
       <div class="field">
 
@@ -423,7 +372,6 @@ input:focus{
 
       </div>
 
-
       <div class="field">
 
         <label for="loginPassword">
@@ -439,22 +387,17 @@ input:focus{
 
       </div>
 
-
       <button
         id="loginButton"
         class="main-btn"
         type="submit">
-
         Login
-
       </button>
-
 
       <div
         id="loginMessage"
         class="message">
       </div>
-
 
     </form>
 
@@ -475,9 +418,7 @@ input:focus{
       Create your NAIJA TASK Tasker account and get started.
     </p>
 
-
     <form id="signupForm">
-
 
       <div class="field">
 
@@ -494,7 +435,6 @@ input:focus{
 
       </div>
 
-
       <div class="field">
 
         <label for="phone">
@@ -509,7 +449,6 @@ input:focus{
           required>
 
       </div>
-
 
       <div class="field">
 
@@ -526,7 +465,6 @@ input:focus{
 
       </div>
 
-
       <div class="field">
 
         <label for="signupPassword">
@@ -542,7 +480,6 @@ input:focus{
           required>
 
       </div>
-
 
       <div class="field">
 
@@ -561,22 +498,17 @@ input:focus{
 
       </div>
 
-
       <button
         id="signupButton"
         class="main-btn"
         type="submit">
-
         Create Account
-
       </button>
-
 
       <div
         id="signupMessage"
         class="message">
       </div>
-
 
     </form>
 
@@ -591,18 +523,13 @@ input:focus{
       href="#"
       onclick="backToRoles(); return false;"
       style="color:#0b8f3c;text-decoration:none;font-weight:700;">
-
-      ← Back to role selection
-
+      ← Back
     </a>
 
   </div>
 
-
 </section>
 
-
-<!-- INFO -->
 
 <div class="info">
 
@@ -613,7 +540,7 @@ input:focus{
   <br>
 
   Taskers complete available jobs and submit proof.
-  Task Posters create jobs and set the reward for each task.
+  Rewards are released after approved proof.
 
 </div>
 
@@ -622,42 +549,32 @@ input:focus{
   © 2026 NAIJA TASK
 </div>
 
-
 </main>
 
 
 <script>
-
-/* ================================
-   SUPABASE CONNECTION
-================================ */
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 
 /*
-  PUT YOUR CURRENT SUPABASE
-  PUBLISHABLE KEY BETWEEN THE QUOTES.
-
-  DO NOT USE THE SECRET/SERVICE-ROLE KEY.
+  IMPORTANT:
+  Put your current publishable key below.
+  Do NOT use a service-role/secret key.
 */
 
 const SUPABASE_KEY =
-      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
-let supabaseClient;
+let supabaseClient = null;
 
 
-try {
+try{
 
   if(typeof supabase === "undefined"){
-
-    throw new Error(
-      "Supabase library did not load."
-    );
-
+    throw new Error("Supabase library did not load.");
   }
 
   supabaseClient =
@@ -677,7 +594,38 @@ try {
 
 
 /* ================================
-   ROLE AREA
+   HIDDEN ADMIN ACCESS
+================================ */
+
+let logoTaps = 0;
+let logoTimer = null;
+
+document
+  .getElementById("siteLogo")
+  .addEventListener("click", function(){
+
+    logoTaps++;
+
+    clearTimeout(logoTimer);
+
+    logoTimer = setTimeout(function(){
+      logoTaps = 0;
+    }, 1800);
+
+    if(logoTaps >= 5){
+
+      logoTaps = 0;
+
+      window.location.href =
+        "admin-login.html";
+
+    }
+
+  });
+
+
+/* ================================
+   TASKER AUTH
 ================================ */
 
 function openTaskerAuth(mode){
@@ -690,15 +638,10 @@ function openTaskerAuth(mode){
     .getElementById("taskerAuth")
     .classList.remove("hidden");
 
-
   if(mode === "signup"){
-
     showSignup();
-
   }else{
-
     showLogin();
-
   }
 
 }
@@ -716,10 +659,6 @@ function backToRoles(){
 
 }
 
-
-/* ================================
-   PAGE SWITCHING
-================================ */
 
 function showLogin(){
 
@@ -780,7 +719,7 @@ document
 
 
 /* ================================
-   MESSAGE
+   MESSAGES
 ================================ */
 
 function showMessage(
@@ -798,7 +737,7 @@ function showMessage(
 
 
 /* ================================
-   REFERRAL LINK
+   REFERRAL
 ================================ */
 
 const params =
@@ -833,7 +772,6 @@ document
 
       event.preventDefault();
 
-
       const button =
         document.getElementById(
           "loginButton"
@@ -843,7 +781,6 @@ document
         document.getElementById(
           "loginMessage"
         );
-
 
       button.disabled = true;
 
@@ -855,7 +792,6 @@ document
 
       message.textContent = "";
 
-
       if(!supabaseClient){
 
         showMessage(
@@ -865,14 +801,10 @@ document
         );
 
         button.disabled = false;
-
-        button.textContent =
-          "Login";
+        button.textContent = "Login";
 
         return;
-
       }
-
 
       const email =
         document
@@ -880,12 +812,10 @@ document
           .value
           .trim();
 
-
       const password =
         document
           .getElementById("loginPassword")
           .value;
-
 
       try{
 
@@ -899,11 +829,9 @@ document
               password
             });
 
-
         if(error){
           throw error;
         }
-
 
         if(!data.session){
 
@@ -913,14 +841,11 @@ document
 
         }
 
-
         button.textContent =
           "Opening account...";
 
-
         window.location.href =
           "dashboard.html";
-
 
       }catch(error){
 
@@ -929,7 +854,6 @@ document
           error
         );
 
-
         showMessage(
           message,
           error.message ||
@@ -937,11 +861,8 @@ document
           "error"
         );
 
-
         button.disabled = false;
-
-        button.textContent =
-          "Login";
+        button.textContent = "Login";
 
       }
 
@@ -961,7 +882,6 @@ document
 
       event.preventDefault();
 
-
       const button =
         document.getElementById(
           "signupButton"
@@ -972,18 +892,15 @@ document
           "signupMessage"
         );
 
-
       button.disabled = true;
 
       button.textContent =
         "Creating account...";
 
-
       message.className =
         "message";
 
       message.textContent = "";
-
 
       if(!supabaseClient){
 
@@ -994,14 +911,10 @@ document
         );
 
         button.disabled = false;
-
-        button.textContent =
-          "Create Account";
+        button.textContent = "Create Account";
 
         return;
-
       }
-
 
       const fullName =
         document
@@ -1009,13 +922,11 @@ document
           .value
           .trim();
 
-
       const phone =
         document
           .getElementById("phone")
           .value
           .trim();
-
 
       const email =
         document
@@ -1023,19 +934,16 @@ document
           .value
           .trim();
 
-
       const password =
         document
           .getElementById("signupPassword")
           .value;
-
 
       const referralCode =
         document
           .getElementById("referralCode")
           .value
           .trim();
-
 
       try{
 
@@ -1046,29 +954,27 @@ document
           await supabaseClient.auth
             .signUp({
 
-              email:email,
+              email: email,
 
-              password:password,
+              password: password,
 
               options:{
 
                 data:{
-                  full_name:fullName,
-                  phone:phone,
-                  referral_code:referralCode,
-                  user_type:"tasker",
-                  role:"tasker"
+                  full_name: fullName,
+                  phone: phone,
+                  referral_code: referralCode,
+                  user_type: "tasker",
+                  role: "tasker"
                 }
 
               }
 
             });
 
-
         if(error){
           throw error;
         }
-
 
         if(
           data.user &&
@@ -1081,10 +987,8 @@ document
             "success"
           );
 
-
           button.textContent =
             "Account created!";
-
 
           setTimeout(
             function(){
@@ -1096,11 +1000,8 @@ document
             800
           );
 
-
           return;
-
         }
-
 
         if(data.user){
 
@@ -1110,22 +1011,16 @@ document
             "success"
           );
 
-
           button.disabled = false;
-
           button.textContent =
             "Create Account";
 
-
           return;
-
         }
-
 
         throw new Error(
           "Account could not be created. Please try again."
         );
-
 
       }catch(error){
 
@@ -1134,7 +1029,6 @@ document
           error
         );
 
-
         showMessage(
           message,
           error.message ||
@@ -1142,9 +1036,7 @@ document
           "error"
         );
 
-
         button.disabled = false;
-
         button.textContent =
           "Create Account";
 
@@ -1156,4 +1048,4 @@ document
 </script>
 
 </body>
-  </html>
+          </html>
