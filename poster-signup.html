@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Task Poster Sign Up — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial, sans-serif;
+  background:#f5fff7;
+  color:#123;
+  min-height:100vh;
+}
+
+.header{
+  background:#0b8f3c;
+  color:white;
+  padding:18px 16px;
+  text-align:center;
+}
+
+.header h1{
+  font-size:24px;
+  margin-bottom:5px;
+}
+
+.header p{
+  font-size:14px;
+  opacity:.95;
+}
+
+.container{
+  width:92%;
+  max-width:500px;
+  margin:25px auto;
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.role{
+  background:#e9f9ee;
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:20px;
+  text-align:center;
+}
+
+.role strong{
+  display:block;
+  color:#0b8f3c;
+  font-size:17px;
+  margin-bottom:5px;
+}
+
+.role span{
+  font-size:13px;
+  color:#555;
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+  color:#123;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin:15px 0 7px;
+  font-size:14px;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  border:1px solid #d5dfd8;
+  border-radius:10px;
+  font-size:15px;
+  outline:none;
+}
+
+input:focus{
+  border-color:#0b8f3c;
+}
+
+.password-box{
+  position:relative;
+}
+
+.password-box input{
+  padding-right:75px;
+}
+
+.show-btn{
+  position:absolute;
+  right:8px;
+  top:7px;
+  border:none;
+  background:#e9f9ee;
+  color:#0b8f3c;
+  padding:8px 10px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.main-btn{
+  width:100%;
+  border:none;
+  background:#0b8f3c;
+  color:white;
+  padding:15px;
+  border-radius:11px;
+  font-size:16px;
+  font-weight:bold;
+  margin-top:22px;
+}
+
+.main-btn:disabled{
+  opacity:.6;
+}
+
+.message{
+  display:none;
+  padding:12px;
+  border-radius:10px;
+  margin-top:15px;
+  text-align:center;
+  font-size:14px;
+}
+
+.success{
+  background:#e8f8ed;
+  color:#08752f;
+}
+
+.error{
+  background:#ffecec;
+  color:#b00020;
+}
+
+.bottom{
+  text-align:center;
+  margin-top:20px;
+  font-size:14px;
+}
+
+.bottom a{
+  color:#0b8f3c;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+.back{
+  display:block;
+  text-align:center;
+  margin-top:18px;
+  color:#555;
+  text-decoration:none;
+  font-size:14px;
+}
+
+.small{
+  font-size:12px;
+  color:#777;
+  margin-top:7px;
+  line-height:1.4;
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+  <h1>NAIJA TASK</h1>
+
+  <p>Task Poster Account</p>
+
+</header>
+
+
+<div class="container">
+
+  <div class="card">
+
+    <div class="role">
+
+      <strong>📢 Task Poster</strong>
+
+      <span>
+        Create jobs, set rewards and review task submissions.
+      </span>
+
+    </div>
+
+
+    <h2>Create Task Poster Account</h2>
+
+
+    <form id="signupForm">
+
+      <label for="fullName">
+        Full Name
+      </label>
+
+      <input
+        id="fullName"
+        type="text"
+        placeholder="Enter your full name"
+        required
+      >
+
+
+      <label for="email">
+        Email Address
+      </label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Enter your email"
+        required
+      >
+
+
+      <label for="password">
+        Password
+      </label>
+
+      <div class="password-box">
+
+        <input
+          id="password"
+          type="password"
+          placeholder="Create a password"
+          minlength="6"
+          required
+        >
+
+        <button
+          type="button"
+          class="show-btn"
+          id="showPassword"
+        >
+          Show
+        </button>
+
+      </div>
+
+      <div class="small">
+        Password must contain at least 6 characters.
+      </div>
+
+
+      <label for="confirmPassword">
+        Confirm Password
+      </label>
+
+      <div class="password-box">
+
+        <input
+          id="confirmPassword"
+          type="password"
+          placeholder="Enter password again"
+          minlength="6"
+          required
+        >
+
+        <button
+          type="button"
+          class="show-btn"
+          id="showConfirmPassword"
+        >
+          Show
+        </button>
+
+      </div>
+
+
+      <button
+        type="submit"
+        class="main-btn"
+        id="signupBtn"
+      >
+        Create Task Poster Account
+      </button>
+
+    </form>
+
+
+    <div
+      id="message"
+      class="message"
+    ></div>
+
+
+    <div class="bottom">
+
+      Already have a Task Poster account?
+
+      <br><br>
+
+      <a href="poster-login.html">
+        Log In
+      </a>
+
+    </div>
+
+
+    <a
+      href="index.html"
+      class="back"
+    >
+      ← Back to NAIJA TASK
+    </a>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+     
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const signupForm =
+  document.getElementById("signupForm");
+
+const signupBtn =
+  document.getElementById("signupBtn");
+
+const message =
+  document.getElementById("message");
+
+
+function showMessage(text, type){
+
+  message.textContent = text;
+
+  message.className =
+    "message " + type;
+
+  message.style.display = "block";
+}
+
+
+function hideMessage(){
+
+  message.style.display = "none";
+
+}
+
+
+/* SHOW / HIDE PASSWORD */
+
+document
+  .getElementById("showPassword")
+  .addEventListener("click", function(){
+
+    const input =
+      document.getElementById("password");
+
+    if(input.type === "password"){
+
+      input.type = "text";
+      this.textContent = "Hide";
+
+    }else{
+
+      input.type = "password";
+      this.textContent = "Show";
+
+    }
+
+  });
+
+
+document
+  .getElementById("showConfirmPassword")
+  .addEventListener("click", function(){
+
+    const input =
+      document.getElementById("confirmPassword");
+
+    if(input.type === "password"){
+
+      input.type = "text";
+      this.textContent = "Hide";
+
+    }else{
+
+      input.type = "password";
+      this.textContent = "Show";
+
+    }
+
+  });
+
+
+/* SIGN UP */
+
+signupForm.addEventListener(
+  "submit",
+  async function(event){
+
+    event.preventDefault();
+
+    hideMessage();
+
+    const fullName =
+      document
+        .getElementById("fullName")
+        .value
+        .trim();
+
+    const email =
+      document
+        .getElementById("email")
+        .value
+        .trim();
+
+    const password =
+      document
+        .getElementById("password")
+        .value;
+
+    const confirmPassword =
+      document
+        .getElementById("confirmPassword")
+        .value;
+
+
+    if(!fullName){
+
+      showMessage(
+        "Please enter your full name.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    if(password.length < 6){
+
+      showMessage(
+        "Password must contain at least 6 characters.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    if(password !== confirmPassword){
+
+      showMessage(
+        "Passwords do not match.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    signupBtn.disabled = true;
+
+    signupBtn.textContent =
+      "Creating account...";
+
+
+    try{
+
+      const { data, error } =
+        await supabaseClient.auth.signUp({
+
+          email: email,
+
+          password: password,
+
+          options: {
+
+            data: {
+
+              full_name: fullName,
+
+              user_type: "task_poster",
+
+              role: "task_poster"
+
+            }
+
+          }
+
+        });
+
+
+      if(error){
+
+        throw error;
+
+      }
+
+
+      /*
+        If email confirmation is enabled,
+        Supabase will require the user
+        to confirm their email.
+      */
+
+      if(
+        data.user &&
+        data.session
+      ){
+
+        showMessage(
+          "Task Poster account created successfully. Redirecting...",
+          "success"
+        );
+
+        setTimeout(function(){
+
+          window.location.href =
+            "post-job.html";
+
+        }, 1500);
+
+      }else{
+
+        showMessage(
+          "Account created. Please check your email to confirm your account, then log in as a Task Poster.",
+          "success"
+        );
+
+        signupForm.reset();
+
+      }
+
+
+    }catch(error){
+
+      console.error(error);
+
+      showMessage(
+        error.message ||
+        "Unable to create your account. Please try again.",
+        "error"
+      );
+
+    }
+
+
+    signupBtn.disabled = false;
+
+    signupBtn.textContent =
+      "Create Task Poster Account";
+
+  }
+
+);
+
+</script>
+
+</body>
+  </html>
