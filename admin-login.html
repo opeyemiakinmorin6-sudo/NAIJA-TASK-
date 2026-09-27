@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Login — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f5fff7;
+  color:#17221a;
+  min-height:100vh;
+}
+
+header{
+  background:#0b8f3c;
+  color:white;
+  text-align:center;
+  padding:35px 20px;
+  border-radius:0 0 28px 28px;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:900;
+}
+
+.container{
+  max-width:430px;
+  margin:auto;
+  padding:25px 16px;
+}
+
+.card{
+  background:white;
+  padding:24px;
+  border-radius:20px;
+  box-shadow:0 7px 25px rgba(0,0,0,.08);
+}
+
+.security{
+  background:#eef9f1;
+  padding:13px;
+  border-radius:12px;
+  color:#435047;
+  font-size:12px;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+
+h1{
+  font-size:23px;
+  margin-bottom:7px;
+}
+
+.subtitle{
+  color:#68736b;
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+
+.field{
+  margin-bottom:15px;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+input{
+  width:100%;
+  padding:13px;
+  border:1px solid #d8e3da;
+  border-radius:11px;
+  font-size:14px;
+  outline:none;
+}
+
+input:focus{
+  border-color:#0b8f3c;
+}
+
+button{
+  width:100%;
+  border:0;
+  background:#0b8f3c;
+  color:white;
+  padding:14px;
+  border-radius:11px;
+  font-size:15px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:.8;
+}
+
+.message{
+  display:none;
+  margin-top:14px;
+  padding:12px;
+  border-radius:10px;
+  font-size:13px;
+  line-height:1.4;
+}
+
+.message.show{
+  display:block;
+}
+
+.error{
+  background:#fff0f0;
+  color:#a32323;
+}
+
+.success{
+  background:#edf9f0;
+  color:#08752e;
+}
+
+.back{
+  display:block;
+  text-align:center;
+  margin-top:18px;
+  color:#0b8f3c;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:700;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="logo">
+    NAIJA TASK
+  </div>
+
+</header>
+
+
+<main class="container">
+
+  <section class="card">
+
+    <h1>
+      Admin Login
+    </h1>
+
+    <p class="subtitle">
+      Secure access to NAIJA TASK administration.
+    </p>
+
+    <div class="security">
+      Admin access is restricted to accounts registered
+      in the NAIJA TASK <strong>admin_users</strong> table.
+    </div>
+
+
+    <form id="adminLoginForm">
+
+      <div class="field">
+
+        <label for="email">
+          Admin Email
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          placeholder="Enter admin email"
+          autocomplete="email"
+          required>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="password">
+          Password
+        </label>
+
+        <input
+          id="password"
+          type="password"
+          placeholder="Enter password"
+          autocomplete="current-password"
+          required>
+
+      </div>
+
+
+      <button
+        id="loginButton"
+        type="submit">
+
+        Admin Login
+
+      </button>
+
+
+      <div
+        id="message"
+        class="message">
+      </div>
+
+    </form>
+
+
+    <a
+      href="index.html"
+      class="back">
+      ← Back to NAIJA TASK
+    </a>
+
+  </section>
+
+</main>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+
+/*
+  Put your current publishable key here.
+  Never use a service-role/secret key.
+*/
+
+const SUPABASE_KEY =
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+
+const db =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+function showMessage(
+  text,
+  type
+){
+
+  const message =
+    document.getElementById("message");
+
+  message.textContent = text;
+
+  message.className =
+    "message show " + type;
+
+}
+
+
+document
+  .getElementById("adminLoginForm")
+  .addEventListener(
+    "submit",
+    async function(event){
+
+      event.preventDefault();
+
+      const button =
+        document.getElementById(
+          "loginButton"
+        );
+
+      const email =
+        document
+          .getElementById("email")
+          .value
+          .trim();
+
+      const password =
+        document
+          .getElementById("password")
+          .value;
+
+      button.disabled = true;
+
+      button.textContent =
+        "Checking admin access...";
+
+
+      try{
+
+        const {
+          data,
+          error
+        } =
+          await db.auth.signInWithPassword({
+            email,
+            password
+          });
+
+        if(error){
+          throw error;
+        }
+
+
+        if(!data.user){
+
+          throw new Error(
+            "Login failed."
+          );
+
+        }
+
+
+        /* REAL ADMIN CHECK */
+
+        const {
+          data:admin,
+          error:adminError
+        } =
+          await db
+            .from("admin_users")
+            .select("user_id")
+            .eq("user_id", data.user.id)
+            .maybeSingle();
+
+
+        if(adminError){
+          throw adminError;
+        }
+
+
+        if(!admin){
+
+          await db.auth.signOut();
+
+          throw new Error(
+            "This account is not authorized as an administrator."
+          );
+
+        }
+
+
+        showMessage(
+          "Admin access confirmed. Opening admin payments...",
+          "success"
+        );
+
+        button.textContent =
+          "Opening Admin...";
+
+
+        setTimeout(
+          function(){
+
+            window.location.href =
+              "admin-payments.html";
+
+          },
+          700
+        );
+
+
+      }catch(error){
+
+        console.error(
+          "Admin login error:",
+          error
+        );
+
+        showMessage(
+          error.message ||
+          "Admin login failed.",
+          "error"
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+          "Admin Login";
+
+      }
+
+    }
+  );
+
+</script>
+
+</body>
+      </html>
