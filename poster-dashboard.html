@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Poster Dashboard — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5fff7;
+  color:#17251c;
+  min-height:100vh;
+}
+
+header{
+  background:#0b8f3c;
+  color:white;
+  padding:18px 16px;
+  position:sticky;
+  top:0;
+  z-index:20;
+  box-shadow:0 2px 10px rgba(0,0,0,.12);
+}
+
+.header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.brand{
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:.3px;
+}
+
+.badge{
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.25);
+  padding:7px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:700;
+}
+
+main{
+  max-width:900px;
+  margin:auto;
+  padding:18px 14px 90px;
+}
+
+.welcome{
+  margin-bottom:18px;
+}
+
+.welcome h1{
+  font-size:24px;
+  margin-bottom:5px;
+}
+
+.welcome p{
+  color:#66736a;
+  font-size:14px;
+}
+
+/* FUNDING CARD */
+
+.balance-card{
+  background:#0b8f3c;
+  color:white;
+  border-radius:18px;
+  padding:22px;
+  margin-bottom:18px;
+  box-shadow:0 8px 22px rgba(11,143,60,.18);
+}
+
+.balance-label{
+  font-size:13px;
+  opacity:.85;
+  margin-bottom:8px;
+}
+
+.balance{
+  font-size:30px;
+  font-weight:800;
+}
+
+.balance-note{
+  margin-top:7px;
+  font-size:12px;
+  opacity:.8;
+}
+
+/* STATS */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.stat{
+  background:white;
+  border:1px solid #dceee1;
+  border-radius:15px;
+  padding:17px;
+}
+
+.stat-label{
+  font-size:12px;
+  color:#718078;
+  margin-bottom:8px;
+}
+
+.stat-value{
+  font-size:24px;
+  font-weight:800;
+  color:#0b8f3c;
+}
+
+/* POST JOB */
+
+.post-job{
+  background:white;
+  border:1px solid #dceee1;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.post-job h2{
+  font-size:18px;
+  margin-bottom:7px;
+}
+
+.post-job p{
+  color:#68756c;
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:16px;
+}
+
+.primary-btn{
+  display:block;
+  width:100%;
+  background:#0b8f3c;
+  color:white;
+  text-decoration:none;
+  text-align:center;
+  padding:14px;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:800;
+}
+
+/* MENU */
+
+.section-title{
+  font-size:17px;
+  font-weight:800;
+  margin:22px 0 11px;
+}
+
+.menu{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:11px;
+}
+
+.menu a,
+.menu button{
+  min-height:76px;
+  background:white;
+  border:1px solid #dceee1;
+  border-radius:15px;
+  text-decoration:none;
+  color:#17251c;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:14px;
+  text-align:left;
+  cursor:pointer;
+}
+
+.menu-title{
+  font-weight:800;
+  font-size:14px;
+  margin-bottom:5px;
+}
+
+.menu-text{
+  color:#748078;
+  font-size:11px;
+  line-height:1.3;
+}
+
+/* RECENT JOBS */
+
+.jobs{
+  margin-top:10px;
+}
+
+.job{
+  background:white;
+  border:1px solid #dceee1;
+  border-radius:15px;
+  padding:15px;
+  margin-bottom:10px;
+}
+
+.job-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.job-title{
+  font-size:15px;
+  font-weight:800;
+}
+
+.status{
+  font-size:10px;
+  font-weight:800;
+  padding:5px 8px;
+  border-radius:20px;
+  background:#eef3ef;
+  color:#526057;
+  white-space:nowrap;
+}
+
+.status.live{
+  background:#e5f8eb;
+  color:#087b32;
+}
+
+.status.review{
+  background:#fff4d9;
+  color:#916500;
+}
+
+.status.payment{
+  background:#edf1ff;
+  color:#4058a8;
+}
+
+.job-info{
+  margin-top:9px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.info{
+  background:#f5faf6;
+  border-radius:8px;
+  padding:6px 8px;
+  font-size:11px;
+  color:#5e6b62;
+}
+
+.empty{
+  background:white;
+  border:1px dashed #cdded1;
+  border-radius:15px;
+  padding:25px 15px;
+  text-align:center;
+  color:#748078;
+  font-size:13px;
+}
+
+/* LOADING */
+
+.loading{
+  text-align:center;
+  padding:40px 10px;
+  color:#718078;
+  font-size:14px;
+}
+
+.error{
+  display:none;
+  background:#fff0f0;
+  color:#a32626;
+  border:1px solid #f1cccc;
+  border-radius:12px;
+  padding:13px;
+  margin-bottom:15px;
+  font-size:13px;
+}
+
+/* BOTTOM NAV */
+
+.bottom-nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  background:white;
+  border-top:1px solid #dceee1;
+  display:flex;
+  justify-content:space-around;
+  padding:8px 5px;
+  z-index:30;
+}
+
+.bottom-nav a{
+  flex:1;
+  text-align:center;
+  text-decoration:none;
+  color:#657169;
+  font-size:10px;
+  font-weight:700;
+  padding:5px;
+}
+
+.bottom-nav a.active{
+  color:#0b8f3c;
+}
+
+.bottom-icon{
+  display:block;
+  font-size:19px;
+  margin-bottom:3px;
+}
+
+@media(min-width:700px){
+
+  .stats{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .menu{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .primary-btn{
+    width:auto;
+    display:inline-block;
+    padding:13px 24px;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="header-row">
+
+    <div class="brand">
+      NAIJA TASK
+    </div>
+
+    <div class="badge">
+      POSTER
+    </div>
+
+  </div>
+
+</header>
+
+
+<main>
+
+  <div id="errorBox" class="error"></div>
+
+  <section class="welcome">
+
+    <h1 id="welcomeName">
+      Welcome
+    </h1>
+
+    <p>
+      Manage your jobs, fund tasks and track your workers.
+    </p>
+
+  </section>
+
+
+  <!-- FUNDING -->
+
+  <section class="balance-card">
+
+    <div class="balance-label">
+      TOTAL JOB FUNDING
+    </div>
+
+    <div class="balance" id="totalFunding">
+      ₦0
+    </div>
+
+    <div class="balance-note">
+      Based on your created jobs
+    </div>
+
+  </section>
+
+
+  <!-- STATS -->
+
+  <section class="stats">
+
+    <div class="stat">
+
+      <div class="stat-label">
+        Total Jobs
+      </div>
+
+      <div class="stat-value" id="totalJobs">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-label">
+        Live Jobs
+      </div>
+
+      <div class="stat-value" id="liveJobs">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-label">
+        Under Review
+      </div>
+
+      <div class="stat-value" id="reviewJobs">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="stat">
+
+      <div class="stat-label">
+        Completed
+      </div>
+
+      <div class="stat-value" id="completedJobs">
+        0
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- POST JOB -->
+
+  <section class="post-job">
+
+    <h2>
+      Create a new job
+    </h2>
+
+    <p>
+      Post a task for Taskers. Add your instructions, reward, slots and proof requirements.
+      Your job must be funded and approved before it becomes LIVE.
+    </p>
+
+    <a class="primary-btn" href="post-job.html">
+      + Post a Job
+    </a>
+
+  </section>
+
+
+  <!-- MENU -->
+
+  <div class="section-title">
+    Manage
+  </div>
+
+  <section class="menu">
+
+    <a href="post-job.html">
+
+      <span class="menu-title">
+        Post a Job
+      </span>
+
+      <span class="menu-text">
+        Create a new paid task
+      </span>
+
+    </a>
+
+
+    <a href="poster-jobs.html">
+
+      <span class="menu-title">
+        My Jobs
+      </span>
+
+      <span class="menu-text">
+        View and manage your jobs
+      </span>
+
+    </a>
+
+
+    <a href="poster-payment.html">
+
+      <span class="menu-title">
+        Payments
+      </span>
+
+      <span class="menu-text">
+        Fund jobs and view payment status
+      </span>
+
+    </a>
+
+
+    <a href="poster-history.html">
+
+      <span class="menu-title">
+        Job History
+      </span>
+
+      <span class="menu-text">
+        View previous jobs
+      </span>
+
+    </a>
+
+  </section>
+
+
+  <!-- RECENT JOBS -->
+
+  <div class="section-title">
+    Recent Jobs
+  </div>
+
+  <section id="jobsList" class="jobs">
+
+    <div class="loading">
+      Loading your jobs...
+    </div>
+
+  </section>
+
+
+  <div class="section-title">
+    Account
+  </div>
+
+  <section class="menu">
+
+    <a href="profile.html">
+
+      <span class="menu-title">
+        Profile
+      </span>
+
+      <span class="menu-text">
+        Manage your account
+      </span>
+
+    </a>
+
+
+    <a href="index.html">
+
+      <span class="menu-title">
+        Tasker Site
+      </span>
+
+      <span class="menu-text">
+        Return to NAIJA TASK
+      </span>
+
+    </a>
+
+
+    <button onclick="logout()">
+
+      <span class="menu-title">
+        Logout
+      </span>
+
+      <span class="menu-text">
+        Sign out of this account
+      </span>
+
+    </button>
+
+  </section>
+
+</main>
+
+
+<!-- BOTTOM NAV -->
+
+<nav class="bottom-nav">
+
+  <a href="poster-dashboard.html" class="active">
+
+    <span class="bottom-icon">⌂</span>
+    Home
+
+  </a>
+
+
+  <a href="poster-jobs.html">
+
+    <span class="bottom-icon">▣</span>
+    Jobs
+
+  </a>
+
+
+  <a href="post-job.html">
+
+    <span class="bottom-icon">＋</span>
+    Post Job
+
+  </a>
+
+
+  <a href="poster-payment.html">
+
+    <span class="bottom-icon">₦</span>
+    Payments
+
+  </a>
+
+
+  <a href="profile.html">
+
+    <span class="bottom-icon">●</span>
+    Profile
+
+  </a>
+
+</nav>
+
+
+<script>
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function naira(amount){
+
+  const number = Number(amount || 0);
+
+  return "₦" + number.toLocaleString("en-NG", {
+    maximumFractionDigits:2
+  });
+
+}
+
+
+function showError(message){
+
+  const box =
+    document.getElementById("errorBox");
+
+  box.textContent = message;
+
+  box.style.display = "block";
+
+}
+
+
+/* =========================================================
+   CHECK POSTER
+   ========================================================= */
+
+async function checkPoster(){
+
+  const {
+    data,
+    error
+  } = await supabaseClient.auth.getSession();
+
+  if(error){
+
+    showError(error.message);
+
+    return null;
+
+  }
+
+  const session = data.session;
+
+  if(!session){
+
+    window.location.href =
+      "poster-login.html";
+
+    return null;
+
+  }
+
+  const user =
+    session.user;
+
+  const metadata =
+    user.user_metadata || {};
+
+  const role =
+    metadata.role ||
+    metadata.user_type ||
+    "";
+
+  /*
+     Poster accounts use task_poster.
+  */
+
+  if(
+    role !== "task_poster" &&
+    role !== "poster"
+  ){
+
+    await supabaseClient.auth.signOut();
+
+    alert(
+      "This account is not registered as a Poster."
+    );
+
+    window.location.href =
+      "index.html";
+
+    return null;
+
+  }
+
+  return user;
+
+}
+
+
+/* =========================================================
+   LOAD POSTER PROFILE
+   ========================================================= */
+
+async function loadProfile(user){
+
+  let fullName =
+    user.user_metadata?.full_name ||
+    user.user_metadata?.name ||
+    "";
+
+  /*
+     Try profiles table too.
+  */
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if(!error && data?.full_name){
+
+    fullName =
+      data.full_name;
+
+  }
+
+  if(!fullName){
+
+    fullName =
+      user.email?.split("@")[0] ||
+      "Poster";
+
+  }
+
+  document.getElementById(
+    "welcomeName"
+  ).textContent =
+    "Welcome, " + fullName;
+
+}
+
+
+/* =========================================================
+   LOAD JOBS
+   ========================================================= */
+
+async function loadJobs(user){
+
+  const jobsList =
+    document.getElementById("jobsList");
+
+  const {
+    data: jobs,
+    error
+  } = await supabaseClient
+    .from("tasks")
+    .select(`
+      id,
+      title,
+      reward,
+      slots,
+      status,
+      active,
+      created_at,
+      expiry_date
+    `)
+    .eq("created_by", user.id)
+    .order("created_at", {
+      ascending:false
+    });
+
+
+  if(error){
+
+    jobsList.innerHTML = `
+      <div class="empty">
+        Unable to load your jobs.<br><br>
+        ${escapeHtml(error.message)}
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  const list =
+    jobs || [];
+
+
+  /* ============================
+     STATS
+     ============================ */
+
+  const total =
+    list.length;
+
+  const live =
+    list.filter(job =>
+      job.status === "LIVE" &&
+      job.active === true
+    ).length;
+
+  const review =
+    list.filter(job =>
+      job.status === "UNDER_REVIEW"
+    ).length;
+
+  const completed =
+    list.filter(job =>
+      job.status === "COMPLETED"
+    ).length;
+
+
+  document.getElementById(
+    "totalJobs"
+  ).textContent =
+    total;
+
+  document.getElementById(
+    "liveJobs"
+  ).textContent =
+    live;
+
+  document.getElementById(
+    "reviewJobs"
+  ).textContent =
+    review;
+
+  document.getElementById(
+    "completedJobs"
+  ).textContent =
+    completed;
+
+
+  /* ============================
+     TOTAL FUNDING
+     reward × slots
+     ============================ */
+
+  let funding = 0;
+
+  list.forEach(job => {
+
+    const reward =
+      Number(job.reward || 0);
+
+    const slots =
+      Number(job.slots || 0);
+
+    funding +=
+      reward * slots;
+
+  });
+
+
+  document.getElementById(
+    "totalFunding"
+  ).textContent =
+    naira(funding);
+
+
+  /* ============================
+     RECENT JOBS
+     ============================ */
+
+  if(list.length === 0){
+
+    jobsList.innerHTML = `
+      <div class="empty">
+
+        You have not posted any jobs yet.
+
+        <br><br>
+
+        Create your first job to get started.
+
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  const recent =
+    list.slice(0,5);
+
+
+  jobsList.innerHTML =
+    recent.map(job => {
+
+      const status =
+        String(
+          job.status || "UNKNOWN"
+        ).toUpperCase();
+
+
+      let statusClass = "";
+
+      if(status === "LIVE"){
+        statusClass = "live";
+      }
+
+      if(status === "UNDER_REVIEW"){
+        statusClass = "review";
+      }
+
+      if(status === "PAYMENT_REQUIRED"){
+        statusClass = "payment";
+      }
+
+
+      const funding =
+        Number(job.reward || 0) *
+        Number(job.slots || 0);
+
+
+      return `
+
+        <div class="job">
+
+          <div class="job-top">
+
+            <div class="job-title">
+              ${escapeHtml(
+                job.title || "Untitled Job"
+              )}
+            </div>
+
+            <div class="status ${statusClass}">
+              ${formatStatus(status)}
+            </div>
+
+          </div>
+
+
+          <div class="job-info">
+
+            <span class="info">
+              Reward: ${naira(job.reward)}
+            </span>
+
+            <span class="info">
+              Slots: ${Number(job.slots || 0)}
+            </span>
+
+            <span class="info">
+              Funding: ${naira(funding)}
+            </span>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   FORMAT STATUS
+   ========================================================= */
+
+function formatStatus(status){
+
+  return status
+    .replaceAll("_"," ")
+    .replace(/\b\w/g,
+      letter => letter.toUpperCase()
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHtml(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+async function logout(){
+
+  const confirmed =
+    confirm(
+      "Are you sure you want to logout?"
+    );
+
+  if(!confirmed){
+    return;
+  }
+
+  const {
+    error
+  } =
+    await supabaseClient.auth.signOut();
+
+  if(error){
+
+    alert(
+      "Logout failed: " +
+      error.message
+    );
+
+    return;
+
+  }
+
+  window.location.href =
+    "poster-login.html";
+
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+async function startDashboard(){
+
+  const user =
+    await checkPoster();
+
+  if(!user){
+    return;
+  }
+
+  await loadProfile(user);
+
+  await loadJobs(user);
+
+}
+
+
+/* =========================================================
+   RUN
+   ========================================================= */
+
+startDashboard();
+
+</script>
+
+</body>
+  </html>
