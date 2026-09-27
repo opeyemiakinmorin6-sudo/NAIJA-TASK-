@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Post a Job — NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f5fff7;
+  color:#123;
+  min-height:100vh;
+}
+
+.header{
+  background:#0b8f3c;
+  color:white;
+  padding:18px 16px;
+}
+
+.header-inner{
+  max-width:650px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.header h1{
+  font-size:21px;
+}
+
+.header p{
+  font-size:12px;
+  opacity:.9;
+  margin-top:3px;
+}
+
+.logout-btn{
+  border:none;
+  background:white;
+  color:#0b8f3c;
+  padding:9px 12px;
+  border-radius:9px;
+  font-weight:bold;
+}
+
+.container{
+  width:92%;
+  max-width:650px;
+  margin:22px auto 40px;
+}
+
+.card{
+  background:white;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:16px;
+  box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+
+.card h2{
+  font-size:18px;
+  margin-bottom:16px;
+}
+
+.poster-box{
+  background:#e9f9ee;
+  color:#08752f;
+  border-radius:12px;
+  padding:13px;
+  margin-bottom:16px;
+  font-size:14px;
+}
+
+label{
+  display:block;
+  font-size:14px;
+  font-weight:bold;
+  margin:15px 0 7px;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  border:1px solid #d5dfd8;
+  border-radius:10px;
+  padding:13px;
+  font-size:15px;
+  outline:none;
+  background:white;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#0b8f3c;
+}
+
+textarea{
+  min-height:130px;
+  resize:vertical;
+}
+
+.help{
+  color:#777;
+  font-size:12px;
+  line-height:1.4;
+  margin-top:6px;
+}
+
+.proof-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.proof-item{
+  border:1px solid #dce6df;
+  border-radius:12px;
+  padding:12px;
+  background:#fbfffc;
+}
+
+.proof-item label{
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.proof-item input{
+  width:auto;
+}
+
+.timer-box{
+  display:none;
+  margin-top:12px;
+  background:#f5fff7;
+  padding:12px;
+  border-radius:10px;
+}
+
+.summary{
+  background:#f5fff7;
+  border-radius:12px;
+  padding:15px;
+  line-height:1.8;
+  font-size:14px;
+}
+
+.summary strong{
+  color:#0b8f3c;
+}
+
+.publish-btn{
+  width:100%;
+  border:none;
+  background:#0b8f3c;
+  color:white;
+  padding:16px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+.publish-btn:disabled{
+  opacity:.6;
+}
+
+.message{
+  display:none;
+  padding:13px;
+  border-radius:10px;
+  text-align:center;
+  margin-bottom:15px;
+  font-size:14px;
+}
+
+.success{
+  background:#e8f8ed;
+  color:#08752f;
+}
+
+.error{
+  background:#ffecec;
+  color:#b00020;
+}
+
+.back{
+  display:block;
+  text-align:center;
+  color:#555;
+  text-decoration:none;
+  margin-top:18px;
+  font-size:14px;
+}
+
+@media(max-width:480px){
+
+  .proof-grid{
+    grid-template-columns:1fr;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+
+  <div class="header-inner">
+
+    <div>
+      <h1>NAIJA TASK</h1>
+      <p>Task Poster — Post a Job</p>
+    </div>
+
+    <button
+      class="logout-btn"
+      id="logoutBtn"
+      type="button"
+    >
+      Logout
+    </button>
+
+  </div>
+
+</header>
+
+
+<div class="container">
+
+  <div
+    id="message"
+    class="message"
+  ></div>
+
+
+  <div class="poster-box">
+    📢 <strong>Task Poster</strong><br>
+    Create your job and clearly tell Taskers exactly what you want them to do.
+  </div>
+
+
+  <!-- JOB DETAILS -->
+
+  <div class="card">
+
+    <h2>📋 Job Details</h2>
+
+
+    <label for="title">
+      Job Title
+    </label>
+
+    <input
+      id="title"
+      type="text"
+      placeholder="Example: Follow our TikTok account"
+      maxlength="150"
+    >
+
+
+    <label for="category">
+      Category
+    </label>
+
+    <select id="category">
+
+      <option value="general">
+        General
+      </option>
+
+      <option value="tiktok">
+        TikTok
+      </option>
+
+      <option value="youtube">
+        YouTube
+      </option>
+
+      <option value="instagram">
+        Instagram
+      </option>
+
+      <option value="facebook">
+        Facebook
+      </option>
+
+      <option value="telegram">
+        Telegram
+      </option>
+
+      <option value="app_download">
+        App Download
+      </option>
+
+      <option value="website">
+        Website
+      </option>
+
+      <option value="survey">
+        Survey
+      </option>
+
+      <option value="other">
+        Other
+      </option>
+
+    </select>
+
+
+    <label for="description">
+      Task Description / Instructions
+    </label>
+
+    <textarea
+      id="description"
+      placeholder="Write exactly what you want the Tasker to do.
+
+Example:
+Follow our TikTok account, like the latest video and upload a screenshot showing that you completed the task."
+    ></textarea>
+
+    <div class="help">
+      You control the instructions. Write whatever the Tasker needs to do to complete your job.
+    </div>
+
+
+    <label for="taskLink">
+      🔗 Social / Task Link
+    </label>
+
+    <input
+      id="taskLink"
+      type="url"
+      placeholder="https://tiktok.com/... or https://instagram.com/..."
+    >
+
+    <div class="help">
+      When the Tasker taps Open Link, they will be taken directly to this address.
+    </div>
+
+
+    <label for="copyText">
+      📋 Copy Text
+    </label>
+
+    <textarea
+      id="copyText"
+      placeholder="Optional text the Tasker should copy and use..."
+      style="min-height:90px;"
+    ></textarea>
+
+
+    <label for="reward">
+      💰 Reward per Tasker (₦)
+    </label>
+
+    <input
+      id="reward"
+      type="number"
+      min="1"
+      placeholder="Example: 10"
+    >
+
+
+    <label for="slots">
+      👥 Available Slots
+    </label>
+
+    <input
+      id="slots"
+      type="number"
+      min="1"
+      placeholder="Example: 50"
+    >
+
+  </div>
+
+
+  <!-- PROOF REQUIREMENTS -->
+
+  <div class="card">
+
+    <h2>📸 Proof Requirements</h2>
+
+    <div class="help">
+      Select what the Tasker must submit after completing your job.
+    </div>
+
+    <div class="proof-grid">
+
+      <div class="proof-item">
+
+        <label>
+
+          <input
+            type="checkbox"
+            id="proofPhoto"
+          >
+
+          📷 Photo / Screenshot
+
+        </label>
+
+      </div>
+
+
+      <div class="proof-item">
+
+        <label>
+
+          <input
+            type="checkbox"
+            id="proofUsername"
+          >
+
+          👤 Username
+
+        </label>
+
+      </div>
+
+
+      <div class="proof-item">
+
+        <label>
+
+          <input
+            type="checkbox"
+            id="proofText"
+          >
+
+          📝 Text / Answer
+
+        </label>
+
+      </div>
+
+
+      <div class="proof-item">
+
+        <label>
+
+          <input
+            type="checkbox"
+            id="proofUrl"
+          >
+
+          🔗 URL / Link
+
+        </label>
+
+      </div>
+
+
+      <div class="proof-item">
+
+        <label>
+
+          <input
+            type="checkbox"
+            id="proofReference"
+          >
+
+          🆔 Reference ID
+
+        </label>
+
+      </div>
+
+
+      <div class="proof-item">
+
+        <label>
+
+          <input
+            type="checkbox"
+            id="proofTimer"
+          >
+
+          ⏱️ Watch Timer
+
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="timerBox"
+      class="timer-box"
+    >
+
+      <label for="watchDuration">
+        Watch Duration
+      </label>
+
+      <select id="watchDuration">
+
+        <option value="15">
+          15 seconds
+        </option>
+
+        <option value="30">
+          30 seconds
+        </option>
+
+        <option value="60">
+          1 minute
+        </option>
+
+        <option value="120">
+          2 minutes
+        </option>
+
+        <option value="300">
+          5 minutes
+        </option>
+
+      </select>
+
+    </div>
+
+  </div>
+
+
+  <!-- SUMMARY -->
+
+  <div class="card">
+
+    <h2>👀 Job Summary</h2>
+
+    <div class="summary">
+
+      <div>
+        <strong>Title:</strong>
+        <span id="summaryTitle">Not entered</span>
+      </div>
+
+      <div>
+        <strong>Category:</strong>
+        <span id="summaryCategory">General</span>
+      </div>
+
+      <div>
+        <strong>Reward:</strong>
+        ₦<span id="summaryReward">0</span>
+      </div>
+
+      <div>
+        <strong>Slots:</strong>
+        <span id="summarySlots">0</span>
+      </div>
+
+      <div>
+        <strong>Social / Task Link:</strong>
+        <span id="summaryLink">Not provided</span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <button
+    id="publishBtn"
+    class="publish-btn"
+    type="button"
+  >
+    Publish Job
+  </button>
+
+
+  <a
+    href="index.html"
+    class="back"
+  >
+    ← Back to NAIJA TASK
+  </a>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+const SUPABASE_KEY =
+       "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+const message =
+  document.getElementById("message");
+
+const publishBtn =
+  document.getElementById("publishBtn");
+
+
+function showMessage(text,type){
+
+  message.textContent = text;
+
+  message.className =
+    "message " + type;
+
+  message.style.display =
+    "block";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* CHECK TASK POSTER LOGIN */
+
+async function checkPoster(){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.auth.getUser();
+
+
+  if(error || !data.user){
+
+    window.location.href =
+      "poster-login.html";
+
+    return null;
+
+  }
+
+
+  const metadata =
+    data.user.user_metadata || {};
+
+
+  const isPoster =
+    metadata.user_type === "task_poster" ||
+    metadata.role === "task_poster";
+
+
+  if(!isPoster){
+
+    await supabaseClient.auth.signOut();
+
+    showMessage(
+      "Please log in with a Task Poster account.",
+      "error"
+    );
+
+    setTimeout(function(){
+
+      window.location.href =
+        "poster-login.html";
+
+    },1500);
+
+    return null;
+
+  }
+
+
+  return data.user;
+
+}
+
+
+/* LOGOUT */
+
+document
+  .getElementById("logoutBtn")
+  .addEventListener(
+    "click",
+    async function(){
+
+      await supabaseClient.auth.signOut();
+
+      window.location.href =
+        "poster-login.html";
+
+    }
+  );
+
+
+/* TIMER */
+
+document
+  .getElementById("proofTimer")
+  .addEventListener(
+    "change",
+    function(){
+
+      document
+        .getElementById("timerBox")
+        .style.display =
+          this.checked
+            ? "block"
+            : "none";
+
+    }
+  );
+
+
+/* LIVE SUMMARY */
+
+function updateSummary(){
+
+  const title =
+    document
+      .getElementById("title")
+      .value
+      .trim();
+
+  const category =
+    document
+      .getElementById("category")
+      .value;
+
+  const reward =
+    document
+      .getElementById("reward")
+      .value || "0";
+
+  const slots =
+    document
+      .getElementById("slots")
+      .value || "0";
+
+  const link =
+    document
+      .getElementById("taskLink")
+      .value
+      .trim();
+
+
+  document
+    .getElementById("summaryTitle")
+    .textContent =
+      title || "Not entered";
+
+
+  document
+    .getElementById("summaryCategory")
+    .textContent =
+      category;
+
+
+  document
+    .getElementById("summaryReward")
+    .textContent =
+      reward;
+
+
+  document
+    .getElementById("summarySlots")
+    .textContent =
+      slots;
+
+
+  document
+    .getElementById("summaryLink")
+    .textContent =
+      link || "Not provided";
+
+}
+
+
+[
+  "title",
+  "category",
+  "reward",
+  "slots",
+  "taskLink"
+].forEach(function(id){
+
+  document
+    .getElementById(id)
+    .addEventListener(
+      "input",
+      updateSummary
+    );
+
+  document
+    .getElementById(id)
+    .addEventListener(
+      "change",
+      updateSummary
+    );
+
+});
+
+
+/* GET SELECTED PROOF */
+
+function getProofRequirements(){
+
+  const requirements = [];
+
+  if(
+    document
+      .getElementById("proofPhoto")
+      .checked
+  ){
+
+    requirements.push("photo");
+
+  }
+
+  if(
+    document
+      .getElementById("proofUsername")
+      .checked
+  ){
+
+    requirements.push("username");
+
+  }
+
+  if(
+    document
+      .getElementById("proofText")
+      .checked
+  ){
+
+    requirements.push("text");
+
+  }
+
+  if(
+    document
+      .getElementById("proofUrl")
+      .checked
+  ){
+
+    requirements.push("url");
+
+  }
+
+  if(
+    document
+      .getElementById("proofReference")
+      .checked
+  ){
+
+    requirements.push("reference_id");
+
+  }
+
+  if(
+    document
+      .getElementById("proofTimer")
+      .checked
+  ){
+
+    requirements.push({
+
+      type:"watch_timer",
+
+      duration:Number(
+        document
+          .getElementById("watchDuration")
+          .value
+      )
+
+    });
+
+  }
+
+  return requirements;
+
+}
+
+
+/* PUBLISH JOB */
+
+publishBtn.addEventListener(
+  "click",
+  async function(){
+
+    message.style.display =
+      "none";
+
+
+    const user =
+      await checkPoster();
+
+    if(!user){
+
+      return;
+
+    }
+
+
+    const title =
+      document
+        .getElementById("title")
+        .value
+        .trim();
+
+    const category =
+      document
+        .getElementById("category")
+        .value;
+
+    const description =
+      document
+        .getElementById("description")
+        .value
+        .trim();
+
+    const link =
+      document
+        .getElementById("taskLink")
+        .value
+        .trim();
+
+    const copyText =
+      document
+        .getElementById("copyText")
+        .value
+        .trim();
+
+    const reward =
+      Number(
+        document
+          .getElementById("reward")
+          .value
+      );
+
+    const slots =
+      Number(
+        document
+          .getElementById("slots")
+          .value
+      );
+
+
+    if(!title){
+
+      showMessage(
+        "Please enter a job title.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if(!description){
+
+      showMessage(
+        "Please write the task description and instructions.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if(
+      link &&
+      !link.startsWith("http://") &&
+      !link.startsWith("https://")
+    ){
+
+      showMessage(
+        "Please enter a complete link beginning with https://",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if(!reward || reward <= 0){
+
+      showMessage(
+        "Please enter a valid reward.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if(!slots || slots <= 0){
+
+      showMessage(
+        "Please enter the number of available slots.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    const requirements =
+      getProofRequirements();
+
+
+    if(requirements.length === 0){
+
+      showMessage(
+        "Select at least one proof requirement.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    publishBtn.disabled =
+      true;
+
+    publishBtn.textContent =
+      "Publishing Job...";
+
+
+    try{
+
+      /*
+        IMPORTANT:
+        task_link is explicitly saved here.
+      */
+
+      const { error } =
+        await supabaseClient
+          .from("tasks")
+          .insert({
+
+            title: title,
+
+            description: description,
+
+            reward: reward,
+
+            slots: slots,
+
+            task_type: category,
+
+            task_link: link || null,
+
+            copy_text: copyText || null,
+
+            created_by: user.id,
+
+            requirements: requirements,
+
+            active: true,
+
+            status: "active"
+
+          });
+
+
+      if(error){
+
+        throw error;
+
+      }
+
+
+      showMessage(
+        "Job published successfully!",
+        "success"
+      );
+
+
+      setTimeout(function(){
+
+        window.location.href =
+          "dashboard.html";
+
+      },1500);
+
+
+    }catch(error){
+
+      console.error(error);
+
+      showMessage(
+        error.message ||
+        "Unable to publish the job.",
+        "error"
+      );
+
+    }
+
+
+    publishBtn.disabled =
+      false;
+
+    publishBtn.textContent =
+      "Publish Job";
+
+  }
+);
+
+
+/* INITIAL CHECK */
+
+checkPoster();
+
+updateSummary();
+
+</script>
+
+</body>
+  </html>
