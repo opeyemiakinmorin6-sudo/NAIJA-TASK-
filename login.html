@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Login — NAIJA TASK</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5fff7;
+      color: #12351f;
+    }
+
+    .header {
+      background: #0b8f3c;
+      color: white;
+      padding: 18px 20px;
+      text-align: center;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    .subtitle {
+      margin-top: 5px;
+      font-size: 13px;
+      opacity: .9;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 430px;
+      margin: 35px auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,.08);
+      border: 1px solid #e2eee5;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 25px;
+      color: #12351f;
+    }
+
+    .intro {
+      margin: 0 0 24px;
+      color: #68756d;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccd9cf;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #0b8f3c;
+      box-shadow: 0 0 0 3px rgba(11,143,60,.1);
+    }
+
+    .password-box {
+      position: relative;
+    }
+
+    .password-box input {
+      padding-right: 65px;
+    }
+
+    .show-btn {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      border: 0;
+      background: #eef8f1;
+      color: #0b8f3c;
+      padding: 8px 9px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .forgot {
+      display: block;
+      text-align: right;
+      margin: 10px 0 18px;
+      color: #0b8f3c;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .login-btn {
+      width: 100%;
+      border: 0;
+      background: #0b8f3c;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .login-btn:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 9px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .error {
+      background: #fff0f0;
+      color: #b42318;
+      border: 1px solid #ffd0d0;
+    }
+
+    .success {
+      background: #effaf2;
+      color: #08752f;
+      border: 1px solid #ccebd5;
+    }
+
+    .signup {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 14px;
+      color: #68756d;
+    }
+
+    .signup a {
+      color: #0b8f3c;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .links a {
+      color: #456050;
+      text-decoration: none;
+      font-size: 13px;
+      margin: 0 7px;
+    }
+
+    .links a:hover {
+      color: #0b8f3c;
+    }
+
+    .footer {
+      text-align: center;
+      color: #7b887f;
+      font-size: 12px;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="brand">NAIJA TASK</div>
+    <div class="subtitle">Complete Tasks. Earn Naira.</div>
+  </header>
+
+  <main class="container">
+
+    <section class="card">
+
+      <h1>Welcome Back</h1>
+
+      <p class="intro">
+        Login to your NAIJA TASK account and continue working.
+      </p>
+
+      <div id="errorMessage" class="message error"></div>
+      <div id="successMessage" class="message success"></div>
+
+      <form id="loginForm">
+
+        <label for="email">Email Address</label>
+
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter your email"
+          autocomplete="email"
+          required
+        >
+
+        <label for="password">Password</label>
+
+        <div class="password-box">
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+
+          <button
+            type="button"
+            class="show-btn"
+            id="showPassword"
+          >
+            Show
+          </button>
+        </div>
+
+        <a href="#" class="forgot" id="forgotPassword">
+          Forgot password?
+        </a>
+
+        <button
+          type="submit"
+          class="login-btn"
+          id="loginBtn"
+        >
+          Login
+        </button>
+
+      </form>
+
+      <div class="signup">
+        Don't have an account?
+        <a href="signup.html">Create Account</a>
+      </div>
+
+      <div class="links">
+        <a href="about-us.html">About Us</a>
+        <a href="index.html">Home</a>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    © 2026 NAIJA TASK. All rights reserved.
+  </footer>
+
+
+  <script>
+
+    /*
+      NAIJA TASK SUPABASE CONNECTION
+
+      Paste your EXISTING Supabase publishable key below.
+      Do NOT use a service-role key.
+    */
+
+    const SUPABASE_URL =
+      "https://jwakveeiynpakunwjzkj.supabase.co";
+
+    const SUPABASE_KEY =
+          "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";    
+   
+
+
+    let supabaseClient = null;
+
+
+    const errorMessage =
+      document.getElementById("errorMessage");
+
+    const successMessage =
+      document.getElementById("successMessage");
+
+    const loginForm =
+      document.getElementById("loginForm");
+
+    const loginBtn =
+      document.getElementById("loginBtn");
+
+    const passwordInput =
+      document.getElementById("password");
+
+    const showPassword =
+      document.getElementById("showPassword");
+
+
+    function showError(message) {
+      successMessage.style.display = "none";
+      errorMessage.textContent = message;
+      errorMessage.style.display = "block";
+    }
+
+
+    function showSuccess(message) {
+      errorMessage.style.display = "none";
+      successMessage.textContent = message;
+      successMessage.style.display = "block";
+    }
+
+
+    function hideMessages() {
+      errorMessage.style.display = "none";
+      successMessage.style.display = "none";
+    }
+
+
+    /*
+      Check Supabase connection
+    */
+
+    if (
+      typeof window.supabase === "undefined" ||
+      !SUPABASE_KEY ||
+      SUPABASE_KEY === "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE"
+    ) {
+
+      showError(
+        "Supabase is not connected. Add your existing publishable key in this page."
+      );
+
+    } else {
+
+      try {
+
+        supabaseClient =
+          window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+          );
+
+      } catch (error) {
+
+        console.error(error);
+
+        showError(
+          "Supabase could not be connected. Please check the publishable key."
+        );
+
+      }
+
+    }
+
+
+    /*
+      Show / hide password
+    */
+
+    showPassword.addEventListener("click", function () {
+
+      if (passwordInput.type === "password") {
+
+        passwordInput.type = "text";
+        showPassword.textContent = "Hide";
+
+      } else {
+
+        passwordInput.type = "password";
+        showPassword.textContent = "Show";
+
+      }
+
+    });
+
+
+    /*
+      LOGIN
+    */
+
+    loginForm.addEventListener("submit", async function (event) {
+
+      event.preventDefault();
+
+      hideMessages();
+
+      if (!supabaseClient) {
+
+        showError(
+          "Supabase is not connected. Check your publishable key."
+        );
+
+        return;
+      }
+
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        passwordInput.value;
+
+
+      if (!email || !password) {
+
+        showError(
+          "Please enter your email and password."
+        );
+
+        return;
+      }
+
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Logging in...";
+
+
+      try {
+
+        const { data, error } =
+          await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        if (!data || !data.user) {
+
+          throw new Error(
+            "Login was not completed."
+          );
+
+        }
+
+
+        showSuccess(
+          "Login successful. Opening your dashboard..."
+        );
+
+
+        setTimeout(function () {
+
+          window.location.href =
+            "dashboard.html";
+
+        }, 700);
+
+
+      } catch (error) {
+
+        console.error("Login error:", error);
+
+        let message =
+          error.message || "Unable to login.";
+
+
+        if (
+          message.toLowerCase().includes("email not confirmed")
+        ) {
+
+          message =
+            "Your email has not been confirmed yet. Please confirm your email and try again.";
+
+        }
+
+
+        if (
+          message.toLowerCase().includes("invalid login credentials")
+        ) {
+
+          message =
+            "Incorrect email or password.";
+
+        }
+
+
+        showError(message);
+
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Login";
+
+      }
+
+    });
+
+
+    /*
+      FORGOT PASSWORD
+    */
+
+    document
+      .getElementById("forgotPassword")
+      .addEventListener("click", async function (event) {
+
+        event.preventDefault();
+
+        hideMessages();
+
+
+        if (!supabaseClient) {
+
+          showError(
+            "Supabase is not connected. Check your publishable key."
+          );
+
+          return;
+        }
+
+
+        const email =
+          document.getElementById("email").value.trim();
+
+
+        if (!email) {
+
+          showError(
+            "Enter your email address first, then tap Forgot password."
+          );
+
+          return;
+        }
+
+
+        try {
+
+          const { error } =
+            await supabaseClient.auth.resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  window.location.origin +
+                  window.location.pathname
+              }
+            );
+
+
+          if (error) {
+            throw error;
+          }
+
+
+          showSuccess(
+            "Password reset instructions have been sent to your email."
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          showError(
+            error.message ||
+            "Could not send the password reset email."
+          );
+
+        }
+
+      });
+
+  </script>
+
+</body>
+  </html>
