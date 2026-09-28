@@ -380,8 +380,6 @@ input:focus{
   </p>
 
 
-  <!-- TASKER -->
-
   <div class="role-card">
 
     <div class="role-icon">👤</div>
@@ -409,8 +407,6 @@ input:focus{
 
   </div>
 
-
-  <!-- POSTER -->
 
   <div class="role-card">
 
@@ -440,8 +436,6 @@ input:focus{
 </section>
 
 
-<!-- TASKER AUTH -->
-
 <section id="taskerAuth" class="auth-area hidden">
 
   <div class="login-note">
@@ -460,8 +454,6 @@ input:focus{
 
   </div>
 
-
-  <!-- LOGIN -->
 
   <section id="loginCard" class="card">
 
@@ -500,9 +492,8 @@ input:focus{
       </div>
 
       <a
-        href="#"
-        class="forgot"
-        onclick="showForgotPassword(); return false;">
+        href="reset-password.html"
+        class="forgot">
         Forgot password?
       </a>
 
@@ -520,14 +511,12 @@ input:focus{
   </section>
 
 
-  <!-- FORGOT PASSWORD -->
-
   <section id="forgotCard" class="card hidden">
 
     <h2>Reset your password</h2>
 
     <p class="subtitle">
-      Enter your account email and we'll send you a password reset link.
+      Enter your account email and we'll send you a secure password reset link.
     </p>
 
     <form id="forgotForm">
@@ -567,8 +556,6 @@ input:focus{
 
   </section>
 
-
-  <!-- SIGN UP -->
 
   <section id="signupCard" class="card hidden">
 
@@ -773,8 +760,6 @@ input:focus{
 </div>
 
 
-<!-- ABOUT & CUSTOMER CARE -->
-
 <div class="help-card">
 
   <h3>Need Help?</h3>
@@ -829,18 +814,15 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  IMPORTANT:
-  Paste your existing Supabase PUBLISHABLE KEY
-  between the quotation marks below.
+ IMPORTANT:
+ Insert your CURRENT Supabase publishable key here.
+ Do not use a service-role key.
 */
 
 const SUPABASE_KEY =
-     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
-
-
+         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 let supabaseClient = null;
-
 
 try{
 
@@ -851,7 +833,7 @@ try{
   if(
     !SUPABASE_KEY ||
     SUPABASE_KEY ===
-      "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE"
+    "PASTE_YOUR_CURRENT_SUPABASE_PUBLISHABLE_KEY_HERE"
   ){
     throw new Error("Supabase publishable key is missing.");
   }
@@ -932,7 +914,6 @@ function openTaskerAuth(mode){
 
 }
 
-
 function backToRoles(){
 
   document
@@ -944,7 +925,6 @@ function backToRoles(){
     .classList.remove("hidden");
 
 }
-
 
 function showLogin(){
 
@@ -970,7 +950,6 @@ function showLogin(){
 
 }
 
-
 function showSignup(){
 
   document
@@ -995,20 +974,10 @@ function showSignup(){
 
 }
 
-
 function showForgotPassword(){
 
-  document
-    .getElementById("loginCard")
-    .classList.add("hidden");
-
-  document
-    .getElementById("signupCard")
-    .classList.add("hidden");
-
-  document
-    .getElementById("forgotCard")
-    .classList.remove("hidden");
+  window.location.href =
+    "reset-password.html";
 
 }
 
@@ -1063,7 +1032,6 @@ const params =
 const referral =
   params.get("ref");
 
-
 if(referral){
 
   document
@@ -1091,7 +1059,6 @@ function isStrongPassword(password){
   );
 
 }
-
 
 function updatePasswordStrength(){
 
@@ -1130,7 +1097,6 @@ function updatePasswordStrength(){
   }
 
 }
-
 
 document
   .getElementById("signupPassword")
@@ -1182,7 +1148,6 @@ document
 
       }
 
-
       const email =
         document
           .getElementById("loginEmail")
@@ -1193,7 +1158,6 @@ document
         document
           .getElementById("loginPassword")
           .value;
-
 
       try{
 
@@ -1207,18 +1171,15 @@ document
               password
             });
 
-
         if(error){
           throw error;
         }
-
 
         if(!data.session){
           throw new Error(
             "Login succeeded, but no active session was created."
           );
         }
-
 
         const metadata =
           data.user.user_metadata || {};
@@ -1227,7 +1188,6 @@ document
           metadata.role ||
           metadata.user_type ||
           "";
-
 
         if(
           role === "task_poster" ||
@@ -1242,13 +1202,11 @@ document
 
         }
 
-
         button.textContent =
           "Opening account...";
 
         window.location.href =
           "dashboard.html";
-
 
       }catch(error){
 
@@ -1259,7 +1217,8 @@ document
 
         showMessage(
           message,
-          "Invalid email or password. If you forgot your password, use Forgot password.",
+          error.message ||
+          "Invalid email or password.",
           "error"
         );
 
@@ -1267,115 +1226,6 @@ document
         button.textContent = "Login";
 
       }
-
-    }
-  );
-
-
-/* =================================
-   FORGOT PASSWORD
-================================= */
-
-document
-  .getElementById("forgotForm")
-  .addEventListener(
-    "submit",
-    async function(event){
-
-      event.preventDefault();
-
-      const button =
-        document.getElementById(
-          "forgotButton"
-        );
-
-      const message =
-        document.getElementById(
-          "forgotMessage"
-        );
-
-      const email =
-        document
-          .getElementById("forgotEmail")
-          .value
-          .trim();
-
-      button.disabled = true;
-      button.textContent = "Sending...";
-
-      message.className = "message";
-      message.textContent = "";
-
-
-      if(!supabaseClient){
-
-        showMessage(
-          message,
-          "Supabase is not connected.",
-          "error"
-        );
-
-        button.disabled = false;
-        button.textContent = "Send Reset Link";
-        return;
-
-      }
-
-
-      try{
-
-        const resetUrl =
-          window.location.origin +
-          window.location.pathname
-            .replace(
-              /index\.html$/,
-              ""
-            ) +
-          "reset-password.html";
-
-
-        const {
-          error
-        } =
-          await supabaseClient.auth
-            .resetPasswordForEmail(
-              email,
-              {
-                redirectTo: resetUrl
-              }
-            );
-
-
-        if(error){
-          throw error;
-        }
-
-
-        showMessage(
-          message,
-          "If this email belongs to an account, a password reset link has been sent.",
-          "success"
-        );
-
-
-      }catch(error){
-
-        console.error(
-          "Password reset error:",
-          error
-        );
-
-        showMessage(
-          message,
-          "Unable to send the reset link. Please check the email and try again.",
-          "error"
-        );
-
-      }
-
-
-      button.disabled = false;
-      button.textContent = "Send Reset Link";
 
     }
   );
@@ -1393,7 +1243,6 @@ document
 
       event.preventDefault();
 
-
       const button =
         document.getElementById(
           "signupButton"
@@ -1404,13 +1253,11 @@ document
           "signupMessage"
         );
 
-
       button.disabled = true;
       button.textContent = "Creating account...";
 
       message.className = "message";
       message.textContent = "";
-
 
       if(!supabaseClient){
 
@@ -1426,13 +1273,11 @@ document
 
       }
 
-
       const fullName =
         document
           .getElementById("fullName")
           .value
           .trim();
-
 
       const phone =
         document
@@ -1440,13 +1285,11 @@ document
           .value
           .trim();
 
-
       const state =
         document
           .getElementById("state")
           .value
           .trim();
-
 
       const city =
         document
@@ -1454,34 +1297,27 @@ document
           .value
           .trim();
 
-
       const email =
         document
           .getElementById("signupEmail")
           .value
           .trim();
 
-
       const password =
         document
           .getElementById("signupPassword")
           .value;
-
 
       const confirmPassword =
         document
           .getElementById("confirmPassword")
           .value;
 
-
       const referralCode =
         document
           .getElementById("referralCode")
           .value
           .trim();
-
-
-      /* Strong password */
 
       if(!isStrongPassword(password)){
 
@@ -1497,9 +1333,6 @@ document
 
       }
 
-
-      /* Password confirmation */
-
       if(password !== confirmPassword){
 
         showMessage(
@@ -1513,7 +1346,6 @@ document
         return;
 
       }
-
 
       try{
 
@@ -1533,19 +1365,12 @@ document
                 data:{
 
                   full_name: fullName,
-
                   phone: phone,
-
                   state: state,
-
                   city: city,
-
                   location: city,
-
                   referral_code: referralCode,
-
                   user_type: "tasker",
-
                   role: "tasker"
 
                 }
@@ -1554,11 +1379,9 @@ document
 
             });
 
-
         if(error){
           throw error;
         }
-
 
         if(
           data.user &&
@@ -1574,7 +1397,6 @@ document
           button.textContent =
             "Account created!";
 
-
           setTimeout(
             function(){
 
@@ -1588,7 +1410,6 @@ document
           return;
 
         }
-
 
         if(data.user){
 
@@ -1605,11 +1426,9 @@ document
 
         }
 
-
         throw new Error(
           "Account could not be created. Please try again."
         );
-
 
       }catch(error){
 
@@ -1636,4 +1455,4 @@ document
 </script>
 
 </body>
-          </html>
+  </html>
