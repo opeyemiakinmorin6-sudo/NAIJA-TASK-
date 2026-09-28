@@ -347,9 +347,7 @@ input:focus{
   </p>
 
 
-  <!-- ==========================
-       TASKER
-  =========================== -->
+  <!-- TASKER -->
 
   <div class="role-card">
 
@@ -383,9 +381,7 @@ input:focus{
   </div>
 
 
-  <!-- ==========================
-       POSTER
-  =========================== -->
+  <!-- POSTER -->
 
   <div class="role-card">
 
@@ -419,9 +415,7 @@ input:focus{
 </section>
 
 
-<!-- ==========================
-     TASKER AUTH
-=========================== -->
+<!-- TASKER AUTH -->
 
 <section
   id="taskerAuth"
@@ -660,9 +654,7 @@ input:focus{
 </div>
 
 
-<!-- ==========================
-     ABOUT & CUSTOMER CARE
-=========================== -->
+<!-- ABOUT & CUSTOMER CARE -->
 
 <div class="help-card">
 
@@ -712,18 +704,25 @@ input:focus{
    SUPABASE
 ================================= */
 
+/*
+  THIS IS YOUR SUPABASE PROJECT URL.
+  Do not replace this with the publishable key.
+*/
+
 const SUPABASE_URL =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
+  "https://jwakveeiynpakunwjzkj.supabase.co";
 
 
 /*
-  Put your EXISTING publishable key here.
+  Paste your EXISTING Supabase
+  PUBLISHABLE KEY here.
 
-  Do NOT use a service-role or secret key.
+  Do NOT use a service-role key.
 */
 
 const SUPABASE_KEY =
-  "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
+
 
 
 let supabaseClient = null;
@@ -731,7 +730,9 @@ let supabaseClient = null;
 
 try{
 
-  if(typeof supabase === "undefined"){
+  if(
+    typeof supabase === "undefined"
+  ){
 
     throw new Error(
       "Supabase library did not load."
@@ -739,11 +740,26 @@ try{
 
   }
 
+
+  if(
+    !SUPABASE_KEY ||
+    SUPABASE_KEY ===
+      "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE"
+  ){
+
+    throw new Error(
+      "Supabase publishable key is missing."
+    );
+
+  }
+
+
   supabaseClient =
     supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
+
 
 }catch(error){
 
@@ -808,6 +824,7 @@ function openTaskerAuth(mode){
   document
     .getElementById("taskerAuth")
     .classList.remove("hidden");
+
 
   if(mode === "signup"){
 
@@ -949,6 +966,7 @@ document
 
       event.preventDefault();
 
+
       const button =
         document.getElementById(
           "loginButton"
@@ -958,6 +976,7 @@ document
         document.getElementById(
           "loginMessage"
         );
+
 
       button.disabled =
         true;
@@ -970,6 +989,7 @@ document
 
       message.textContent =
         "";
+
 
       if(!supabaseClient){
 
@@ -1037,6 +1057,7 @@ document
         const metadata =
           data.user.user_metadata || {};
 
+
         const role =
           metadata.role ||
           metadata.user_type ||
@@ -1072,12 +1093,14 @@ document
           error
         );
 
+
         showMessage(
           message,
           error.message ||
           "Unable to login. Please try again.",
           "error"
         );
+
 
         button.disabled =
           false;
