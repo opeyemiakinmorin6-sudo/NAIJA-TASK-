@@ -159,26 +159,11 @@ button:disabled{
   display:none;
 }
 
-.divider{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin:17px 0 5px;
-  color:#8a948d;
-  font-size:11px;
-}
-
-.divider::before,
-.divider::after{
-  content:"";
-  height:1px;
-  background:#e4ebe5;
-  flex:1;
-}
-
 </style></head><body><header>  <div class="logo">
     NAIJA TASK
-  </div></header><main class="container">  <section class="card"><!-- LOGIN SECTION -->
+  </div></header><main class="container">  <section class="card"><!-- =========================
+     ADMIN LOGIN
+========================== -->
 
 <div id="loginSection">
 
@@ -190,13 +175,18 @@ button:disabled{
     Secure access to NAIJA TASK administration.
   </p>
 
+
   <div class="security">
-    Admin access is restricted to accounts registered
-    in the NAIJA TASK <strong>admin_users</strong> table.
+
+    Admin access is restricted to accounts
+    registered in the NAIJA TASK
+    <strong>admin_users</strong> table.
+
   </div>
 
 
   <form id="adminLoginForm">
+
 
     <div class="field">
 
@@ -209,7 +199,8 @@ button:disabled{
         type="email"
         placeholder="Enter admin email"
         autocomplete="email"
-        required>
+        required
+      >
 
     </div>
 
@@ -225,55 +216,67 @@ button:disabled{
         type="password"
         placeholder="Enter password"
         autocomplete="current-password"
-        required>
+        required
+      >
 
     </div>
 
 
     <button
       id="loginButton"
-      type="submit">
-
+      type="submit"
+    >
       Admin Login
-
     </button>
 
 
     <button
       type="button"
       id="forgotButton"
-      class="linkButton">
-
+      class="linkButton"
+    >
       Forgot Password?
-
     </button>
 
 
     <div
       id="loginMessage"
-      class="message">
-    </div>
+      class="message"
+    ></div>
+
 
   </form>
 
 </div>
 
 
-<!-- FORGOT PASSWORD SECTION -->
+<!-- =========================
+     PASSWORD RESET REQUEST
+========================== -->
 
-<div id="forgotSection" class="hidden">
+<div
+  id="forgotSection"
+  class="hidden"
+>
 
   <h1>
     Reset Admin Password
   </h1>
 
+
   <p class="subtitle">
-    Enter the email address belonging to your NAIJA TASK admin account.
-    We will send you a secure password reset link.
+
+    Enter the email address belonging to
+    your NAIJA TASK admin account.
+
+    We will send you a secure password
+    reset link.
+
   </p>
 
 
   <form id="forgotForm">
+
 
     <div class="field">
 
@@ -286,34 +289,34 @@ button:disabled{
         type="email"
         placeholder="Enter admin email"
         autocomplete="email"
-        required>
+        required
+      >
 
     </div>
 
 
     <button
       id="resetButton"
-      type="submit">
-
+      type="submit"
+    >
       Send Reset Link
-
     </button>
 
 
     <button
       type="button"
       id="backToLogin"
-      class="secondaryButton">
-
+      class="secondaryButton"
+    >
       ← Back to Admin Login
-
     </button>
 
 
     <div
       id="resetMessage"
-      class="message">
-    </div>
+      class="message"
+    ></div>
+
 
   </form>
 
@@ -322,18 +325,17 @@ button:disabled{
 
 <a
   href="index.html"
-  class="back">
-
+  class="back"
+>
   ← Back to NAIJA TASK
-
 </a>
 
   </section></main><script>
 
 /*
+  ============================================
   SUPABASE
-  --------------------------------------------------
-  Use your CURRENT Supabase project URL.
+  ============================================
 */
 
 const SUPABASE_URL =
@@ -342,26 +344,28 @@ const SUPABASE_URL =
 
 /*
   IMPORTANT:
-  Put your CURRENT Supabase PUBLISHABLE KEY below.
+  Replace this with your CURRENT
+  Supabase publishable key.
 
-  Do NOT use a service-role key.
-  Do NOT use a secret key.
+  NEVER put a service-role key here.
 */
 
 const SUPABASE_KEY =
-         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+       "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
 const db =
-  supabase.createClient(
+  window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
   );
 
 
-/* -----------------------------------------------
-   HELPERS
------------------------------------------------- */
+/*
+  ============================================
+  HELPERS
+  ============================================
+*/
 
 function showMessage(
   elementId,
@@ -369,12 +373,13 @@ function showMessage(
   type
 ){
 
-  const message =
+  const element =
     document.getElementById(elementId);
 
-  message.textContent = text;
+  element.textContent =
+    text;
 
-  message.className =
+  element.className =
     "message show " + type;
 
 }
@@ -382,18 +387,20 @@ function showMessage(
 
 function hideMessage(elementId){
 
-  const message =
+  const element =
     document.getElementById(elementId);
 
-  message.className =
+  element.className =
     "message";
 
 }
 
 
-/* -----------------------------------------------
-   SHOW FORGOT PASSWORD
------------------------------------------------- */
+/*
+  ============================================
+  OPEN FORGOT PASSWORD
+  ============================================
+*/
 
 document
   .getElementById("forgotButton")
@@ -407,15 +414,18 @@ document
           .value
           .trim();
 
+
       document
         .getElementById("loginSection")
         .classList
         .add("hidden");
 
+
       document
         .getElementById("forgotSection")
         .classList
         .remove("hidden");
+
 
       if(loginEmail){
 
@@ -426,16 +436,20 @@ document
 
       }
 
+
       hideMessage("loginMessage");
+
       hideMessage("resetMessage");
 
     }
   );
 
 
-/* -----------------------------------------------
-   BACK TO LOGIN
------------------------------------------------- */
+/*
+  ============================================
+  BACK TO ADMIN LOGIN
+  ============================================
+*/
 
 document
   .getElementById("backToLogin")
@@ -448,10 +462,12 @@ document
         .classList
         .add("hidden");
 
+
       document
         .getElementById("loginSection")
         .classList
         .remove("hidden");
+
 
       hideMessage("resetMessage");
 
@@ -459,9 +475,11 @@ document
   );
 
 
-/* -----------------------------------------------
-   ADMIN LOGIN
------------------------------------------------- */
+/*
+  ============================================
+  ADMIN LOGIN
+  ============================================
+*/
 
 document
   .getElementById("adminLoginForm")
@@ -471,10 +489,12 @@ document
 
       event.preventDefault();
 
+
       const button =
         document.getElementById(
           "loginButton"
         );
+
 
       const email =
         document
@@ -483,15 +503,18 @@ document
           .trim()
           .toLowerCase();
 
+
       const password =
         document
           .getElementById("password")
           .value;
 
+
       button.disabled = true;
 
       button.textContent =
         "Checking admin access...";
+
 
       hideMessage("loginMessage");
 
@@ -503,13 +526,18 @@ document
           error
         } =
           await db.auth.signInWithPassword({
+
             email,
+
             password
+
           });
 
 
         if(error){
+
           throw error;
+
         }
 
 
@@ -523,10 +551,10 @@ document
 
 
         /*
-          REAL ADMIN CHECK
-          ----------------
+          REAL ADMIN AUTHORIZATION CHECK
+
           The authenticated user's ID must
-          exist inside admin_users.
+          exist in admin_users.
         */
 
         const {
@@ -544,7 +572,9 @@ document
 
 
         if(adminError){
+
           throw adminError;
+
         }
 
 
@@ -572,10 +602,6 @@ document
 
         setTimeout(
           function(){
-
-            /*
-              MAIN ADMIN CONTROL CENTER
-            */
 
             window.location.href =
               "admin.html";
@@ -612,9 +638,20 @@ document
   );
 
 
-/* -----------------------------------------------
-   FORGOT PASSWORD
------------------------------------------------- */
+/*
+  ============================================
+  PASSWORD RESET REQUEST
+  ============================================
+
+  This sends the email.
+
+  The email link goes to the ONE shared:
+
+  reset-password.html
+
+  That page handles the actual
+  new-password creation.
+*/
 
 document
   .getElementById("forgotForm")
@@ -624,10 +661,12 @@ document
 
       event.preventDefault();
 
+
       const button =
         document.getElementById(
           "resetButton"
         );
+
 
       const email =
         document
@@ -655,40 +694,47 @@ document
       button.textContent =
         "Sending reset link...";
 
+
       hideMessage("resetMessage");
 
 
       try{
 
-        /*
-          Supabase sends the password reset email.
 
-          The reset link opens:
+        /*
+          Build the shared reset page URL.
+
+          Example:
+
+          admin-login.html
+          ↓
           reset-password.html
         */
 
         const redirectUrl =
-          window.location.origin +
-          window.location.pathname
-            .replace(
-              "admin-login.html",
-              "reset-password.html"
-            );
+          new URL(
+            "reset-password.html",
+            window.location.href
+          ).href;
 
 
         const {
           error
         } =
-          await db.auth.resetPasswordForEmail(
-            email,
-            {
-              redirectTo: redirectUrl
-            }
-          );
+          await db.auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  redirectUrl
+              }
+            );
 
 
         if(error){
+
           throw error;
+
         }
 
 
@@ -730,4 +776,4 @@ document
   );
 
 </script></body>
-    </html>
+      </html>
