@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Task Poster Login — NAIJA TASK</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
+<!DOCTYPE html><html lang="en">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Task Poster Login — NAIJA TASK</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
 
 *{
   box-sizing:border-box;
@@ -128,6 +119,7 @@ input:focus{
   font-size:16px;
   font-weight:bold;
   margin-top:22px;
+  cursor:pointer;
 }
 
 .main-btn:disabled{
@@ -165,6 +157,16 @@ input:focus{
   text-decoration:none;
 }
 
+.forgot{
+  display:block;
+  text-align:right;
+  margin-top:10px;
+  color:#0b8f3c;
+  font-size:14px;
+  font-weight:bold;
+  text-decoration:none;
+}
+
 .back{
   display:block;
   text-align:center;
@@ -174,112 +176,129 @@ input:focus{
   font-size:14px;
 }
 
-</style>
+/* FORGOT PASSWORD */
 
-</head>
+.forgot-box{
+  display:none;
+}
 
-<body>
+.forgot-box h2{
+  margin-bottom:10px;
+}
 
-<header class="header">
+.forgot-info{
+  text-align:center;
+  color:#666;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:18px;
+}
 
-  <h1>NAIJA TASK</h1>
+.secondary-btn{
+  width:100%;
+  border:1px solid #0b8f3c;
+  background:white;
+  color:#0b8f3c;
+  padding:14px;
+  border-radius:11px;
+  font-size:15px;
+  font-weight:bold;
+  margin-top:12px;
+  cursor:pointer;
+}
 
-  <p>Task Poster Login</p>
+</style></head><body><header class="header">  <h1>NAIJA TASK</h1>  <p>Task Poster Login</p></header><div class="container">  <div class="card"><!-- LOGIN -->
 
-</header>
+<div id="loginSection">
 
+  <div class="role">
 
-<div class="container">
+    <strong>📢 Task Poster</strong>
 
-  <div class="card">
+    <span>
+      Log in to create and manage your jobs.
+    </span>
 
-    <div class="role">
-
-      <strong>📢 Task Poster</strong>
-
-      <span>
-        Log in to create and manage your jobs.
-      </span>
-
-    </div>
+  </div>
 
 
-    <h2>Task Poster Login</h2>
+  <h2>Task Poster Login</h2>
 
 
-    <form id="loginForm">
+  <form id="loginForm">
 
-      <label for="email">
-        Email Address
-      </label>
+    <label for="email">
+      Email Address
+    </label>
+
+    <input
+      id="email"
+      type="email"
+      placeholder="Enter your email"
+      autocomplete="email"
+      required
+    >
+
+
+    <label for="password">
+      Password
+    </label>
+
+    <div class="password-box">
 
       <input
-        id="email"
-        type="email"
-        placeholder="Enter your email"
+        id="password"
+        type="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
         required
       >
 
-
-      <label for="password">
-        Password
-      </label>
-
-      <div class="password-box">
-
-        <input
-          id="password"
-          type="password"
-          placeholder="Enter your password"
-          required
-        >
-
-        <button
-          type="button"
-          class="show-btn"
-          id="showPassword"
-        >
-          Show
-        </button>
-
-      </div>
-
-
       <button
-        type="submit"
-        class="main-btn"
-        id="loginBtn"
+        type="button"
+        class="show-btn"
+        id="showPassword"
       >
-        Log In
+        Show
       </button>
-
-    </form>
-
-
-    <div
-      id="message"
-      class="message"
-    ></div>
-
-
-    <div class="links">
-
-      Don't have a Task Poster account?
-
-      <br><br>
-
-      <a href="poster-signup.html">
-        Create Task Poster Account
-      </a>
 
     </div>
 
 
     <a
-      href="index.html"
-      class="back"
+      href="#"
+      class="forgot"
+      id="forgotLink"
     >
-      ← Back to NAIJA TASK
+      Forgot password?
+    </a>
+
+
+    <button
+      type="submit"
+      class="main-btn"
+      id="loginBtn"
+    >
+      Log In
+    </button>
+
+  </form>
+
+
+  <div
+    id="message"
+    class="message"
+  ></div>
+
+
+  <div class="links">
+
+    Don't have a Task Poster account?
+
+    <br><br>
+
+    <a href="poster-signup.html">
+      Create Task Poster Account
     </a>
 
   </div>
@@ -287,7 +306,88 @@ input:focus{
 </div>
 
 
-<script>
+<!-- FORGOT PASSWORD -->
+
+<div id="forgotSection" class="forgot-box">
+
+  <div class="role">
+
+    <strong>🔐 Reset Password</strong>
+
+    <span>
+      Task Poster account recovery
+    </span>
+
+  </div>
+
+
+  <h2>Forgot Password?</h2>
+
+
+  <p class="forgot-info">
+    Enter the email address connected to your
+    Task Poster account. We will send you a
+    secure password reset link.
+  </p>
+
+
+  <form id="forgotForm">
+
+    <label for="forgotEmail">
+      Email Address
+    </label>
+
+    <input
+      id="forgotEmail"
+      type="email"
+      placeholder="Enter your email"
+      autocomplete="email"
+      required
+    >
+
+
+    <button
+      type="submit"
+      class="main-btn"
+      id="resetBtn"
+    >
+      Send Reset Link
+    </button>
+
+  </form>
+
+
+  <div
+    id="forgotMessage"
+    class="message"
+  ></div>
+
+
+  <button
+    type="button"
+    class="secondary-btn"
+    id="backToLogin"
+  >
+    ← Back to Login
+  </button>
+
+</div>
+
+
+<a
+  href="index.html"
+  class="back"
+>
+  ← Back to NAIJA TASK
+</a>
+
+  </div></div><script>
+
+/*
+  IMPORTANT:
+  Put your CURRENT Supabase publishable key here.
+  Do NOT use a service-role key.
+*/
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
@@ -303,25 +403,44 @@ const supabaseClient =
   );
 
 
+const loginSection =
+  document.getElementById("loginSection");
+
+const forgotSection =
+  document.getElementById("forgotSection");
+
+
 const loginForm =
   document.getElementById("loginForm");
+
+const forgotForm =
+  document.getElementById("forgotForm");
+
 
 const loginBtn =
   document.getElementById("loginBtn");
 
+const resetBtn =
+  document.getElementById("resetBtn");
+
+
 const message =
   document.getElementById("message");
 
+const forgotMessage =
+  document.getElementById("forgotMessage");
 
-function showMessage(text,type){
 
-  message.textContent = text;
+function showMessage(element,text,type){
 
-  message.className =
+  element.textContent = text;
+
+  element.className =
     "message " + type;
 
-  message.style.display =
+  element.style.display =
     "block";
+
 }
 
 
@@ -351,6 +470,59 @@ document
   });
 
 
+/* OPEN FORGOT PASSWORD */
+
+document
+  .getElementById("forgotLink")
+  .addEventListener("click",function(event){
+
+    event.preventDefault();
+
+    message.style.display = "none";
+
+    forgotMessage.style.display = "none";
+
+    const currentEmail =
+      document
+        .getElementById("email")
+        .value
+        .trim();
+
+    if(currentEmail){
+
+      document
+        .getElementById("forgotEmail")
+        .value = currentEmail;
+
+    }
+
+    loginSection.style.display =
+      "none";
+
+    forgotSection.style.display =
+      "block";
+
+  });
+
+
+/* BACK TO LOGIN */
+
+document
+  .getElementById("backToLogin")
+  .addEventListener("click",function(){
+
+    forgotSection.style.display =
+      "none";
+
+    loginSection.style.display =
+      "block";
+
+    forgotMessage.style.display =
+      "none";
+
+  });
+
+
 /* LOGIN */
 
 loginForm.addEventListener(
@@ -359,7 +531,8 @@ loginForm.addEventListener(
 
     event.preventDefault();
 
-    message.style.display = "none";
+    message.style.display =
+      "none";
 
     const email =
       document
@@ -431,13 +604,14 @@ loginForm.addEventListener(
         await supabaseClient.auth.signOut();
 
         throw new Error(
-          "This is not a Task Poster account. Please use the normal Tasker login."
+          "This is not a Task Poster account. Please use the correct login page."
         );
 
       }
 
 
       showMessage(
+        message,
         "Login successful. Opening Post a Job...",
         "success"
       );
@@ -456,6 +630,7 @@ loginForm.addEventListener(
       console.error(error);
 
       showMessage(
+        message,
         error.message ||
         "Login failed. Please check your details.",
         "error"
@@ -473,7 +648,94 @@ loginForm.addEventListener(
 
 );
 
-</script>
 
-</body>
+/* PASSWORD RESET REQUEST */
+
+forgotForm.addEventListener(
+  "submit",
+  async function(event){
+
+    event.preventDefault();
+
+    forgotMessage.style.display =
+      "none";
+
+
+    const email =
+      document
+        .getElementById("forgotEmail")
+        .value
+        .trim();
+
+
+    resetBtn.disabled = true;
+
+    resetBtn.textContent =
+      "Sending...";
+
+
+    try{
+
+      /*
+        The email link will open the
+        ONE shared reset-password.html page.
+      */
+
+      const resetUrl =
+        window.location.origin +
+        window.location.pathname
+          .replace(
+            "poster-login.html",
+            "reset-password.html"
+          );
+
+
+      const { error } =
+        await supabaseClient.auth
+          .resetPasswordForEmail(
+            email,
+            {
+              redirectTo: resetUrl
+            }
+          );
+
+
+      if(error){
+
+        throw error;
+
+      }
+
+
+      showMessage(
+        forgotMessage,
+        "Reset link sent. Check your email and open the link to create a new password.",
+        "success"
+      );
+
+
+    }catch(error){
+
+      console.error(error);
+
+      showMessage(
+        forgotMessage,
+        error.message ||
+        "Could not send the reset link. Please try again.",
+        "error"
+      );
+
+    }
+
+
+    resetBtn.disabled = false;
+
+    resetBtn.textContent =
+      "Send Reset Link";
+
+  }
+
+);
+
+</script></body>
   </html>
