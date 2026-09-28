@@ -36,7 +36,7 @@ header{
   font-size:30px;
   font-weight:900;
   user-select:none;
-  cursor:default;
+  cursor:pointer;
 }
 
 .tagline{
@@ -186,10 +186,18 @@ input:focus{
   border-color:#0b8f3c;
 }
 
-.ref-note{
-  margin-top:5px;
+.ref-note,
+.password-note{
+  margin-top:6px;
   color:#68736b;
   font-size:11px;
+  line-height:1.5;
+}
+
+.password-strength{
+  margin-top:7px;
+  font-size:11px;
+  font-weight:700;
 }
 
 .main-btn{
@@ -206,8 +214,32 @@ input:focus{
 }
 
 .main-btn:disabled{
-  opacity:.9;
+  opacity:.75;
   cursor:not-allowed;
+}
+
+.secondary-btn{
+  width:100%;
+  border:1px solid #cfe8d6;
+  background:#eef8f1;
+  color:#0b8f3c;
+  padding:13px;
+  border-radius:11px;
+  font-size:14px;
+  font-weight:800;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+.forgot{
+  display:block;
+  text-align:right;
+  margin-top:9px;
+  color:#0b8f3c;
+  font-size:12px;
+  font-weight:700;
+  text-decoration:none;
+  cursor:pointer;
 }
 
 .message{
@@ -310,6 +342,12 @@ input:focus{
   font-size:12px;
 }
 
+.location-note{
+  color:#68736b;
+  font-size:11px;
+  margin-top:5px;
+}
+
 </style>
 
 </head>
@@ -318,12 +356,7 @@ input:focus{
 
 <header>
 
-  <!-- Hidden admin access:
-       Tap the logo 5 times quickly. -->
-
-  <div
-    class="logo"
-    id="siteLogo">
+  <div class="logo" id="siteLogo">
     NAIJA TASK
   </div>
 
@@ -351,13 +384,9 @@ input:focus{
 
   <div class="role-card">
 
-    <div class="role-icon">
-      👤
-    </div>
+    <div class="role-icon">👤</div>
 
-    <h2>
-      Become a Tasker
-    </h2>
+    <h2>Become a Tasker</h2>
 
     <p>
       Find available jobs, complete tasks,
@@ -385,13 +414,9 @@ input:focus{
 
   <div class="role-card">
 
-    <div class="role-icon">
-      🏢
-    </div>
+    <div class="role-icon">🏢</div>
 
-    <h2>
-      Post a Job
-    </h2>
+    <h2>Post a Job</h2>
 
     <p>
       Create paid tasks, set your reward and
@@ -417,9 +442,7 @@ input:focus{
 
 <!-- TASKER AUTH -->
 
-<section
-  id="taskerAuth"
-  class="auth-area hidden">
+<section id="taskerAuth" class="auth-area hidden">
 
   <div class="login-note">
     Tasker account
@@ -427,16 +450,11 @@ input:focus{
 
   <div class="switch">
 
-    <button
-      id="loginTab"
-      class="active"
-      type="button">
+    <button id="loginTab" class="active" type="button">
       Login
     </button>
 
-    <button
-      id="signupTab"
-      type="button">
+    <button id="signupTab" type="button">
       Sign Up
     </button>
 
@@ -445,13 +463,9 @@ input:focus{
 
   <!-- LOGIN -->
 
-  <section
-    id="loginCard"
-    class="card">
+  <section id="loginCard" class="card">
 
-    <h2>
-      Welcome back
-    </h2>
+    <h2>Welcome back</h2>
 
     <p class="subtitle">
       Login to your NAIJA TASK Tasker account.
@@ -461,9 +475,7 @@ input:focus{
 
       <div class="field">
 
-        <label for="loginEmail">
-          Email
-        </label>
+        <label for="loginEmail">Email</label>
 
         <input
           id="loginEmail"
@@ -476,9 +488,7 @@ input:focus{
 
       <div class="field">
 
-        <label for="loginPassword">
-          Password
-        </label>
+        <label for="loginPassword">Password</label>
 
         <input
           id="loginPassword"
@@ -489,6 +499,13 @@ input:focus{
 
       </div>
 
+      <a
+        href="#"
+        class="forgot"
+        onclick="showForgotPassword(); return false;">
+        Forgot password?
+      </a>
+
       <button
         id="loginButton"
         class="main-btn"
@@ -496,25 +513,66 @@ input:focus{
         Login
       </button>
 
-      <div
-        id="loginMessage"
-        class="message">
-      </div>
+      <div id="loginMessage" class="message"></div>
 
     </form>
 
   </section>
 
 
+  <!-- FORGOT PASSWORD -->
+
+  <section id="forgotCard" class="card hidden">
+
+    <h2>Reset your password</h2>
+
+    <p class="subtitle">
+      Enter your account email and we'll send you a password reset link.
+    </p>
+
+    <form id="forgotForm">
+
+      <div class="field">
+
+        <label for="forgotEmail">
+          Email
+        </label>
+
+        <input
+          id="forgotEmail"
+          type="email"
+          placeholder="Enter your account email"
+          autocomplete="email"
+          required>
+
+      </div>
+
+      <button
+        id="forgotButton"
+        class="main-btn"
+        type="submit">
+        Send Reset Link
+      </button>
+
+      <div id="forgotMessage" class="message"></div>
+
+    </form>
+
+    <button
+      class="secondary-btn"
+      type="button"
+      onclick="showLogin();">
+      ← Back to Login
+    </button>
+
+  </section>
+
+
   <!-- SIGN UP -->
 
-  <section
-    id="signupCard"
-    class="card hidden">
+  <section id="signupCard" class="card hidden">
 
-    <h2>
-      Create your account
-    </h2>
+    <h2>Create your account</h2>
 
     <p class="subtitle">
       Create your NAIJA TASK Tasker account and get started.
@@ -537,6 +595,7 @@ input:focus{
 
       </div>
 
+
       <div class="field">
 
         <label for="phone">
@@ -551,6 +610,43 @@ input:focus{
           required>
 
       </div>
+
+
+      <div class="field">
+
+        <label for="state">
+          State
+        </label>
+
+        <input
+          id="state"
+          type="text"
+          placeholder="e.g. Lagos"
+          autocomplete="address-level1"
+          required>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="city">
+          City / Town
+        </label>
+
+        <input
+          id="city"
+          type="text"
+          placeholder="e.g. Ikeja"
+          autocomplete="address-level2"
+          required>
+
+        <div class="location-note">
+          Do not enter your house number or exact home address.
+        </div>
+
+      </div>
+
 
       <div class="field">
 
@@ -567,21 +663,50 @@ input:focus{
 
       </div>
 
+
       <div class="field">
 
         <label for="signupPassword">
-          Password
+          Strong Password
         </label>
 
         <input
           id="signupPassword"
           type="password"
-          minlength="6"
-          placeholder="Create a password"
+          minlength="10"
+          placeholder="Create a strong password"
+          autocomplete="new-password"
+          required>
+
+        <div class="password-note">
+          Use at least 10 characters, including uppercase,
+          lowercase, a number and a special character.
+        </div>
+
+        <div
+          id="passwordStrength"
+          class="password-strength">
+        </div>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="confirmPassword">
+          Confirm Password
+        </label>
+
+        <input
+          id="confirmPassword"
+          type="password"
+          minlength="10"
+          placeholder="Enter password again"
           autocomplete="new-password"
           required>
 
       </div>
+
 
       <div class="field">
 
@@ -600,6 +725,7 @@ input:focus{
 
       </div>
 
+
       <button
         id="signupButton"
         class="main-btn"
@@ -607,19 +733,14 @@ input:focus{
         Create Account
       </button>
 
-      <div
-        id="signupMessage"
-        class="message">
-      </div>
+      <div id="signupMessage" class="message"></div>
 
     </form>
 
   </section>
 
 
-  <div
-    class="login-note"
-    style="margin-top:18px;">
+  <div class="login-note" style="margin-top:18px;">
 
     <a
       href="#"
@@ -635,9 +756,7 @@ input:focus{
 
 <div class="info">
 
-  <strong>
-    How NAIJA TASK works
-  </strong>
+  <strong>How NAIJA TASK works</strong>
 
   <br>
 
@@ -658,9 +777,7 @@ input:focus{
 
 <div class="help-card">
 
-  <h3>
-    Need Help?
-  </h3>
+  <h3>Need Help?</h3>
 
   <p>
     Learn more about NAIJA TASK or contact Customer Care.
@@ -690,9 +807,13 @@ input:focus{
 
 
 <div class="footer">
+
   © 2026 NAIJA TASK
+
   <br>
+
   Customer Care: 09020934579
+
 </div>
 
 </main>
@@ -704,24 +825,17 @@ input:focus{
    SUPABASE
 ================================= */
 
-/*
-  THIS IS YOUR SUPABASE PROJECT URL.
-  Do not replace this with the publishable key.
-*/
-
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
-
 /*
-  Paste your EXISTING Supabase
-  PUBLISHABLE KEY here.
-
-  Do NOT use a service-role key.
+  IMPORTANT:
+  Paste your existing Supabase PUBLISHABLE KEY
+  between the quotation marks below.
 */
 
 const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
 
 
 
@@ -730,36 +844,23 @@ let supabaseClient = null;
 
 try{
 
-  if(
-    typeof supabase === "undefined"
-  ){
-
-    throw new Error(
-      "Supabase library did not load."
-    );
-
+  if(typeof supabase === "undefined"){
+    throw new Error("Supabase library did not load.");
   }
-
 
   if(
     !SUPABASE_KEY ||
     SUPABASE_KEY ===
       "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE"
   ){
-
-    throw new Error(
-      "Supabase publishable key is missing."
-    );
-
+    throw new Error("Supabase publishable key is missing.");
   }
-
 
   supabaseClient =
     supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
-
 
 }catch(error){
 
@@ -791,9 +892,7 @@ document
       logoTimer =
         setTimeout(
           function(){
-
             logoTaps = 0;
-
           },
           1800
         );
@@ -825,15 +924,10 @@ function openTaskerAuth(mode){
     .getElementById("taskerAuth")
     .classList.remove("hidden");
 
-
   if(mode === "signup"){
-
     showSignup();
-
   }else{
-
     showLogin();
-
   }
 
 }
@@ -863,6 +957,10 @@ function showLogin(){
     .classList.add("hidden");
 
   document
+    .getElementById("forgotCard")
+    .classList.add("hidden");
+
+  document
     .getElementById("loginTab")
     .classList.add("active");
 
@@ -884,6 +982,10 @@ function showSignup(){
     .classList.add("hidden");
 
   document
+    .getElementById("forgotCard")
+    .classList.add("hidden");
+
+  document
     .getElementById("signupTab")
     .classList.add("active");
 
@@ -894,13 +996,33 @@ function showSignup(){
 }
 
 
+function showForgotPassword(){
+
+  document
+    .getElementById("loginCard")
+    .classList.add("hidden");
+
+  document
+    .getElementById("signupCard")
+    .classList.add("hidden");
+
+  document
+    .getElementById("forgotCard")
+    .classList.remove("hidden");
+
+}
+
+
+/* =================================
+   TABS
+================================= */
+
 document
   .getElementById("loginTab")
   .addEventListener(
     "click",
     showLogin
   );
-
 
 document
   .getElementById("signupTab")
@@ -930,7 +1052,7 @@ function showMessage(
 
 
 /* =================================
-   REFERRAL
+   REFERRAL LINK
 ================================= */
 
 const params =
@@ -955,6 +1077,70 @@ if(referral){
 
 
 /* =================================
+   PASSWORD VALIDATION
+================================= */
+
+function isStrongPassword(password){
+
+  return (
+    password.length >= 10 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[^A-Za-z0-9]/.test(password)
+  );
+
+}
+
+
+function updatePasswordStrength(){
+
+  const password =
+    document
+      .getElementById("signupPassword")
+      .value;
+
+  const display =
+    document
+      .getElementById("passwordStrength");
+
+  if(!password){
+
+    display.textContent = "";
+    return;
+
+  }
+
+  if(isStrongPassword(password)){
+
+    display.textContent =
+      "Strong password ✓";
+
+    display.style.color =
+      "#08752e";
+
+  }else{
+
+    display.textContent =
+      "Password must contain 10+ characters, uppercase, lowercase, number and special character.";
+
+    display.style.color =
+      "#a32323";
+
+  }
+
+}
+
+
+document
+  .getElementById("signupPassword")
+  .addEventListener(
+    "input",
+    updatePasswordStrength
+  );
+
+
+/* =================================
    TASKER LOGIN
 ================================= */
 
@@ -966,7 +1152,6 @@ document
 
       event.preventDefault();
 
-
       const button =
         document.getElementById(
           "loginButton"
@@ -977,19 +1162,11 @@ document
           "loginMessage"
         );
 
+      button.disabled = true;
+      button.textContent = "Logging in...";
 
-      button.disabled =
-        true;
-
-      button.textContent =
-        "Logging in...";
-
-      message.className =
-        "message";
-
-      message.textContent =
-        "";
-
+      message.className = "message";
+      message.textContent = "";
 
       if(!supabaseClient){
 
@@ -999,12 +1176,8 @@ document
           "error"
         );
 
-        button.disabled =
-          false;
-
-        button.textContent =
-          "Login";
-
+        button.disabled = false;
+        button.textContent = "Login";
         return;
 
       }
@@ -1015,7 +1188,6 @@ document
           .getElementById("loginEmail")
           .value
           .trim();
-
 
       const password =
         document
@@ -1031,32 +1203,25 @@ document
         } =
           await supabaseClient.auth
             .signInWithPassword({
-
               email,
               password
-
             });
 
 
         if(error){
-
           throw error;
-
         }
 
 
         if(!data.session){
-
           throw new Error(
             "Login succeeded, but no active session was created."
           );
-
         }
 
 
         const metadata =
           data.user.user_metadata || {};
-
 
         const role =
           metadata.role ||
@@ -1081,7 +1246,6 @@ document
         button.textContent =
           "Opening account...";
 
-
         window.location.href =
           "dashboard.html";
 
@@ -1093,22 +1257,125 @@ document
           error
         );
 
-
         showMessage(
           message,
-          error.message ||
-          "Unable to login. Please try again.",
+          "Invalid email or password. If you forgot your password, use Forgot password.",
           "error"
         );
 
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          "Login";
+        button.disabled = false;
+        button.textContent = "Login";
 
       }
+
+    }
+  );
+
+
+/* =================================
+   FORGOT PASSWORD
+================================= */
+
+document
+  .getElementById("forgotForm")
+  .addEventListener(
+    "submit",
+    async function(event){
+
+      event.preventDefault();
+
+      const button =
+        document.getElementById(
+          "forgotButton"
+        );
+
+      const message =
+        document.getElementById(
+          "forgotMessage"
+        );
+
+      const email =
+        document
+          .getElementById("forgotEmail")
+          .value
+          .trim();
+
+      button.disabled = true;
+      button.textContent = "Sending...";
+
+      message.className = "message";
+      message.textContent = "";
+
+
+      if(!supabaseClient){
+
+        showMessage(
+          message,
+          "Supabase is not connected.",
+          "error"
+        );
+
+        button.disabled = false;
+        button.textContent = "Send Reset Link";
+        return;
+
+      }
+
+
+      try{
+
+        const resetUrl =
+          window.location.origin +
+          window.location.pathname
+            .replace(
+              /index\.html$/,
+              ""
+            ) +
+          "reset-password.html";
+
+
+        const {
+          error
+        } =
+          await supabaseClient.auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo: resetUrl
+              }
+            );
+
+
+        if(error){
+          throw error;
+        }
+
+
+        showMessage(
+          message,
+          "If this email belongs to an account, a password reset link has been sent.",
+          "success"
+        );
+
+
+      }catch(error){
+
+        console.error(
+          "Password reset error:",
+          error
+        );
+
+        showMessage(
+          message,
+          "Unable to send the reset link. Please check the email and try again.",
+          "error"
+        );
+
+      }
+
+
+      button.disabled = false;
+      button.textContent = "Send Reset Link";
 
     }
   );
@@ -1138,18 +1405,11 @@ document
         );
 
 
-      button.disabled =
-        true;
+      button.disabled = true;
+      button.textContent = "Creating account...";
 
-      button.textContent =
-        "Creating account...";
-
-
-      message.className =
-        "message";
-
-      message.textContent =
-        "";
+      message.className = "message";
+      message.textContent = "";
 
 
       if(!supabaseClient){
@@ -1160,12 +1420,8 @@ document
           "error"
         );
 
-        button.disabled =
-          false;
-
-        button.textContent =
-          "Create Account";
-
+        button.disabled = false;
+        button.textContent = "Create Account";
         return;
 
       }
@@ -1185,6 +1441,20 @@ document
           .trim();
 
 
+      const state =
+        document
+          .getElementById("state")
+          .value
+          .trim();
+
+
+      const city =
+        document
+          .getElementById("city")
+          .value
+          .trim();
+
+
       const email =
         document
           .getElementById("signupEmail")
@@ -1198,11 +1468,51 @@ document
           .value;
 
 
+      const confirmPassword =
+        document
+          .getElementById("confirmPassword")
+          .value;
+
+
       const referralCode =
         document
           .getElementById("referralCode")
           .value
           .trim();
+
+
+      /* Strong password */
+
+      if(!isStrongPassword(password)){
+
+        showMessage(
+          message,
+          "Password must contain at least 10 characters, including uppercase, lowercase, a number and a special character.",
+          "error"
+        );
+
+        button.disabled = false;
+        button.textContent = "Create Account";
+        return;
+
+      }
+
+
+      /* Password confirmation */
+
+      if(password !== confirmPassword){
+
+        showMessage(
+          message,
+          "Passwords do not match.",
+          "error"
+        );
+
+        button.disabled = false;
+        button.textContent = "Create Account";
+        return;
+
+      }
 
 
       try{
@@ -1214,23 +1524,29 @@ document
           await supabaseClient.auth
             .signUp({
 
-              email:email,
+              email: email,
 
-              password:password,
+              password: password,
 
               options:{
 
                 data:{
 
-                  full_name:fullName,
+                  full_name: fullName,
 
-                  phone:phone,
+                  phone: phone,
 
-                  referral_code:referralCode,
+                  state: state,
 
-                  user_type:"tasker",
+                  city: city,
 
-                  role:"tasker"
+                  location: city,
+
+                  referral_code: referralCode,
+
+                  user_type: "tasker",
+
+                  role: "tasker"
 
                 }
 
@@ -1240,9 +1556,7 @@ document
 
 
         if(error){
-
           throw error;
-
         }
 
 
@@ -1256,7 +1570,6 @@ document
             "Account created successfully. Opening your account...",
             "success"
           );
-
 
           button.textContent =
             "Account created!";
@@ -1272,7 +1585,6 @@ document
             800
           );
 
-
           return;
 
         }
@@ -1286,13 +1598,8 @@ document
             "success"
           );
 
-
-          button.disabled =
-            false;
-
-          button.textContent =
-            "Create Account";
-
+          button.disabled = false;
+          button.textContent = "Create Account";
 
           return;
 
@@ -1311,7 +1618,6 @@ document
           error
         );
 
-
         showMessage(
           message,
           error.message ||
@@ -1319,12 +1625,8 @@ document
           "error"
         );
 
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          "Create Account";
+        button.disabled = false;
+        button.textContent = "Create Account";
 
       }
 
@@ -1334,4 +1636,4 @@ document
 </script>
 
 </body>
-  </html>
+          </html>
