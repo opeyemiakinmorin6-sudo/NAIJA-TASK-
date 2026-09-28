@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -10,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
 *{
   box-sizing:border-box;
   margin:0;
@@ -347,23 +345,17 @@ input:focus{
   font-size:11px;
   margin-top:5px;
 }
-
 </style>
-
 </head>
 
 <body>
 
 <header>
-
-  <div class="logo" id="siteLogo">
-    NAIJA TASK
-  </div>
+  <div class="logo" id="siteLogo">NAIJA TASK</div>
 
   <div class="tagline">
     Complete Tasks. Earn Naira.
   </div>
-
 </header>
 
 
@@ -442,18 +434,26 @@ input:focus{
     Tasker account
   </div>
 
+
   <div class="switch">
 
-    <button id="loginTab" class="active" type="button">
+    <button
+      id="loginTab"
+      class="active"
+      type="button">
       Login
     </button>
 
-    <button id="signupTab" type="button">
+    <button
+      id="signupTab"
+      type="button">
       Sign Up
     </button>
 
   </div>
 
+
+  <!-- LOGIN -->
 
   <section id="loginCard" class="card">
 
@@ -467,7 +467,9 @@ input:focus{
 
       <div class="field">
 
-        <label for="loginEmail">Email</label>
+        <label for="loginEmail">
+          Email
+        </label>
 
         <input
           id="loginEmail"
@@ -478,9 +480,12 @@ input:focus{
 
       </div>
 
+
       <div class="field">
 
-        <label for="loginPassword">Password</label>
+        <label for="loginPassword">
+          Password
+        </label>
 
         <input
           id="loginPassword"
@@ -491,11 +496,14 @@ input:focus{
 
       </div>
 
+
       <a
-        href="reset-password.html"
-        class="forgot">
+        href="#"
+        class="forgot"
+        onclick="showForgotPassword(); return false;">
         Forgot password?
       </a>
+
 
       <button
         id="loginButton"
@@ -504,20 +512,31 @@ input:focus{
         Login
       </button>
 
-      <div id="loginMessage" class="message"></div>
+
+      <div
+        id="loginMessage"
+        class="message">
+      </div>
 
     </form>
 
   </section>
 
 
-  <section id="forgotCard" class="card hidden">
+  <!-- FORGOT PASSWORD -->
 
-    <h2>Reset your password</h2>
+  <section
+    id="forgotCard"
+    class="card hidden">
+
+    <h2>
+      Reset your password
+    </h2>
 
     <p class="subtitle">
       Enter your account email and we'll send you a secure password reset link.
     </p>
+
 
     <form id="forgotForm">
 
@@ -536,6 +555,7 @@ input:focus{
 
       </div>
 
+
       <button
         id="forgotButton"
         class="main-btn"
@@ -543,9 +563,14 @@ input:focus{
         Send Reset Link
       </button>
 
-      <div id="forgotMessage" class="message"></div>
+
+      <div
+        id="forgotMessage"
+        class="message">
+      </div>
 
     </form>
+
 
     <button
       class="secondary-btn"
@@ -557,13 +582,20 @@ input:focus{
   </section>
 
 
-  <section id="signupCard" class="card hidden">
+  <!-- SIGN UP -->
 
-    <h2>Create your account</h2>
+  <section
+    id="signupCard"
+    class="card hidden">
+
+    <h2>
+      Create your account
+    </h2>
 
     <p class="subtitle">
       Create your NAIJA TASK Tasker account and get started.
     </p>
+
 
     <form id="signupForm">
 
@@ -720,7 +752,11 @@ input:focus{
         Create Account
       </button>
 
-      <div id="signupMessage" class="message"></div>
+
+      <div
+        id="signupMessage"
+        class="message">
+      </div>
 
     </form>
 
@@ -813,36 +849,52 @@ input:focus{
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
+
 /*
  IMPORTANT:
- Insert your CURRENT Supabase publishable key here.
- Do not use a service-role key.
+ Put your CURRENT Supabase
+ PUBLISHABLE KEY below.
+
+ Do NOT use a service-role key.
 */
 
 const SUPABASE_KEY =
-         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
 
 let supabaseClient = null;
+
 
 try{
 
   if(typeof supabase === "undefined"){
-    throw new Error("Supabase library did not load.");
+
+    throw new Error(
+      "Supabase library did not load."
+    );
+
   }
+
 
   if(
     !SUPABASE_KEY ||
     SUPABASE_KEY ===
-    "PASTE_YOUR_CURRENT_SUPABASE_PUBLISHABLE_KEY_HERE"
+    "YOUR_CURRENT_SUPABASE_PUBLISHABLE_KEY"
   ){
-    throw new Error("Supabase publishable key is missing.");
+
+    throw new Error(
+      "Supabase publishable key is missing."
+    );
+
   }
+
 
   supabaseClient =
     supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
+
 
 }catch(error){
 
@@ -861,6 +913,7 @@ try{
 let logoTaps = 0;
 let logoTimer = null;
 
+
 document
   .getElementById("siteLogo")
   .addEventListener(
@@ -874,10 +927,13 @@ document
       logoTimer =
         setTimeout(
           function(){
+
             logoTaps = 0;
+
           },
           1800
         );
+
 
       if(logoTaps >= 5){
 
@@ -902,17 +958,24 @@ function openTaskerAuth(mode){
     .getElementById("joinArea")
     .classList.add("hidden");
 
+
   document
     .getElementById("taskerAuth")
     .classList.remove("hidden");
 
+
   if(mode === "signup"){
+
     showSignup();
+
   }else{
+
     showLogin();
+
   }
 
 }
+
 
 function backToRoles(){
 
@@ -920,11 +983,13 @@ function backToRoles(){
     .getElementById("taskerAuth")
     .classList.add("hidden");
 
+
   document
     .getElementById("joinArea")
     .classList.remove("hidden");
 
 }
+
 
 function showLogin(){
 
@@ -932,23 +997,28 @@ function showLogin(){
     .getElementById("loginCard")
     .classList.remove("hidden");
 
+
   document
     .getElementById("signupCard")
     .classList.add("hidden");
+
 
   document
     .getElementById("forgotCard")
     .classList.add("hidden");
 
+
   document
     .getElementById("loginTab")
     .classList.add("active");
+
 
   document
     .getElementById("signupTab")
     .classList.remove("active");
 
 }
+
 
 function showSignup(){
 
@@ -956,17 +1026,21 @@ function showSignup(){
     .getElementById("signupCard")
     .classList.remove("hidden");
 
+
   document
     .getElementById("loginCard")
     .classList.add("hidden");
+
 
   document
     .getElementById("forgotCard")
     .classList.add("hidden");
 
+
   document
     .getElementById("signupTab")
     .classList.add("active");
+
 
   document
     .getElementById("loginTab")
@@ -974,10 +1048,41 @@ function showSignup(){
 
 }
 
+
+/* =================================
+   FORGOT PASSWORD SCREEN
+================================= */
+
 function showForgotPassword(){
 
-  window.location.href =
-    "reset-password.html";
+  document
+    .getElementById("loginCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("signupCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("forgotCard")
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById("loginTab")
+    .classList.add("active");
+
+
+  document
+    .getElementById("signupTab")
+    .classList.remove("active");
+
+
+  document
+    .getElementById("forgotEmail")
+    .focus();
 
 }
 
@@ -992,6 +1097,7 @@ document
     "click",
     showLogin
   );
+
 
 document
   .getElementById("signupTab")
@@ -1029,8 +1135,10 @@ const params =
     window.location.search
   );
 
+
 const referral =
   params.get("ref");
+
 
 if(referral){
 
@@ -1038,6 +1146,7 @@ if(referral){
     .getElementById("referralCode")
     .value =
       referral;
+
 
   openTaskerAuth("signup");
 
@@ -1060,6 +1169,7 @@ function isStrongPassword(password){
 
 }
 
+
 function updatePasswordStrength(){
 
   const password =
@@ -1067,16 +1177,20 @@ function updatePasswordStrength(){
       .getElementById("signupPassword")
       .value;
 
+
   const display =
     document
       .getElementById("passwordStrength");
 
+
   if(!password){
 
     display.textContent = "";
+
     return;
 
   }
+
 
   if(isStrongPassword(password)){
 
@@ -1098,11 +1212,142 @@ function updatePasswordStrength(){
 
 }
 
+
 document
   .getElementById("signupPassword")
   .addEventListener(
     "input",
     updatePasswordStrength
+  );
+
+
+/* =================================
+   PASSWORD RESET EMAIL
+================================= */
+
+document
+  .getElementById("forgotForm")
+  .addEventListener(
+    "submit",
+    async function(event){
+
+      event.preventDefault();
+
+
+      const button =
+        document.getElementById(
+          "forgotButton"
+        );
+
+
+      const message =
+        document.getElementById(
+          "forgotMessage"
+        );
+
+
+      const email =
+        document
+          .getElementById("forgotEmail")
+          .value
+          .trim();
+
+
+      if(!supabaseClient){
+
+        showMessage(
+          message,
+          "Supabase is not connected. Check your publishable key.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Sending Reset Link...";
+
+      message.className =
+        "message";
+
+      message.textContent =
+        "";
+
+
+      try{
+
+        /*
+          IMPORTANT:
+          This URL is the page that receives
+          the recovery session from Supabase.
+        */
+
+        const resetURL =
+          new URL(
+            "reset-password.html",
+            window.location.href
+          ).href;
+
+
+        const {
+          error
+        } =
+          await supabaseClient.auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  resetURL
+              }
+            );
+
+
+        if(error){
+
+          throw error;
+
+        }
+
+
+        showMessage(
+          message,
+          "Reset link sent. Check your email and open the newest reset email.",
+          "success"
+        );
+
+
+        button.textContent =
+          "Reset Link Sent";
+
+
+      }catch(error){
+
+        console.error(
+          "Password reset error:",
+          error
+        );
+
+
+        showMessage(
+          message,
+          error.message ||
+          "Unable to send reset link. Please try again.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Send Reset Link";
+
+      }
+
+    }
   );
 
 
@@ -1118,21 +1363,31 @@ document
 
       event.preventDefault();
 
+
       const button =
         document.getElementById(
           "loginButton"
         );
+
 
       const message =
         document.getElementById(
           "loginMessage"
         );
 
-      button.disabled = true;
-      button.textContent = "Logging in...";
 
-      message.className = "message";
-      message.textContent = "";
+      button.disabled = true;
+
+      button.textContent =
+        "Logging in...";
+
+
+      message.className =
+        "message";
+
+      message.textContent =
+        "";
+
 
       if(!supabaseClient){
 
@@ -1143,10 +1398,14 @@ document
         );
 
         button.disabled = false;
-        button.textContent = "Login";
+
+        button.textContent =
+          "Login";
+
         return;
 
       }
+
 
       const email =
         document
@@ -1154,10 +1413,12 @@ document
           .value
           .trim();
 
+
       const password =
         document
           .getElementById("loginPassword")
           .value;
+
 
       try{
 
@@ -1167,27 +1428,38 @@ document
         } =
           await supabaseClient.auth
             .signInWithPassword({
+
               email,
               password
+
             });
 
+
         if(error){
+
           throw error;
+
         }
 
+
         if(!data.session){
+
           throw new Error(
             "Login succeeded, but no active session was created."
           );
+
         }
+
 
         const metadata =
           data.user.user_metadata || {};
+
 
         const role =
           metadata.role ||
           metadata.user_type ||
           "";
+
 
         if(
           role === "task_poster" ||
@@ -1196,17 +1468,21 @@ document
 
           await supabaseClient.auth.signOut();
 
+
           throw new Error(
             "This is a Poster account. Please use Poster Login."
           );
 
         }
 
+
         button.textContent =
           "Opening account...";
 
+
         window.location.href =
           "dashboard.html";
+
 
       }catch(error){
 
@@ -1215,6 +1491,7 @@ document
           error
         );
 
+
         showMessage(
           message,
           error.message ||
@@ -1222,8 +1499,11 @@ document
           "error"
         );
 
+
         button.disabled = false;
-        button.textContent = "Login";
+
+        button.textContent =
+          "Login";
 
       }
 
@@ -1243,21 +1523,31 @@ document
 
       event.preventDefault();
 
+
       const button =
         document.getElementById(
           "signupButton"
         );
+
 
       const message =
         document.getElementById(
           "signupMessage"
         );
 
-      button.disabled = true;
-      button.textContent = "Creating account...";
 
-      message.className = "message";
-      message.textContent = "";
+      button.disabled = true;
+
+      button.textContent =
+        "Creating account...";
+
+
+      message.className =
+        "message";
+
+      message.textContent =
+        "";
+
 
       if(!supabaseClient){
 
@@ -1267,11 +1557,16 @@ document
           "error"
         );
 
+
         button.disabled = false;
-        button.textContent = "Create Account";
+
+        button.textContent =
+          "Create Account";
+
         return;
 
       }
+
 
       const fullName =
         document
@@ -1279,11 +1574,13 @@ document
           .value
           .trim();
 
+
       const phone =
         document
           .getElementById("phone")
           .value
           .trim();
+
 
       const state =
         document
@@ -1291,11 +1588,13 @@ document
           .value
           .trim();
 
+
       const city =
         document
           .getElementById("city")
           .value
           .trim();
+
 
       const email =
         document
@@ -1303,21 +1602,25 @@ document
           .value
           .trim();
 
+
       const password =
         document
           .getElementById("signupPassword")
           .value;
+
 
       const confirmPassword =
         document
           .getElementById("confirmPassword")
           .value;
 
+
       const referralCode =
         document
           .getElementById("referralCode")
           .value
           .trim();
+
 
       if(!isStrongPassword(password)){
 
@@ -1327,11 +1630,16 @@ document
           "error"
         );
 
+
         button.disabled = false;
-        button.textContent = "Create Account";
+
+        button.textContent =
+          "Create Account";
+
         return;
 
       }
+
 
       if(password !== confirmPassword){
 
@@ -1341,11 +1649,16 @@ document
           "error"
         );
 
+
         button.disabled = false;
-        button.textContent = "Create Account";
+
+        button.textContent =
+          "Create Account";
+
         return;
 
       }
+
 
       try{
 
@@ -1356,22 +1669,22 @@ document
           await supabaseClient.auth
             .signUp({
 
-              email: email,
+              email:email,
 
-              password: password,
+              password:password,
 
               options:{
 
                 data:{
 
-                  full_name: fullName,
-                  phone: phone,
-                  state: state,
-                  city: city,
-                  location: city,
-                  referral_code: referralCode,
-                  user_type: "tasker",
-                  role: "tasker"
+                  full_name:fullName,
+                  phone:phone,
+                  state:state,
+                  city:city,
+                  location:city,
+                  referral_code:referralCode,
+                  user_type:"tasker",
+                  role:"tasker"
 
                 }
 
@@ -1379,9 +1692,13 @@ document
 
             });
 
+
         if(error){
+
           throw error;
+
         }
+
 
         if(
           data.user &&
@@ -1394,8 +1711,10 @@ document
             "success"
           );
 
+
           button.textContent =
             "Account created!";
+
 
           setTimeout(
             function(){
@@ -1407,9 +1726,11 @@ document
             800
           );
 
+
           return;
 
         }
+
 
         if(data.user){
 
@@ -1419,16 +1740,22 @@ document
             "success"
           );
 
+
           button.disabled = false;
-          button.textContent = "Create Account";
+
+          button.textContent =
+            "Create Account";
+
 
           return;
 
         }
 
+
         throw new Error(
           "Account could not be created. Please try again."
         );
+
 
       }catch(error){
 
@@ -1437,6 +1764,7 @@ document
           error
         );
 
+
         showMessage(
           message,
           error.message ||
@@ -1444,8 +1772,11 @@ document
           "error"
         );
 
+
         button.disabled = false;
-        button.textContent = "Create Account";
+
+        button.textContent =
+          "Create Account";
 
       }
 
