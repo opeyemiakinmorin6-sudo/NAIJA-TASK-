@@ -21,6 +21,17 @@ body{
   color:#172018;
 }
 
+button,
+input,
+textarea,
+select{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
 header{
   background:#0b8f3c;
   color:white;
@@ -105,6 +116,7 @@ header{
 .welcome p{
   color:#69736d;
   font-size:13px;
+  word-break:break-word;
 }
 
 .message{
@@ -113,6 +125,7 @@ header{
   border-radius:9px;
   margin-bottom:14px;
   font-size:14px;
+  line-height:1.4;
 }
 
 .success{
@@ -177,6 +190,10 @@ header{
   color:#172018;
 }
 
+.menu button:active{
+  transform:scale(.98);
+}
+
 .menu-icon{
   font-size:25px;
   margin-bottom:7px;
@@ -204,7 +221,7 @@ header{
 }
 
 .hidden{
-  display:none;
+  display:none !important;
 }
 
 label{
@@ -248,6 +265,13 @@ select:focus{
   margin-top:14px;
 }
 
+.primary:disabled,
+.secondary:disabled,
+.danger:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
 .secondary{
   border:0;
   background:#e8f7ed;
@@ -255,6 +279,7 @@ select:focus{
   padding:10px 12px;
   border-radius:8px;
   font-weight:700;
+  margin:3px 3px 3px 0;
 }
 
 .danger{
@@ -272,17 +297,20 @@ select:focus{
   border-radius:12px;
   padding:14px;
   margin-top:11px;
+  background:#fff;
 }
 
 .task-top{
   display:flex;
   justify-content:space-between;
   gap:10px;
+  align-items:flex-start;
 }
 
 .task-title{
   font-size:16px;
   font-weight:800;
+  word-break:break-word;
 }
 
 .badge{
@@ -324,6 +352,8 @@ select:focus{
   font-size:13px;
   line-height:1.45;
   margin:9px 0;
+  white-space:pre-wrap;
+  word-break:break-word;
 }
 
 .task-info{
@@ -369,11 +399,119 @@ select:focus{
   margin-top:7px;
 }
 
+.setting{
+  padding:12px;
+  border:1px solid #e4ebe6;
+  border-radius:10px;
+}
+
 footer{
   text-align:center;
   color:#7a827c;
   font-size:12px;
   padding:25px 10px;
+}
+
+/* CUSTOM NAIJA TASK MODAL */
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.48);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:10000;
+}
+
+.modal-overlay.show{
+  display:flex;
+}
+
+.modal{
+  width:100%;
+  max-width:420px;
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 15px 45px rgba(0,0,0,.22);
+  animation:modalIn .18s ease;
+}
+
+@keyframes modalIn{
+  from{
+    transform:translateY(12px);
+    opacity:0;
+  }
+  to{
+    transform:translateY(0);
+    opacity:1;
+  }
+}
+
+.modal-icon{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:#e8f7ed;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  margin-bottom:12px;
+}
+
+.modal-icon.danger-icon{
+  background:#ffe9e9;
+}
+
+.modal h3{
+  font-size:18px;
+  margin-bottom:7px;
+}
+
+.modal p{
+  color:#68716b;
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:15px;
+}
+
+.modal textarea{
+  min-height:100px;
+  margin-bottom:5px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:8px;
+  margin-top:15px;
+}
+
+.modal-actions button{
+  flex:1;
+  padding:11px;
+  border-radius:9px;
+  font-weight:700;
+}
+
+.modal-cancel{
+  border:0;
+  background:#eef2ef;
+  color:#303a34;
+}
+
+.modal-confirm{
+  border:0;
+  background:#0b8f3c;
+  color:white;
+}
+
+.modal-delete{
+  border:0;
+  background:#c90000;
+  color:white;
 }
 
 @media(min-width:700px){
@@ -395,19 +533,27 @@ footer{
 
 <body>
 
+<!-- LOADING -->
+
 <div class="loading" id="loadingScreen">
   <div class="spinner"></div>
   <strong>Checking administrator access...</strong>
 </div>
 
+<!-- HEADER -->
+
 <header>
   <div class="header-row">
+
     <div>
       <div class="logo">NAIJA TASK</div>
       <div class="admin-label">Admin Control Center</div>
     </div>
 
-    <button class="logout" onclick="logout()">Logout</button>
+    <button class="logout" id="logoutButton">
+      Logout
+    </button>
+
   </div>
 </header>
 
@@ -415,10 +561,14 @@ footer{
 
   <div id="message" class="message"></div>
 
+  <!-- WELCOME -->
+
   <section class="welcome">
     <h1>Admin Dashboard</h1>
     <p id="adminEmail">Checking account...</p>
   </section>
+
+  <!-- STATS -->
 
   <section class="stats">
 
@@ -444,49 +594,51 @@ footer{
 
   </section>
 
+  <!-- MANAGEMENT -->
+
   <section class="section">
 
     <div class="section-title">Management</div>
 
     <div class="menu">
 
-      <button onclick="openPanel('taskPanel')">
+      <button data-panel="taskPanel">
         <div class="menu-icon">📋</div>
         Tasks
         <span class="menu-small">Create & manage tasks</span>
       </button>
 
-      <button onclick="openPanel('proofPanel')">
+      <button data-panel="proofPanel">
         <div class="menu-icon">🖼️</div>
         Proof Review
         <span class="menu-small">Approve or reject proof</span>
       </button>
 
-      <button onclick="openPanel('usersPanel')">
+      <button data-panel="usersPanel">
         <div class="menu-icon">👥</div>
         Users
         <span class="menu-small">Manage workers</span>
       </button>
 
-      <button onclick="openPanel('withdrawalPanel')">
+      <button data-panel="withdrawalPanel">
         <div class="menu-icon">💰</div>
         Withdrawals
         <span class="menu-small">Review payments</span>
       </button>
 
-      <button onclick="openPanel('membershipPanel')">
+      <button data-panel="membershipPanel">
         <div class="menu-icon">💎</div>
         Membership
         <span class="menu-small">FREE & VIP</span>
       </button>
 
-      <button onclick="openPanel('posterPanel')">
+      <button data-panel="posterPanel">
         <div class="menu-icon">💼</div>
         Posters
         <span class="menu-small">Poster controls</span>
       </button>
 
-      <button onclick="openPanel('settingsPanel')">
+      <button data-panel="settingsPanel">
         <div class="menu-icon">⚙️</div>
         Settings
         <span class="menu-small">Platform settings</span>
@@ -502,11 +654,11 @@ footer{
 
     <h2>📋 Task Manager</h2>
 
-    <button class="secondary" onclick="showCreateTask()">
+    <button class="secondary" id="createTaskButton">
       + Create New Task
     </button>
 
-    <button class="secondary" onclick="loadTasks()">
+    <button class="secondary" id="refreshTasksButton">
       ↻ Refresh
     </button>
 
@@ -517,10 +669,13 @@ footer{
       <h3>Create Task</h3>
 
       <label>Task Title</label>
-      <input id="taskTitle" placeholder="Example: Follow our TikTok page">
+      <input id="taskTitle"
+        maxlength="150"
+        placeholder="Example: Follow our TikTok page">
 
       <label>Description</label>
       <textarea id="taskDescription"
+        maxlength="3000"
         placeholder="Tell workers exactly what they must do."></textarea>
 
       <label>Task Type</label>
@@ -561,10 +716,12 @@ footer{
 
       <label>Poster / Uploader Username</label>
       <input id="taskUsername"
+        maxlength="100"
         placeholder="@username">
 
       <label>Copy Text</label>
       <textarea id="taskCopyText"
+        maxlength="3000"
         placeholder="Optional text workers should copy."></textarea>
 
       <label>Post Link</label>
@@ -574,6 +731,7 @@ footer{
 
       <label>Required Proof</label>
       <textarea id="taskProof"
+        maxlength="3000"
         placeholder="Example: Screenshot showing that you followed the account."></textarea>
 
       <label>Photo Proof Required?</label>
@@ -582,7 +740,7 @@ footer{
         <option value="false">No</option>
       </select>
 
-      <button class="primary" onclick="createTask()">
+      <button class="primary" id="createTaskSubmit">
         Create Task
       </button>
 
@@ -600,7 +758,7 @@ footer{
 
     <h2>🖼️ Proof Review</h2>
 
-    <button class="secondary" onclick="loadProofs()">
+    <button class="secondary" id="refreshProofsButton">
       ↻ Refresh Proofs
     </button>
 
@@ -622,7 +780,7 @@ footer{
       after the core task/proof flow is complete.
     </p>
 
-    <button class="primary" onclick="refreshCounts()">
+    <button class="primary" id="refreshUsersButton">
       Refresh User Count
     </button>
 
@@ -639,7 +797,7 @@ footer{
       Payment approval controls will be added to this panel.
     </p>
 
-    <button class="primary" onclick="refreshCounts()">
+    <button class="primary" id="refreshWithdrawalsButton">
       Refresh Withdrawal Count
     </button>
 
@@ -743,18 +901,62 @@ footer{
   NAIJA TASK Admin Control Center
 </footer>
 
+
+<!-- CUSTOM MODAL -->
+
+<div class="modal-overlay" id="modalOverlay">
+
+  <div class="modal">
+
+    <div class="modal-icon" id="modalIcon">
+      ⚠️
+    </div>
+
+    <h3 id="modalTitle">
+      Confirm action
+    </h3>
+
+    <p id="modalMessage">
+      Are you sure?
+    </p>
+
+    <div id="modalInputArea"></div>
+
+    <div class="modal-actions">
+
+      <button class="modal-cancel" id="modalCancel">
+        Cancel
+      </button>
+
+      <button class="modal-confirm" id="modalConfirm">
+        Continue
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
 <script>
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
 
 const SUPABASE_URL =
 "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
  IMPORTANT:
- Paste your CURRENT Supabase publishable key below.
+ Put your CURRENT Supabase publishable key here.
+
  Never put a service-role key in this HTML file.
 */
 const SUPABASE_KEY =
-     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";  
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";    
+  
 
 const db =
 window.supabase.createClient(
@@ -762,267 +964,336 @@ window.supabase.createClient(
   SUPABASE_KEY
 );
 
+
+/* =========================================================
+   BASIC HELPERS
+   ========================================================= */
+
+let modalAction = null;
+
+function byId(id){
+  return document.getElementById(id);
+}
+
 function message(text,type="success"){
 
-  const box =
-  document.getElementById("message");
+  const box = byId("message");
 
   box.textContent = text;
 
   box.className =
-  "message " + type;
+    "message " + type;
 
   box.style.display = "block";
 
-  setTimeout(()=>{
-    box.style.display = "none";
-  },4000);
+  clearTimeout(window.messageTimer);
+
+  window.messageTimer =
+    setTimeout(()=>{
+      box.style.display = "none";
+    },4500);
 }
+
+
+function friendlyError(error,fallback){
+
+  console.error(error);
+
+  if(!error){
+    return fallback;
+  }
+
+  const text =
+    String(error.message || error);
+
+  if(
+    text.toLowerCase().includes("permission") ||
+    text.toLowerCase().includes("row-level security") ||
+    text.toLowerCase().includes("rls")
+  ){
+    return "You do not have permission to perform this action.";
+  }
+
+  if(
+    text.toLowerCase().includes("network") ||
+    text.toLowerCase().includes("fetch")
+  ){
+    return "Connection problem. Please check your internet and try again.";
+  }
+
+  return fallback;
+}
+
+
+/* =========================================================
+   CUSTOM MODAL
+   ========================================================= */
+
+function closeModal(){
+
+  byId("modalOverlay")
+    .classList.remove("show");
+
+  byId("modalInputArea")
+    .innerHTML = "";
+
+  modalAction = null;
+}
+
+
+function openConfirmModal(options){
+
+  const {
+    title = "Confirm action",
+    messageText = "Are you sure?",
+    confirmText = "Continue",
+    danger = false,
+    action = null
+  } = options;
+
+  byId("modalTitle").textContent =
+    title;
+
+  byId("modalMessage").textContent =
+    messageText;
+
+  byId("modalConfirm").textContent =
+    confirmText;
+
+  byId("modalConfirm").className =
+    danger
+    ? "modal-delete"
+    : "modal-confirm";
+
+  byId("modalIcon").textContent =
+    danger ? "🗑️" : "⚠️";
+
+  byId("modalIcon").className =
+    danger
+    ? "modal-icon danger-icon"
+    : "modal-icon";
+
+  byId("modalInputArea").innerHTML = "";
+
+  modalAction = action;
+
+  byId("modalOverlay")
+    .classList.add("show");
+}
+
+
+function openRejectModal(id){
+
+  byId("modalTitle").textContent =
+    "Reject Proof";
+
+  byId("modalMessage").textContent =
+    "Please enter the reason this proof is being rejected.";
+
+  byId("modalConfirm").textContent =
+    "Reject Proof";
+
+  byId("modalConfirm").className =
+    "modal-delete";
+
+  byId("modalIcon").textContent =
+    "❌";
+
+  byId("modalIcon").className =
+    "modal-icon danger-icon";
+
+  byId("modalInputArea").innerHTML = `
+    <textarea
+      id="rejectionReason"
+      maxlength="1000"
+      placeholder="Example: The screenshot does not show the required action."
+    ></textarea>
+  `;
+
+  modalAction = async function(){
+
+    const input =
+      byId("rejectionReason");
+
+    const reason =
+      input.value.trim();
+
+    if(!reason){
+
+      input.focus();
+
+      message(
+        "Please enter a rejection reason.",
+        "error"
+      );
+
+      return;
+    }
+
+    closeModal();
+
+    await rejectProof(id,reason);
+  };
+
+  byId("modalOverlay")
+    .classList.add("show");
+}
+
+
+byId("modalCancel")
+  .addEventListener("click",closeModal);
+
+
+byId("modalOverlay")
+  .addEventListener("click",function(event){
+
+    if(event.target === byId("modalOverlay")){
+      closeModal();
+    }
+
+  });
+
+
+byId("modalConfirm")
+  .addEventListener("click",async function(){
+
+    if(typeof modalAction === "function"){
+
+      const action =
+        modalAction;
+
+      await action();
+
+    }
+
+  });
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+document
+  .querySelectorAll("[data-panel]")
+  .forEach(button=>{
+
+    button.addEventListener("click",function(){
+
+      openPanel(
+        this.dataset.panel
+      );
+
+    });
+
+  });
+
 
 function openPanel(id){
 
   document
-  .querySelectorAll(".panel")
-  .forEach(panel=>{
-    panel.classList.add("hidden");
-  });
+    .querySelectorAll(".panel")
+    .forEach(panel=>{
+      panel.classList.add("hidden");
+    });
 
   const panel =
-  document.getElementById(id);
+    byId(id);
 
-  if(panel){
-
-    panel.classList.remove("hidden");
-
-    panel.scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
+  if(!panel){
+    return;
   }
 
-  if(id==="taskPanel"){
+  panel.classList.remove("hidden");
+
+  panel.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+  if(id === "taskPanel"){
     loadTasks();
   }
 
-  if(id==="proofPanel"){
+  if(id === "proofPanel"){
     loadProofs();
   }
 }
 
-function showCreateTask(){
 
-  const box =
-  document.getElementById("createTaskBox");
+/* =========================================================
+   CREATE TASK FORM
+   ========================================================= */
 
-  box.classList.toggle("hidden");
-}
+byId("createTaskButton")
+  .addEventListener("click",function(){
 
-async function checkAdmin(){
+    byId("createTaskBox")
+      .classList.toggle("hidden");
 
-  try{
+  });
 
-    const {
-      data,
-      error
-    } =
-    await db.auth.getSession();
 
-    if(error) throw error;
+byId("refreshTasksButton")
+  .addEventListener("click",loadTasks);
 
-    const session =
-    data.session;
 
-    if(!session){
+byId("createTaskSubmit")
+  .addEventListener("click",createTask);
 
-      window.location.href =
-      "admin-login.html";
-
-      return;
-    }
-
-    document
-    .getElementById("adminEmail")
-    .textContent =
-    "Signed in as " +
-    session.user.email;
-
-    const {
-      data:admin,
-      error:adminError
-    } =
-    await db
-    .from("admin_users")
-    .select("user_id")
-    .eq("user_id",session.user.id)
-    .maybeSingle();
-
-    if(adminError)
-      throw adminError;
-
-    if(!admin){
-
-      await db.auth.signOut();
-
-      window.location.href =
-      "admin-login.html";
-
-      return;
-    }
-
-    await refreshCounts();
-
-    document
-    .getElementById("loadingScreen")
-    .style.display="none";
-
-  }catch(error){
-
-    console.error(error);
-
-    document
-    .getElementById("loadingScreen")
-    .style.display="none";
-
-    message(
-      error.message ||
-      "Unable to load Admin.",
-      "error"
-    );
-  }
-}
-
-async function countTable(table){
-
-  try{
-
-    const {
-      count,
-      error
-    } =
-    await db
-    .from(table)
-    .select("*",{
-      count:"exact",
-      head:true
-    });
-
-    if(error){
-
-      console.warn(table,error);
-
-      return "—";
-    }
-
-    return count ?? 0;
-
-  }catch(error){
-
-    return "—";
-  }
-}
-
-async function refreshCounts(){
-
-  const [
-    users,
-    tasks,
-    withdrawals,
-    proofs
-  ] =
-  await Promise.all([
-
-    countTable("profiles"),
-
-    countTable("tasks"),
-
-    countTable("withdrawals"),
-
-    countTable("task_submissions")
-
-  ]);
-
-  document
-  .getElementById("usersCount")
-  .textContent=users;
-
-  document
-  .getElementById("tasksCount")
-  .textContent=tasks;
-
-  document
-  .getElementById("withdrawalsCount")
-  .textContent=withdrawals;
-
-  document
-  .getElementById("proofsCount")
-  .textContent=proofs;
-}
 
 async function createTask(){
 
+  const button =
+    byId("createTaskSubmit");
+
   const title =
-  document
-  .getElementById("taskTitle")
-  .value.trim();
+    byId("taskTitle")
+      .value.trim();
 
   const description =
-  document
-  .getElementById("taskDescription")
-  .value.trim();
+    byId("taskDescription")
+      .value.trim();
 
   const taskType =
-  document
-  .getElementById("taskType")
-  .value;
+    byId("taskType")
+      .value;
 
   const taskLink =
-  document
-  .getElementById("taskLink")
-  .value.trim();
+    byId("taskLink")
+      .value.trim();
 
   const reward =
-  Number(
-    document
-    .getElementById("taskReward")
-    .value
-  );
+    Number(
+      byId("taskReward").value
+    );
 
   const slots =
-  Number(
-    document
-    .getElementById("taskSlots")
-    .value
-  );
+    Number(
+      byId("taskSlots").value
+    );
 
   const expiry =
-  document
-  .getElementById("taskExpiry")
-  .value;
+    byId("taskExpiry").value;
 
   const username =
-  document
-  .getElementById("taskUsername")
-  .value.trim();
+    byId("taskUsername")
+      .value.trim();
 
   const copyText =
-  document
-  .getElementById("taskCopyText")
-  .value.trim();
+    byId("taskCopyText")
+      .value.trim();
 
   const postLink =
-  document
-  .getElementById("taskPostLink")
-  .value.trim();
+    byId("taskPostLink")
+      .value.trim();
 
   const requiredProof =
-  document
-  .getElementById("taskProof")
-  .value.trim();
+    byId("taskProof")
+      .value.trim();
 
   const uploadRequired =
-  document
-  .getElementById("taskUpload")
-  .value === "true";
+    byId("taskUpload").value === "true";
+
 
   if(!title){
 
@@ -1031,8 +1302,11 @@ async function createTask(){
       "error"
     );
 
+    byId("taskTitle").focus();
+
     return;
   }
+
 
   if(!description){
 
@@ -1041,38 +1315,86 @@ async function createTask(){
       "error"
     );
 
+    byId("taskDescription").focus();
+
     return;
   }
 
-  if(!reward || reward < 0){
+
+  if(!Number.isFinite(reward) || reward < 0){
 
     message(
       "Enter a valid reward.",
       "error"
     );
 
+    byId("taskReward").focus();
+
     return;
   }
 
-  if(!slots || slots < 1){
+
+  if(!Number.isInteger(slots) || slots < 1){
 
     message(
-      "Enter the number of available slots.",
+      "Enter at least 1 available slot.",
       "error"
     );
 
+    byId("taskSlots").focus();
+
     return;
   }
+
+
+  if(expiry){
+
+    const expiryDate =
+      new Date(expiry);
+
+    if(
+      Number.isNaN(expiryDate.getTime()) ||
+      expiryDate <= new Date()
+    ){
+
+      message(
+        "Expiry date must be in the future.",
+        "error"
+      );
+
+      return;
+    }
+
+  }
+
+
+  button.disabled = true;
+  button.textContent =
+    "Creating Task...";
+
 
   try{
 
     const {
-      data:sessionData
+      data:sessionData,
+      error:sessionError
     } =
-    await db.auth.getSession();
+      await db.auth.getSession();
 
-    const user =
-    sessionData.session.user;
+    if(sessionError)
+      throw sessionError;
+
+    const session =
+      sessionData.session;
+
+    if(!session){
+
+      window.location.href =
+        "admin-login.html";
+
+      return;
+    }
+
 
     const taskData = {
 
@@ -1085,77 +1407,98 @@ async function createTask(){
       slots:slots,
 
       expiry_date:
-      expiry
-      ? new Date(expiry).toISOString()
-      : null,
+        expiry
+        ? new Date(expiry).toISOString()
+        : null,
 
       required_proof:
-      requiredProof,
+        requiredProof,
 
       proof_type:
-      uploadRequired
-      ? "photo"
-      : "text",
+        uploadRequired
+        ? "photo"
+        : "text",
 
       status:"LIVE",
 
       max_total_completion:slots,
 
-      created_by:user.id,
+      created_by:
+        session.user.id,
 
       active:true,
 
-      task_type:taskType,
+      task_type:
+        taskType,
 
       task_link:
-      taskLink || null,
+        taskLink || null,
 
       uploader_username:
-      username || null,
+        username || null,
 
       copy_text:
-      copyText || null,
+        copyText || null,
 
       post_link:
-      postLink || null,
+        postLink || null,
 
       upload_required:
-      uploadRequired,
+        uploadRequired,
 
       requirements:[]
+
     };
+
 
     const {
       error
     } =
-    await db
-    .from("tasks")
-    .insert(taskData);
+      await db
+        .from("tasks")
+        .insert(taskData);
+
 
     if(error)
       throw error;
+
 
     message(
       "Task created successfully."
     );
 
+
     clearTaskForm();
+
+    byId("createTaskBox")
+      .classList.add("hidden");
 
     await loadTasks();
 
     await refreshCounts();
 
+
   }catch(error){
 
-    console.error(error);
-
     message(
-      error.message ||
-      "Could not create task.",
+      friendlyError(
+        error,
+        "The task could not be created. Please try again."
+      ),
       "error"
     );
+
+  }finally{
+
+    button.disabled = false;
+
+    button.textContent =
+      "Create Task";
+
   }
+
 }
+
 
 function clearTaskForm(){
 
@@ -1170,27 +1513,32 @@ function clearTaskForm(){
     "taskCopyText",
     "taskPostLink",
     "taskProof"
+
   ].forEach(id=>{
 
-    document
-    .getElementById(id)
-    .value="";
+    byId(id).value = "";
 
   });
 
-  document
-  .getElementById("taskUpload")
-  .value="true";
+
+  byId("taskUpload").value =
+    "true";
+
 }
+
+
+/* =========================================================
+   LOAD TASKS
+   ========================================================= */
 
 async function loadTasks(){
 
   const list =
-  document
-  .getElementById("taskList");
+    byId("taskList");
 
   list.innerHTML =
-  '<div class="empty">Loading tasks...</div>';
+    '<div class="empty">Loading tasks...</div>';
+
 
   try{
 
@@ -1198,204 +1546,407 @@ async function loadTasks(){
       data,
       error
     } =
-    await db
-    .from("tasks")
-    .select("*")
-    .order("created_at",{
-      ascending:false
-    });
+      await db
+        .from("tasks")
+        .select("*")
+        .order("created_at",{
+          ascending:false
+        });
+
 
     if(error)
       throw error;
 
-    if(!data || data.length===0){
+
+    if(!data || data.length === 0){
 
       list.innerHTML =
-      '<div class="empty">No tasks found.</div>';
+        '<div class="empty">No tasks found.</div>';
 
       return;
     }
 
-    list.innerHTML="";
+
+    list.innerHTML = "";
+
 
     data.forEach(task=>{
 
       const card =
-      document.createElement("div");
+        document.createElement("div");
 
-      card.className="task-card";
+      card.className =
+        "task-card";
+
 
       const status =
-      String(task.status || "")
-      .toUpperCase();
+        String(
+          task.status || ""
+        ).toUpperCase();
+
 
       const badgeClass =
-      status==="LIVE"
-      ? "live"
-      : "paused";
+        status === "LIVE"
+        ? "live"
+        : "paused";
 
-      card.innerHTML=`
 
-        <div class="task-top">
+      const top =
+        document.createElement("div");
 
-          <div class="task-title">
-            ${escapeHTML(task.title || "Untitled task")}
-          </div>
+      top.className =
+        "task-top";
 
-          <span class="badge ${badgeClass}">
-            ${escapeHTML(status || "UNKNOWN")}
-          </span>
 
-        </div>
+      const title =
+        document.createElement("div");
 
-        <div class="task-description">
-          ${escapeHTML(task.description || "")}
-        </div>
+      title.className =
+        "task-title";
 
-        <div class="task-info">
+      title.textContent =
+        task.title ||
+        "Untitled task";
 
-          <div>
-            <strong>Reward</strong><br>
-            ₦${Number(task.reward || 0).toLocaleString()}
-          </div>
 
-          <div>
-            <strong>Slots</strong><br>
-            ${task.slots ?? 0}
-          </div>
+      const badge =
+        document.createElement("span");
 
-          <div>
-            <strong>Type</strong><br>
-            ${escapeHTML(task.task_type || "Other")}
-          </div>
+      badge.className =
+        "badge " + badgeClass;
 
-          <div>
-            <strong>Proof</strong><br>
-            ${task.upload_required ? "Photo" : "Text"}
-          </div>
+      badge.textContent =
+        status || "UNKNOWN";
 
-        </div>
 
-        <div class="actions">
+      top.appendChild(title);
+      top.appendChild(badge);
 
-          ${
-            status==="LIVE"
-            ?
-            `<button class="secondary"
-              onclick="changeTaskStatus('${task.id}','PAUSED')">
-              Pause
-            </button>`
-            :
-            `<button class="secondary"
-              onclick="changeTaskStatus('${task.id}','LIVE')">
-              Activate
-            </button>`
-          }
 
-          <button class="danger"
-            onclick="deleteTask('${task.id}')">
-            Delete
-          </button>
+      const description =
+        document.createElement("div");
 
-        </div>
-      `;
+      description.className =
+        "task-description";
+
+      description.textContent =
+        task.description || "";
+
+
+      const info =
+        document.createElement("div");
+
+      info.className =
+        "task-info";
+
+
+      addInfo(
+        info,
+        "Reward",
+        "₦" +
+        Number(
+          task.reward || 0
+        ).toLocaleString()
+      );
+
+
+      addInfo(
+        info,
+        "Slots",
+        String(
+          task.slots ?? 0
+        )
+      );
+
+
+      addInfo(
+        info,
+        "Type",
+        task.task_type || "Other"
+      );
+
+
+      addInfo(
+        info,
+        "Proof",
+        task.upload_required
+        ? "Photo"
+        : "Text"
+      );
+
+
+      const actions =
+        document.createElement("div");
+
+      actions.className =
+        "actions";
+
+
+      const statusButton =
+        document.createElement("button");
+
+      statusButton.className =
+        "secondary";
+
+      statusButton.textContent =
+        status === "LIVE"
+        ? "Pause"
+        : "Activate";
+
+
+      statusButton.addEventListener(
+        "click",
+        ()=>{
+          changeTaskStatus(
+            task.id,
+            status === "LIVE"
+            ? "PAUSED"
+            : "LIVE"
+          );
+        }
+      );
+
+
+      const deleteButton =
+        document.createElement("button");
+
+      deleteButton.className =
+        "danger";
+
+      deleteButton.textContent =
+        "Delete";
+
+
+      deleteButton.addEventListener(
+        "click",
+        ()=>{
+          confirmDeleteTask(
+            task.id,
+            task.title || "this task"
+          );
+        }
+      );
+
+
+      actions.appendChild(
+        statusButton
+      );
+
+      actions.appendChild(
+        deleteButton
+      );
+
+
+      card.appendChild(top);
+      card.appendChild(description);
+      card.appendChild(info);
+      card.appendChild(actions);
+
 
       list.appendChild(card);
 
     });
+
 
   }catch(error){
 
     console.error(error);
 
     list.innerHTML =
-    '<div class="empty">Unable to load tasks.</div>';
+      '<div class="empty">Unable to load tasks.</div>';
+
 
     message(
-      error.message ||
-      "Could not load tasks.",
+      friendlyError(
+        error,
+        "Tasks could not be loaded. Please try again."
+      ),
       "error"
     );
+
   }
+
 }
+
+
+function addInfo(parent,label,value){
+
+  const div =
+    document.createElement("div");
+
+  const strong =
+    document.createElement("strong");
+
+  strong.textContent =
+    label;
+
+  const br =
+    document.createElement("br");
+
+  const text =
+    document.createTextNode(value);
+
+
+  div.appendChild(strong);
+  div.appendChild(br);
+  div.appendChild(text);
+
+  parent.appendChild(div);
+}
+
+
+/* =========================================================
+   TASK STATUS
+   ========================================================= */
 
 async function changeTaskStatus(id,status){
 
-  const {
-    error
-  } =
-  await db
-  .from("tasks")
-  .update({
-    status:status,
-    active:status==="LIVE"
-  })
-  .eq("id",id);
+  try{
 
-  if(error){
+    const {
+      error
+    } =
+      await db
+        .from("tasks")
+        .update({
+          status:status,
+          active:
+            status === "LIVE"
+        })
+        .eq("id",id);
+
+
+    if(error)
+      throw error;
+
 
     message(
-      error.message,
+      status === "LIVE"
+      ? "Task activated."
+      : "Task paused."
+    );
+
+
+    await loadTasks();
+
+    await refreshCounts();
+
+
+  }catch(error){
+
+    message(
+      friendlyError(
+        error,
+        "The task status could not be changed."
+      ),
       "error"
     );
 
-    return;
   }
 
-  message(
-    status==="LIVE"
-    ? "Task activated."
-    : "Task paused."
-  );
-
-  await loadTasks();
 }
+
+
+/* =========================================================
+   DELETE TASK — CUSTOM MODAL
+   ========================================================= */
+
+function confirmDeleteTask(id,title){
+
+  openConfirmModal({
+
+    title:"Delete Task?",
+
+    messageText:
+      "You are about to permanently delete \"" +
+      title +
+      "\". This action cannot be undone.",
+
+    confirmText:"Delete Task",
+
+    danger:true,
+
+    action:
+      async function(){
+
+        closeModal();
+
+        await deleteTask(id);
+
+      }
+
+  });
+
+}
+
 
 async function deleteTask(id){
 
-  const confirmed =
-  confirm(
-    "Delete this task? This cannot be undone."
-  );
-
-  if(!confirmed)
-    return;
-
-  const {
-    error
-  } =
-  await db
-  .from("tasks")
-  .delete()
-  .eq("id",id);
-
-  if(error){
+  try{
 
     message(
-      error.message,
+      "Deleting task..."
+    );
+
+
+    const {
+      error
+    } =
+      await db
+        .from("tasks")
+        .delete()
+        .eq("id",id);
+
+
+    if(error)
+      throw error;
+
+
+    message(
+      "Task deleted successfully."
+    );
+
+
+    await loadTasks();
+
+    await refreshCounts();
+
+
+  }catch(error){
+
+    message(
+      friendlyError(
+        error,
+        "The task could not be deleted. Please try again."
+      ),
       "error"
     );
 
-    return;
   }
 
-  message(
-    "Task deleted."
+}
+
+
+/* =========================================================
+   PROOF REVIEW
+   ========================================================= */
+
+byId("refreshProofsButton")
+  .addEventListener(
+    "click",
+    loadProofs
   );
 
-  await loadTasks();
-
-  await refreshCounts();
-}
 
 async function loadProofs(){
 
   const list =
-  document
-  .getElementById("proofList");
+    byId("proofList");
+
 
   list.innerHTML =
-  '<div class="empty">Loading proof submissions...</div>';
+    '<div class="empty">Loading proof submissions...</div>';
+
 
   try{
 
@@ -1403,323 +1954,831 @@ async function loadProofs(){
       data,
       error
     } =
-    await db
-    .from("task_submissions")
-    .select("*")
-    .order("created_at",{
-      ascending:false
-    });
+      await db
+        .from("task_submissions")
+        .select("*")
+        .order("created_at",{
+          ascending:false
+        });
+
 
     if(error)
       throw error;
 
-    if(!data || data.length===0){
+
+    if(!data || data.length === 0){
 
       list.innerHTML =
-      '<div class="empty">No proof submissions found.</div>';
+        '<div class="empty">No proof submissions found.</div>';
 
       return;
     }
 
-    list.innerHTML="";
+
+    list.innerHTML = "";
+
 
     data.forEach(submission=>{
 
       const proof =
-      parseProof(submission.proof);
+        parseProof(
+          submission.proof
+        );
+
 
       const status =
-      String(
-        submission.status || "PENDING"
-      ).toUpperCase();
+        String(
+          submission.status ||
+          "PENDING"
+        ).toUpperCase();
+
 
       const card =
-      document.createElement("div");
+        document.createElement("div");
 
-      card.className="proof-card";
+      card.className =
+        "proof-card";
 
-      let imageHTML="";
+
+      const top =
+        document.createElement("div");
+
+      top.className =
+        "task-top";
+
+
+      const proofTitle =
+        document.createElement("strong");
+
+      proofTitle.textContent =
+        "Proof #" +
+        String(submission.id);
+
+
+      const badge =
+        document.createElement("span");
+
+      badge.className =
+        "badge " +
+        getStatusClass(status);
+
+      badge.textContent =
+        status;
+
+
+      top.appendChild(
+        proofTitle
+      );
+
+      top.appendChild(
+        badge
+      );
+
+
+      card.appendChild(top);
+
+
+      addSmallNote(
+        card,
+        "Worker: " +
+        (submission.user_id || "Unknown")
+      );
+
+
+      addSmallNote(
+        card,
+        "Task: " +
+        (submission.task_id || "Unknown")
+      );
+
+
+      if(proof.text){
+
+        addDescription(
+          card,
+          "Proof text:",
+          proof.text
+        );
+
+      }
+
+
+      if(proof.comment){
+
+        addDescription(
+          card,
+          "Comment:",
+          proof.comment
+        );
+
+      }
+
 
       if(proof.photo){
 
-        imageHTML=`
-          <img
-            class="proof-image"
-            src="${escapeAttribute(proof.photo)}"
-            alt="Task proof"
-          >
-        `;
+        const image =
+          document.createElement("img");
+
+        image.className =
+          "proof-image";
+
+        image.src =
+          proof.photo;
+
+        image.alt =
+          "Task proof";
+
+        image.loading =
+          "lazy";
+
+        image.onerror =
+          function(){
+
+            this.style.display =
+              "none";
+
+          };
+
+
+        card.appendChild(
+          image
+        );
+
       }
 
-      card.innerHTML=`
 
-        <div class="task-top">
+      if(status === "PENDING"){
 
-          <strong>
-            Proof #${escapeHTML(String(submission.id))}
-          </strong>
+        const actions =
+          document.createElement("div");
 
-          <span class="badge ${getStatusClass(status)}">
-            ${escapeHTML(status)}
-          </span>
+        actions.className =
+          "actions";
 
-        </div>
 
-        <div class="small-note">
-          Worker: ${escapeHTML(submission.user_id || "Unknown")}
-        </div>
+        const approve =
+          document.createElement("button");
 
-        <div class="small-note">
-          Task: ${escapeHTML(submission.task_id || "Unknown")}
-        </div>
+        approve.className =
+          "primary";
 
-        ${
-          proof.text
-          ?
-          `<div class="task-description">
-            <strong>Proof text:</strong><br>
-            ${escapeHTML(proof.text)}
-          </div>`
-          :
-          ""
-        }
+        approve.textContent =
+          "Approve";
 
-        ${
-          proof.comment
-          ?
-          `<div class="task-description">
-            <strong>Comment:</strong><br>
-            ${escapeHTML(proof.comment)}
-          </div>`
-          :
-          ""
-        }
 
-        ${imageHTML}
+        approve.addEventListener(
+          "click",
+          ()=>{
+            confirmApproveProof(
+              submission.id
+            );
+          }
+        );
 
-        ${
-          status==="PENDING"
-          ?
-          `
-          <div class="actions">
 
-            <button class="primary"
-              onclick="reviewProof('${submission.id}','APPROVED')">
-              Approve
-            </button>
+        const reject =
+          document.createElement("button");
 
-            <button class="danger"
-              onclick="rejectProof('${submission.id}')">
-              Reject
-            </button>
+        reject.className =
+          "danger";
 
-          </div>
-          `
-          :
-          ""
-        }
+        reject.textContent =
+          "Reject";
 
-      `;
 
-      list.appendChild(card);
+        reject.addEventListener(
+          "click",
+          ()=>{
+            openRejectModal(
+              submission.id
+            );
+          }
+        );
+
+
+        actions.appendChild(
+          approve
+        );
+
+        actions.appendChild(
+          reject
+        );
+
+        card.appendChild(
+          actions
+        );
+
+      }
+
+
+      list.appendChild(
+        card
+      );
 
     });
+
 
   }catch(error){
 
     console.error(error);
 
     list.innerHTML =
-    '<div class="empty">Unable to load proofs.</div>';
+      '<div class="empty">Unable to load proofs.</div>';
+
 
     message(
-      error.message ||
-      "Could not load proof submissions.",
+      friendlyError(
+        error,
+        "Proof submissions could not be loaded."
+      ),
       "error"
     );
+
   }
+
 }
+
+
+function addSmallNote(parent,text){
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    "small-note";
+
+  div.textContent =
+    text;
+
+  parent.appendChild(div);
+
+}
+
+
+function addDescription(parent,label,text){
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    "task-description";
+
+
+  const strong =
+    document.createElement("strong");
+
+  strong.textContent =
+    label;
+
+
+  div.appendChild(
+    strong
+  );
+
+  div.appendChild(
+    document.createElement("br")
+  );
+
+  div.appendChild(
+    document.createTextNode(
+      text
+    )
+  );
+
+
+  parent.appendChild(
+    div
+  );
+
+}
+
 
 function parseProof(value){
 
   if(!value)
     return {};
 
-  if(typeof value==="object")
+
+  if(typeof value === "object")
     return value;
+
 
   try{
 
-    return JSON.parse(value);
+    return JSON.parse(
+      value
+    );
 
   }catch(error){
 
     return {
       text:String(value)
     };
+
   }
+
 }
+
 
 function getStatusClass(status){
 
-  if(status==="APPROVED")
+  if(status === "APPROVED")
     return "approved";
 
-  if(status==="REJECTED")
+  if(status === "REJECTED")
     return "rejected";
 
   return "pending";
 }
 
+
+/* =========================================================
+   APPROVE PROOF — CUSTOM MODAL
+   ========================================================= */
+
+function confirmApproveProof(id){
+
+  openConfirmModal({
+
+    title:"Approve Proof?",
+
+    messageText:
+      "Make sure you have checked the submitted evidence before approving this proof.",
+
+    confirmText:"Approve Proof",
+
+    danger:false,
+
+    action:
+      async function(){
+
+        closeModal();
+
+        await reviewProof(
+          id,
+          "APPROVED"
+        );
+
+      }
+
+  });
+
+}
+
+
 async function reviewProof(id,status){
 
-  if(status==="APPROVED"){
+  try{
 
-    const confirmed =
-    confirm(
-      "Approve this proof? Make sure you have checked the evidence."
-    );
+    const {
+      data:sessionData,
+      error:sessionError
+    } =
+      await db.auth.getSession();
 
-    if(!confirmed)
+
+    if(sessionError)
+      throw sessionError;
+
+
+    const session =
+      sessionData.session;
+
+
+    if(!session){
+
+      window.location.href =
+        "admin-login.html";
+
       return;
-  }
 
-  const {
-    data:sessionData
-  } =
-  await db.auth.getSession();
+    }
 
-  const admin =
-  sessionData.session.user;
 
-  const {
-    error
-  } =
-  await db
-  .from("task_submissions")
-  .update({
+    const {
+      error
+    } =
+      await db
+        .from("task_submissions")
+        .update({
 
-    status:status,
+          status:status,
 
-    reviewed_by:admin.id,
+          reviewed_by:
+            session.user.id,
 
-    reviewed_at:new Date().toISOString(),
+          reviewed_at:
+            new Date().toISOString(),
 
-    post_review:true
+          post_review:true
 
-  })
-  .eq("id",id);
+        })
+        .eq("id",id);
 
-  if(error){
+
+    if(error)
+      throw error;
+
 
     message(
-      error.message,
+      "Proof approved successfully."
+    );
+
+
+    await loadProofs();
+
+    await refreshCounts();
+
+
+  }catch(error){
+
+    message(
+      friendlyError(
+        error,
+        "The proof could not be approved."
+      ),
       "error"
     );
 
-    return;
   }
 
-  /*
-   IMPORTANT:
-   This first version changes the submission status only.
-   Worker wallet credit should be done through a secure database
-   function/transaction so a worker cannot be paid twice.
-  */
-
-  message(
-    status==="APPROVED"
-    ? "Proof approved."
-    : "Proof updated."
-  );
-
-  await loadProofs();
-
-  await refreshCounts();
 }
 
-async function rejectProof(id){
 
-  const reason =
-  prompt(
-    "Why is this proof being rejected?"
-  );
+/* =========================================================
+   REJECT PROOF
+   ========================================================= */
 
-  if(reason===null)
-    return;
+async function rejectProof(id,reason){
 
-  const {
-    data:sessionData
-  } =
-  await db.auth.getSession();
+  try{
 
-  const admin =
-  sessionData.session.user;
+    const {
+      data:sessionData,
+      error:sessionError
+    } =
+      await db.auth.getSession();
 
-  const {
-    error
-  } =
-  await db
-  .from("task_submissions")
-  .update({
 
-    status:"REJECTED",
+    if(sessionError)
+      throw sessionError;
 
-    reviewed_by:admin.id,
 
-    reviewed_at:new Date().toISOString(),
+    const session =
+      sessionData.session;
 
-    rejection_reason:
-    reason.trim() || "Proof does not meet task requirements.",
 
-    post_review:true
+    if(!session){
 
-  })
-  .eq("id",id);
+      window.location.href =
+        "admin-login.html";
 
-  if(error){
+      return;
+
+    }
+
+
+    const {
+      error
+    } =
+      await db
+        .from("task_submissions")
+        .update({
+
+          status:"REJECTED",
+
+          reviewed_by:
+            session.user.id,
+
+          reviewed_at:
+            new Date().toISOString(),
+
+          rejection_reason:
+            reason,
+
+          post_review:true
+
+        })
+        .eq("id",id);
+
+
+    if(error)
+      throw error;
+
 
     message(
-      error.message,
+      "Proof rejected."
+    );
+
+
+    await loadProofs();
+
+    await refreshCounts();
+
+
+  }catch(error){
+
+    message(
+      friendlyError(
+        error,
+        "The proof could not be rejected."
+      ),
       "error"
     );
 
-    return;
   }
 
-  message(
-    "Proof rejected."
+}
+
+
+/* =========================================================
+   COUNTS
+   ========================================================= */
+
+async function countTable(table){
+
+  try{
+
+    const {
+      count,
+      error
+    } =
+      await db
+        .from(table)
+        .select("*",{
+          count:"exact",
+          head:true
+        });
+
+
+    if(error){
+
+      console.warn(
+        table,
+        error
+      );
+
+      return "—";
+    }
+
+
+    return count ?? 0;
+
+
+  }catch(error){
+
+    return "—";
+
+  }
+
+}
+
+
+async function refreshCounts(){
+
+  try{
+
+    const [
+      users,
+      tasks,
+      withdrawals,
+      proofs
+    ] =
+      await Promise.all([
+
+        countTable(
+          "profiles"
+        ),
+
+        countTable(
+          "tasks"
+        ),
+
+        countTable(
+          "withdrawals"
+        ),
+
+        countTable(
+          "task_submissions"
+        )
+
+      ]);
+
+
+    byId("usersCount")
+      .textContent =
+      users;
+
+
+    byId("tasksCount")
+      .textContent =
+      tasks;
+
+
+    byId("withdrawalsCount")
+      .textContent =
+      withdrawals;
+
+
+    byId("proofsCount")
+      .textContent =
+      proofs;
+
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   OTHER BUTTONS
+   ========================================================= */
+
+byId("refreshUsersButton")
+  .addEventListener(
+    "click",
+    async function(){
+
+      await refreshCounts();
+
+      message(
+        "User count refreshed."
+      );
+
+    }
   );
 
-  await loadProofs();
+
+byId("refreshWithdrawalsButton")
+  .addEventListener(
+    "click",
+    async function(){
+
+      await refreshCounts();
+
+      message(
+        "Withdrawal count refreshed."
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   ADMIN SECURITY CHECK
+   ========================================================= */
+
+async function checkAdmin(){
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await db.auth.getSession();
+
+
+    if(error)
+      throw error;
+
+
+    const session =
+      data.session;
+
+
+    if(!session){
+
+      window.location.href =
+        "admin-login.html";
+
+      return;
+
+    }
+
+
+    byId("adminEmail")
+      .textContent =
+      "Signed in as " +
+      session.user.email;
+
+
+    const {
+      data:admin,
+      error:adminError
+    } =
+      await db
+        .from("admin_users")
+        .select("user_id")
+        .eq(
+          "user_id",
+          session.user.id
+        )
+        .maybeSingle();
+
+
+    if(adminError)
+      throw adminError;
+
+
+    if(!admin){
+
+      await db.auth.signOut();
+
+      window.location.href =
+        "admin-login.html";
+
+      return;
+
+    }
+
+
+    await refreshCounts();
+
+
+    byId("loadingScreen")
+      .style.display =
+      "none";
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    byId("loadingScreen")
+      .style.display =
+      "none";
+
+
+    message(
+      friendlyError(
+        error,
+        "Unable to load the Admin Control Center."
+      ),
+      "error"
+    );
+
+  }
+
 }
 
-function escapeHTML(value){
 
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
+/* =========================================================
+   LOGOUT
+   ========================================================= */
 
-function escapeAttribute(value){
+byId("logoutButton")
+  .addEventListener(
+    "click",
+    function(){
 
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;");
-}
+      openConfirmModal({
 
-async function logout(){
+        title:"Log out?",
 
-  await db.auth.signOut();
+        messageText:
+          "You will be signed out of the NAIJA TASK Admin Control Center.",
 
-  window.location.href =
-  "admin-login.html";
-}
+        confirmText:"Logout",
+
+        danger:false,
+
+        action:
+          async function(){
+
+            closeModal();
+
+            try{
+
+              await db.auth.signOut();
+
+            }catch(error){
+
+              console.error(error);
+
+            }
+
+            window.location.href =
+              "admin-login.html";
+
+          }
+
+      });
+
+    }
+  );
+
+
+/* =========================================================
+   START
+   ========================================================= */
 
 checkAdmin();
 
