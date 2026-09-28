@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Admin Login — NAIJA TASK</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
+<!DOCTYPE html><html lang="en">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Login — NAIJA TASK</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
 
 *{
   box-sizing:border-box;
@@ -109,7 +100,26 @@ button{
 }
 
 button:disabled{
-  opacity:.8;
+  opacity:.7;
+}
+
+.secondaryButton{
+  background:#eef9f1;
+  color:#0b8f3c;
+  margin-top:10px;
+}
+
+.linkButton{
+  display:block;
+  width:100%;
+  border:0;
+  background:none;
+  color:#0b8f3c;
+  padding:12px 0;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+  text-align:center;
 }
 
 .message{
@@ -145,114 +155,201 @@ button:disabled{
   font-weight:700;
 }
 
-</style>
+.hidden{
+  display:none;
+}
 
-</head>
+.divider{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:17px 0 5px;
+  color:#8a948d;
+  font-size:11px;
+}
 
-<body>
+.divider::before,
+.divider::after{
+  content:"";
+  height:1px;
+  background:#e4ebe5;
+  flex:1;
+}
 
-<header>
-
-  <div class="logo">
+</style></head><body><header>  <div class="logo">
     NAIJA TASK
+  </div></header><main class="container">  <section class="card"><!-- LOGIN SECTION -->
+
+<div id="loginSection">
+
+  <h1>
+    Admin Login
+  </h1>
+
+  <p class="subtitle">
+    Secure access to NAIJA TASK administration.
+  </p>
+
+  <div class="security">
+    Admin access is restricted to accounts registered
+    in the NAIJA TASK <strong>admin_users</strong> table.
   </div>
 
-</header>
 
+  <form id="adminLoginForm">
 
-<main class="container">
+    <div class="field">
 
-  <section class="card">
+      <label for="email">
+        Admin Email
+      </label>
 
-    <h1>
-      Admin Login
-    </h1>
+      <input
+        id="email"
+        type="email"
+        placeholder="Enter admin email"
+        autocomplete="email"
+        required>
 
-    <p class="subtitle">
-      Secure access to NAIJA TASK administration.
-    </p>
-
-    <div class="security">
-      Admin access is restricted to accounts registered
-      in the NAIJA TASK <strong>admin_users</strong> table.
     </div>
 
 
-    <form id="adminLoginForm">
+    <div class="field">
 
-      <div class="field">
+      <label for="password">
+        Password
+      </label>
 
-        <label for="email">
-          Admin Email
-        </label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Enter password"
+        autocomplete="current-password"
+        required>
 
-        <input
-          id="email"
-          type="email"
-          placeholder="Enter admin email"
-          autocomplete="email"
-          required>
-
-      </div>
+    </div>
 
 
-      <div class="field">
+    <button
+      id="loginButton"
+      type="submit">
 
-        <label for="password">
-          Password
-        </label>
+      Admin Login
 
-        <input
-          id="password"
-          type="password"
-          placeholder="Enter password"
-          autocomplete="current-password"
-          required>
-
-      </div>
+    </button>
 
 
-      <button
-        id="loginButton"
-        type="submit">
+    <button
+      type="button"
+      id="forgotButton"
+      class="linkButton">
 
-        Admin Login
+      Forgot Password?
 
-      </button>
-
-
-      <div
-        id="message"
-        class="message">
-      </div>
-
-    </form>
+    </button>
 
 
-    <a
-      href="index.html"
-      class="back">
-      ← Back to NAIJA TASK
-    </a>
+    <div
+      id="loginMessage"
+      class="message">
+    </div>
 
-  </section>
+  </form>
 
-</main>
+</div>
 
 
-<script>
+<!-- FORGOT PASSWORD SECTION -->
+
+<div id="forgotSection" class="hidden">
+
+  <h1>
+    Reset Admin Password
+  </h1>
+
+  <p class="subtitle">
+    Enter the email address belonging to your NAIJA TASK admin account.
+    We will send you a secure password reset link.
+  </p>
+
+
+  <form id="forgotForm">
+
+    <div class="field">
+
+      <label for="resetEmail">
+        Admin Email
+      </label>
+
+      <input
+        id="resetEmail"
+        type="email"
+        placeholder="Enter admin email"
+        autocomplete="email"
+        required>
+
+    </div>
+
+
+    <button
+      id="resetButton"
+      type="submit">
+
+      Send Reset Link
+
+    </button>
+
+
+    <button
+      type="button"
+      id="backToLogin"
+      class="secondaryButton">
+
+      ← Back to Admin Login
+
+    </button>
+
+
+    <div
+      id="resetMessage"
+      class="message">
+    </div>
+
+  </form>
+
+</div>
+
+
+<a
+  href="index.html"
+  class="back">
+
+  ← Back to NAIJA TASK
+
+</a>
+
+  </section></main><script>
+
+/*
+  SUPABASE
+  --------------------------------------------------
+  Use your CURRENT Supabase project URL.
+*/
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 
 /*
-  Put your current publishable key here.
-  Never use a service-role/secret key.
+  IMPORTANT:
+  Put your CURRENT Supabase PUBLISHABLE KEY below.
+
+  Do NOT use a service-role key.
+  Do NOT use a secret key.
 */
 
 const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
 const db =
@@ -262,13 +359,18 @@ const db =
   );
 
 
+/* -----------------------------------------------
+   HELPERS
+------------------------------------------------ */
+
 function showMessage(
+  elementId,
   text,
   type
 ){
 
   const message =
-    document.getElementById("message");
+    document.getElementById(elementId);
 
   message.textContent = text;
 
@@ -277,6 +379,89 @@ function showMessage(
 
 }
 
+
+function hideMessage(elementId){
+
+  const message =
+    document.getElementById(elementId);
+
+  message.className =
+    "message";
+
+}
+
+
+/* -----------------------------------------------
+   SHOW FORGOT PASSWORD
+------------------------------------------------ */
+
+document
+  .getElementById("forgotButton")
+  .addEventListener(
+    "click",
+    function(){
+
+      const loginEmail =
+        document
+          .getElementById("email")
+          .value
+          .trim();
+
+      document
+        .getElementById("loginSection")
+        .classList
+        .add("hidden");
+
+      document
+        .getElementById("forgotSection")
+        .classList
+        .remove("hidden");
+
+      if(loginEmail){
+
+        document
+          .getElementById("resetEmail")
+          .value =
+          loginEmail;
+
+      }
+
+      hideMessage("loginMessage");
+      hideMessage("resetMessage");
+
+    }
+  );
+
+
+/* -----------------------------------------------
+   BACK TO LOGIN
+------------------------------------------------ */
+
+document
+  .getElementById("backToLogin")
+  .addEventListener(
+    "click",
+    function(){
+
+      document
+        .getElementById("forgotSection")
+        .classList
+        .add("hidden");
+
+      document
+        .getElementById("loginSection")
+        .classList
+        .remove("hidden");
+
+      hideMessage("resetMessage");
+
+    }
+  );
+
+
+/* -----------------------------------------------
+   ADMIN LOGIN
+------------------------------------------------ */
 
 document
   .getElementById("adminLoginForm")
@@ -295,7 +480,8 @@ document
         document
           .getElementById("email")
           .value
-          .trim();
+          .trim()
+          .toLowerCase();
 
       const password =
         document
@@ -306,6 +492,8 @@ document
 
       button.textContent =
         "Checking admin access...";
+
+      hideMessage("loginMessage");
 
 
       try{
@@ -318,6 +506,7 @@ document
             email,
             password
           });
+
 
         if(error){
           throw error;
@@ -333,16 +522,24 @@ document
         }
 
 
-        /* REAL ADMIN CHECK */
+        /*
+          REAL ADMIN CHECK
+          ----------------
+          The authenticated user's ID must
+          exist inside admin_users.
+        */
 
         const {
-          data:admin,
-          error:adminError
+          data: admin,
+          error: adminError
         } =
           await db
             .from("admin_users")
             .select("user_id")
-            .eq("user_id", data.user.id)
+            .eq(
+              "user_id",
+              data.user.id
+            )
             .maybeSingle();
 
 
@@ -363,9 +560,11 @@ document
 
 
         showMessage(
-          "Admin access confirmed. Opening admin payments...",
+          "loginMessage",
+          "Admin access confirmed. Opening Admin Control Center...",
           "success"
         );
+
 
         button.textContent =
           "Opening Admin...";
@@ -374,8 +573,12 @@ document
         setTimeout(
           function(){
 
+            /*
+              MAIN ADMIN CONTROL CENTER
+            */
+
             window.location.href =
-              "admin-payments.html";
+              "admin.html";
 
           },
           700
@@ -389,11 +592,14 @@ document
           error
         );
 
+
         showMessage(
+          "loginMessage",
           error.message ||
           "Admin login failed.",
           "error"
         );
+
 
         button.disabled = false;
 
@@ -405,7 +611,123 @@ document
     }
   );
 
-</script>
 
-</body>
-      </html>
+/* -----------------------------------------------
+   FORGOT PASSWORD
+------------------------------------------------ */
+
+document
+  .getElementById("forgotForm")
+  .addEventListener(
+    "submit",
+    async function(event){
+
+      event.preventDefault();
+
+      const button =
+        document.getElementById(
+          "resetButton"
+        );
+
+      const email =
+        document
+          .getElementById("resetEmail")
+          .value
+          .trim()
+          .toLowerCase();
+
+
+      if(!email){
+
+        showMessage(
+          "resetMessage",
+          "Please enter your admin email.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Sending reset link...";
+
+      hideMessage("resetMessage");
+
+
+      try{
+
+        /*
+          Supabase sends the password reset email.
+
+          The reset link opens:
+          reset-password.html
+        */
+
+        const redirectUrl =
+          window.location.origin +
+          window.location.pathname
+            .replace(
+              "admin-login.html",
+              "reset-password.html"
+            );
+
+
+        const {
+          error
+        } =
+          await db.auth.resetPasswordForEmail(
+            email,
+            {
+              redirectTo: redirectUrl
+            }
+          );
+
+
+        if(error){
+          throw error;
+        }
+
+
+        showMessage(
+          "resetMessage",
+          "If this email belongs to an account, a password reset link has been sent. Check your email inbox and spam folder.",
+          "success"
+        );
+
+
+        button.textContent =
+          "Reset Link Sent";
+
+
+      }catch(error){
+
+        console.error(
+          "Password reset error:",
+          error
+        );
+
+
+        showMessage(
+          "resetMessage",
+          error.message ||
+          "Unable to send the reset link.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Send Reset Link";
+
+      }
+
+    }
+  );
+
+</script></body>
+    </html>
