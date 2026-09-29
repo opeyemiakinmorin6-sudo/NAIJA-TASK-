@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Admin Control Center — NAIJA TASK</title>
 
@@ -18,218 +18,120 @@
 body{
   font-family:Arial,sans-serif;
   background:#f5fff7;
-  color:#172018;
-}
-
-button,input,textarea,select{
-  font-family:inherit;
-}
-
-button{
-  cursor:pointer;
+  color:#123;
 }
 
 header{
   background:#0b8f3c;
   color:white;
-  padding:16px 13px;
+  padding:18px 15px;
   position:sticky;
   top:0;
-  z-index:100;
-  box-shadow:0 2px 8px rgba(0,0,0,.12);
+  z-index:20;
 }
 
-.header-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+header h1{
+  font-size:20px;
 }
 
-.logo{
-  font-size:21px;
-  font-weight:800;
-}
-
-.admin-label{
+header p{
   font-size:12px;
-  margin-top:3px;
   opacity:.9;
-}
-
-.logout{
-  border:0;
-  background:white;
-  color:#0b8f3c;
-  padding:9px 12px;
-  border-radius:8px;
-  font-weight:700;
+  margin-top:4px;
 }
 
 .container{
-  max-width:1150px;
+  max-width:1100px;
   margin:auto;
-  padding:15px 12px 40px;
-}
-
-.loading{
-  position:fixed;
-  inset:0;
-  z-index:9999;
-  background:#f5fff7;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-}
-
-.spinner{
-  width:40px;
-  height:40px;
-  border:4px solid #d8eddf;
-  border-top-color:#0b8f3c;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-bottom:12px;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-
-.message{
-  display:none;
-  padding:12px;
-  border-radius:9px;
-  margin-bottom:13px;
-  font-size:14px;
-  line-height:1.4;
-}
-
-.success{
-  background:#e5f7eb;
-  color:#087432;
-}
-
-.error{
-  background:#ffe7e7;
-  color:#a00000;
-}
-
-.welcome{
-  background:white;
-  border-radius:14px;
-  padding:17px;
-  margin-bottom:14px;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-}
-
-.welcome h1{
-  font-size:21px;
-  margin-bottom:5px;
-}
-
-.welcome p{
-  font-size:13px;
-  color:#68716b;
-  word-break:break-word;
-}
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-
-.stat{
-  background:white;
-  border-radius:13px;
-  padding:14px;
-  box-shadow:0 2px 7px rgba(0,0,0,.06);
-}
-
-.stat-title{
-  color:#69736d;
-  font-size:12px;
-  margin-bottom:5px;
-}
-
-.stat-number{
-  color:#0b8f3c;
-  font-size:23px;
-  font-weight:800;
+  padding:15px;
 }
 
 .menu{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:9px;
-  margin-top:16px;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:10px 0 15px;
 }
 
 .menu button{
   border:0;
   background:white;
-  border-radius:13px;
-  padding:14px 10px;
-  text-align:left;
-  box-shadow:0 2px 7px rgba(0,0,0,.06);
-  font-weight:700;
+  color:#0b8f3c;
+  border:1px solid #b9dfc5;
+  padding:10px 13px;
+  border-radius:9px;
+  white-space:nowrap;
+  font-weight:bold;
 }
 
-.menu-icon{
-  font-size:24px;
-  margin-bottom:6px;
+.menu button.active{
+  background:#0b8f3c;
+  color:white;
 }
 
-.menu-small{
+.section{
+  display:none;
+}
+
+.section.active{
   display:block;
-  font-size:11px;
-  color:#737c76;
-  font-weight:400;
-  margin-top:4px;
 }
 
-.panel{
+.card{
   background:white;
-  border-radius:14px;
-  padding:16px;
-  margin-top:15px;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  border-radius:13px;
+  padding:15px;
+  margin-bottom:15px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
 }
 
-.panel h2{
+.card h2{
+  color:#0b8f3c;
   font-size:18px;
-  margin-bottom:13px;
+  margin-bottom:12px;
 }
 
-.hidden{
-  display:none!important;
+.card h3{
+  font-size:15px;
+  margin:15px 0 8px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:12px;
+}
+
+.stat{
+  background:#f5fff7;
+  border:1px solid #d6efdc;
+  padding:14px;
+  border-radius:11px;
+}
+
+.stat b{
+  display:block;
+  font-size:21px;
+  color:#0b8f3c;
+  margin-top:5px;
 }
 
 label{
   display:block;
   font-size:13px;
-  font-weight:700;
-  margin:12px 0 6px;
+  font-weight:bold;
+  margin:11px 0 5px;
 }
 
 input,
-textarea,
-select{
+select,
+textarea{
   width:100%;
   padding:11px;
-  border:1px solid #d8e2db;
-  border-radius:9px;
+  border:1px solid #cbded0;
+  border-radius:8px;
   background:white;
   font-size:14px;
-  outline:none;
-}
-
-input:focus,
-textarea:focus,
-select:focus{
-  border-color:#0b8f3c;
 }
 
 textarea{
@@ -237,113 +139,62 @@ textarea{
   resize:vertical;
 }
 
-.primary{
-  border:0;
+button.primary,
+button.green{
   background:#0b8f3c;
   color:white;
-  padding:11px 13px;
-  border-radius:8px;
-  font-weight:700;
-}
-
-.primary.full{
-  width:100%;
-  margin-top:14px;
-}
-
-.secondary{
   border:0;
-  background:#e8f7ed;
-  color:#087a33;
-  padding:10px 12px;
+}
+
+button{
+  cursor:pointer;
+}
+
+.action{
+  padding:10px 13px;
   border-radius:8px;
-  font-weight:700;
-  margin:3px;
+  border:1px solid #cbded0;
+  background:white;
+  font-weight:bold;
+  margin:5px 4px 5px 0;
 }
 
 .danger{
-  border:0;
-  background:#ffe7e7;
-  color:#a00000;
-  padding:10px 12px;
-  border-radius:8px;
-  font-weight:700;
-  margin:3px;
+  background:#c62828 !important;
+  color:white !important;
+  border:0 !important;
 }
 
-.dark{
-  border:0;
-  background:#202820;
-  color:white;
-  padding:10px 12px;
-  border-radius:8px;
-  font-weight:700;
-  margin:3px;
+.warning{
+  background:#f59e0b !important;
+  color:white !important;
+  border:0 !important;
 }
 
-.setting-box{
-  border:1px solid #e1e9e3;
-  border-radius:11px;
-  padding:13px;
-  margin-bottom:12px;
+.blue{
+  background:#1769aa !important;
+  color:white !important;
+  border:0 !important;
 }
 
-.setting-title{
-  font-weight:800;
-  font-size:15px;
-  margin-bottom:8px;
-}
-
-.setting-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
-}
-
-.reward-card{
-  border:1px solid #dce9df;
-  border-radius:11px;
-  padding:13px;
-  margin-top:10px;
-  background:#fbfffc;
-}
-
-.reward-card h3{
-  font-size:15px;
-  color:#0b8f3c;
-  margin-bottom:3px;
-}
-
-.reward-card p{
-  font-size:12px;
-  color:#68716b;
-  line-height:1.4;
-  margin-bottom:8px;
-}
-
-.switch-row{
+.row{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
-  padding:9px 0;
-  border-bottom:1px solid #edf1ee;
+  gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid #edf2ee;
 }
 
-.switch-row:last-child{
+.row:last-child{
   border-bottom:0;
 }
 
-.switch-row span{
-  font-size:13px;
-  font-weight:700;
-}
-
 .switch{
-  width:48px;
-  height:27px;
   position:relative;
-  flex-shrink:0;
+  width:48px;
+  height:26px;
+  flex:none;
 }
 
 .switch input{
@@ -353,22 +204,20 @@ textarea{
 .slider{
   position:absolute;
   inset:0;
-  background:#ccd5cf;
+  background:#ccc;
   border-radius:30px;
-  transition:.2s;
 }
 
 .slider:before{
   content:"";
-  width:21px;
-  height:21px;
-  background:white;
   position:absolute;
+  width:20px;
+  height:20px;
   left:3px;
   top:3px;
+  background:white;
   border-radius:50%;
   transition:.2s;
-  box-shadow:0 1px 3px rgba(0,0,0,.2);
 }
 
 .switch input:checked + .slider{
@@ -376,3751 +225,2140 @@ textarea{
 }
 
 .switch input:checked + .slider:before{
-  transform:translateX(21px);
+  transform:translateX(22px);
 }
 
-.task-card,
-.proof-card,
-.user-card,
-.payment-card{
-  border:1px solid #e2e9e4;
-  border-radius:12px;
-  padding:13px;
-  margin-top:11px;
-}
-
-.task-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-}
-
-.task-title{
-  font-size:16px;
-  font-weight:800;
-  word-break:break-word;
+.item{
+  border:1px solid #dce9df;
+  border-radius:10px;
+  padding:12px;
+  margin:8px 0;
+  background:#fff;
 }
 
 .badge{
   display:inline-block;
-  padding:5px 8px;
+  padding:4px 8px;
   border-radius:20px;
-  font-size:10px;
-  font-weight:800;
-  white-space:nowrap;
+  font-size:11px;
+  font-weight:bold;
+  background:#e8f6ec;
+  color:#0b8f3c;
 }
 
-.live,
-.approved{
-  background:#e3f7e9;
-  color:#087432;
+.badge.red{
+  background:#ffe8e8;
+  color:#c62828;
 }
 
-.paused{
-  background:#fff0d1;
-  color:#946000;
+.badge.orange{
+  background:#fff1dc;
+  color:#b86600;
 }
 
-.pending{
-  background:#fff0d1;
-  color:#946000;
-}
-
-.rejected{
-  background:#ffe5e5;
-  color:#a00000;
-}
-
-.task-description{
-  color:#626b65;
-  font-size:13px;
-  line-height:1.45;
-  margin:9px 0;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
-
-.task-info{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:8px;
-  font-size:12px;
-  color:#56605a;
-}
-
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:5px;
-  margin-top:11px;
-}
-
-.actions button{
-  flex:1;
-  min-width:90px;
+.badge.blue{
+  background:#e5f2ff;
+  color:#1769aa;
 }
 
 .small{
-  color:#737c76;
   font-size:12px;
-  line-height:1.55;
-  word-break:break-word;
+  color:#667;
+  line-height:1.5;
 }
 
 .empty{
   text-align:center;
-  color:#747d77;
-  padding:25px 10px;
-  font-size:14px;
+  color:#777;
+  padding:20px;
 }
 
-.proof-image,
-.payment-image{
-  width:100%;
-  max-height:400px;
-  object-fit:contain;
-  background:#f2f6f3;
-  border-radius:9px;
-  margin-top:10px;
-}
-
-.payment-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-}
-
-.amount{
-  color:#0b8f3c;
-  font-size:20px;
-  font-weight:800;
-}
-
-.reference{
-  background:#f5f8f6;
-  padding:9px;
-  border-radius:8px;
-  margin-top:9px;
-  word-break:break-all;
-}
-
-.modal-overlay{
+.modal{
+  display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.48);
-  z-index:9998;
-  display:none;
+  background:rgba(0,0,0,.55);
+  z-index:100;
   align-items:center;
   justify-content:center;
   padding:15px;
 }
 
-.modal-overlay.show{
+.modal.show{
   display:flex;
 }
 
-.modal{
+.modal-box{
   background:white;
   width:100%;
-  max-width:520px;
-  max-height:92vh;
+  max-width:500px;
+  max-height:90vh;
   overflow:auto;
-  border-radius:16px;
+  border-radius:14px;
   padding:18px;
 }
 
-.modal h3{
-  font-size:19px;
-  margin-bottom:7px;
-}
-
-.modal p{
-  font-size:13px;
-  color:#68716b;
-  line-height:1.4;
+.modal-box h3{
+  color:#0b8f3c;
   margin-bottom:12px;
 }
 
-.modal-actions{
-  display:flex;
-  gap:8px;
-  margin-top:15px;
+.proof-image{
+  max-width:100%;
+  border-radius:10px;
+  margin-top:10px;
 }
 
-.modal-actions button{
-  flex:1;
+pre{
+  white-space:pre-wrap;
+  word-break:break-word;
 }
 
-.reason-box{
-  display:none;
-}
+@media(max-width:600px){
+  .container{
+    padding:10px;
+  }
 
-.reason-box.show{
-  display:block;
-}
-
-footer{
-  text-align:center;
-  color:#7a827c;
-  font-size:12px;
-  padding:25px 10px;
-}
-
-@media(min-width:700px){
-
-.stats{
-  grid-template-columns:repeat(5,1fr);
-}
-
-.menu{
-  grid-template-columns:repeat(5,1fr);
-}
-
-.setting-grid{
-  grid-template-columns:repeat(2,1fr);
-}
-
-.task-info{
-  grid-template-columns:repeat(4,1fr);
-}
-
+  .grid{
+    grid-template-columns:1fr 1fr;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="loading" id="loadingScreen">
-  <div class="spinner"></div>
-  <strong>Checking administrator access...</strong>
-</div>
-
 <header>
-  <div class="header-row">
-    <div>
-      <div class="logo">NAIJA TASK</div>
-      <div class="admin-label">Admin Control Center</div>
-    </div>
-
-    <button class="logout" id="logoutButton">
-      Logout
-    </button>
-  </div>
+  <h1>NAIJA TASK — Admin Control Center</h1>
+  <p>Platform management, payments, tasks, users and security</p>
 </header>
 
-<main class="container">
+<div class="container">
 
-<div id="message" class="message"></div>
-
-<section class="welcome">
-  <h1>Admin Dashboard</h1>
-  <p id="adminEmail">Checking account...</p>
-</section>
-
-<section class="stats">
-
-  <div class="stat">
-    <div class="stat-title">Total Users</div>
-    <div class="stat-number" id="usersCount">—</div>
+  <div class="menu">
+    <button class="active" onclick="showSection('overview',this)">📊 Overview</button>
+    <button onclick="showSection('platform',this)">⚙️ Platform</button>
+    <button onclick="showSection('membership',this)">👑 Membership</button>
+    <button onclick="showSection('money',this)">💰 Money</button>
+    <button onclick="showSection('referrals',this)">🔗 Referrals</button>
+    <button onclick="showSection('payments',this)">💳 Payments</button>
+    <button onclick="showSection('tasks',this)">📋 Tasks</button>
+    <button onclick="showSection('proofs',this)">🖼️ Proof Review</button>
+    <button onclick="showSection('users',this)">👥 Users</button>
+    <button onclick="showSection('posters',this)">📢 Posters</button>
+    <button onclick="showSection('security',this)">🛡️ Security</button>
   </div>
 
-  <div class="stat">
-    <div class="stat-title">Total Tasks</div>
-    <div class="stat-number" id="tasksCount">—</div>
+  <!-- OVERVIEW -->
+  <section id="overview" class="section active">
+
+    <div class="card">
+      <h2>Dashboard</h2>
+
+      <div class="grid">
+
+        <div class="stat">
+          Total Users
+          <b id="totalUsers">0</b>
+        </div>
+
+        <div class="stat">
+          Total Tasks
+          <b id="totalTasks">0</b>
+        </div>
+
+        <div class="stat">
+          Withdrawals
+          <b id="totalWithdrawals">0</b>
+        </div>
+
+        <div class="stat">
+          Pending Proofs
+          <b id="pendingProofs">0</b>
+        </div>
+
+        <div class="stat">
+          Pending Payments
+          <b id="pendingPayments">0</b>
+        </div>
+
+        <div class="stat">
+          Security Events
+          <b id="securityEventCount">0</b>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <!-- PLATFORM -->
+  <section id="platform" class="section">
+
+    <div class="card">
+      <h2>Platform Settings</h2>
+
+      <label>Site Name</label>
+      <input id="siteName">
+
+      <label>Support WhatsApp</label>
+      <input id="supportWhatsapp">
+
+      <label>Support Email</label>
+      <input id="supportEmail">
+
+      <div class="row">
+        <span>Maintenance Mode</span>
+        <label class="switch">
+          <input type="checkbox" id="maintenanceMode">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Photo Proof Enabled</span>
+        <label class="switch">
+          <input type="checkbox" id="photoProofEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>AI Care Enabled</span>
+        <label class="switch">
+          <input type="checkbox" id="aiCareEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Private Chat</span>
+        <label class="switch">
+          <input type="checkbox" id="privateChatEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Community Chat</span>
+        <label class="switch">
+          <input type="checkbox" id="communityChatEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Task Reward Controls</h2>
+
+      <h3>Normal Tasker</h3>
+
+      <label>Minimum Reward (₦)</label>
+      <input type="number" id="normalMinReward" min="0">
+
+      <label>Maximum Reward (₦)</label>
+      <input type="number" id="normalMaxReward" min="0">
+
+      <h3>VIP Tasker</h3>
+
+      <label>Minimum Reward (₦)</label>
+      <input type="number" id="vipMinReward" min="0">
+
+      <label>Maximum Reward (₦)</label>
+      <input type="number" id="vipMaxReward" min="0">
+
+      <p class="small">
+        These values control the reward range available to task posters.
+      </p>
+    </div>
+
+  </section>
+
+  <!-- MEMBERSHIP -->
+  <section id="membership" class="section">
+
+    <div class="card">
+      <h2>Membership</h2>
+
+      <div class="row">
+        <span>Activation Enabled</span>
+        <label class="switch">
+          <input type="checkbox" id="activationEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <label>Activation Fee (₦)</label>
+      <input type="number" id="activationFee">
+
+      <div class="row">
+        <span>VIP Enabled</span>
+        <label class="switch">
+          <input type="checkbox" id="vipEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <label>VIP Price (₦)</label>
+      <input type="number" id="vipPrice">
+
+      <label>Free Daily Task Limit</label>
+      <input type="number" id="freeDailyTaskLimit">
+
+      <label>VIP Daily Task Limit</label>
+      <input type="number" id="vipDailyTaskLimit">
+    </div>
+
+  </section>
+
+  <!-- MONEY -->
+  <section id="money" class="section">
+
+    <div class="card">
+      <h2>Withdrawal Settings</h2>
+
+      <div class="row">
+        <span>Withdrawals Enabled</span>
+        <label class="switch">
+          <input type="checkbox" id="withdrawalsEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <label>Minimum Withdrawal (₦)</label>
+      <input type="number" id="minimumWithdrawal">
+
+      <label>Free Withdrawal Fee (₦)</label>
+      <input type="number" id="freeWithdrawalFee">
+
+      <label>VIP Withdrawal Fee (₦)</label>
+      <input type="number" id="vipWithdrawalFee">
+
+      <label>Withdrawals Per Day</label>
+      <input type="number" id="withdrawalsPerDay">
+    </div>
+
+    <div class="card">
+      <h2>Withdrawal Records</h2>
+      <button class="action green" onclick="loadWithdrawals()">Refresh</button>
+      <div id="withdrawalList"></div>
+    </div>
+
+  </section>
+
+  <!-- REFERRALS -->
+  <section id="referrals" class="section">
+
+    <div class="card">
+      <h2>Referral Settings</h2>
+
+      <div class="row">
+        <span>Referrals Enabled</span>
+        <label class="switch">
+          <input type="checkbox" id="referralsEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <label>Referral Reward (₦)</label>
+      <input type="number" id="referralReward">
+    </div>
+
+  </section>
+
+  <!-- PAYMENTS -->
+  <section id="payments" class="section">
+
+    <div class="card">
+      <h2>Poster Payments</h2>
+
+      <button class="action green" onclick="loadPayments()">Refresh Payments</button>
+
+      <div id="paymentList"></div>
+    </div>
+
+  </section>
+
+  <!-- TASKS -->
+  <section id="tasks" class="section">
+
+    <div class="card">
+      <h2>Create Task</h2>
+
+      <label>Title</label>
+      <input id="taskTitle">
+
+      <label>Description</label>
+      <textarea id="taskDescription"></textarea>
+
+      <label>Reward (₦)</label>
+      <input type="number" id="taskReward">
+
+      <label>Slots</label>
+      <input type="number" id="taskSlots">
+
+      <label>Task Type</label>
+      <select id="taskType">
+        <option value="social">Social</option>
+        <option value="website">Website</option>
+        <option value="app_download">App Download</option>
+        <option value="survey">Survey</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Task Link</label>
+      <input id="taskLink">
+
+      <label>Copy Text</label>
+      <textarea id="taskCopyText"></textarea>
+
+      <label>Expiry Date</label>
+      <input type="datetime-local" id="taskExpiry">
+
+      <label>Uploader Username</label>
+      <input id="taskUploader">
+
+      <div class="row">
+        <span>Photo Upload Required</span>
+        <label class="switch">
+          <input type="checkbox" id="taskUploadRequired" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <button class="action green" onclick="createTask()">Create Task</button>
+    </div>
+
+    <div class="card">
+      <h2>Task Manager</h2>
+
+      <button class="action green" onclick="loadTasks()">Refresh Tasks</button>
+
+      <div id="taskList"></div>
+    </div>
+
+  </section>
+
+  <!-- PROOFS -->
+  <section id="proofs" class="section">
+
+    <div class="card">
+      <h2>Proof Review</h2>
+
+      <button class="action green" onclick="loadProofs()">Refresh Proofs</button>
+
+      <div id="proofList"></div>
+    </div>
+
+  </section>
+
+  <!-- USERS -->
+  <section id="users" class="section">
+
+    <div class="card">
+      <h2>User Search</h2>
+
+      <input id="userSearch"
+        placeholder="Search name, phone or user ID">
+
+      <button class="action green" onclick="searchUsers()">
+        Search
+      </button>
+
+      <div id="userList"></div>
+    </div>
+
+  </section>
+
+  <!-- POSTERS -->
+  <section id="posters" class="section">
+
+    <div class="card">
+      <h2>Poster Controls</h2>
+
+      <div class="row">
+        <span>Poster Registration</span>
+        <label class="switch">
+          <input type="checkbox" id="posterRegistrationEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Job Posting</span>
+        <label class="switch">
+          <input type="checkbox" id="jobPostingEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Task Approval Required</span>
+        <label class="switch">
+          <input type="checkbox" id="taskApprovalRequired">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SECURITY -->
+  <section id="security" class="section">
+
+    <div class="card">
+      <h2>🛡️ Security Control Center</h2>
+
+      <p class="small">
+        Control CAPTCHA, bot detection, device/IP monitoring,
+        suspicious activity protection, 2FA and security restrictions.
+      </p>
+
+      <div class="row">
+        <span>CAPTCHA Enabled</span>
+        <label class="switch">
+          <input type="checkbox" id="captchaEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>CAPTCHA Required During Signup</span>
+        <label class="switch">
+          <input type="checkbox" id="captchaSignupRequired">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>CAPTCHA Required During Withdrawal</span>
+        <label class="switch">
+          <input type="checkbox" id="captchaWithdrawalRequired">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Bot Detection</span>
+        <label class="switch">
+          <input type="checkbox" id="botDetectionEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Device Detection</span>
+        <label class="switch">
+          <input type="checkbox" id="deviceDetectionEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>IP Detection</span>
+        <label class="switch">
+          <input type="checkbox" id="ipDetectionEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Suspicious Activity Detection</span>
+        <label class="switch">
+          <input type="checkbox" id="suspiciousActivityDetection">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Automatic Temporary Restrictions</span>
+        <label class="switch">
+          <input type="checkbox" id="automaticRestrictionEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Security Warnings</span>
+        <label class="switch">
+          <input type="checkbox" id="securityWarningsEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>User 2FA Available</span>
+        <label class="switch">
+          <input type="checkbox" id="user2faEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>Withdrawal Security Check</span>
+        <label class="switch">
+          <input type="checkbox" id="withdrawalSecurityCheck">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <label>Maximum Task Submissions Per Minute</label>
+      <input
+        type="number"
+        id="maxTaskSubmissionsPerMinute"
+        min="1"
+        max="100"
+      >
+
+      <label>Suspicious Risk Score Threshold</label>
+      <input
+        type="number"
+        id="suspiciousRiskScore"
+        min="1"
+        max="100"
+      >
+
+      <div class="row">
+        <span>
+          Permanent Automatic Ban
+          <small class="small">
+            Keep OFF initially; use evidence and admin review.
+          </small>
+        </span>
+
+        <label class="switch">
+          <input type="checkbox" id="automaticBanEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <h2>📢 Advertisement Controls</h2>
+
+      <div class="row">
+        <span>Normal Tasker Ads</span>
+        <label class="switch">
+          <input type="checkbox" id="normalAdsEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <span>VIP Tasker Ads</span>
+        <label class="switch">
+          <input type="checkbox" id="vipAdsEnabled">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <label>Ad Frequency</label>
+      <input
+        type="number"
+        id="adFrequency"
+        min="1"
+        max="100"
+      >
+
+      <p class="small">
+        Example: 5 means the platform can show an ad after approximately
+        every 5 eligible actions. Actual display logic will be handled
+        by the user-facing pages.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>🚨 Security Events</h2>
+
+      <button class="action green" onclick="loadSecurityEvents()">
+        Refresh Events
+      </button>
+
+      <div id="securityEvents"></div>
+    </div>
+
+    <div class="card">
+      <h2>⚠️ Security Warnings</h2>
+
+      <button class="action green" onclick="loadSecurityWarnings()">
+        Refresh Warnings
+      </button>
+
+      <div id="securityWarnings"></div>
+    </div>
+
+  </section>
+
+  <div class="card">
+    <button class="action green" onclick="saveSettings()">
+      💾 Save All Settings
+    </button>
+
+    <button class="action danger" onclick="logout()">
+      Logout
+    </button>
+
+    <div id="message" class="small"></div>
   </div>
 
-  <div class="stat">
-    <div class="stat-title">Withdrawals</div>
-    <div class="stat-number" id="withdrawalsCount">—</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <h3>Edit Task</h3>
+
+    <input type="hidden" id="editTaskId">
+
+    <label>Title</label>
+    <input id="editTitle">
+
+    <label>Description</label>
+    <textarea id="editDescription"></textarea>
+
+    <label>Reward</label>
+    <input type="number" id="editReward">
+
+    <label>Slots</label>
+    <input type="number" id="editSlots">
+
+    <label>Task Link</label>
+    <input id="editLink">
+
+    <label>Copy Text</label>
+    <textarea id="editCopyText"></textarea>
+
+    <button class="action green" onclick="saveTaskEdit()">
+      Save
+    </button>
+
+    <button class="action" onclick="closeModal('editModal')">
+      Cancel
+    </button>
   </div>
+</div>
 
-  <div class="stat">
-    <div class="stat-title">Pending Proofs</div>
-    <div class="stat-number" id="proofsCount">—</div>
+<!-- CONFIRM MODAL -->
+<div class="modal" id="confirmModal">
+  <div class="modal-box">
+    <h3 id="confirmTitle">Confirm Action</h3>
+    <p id="confirmText" class="small"></p>
+
+    <button class="action green" id="confirmYes">
+      Continue
+    </button>
+
+    <button class="action" onclick="closeModal('confirmModal')">
+      Cancel
+    </button>
   </div>
+</div>
 
-  <div class="stat">
-    <div class="stat-title">Pending Payments</div>
-    <div class="stat-number" id="paymentsCount">—</div>
+<!-- IMAGE MODAL -->
+<div class="modal" id="imageModal">
+  <div class="modal-box">
+    <h3>Proof Image</h3>
+    <div id="imageContent"></div>
+    <button class="action" onclick="closeModal('imageModal')">
+      Close
+    </button>
   </div>
-
-</section>
-
-<div class="menu">
-
-<button data-panel="settingsPanel">
-⚙️ Platform
-<span class="menu-small">Website controls</span>
-</button>
-
-<button data-panel="membershipPanel">
-💎 Membership
-<span class="menu-small">Activation & VIP</span>
-</button>
-
-<button data-panel="moneyPanel">
-💰 Money
-<span class="menu-small">Withdrawals</span>
-</button>
-
-<button data-panel="referralPanel">
-🔗 Referrals
-<span class="menu-small">Referral settings</span>
-</button>
-
-<button data-panel="posterPaymentPanel">
-💳 Payments
-<span class="menu-small">Poster payments</span>
-</button>
-
-<button data-panel="taskPanel">
-📋 Tasks
-<span class="menu-small">Create & manage</span>
-</button>
-
-<button data-panel="proofPanel">
-🖼️ Proof Review
-<span class="menu-small">Worker submissions</span>
-</button>
-
-<button data-panel="usersPanel">
-👥 Users
-<span class="menu-small">Worker accounts</span>
-</button>
-
-<button data-panel="posterPanel">
-💼 Posters
-<span class="menu-small">Poster controls</span>
-</button>
-
 </div>
-
-
-<!-- PLATFORM -->
-
-<section class="panel hidden" id="settingsPanel">
-
-<h2>⚙️ Platform Settings</h2>
-
-<div class="setting-box">
-
-<div class="setting-title">General</div>
-
-<label>Site Name</label>
-<input id="siteName">
-
-<label>Support WhatsApp</label>
-<input id="supportWhatsapp">
-
-<label>Support Email</label>
-<input id="supportEmail">
-
-</div>
-
-<div class="setting-box">
-
-<div class="setting-title">Platform Controls</div>
-
-<div class="switch-row">
-<span>Maintenance Mode</span>
-<label class="switch">
-<input type="checkbox" id="maintenanceMode">
-<span class="slider"></span>
-</label>
-</div>
-
-<div class="switch-row">
-<span>Photo Proof</span>
-<label class="switch">
-<input type="checkbox" id="photoProof">
-<span class="slider"></span>
-</label>
-</div>
-
-<div class="switch-row">
-<span>AI Care</span>
-<label class="switch">
-<input type="checkbox" id="aiCare">
-<span class="slider"></span>
-</label>
-</div>
-
-<div class="switch-row">
-<span>Private Chat</span>
-<label class="switch">
-<input type="checkbox" id="privateChat">
-<span class="slider"></span>
-</label>
-</div>
-
-<div class="switch-row">
-<span>Community Chat</span>
-<label class="switch">
-<input type="checkbox" id="communityChat">
-<span class="slider"></span>
-</label>
-</div>
-
-</div>
-
-
-<!-- NEW SEPARATE REWARD CONTROLS -->
-
-<div class="setting-box">
-
-<div class="setting-title">
-💰 Task Reward Controls
-</div>
-
-<p class="small">
-These limits control how much a poster can offer per worker.
-They are separate for Normal and VIP Taskers.
-There is no permanent ₦150 maximum.
-</p>
-
-
-<div class="reward-card">
-
-<h3>Normal Tasker</h3>
-
-<p>
-Set the minimum and maximum reward allowed for Normal Taskers.
-</p>
-
-<div class="setting-grid">
-
-<div>
-<label>Minimum Reward ₦</label>
-<input
-type="number"
-id="normalMinReward"
-min="0"
-step="1"
-placeholder="e.g. 3"
->
-</div>
-
-<div>
-<label>Maximum Reward ₦</label>
-<input
-type="number"
-id="normalMaxReward"
-min="0"
-step="1"
-placeholder="e.g. 5000"
->
-</div>
-
-</div>
-
-</div>
-
-
-<div class="reward-card">
-
-<h3>VIP Tasker</h3>
-
-<p>
-Set the minimum and maximum reward allowed for VIP Taskers.
-</p>
-
-<div class="setting-grid">
-
-<div>
-<label>Minimum Reward ₦</label>
-<input
-type="number"
-id="vipMinReward"
-min="0"
-step="1"
-placeholder="e.g. 3"
->
-</div>
-
-<div>
-<label>Maximum Reward ₦</label>
-<input
-type="number"
-id="vipMaxReward"
-min="0"
-step="1"
-placeholder="e.g. 10000"
->
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- Legacy values kept for database compatibility -->
-
-<div class="setting-box">
-
-<div class="setting-title">
-Internal Compatibility
-</div>
-
-<p class="small">
-The older global reward settings are kept only for compatibility with existing pages.
-The new Normal/VIP controls above are the new reward controls.
-</p>
-
-<div class="setting-grid">
-
-<div>
-<label>Legacy Minimum Reward ₦</label>
-<input
-type="number"
-id="minimumReward"
-min="0"
-step="1"
->
-</div>
-
-<div>
-<label>Legacy Maximum Reward ₦</label>
-<input
-type="number"
-id="maximumReward"
-min="0"
-step="1"
->
-</div>
-
-</div>
-
-</div>
-
-
-<button class="primary full" id="saveSettings">
-Save Platform Settings
-</button>
-
-</section>
-
-
-<!-- MEMBERSHIP -->
-
-<section class="panel hidden" id="membershipPanel">
-
-<h2>💎 Membership Control</h2>
-
-<div class="setting-box">
-
-<div class="setting-title">Activation</div>
-
-<div class="switch-row">
-<span>Activation Enabled</span>
-<label class="switch">
-<input type="checkbox" id="activationEnabled">
-<span class="slider"></span>
-</label>
-</div>
-
-<label>Activation Fee ₦</label>
-<input type="number" id="activationFee" min="0">
-
-</div>
-
-<div class="setting-box">
-
-<div class="setting-title">VIP</div>
-
-<div class="switch-row">
-<span>VIP Enabled</span>
-<label class="switch">
-<input type="checkbox" id="vipEnabled">
-<span class="slider"></span>
-</label>
-</div>
-
-<label>VIP Price ₦</label>
-<input type="number" id="vipPrice" min="0">
-
-<label>FREE Daily Task Limit</label>
-<input type="number" id="freeDailyLimit" min="0">
-
-<label>VIP Daily Task Limit</label>
-<input type="number" id="vipDailyLimit" min="0">
-
-</div>
-
-<button class="primary full" id="saveMembership">
-Save Membership Settings
-</button>
-
-</section>
-
-
-<!-- MONEY -->
-
-<section class="panel hidden" id="moneyPanel">
-
-<h2>💰 Withdrawal Control</h2>
-
-<div class="setting-box">
-
-<div class="switch-row">
-<span>Withdrawals Enabled</span>
-<label class="switch">
-<input type="checkbox" id="withdrawalsEnabled">
-<span class="slider"></span>
-</label>
-</div>
-
-<label>Minimum Withdrawal ₦</label>
-<input type="number" id="minimumWithdrawal" min="0">
-
-<label>FREE Withdrawal Fee ₦</label>
-<input type="number" id="freeWithdrawalFee" min="0">
-
-<label>VIP Withdrawal Fee ₦</label>
-<input type="number" id="vipWithdrawalFee" min="0">
-
-<label>Withdrawals Per Day</label>
-<input type="number" id="withdrawalsPerDay" min="1">
-
-</div>
-
-<button class="primary full" id="saveMoney">
-Save Withdrawal Settings
-</button>
-
-<hr style="border:0;border-top:1px solid #edf1ee;margin:20px 0;">
-
-<h2>Withdrawal Records</h2>
-
-<button class="secondary" id="refreshWithdrawals">
-↻ Refresh Withdrawals
-</button>
-
-<div id="withdrawalList">
-<div class="empty">Open this section to load withdrawals.</div>
-</div>
-
-</section>
-
-
-<!-- REFERRALS -->
-
-<section class="panel hidden" id="referralPanel">
-
-<h2>🔗 Referral Control</h2>
-
-<div class="setting-box">
-
-<div class="switch-row">
-<span>Referrals Enabled</span>
-<label class="switch">
-<input type="checkbox" id="referralsEnabled">
-<span class="slider"></span>
-</label>
-</div>
-
-<label>Referral Reward ₦</label>
-<input type="number" id="referralReward" min="0">
-
-</div>
-
-<button class="primary full" id="saveReferral">
-Save Referral Settings
-</button>
-
-</section>
-
-
-<!-- POSTER PAYMENTS -->
-
-<section class="panel hidden" id="posterPaymentPanel">
-
-<h2>💳 Poster Payment Review</h2>
-
-<p class="small">
-Review the poster's payment proof before allowing the job to become LIVE.
-</p>
-
-<button class="secondary" id="refreshPosterPayments">
-↻ Refresh Payments
-</button>
-
-<div id="posterPaymentList">
-<div class="empty">Loading poster payments...</div>
-</div>
-
-</section>
-
-
-<!-- TASKS -->
-
-<section class="panel hidden" id="taskPanel">
-
-<h2>📋 Task Manager</h2>
-
-<button class="primary" id="newTaskButton">
-+ Create Task
-</button>
-
-<button class="secondary" id="refreshTasks">
-↻ Refresh
-</button>
-
-<div id="createTaskArea" class="hidden">
-
-<div class="setting-box" style="margin-top:14px;">
-
-<h3>Create New Task</h3>
-
-<label>Title</label>
-<input id="createTitle">
-
-<label>Description</label>
-<textarea id="createDescription"></textarea>
-
-<label>Task Type</label>
-<select id="createType">
-<option value="social">Social Media</option>
-<option value="tiktok">TikTok</option>
-<option value="youtube">YouTube</option>
-<option value="instagram">Instagram</option>
-<option value="facebook">Facebook</option>
-<option value="telegram">Telegram</option>
-<option value="website">Website</option>
-<option value="app">App</option>
-<option value="survey">Survey</option>
-<option value="other">Other</option>
-</select>
-
-<label>Task Link</label>
-<input id="createLink" type="url">
-
-<label>Reward ₦</label>
-<input id="createReward" type="number" min="0">
-
-<label>Available Slots</label>
-<input id="createSlots" type="number" min="1">
-
-<label>Expiry Date</label>
-<input id="createExpiry" type="datetime-local">
-
-<label>Poster Username</label>
-<input id="createUsername">
-
-<label>Copy Text</label>
-<textarea id="createCopy"></textarea>
-
-<label>Post Link</label>
-<input id="createPostLink" type="url">
-
-<label>Required Proof</label>
-<textarea id="createProof"></textarea>
-
-<div class="switch-row">
-<span>Photo Proof Required</span>
-
-<label class="switch">
-<input type="checkbox" id="createPhoto" checked>
-<span class="slider"></span>
-</label>
-</div>
-
-<button class="primary full" id="createTask">
-Create Task
-</button>
-
-</div>
-</div>
-
-<div id="taskList">
-<div class="empty">Loading tasks...</div>
-</div>
-
-</section>
-
-
-<!-- PROOFS -->
-
-<section class="panel hidden" id="proofPanel">
-
-<h2>🖼️ Proof Review</h2>
-
-<button class="secondary" id="refreshProofs">
-↻ Refresh
-</button>
-
-<div id="proofList">
-<div class="empty">Loading proofs...</div>
-</div>
-
-</section>
-
-
-<!-- USERS -->
-
-<section class="panel hidden" id="usersPanel">
-
-<h2>👥 Users</h2>
-
-<label>Search User ID / Name / Phone</label>
-<input id="userSearch" placeholder="Search...">
-
-<button class="secondary" id="searchUsers">
-Search
-</button>
-
-<div id="userList">
-<div class="empty">Search for users.</div>
-</div>
-
-</section>
-
-
-<!-- POSTERS -->
-
-<section class="panel hidden" id="posterPanel">
-
-<h2>💼 Poster Control</h2>
-
-<div class="setting-box">
-
-<div class="switch-row">
-<span>Poster Registration</span>
-
-<label class="switch">
-<input type="checkbox" id="posterRegistration">
-<span class="slider"></span>
-</label>
-</div>
-
-<div class="switch-row">
-<span>Job Posting Enabled</span>
-
-<label class="switch">
-<input type="checkbox" id="jobPosting">
-<span class="slider"></span>
-</label>
-</div>
-
-<div class="switch-row">
-<span>Admin Approval Required</span>
-
-<label class="switch">
-<input type="checkbox" id="taskApproval">
-<span class="slider"></span>
-</label>
-</div>
-
-</div>
-
-<button class="primary full" id="savePoster">
-Save Poster Settings
-</button>
-
-<p class="small" style="margin-top:12px;">
-Poster payment approval is connected through the secure payment review system.
-</p>
-
-</section>
-
-</main>
-
-<footer>
-NAIJA TASK Admin Control Center
-</footer>
-
-
-<!-- EDIT TASK MODAL -->
-
-<div class="modal-overlay" id="editModal">
-
-<div class="modal">
-
-<h3>Edit Task</h3>
-
-<p>Change the task information below and save it.</p>
-
-<input type="hidden" id="editId">
-
-<label>Title</label>
-<input id="editTitle">
-
-<label>Description</label>
-<textarea id="editDescription"></textarea>
-
-<label>Task Type</label>
-<select id="editType">
-<option value="social">Social Media</option>
-<option value="tiktok">TikTok</option>
-<option value="youtube">YouTube</option>
-<option value="instagram">Instagram</option>
-<option value="facebook">Facebook</option>
-<option value="telegram">Telegram</option>
-<option value="website">Website</option>
-<option value="app">App</option>
-<option value="survey">Survey</option>
-<option value="other">Other</option>
-</select>
-
-<label>Task Link</label>
-<input id="editLink">
-
-<label>Reward ₦</label>
-<input id="editReward" type="number" min="0">
-
-<label>Slots</label>
-<input id="editSlots" type="number" min="1">
-
-<label>Expiry Date</label>
-<input id="editExpiry" type="datetime-local">
-
-<label>Poster Username</label>
-<input id="editUsername">
-
-<label>Copy Text</label>
-<textarea id="editCopy"></textarea>
-
-<label>Post Link</label>
-<input id="editPostLink">
-
-<label>Required Proof</label>
-<textarea id="editProof"></textarea>
-
-<div class="switch-row">
-<span>Photo Proof Required</span>
-
-<label class="switch">
-<input type="checkbox" id="editPhoto">
-<span class="slider"></span>
-</label>
-</div>
-
-<div class="modal-actions">
-
-<button class="secondary" id="closeEdit">
-Cancel
-</button>
-
-<button class="primary" id="saveEdit">
-Save Changes
-</button>
-
-</div>
-
-</div>
-</div>
-
-
-<!-- CONFIRM / REASON MODAL -->
-
-<div class="modal-overlay" id="confirmModal">
-
-<div class="modal">
-
-<h3 id="confirmTitle">Confirm</h3>
-
-<p id="confirmText"></p>
-
-<div class="reason-box" id="reasonBox">
-
-<label>Reason</label>
-
-<textarea
-id="reasonInput"
-placeholder="Enter the reason..."
-></textarea>
-
-</div>
-
-<div class="modal-actions">
-
-<button class="secondary" id="confirmCancel">
-Cancel
-</button>
-
-<button class="danger" id="confirmYes">
-Confirm
-</button>
-
-</div>
-
-</div>
-</div>
-
-
-<!-- PAYMENT IMAGE MODAL -->
-
-<div class="modal-overlay" id="imageModal">
-
-<div class="modal">
-
-<h3>Payment Proof</h3>
-
-<div id="imageModalContent">
-<div class="empty">Loading...</div>
-</div>
-
-<div class="modal-actions">
-
-<button class="secondary" id="closeImageModal">
-Close
-</button>
-
-</div>
-
-</div>
-</div>
-
 
 <script>
-
-/* =========================================================
-SUPABASE
-========================================================= */
-
 const SUPABASE_URL =
-         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
-/*
-IMPORTANT:
-Put your CURRENT Supabase publishable key here.
-
-DO NOT use a service-role key.
-*/
+"https://jwakveeiynpakunwjzkj.supabase.co";
 
 const SUPABASE_KEY =
-"YOUR_CURRENT_SUPABASE_PUBLISHABLE_KEY";
+      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-const db =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
+
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
 );
 
+const $ = id => document.getElementById(id);
 
-/* =========================================================
-HELPERS
-========================================================= */
-
-const $ = id =>
-document.getElementById(id);
-
+let currentAdmin = null;
 let confirmAction = null;
-let reasonRequired = false;
 
-function showMessage(text,type="success"){
-
-const box = $("message");
-
-box.textContent = text;
-box.className =
-"message " + type;
-
-box.style.display = "block";
-
-clearTimeout(window.msgTimer);
-
-window.msgTimer =
-setTimeout(()=>{
-box.style.display="none";
-},5000);
-
-}
-
-
-function errorText(error,fallback){
-
-console.error(error);
-
-if(!error)
-return fallback;
-
-const msg =
-String(error.message || error).toLowerCase();
-
-if(
-msg.includes("row-level security") ||
-msg.includes("permission") ||
-msg.includes("policy")
-){
-return "Permission denied. Check the Admin RLS policy for this action.";
-}
-
-return error.message || fallback;
-
-}
-
-
-/* =========================================================
-CUSTOM CONFIRM
-========================================================= */
-
-function confirmBox(
-title,
-text,
-action,
-requiresReason=false
-){
-
-$("confirmTitle").textContent=title;
-$("confirmText").textContent=text;
-
-confirmAction=action;
-reasonRequired=requiresReason;
-
-$("reasonInput").value="";
-
-if(requiresReason){
-$("reasonBox").classList.add("show");
-}else{
-$("reasonBox").classList.remove("show");
-}
-
-$("confirmModal").classList.add("show");
-
-}
-
-
-$("confirmCancel").onclick=()=>{
-
-confirmAction=null;
-reasonRequired=false;
-
-$("confirmModal")
-.classList.remove("show");
-
-};
-
-
-$("confirmYes").onclick=async()=>{
-
-const action=confirmAction;
-
-let reason="";
-
-if(reasonRequired){
-
-reason=
-$("reasonInput")
-.value
-.trim();
-
-if(!reason){
-
-showMessage(
-"Enter a reason first.",
-"error"
-);
-
-return;
-
-}
-
-}
-
-confirmAction=null;
-reasonRequired=false;
-
-$("confirmModal")
-.classList.remove("show");
-
-if(action)
-await action(reason);
-
-};
-
-
-/* =========================================================
-IMAGE MODAL
-========================================================= */
-
-$("closeImageModal").onclick=()=>{
-$("imageModal").classList.remove("show");
-};
-
-
-/* =========================================================
-NAVIGATION
-========================================================= */
-
-document
-.querySelectorAll("[data-panel]")
-.forEach(button=>{
-
-button.onclick=()=>{
-
-document
-.querySelectorAll(".panel")
-.forEach(p=>
-p.classList.add("hidden")
-);
-
-const panel =
-$(button.dataset.panel);
-
-panel.classList.remove("hidden");
-
-panel.scrollIntoView({
-behavior:"smooth",
-block:"start"
-});
-
-if(
-button.dataset.panel==="taskPanel"
-)
-loadTasks();
-
-if(
-button.dataset.panel==="proofPanel"
-)
-loadProofs();
-
-if(
-button.dataset.panel==="moneyPanel"
-)
-loadWithdrawals();
-
-if(
-button.dataset.panel==="posterPaymentPanel"
-)
-loadPosterPayments();
-
-};
-
-});
-
-
-/* =========================================================
-LOAD SETTINGS
-========================================================= */
-
-async function loadSettings(){
-
-const {data,error} =
-await db
-.from("platform_settings")
-.select("*")
-.eq("id",1)
-.maybeSingle();
-
-if(error)
-throw error;
-
-if(!data){
-
-showMessage(
-"Platform settings record was not found.",
-"error"
-);
-
-return;
-}
-
-
-/* PLATFORM */
-
-$("siteName").value =
-data.site_name ?? "NAIJA TASK";
-
-$("supportWhatsapp").value =
-data.support_whatsapp ?? "";
-
-$("supportEmail").value =
-data.support_email ?? "";
-
-$("maintenanceMode").checked =
-!!data.maintenance_mode;
-
-$("photoProof").checked =
-!!data.photo_proof_enabled;
-
-$("aiCare").checked =
-!!data.ai_care_enabled;
-
-$("privateChat").checked =
-!!data.private_chat_enabled;
-
-$("communityChat").checked =
-!!data.community_chat_enabled;
-
-
-/* NEW NORMAL / VIP REWARD CONTROLS */
-
-$("normalMinReward").value =
-data.normal_min_task_reward ?? 3;
-
-$("normalMaxReward").value =
-data.normal_max_task_reward ?? 150;
-
-$("vipMinReward").value =
-data.vip_min_task_reward ?? 3;
-
-$("vipMaxReward").value =
-data.vip_max_task_reward ?? 150;
-
-
-/*
-Keep old fields loaded because older pages
-may still read these columns until they
-are updated.
-*/
-
-$("minimumReward").value =
-data.minimum_task_reward ?? 0;
-
-$("maximumReward").value =
-data.maximum_task_reward ?? 0;
-
-
-/* MEMBERSHIP */
-
-$("activationEnabled").checked =
-!!data.activation_enabled;
-
-$("activationFee").value =
-data.activation_fee ?? 0;
-
-$("vipEnabled").checked =
-!!data.vip_enabled;
-
-$("vipPrice").value =
-data.vip_price ?? 0;
-
-$("freeDailyLimit").value =
-data.free_daily_task_limit ?? 0;
-
-$("vipDailyLimit").value =
-data.vip_daily_task_limit ?? 0;
-
-
-/* MONEY */
-
-$("withdrawalsEnabled").checked =
-!!data.withdrawals_enabled;
-
-$("minimumWithdrawal").value =
-data.minimum_withdrawal ?? 0;
-
-$("freeWithdrawalFee").value =
-data.free_withdrawal_fee ?? 0;
-
-$("vipWithdrawalFee").value =
-data.vip_withdrawal_fee ?? 0;
-
-$("withdrawalsPerDay").value =
-data.withdrawals_per_day ?? 1;
-
-
-/* REFERRALS */
-
-$("referralsEnabled").checked =
-!!data.referrals_enabled;
-
-$("referralReward").value =
-data.referral_reward ?? 0;
-
-
-/* POSTERS */
-
-$("posterRegistration").checked =
-!!data.poster_registration_enabled;
-
-$("jobPosting").checked =
-!!data.job_posting_enabled;
-
-$("taskApproval").checked =
-!!data.task_approval_required;
-
-}
-
-
-/* =========================================================
-VALIDATE REWARD RANGE
-========================================================= */
-
-function validateRewardRange(minId,maxId,label){
-
-const min =
-Number($(minId).value);
-
-const max =
-Number($(maxId).value);
-
-if(
-!Number.isFinite(min) ||
-!Number.isFinite(max) ||
-min<0 ||
-max<0
-){
-
-showMessage(
-`${label}: enter valid minimum and maximum amounts.`,
-"error"
-);
-
-return false;
-
-}
-
-if(max < min){
-
-showMessage(
-`${label}: maximum reward cannot be lower than minimum reward.`,
-"error"
-);
-
-return false;
-
-}
-
-return true;
-
-}
-
-
-/* =========================================================
-SAVE SETTINGS
-========================================================= */
-
-async function saveSettings(fields){
-
-try{
-
-const {error} =
-await db
-.from("platform_settings")
-.update(fields)
-.eq("id",1);
-
-if(error)
-throw error;
-
-showMessage(
-"Settings saved successfully."
-);
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Settings could not be saved."
-),
-"error"
-);
-
-}
-
-}
-
-
-$("saveSettings").onclick=async()=>{
-
-if(
-!validateRewardRange(
-"normalMinReward",
-"normalMaxReward",
-"Normal Tasker"
-)
-)return;
-
-if(
-!validateRewardRange(
-"vipMinReward",
-"vipMaxReward",
-"VIP Tasker"
-)
-)return;
-
-
-/*
-Use the highest configured maximum and
-lowest configured minimum for the older
-global columns.
-
-This keeps older pages working while
-the new Normal/VIP controls are being
-connected to the poster system.
-*/
-
-const normalMin =
-Number($("normalMinReward").value);
-
-const normalMax =
-Number($("normalMaxReward").value);
-
-const vipMin =
-Number($("vipMinReward").value);
-
-const vipMax =
-Number($("vipMaxReward").value);
-
-const legacyMinimum =
-Math.min(normalMin,vipMin);
-
-const legacyMaximum =
-Math.max(normalMax,vipMax);
-
-
-await saveSettings({
-
-site_name:
-$("siteName").value.trim(),
-
-support_whatsapp:
-$("supportWhatsapp").value.trim(),
-
-support_email:
-$("supportEmail").value.trim(),
-
-maintenance_mode:
-$("maintenanceMode").checked,
-
-photo_proof_enabled:
-$("photoProof").checked,
-
-ai_care_enabled:
-$("aiCare").checked,
-
-private_chat_enabled:
-$("privateChat").checked,
-
-community_chat_enabled:
-$("communityChat").checked,
-
-
-/* NEW CONTROLS */
-
-normal_min_task_reward:
-normalMin,
-
-normal_max_task_reward:
-normalMax,
-
-vip_min_task_reward:
-vipMin,
-
-vip_max_task_reward:
-vipMax,
-
-
-/* LEGACY COMPATIBILITY */
-
-minimum_task_reward:
-legacyMinimum,
-
-maximum_task_reward:
-legacyMaximum,
-
-updated_at:
-new Date().toISOString()
-
-});
-
-};
-
-
-$("saveMembership").onclick=async()=>{
-
-await saveSettings({
-
-activation_enabled:
-$("activationEnabled").checked,
-
-activation_fee:
-Number($("activationFee").value)||0,
-
-vip_enabled:
-$("vipEnabled").checked,
-
-vip_price:
-Number($("vipPrice").value)||0,
-
-free_daily_task_limit:
-Number($("freeDailyLimit").value)||0,
-
-vip_daily_task_limit:
-Number($("vipDailyLimit").value)||0,
-
-updated_at:
-new Date().toISOString()
-
-});
-
-};
-
-
-$("saveMoney").onclick=async()=>{
-
-await saveSettings({
-
-withdrawals_enabled:
-$("withdrawalsEnabled").checked,
-
-minimum_withdrawal:
-Number($("minimumWithdrawal").value)||0,
-
-free_withdrawal_fee:
-Number($("freeWithdrawalFee").value)||0,
-
-vip_withdrawal_fee:
-Number($("vipWithdrawalFee").value)||0,
-
-withdrawals_per_day:
-Number($("withdrawalsPerDay").value)||1,
-
-updated_at:
-new Date().toISOString()
-
-});
-
-};
-
-
-$("saveReferral").onclick=async()=>{
-
-await saveSettings({
-
-referrals_enabled:
-$("referralsEnabled").checked,
-
-referral_reward:
-Number($("referralReward").value)||0,
-
-updated_at:
-new Date().toISOString()
-
-});
-
-};
-
-
-$("savePoster").onclick=async()=>{
-
-await saveSettings({
-
-poster_registration_enabled:
-$("posterRegistration").checked,
-
-job_posting_enabled:
-$("jobPosting").checked,
-
-task_approval_required:
-$("taskApproval").checked,
-
-updated_at:
-new Date().toISOString()
-
-});
-
-};
-
-
-/* =========================================================
-POSTER PAYMENT REVIEW
-========================================================= */
-
-$("refreshPosterPayments").onclick =
-loadPosterPayments;
-
-
-async function loadPosterPayments(){
-
-const list =
-$("posterPaymentList");
-
-list.innerHTML =
-'<div class="empty">Loading poster payments...</div>';
-
-try{
-
-const {data,error} =
-await db
-.from("poster_payments")
-.select("*")
-.order("created_at",{ascending:false});
-
-if(error)
-throw error;
-
-if(!data || !data.length){
-
-list.innerHTML =
-'<div class="empty">No poster payment records found.</div>';
-
-return;
-}
-
-const taskIds =
-[
-...new Set(
-data
-.map(x=>x.task_id)
-.filter(Boolean)
-)
-];
-
-const posterIds =
-[
-...new Set(
-data
-.map(x=>x.poster_id)
-.filter(Boolean)
-)
-];
-
-
-let tasksById={};
-let profilesById={};
-
-
-if(taskIds.length){
-
-const {data:tasks,error:taskError} =
-await db
-.from("tasks")
-.select(
-"id,title,reward,slots,status,created_by"
-)
-.in("id",taskIds);
-
-if(taskError)
-throw taskError;
-
-(tasks||[]).forEach(task=>{
-tasksById[task.id]=task;
-});
-
-}
-
-
-if(posterIds.length){
-
-const {data:profiles,error:profileError} =
-await db
-.from("profiles")
-.select(
-"id,full_name,phone"
-)
-.in("id",posterIds);
-
-if(profileError){
-
-console.warn(
-"Poster profile lookup failed:",
-profileError
-);
-
-}else{
-
-(profiles||[]).forEach(profile=>{
-profilesById[profile.id]=profile;
-});
-
-}
-
-}
-
-
-list.innerHTML="";
-
-
-data.forEach(payment=>{
-
-const task =
-tasksById[payment.task_id];
-
-const poster =
-profilesById[payment.poster_id];
-
-const status =
-String(
-payment.status||"PENDING"
-).toUpperCase();
-
-const card =
-document.createElement("div");
-
-card.className="payment-card";
-
-const statusClass =
-status==="APPROVED"
-?"approved"
-:
-status==="REJECTED"
-?"rejected"
-:"pending";
-
-
-card.innerHTML=`
-
-<div class="payment-header">
-
-<div>
-
-<div class="task-title">
-${escapeHtml(
-task?.title || "Job not found"
-)}
-</div>
-
-<div class="small">
-Poster:
-${escapeHtml(
-poster?.full_name ||
-payment.poster_id ||
-"Unknown"
-)}
-</div>
-
-</div>
-
-<span class="badge ${statusClass}">
-${escapeHtml(status)}
-</span>
-
-</div>
-
-
-<div class="amount">
-₦${Number(
-payment.amount||0
-).toLocaleString()}
-</div>
-
-
-<div class="small">
-Payment method:
-${escapeHtml(
-payment.payment_method ||
-"Not specified"
-)}
-</div>
-
-
-<div class="small">
-Task ID:
-${escapeHtml(
-payment.task_id || ""
-)}
-</div>
-
-
-<div class="small">
-Poster ID:
-${escapeHtml(
-payment.poster_id || ""
-)}
-</div>
-
-
-${
-poster?.phone
-?`
-<div class="small">
-Phone:
-${escapeHtml(poster.phone)}
-</div>
-`
-:""
-}
-
-
-${
-payment.payment_reference
-?`
-<div class="reference">
-<strong>Transaction Reference:</strong><br>
-${escapeHtml(
-payment.payment_reference
-)}
-</div>
-`
-:`
-<div class="reference">
-<strong>Transaction Reference:</strong><br>
-Not supplied
-</div>
-`
-}
-
-
-<div class="small" style="margin-top:8px;">
-Submitted:
-${
-payment.created_at
-?new Date(payment.created_at)
-.toLocaleString()
-:"Unknown"
-}
-</div>
-
-
-<div class="actions">
-
-${
-payment.proof_url
-?`
-<button class="secondary view-proof">
-🖼️ View Payment Proof
-</button>
-`
-:""
-}
-
-
-${
-status!=="APPROVED" && status!=="REJECTED"
-?`
-<button class="primary approve-payment">
-✓ Approve Payment
-</button>
-
-<button class="danger reject-payment">
-✕ Reject Payment
-</button>
-`
-:""
-}
-
-</div>
-
-`;
-
-
-const viewButton =
-card.querySelector(".view-proof");
-
-if(viewButton){
-
-viewButton.onclick=()=>{
-viewPaymentProof(
-payment.proof_url
-);
-};
-
-}
-
-
-const approveButton =
-card.querySelector(".approve-payment");
-
-if(approveButton){
-
-approveButton.onclick=()=>{
-approvePosterPayment(
-payment.id
-);
-};
-
-}
-
-
-const rejectButton =
-card.querySelector(".reject-payment");
-
-if(rejectButton){
-
-rejectButton.onclick=()=>{
-rejectPosterPayment(
-payment.id
-);
-};
-
-}
-
-
-list.appendChild(card);
-
-});
-
-
-}catch(error){
-
-console.error(error);
-
-list.innerHTML =
-'<div class="empty">Unable to load poster payments.</div>';
-
-showMessage(
-errorText(
-error,
-"Poster payments could not be loaded."
-),
-"error"
-);
-
-}
-
-}
-
-
-/* =========================================================
-VIEW PAYMENT PROOF
-========================================================= */
-
-async function viewPaymentProof(path){
-
-if(!path){
-
-showMessage(
-"No payment screenshot was uploaded.",
-"error"
-);
-
-return;
-}
-
-$("imageModalContent").innerHTML =
-'<div class="empty">Opening payment proof...</div>';
-
-$("imageModal")
-.classList.add("show");
-
-try{
-
-const {data,error} =
-await db.storage
-.from("payment proof")
-.createSignedUrl(
-path,
-3600
-);
-
-if(error)
-throw error;
-
-if(!data?.signedUrl)
-throw new Error(
-"Could not create a secure image link."
-);
-
-$("imageModalContent").innerHTML=`
-
-<img
-class="payment-image"
-src="${escapeAttr(data.signedUrl)}"
-alt="Poster payment proof"
->
-
-<p class="small" style="margin-top:10px;">
-This secure image link expires automatically.
-</p>
-
-`;
-
-}catch(error){
-
-$("imageModalContent").innerHTML=`
-
-<div class="empty">
-Payment proof could not be opened.
-</div>
-
-`;
-
-showMessage(
-errorText(
-error,
-"Unable to open payment proof."
-),
-"error"
-);
-
-}
-
-}
-
-
-/* =========================================================
-APPROVE POSTER PAYMENT
-========================================================= */
-
-function approvePosterPayment(paymentId){
-
-confirmBox(
-
-"Approve Poster Payment?",
-
-"Confirm that you checked the payment screenshot and transaction reference. The secure system will mark the payment APPROVED and the connected job LIVE.",
-
-async()=>{
-
-try{
-
-showMessage(
-"Approving poster payment..."
-);
-
-const {data,error} =
-await db.rpc(
-"admin_review_poster_payment",
-{
-p_payment_id:paymentId,
-p_decision:"APPROVED"
-}
-);
-
-if(error)
-throw error;
-
-if(!data?.success){
-
-throw new Error(
-"Payment approval was not confirmed."
-);
-
-}
-
-showMessage(
-"Payment approved. The connected job is now LIVE."
-);
-
-await loadPosterPayments();
-await refreshCounts();
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Payment could not be approved."
-),
-"error"
-);
-
-}
-
-}
-
-);
-
-}
-
-
-/* =========================================================
-REJECT POSTER PAYMENT
-========================================================= */
-
-function rejectPosterPayment(paymentId){
-
-confirmBox(
-
-"Reject Poster Payment?",
-
-"The payment will be marked REJECTED and the connected job will return to PAYMENT_REQUIRED.",
-
-async(reason)=>{
-
-try{
-
-showMessage(
-"Rejecting poster payment..."
-);
-
-const {data,error} =
-await db.rpc(
-"admin_review_poster_payment",
-{
-p_payment_id:paymentId,
-p_decision:"REJECTED"
-}
-);
-
-if(error)
-throw error;
-
-if(!data?.success){
-
-throw new Error(
-"Payment rejection was not confirmed."
-);
-
-}
-
-showMessage(
-"Payment rejected."
-);
-
-await loadPosterPayments();
-await refreshCounts();
-
-}
-
-catch(error){
-
-showMessage(
-errorText(
-error,
-"Payment could not be rejected."
-),
-"error"
-);
-
-}
-
-},
-
-true
-
-);
-
-}
-
-
-/* =========================================================
-TASK CREATION
-========================================================= */
-
-$("newTaskButton").onclick=()=>{
-
-$("createTaskArea")
-.classList.toggle("hidden");
-
-};
-
-
-$("refreshTasks").onclick =
-loadTasks;
-
-
-$("createTask").onclick=async()=>{
-
-const title =
-$("createTitle").value.trim();
-
-const description =
-$("createDescription").value.trim();
-
-const reward =
-Number($("createReward").value);
-
-const slots =
-Number($("createSlots").value);
-
-if(!title){
-
-showMessage(
-"Enter the task title.",
-"error"
-);
-
-return;
-
-}
-
-if(!description){
-
-showMessage(
-"Enter the task description.",
-"error"
-);
-
-return;
-
-}
-
-if(!Number.isFinite(reward) || reward<0){
-
-showMessage(
-"Enter a valid reward.",
-"error"
-);
-
-return;
-
-}
-
-if(!Number.isInteger(slots) || slots<1){
-
-showMessage(
-"Enter valid slots.",
-"error"
-);
-
-return;
-
-}
-
-const {data:sessionData} =
-await db.auth.getSession();
-
-const session =
-sessionData.session;
-
-if(!session){
-
-location.href="admin-login.html";
-return;
-
-}
-
-const expiry =
-$("createExpiry").value;
-
-const upload =
-$("createPhoto").checked;
-
-const task={
-
-title,
-description,
-reward,
-slots,
-
-expiry_date:
-expiry
-?new Date(expiry).toISOString()
-:null,
-
-required_proof:
-$("createProof").value.trim(),
-
-proof_type:
-upload
-?"photo"
-:"text",
-
-status:"LIVE",
-
-max_total_completion:
-slots,
-
-created_by:
-session.user.id,
-
-active:true,
-
-task_type:
-$("createType").value,
-
-task_link:
-$("createLink").value.trim() || null,
-
-uploader_username:
-$("createUsername").value.trim() || null,
-
-copy_text:
-$("createCopy").value.trim() || null,
-
-post_link:
-$("createPostLink").value.trim() || null,
-
-upload_required:
-upload,
-
-requirements:[]
-
-};
-
-
-try{
-
-const {error} =
-await db
-.from("tasks")
-.insert(task);
-
-if(error)
-throw error;
-
-showMessage(
-"Task created successfully."
-);
-
-clearCreateForm();
-
-$("createTaskArea")
-.classList.add("hidden");
-
-await loadTasks();
-await refreshCounts();
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Task could not be created."
-),
-"error"
-);
-
-}
-
-};
-
-
-function clearCreateForm(){
-
-[
-"createTitle",
-"createDescription",
-"createLink",
-"createReward",
-"createSlots",
-"createExpiry",
-"createUsername",
-"createCopy",
-"createPostLink",
-"createProof"
-]
-.forEach(id=>{
-$(id).value="";
-});
-
-$("createPhoto").checked=true;
-
-}
-
-
-/* =========================================================
-LOAD TASKS
-========================================================= */
-
-async function loadTasks(){
-
-const list=$("taskList");
-
-list.innerHTML =
-'<div class="empty">Loading tasks...</div>';
-
-try{
-
-const {data,error} =
-await db
-.from("tasks")
-.select("*")
-.order(
-"created_at",
-{ascending:false}
-);
-
-if(error)
-throw error;
-
-if(!data || !data.length){
-
-list.innerHTML =
-'<div class="empty">No tasks found.</div>';
-
-return;
-
-}
-
-list.innerHTML="";
-
-
-data.forEach(task=>{
-
-const card =
-document.createElement("div");
-
-card.className="task-card";
-
-const status =
-String(
-task.status||""
-).toUpperCase();
-
-card.innerHTML=`
-
-<div class="task-top">
-
-<div class="task-title">
-${escapeHtml(
-task.title||"Untitled"
-)}
-</div>
-
-<span class="badge ${
-status==="LIVE"
-?"live"
-:"paused"
-}">
-${escapeHtml(
-status||"UNKNOWN"
-)}
-</span>
-
-</div>
-
-<div class="task-description">
-${escapeHtml(
-task.description||""
-)}
-</div>
-
-<div class="task-info">
-
-<div>
-<strong>Reward</strong><br>
-₦${Number(
-task.reward||0
-).toLocaleString()}
-</div>
-
-<div>
-<strong>Slots</strong><br>
-${task.slots??0}
-</div>
-
-<div>
-<strong>Type</strong><br>
-${escapeHtml(
-task.task_type||"Other"
-)}
-</div>
-
-<div>
-<strong>Proof</strong><br>
-${task.upload_required
-?"Photo"
-:"Text"}
-</div>
-
-</div>
-
-<div class="actions">
-
-<button class="secondary edit-btn">
-✏️ Edit
-</button>
-
-<button class="secondary status-btn">
-${
-status==="LIVE"
-?"⏸ Pause"
-:"▶ Activate"
-}
-</button>
-
-<button class="danger delete-btn">
-🗑 Delete
-</button>
-
-</div>
-`;
-
-
-card
-.querySelector(".edit-btn")
-.onclick=()=>{
-openEditTask(task);
-};
-
-
-card
-.querySelector(".status-btn")
-.onclick=()=>{
-changeTaskStatus(
-task.id,
-status==="LIVE"
-?"PAUSED"
-:"LIVE"
-);
-};
-
-
-card
-.querySelector(".delete-btn")
-.onclick=()=>{
-confirmDelete(task);
-};
-
-
-list.appendChild(card);
-
-});
-
-}catch(error){
-
-list.innerHTML =
-'<div class="empty">Unable to load tasks.</div>';
-
-showMessage(
-errorText(
-error,
-"Tasks could not be loaded."
-),
-"error"
-);
-
-}
-
-}
-
-
-/* =========================================================
-EDIT TASK
-========================================================= */
-
-function openEditTask(task){
-
-$("editId").value=task.id;
-
-$("editTitle").value=
-task.title||"";
-
-$("editDescription").value=
-task.description||"";
-
-$("editType").value=
-task.task_type||"other";
-
-$("editLink").value=
-task.task_link||"";
-
-$("editReward").value=
-task.reward??0;
-
-$("editSlots").value=
-task.slots??1;
-
-if(task.expiry_date){
-
-const date =
-new Date(task.expiry_date);
-
-const local =
-new Date(
-date.getTime() -
-date.getTimezoneOffset()*60000
-)
-.toISOString()
-.slice(0,16);
-
-$("editExpiry").value=local;
-
-}else{
-
-$("editExpiry").value="";
-
-}
-
-$("editUsername").value=
-task.uploader_username||"";
-
-$("editCopy").value=
-task.copy_text||"";
-
-$("editPostLink").value=
-task.post_link||"";
-
-$("editProof").value=
-task.required_proof||"";
-
-$("editPhoto").checked=
-!!task.upload_required;
-
-$("editModal")
-.classList.add("show");
-
-}
-
-
-$("closeEdit").onclick=()=>{
-$("editModal")
-.classList.remove("show");
-};
-
-
-$("saveEdit").onclick=async()=>{
-
-const id =
-$("editId").value;
-
-if(!id)
-return;
-
-const reward =
-Number($("editReward").value);
-
-const slots =
-Number($("editSlots").value);
-
-if(!Number.isFinite(reward)||reward<0){
-
-showMessage(
-"Enter a valid reward.",
-"error"
-);
-
-return;
-
-}
-
-if(!Number.isInteger(slots)||slots<1){
-
-showMessage(
-"Enter valid slots.",
-"error"
-);
-
-return;
-
-}
-
-const expiry =
-$("editExpiry").value;
-
-try{
-
-const updates={
-
-title:
-$("editTitle").value.trim(),
-
-description:
-$("editDescription").value.trim(),
-
-task_type:
-$("editType").value,
-
-task_link:
-$("editLink").value.trim()||null,
-
-reward,
-
-slots,
-
-max_total_completion:
-slots,
-
-expiry_date:
-expiry
-?new Date(expiry).toISOString()
-:null,
-
-uploader_username:
-$("editUsername").value.trim()||null,
-
-copy_text:
-$("editCopy").value.trim()||null,
-
-post_link:
-$("editPostLink").value.trim()||null,
-
-required_proof:
-$("editProof").value.trim(),
-
-upload_required:
-$("editPhoto").checked,
-
-proof_type:
-$("editPhoto").checked
-?"photo"
-:"text"
-
-};
-
-
-const {error} =
-await db
-.from("tasks")
-.update(updates)
-.eq("id",id);
-
-if(error)
-throw error;
-
-$("editModal")
-.classList.remove("show");
-
-showMessage(
-"Task updated successfully."
-);
-
-await loadTasks();
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Task could not be updated."
-),
-"error"
-);
-
-}
-
-};
-
-
-/* =========================================================
-TASK STATUS
-========================================================= */
-
-async function changeTaskStatus(
-id,
-status
-){
-
-try{
-
-const {error} =
-await db
-.from("tasks")
-.update({
-
-status,
-
-active:
-status==="LIVE"
-
-})
-.eq("id",id);
-
-if(error)
-throw error;
-
-showMessage(
-status==="LIVE"
-?"Task activated."
-:"Task paused."
-);
-
-await loadTasks();
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Task status could not be changed."
-),
-"error"
-);
-
-}
-
-}
-
-
-/* =========================================================
-DELETE TASK
-========================================================= */
-
-function confirmDelete(task){
-
-confirmBox(
-
-"Delete Task?",
-
-`Delete "${task.title||"this task"}" permanently?`,
-
-async()=>{
-
-try{
-
-showMessage(
-"Deleting task..."
-);
-
-const {data,error} =
-await db
-.from("tasks")
-.delete()
-.eq("id",task.id)
-.select("id");
-
-if(error)
-throw error;
-
-if(!data || data.length===0){
-
-throw new Error(
-"No task was deleted. Check the Admin DELETE policy."
-);
-
-}
-
-showMessage(
-"Task deleted successfully."
-);
-
-await loadTasks();
-await refreshCounts();
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Task could not be deleted."
-),
-"error"
-);
-
-}
-
-}
-
-);
-
-}
-
-
-/* =========================================================
-PROOFS
-========================================================= */
-
-$("refreshProofs").onclick =
-loadProofs;
-
-
-async function loadProofs(){
-
-const list=$("proofList");
-
-list.innerHTML =
-'<div class="empty">Loading proofs...</div>';
-
-try{
-
-const {data,error} =
-await db
-.from("task_submissions")
-.select("*")
-.order(
-"created_at",
-{ascending:false}
-);
-
-if(error)
-throw error;
-
-if(!data || !data.length){
-
-list.innerHTML =
-'<div class="empty">No proof submissions.</div>';
-
-return;
-
-}
-
-list.innerHTML="";
-
-
-data.forEach(row=>{
-
-const proof =
-parseProof(row.proof);
-
-const status =
-String(
-row.status||"PENDING"
-).toUpperCase();
-
-const card =
-document.createElement("div");
-
-card.className="proof-card";
-
-card.innerHTML=`
-
-<div class="task-top">
-
-<strong>
-Proof #${row.id}
-</strong>
-
-<span class="badge ${
-status==="APPROVED"
-?"approved"
-:
-status==="REJECTED"
-?"rejected"
-:"pending"
-}">
-${status}
-</span>
-
-</div>
-
-<div class="small">
-Worker:
-${escapeHtml(
-row.user_id||"Unknown"
-)}
-</div>
-
-<div class="small">
-Task:
-${escapeHtml(
-row.task_id||"Unknown"
-)}
-</div>
-
-${
-proof.text
-?`
-<div class="task-description">
-<strong>Proof:</strong><br>
-${escapeHtml(proof.text)}
-</div>
-`
-:""
-}
-
-${
-proof.comment
-?`
-<div class="task-description">
-<strong>Comment:</strong><br>
-${escapeHtml(proof.comment)}
-</div>
-`
-:""
-}
-
-${
-proof.photo
-?`
-<img
-class="proof-image"
-src="${escapeAttr(proof.photo)}"
-alt="Proof image"
->
-`
-:""
-}
-
-`;
-
-
-if(status==="PENDING"){
-
-const actions =
-document.createElement("div");
-
-actions.className="actions";
-
-
-const approve =
-document.createElement("button");
-
-approve.className="primary";
-approve.textContent="Approve";
-
-approve.onclick=()=>{
-approveProof(row.id);
-};
-
-
-const reject =
-document.createElement("button");
-
-reject.className="danger";
-reject.textContent="Reject";
-
-reject.onclick=()=>{
-rejectProof(row.id);
-};
-
-
-actions.append(
-approve,
-reject
-);
-
-card.appendChild(actions);
-
-}
-
-list.appendChild(card);
-
-});
-
-}catch(error){
-
-list.innerHTML =
-'<div class="empty">Unable to load proofs.</div>';
-
-showMessage(
-errorText(
-error,
-"Proofs could not be loaded."
-),
-"error"
-);
-
-}
-
-}
-
-
-function parseProof(value){
-
-if(!value)
-return {};
-
-if(typeof value==="object")
-return value;
-
-try{
-
-return JSON.parse(value);
-
-}catch{
-
-return {
-text:String(value)
-};
-
-}
-
-}
-
-
-async function approveProof(id){
-
-confirmBox(
-
-"Approve Proof?",
-
-"Only approve the proof after checking the evidence.",
-
-async()=>{
-
-try{
-
-const {data:sessionData} =
-await db.auth.getSession();
-
-const session =
-sessionData.session;
-
-if(!session){
-
-location.href=
-"admin-login.html";
-
-return;
-
-}
-
-const {error} =
-await db
-.from("task_submissions")
-.update({
-
-status:"APPROVED",
-
-reviewed_by:
-session.user.id,
-
-reviewed_at:
-new Date().toISOString(),
-
-post_review:true
-
-})
-.eq("id",id);
-
-if(error)
-throw error;
-
-showMessage(
-"Proof approved."
-);
-
-await loadProofs();
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Proof could not be approved."
-),
-"error"
-);
-
-}
-
-}
-
-);
-
-}
-
-
-function rejectProof(id){
-
-confirmBox(
-
-"Reject Proof?",
-
-"Enter the reason for rejecting this worker proof.",
-
-async(reason)=>{
-
-try{
-
-const {data:sessionData} =
-await db.auth.getSession();
-
-const session =
-sessionData.session;
-
-if(!session){
-
-location.href=
-"admin-login.html";
-
-return;
-
-}
-
-const {error} =
-await db
-.from("task_submissions")
-.update({
-
-status:"REJECTED",
-
-reviewed_by:
-session.user.id,
-
-reviewed_at:
-new Date().toISOString(),
-
-rejection_reason:
-reason,
-
-post_review:true
-
-})
-.eq("id",id);
-
-if(error)
-throw error;
-
-showMessage(
-"Proof rejected."
-);
-
-await loadProofs();
-
-}catch(error){
-
-showMessage(
-errorText(
-error,
-"Proof could not be rejected."
-),
-"error"
-);
-
-}
-
-},
-
-true
-
-);
-
-}
-
-
-/* =========================================================
-WITHDRAWALS
-========================================================= */
-
-$("refreshWithdrawals").onclick =
-loadWithdrawals;
-
-
-async function loadWithdrawals(){
-
-const list =
-$("withdrawalList");
-
-list.innerHTML =
-'<div class="empty">Loading withdrawals...</div>';
-
-try{
-
-const {data,error} =
-await db
-.from("withdrawals")
-.select("*")
-.order(
-"created_at",
-{ascending:false}
-);
-
-if(error)
-throw error;
-
-if(!data || !data.length){
-
-list.innerHTML =
-'<div class="empty">No withdrawal records.</div>';
-
-return;
-
-}
-
-list.innerHTML="";
-
-
-data.forEach(row=>{
-
-const card =
-document.createElement("div");
-
-card.className="user-card";
-
-card.innerHTML=`
-
-<strong>
-₦${Number(
-row.amount||0
-).toLocaleString()}
-</strong>
-
-<div class="small">
-User:
-${escapeHtml(
-row.user_id||""
-)}
-</div>
-
-<div class="small">
-Bank:
-${escapeHtml(
-row.bank_name||""
-)}
-</div>
-
-<div class="small">
-Account:
-${escapeHtml(
-row.account_number||""
-)}
-</div>
-
-<div class="small">
-Status:
-${escapeHtml(
-row.status||"PENDING"
-)}
-</div>
-
-<div class="small">
-${
-row.created_at
-?new Date(row.created_at)
-.toLocaleString()
-:""
-}
-</div>
-
-`;
-
-list.appendChild(card);
-
-});
-
-}catch(error){
-
-list.innerHTML =
-'<div class="empty">Unable to load withdrawals.</div>';
-
-showMessage(
-errorText(
-error,
-"Withdrawals could not be loaded."
-),
-"error"
-);
-
-}
-
+function showMessage(message){
+  $("message").textContent = message;
 }
 
+function showSection(id,button){
 
-/* =========================================================
-USERS
-========================================================= */
+  document.querySelectorAll(".section")
+    .forEach(section => section.classList.remove("active"));
 
-$("searchUsers").onclick =
-searchUsers;
+  document.querySelectorAll(".menu button")
+    .forEach(btn => btn.classList.remove("active"));
 
+  $(id).classList.add("active");
 
-async function searchUsers(){
+  if(button){
+    button.classList.add("active");
+  }
 
-const q =
-$("userSearch").value.trim();
-
-if(!q){
-
-showMessage(
-"Enter a user ID, name or phone number.",
-"error"
-);
-
-return;
-
-}
-
-const list =
-$("userList");
-
-list.innerHTML =
-'<div class="empty">Searching...</div>';
-
-try{
-
-let query =
-db
-.from("profiles")
-.select("*")
-.limit(30);
-
-if(
-q.match(
-/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-)
-){
-
-query=query.eq("id",q);
-
-}else{
-
-query=query.or(
-`full_name.ilike.%${q}%,phone.ilike.%${q}%`
-);
-
-}
-
-const {data,error} =
-await query;
-
-if(error)
-throw error;
-
-if(!data || !data.length){
-
-list.innerHTML =
-'<div class="empty">No users found.</div>';
-
-return;
-
-}
-
-list.innerHTML="";
-
-
-data.forEach(user=>{
-
-const card =
-document.createElement("div");
-
-card.className="user-card";
-
-card.innerHTML=`
-
-<strong>
-${escapeHtml(
-user.full_name||"Unnamed User"
-)}
-</strong>
-
-<div class="small">
-Phone:
-${escapeHtml(
-user.phone||"Not set"
-)}
-</div>
-
-<div class="small">
-Balance:
-₦${Number(
-user.balance||0
-).toLocaleString()}
-</div>
-
-<div class="small">
-ID:
-${escapeHtml(
-user.id||""
-)}
-</div>
-
-<div class="small">
-Activated:
-${user.activated
-?"Yes"
-:"No"}
-</div>
-
-`;
-
-list.appendChild(card);
-
-});
-
-}catch(error){
-
-list.innerHTML =
-'<div class="empty">Unable to search users.</div>';
-
-showMessage(
-errorText(
-error,
-"Users could not be searched."
-),
-"error"
-);
-
-}
-
-}
-
-
-/* =========================================================
-COUNTS
-========================================================= */
-
-async function countTable(table){
-
-const {count,error} =
-await db
-.from(table)
-.select("*",{
-count:"exact",
-head:true
-});
-
-if(error){
-
-console.warn(
-table,
-error
-);
-
-return "—";
-
+  if(id === "payments") loadPayments();
+  if(id === "tasks") loadTasks();
+  if(id === "proofs") loadProofs();
+  if(id === "money") loadWithdrawals();
+  if(id === "security"){
+    loadSecurityEvents();
+    loadSecurityWarnings();
+  }
 }
-
-return count??0;
 
+function closeModal(id){
+  $(id).classList.remove("show");
 }
-
-
-async function refreshCounts(){
-
-const [
-users,
-tasks,
-withdrawals,
-proofs,
-payments
-]=await Promise.all([
-
-countTable("profiles"),
 
-countTable("tasks"),
+function openConfirm(title,text,callback){
 
-countTable("withdrawals"),
+  $("confirmTitle").textContent = title;
+  $("confirmText").textContent = text;
 
-countTable("task_submissions"),
+  confirmAction = callback;
 
-db
-.from("poster_payments")
-.select("*",{
-count:"exact",
-head:true
-})
-.then(r=>{
+  $("confirmModal").classList.add("show");
 
-if(r.error)
-return "—";
+  $("confirmYes").onclick = async () => {
 
-return r.count??0;
+    closeModal("confirmModal");
 
-})
+    if(confirmAction){
+      await confirmAction();
+    }
 
-]);
-
-
-$("usersCount").textContent =
-users;
-
-$("tasksCount").textContent =
-tasks;
-
-$("withdrawalsCount").textContent =
-withdrawals;
-
-$("proofsCount").textContent =
-proofs;
-
-$("paymentsCount").textContent =
-payments;
-
+  };
 }
-
-
-/* =========================================================
-ADMIN SECURITY
-========================================================= */
 
 async function checkAdmin(){
 
-try{
+  const {
+    data:{
+      user
+    }
+  } = await db.auth.getUser();
 
-const {data,error} =
-await db.auth.getSession();
+  if(!user){
+    location.href = "admin-login.html";
+    return false;
+  }
 
-if(error)
-throw error;
+  const {data,error} = await db
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id",user.id)
+    .maybeSingle();
 
-const session =
-data.session;
+  if(error || !data){
+    await db.auth.signOut();
+    location.href = "admin-login.html";
+    return false;
+  }
 
-if(!session){
-
-location.href=
-"admin-login.html";
-
-return;
-
+  currentAdmin = user;
+  return true;
 }
 
-$("adminEmail").textContent =
-"Signed in as " +
-(
-session.user.email ||
-session.user.id
-);
+async function loadSettings(){
 
+  const {data,error} = await db
+    .from("platform_settings")
+    .select("*")
+    .eq("id",1)
+    .single();
 
-const {
-data:admin,
-error:adminError
-} =
-await db
-.from("admin_users")
-.select("user_id")
-.eq(
-"user_id",
-session.user.id
-)
-.maybeSingle();
+  if(error){
+    console.error(error);
+    showMessage("Could not load platform settings.");
+    return;
+  }
 
+  $("siteName").value =
+    data.site_name || "NAIJA TASK";
 
-if(adminError)
-throw adminError;
+  $("supportWhatsapp").value =
+    data.support_whatsapp || "09020934579";
 
+  $("supportEmail").value =
+    data.support_email || "naijataskofficia@gmail.com";
 
-if(!admin){
+  $("maintenanceMode").checked =
+    !!data.maintenance_mode;
 
-await db.auth.signOut();
+  $("photoProofEnabled").checked =
+    data.photo_proof_enabled ?? true;
 
-location.href=
-"admin-login.html";
+  $("aiCareEnabled").checked =
+    data.ai_care_enabled ?? true;
 
-return;
+  $("privateChatEnabled").checked =
+    data.private_chat_enabled ?? true;
 
+  $("communityChatEnabled").checked =
+    data.community_chat_enabled ?? true;
+
+  $("normalMinReward").value =
+    data.normal_min_task_reward ?? 3;
+
+  $("normalMaxReward").value =
+    data.normal_max_task_reward ?? 150;
+
+  $("vipMinReward").value =
+    data.vip_min_task_reward ?? 3;
+
+  $("vipMaxReward").value =
+    data.vip_max_task_reward ?? 150;
+
+  $("activationEnabled").checked =
+    data.activation_enabled ?? false;
+
+  $("activationFee").value =
+    data.activation_fee ?? 1000;
+
+  $("vipEnabled").checked =
+    data.vip_enabled ?? true;
+
+  $("vipPrice").value =
+    data.vip_price ?? 0;
+
+  $("freeDailyTaskLimit").value =
+    data.free_daily_task_limit ?? 10;
+
+  $("vipDailyTaskLimit").value =
+    data.vip_daily_task_limit ?? 10;
+
+  $("withdrawalsEnabled").checked =
+    data.withdrawals_enabled ?? true;
+
+  $("minimumWithdrawal").value =
+    data.minimum_withdrawal ?? 1500;
+
+  $("freeWithdrawalFee").value =
+    data.free_withdrawal_fee ?? 100;
+
+  $("vipWithdrawalFee").value =
+    data.vip_withdrawal_fee ?? 50;
+
+  $("withdrawalsPerDay").value =
+    data.withdrawals_per_day ?? 1;
+
+  $("referralsEnabled").checked =
+    data.referrals_enabled ?? true;
+
+  $("referralReward").value =
+    data.referral_reward ?? 0;
+
+  $("posterRegistrationEnabled").checked =
+    data.poster_registration_enabled ?? true;
+
+  $("jobPostingEnabled").checked =
+    data.job_posting_enabled ?? true;
+
+  $("taskApprovalRequired").checked =
+    data.task_approval_required ?? true;
+
+  /* SECURITY */
+
+  $("captchaEnabled").checked =
+    data.captcha_enabled ?? true;
+
+  $("captchaSignupRequired").checked =
+    data.captcha_signup_required ?? true;
+
+  $("captchaWithdrawalRequired").checked =
+    data.captcha_withdrawal_required ?? true;
+
+  $("botDetectionEnabled").checked =
+    data.bot_detection_enabled ?? true;
+
+  $("deviceDetectionEnabled").checked =
+    data.device_detection_enabled ?? true;
+
+  $("ipDetectionEnabled").checked =
+    data.ip_detection_enabled ?? true;
+
+  $("suspiciousActivityDetection").checked =
+    data.suspicious_activity_detection ?? true;
+
+  $("automaticRestrictionEnabled").checked =
+    data.automatic_restriction_enabled ?? true;
+
+  $("securityWarningsEnabled").checked =
+    data.security_warnings_enabled ?? true;
+
+  $("user2faEnabled").checked =
+    data.user_2fa_enabled ?? true;
+
+  $("withdrawalSecurityCheck").checked =
+    data.withdrawal_security_check ?? true;
+
+  $("maxTaskSubmissionsPerMinute").value =
+    data.max_task_submissions_per_minute ?? 5;
+
+  $("suspiciousRiskScore").value =
+    data.suspicious_risk_score ?? 70;
+
+  $("automaticBanEnabled").checked =
+    data.automatic_ban_enabled ?? false;
+
+  $("normalAdsEnabled").checked =
+    data.normal_ads_enabled ?? true;
+
+  $("vipAdsEnabled").checked =
+    data.vip_ads_enabled ?? false;
+
+  $("adFrequency").value =
+    data.ad_frequency ?? 5;
 }
 
+async function saveSettings(){
 
-await Promise.all([
+  const normalMin =
+    Number($("normalMinReward").value);
 
-refreshCounts(),
+  const normalMax =
+    Number($("normalMaxReward").value);
 
-loadSettings()
+  const vipMin =
+    Number($("vipMinReward").value);
 
-]);
+  const vipMax =
+    Number($("vipMaxReward").value);
 
+  if(normalMin < 0 ||
+     normalMax < normalMin ||
+     vipMin < 0 ||
+     vipMax < vipMin){
 
-$("loadingScreen")
-.style.display="none";
+    showMessage("Check the reward ranges.");
+    return;
+  }
 
+  const maxSubmissions =
+    Number($("maxTaskSubmissionsPerMinute").value) || 5;
 
-}catch(error){
+  const riskScore =
+    Number($("suspiciousRiskScore").value) || 70;
 
-console.error(error);
+  const adFrequency =
+    Number($("adFrequency").value) || 5;
 
-$("loadingScreen")
-.style.display="none";
+  if(maxSubmissions < 1){
+    showMessage("Maximum submissions must be at least 1.");
+    return;
+  }
 
-showMessage(
-errorText(
-error,
-"Unable to load Admin Control Center."
-),
-"error"
-);
+  if(riskScore < 1 || riskScore > 100){
+    showMessage("Risk score must be between 1 and 100.");
+    return;
+  }
 
+  if(adFrequency < 1){
+    showMessage("Ad frequency must be at least 1.");
+    return;
+  }
+
+  const updates = {
+
+    site_name:
+      $("siteName").value.trim(),
+
+    support_whatsapp:
+      $("supportWhatsapp").value.trim(),
+
+    support_email:
+      $("supportEmail").value.trim(),
+
+    maintenance_mode:
+      $("maintenanceMode").checked,
+
+    photo_proof_enabled:
+      $("photoProofEnabled").checked,
+
+    ai_care_enabled:
+      $("aiCareEnabled").checked,
+
+    private_chat_enabled:
+      $("privateChatEnabled").checked,
+
+    community_chat_enabled:
+      $("communityChatEnabled").checked,
+
+    normal_min_task_reward:
+      normalMin,
+
+    normal_max_task_reward:
+      normalMax,
+
+    vip_min_task_reward:
+      vipMin,
+
+    vip_max_task_reward:
+      vipMax,
+
+    /* legacy compatibility */
+
+    minimum_task_reward:
+      Math.min(normalMin,vipMin),
+
+    maximum_task_reward:
+      Math.max(normalMax,vipMax),
+
+    activation_enabled:
+      $("activationEnabled").checked,
+
+    activation_fee:
+      Number($("activationFee").value) || 0,
+
+    vip_enabled:
+      $("vipEnabled").checked,
+
+    vip_price:
+      Number($("vipPrice").value) || 0,
+
+    free_daily_task_limit:
+      Number($("freeDailyTaskLimit").value) || 10,
+
+    vip_daily_task_limit:
+      Number($("vipDailyTaskLimit").value) || 10,
+
+    withdrawals_enabled:
+      $("withdrawalsEnabled").checked,
+
+    minimum_withdrawal:
+      Number($("minimumWithdrawal").value) || 1500,
+
+    free_withdrawal_fee:
+      Number($("freeWithdrawalFee").value) || 100,
+
+    vip_withdrawal_fee:
+      Number($("vipWithdrawalFee").value) || 50,
+
+    withdrawals_per_day:
+      Number($("withdrawalsPerDay").value) || 1,
+
+    referrals_enabled:
+      $("referralsEnabled").checked,
+
+    referral_reward:
+      Number($("referralReward").value) || 0,
+
+    poster_registration_enabled:
+      $("posterRegistrationEnabled").checked,
+
+    job_posting_enabled:
+      $("jobPostingEnabled").checked,
+
+    task_approval_required:
+      $("taskApprovalRequired").checked,
+
+    /* SECURITY */
+
+    captcha_enabled:
+      $("captchaEnabled").checked,
+
+    captcha_signup_required:
+      $("captchaSignupRequired").checked,
+
+    captcha_withdrawal_required:
+      $("captchaWithdrawalRequired").checked,
+
+    bot_detection_enabled:
+      $("botDetectionEnabled").checked,
+
+    device_detection_enabled:
+      $("deviceDetectionEnabled").checked,
+
+    ip_detection_enabled:
+      $("ipDetectionEnabled").checked,
+
+    suspicious_activity_detection:
+      $("suspiciousActivityDetection").checked,
+
+    automatic_restriction_enabled:
+      $("automaticRestrictionEnabled").checked,
+
+    security_warnings_enabled:
+      $("securityWarningsEnabled").checked,
+
+    user_2fa_enabled:
+      $("user2faEnabled").checked,
+
+    withdrawal_security_check:
+      $("withdrawalSecurityCheck").checked,
+
+    max_task_submissions_per_minute:
+      maxSubmissions,
+
+    suspicious_risk_score:
+      riskScore,
+
+    automatic_ban_enabled:
+      $("automaticBanEnabled").checked,
+
+    normal_ads_enabled:
+      $("normalAdsEnabled").checked,
+
+    vip_ads_enabled:
+      $("vipAdsEnabled").checked,
+
+    ad_frequency:
+      adFrequency,
+
+    updated_at:
+      new Date().toISOString()
+  };
+
+  const {error} = await db
+    .from("platform_settings")
+    .update(updates)
+    .eq("id",1);
+
+  if(error){
+
+    console.error(error);
+    showMessage("Settings could not be saved: " + error.message);
+    return;
+  }
+
+  showMessage("✅ All settings saved successfully.");
 }
 
+/* =========================
+   OVERVIEW
+========================= */
+
+async function loadStats(){
+
+  const users =
+    await db.from("profiles")
+      .select("id",{count:"exact",head:true});
+
+  const tasks =
+    await db.from("tasks")
+      .select("id",{count:"exact",head:true});
+
+  const withdrawals =
+    await db.from("withdrawals")
+      .select("id",{count:"exact",head:true});
+
+  const proofs =
+    await db.from("task_submissions")
+      .select("id",{count:"exact",head:true})
+      .eq("status","PENDING");
+
+  const payments =
+    await db.from("poster_payments")
+      .select("id",{count:"exact",head:true})
+      .in("status",["PENDING","UNDER_REVIEW"]);
+
+  const events =
+    await db.from("security_events")
+      .select("id",{count:"exact",head:true})
+      .eq("status","OPEN");
+
+  $("totalUsers").textContent =
+    users.count || 0;
+
+  $("totalTasks").textContent =
+    tasks.count || 0;
+
+  $("totalWithdrawals").textContent =
+    withdrawals.count || 0;
+
+  $("pendingProofs").textContent =
+    proofs.count || 0;
+
+  $("pendingPayments").textContent =
+    payments.count || 0;
+
+  $("securityEventCount").textContent =
+    events.count || 0;
 }
 
+/* =========================
+   WITHDRAWALS
+========================= */
 
-/* =========================================================
-LOGOUT
-========================================================= */
+async function loadWithdrawals(){
 
-$("logoutButton").onclick=()=>{
+  $("withdrawalList").innerHTML =
+    '<div class="small">Loading...</div>';
 
-confirmBox(
+  const {data,error} = await db
+    .from("withdrawals")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(100);
 
-"Log out?",
+  if(error){
+    $("withdrawalList").innerHTML =
+      '<div class="empty">Could not load withdrawals.</div>';
+    return;
+  }
 
-"You will be signed out of the Admin Control Center.",
+  if(!data.length){
+    $("withdrawalList").innerHTML =
+      '<div class="empty">No withdrawal records.</div>';
+    return;
+  }
 
-async()=>{
+  $("withdrawalList").innerHTML =
+    data.map(w => `
 
-await db.auth.signOut();
+      <div class="item">
 
-location.href=
-"admin-login.html";
+        <b>₦${Number(w.amount || 0).toLocaleString()}</b>
 
+        <p class="small">
+          User: ${escapeHtml(w.user_id || "")}<br>
+          Bank: ${escapeHtml(w.bank_name || "")}<br>
+          Account: ${escapeHtml(w.account_number || "")}<br>
+          Status: ${escapeHtml(w.status || "")}<br>
+          ${formatDate(w.created_at)}
+        </p>
+
+      </div>
+
+    `).join("");
 }
 
-);
+/* =========================
+   PAYMENTS
+========================= */
 
-};
+async function loadPayments(){
 
+  $("paymentList").innerHTML =
+    '<div class="small">Loading payments...</div>';
 
-/* =========================================================
-SECURITY HELPERS
-========================================================= */
+  const {data,error} = await db
+    .from("poster_payments")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+
+    $("paymentList").innerHTML =
+      '<div class="empty">Could not load payments.</div>';
+
+    console.error(error);
+    return;
+  }
+
+  if(!data.length){
+
+    $("paymentList").innerHTML =
+      '<div class="empty">No poster payments.</div>';
+
+    return;
+  }
+
+  $("paymentList").innerHTML =
+    data.map(payment => `
+
+      <div class="item">
+
+        <b>Payment #${payment.id}</b>
+
+        <p class="small">
+          Poster: ${escapeHtml(payment.poster_id || "")}<br>
+          Task: ${escapeHtml(payment.task_id || "")}<br>
+          Amount: ₦${Number(payment.amount || 0).toLocaleString()}<br>
+          Method: ${escapeHtml(payment.payment_method || "Not supplied")}<br>
+          Reference: ${escapeHtml(payment.payment_reference || "Not supplied")}<br>
+          Status: ${escapeHtml(payment.status || "")}<br>
+          ${formatDate(payment.created_at)}
+        </p>
+
+        ${
+          payment.proof_url
+          ? `<button class="action blue"
+              onclick="viewPaymentProof('${escapeJs(payment.proof_url)}')">
+              View Payment Proof
+             </button>`
+          : ""
+        }
+
+        ${
+          ["PENDING","UNDER_REVIEW"].includes(payment.status)
+          ? `
+            <button class="action green"
+              onclick="reviewPayment(${payment.id},'APPROVED')">
+              Approve
+            </button>
+
+            <button class="action danger"
+              onclick="reviewPayment(${payment.id},'REJECTED')">
+              Reject
+            </button>
+          `
+          : ""
+        }
+
+      </div>
+
+    `).join("");
+}
+
+async function reviewPayment(paymentId,decision){
+
+  openConfirm(
+    decision === "APPROVED"
+      ? "Approve Payment?"
+      : "Reject Payment?",
+    "This will update the poster payment and task status.",
+    async () => {
+
+      const {error} = await db.rpc(
+        "admin_review_poster_payment",
+        {
+          p_payment_id:paymentId,
+          p_decision:decision
+        }
+      );
+
+      if(error){
+
+        showMessage(error.message);
+        return;
+      }
+
+      showMessage("Payment review completed.");
+
+      await loadPayments();
+      await loadStats();
+    }
+  );
+}
+
+async function viewPaymentProof(path){
+
+  try{
+
+    const {data,error} =
+      await db.storage
+        .from("payment proof")
+        .createSignedUrl(path,300);
+
+    if(error || !data?.signedUrl){
+
+      showMessage("Could not open payment proof.");
+      return;
+    }
+
+    $("imageContent").innerHTML =
+      `<img class="proof-image"
+       src="${escapeAttr(data.signedUrl)}">`;
+
+    $("imageModal").classList.add("show");
+
+  }catch(error){
+
+    console.error(error);
+    showMessage("Could not open payment proof.");
+  }
+}
+
+/* =========================
+   TASKS
+========================= */
+
+async function createTask(){
+
+  const title =
+    $("taskTitle").value.trim();
+
+  const description =
+    $("taskDescription").value.trim();
+
+  const reward =
+    Number($("taskReward").value);
+
+  const slots =
+    Number($("taskSlots").value);
+
+  if(!title || !description || reward <= 0 || slots <= 0){
+
+    showMessage("Complete the task information.");
+    return;
+  }
+
+  const {data,error} = await db
+    .from("tasks")
+    .insert({
+      title,
+      description,
+      reward,
+      slots,
+      task_type:$("taskType").value,
+      task_link:$("taskLink").value.trim() || null,
+      copy_text:$("taskCopyText").value.trim() || null,
+      expiry_date:$("taskExpiry").value || null,
+      uploader_username:$("taskUploader").value.trim() || null,
+      upload_required:$("taskUploadRequired").checked,
+      status:"LIVE",
+      active:true,
+      created_by:currentAdmin.id
+    })
+    .select()
+    .single();
+
+  if(error){
+
+    showMessage(error.message);
+    return;
+  }
+
+  showMessage("Task created successfully.");
+
+  [
+    "taskTitle",
+    "taskDescription",
+    "taskReward",
+    "taskSlots",
+    "taskLink",
+    "taskCopyText",
+    "taskExpiry",
+    "taskUploader"
+  ].forEach(id => $(id).value = "");
+
+  await loadTasks();
+  await loadStats();
+}
+
+async function loadTasks(){
+
+  $("taskList").innerHTML =
+    '<div class="small">Loading tasks...</div>';
+
+  const {data,error} = await db
+    .from("tasks")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(200);
+
+  if(error){
+
+    $("taskList").innerHTML =
+      '<div class="empty">Could not load tasks.</div>';
+
+    return;
+  }
+
+  if(!data.length){
+
+    $("taskList").innerHTML =
+      '<div class="empty">No tasks found.</div>';
+
+    return;
+  }
+
+  $("taskList").innerHTML =
+    data.map(task => `
+
+      <div class="item">
+
+        <b>${escapeHtml(task.title || "Untitled Task")}</b>
+
+        <p class="small">
+          ${escapeHtml(task.description || "")}<br><br>
+
+          Reward:
+          ₦${Number(task.reward || 0).toLocaleString()}<br>
+
+          Slots:
+          ${escapeHtml(String(task.slots || 0))}<br>
+
+          Type:
+          ${escapeHtml(task.task_type || "")}<br>
+
+          Status:
+          ${escapeHtml(task.status || "")}
+        </p>
+
+        <button class="action blue"
+          onclick="editTask('${escapeJs(task.id)}')">
+          Edit
+        </button>
+
+        <button class="action warning"
+          onclick="toggleTask('${escapeJs(task.id)}',
+          ${task.active ? "false" : "true"})">
+          ${task.active ? "Pause" : "Activate"}
+        </button>
+
+        <button class="action danger"
+          onclick="deleteTask('${escapeJs(task.id)}')">
+          Delete
+        </button>
+
+      </div>
+
+    `).join("");
+}
+
+async function editTask(id){
+
+  const {data,error} = await db
+    .from("tasks")
+    .select("*")
+    .eq("id",id)
+    .single();
+
+  if(error){
+    showMessage(error.message);
+    return;
+  }
+
+  $("editTaskId").value = data.id;
+  $("editTitle").value = data.title || "";
+  $("editDescription").value = data.description || "";
+  $("editReward").value = data.reward || "";
+  $("editSlots").value = data.slots || "";
+  $("editLink").value = data.task_link || "";
+  $("editCopyText").value = data.copy_text || "";
+
+  $("editModal").classList.add("show");
+}
+
+async function saveTaskEdit(){
+
+  const id =
+    $("editTaskId").value;
+
+  const {error} = await db
+    .from("tasks")
+    .update({
+      title:$("editTitle").value.trim(),
+      description:$("editDescription").value.trim(),
+      reward:Number($("editReward").value),
+      slots:Number($("editSlots").value),
+      task_link:$("editLink").value.trim() || null,
+      copy_text:$("editCopyText").value.trim() || null
+    })
+    .eq("id",id);
+
+  if(error){
+
+    showMessage(error.message);
+    return;
+  }
+
+  closeModal("editModal");
+
+  showMessage("Task updated.");
+
+  await loadTasks();
+}
+
+async function toggleTask(id,active){
+
+  const {error} = await db
+    .from("tasks")
+    .update({
+      active,
+      status:active ? "LIVE" : "PAUSED"
+    })
+    .eq("id",id);
+
+  if(error){
+
+    showMessage(error.message);
+    return;
+  }
+
+  await loadTasks();
+}
+
+async function deleteTask(id){
+
+  openConfirm(
+    "Delete Task?",
+    "This action permanently deletes the task.",
+    async () => {
+
+      const {data,error} = await db
+        .from("tasks")
+        .delete()
+        .eq("id",id)
+        .select("id");
+
+      if(error){
+
+        showMessage(error.message);
+        return;
+      }
+
+      if(!data || !data.length){
+
+        showMessage("Task was not deleted. Check admin permission.");
+        return;
+      }
+
+      showMessage("Task deleted.");
+
+      await loadTasks();
+      await loadStats();
+    }
+  );
+}
+
+/* =========================
+   PROOF REVIEW
+========================= */
+
+async function loadProofs(){
+
+  $("proofList").innerHTML =
+    '<div class="small">Loading proofs...</div>';
+
+  const {data,error} = await db
+    .from("task_submissions")
+    .select("*")
+    .eq("status","PENDING")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+
+    $("proofList").innerHTML =
+      '<div class="empty">Could not load proofs.</div>';
+
+    return;
+  }
+
+  if(!data.length){
+
+    $("proofList").innerHTML =
+      '<div class="empty">No pending proofs.</div>';
+
+    return;
+  }
+
+  $("proofList").innerHTML =
+    data.map(p => {
+
+      let proof = {};
+
+      try{
+        proof = typeof p.proof === "string"
+          ? JSON.parse(p.proof)
+          : (p.proof || {});
+      }catch{
+        proof = {
+          text:p.proof || ""
+        };
+      }
+
+      const image =
+        proof.photo_url ||
+        proof.image_url ||
+        proof.photo ||
+        null;
+
+      return `
+
+        <div class="item">
+
+          <b>Submission #${p.id}</b>
+
+          <p class="small">
+            User: ${escapeHtml(p.user_id || "")}<br>
+            Task: ${escapeHtml(p.task_id || "")}<br>
+            Submitted: ${formatDate(p.created_at)}
+          </p>
+
+          ${
+            proof.text
+            ? `<p class="small">
+                <b>Proof:</b><br>
+                ${escapeHtml(proof.text)}
+               </p>`
+            : ""
+          }
+
+          ${
+            proof.comment
+            ? `<p class="small">
+                <b>Comment:</b><br>
+                ${escapeHtml(proof.comment)}
+               </p>`
+            : ""
+          }
+
+          ${
+            image
+            ? `<button class="action blue"
+                onclick="viewImage('${escapeJs(image)}')">
+                View Photo
+               </button>`
+            : ""
+          }
+
+          <button class="action green"
+            onclick="reviewProof(${p.id},'APPROVED')">
+            Approve
+          </button>
+
+          <button class="action danger"
+            onclick="reviewProof(${p.id},'REJECTED')">
+            Reject
+          </button>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+async function reviewProof(id,status){
+
+  openConfirm(
+    status === "APPROVED"
+      ? "Approve Proof?"
+      : "Reject Proof?",
+    "Confirm this proof review.",
+    async () => {
+
+      const {error} = await db
+        .from("task_submissions")
+        .update({
+          status,
+          reviewed_by:currentAdmin.id,
+          reviewed_at:new Date().toISOString()
+        })
+        .eq("id",id);
+
+      if(error){
+
+        showMessage(error.message);
+        return;
+      }
+
+      showMessage("Proof review completed.");
+
+      await loadProofs();
+      await loadStats();
+    }
+  );
+}
+
+async function viewImage(url){
+
+  $("imageContent").innerHTML =
+    `<img class="proof-image"
+      src="${escapeAttr(url)}">`;
+
+  $("imageModal").classList.add("show");
+}
+
+/* =========================
+   USERS
+========================= */
+
+async function searchUsers(){
+
+  const q =
+    $("userSearch").value.trim();
+
+  if(!q){
+
+    $("userList").innerHTML =
+      '<div class="empty">Enter a name, phone or user ID.</div>';
+
+    return;
+  }
+
+  const {data,error} = await db
+    .from("profiles")
+    .select("*")
+    .or(
+      `full_name.ilike.%${escapeFilter(q)}%,phone.ilike.%${escapeFilter(q)}%,id.eq.${escapeFilter(q)}`
+    )
+    .limit(50);
+
+  if(error){
+
+    $("userList").innerHTML =
+      '<div class="empty">Search error.</div>';
+
+    return;
+  }
+
+  if(!data.length){
+
+    $("userList").innerHTML =
+      '<div class="empty">No users found.</div>';
+
+    return;
+  }
+
+  $("userList").innerHTML =
+    data.map(user => `
+
+      <div class="item">
+
+        <b>${escapeHtml(user.full_name || "Unnamed User")}</b>
+
+        <p class="small">
+          ID: ${escapeHtml(user.id || "")}<br>
+          Phone: ${escapeHtml(user.phone || "")}<br>
+          Balance: ₦${Number(user.balance || 0).toLocaleString()}<br>
+          Activated: ${user.activated ? "Yes" : "No"}
+        </p>
+
+      </div>
+
+    `).join("");
+}
+
+/* =========================
+   SECURITY EVENTS
+========================= */
+
+async function loadSecurityEvents(){
+
+  $("securityEvents").innerHTML =
+    '<div class="small">Loading security events...</div>';
+
+  const {data,error} = await db
+    .from("security_events")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+
+    $("securityEvents").innerHTML =
+      '<div class="empty">Could not load security events.</div>';
+
+    console.error(error);
+    return;
+  }
+
+  if(!data.length){
+
+    $("securityEvents").innerHTML =
+      '<div class="empty">No security events recorded.</div>';
+
+    return;
+  }
+
+  $("securityEvents").innerHTML =
+    data.map(event => {
+
+      let badge = "badge";
+
+      if(event.severity === "HIGH"){
+        badge = "badge red";
+      }
+
+      if(event.severity === "MEDIUM"){
+        badge = "badge orange";
+      }
+
+      return `
+
+        <div class="item">
+
+          <b>
+            ${escapeHtml(event.event_type || "Security Event")}
+          </b>
+
+          <span class="${badge}">
+            ${escapeHtml(event.severity || "LOW")}
+          </span>
+
+          <p class="small">
+
+            User:
+            ${escapeHtml(event.user_id || "Unknown")}
+            <br>
+
+            Description:
+            ${escapeHtml(event.description || "No description")}
+            <br>
+
+            IP:
+            ${escapeHtml(event.ip_address || "Not recorded")}
+            <br>
+
+            Device:
+            ${escapeHtml(event.device_fingerprint || "Not recorded")}
+            <br>
+
+            Status:
+            ${escapeHtml(event.status || "OPEN")}
+            <br>
+
+            ${formatDate(event.created_at)}
+
+          </p>
+
+        </div>
+
+      `;
+
+    }).join("");
+}
+
+/* =========================
+   SECURITY WARNINGS
+========================= */
+
+async function loadSecurityWarnings(){
+
+  $("securityWarnings").innerHTML =
+    '<div class="small">Loading security warnings...</div>';
+
+  const {data,error} = await db
+    .from("security_warnings")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+
+    $("securityWarnings").innerHTML =
+      '<div class="empty">Could not load security warnings.</div>';
+
+    console.error(error);
+    return;
+  }
+
+  if(!data.length){
+
+    $("securityWarnings").innerHTML =
+      '<div class="empty">No security warnings recorded.</div>';
+
+    return;
+  }
+
+  $("securityWarnings").innerHTML =
+    data.map(warning => {
+
+      let badge = "badge orange";
+
+      if(warning.severity === "CRITICAL" ||
+         warning.severity === "HIGH"){
+
+        badge = "badge red";
+      }
+
+      return `
+
+        <div class="item">
+
+          <b>
+            ${escapeHtml(warning.warning_type || "Warning")}
+          </b>
+
+          <span class="${badge}">
+            ${escapeHtml(warning.severity || "WARNING")}
+          </span>
+
+          <p class="small">
+
+            User:
+            ${escapeHtml(warning.user_id || "")}
+            <br>
+
+            Message:
+            ${escapeHtml(warning.message || "")}
+            <br>
+
+            Acknowledged:
+            ${warning.acknowledged ? "Yes" : "No"}
+            <br>
+
+            ${formatDate(warning.created_at)}
+
+          </p>
+
+        </div>
+
+      `;
+
+    }).join("");
+}
+
+/* =========================
+   HELPERS
+========================= */
+
+function formatDate(value){
+
+  if(!value) return "";
+
+  try{
+    return new Date(value).toLocaleString();
+  }catch{
+    return value;
+  }
+}
 
 function escapeHtml(value){
 
-return String(value??"")
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
-
 
 function escapeAttr(value){
 
-return escapeHtml(value);
-
+  return escapeHtml(value);
 }
 
+function escapeJs(value){
 
-/* =========================================================
-START
-========================================================= */
+  return String(value ?? "")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'")
+    .replace(/\n/g,"\\n")
+    .replace(/\r/g,"\\r");
+}
 
-checkAdmin();
+function escapeFilter(value){
 
+  return String(value ?? "")
+    .replace(/[%_]/g,"\\$&")
+    .replace(/,/g,"\\,")
+    .replace(/\(/g,"\\(")
+    .replace(/\)/g,"\\)");
+}
+
+async function logout(){
+
+  await db.auth.signOut();
+
+  location.href = "admin-login.html";
+}
+
+/* =========================
+   START
+========================= */
+
+(async function(){
+
+  const ok = await checkAdmin();
+
+  if(!ok) return;
+
+  await loadSettings();
+  await loadStats();
+
+})();
 </script>
 
 </body>
