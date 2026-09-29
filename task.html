@@ -308,7 +308,6 @@ textarea:focus{
   box-shadow:0 0 0 3px rgba(11,143,60,.08);
 }
 
-/* BIG PHOTO UPLOAD */
 .photo-upload{
   position:relative;
   width:100%;
@@ -454,23 +453,30 @@ textarea:focus{
 
 <header>
   <div class="header-inner">
+
     <div>
       <div class="brand">NAIJA TASK</div>
       <div class="subtitle">Complete tasks. Earn money.</div>
     </div>
 
-    <button class="back-btn" onclick="goBack()">Back</button>
+    <button class="back-btn" onclick="goBack()">
+      Back
+    </button>
+
   </div>
 </header>
 
 <main class="container">
 
   <div class="top-info">
+
     <h1>Available Tasks</h1>
+
     <p>
       Complete genuine tasks and submit clear proof for review.
       Photo proof is required for every task.
     </p>
+
   </div>
 
   <div id="tasksArea" class="loading">
@@ -480,128 +486,200 @@ textarea:focus{
 </main>
 
 <script>
+
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  PUT YOUR EXISTING SUPABASE PUBLISHABLE KEY HERE.
-  Do not change the location of this line.
+  IMPORTANT:
+  Put your CURRENT Supabase publishable key below.
 */
 const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
 
 const db = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
-const tasksArea = document.getElementById("tasksArea");
+const TASK_PROOF_BUCKET = "task-proofs";
+
+const tasksArea =
+  document.getElementById("tasksArea");
 
 let currentUser = null;
+let loadedTasks = [];
 
 const platformIcons = {
-  TikTok: "https://cdn.simpleicons.org/tiktok",
-  YouTube: "https://cdn.simpleicons.org/youtube",
-  Instagram: "https://cdn.simpleicons.org/instagram",
-  Facebook: "https://cdn.simpleicons.org/facebook",
-  "X": "https://cdn.simpleicons.org/x",
-  Twitter: "https://cdn.simpleicons.org/x",
-  Snapchat: "https://cdn.simpleicons.org/snapchat",
-  Telegram: "https://cdn.simpleicons.org/telegram",
-  WhatsApp: "https://cdn.simpleicons.org/whatsapp",
-  LinkedIn: "https://cdn.simpleicons.org/linkedin",
-  Pinterest: "https://cdn.simpleicons.org/pinterest",
-  Reddit: "https://cdn.simpleicons.org/reddit",
-  Threads: "https://cdn.simpleicons.org/threads",
-  Discord: "https://cdn.simpleicons.org/discord",
-  Messenger: "https://cdn.simpleicons.org/messenger",
-  Twitch: "https://cdn.simpleicons.org/twitch",
-  Tumblr: "https://cdn.simpleicons.org/tumblr",
-  Quora: "https://cdn.simpleicons.org/quora",
-  Medium: "https://cdn.simpleicons.org/medium",
-  VK: "https://cdn.simpleicons.org/vk",
-  WeChat: "https://cdn.simpleicons.org/wechat",
-  LINE: "https://cdn.simpleicons.org/line",
-  Signal: "https://cdn.simpleicons.org/signal",
-  Google: "https://cdn.simpleicons.org/google",
-  Spotify: "https://cdn.simpleicons.org/spotify",
-  Audiomack: "https://cdn.simpleicons.org/audiomack"
+
+  TikTok:"https://cdn.simpleicons.org/tiktok",
+
+  YouTube:"https://cdn.simpleicons.org/youtube",
+
+  Instagram:"https://cdn.simpleicons.org/instagram",
+
+  Facebook:"https://cdn.simpleicons.org/facebook",
+
+  X:"https://cdn.simpleicons.org/x",
+
+  Twitter:"https://cdn.simpleicons.org/x",
+
+  Snapchat:"https://cdn.simpleicons.org/snapchat",
+
+  Telegram:"https://cdn.simpleicons.org/telegram",
+
+  WhatsApp:"https://cdn.simpleicons.org/whatsapp",
+
+  LinkedIn:"https://cdn.simpleicons.org/linkedin",
+
+  Pinterest:"https://cdn.simpleicons.org/pinterest",
+
+  Reddit:"https://cdn.simpleicons.org/reddit",
+
+  Threads:"https://cdn.simpleicons.org/threads",
+
+  Discord:"https://cdn.simpleicons.org/discord",
+
+  Messenger:"https://cdn.simpleicons.org/messenger",
+
+  Twitch:"https://cdn.simpleicons.org/twitch",
+
+  Tumblr:"https://cdn.simpleicons.org/tumblr",
+
+  Quora:"https://cdn.simpleicons.org/quora",
+
+  Medium:"https://cdn.simpleicons.org/medium",
+
+  VK:"https://cdn.simpleicons.org/vk",
+
+  WeChat:"https://cdn.simpleicons.org/wechat",
+
+  LINE:"https://cdn.simpleicons.org/line",
+
+  Signal:"https://cdn.simpleicons.org/signal",
+
+  Google:"https://cdn.simpleicons.org/google",
+
+  Spotify:"https://cdn.simpleicons.org/spotify",
+
+  Audiomack:"https://cdn.simpleicons.org/audiomack"
 };
 
 function goBack(){
+
   if(history.length > 1){
+
     history.back();
+
   }else{
-    window.location.href = "dashboard.html";
+
+    window.location.href =
+      "dashboard.html";
   }
 }
 
 async function getCurrentUser(){
-  const {data,error} = await db.auth.getUser();
+
+  const {data,error} =
+    await db.auth.getUser();
 
   if(error || !data.user){
-    window.location.href = "index.html";
+
+    window.location.href =
+      "index.html";
+
     return null;
   }
 
-  currentUser = data.user;
+  currentUser =
+    data.user;
+
   return data.user;
 }
 
 function escapeHTML(value){
+
   return String(value ?? "")
+
     .replace(/&/g,"&amp;")
+
     .replace(/</g,"&lt;")
+
     .replace(/>/g,"&gt;")
+
     .replace(/"/g,"&quot;")
+
     .replace(/'/g,"&#039;");
 }
 
 function normalizeUrl(url){
+
   if(!url) return "";
 
-  let value = String(url).trim();
+  let value =
+    String(url).trim();
 
   if(!value) return "";
 
   if(!/^https?:\/\//i.test(value)){
-    value = "https://" + value;
+
+    value =
+      "https://" + value;
   }
 
   return value;
 }
 
 function isTaskExpired(task){
-  if(!task.expiry_date) return false;
 
-  return new Date(task.expiry_date).getTime() <= Date.now();
+  if(!task.expiry_date)
+    return false;
+
+  return new Date(
+    task.expiry_date
+  ).getTime() <= Date.now();
 }
 
 function formatExpiry(date){
-  if(!date) return "No expiry";
 
-  const d = new Date(date);
-
-  if(Number.isNaN(d.getTime())){
+  if(!date)
     return "No expiry";
-  }
+
+  const d =
+    new Date(date);
+
+  if(Number.isNaN(d.getTime()))
+    return "No expiry";
 
   return d.toLocaleString();
 }
 
 function getPlatformHTML(type){
-  const name = type || "Task";
-  const icon = platformIcons[name];
+
+  const name =
+    type || "Task";
+
+  const icon =
+    platformIcons[name];
 
   if(icon){
+
     return `
       <img
         class="platform-icon"
         src="${icon}"
         alt="${escapeHTML(name)}"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+        onerror="
+          this.style.display='none';
+          this.nextElementSibling.style.display='flex';
+        "
       >
-      <div class="platform-fallback" style="display:none;">
+
+      <div
+        class="platform-fallback"
+        style="display:none;"
+      >
         NT
       </div>
     `;
@@ -615,14 +693,28 @@ function getPlatformHTML(type){
 }
 
 function taskLinkHTML(task,index){
-  const link = normalizeUrl(task.task_link || task.post_link || "");
+
+  const link =
+    normalizeUrl(
+      task.task_link ||
+      task.post_link ||
+      ""
+    );
 
   if(!link){
+
     return `
       <div class="link-box">
-        <div style="font-size:13px;color:#68756c;">
+
+        <div
+          style="
+            font-size:13px;
+            color:#68756c;
+          "
+        >
           No task link was provided.
         </div>
+
       </div>
     `;
   }
@@ -635,7 +727,9 @@ function taskLinkHTML(task,index){
         href="${escapeHTML(link)}"
         target="_blank"
         rel="noopener noreferrer"
-      >${escapeHTML(link)}</a>
+      >
+        ${escapeHTML(link)}
+      </a>
 
       <div class="action-row">
 
@@ -663,11 +757,12 @@ function taskLinkHTML(task,index){
 }
 
 function copyButtonHTML(task,index){
-  const text = task.copy_text || "";
 
-  if(!text){
+  const text =
+    task.copy_text || "";
+
+  if(!text)
     return "";
-  }
 
   return `
     <div class="section">
@@ -676,11 +771,17 @@ function copyButtonHTML(task,index){
         Copy Text
       </div>
 
-      <div class="copy-text" id="copyText-${index}">
+      <div
+        class="copy-text"
+        id="copyText-${index}"
+      >
         ${escapeHTML(text)}
       </div>
 
-      <div class="action-row" style="margin-top:9px;">
+      <div
+        class="action-row"
+        style="margin-top:9px;"
+      >
 
         <button
           type="button"
@@ -699,9 +800,8 @@ function copyButtonHTML(task,index){
 
 function taskCard(task,index){
 
-  const expired = isTaskExpired(task);
-
-  const link = task.task_link || task.post_link || "";
+  const expired =
+    isTaskExpired(task);
 
   return `
     <article class="task-card">
@@ -713,13 +813,20 @@ function taskCard(task,index){
           ${getPlatformHTML(task.task_type)}
 
           <div>
+
             <div class="platform-name">
-              ${escapeHTML(task.task_type || "General Task")}
+              ${escapeHTML(
+                task.task_type ||
+                "General Task"
+              )}
             </div>
 
             <div class="task-title">
-              ${escapeHTML(task.title)}
+              ${escapeHTML(
+                task.title
+              )}
             </div>
+
           </div>
 
         </div>
@@ -727,31 +834,59 @@ function taskCard(task,index){
         <div class="task-meta">
 
           <div class="meta-box">
-            <div class="meta-label">Reward</div>
+
+            <div class="meta-label">
+              Reward
+            </div>
+
             <div class="meta-value reward">
-              ₦${Number(task.reward || 0).toLocaleString()}
+              ₦${Number(
+                task.reward || 0
+              ).toLocaleString()}
             </div>
+
           </div>
 
           <div class="meta-box">
-            <div class="meta-label">Available Slots</div>
+
+            <div class="meta-label">
+              Available Slots
+            </div>
+
             <div class="meta-value">
-              ${Number(task.slots || 0).toLocaleString()}
+              ${Number(
+                task.slots || 0
+              ).toLocaleString()}
             </div>
+
           </div>
 
           <div class="meta-box">
-            <div class="meta-label">Expires</div>
+
+            <div class="meta-label">
+              Expires
+            </div>
+
             <div class="meta-value">
-              ${escapeHTML(formatExpiry(task.expiry_date))}
+              ${escapeHTML(
+                formatExpiry(
+                  task.expiry_date
+                )
+              )}
             </div>
+
           </div>
 
           <div class="meta-box">
-            <div class="meta-label">Status</div>
+
+            <div class="meta-label">
+              Status
+            </div>
+
             <div class="meta-value reward">
               LIVE
             </div>
+
           </div>
 
         </div>
@@ -767,7 +902,10 @@ function taskCard(task,index){
           </div>
 
           <div class="description">
-            ${escapeHTML(task.description || "Follow the instructions provided by the task poster.")}
+            ${escapeHTML(
+              task.description ||
+              "Follow the instructions provided by the task poster."
+            )}
           </div>
 
         </div>
@@ -779,7 +917,10 @@ function taskCard(task,index){
           </div>
 
           <span class="owner">
-            ${escapeHTML(task.uploader_username || "Task Poster")}
+            ${escapeHTML(
+              task.uploader_username ||
+              "Task Poster"
+            )}
           </span>
 
         </div>
@@ -790,161 +931,186 @@ function taskCard(task,index){
             Task Link
           </div>
 
-          ${taskLinkHTML(task,index)}
+          ${taskLinkHTML(
+            task,
+            index
+          )}
 
         </div>
 
-        ${copyButtonHTML(task,index)}
+        ${copyButtonHTML(
+          task,
+          index
+        )}
 
         ${
           expired
+
           ?
-          `<div class="expired">
-             This task has expired and cannot receive new submissions.
-           </div>`
-          :
+
           `
-          <div class="section">
-
-            <div class="section-title">
-              Start Task
+            <div class="expired">
+              This task has expired and cannot receive new submissions.
             </div>
+          `
 
-            <button
-              class="start-btn"
-              type="button"
-              onclick="showProofForm(${index})"
-            >
-              Start Task & Submit Proof
-            </button>
+          :
 
-          </div>
-
-          <div id="proof-${index}" style="display:none;">
-
+          `
             <div class="section">
 
               <div class="section-title">
-                Submit Proof
+                Start Task
               </div>
 
-              <div class="description" style="margin-bottom:12px;">
-                Complete the task first. Then provide your account username,
-                comment/report, and a clear photo or screenshot as proof.
-              </div>
+              <button
+                class="start-btn"
+                type="button"
+                onclick="showProofForm(${index})"
+              >
+                Start Task & Submit Proof
+              </button>
 
-              <form onsubmit="submitProof(event,${index})">
+            </div>
 
-                <div class="field">
+            <div
+              id="proof-${index}"
+              style="display:none;"
+            >
 
-                  <label class="field-label">
-                    Username / Account Used *
-                  </label>
+              <div class="section">
 
-                  <input
-                    type="text"
-                    id="username-${index}"
-                    placeholder="Enter the username you used"
-                    required
-                  >
-
+                <div class="section-title">
+                  Submit Proof
                 </div>
 
-                <div class="field">
-
-                  <label class="field-label">
-                    Comment / Report *
-                  </label>
-
-                  <textarea
-                    id="comment-${index}"
-                    placeholder="Tell the poster what you completed..."
-                    required
-                  ></textarea>
-
+                <div
+                  class="description"
+                  style="margin-bottom:12px;"
+                >
+                  Complete the task first. Then provide your account username,
+                  comment/report, and a clear photo or screenshot as proof.
                 </div>
 
-                <div class="field">
+                <form
+                  onsubmit="submitProof(event,${index})"
+                >
 
-                  <label class="field-label">
-                    Extra Proof Link
-                  </label>
+                  <div class="field">
 
-                  <input
-                    type="url"
-                    id="proofLink-${index}"
-                    placeholder="https://..."
-                  >
-
-                </div>
-
-                <div class="field">
-
-                  <label class="field-label">
-                    Photo Proof *
-                  </label>
-
-                  <div
-                    class="photo-upload"
-                    id="photoUpload-${index}"
-                  >
+                    <label class="field-label">
+                      Username / Account Used *
+                    </label>
 
                     <input
-                      type="file"
-                      id="photo-${index}"
-                      accept="image/jpeg,image/png,image/webp"
+                      type="text"
+                      id="username-${index}"
+                      placeholder="Enter the username you used"
                       required
-                      onchange="handlePhotoSelect(event,${index})"
                     >
 
-                    <div class="upload-content">
+                  </div>
 
-                      <div class="upload-icon">
-                        📷
-                      </div>
+                  <div class="field">
 
-                      <div class="upload-title">
-                        TAP TO UPLOAD PHOTO
-                      </div>
+                    <label class="field-label">
+                      Comment / Report *
+                    </label>
 
-                      <div class="upload-subtitle">
-                        Choose a photo or screenshot from your phone
-                      </div>
+                    <textarea
+                      id="comment-${index}"
+                      placeholder="Tell the poster what you completed..."
+                      required
+                    ></textarea>
 
-                      <div class="upload-subtitle">
-                        JPG, PNG or WEBP • Maximum 5MB
+                  </div>
+
+                  <div class="field">
+
+                    <label class="field-label">
+                      Extra Proof Link
+                    </label>
+
+                    <input
+                      type="url"
+                      id="proofLink-${index}"
+                      placeholder="https://..."
+                    >
+
+                  </div>
+
+                  <div class="field">
+
+                    <label class="field-label">
+                      Photo Proof *
+                    </label>
+
+                    <div
+                      class="photo-upload"
+                      id="photoUpload-${index}"
+                    >
+
+                      <input
+                        type="file"
+                        id="photo-${index}"
+                        accept="image/jpeg,image/png,image/webp"
+                        required
+                        onchange="
+                          handlePhotoSelect(
+                            event,
+                            ${index}
+                          )
+                        "
+                      >
+
+                      <div class="upload-content">
+
+                        <div class="upload-icon">
+                          📷
+                        </div>
+
+                        <div class="upload-title">
+                          TAP TO UPLOAD PHOTO
+                        </div>
+
+                        <div class="upload-subtitle">
+                          Choose a photo or screenshot from your phone
+                        </div>
+
+                        <div class="upload-subtitle">
+                          JPG, PNG or WEBP • Maximum 5MB
+                        </div>
+
                       </div>
 
                     </div>
 
+                    <img
+                      id="preview-${index}"
+                      class="photo-preview"
+                      alt="Proof preview"
+                    >
+
                   </div>
 
-                  <img
-                    id="preview-${index}"
-                    class="photo-preview"
-                    alt="Proof preview"
+                  <button
+                    type="submit"
+                    class="submit-btn"
+                    id="submit-${index}"
                   >
+                    Submit Proof
+                  </button>
 
-                </div>
+                  <div
+                    id="message-${index}"
+                    class="message"
+                  ></div>
 
-                <button
-                  type="submit"
-                  class="submit-btn"
-                  id="submit-${index}"
-                >
-                  Submit Proof
-                </button>
+                </form>
 
-                <div
-                  id="message-${index}"
-                  class="message"
-                ></div>
-
-              </form>
+              </div>
 
             </div>
-
-          </div>
           `
         }
 
@@ -954,65 +1120,90 @@ function taskCard(task,index){
   `;
 }
 
-let loadedTasks = [];
-
 async function loadTasks(){
 
-  tasksArea.className = "loading";
-  tasksArea.innerHTML = "Loading tasks...";
+  tasksArea.className =
+    "loading";
 
-  /*
-    Only LIVE tasks are shown to Taskers.
-  */
-  const {data,error} = await db
-    .from("tasks")
-    .select(`
-      id,
-      title,
-      description,
-      reward,
-      slots,
-      expiry_date,
-      requirements,
-      proof_type,
-      active,
-      status,
-      task_type,
-      task_link,
-      uploader_username,
-      copy_text,
-      post_link,
-      upload_required,
-      created_at
-    `)
-    .eq("active",true)
-    .eq("status","LIVE")
-    .order("created_at",{ascending:false});
+  tasksArea.innerHTML =
+    "Loading tasks...";
+
+  const {data,error} =
+    await db
+
+      .from("tasks")
+
+      .select(`
+        id,
+        title,
+        description,
+        reward,
+        slots,
+        expiry_date,
+        requirements,
+        proof_type,
+        active,
+        status,
+        task_type,
+        task_link,
+        uploader_username,
+        copy_text,
+        post_link,
+        upload_required,
+        created_at
+      `)
+
+      .eq("active",true)
+
+      .eq("status","LIVE")
+
+      .order(
+        "created_at",
+        {ascending:false}
+      );
 
   if(error){
 
     console.error(error);
 
-    tasksArea.className = "error";
+    tasksArea.className =
+      "error";
 
     tasksArea.innerHTML = `
-      <strong>Unable to load tasks.</strong>
+      <strong>
+        Unable to load tasks.
+      </strong>
+
       <br><br>
-      Please refresh the page and try again.
+
+      ${escapeHTML(
+        error.message ||
+        "Please refresh the page."
+      )}
     `;
 
     return;
   }
 
-  loadedTasks = (data || []).filter(task => !isTaskExpired(task));
+  loadedTasks =
+    (data || [])
+      .filter(
+        task =>
+          !isTaskExpired(task)
+      );
 
   if(!loadedTasks.length){
 
-    tasksArea.className = "empty";
+    tasksArea.className =
+      "empty";
 
     tasksArea.innerHTML = `
-      <strong>No live tasks available right now.</strong>
+      <strong>
+        No live tasks available right now.
+      </strong>
+
       <br><br>
+
       Check again later for new tasks.
     `;
 
@@ -1021,134 +1212,185 @@ async function loadTasks(){
 
   tasksArea.className = "";
 
-  tasksArea.innerHTML = loadedTasks
-    .map((task,index) => taskCard(task,index))
-    .join("");
+  tasksArea.innerHTML =
+    loadedTasks
+      .map(
+        (task,index) =>
+          taskCard(
+            task,
+            index
+          )
+      )
+      .join("");
 }
 
 function showProofForm(index){
 
-  const box = document.getElementById(`proof-${index}`);
+  const box =
+    document.getElementById(
+      `proof-${index}`
+    );
 
-  if(!box) return;
+  if(!box)
+    return;
 
-  box.style.display = "block";
+  box.style.display =
+    "block";
 
   box.scrollIntoView({
     behavior:"smooth",
     block:"start"
   });
 
-  trackTaskStart(loadedTasks[index]);
+  trackTaskStart(
+    loadedTasks[index]
+  );
 }
 
 async function trackTaskStart(task){
 
-  if(!currentUser || !task) return;
+  if(!currentUser || !task)
+    return;
 
   try{
 
     await db
+
       .from("task_activity")
+
       .insert({
-        task_id:task.id,
-        user_id:currentUser.id,
-        activity_type:"STARTED"
+
+        task_id:
+          task.id,
+
+        user_id:
+          currentUser.id,
+
+        activity_type:
+          "STARTED"
+
       });
 
   }catch(error){
 
-    console.log("Activity tracking skipped:",error);
-
+    console.log(
+      "Activity tracking skipped:",
+      error
+    );
   }
 }
 
-function handlePhotoSelect(event,index){
+function handlePhotoSelect(
+  event,
+  index
+){
 
-  const file = event.target.files?.[0];
+  const file =
+    event.target.files?.[0];
 
   const uploadBox =
-    document.getElementById(`photoUpload-${index}`);
+    document.getElementById(
+      `photoUpload-${index}`
+    );
 
   const preview =
-    document.getElementById(`preview-${index}`);
+    document.getElementById(
+      `preview-${index}`
+    );
 
-  if(!file) return;
+  if(!file)
+    return;
 
   if(!file.type.startsWith("image/")){
 
     event.target.value = "";
 
-    alert("Please choose an image file.");
+    alert(
+      "Please choose an image file."
+    );
 
     return;
   }
 
-  if(file.size > 5 * 1024 * 1024){
+  if(
+    file.size >
+    5 * 1024 * 1024
+  ){
 
     event.target.value = "";
 
-    alert("Photo must be 5MB or smaller.");
+    alert(
+      "Photo must be 5MB or smaller."
+    );
 
     return;
   }
 
-  const reader = new FileReader();
+  const reader =
+    new FileReader();
 
-  reader.onload = function(e){
+  reader.onload =
+    function(e){
 
-    preview.src = e.target.result;
+      preview.src =
+        e.target.result;
 
-    preview.style.display = "block";
+      preview.style.display =
+        "block";
 
-    uploadBox.classList.add("photo-selected");
-
-  };
+      uploadBox.classList.add(
+        "photo-selected"
+      );
+    };
 
   reader.readAsDataURL(file);
 }
 
-async function openTaskLink(index){
+function openTaskLink(index){
 
-  const task = loadedTasks[index];
+  const task =
+    loadedTasks[index];
 
-  if(!task) return;
+  if(!task)
+    return;
 
   const raw =
     task.task_link ||
     task.post_link ||
     "";
 
-  const url = normalizeUrl(raw);
+  const url =
+    normalizeUrl(raw);
 
   if(!url){
 
-    alert("This task does not have a link.");
+    alert(
+      "This task does not have a link."
+    );
 
     return;
   }
 
-  /*
-    Open the actual task separately.
-    NAIJA TASK stays open.
-  */
-  const newWindow = window.open(
-    url,
-    "_blank",
-    "noopener,noreferrer"
-  );
+  const newWindow =
+    window.open(
+      url,
+      "_blank",
+      "noopener,noreferrer"
+    );
 
-  /*
-    Some Android browsers block window.open.
-    In that case, use a real anchor as fallback.
-  */
   if(!newWindow){
 
-    const a = document.createElement("a");
+    const a =
+      document.createElement("a");
 
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
+    a.href =
+      url;
+
+    a.target =
+      "_blank";
+
+    a.rel =
+      "noopener noreferrer";
 
     document.body.appendChild(a);
 
@@ -1160,45 +1402,74 @@ async function openTaskLink(index){
 
 async function copyTextReliable(text){
 
-  if(!text) return false;
+  if(!text)
+    return false;
 
   try{
 
-    if(navigator.clipboard &&
-       window.isSecureContext){
+    if(
+      navigator.clipboard &&
+      window.isSecureContext
+    ){
 
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard
+        .writeText(text);
 
       return true;
     }
 
   }catch(error){
 
-    console.log("Clipboard API failed:",error);
-
+    console.log(
+      "Clipboard API failed:",
+      error
+    );
   }
 
   try{
 
-    const textarea = document.createElement("textarea");
+    const textarea =
+      document.createElement(
+        "textarea"
+      );
 
-    textarea.value = text;
+    textarea.value =
+      text;
 
-    textarea.setAttribute("readonly","");
+    textarea.setAttribute(
+      "readonly",
+      ""
+    );
 
-    textarea.style.position = "fixed";
-    textarea.style.left = "-9999px";
-    textarea.style.top = "0";
-    textarea.style.opacity = "0";
+    textarea.style.position =
+      "fixed";
 
-    document.body.appendChild(textarea);
+    textarea.style.left =
+      "-9999px";
+
+    textarea.style.top =
+      "0";
+
+    textarea.style.opacity =
+      "0";
+
+    document.body.appendChild(
+      textarea
+    );
 
     textarea.focus();
+
     textarea.select();
-    textarea.setSelectionRange(0,text.length);
+
+    textarea.setSelectionRange(
+      0,
+      text.length
+    );
 
     const copied =
-      document.execCommand("copy");
+      document.execCommand(
+        "copy"
+      );
 
     textarea.remove();
 
@@ -1206,7 +1477,10 @@ async function copyTextReliable(text){
 
   }catch(error){
 
-    console.error("Copy failed:",error);
+    console.error(
+      "Copy failed:",
+      error
+    );
 
     return false;
   }
@@ -1214,9 +1488,11 @@ async function copyTextReliable(text){
 
 async function copyTaskLink(index){
 
-  const task = loadedTasks[index];
+  const task =
+    loadedTasks[index];
 
-  if(!task) return;
+  if(!task)
+    return;
 
   const link =
     normalizeUrl(
@@ -1227,28 +1503,43 @@ async function copyTaskLink(index){
 
   if(!link){
 
-    alert("There is no task link to copy.");
+    alert(
+      "There is no task link to copy."
+    );
 
     return;
   }
 
   const button =
-    document.getElementById(`copyLinkBtn-${index}`);
+    document.getElementById(
+      `copyLinkBtn-${index}`
+    );
 
   const success =
-    await copyTextReliable(link);
+    await copyTextReliable(
+      link
+    );
 
   if(success){
 
-    const oldText = button.innerText;
+    const oldText =
+      button.innerText;
 
-    button.innerText = "Copied ✓";
-    button.classList.add("copied");
+    button.innerText =
+      "Copied ✓";
+
+    button.classList.add(
+      "copied"
+    );
 
     setTimeout(() => {
 
-      button.innerText = oldText;
-      button.classList.remove("copied");
+      button.innerText =
+        oldText;
+
+      button.classList.remove(
+        "copied"
+      );
 
     },1800);
 
@@ -1257,33 +1548,50 @@ async function copyTaskLink(index){
     alert(
       "Copy was blocked by your browser. Long-press the link and choose Copy."
     );
-
   }
 }
 
 async function copyTaskText(index){
 
-  const task = loadedTasks[index];
+  const task =
+    loadedTasks[index];
 
-  if(!task || !task.copy_text) return;
+  if(
+    !task ||
+    !task.copy_text
+  )
+    return;
 
   const button =
-    document.getElementById(`copyTextBtn-${index}`);
+    document.getElementById(
+      `copyTextBtn-${index}`
+    );
 
   const success =
-    await copyTextReliable(task.copy_text);
+    await copyTextReliable(
+      task.copy_text
+    );
 
   if(success){
 
-    const oldText = button.innerText;
+    const oldText =
+      button.innerText;
 
-    button.innerText = "Copied ✓";
-    button.classList.add("copied");
+    button.innerText =
+      "Copied ✓";
+
+    button.classList.add(
+      "copied"
+    );
 
     setTimeout(() => {
 
-      button.innerText = oldText;
-      button.classList.remove("copied");
+      button.innerText =
+        oldText;
+
+      button.classList.remove(
+        "copied"
+      );
 
     },1800);
 
@@ -1292,40 +1600,57 @@ async function copyTaskText(index){
     alert(
       "Copy was blocked by your browser. Select the text and copy it manually."
     );
-
   }
 }
 
-function showMessage(index,type,text){
+function showMessage(
+  index,
+  type,
+  text
+){
 
   const box =
-    document.getElementById(`message-${index}`);
+    document.getElementById(
+      `message-${index}`
+    );
 
-  if(!box) return;
+  if(!box)
+    return;
 
-  box.className = `message ${type}`;
+  box.className =
+    `message ${type}`;
 
-  box.textContent = text;
+  box.textContent =
+    text;
 }
 
-async function submitProof(event,index){
+async function submitProof(
+  event,
+  index
+){
 
   event.preventDefault();
 
-  const task = loadedTasks[index];
+  const task =
+    loadedTasks[index];
 
   if(!task){
 
-    alert("Task not found.");
+    alert(
+      "Task not found."
+    );
 
     return;
   }
 
   if(!currentUser){
 
-    alert("Please log in again.");
+    alert(
+      "Please log in again."
+    );
 
-    window.location.href = "index.html";
+    window.location.href =
+      "index.html";
 
     return;
   }
@@ -1343,24 +1668,32 @@ async function submitProof(event,index){
 
   const username =
     document
-      .getElementById(`username-${index}`)
+      .getElementById(
+        `username-${index}`
+      )
       .value
       .trim();
 
   const comment =
     document
-      .getElementById(`comment-${index}`)
+      .getElementById(
+        `comment-${index}`
+      )
       .value
       .trim();
 
   const proofLink =
     document
-      .getElementById(`proofLink-${index}`)
+      .getElementById(
+        `proofLink-${index}`
+      )
       .value
       .trim();
 
   const fileInput =
-    document.getElementById(`photo-${index}`);
+    document.getElementById(
+      `photo-${index}`
+    );
 
   const file =
     fileInput.files?.[0];
@@ -1398,7 +1731,10 @@ async function submitProof(event,index){
     return;
   }
 
-  if(file.size > 5 * 1024 * 1024){
+  if(
+    file.size >
+    5 * 1024 * 1024
+  ){
 
     showMessage(
       index,
@@ -1410,10 +1746,15 @@ async function submitProof(event,index){
   }
 
   const submitButton =
-    document.getElementById(`submit-${index}`);
+    document.getElementById(
+      `submit-${index}`
+    );
 
-  submitButton.disabled = true;
-  submitButton.innerText = "Uploading proof...";
+  submitButton.disabled =
+    true;
+
+  submitButton.innerText =
+    "Uploading proof...";
 
   showMessage(
     index,
@@ -1421,77 +1762,141 @@ async function submitProof(event,index){
     "Uploading your photo proof..."
   );
 
-  let uploadedPath = null;
+  let uploadedPath =
+    null;
 
   try{
 
     /*
-      Check for an existing active submission.
-      Rejected submissions can be submitted again.
+      Prevent duplicate pending/approved submissions.
+      Rejected submissions may be submitted again.
     */
-    const {data:existing,error:existingError} =
-      await db
-        .from("task_submissions")
-        .select("id,status")
-        .eq("task_id",task.id)
-        .eq("user_id",currentUser.id)
-        .in("status",["PENDING","APPROVED"])
-        .limit(1);
+    const {
+      data:existing,
+      error:existingError
+    } = await db
+
+      .from("task_submissions")
+
+      .select(
+        "id,status"
+      )
+
+      .eq(
+        "task_id",
+        task.id
+      )
+
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+
+      .in(
+        "status",
+        [
+          "PENDING",
+          "APPROVED"
+        ]
+      )
+
+      .limit(1);
 
     if(existingError){
+
       throw existingError;
     }
 
-    if(existing && existing.length){
+    if(
+      existing &&
+      existing.length
+    ){
 
       throw new Error(
         "You have already submitted this task."
       );
     }
 
+    /*
+      Create a safe filename.
+    */
     const extension =
       file.name.includes(".")
-      ? file.name.split(".").pop().toLowerCase()
+      ? file.name
+          .split(".")
+          .pop()
+          .toLowerCase()
       : "jpg";
 
     uploadedPath =
       `${currentUser.id}/${task.id}/${Date.now()}.${extension}`;
 
-    const {error:uploadError} =
-      await db
-        .storage
-        .from("task proof")
-        .upload(
-          uploadedPath,
-          file,
-          {
-            contentType:file.type,
-            upsert:false
-          }
-        );
+    /*
+      IMPORTANT:
+      Actual bucket name is task-proofs.
+    */
+    const {
+      error:uploadError
+    } = await db
+
+      .storage
+
+      .from(TASK_PROOF_BUCKET)
+
+      .upload(
+        uploadedPath,
+        file,
+        {
+          contentType:
+            file.type,
+
+          upsert:
+            false
+        }
+      );
 
     if(uploadError){
+
       throw uploadError;
     }
 
+    /*
+      The proof column is TEXT,
+      so save the complete proof
+      object as JSON text.
+    */
     const proof = {
 
       photo:{
-        bucket:"task proof",
-        path:uploadedPath,
-        name:file.name,
-        type:file.type,
-        size:file.size
+
+        bucket:
+          TASK_PROOF_BUCKET,
+
+        path:
+          uploadedPath,
+
+        name:
+          file.name,
+
+        type:
+          file.type,
+
+        size:
+          file.size
       },
 
-      worker_username:username,
+      worker_username:
+        username,
 
-      worker_comment:comment,
+      worker_comment:
+        comment,
 
-      worker_link:proofLink,
+      worker_link:
+        proofLink || null,
 
       task_owner:
-        task.uploader_username || null,
+        task.uploader_username ||
+        null,
 
       submitted_at:
         new Date().toISOString()
@@ -1500,55 +1905,79 @@ async function submitProof(event,index){
     submitButton.innerText =
       "Saving submission...";
 
-    const {error:insertError} =
-      await db
-        .from("task_submissions")
-        .insert({
+    const {
+      error:insertError
+    } = await db
 
-          user_id:currentUser.id,
+      .from("task_submissions")
 
-          task_id:task.id,
+      .insert({
 
-          proof:proof,
+        user_id:
+          currentUser.id,
 
-          status:"PENDING"
+        task_id:
+          task.id,
 
-        });
+        /*
+          FIX:
+          proof column is TEXT.
+        */
+        proof:
+          JSON.stringify(proof),
+
+        status:
+          "PENDING"
+      });
 
     if(insertError){
+
       throw insertError;
     }
 
     showMessage(
       index,
       "success",
-      "Proof submitted successfully. Your photo will be reviewed by the task poster."
+      "Proof submitted successfully. Your photo will be reviewed."
     );
 
     submitButton.innerText =
       "Proof Submitted ✓";
 
     /*
-      Disable the form after successful submission.
+      Disable the form after
+      successful submission.
     */
     const form =
       event.target;
 
-    form.querySelectorAll("input,textarea,button")
+    form
+      .querySelectorAll(
+        "input,textarea,button"
+      )
       .forEach(element => {
 
-        if(element !== submitButton){
-          element.disabled = true;
+        if(
+          element !==
+          submitButton
+        ){
+
+          element.disabled =
+            true;
         }
 
       });
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "Proof submission error:",
+      error
+    );
 
     /*
-      If the database insert failed after photo upload,
+      If upload succeeded but
+      database insertion failed,
       remove the orphaned photo.
     */
     if(uploadedPath){
@@ -1556,9 +1985,16 @@ async function submitProof(event,index){
       try{
 
         await db
+
           .storage
-          .from("task proof")
-          .remove([uploadedPath]);
+
+          .from(
+            TASK_PROOF_BUCKET
+          )
+
+          .remove([
+            uploadedPath
+          ]);
 
       }catch(removeError){
 
@@ -1566,12 +2002,12 @@ async function submitProof(event,index){
           "Could not remove uploaded proof:",
           removeError
         );
-
       }
-
     }
 
-    submitButton.disabled = false;
+    submitButton.disabled =
+      false;
+
     submitButton.innerText =
       "Submit Proof";
 
@@ -1589,12 +2025,14 @@ async function startPage(){
   const user =
     await getCurrentUser();
 
-  if(!user) return;
+  if(!user)
+    return;
 
   await loadTasks();
 }
 
 startPage();
+
 </script>
 
 </body>
