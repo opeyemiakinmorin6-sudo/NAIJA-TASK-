@@ -360,7 +360,8 @@ textarea{
 
 .task-card,
 .proof-card,
-.user-card{
+.user-card,
+.payment-card{
   border:1px solid #e2e9e4;
   border-radius:12px;
   padding:13px;
@@ -389,7 +390,8 @@ textarea{
   white-space:nowrap;
 }
 
-.live{
+.live,
+.approved{
   background:#e3f7e9;
   color:#087432;
 }
@@ -402,11 +404,6 @@ textarea{
 .pending{
   background:#fff0d1;
   color:#946000;
-}
-
-.approved{
-  background:#e3f7e9;
-  color:#087432;
 }
 
 .rejected{
@@ -446,7 +443,8 @@ textarea{
 .small{
   color:#737c76;
   font-size:12px;
-  line-height:1.45;
+  line-height:1.55;
+  word-break:break-word;
 }
 
 .empty{
@@ -456,13 +454,35 @@ textarea{
   font-size:14px;
 }
 
-.proof-image{
+.proof-image,
+.payment-image{
   width:100%;
-  max-height:360px;
+  max-height:400px;
   object-fit:contain;
   background:#f2f6f3;
   border-radius:9px;
   margin-top:10px;
+}
+
+.payment-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.amount{
+  color:#0b8f3c;
+  font-size:20px;
+  font-weight:800;
+}
+
+.reference{
+  background:#f5f8f6;
+  padding:9px;
+  border-radius:8px;
+  margin-top:9px;
+  word-break:break-all;
 }
 
 .modal-overlay{
@@ -512,6 +532,14 @@ textarea{
   flex:1;
 }
 
+.reason-box{
+  display:none;
+}
+
+.reason-box.show{
+  display:block;
+}
+
 footer{
   text-align:center;
   color:#7a827c;
@@ -520,21 +548,23 @@ footer{
 }
 
 @media(min-width:700px){
-  .stats{
-    grid-template-columns:repeat(4,1fr);
-  }
 
-  .menu{
-    grid-template-columns:repeat(4,1fr);
-  }
+.stats{
+  grid-template-columns:repeat(5,1fr);
+}
 
-  .setting-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
+.menu{
+  grid-template-columns:repeat(5,1fr);
+}
 
-  .task-info{
-    grid-template-columns:repeat(4,1fr);
-  }
+.setting-grid{
+  grid-template-columns:repeat(2,1fr);
+}
+
+.task-info{
+  grid-template-columns:repeat(4,1fr);
+}
+
 }
 </style>
 </head>
@@ -590,13 +620,18 @@ footer{
     <div class="stat-number" id="proofsCount">—</div>
   </div>
 
+  <div class="stat">
+    <div class="stat-title">Pending Payments</div>
+    <div class="stat-number" id="paymentsCount">—</div>
+  </div>
+
 </section>
 
 <div class="menu">
 
 <button data-panel="settingsPanel">
 ⚙️ Platform
-<span class="menu-small">Control website settings</span>
+<span class="menu-small">Website controls</span>
 </button>
 
 <button data-panel="membershipPanel">
@@ -606,7 +641,7 @@ footer{
 
 <button data-panel="moneyPanel">
 💰 Money
-<span class="menu-small">Withdrawal controls</span>
+<span class="menu-small">Withdrawals</span>
 </button>
 
 <button data-panel="referralPanel">
@@ -614,19 +649,24 @@ footer{
 <span class="menu-small">Referral settings</span>
 </button>
 
+<button data-panel="posterPaymentPanel">
+💳 Payments
+<span class="menu-small">Poster payments</span>
+</button>
+
 <button data-panel="taskPanel">
 📋 Tasks
-<span class="menu-small">Create & edit tasks</span>
+<span class="menu-small">Create & manage</span>
 </button>
 
 <button data-panel="proofPanel">
 🖼️ Proof Review
-<span class="menu-small">Approve or reject</span>
+<span class="menu-small">Worker submissions</span>
 </button>
 
 <button data-panel="usersPanel">
 👥 Users
-<span class="menu-small">View worker accounts</span>
+<span class="menu-small">Worker accounts</span>
 </button>
 
 <button data-panel="posterPanel">
@@ -637,7 +677,7 @@ footer{
 </div>
 
 
-<!-- SETTINGS -->
+<!-- PLATFORM -->
 
 <section class="panel hidden" id="settingsPanel">
 
@@ -658,14 +698,12 @@ footer{
 
 </div>
 
-
 <div class="setting-box">
 
 <div class="setting-title">Platform Controls</div>
 
 <div class="switch-row">
 <span>Maintenance Mode</span>
-
 <label class="switch">
 <input type="checkbox" id="maintenanceMode">
 <span class="slider"></span>
@@ -674,7 +712,6 @@ footer{
 
 <div class="switch-row">
 <span>Photo Proof</span>
-
 <label class="switch">
 <input type="checkbox" id="photoProof">
 <span class="slider"></span>
@@ -683,7 +720,6 @@ footer{
 
 <div class="switch-row">
 <span>AI Care</span>
-
 <label class="switch">
 <input type="checkbox" id="aiCare">
 <span class="slider"></span>
@@ -692,7 +728,6 @@ footer{
 
 <div class="switch-row">
 <span>Private Chat</span>
-
 <label class="switch">
 <input type="checkbox" id="privateChat">
 <span class="slider"></span>
@@ -701,7 +736,6 @@ footer{
 
 <div class="switch-row">
 <span>Community Chat</span>
-
 <label class="switch">
 <input type="checkbox" id="communityChat">
 <span class="slider"></span>
@@ -749,7 +783,6 @@ Save Platform Settings
 
 <div class="switch-row">
 <span>Activation Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="activationEnabled">
 <span class="slider"></span>
@@ -761,14 +794,12 @@ Save Platform Settings
 
 </div>
 
-
 <div class="setting-box">
 
 <div class="setting-title">VIP</div>
 
 <div class="switch-row">
 <span>VIP Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="vipEnabled">
 <span class="slider"></span>
@@ -803,7 +834,6 @@ Save Membership Settings
 
 <div class="switch-row">
 <span>Withdrawals Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="withdrawalsEnabled">
 <span class="slider"></span>
@@ -833,7 +863,7 @@ Save Withdrawal Settings
 <h2>Withdrawal Records</h2>
 
 <button class="secondary" id="refreshWithdrawals">
-Refresh Withdrawals
+↻ Refresh Withdrawals
 </button>
 
 <div id="withdrawalList">
@@ -853,7 +883,6 @@ Refresh Withdrawals
 
 <div class="switch-row">
 <span>Referrals Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="referralsEnabled">
 <span class="slider"></span>
@@ -868,6 +897,27 @@ Refresh Withdrawals
 <button class="primary full" id="saveReferral">
 Save Referral Settings
 </button>
+
+</section>
+
+
+<!-- POSTER PAYMENTS -->
+
+<section class="panel hidden" id="posterPaymentPanel">
+
+<h2>💳 Poster Payment Review</h2>
+
+<p class="small">
+Review the poster's payment proof before allowing the job to become LIVE.
+</p>
+
+<button class="secondary" id="refreshPosterPayments">
+↻ Refresh Payments
+</button>
+
+<div id="posterPaymentList">
+<div class="empty">Loading poster payments...</div>
+</div>
 
 </section>
 
@@ -1038,11 +1088,10 @@ Save Poster Settings
 </button>
 
 <p class="small" style="margin-top:12px;">
-Poster financial charges will be added once the poster/job tables and payment flow are connected. This prevents the Admin Panel from displaying controls that cannot actually affect anything yet.
+Poster payment approval is now connected through the secure payment review system.
 </p>
 
 </section>
-
 
 </main>
 
@@ -1132,7 +1181,7 @@ Save Changes
 </div>
 
 
-<!-- CONFIRM MODAL -->
+<!-- CONFIRM / REASON MODAL -->
 
 <div class="modal-overlay" id="confirmModal">
 
@@ -1142,6 +1191,17 @@ Save Changes
 
 <p id="confirmText"></p>
 
+<div class="reason-box" id="reasonBox">
+
+<label>Reason</label>
+
+<textarea
+id="reasonInput"
+placeholder="Enter the reason..."
+></textarea>
+
+</div>
+
 <div class="modal-actions">
 
 <button class="secondary" id="confirmCancel">
@@ -1150,6 +1210,30 @@ Cancel
 
 <button class="danger" id="confirmYes">
 Confirm
+</button>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- PAYMENT IMAGE MODAL -->
+
+<div class="modal-overlay" id="imageModal">
+
+<div class="modal">
+
+<h3>Payment Proof</h3>
+
+<div id="imageModalContent">
+<div class="empty">Loading...</div>
+</div>
+
+<div class="modal-actions">
+
+<button class="secondary" id="closeImageModal">
+Close
 </button>
 
 </div>
@@ -1168,14 +1252,14 @@ const SUPABASE_URL =
 "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-PASTE YOUR CURRENT PUBLISHABLE KEY BELOW.
+IMPORTANT:
+Insert your CURRENT Supabase publishable key here.
 
-DO NOT USE A SERVICE-ROLE KEY.
+DO NOT use a service-role key.
 */
 
 const SUPABASE_KEY =
-     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";    
-  
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 const db =
 window.supabase.createClient(
@@ -1192,6 +1276,7 @@ const $ = id =>
 document.getElementById(id);
 
 let confirmAction = null;
+let reasonRequired = false;
 
 function showMessage(text,type="success"){
 
@@ -1200,6 +1285,7 @@ const box = $("message");
 box.textContent = text;
 box.className =
 "message " + type;
+
 box.style.display = "block";
 
 clearTimeout(window.msgTimer);
@@ -1210,6 +1296,7 @@ box.style.display="none";
 },5000);
 
 }
+
 
 function errorText(error,fallback){
 
@@ -1229,38 +1316,96 @@ msg.includes("policy")
 return "Permission denied. Check the Admin RLS policy for this action.";
 }
 
-return fallback;
-}
-
-
-function confirmBox(title,text,action){
-
-$("confirmTitle").textContent = title;
-$("confirmText").textContent = text;
-
-confirmAction = action;
-
-$("confirmModal")
-.classList.add("show");
+return error.message || fallback;
 
 }
+
+
+/* =========================================================
+CUSTOM CONFIRM
+========================================================= */
+
+function confirmBox(
+title,
+text,
+action,
+requiresReason=false
+){
+
+$("confirmTitle").textContent=title;
+$("confirmText").textContent=text;
+
+confirmAction=action;
+reasonRequired=requiresReason;
+
+$("reasonInput").value="";
+
+if(requiresReason){
+$("reasonBox").classList.add("show");
+}else{
+$("reasonBox").classList.remove("show");
+}
+
+$("confirmModal").classList.add("show");
+
+}
+
 
 $("confirmCancel").onclick=()=>{
+
 confirmAction=null;
-$("confirmModal").classList.remove("show");
+reasonRequired=false;
+
+$("confirmModal")
+.classList.remove("show");
+
 };
+
 
 $("confirmYes").onclick=async()=>{
 
 const action=confirmAction;
 
-confirmAction=null;
+let reason="";
 
-$("confirmModal").classList.remove("show");
+if(reasonRequired){
+
+reason=
+$("reasonInput")
+.value
+.trim();
+
+if(!reason){
+
+showMessage(
+"Enter a reason first.",
+"error"
+);
+
+return;
+
+}
+
+}
+
+confirmAction=null;
+reasonRequired=false;
+
+$("confirmModal")
+.classList.remove("show");
 
 if(action)
-await action();
+await action(reason);
 
+};
+
+
+/* =========================================================
+IMAGE MODAL
+========================================================= */
+
+$("closeImageModal").onclick=()=>{
+$("imageModal").classList.remove("show");
 };
 
 
@@ -1276,7 +1421,9 @@ button.onclick=()=>{
 
 document
 .querySelectorAll(".panel")
-.forEach(p=>p.classList.add("hidden"));
+.forEach(p=>
+p.classList.add("hidden")
+);
 
 const panel =
 $(button.dataset.panel);
@@ -1288,14 +1435,25 @@ behavior:"smooth",
 block:"start"
 });
 
-if(button.dataset.panel==="taskPanel")
+if(
+button.dataset.panel==="taskPanel"
+)
 loadTasks();
 
-if(button.dataset.panel==="proofPanel")
+if(
+button.dataset.panel==="proofPanel"
+)
 loadProofs();
 
-if(button.dataset.panel==="moneyPanel")
+if(
+button.dataset.panel==="moneyPanel"
+)
 loadWithdrawals();
+
+if(
+button.dataset.panel==="posterPaymentPanel"
+)
+loadPosterPayments();
 
 };
 
@@ -1430,12 +1588,6 @@ SAVE SETTINGS
 
 async function saveSettings(fields){
 
-const button =
-event?.target;
-
-if(button)
-button.disabled=true;
-
 try{
 
 const {error} =
@@ -1447,7 +1599,9 @@ await db
 if(error)
 throw error;
 
-showMessage("Settings saved successfully.");
+showMessage(
+"Settings saved successfully."
+);
 
 }catch(error){
 
@@ -1458,11 +1612,6 @@ error,
 ),
 "error"
 );
-
-}finally{
-
-if(button)
-button.disabled=false;
 
 }
 
@@ -1608,15 +1757,579 @@ new Date().toISOString()
 
 
 /* =========================================================
+POSTER PAYMENT REVIEW
+========================================================= */
+
+$("refreshPosterPayments").onclick =
+loadPosterPayments;
+
+
+async function loadPosterPayments(){
+
+const list =
+$("posterPaymentList");
+
+list.innerHTML =
+'<div class="empty">Loading poster payments...</div>';
+
+try{
+
+const {data,error} =
+await db
+.from("poster_payments")
+.select("*")
+.order("created_at",{ascending:false});
+
+if(error)
+throw error;
+
+if(!data || !data.length){
+
+list.innerHTML =
+'<div class="empty">No poster payment records found.</div>';
+
+return;
+}
+
+
+/*
+Load related task and poster information
+separately so this does not depend
+on an assumed foreign-key relationship.
+*/
+
+const taskIds =
+[
+...new Set(
+data
+.map(x=>x.task_id)
+.filter(Boolean)
+)
+];
+
+const posterIds =
+[
+...new Set(
+data
+.map(x=>x.poster_id)
+.filter(Boolean)
+)
+];
+
+
+let tasksById={};
+let profilesById={};
+
+
+if(taskIds.length){
+
+const {data:tasks,error:taskError} =
+await db
+.from("tasks")
+.select(
+"id,title,reward,slots,status,created_by"
+)
+.in("id",taskIds);
+
+if(taskError)
+throw taskError;
+
+(tasks||[]).forEach(task=>{
+tasksById[task.id]=task;
+});
+
+}
+
+
+if(posterIds.length){
+
+const {data:profiles,error:profileError} =
+await db
+.from("profiles")
+.select(
+"id,full_name,phone"
+)
+.in("id",posterIds);
+
+if(profileError){
+
+console.warn(
+"Poster profile lookup failed:",
+profileError
+);
+
+}else{
+
+(profiles||[]).forEach(profile=>{
+profilesById[profile.id]=profile;
+});
+
+}
+
+}
+
+
+list.innerHTML="";
+
+
+data.forEach(payment=>{
+
+const task =
+tasksById[payment.task_id];
+
+const poster =
+profilesById[payment.poster_id];
+
+const status =
+String(
+payment.status||"PENDING"
+).toUpperCase();
+
+const card =
+document.createElement("div");
+
+card.className="payment-card";
+
+const statusClass =
+status==="APPROVED"
+?"approved"
+:
+status==="REJECTED"
+?"rejected"
+:"pending";
+
+
+card.innerHTML=`
+
+<div class="payment-header">
+
+<div>
+
+<div class="task-title">
+${escapeHtml(
+task?.title || "Job not found"
+)}
+</div>
+
+<div class="small">
+Poster:
+${escapeHtml(
+poster?.full_name ||
+payment.poster_id ||
+"Unknown"
+)}
+</div>
+
+</div>
+
+<span class="badge ${statusClass}">
+${escapeHtml(status)}
+</span>
+
+</div>
+
+
+<div class="amount">
+₦${Number(
+payment.amount||0
+).toLocaleString()}
+</div>
+
+
+<div class="small">
+Payment method:
+${escapeHtml(
+payment.payment_method ||
+"Not specified"
+)}
+</div>
+
+
+<div class="small">
+Task ID:
+${escapeHtml(
+payment.task_id || ""
+)}
+</div>
+
+
+<div class="small">
+Poster ID:
+${escapeHtml(
+payment.poster_id || ""
+)}
+</div>
+
+
+${
+poster?.phone
+?`
+<div class="small">
+Phone:
+${escapeHtml(poster.phone)}
+</div>
+`
+:""
+}
+
+
+${
+payment.payment_reference
+?`
+<div class="reference">
+<strong>Transaction Reference:</strong><br>
+${escapeHtml(
+payment.payment_reference
+)}
+</div>
+`
+:`
+<div class="reference">
+<strong>Transaction Reference:</strong><br>
+Not supplied
+</div>
+`
+}
+
+
+<div class="small" style="margin-top:8px;">
+Submitted:
+${
+payment.created_at
+?new Date(payment.created_at)
+.toLocaleString()
+:"Unknown"
+}
+</div>
+
+
+<div class="actions">
+
+${
+payment.proof_url
+?`
+<button class="secondary view-proof">
+🖼️ View Payment Proof
+</button>
+`
+:""
+}
+
+
+${
+status!=="APPROVED" && status!=="REJECTED"
+?`
+<button class="primary approve-payment">
+✓ Approve Payment
+</button>
+
+<button class="danger reject-payment">
+✕ Reject Payment
+</button>
+`
+:""
+}
+
+</div>
+
+`;
+
+
+
+const viewButton =
+card.querySelector(".view-proof");
+
+if(viewButton){
+
+viewButton.onclick=()=>{
+viewPaymentProof(
+payment.proof_url
+);
+};
+
+}
+
+
+const approveButton =
+card.querySelector(".approve-payment");
+
+if(approveButton){
+
+approveButton.onclick=()=>{
+approvePosterPayment(
+payment.id
+);
+};
+
+}
+
+
+const rejectButton =
+card.querySelector(".reject-payment");
+
+if(rejectButton){
+
+rejectButton.onclick=()=>{
+rejectPosterPayment(
+payment.id
+);
+};
+
+}
+
+
+list.appendChild(card);
+
+});
+
+
+}catch(error){
+
+console.error(error);
+
+list.innerHTML =
+'<div class="empty">Unable to load poster payments.</div>';
+
+showMessage(
+errorText(
+error,
+"Poster payments could not be loaded."
+),
+"error"
+);
+
+}
+
+}
+
+
+/* =========================================================
+VIEW PAYMENT PROOF
+========================================================= */
+
+async function viewPaymentProof(path){
+
+if(!path){
+
+showMessage(
+"No payment screenshot was uploaded.",
+"error"
+);
+
+return;
+}
+
+$("imageModalContent").innerHTML =
+'<div class="empty">Opening payment proof...</div>';
+
+$("imageModal")
+.classList.add("show");
+
+try{
+
+const {data,error} =
+await db.storage
+.from("payment proof")
+.createSignedUrl(
+path,
+3600
+);
+
+if(error)
+throw error;
+
+if(!data?.signedUrl)
+throw new Error(
+"Could not create a secure image link."
+);
+
+$("imageModalContent").innerHTML=`
+
+<img
+class="payment-image"
+src="${escapeAttr(data.signedUrl)}"
+alt="Poster payment proof"
+>
+
+<p class="small" style="margin-top:10px;">
+This secure image link expires automatically.
+</p>
+
+`;
+
+}catch(error){
+
+$("imageModalContent").innerHTML=`
+
+<div class="empty">
+Payment proof could not be opened.
+</div>
+
+`;
+
+showMessage(
+errorText(
+error,
+"Unable to open payment proof."
+),
+"error"
+);
+
+}
+
+}
+
+
+/* =========================================================
+APPROVE POSTER PAYMENT
+========================================================= */
+
+function approvePosterPayment(paymentId){
+
+confirmBox(
+
+"Approve Poster Payment?",
+
+"Confirm that you checked the payment screenshot and transaction reference. The secure system will mark the payment APPROVED and the connected job LIVE.",
+
+async()=>{
+
+try{
+
+showMessage(
+"Approving poster payment..."
+);
+
+const {data,error} =
+await db.rpc(
+"admin_review_poster_payment",
+{
+p_payment_id:paymentId,
+p_decision:"APPROVED"
+}
+);
+
+if(error)
+throw error;
+
+if(!data?.success){
+
+throw new Error(
+"Payment approval was not confirmed."
+);
+
+}
+
+showMessage(
+"Payment approved. The connected job is now LIVE."
+);
+
+await loadPosterPayments();
+await refreshCounts();
+
+}catch(error){
+
+showMessage(
+errorText(
+error,
+"Payment could not be approved."
+),
+"error"
+);
+
+}
+
+}
+
+);
+
+}
+
+
+/* =========================================================
+REJECT POSTER PAYMENT
+========================================================= */
+
+function rejectPosterPayment(paymentId){
+
+confirmBox(
+
+"Reject Poster Payment?",
+
+"The payment will be marked REJECTED and the connected job will return to PAYMENT_REQUIRED.",
+
+async(reason)=>{
+
+try{
+
+showMessage(
+"Rejecting poster payment..."
+);
+
+const {data,error} =
+await db.rpc(
+"admin_review_poster_payment",
+{
+p_payment_id:paymentId,
+p_decision:"REJECTED"
+}
+);
+
+if(error)
+throw error;
+
+if(!data?.success){
+
+throw new Error(
+"Payment rejection was not confirmed."
+);
+
+}
+
+showMessage(
+"Payment rejected."
+);
+
+await loadPosterPayments();
+await refreshCounts();
+
+}
+
+catch(error){
+
+showMessage(
+errorText(
+error,
+"Payment could not be rejected."
+),
+"error"
+);
+
+}
+
+},
+
+true
+
+);
+
+}
+
+
+/* =========================================================
 TASK CREATION
 ========================================================= */
 
 $("newTaskButton").onclick=()=>{
+
 $("createTaskArea")
 .classList.toggle("hidden");
+
 };
 
-$("refreshTasks").onclick=loadTasks;
+
+$("refreshTasks").onclick =
+loadTasks;
 
 
 $("createTask").onclick=async()=>{
@@ -1634,23 +2347,47 @@ const slots =
 Number($("createSlots").value);
 
 if(!title){
-showMessage("Enter the task title.","error");
+
+showMessage(
+"Enter the task title.",
+"error"
+);
+
 return;
+
 }
 
 if(!description){
-showMessage("Enter the task description.","error");
+
+showMessage(
+"Enter the task description.",
+"error"
+);
+
 return;
+
 }
 
 if(!Number.isFinite(reward) || reward<0){
-showMessage("Enter a valid reward.","error");
+
+showMessage(
+"Enter a valid reward.",
+"error"
+);
+
 return;
+
 }
 
 if(!Number.isInteger(slots) || slots<1){
-showMessage("Enter valid slots.","error");
+
+showMessage(
+"Enter valid slots.",
+"error"
+);
+
 return;
+
 }
 
 const {data:sessionData} =
@@ -1660,8 +2397,10 @@ const session =
 sessionData.session;
 
 if(!session){
+
 location.href="admin-login.html";
 return;
+
 }
 
 const expiry =
@@ -1674,20 +2413,21 @@ const task={
 
 title,
 description,
-
 reward,
 slots,
 
 expiry_date:
 expiry
-? new Date(expiry).toISOString()
+?new Date(expiry).toISOString()
 :null,
 
 required_proof:
 $("createProof").value.trim(),
 
 proof_type:
-upload ? "photo":"text",
+upload
+?"photo"
+:"text",
 
 status:"LIVE",
 
@@ -1721,6 +2461,7 @@ requirements:[]
 
 };
 
+
 try{
 
 const {error} =
@@ -1731,7 +2472,9 @@ await db
 if(error)
 throw error;
 
-showMessage("Task created successfully.");
+showMessage(
+"Task created successfully."
+);
 
 clearCreateForm();
 
@@ -1769,7 +2512,8 @@ function clearCreateForm(){
 "createCopy",
 "createPostLink",
 "createProof"
-].forEach(id=>{
+]
+.forEach(id=>{
 $(id).value="";
 });
 
@@ -1795,7 +2539,10 @@ const {data,error} =
 await db
 .from("tasks")
 .select("*")
-.order("created_at",{ascending:false});
+.order(
+"created_at",
+{ascending:false}
+);
 
 if(error)
 throw error;
@@ -1806,9 +2553,11 @@ list.innerHTML =
 '<div class="empty">No tasks found.</div>';
 
 return;
+
 }
 
 list.innerHTML="";
+
 
 data.forEach(task=>{
 
@@ -1818,34 +2567,45 @@ document.createElement("div");
 card.className="task-card";
 
 const status =
-String(task.status||"")
-.toUpperCase();
+String(
+task.status||""
+).toUpperCase();
 
 card.innerHTML=`
 
 <div class="task-top">
 
 <div class="task-title">
-${escapeHtml(task.title||"Untitled")}
+${escapeHtml(
+task.title||"Untitled"
+)}
 </div>
 
 <span class="badge ${
-status==="LIVE"?"live":"paused"
+status==="LIVE"
+?"live"
+:"paused"
 }">
-${escapeHtml(status||"UNKNOWN")}
+${escapeHtml(
+status||"UNKNOWN"
+)}
 </span>
 
 </div>
 
 <div class="task-description">
-${escapeHtml(task.description||"")}
+${escapeHtml(
+task.description||""
+)}
 </div>
 
 <div class="task-info">
 
 <div>
 <strong>Reward</strong><br>
-₦${Number(task.reward||0).toLocaleString()}
+₦${Number(
+task.reward||0
+).toLocaleString()}
 </div>
 
 <div>
@@ -1855,12 +2615,16 @@ ${task.slots??0}
 
 <div>
 <strong>Type</strong><br>
-${escapeHtml(task.task_type||"Other")}
+${escapeHtml(
+task.task_type||"Other"
+)}
 </div>
 
 <div>
 <strong>Proof</strong><br>
-${task.upload_required?"Photo":"Text"}
+${task.upload_required
+?"Photo"
+:"Text"}
 </div>
 
 </div>
@@ -1872,7 +2636,11 @@ ${task.upload_required?"Photo":"Text"}
 </button>
 
 <button class="secondary status-btn">
-${status==="LIVE"?"⏸ Pause":"▶ Activate"}
+${
+status==="LIVE"
+?"⏸ Pause"
+:"▶ Activate"
+}
 </button>
 
 <button class="danger delete-btn">
@@ -1882,26 +2650,32 @@ ${status==="LIVE"?"⏸ Pause":"▶ Activate"}
 </div>
 `;
 
+
 card
 .querySelector(".edit-btn")
 .onclick=()=>{
 openEditTask(task);
 };
 
+
 card
 .querySelector(".status-btn")
 .onclick=()=>{
 changeTaskStatus(
 task.id,
-status==="LIVE"?"PAUSED":"LIVE"
+status==="LIVE"
+?"PAUSED"
+:"LIVE"
 );
 };
+
 
 card
 .querySelector(".delete-btn")
 .onclick=()=>{
 confirmDelete(task);
 };
+
 
 list.appendChild(card);
 
@@ -1933,7 +2707,8 @@ function openEditTask(task){
 
 $("editId").value=task.id;
 
-$("editTitle").value=task.title||"";
+$("editTitle").value=
+task.title||"";
 
 $("editDescription").value=
 task.description||"";
@@ -2062,7 +2837,7 @@ slots,
 
 expiry_date:
 expiry
-? new Date(expiry).toISOString()
+?new Date(expiry).toISOString()
 :null,
 
 uploader_username:
@@ -2086,6 +2861,7 @@ $("editPhoto").checked
 :"text"
 
 };
+
 
 const {error} =
 await db
@@ -2121,10 +2897,13 @@ error,
 
 
 /* =========================================================
-STATUS
+TASK STATUS
 ========================================================= */
 
-async function changeTaskStatus(id,status){
+async function changeTaskStatus(
+id,
+status
+){
 
 try{
 
@@ -2168,7 +2947,7 @@ error,
 
 
 /* =========================================================
-DELETE
+DELETE TASK
 ========================================================= */
 
 function confirmDelete(task){
@@ -2183,7 +2962,9 @@ async()=>{
 
 try{
 
-showMessage("Deleting task...");
+showMessage(
+"Deleting task..."
+);
 
 const {data,error} =
 await db
@@ -2198,7 +2979,7 @@ throw error;
 if(!data || data.length===0){
 
 throw new Error(
-"No task was deleted. The Admin DELETE policy may still be blocking this action."
+"No task was deleted. Check the Admin DELETE policy."
 );
 
 }
@@ -2233,7 +3014,8 @@ error,
 PROOFS
 ========================================================= */
 
-$("refreshProofs").onclick=loadProofs;
+$("refreshProofs").onclick =
+loadProofs;
 
 
 async function loadProofs(){
@@ -2249,7 +3031,10 @@ const {data,error} =
 await db
 .from("task_submissions")
 .select("*")
-.order("created_at",{ascending:false});
+.order(
+"created_at",
+{ascending:false}
+);
 
 if(error)
 throw error;
@@ -2260,17 +3045,21 @@ list.innerHTML =
 '<div class="empty">No proof submissions.</div>';
 
 return;
+
 }
 
 list.innerHTML="";
 
+
 data.forEach(row=>{
 
-const proof=parseProof(row.proof);
+const proof =
+parseProof(row.proof);
 
 const status =
-String(row.status||"PENDING")
-.toUpperCase();
+String(
+row.status||"PENDING"
+).toUpperCase();
 
 const card =
 document.createElement("div");
@@ -2287,10 +3076,11 @@ Proof #${row.id}
 
 <span class="badge ${
 status==="APPROVED"
-?"approved":
+?"approved"
+:
 status==="REJECTED"
-?"rejected":
-"pending"
+?"rejected"
+:"pending"
 }">
 ${status}
 </span>
@@ -2298,40 +3088,55 @@ ${status}
 </div>
 
 <div class="small">
-Worker: ${escapeHtml(row.user_id||"Unknown")}
+Worker:
+${escapeHtml(
+row.user_id||"Unknown"
+)}
 </div>
 
 <div class="small">
-Task: ${escapeHtml(row.task_id||"Unknown")}
+Task:
+${escapeHtml(
+row.task_id||"Unknown"
+)}
 </div>
 
 ${
 proof.text
-?`<div class="task-description">
+?`
+<div class="task-description">
 <strong>Proof:</strong><br>
 ${escapeHtml(proof.text)}
-</div>`
+</div>
+`
 :""
 }
 
 ${
 proof.comment
-?`<div class="task-description">
+?`
+<div class="task-description">
 <strong>Comment:</strong><br>
 ${escapeHtml(proof.comment)}
-</div>`
+</div>
+`
 :""
 }
 
 ${
 proof.photo
-?`<img class="proof-image"
+?`
+<img
+class="proof-image"
 src="${escapeAttr(proof.photo)}"
-alt="Proof image">`
+alt="Proof image"
+>
+`
 :""
 }
 
 `;
+
 
 if(status==="PENDING"){
 
@@ -2340,27 +3145,28 @@ document.createElement("div");
 
 actions.className="actions";
 
+
 const approve =
 document.createElement("button");
 
 approve.className="primary";
-
 approve.textContent="Approve";
 
 approve.onclick=()=>{
 approveProof(row.id);
 };
 
+
 const reject =
 document.createElement("button");
 
 reject.className="danger";
-
 reject.textContent="Reject";
 
 reject.onclick=()=>{
 rejectProof(row.id);
 };
+
 
 actions.append(
 approve,
@@ -2402,9 +3208,15 @@ if(typeof value==="object")
 return value;
 
 try{
+
 return JSON.parse(value);
+
 }catch{
-return {text:String(value)};
+
+return {
+text:String(value)
+};
+
 }
 
 }
@@ -2429,8 +3241,12 @@ const session =
 sessionData.session;
 
 if(!session){
-location.href="admin-login.html";
+
+location.href=
+"admin-login.html";
+
 return;
+
 }
 
 const {error} =
@@ -2454,7 +3270,9 @@ post_review:true
 if(error)
 throw error;
 
-showMessage("Proof approved.");
+showMessage(
+"Proof approved."
+);
 
 await loadProofs();
 
@@ -2477,13 +3295,15 @@ error,
 }
 
 
-async function rejectProof(id){
+function rejectProof(id){
 
-const reason =
-prompt("Reason for rejecting this proof:");
+confirmBox(
 
-if(!reason || !reason.trim())
-return;
+"Reject Proof?",
+
+"Enter the reason for rejecting this worker proof.",
+
+async(reason)=>{
 
 try{
 
@@ -2494,8 +3314,12 @@ const session =
 sessionData.session;
 
 if(!session){
-location.href="admin-login.html";
+
+location.href=
+"admin-login.html";
+
 return;
+
 }
 
 const {error} =
@@ -2512,7 +3336,7 @@ reviewed_at:
 new Date().toISOString(),
 
 rejection_reason:
-reason.trim(),
+reason,
 
 post_review:true
 
@@ -2522,7 +3346,9 @@ post_review:true
 if(error)
 throw error;
 
-showMessage("Proof rejected.");
+showMessage(
+"Proof rejected."
+);
 
 await loadProofs();
 
@@ -2538,6 +3364,12 @@ error,
 
 }
 
+},
+
+true
+
+);
+
 }
 
 
@@ -2545,13 +3377,14 @@ error,
 WITHDRAWALS
 ========================================================= */
 
-$("refreshWithdrawals").onclick=
+$("refreshWithdrawals").onclick =
 loadWithdrawals;
 
 
 async function loadWithdrawals(){
 
-const list=$("withdrawalList");
+const list =
+$("withdrawalList");
 
 list.innerHTML =
 '<div class="empty">Loading withdrawals...</div>';
@@ -2562,7 +3395,10 @@ const {data,error} =
 await db
 .from("withdrawals")
 .select("*")
-.order("created_at",{ascending:false});
+.order(
+"created_at",
+{ascending:false}
+);
 
 if(error)
 throw error;
@@ -2573,9 +3409,11 @@ list.innerHTML =
 '<div class="empty">No withdrawal records.</div>';
 
 return;
+
 }
 
 list.innerHTML="";
+
 
 data.forEach(row=>{
 
@@ -2587,29 +3425,46 @@ card.className="user-card";
 card.innerHTML=`
 
 <strong>
-₦${Number(row.amount||0).toLocaleString()}
+₦${Number(
+row.amount||0
+).toLocaleString()}
 </strong>
 
 <div class="small">
-User: ${escapeHtml(row.user_id||"")}
+User:
+${escapeHtml(
+row.user_id||""
+)}
 </div>
 
 <div class="small">
-Bank: ${escapeHtml(row.bank_name||"")}
+Bank:
+${escapeHtml(
+row.bank_name||""
+)}
 </div>
 
 <div class="small">
-Account: ${escapeHtml(row.account_number||"")}
+Account:
+${escapeHtml(
+row.account_number||""
+)}
 </div>
 
 <div class="small">
-Status: ${escapeHtml(row.status||"PENDING")}
+Status:
+${escapeHtml(
+row.status||"PENDING"
+)}
 </div>
 
 <div class="small">
-${row.created_at
-?new Date(row.created_at).toLocaleString()
-:""}
+${
+row.created_at
+?new Date(row.created_at)
+.toLocaleString()
+:""
+}
 </div>
 
 `;
@@ -2640,7 +3495,7 @@ error,
 USERS
 ========================================================= */
 
-$("searchUsers").onclick=
+$("searchUsers").onclick =
 searchUsers;
 
 
@@ -2660,7 +3515,8 @@ return;
 
 }
 
-const list=$("userList");
+const list =
+$("userList");
 
 list.innerHTML =
 '<div class="empty">Searching...</div>';
@@ -2706,6 +3562,7 @@ return;
 
 list.innerHTML="";
 
+
 data.forEach(user=>{
 
 const card =
@@ -2716,23 +3573,37 @@ card.className="user-card";
 card.innerHTML=`
 
 <strong>
-${escapeHtml(user.full_name||"Unnamed User")}
+${escapeHtml(
+user.full_name||"Unnamed User"
+)}
 </strong>
 
 <div class="small">
-Phone: ${escapeHtml(user.phone||"Not set")}
+Phone:
+${escapeHtml(
+user.phone||"Not set"
+)}
 </div>
 
 <div class="small">
-Balance: ₦${Number(user.balance||0).toLocaleString()}
+Balance:
+₦${Number(
+user.balance||0
+).toLocaleString()}
 </div>
 
 <div class="small">
-ID: ${escapeHtml(user.id||"")}
+ID:
+${escapeHtml(
+user.id||""
+)}
 </div>
 
 <div class="small">
-Activated: ${user.activated ? "Yes":"No"}
+Activated:
+${user.activated
+?"Yes"
+:"No"}
 </div>
 
 `;
@@ -2774,8 +3645,14 @@ head:true
 });
 
 if(error){
-console.warn(table,error);
+
+console.warn(
+table,
+error
+);
+
 return "—";
+
 }
 
 return count??0;
@@ -2789,33 +3666,56 @@ const [
 users,
 tasks,
 withdrawals,
-proofs
+proofs,
+payments
 ]=await Promise.all([
 
 countTable("profiles"),
+
 countTable("tasks"),
+
 countTable("withdrawals"),
 
+countTable("task_submissions"),
+
 db
-.from("task_submissions")
+.from("poster_payments")
 .select("*",{
 count:"exact",
 head:true
 })
-.then(r=>r.error?"—":(r.count??0))
+.then(r=>{
+
+if(r.error)
+return "—";
+
+return r.count??0;
+
+})
 
 ]);
 
-$("usersCount").textContent=users;
-$("tasksCount").textContent=tasks;
-$("withdrawalsCount").textContent=withdrawals;
-$("proofsCount").textContent=proofs;
+
+$("usersCount").textContent =
+users;
+
+$("tasksCount").textContent =
+tasks;
+
+$("withdrawalsCount").textContent =
+withdrawals;
+
+$("proofsCount").textContent =
+proofs;
+
+$("paymentsCount").textContent =
+payments;
 
 }
 
 
 /* =========================================================
-SECURITY
+ADMIN SECURITY
 ========================================================= */
 
 async function checkAdmin(){
@@ -2833,47 +3733,70 @@ data.session;
 
 if(!session){
 
-location.href="admin-login.html";
+location.href=
+"admin-login.html";
+
 return;
 
 }
 
 $("adminEmail").textContent =
 "Signed in as " +
-(session.user.email||session.user.id);
+(
+session.user.email ||
+session.user.id
+);
 
-const {data:admin,error:adminError} =
+
+const {
+data:admin,
+error:adminError
+} =
 await db
 .from("admin_users")
 .select("user_id")
-.eq("user_id",session.user.id)
+.eq(
+"user_id",
+session.user.id
+)
 .maybeSingle();
+
 
 if(adminError)
 throw adminError;
+
 
 if(!admin){
 
 await db.auth.signOut();
 
-location.href="admin-login.html";
+location.href=
+"admin-login.html";
 
 return;
 
 }
 
+
 await Promise.all([
+
 refreshCounts(),
+
 loadSettings()
+
 ]);
 
-$("loadingScreen").style.display="none";
+
+$("loadingScreen")
+.style.display="none";
+
 
 }catch(error){
 
 console.error(error);
 
-$("loadingScreen").style.display="none";
+$("loadingScreen")
+.style.display="none";
 
 showMessage(
 errorText(
@@ -2904,7 +3827,8 @@ async()=>{
 
 await db.auth.signOut();
 
-location.href="admin-login.html";
+location.href=
+"admin-login.html";
 
 }
 
@@ -2928,6 +3852,7 @@ return String(value??"")
 
 }
 
+
 function escapeAttr(value){
 
 return escapeHtml(value);
@@ -2944,4 +3869,4 @@ checkAdmin();
 </script>
 
 </body>
-      </html>
+  </html>
