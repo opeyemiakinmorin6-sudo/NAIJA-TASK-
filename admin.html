@@ -300,6 +300,27 @@ textarea{
   gap:10px;
 }
 
+.reward-card{
+  border:1px solid #dce9df;
+  border-radius:11px;
+  padding:13px;
+  margin-top:10px;
+  background:#fbfffc;
+}
+
+.reward-card h3{
+  font-size:15px;
+  color:#0b8f3c;
+  margin-bottom:3px;
+}
+
+.reward-card p{
+  font-size:12px;
+  color:#68716b;
+  line-height:1.4;
+  margin-bottom:8px;
+}
+
 .switch-row{
   display:flex;
   align-items:center;
@@ -744,25 +765,137 @@ footer{
 
 </div>
 
+
+<!-- NEW SEPARATE REWARD CONTROLS -->
+
 <div class="setting-box">
 
-<div class="setting-title">Task Reward Limits</div>
+<div class="setting-title">
+💰 Task Reward Controls
+</div>
+
+<p class="small">
+These limits control how much a poster can offer per worker.
+They are separate for Normal and VIP Taskers.
+There is no permanent ₦150 maximum.
+</p>
+
+
+<div class="reward-card">
+
+<h3>Normal Tasker</h3>
+
+<p>
+Set the minimum and maximum reward allowed for Normal Taskers.
+</p>
 
 <div class="setting-grid">
 
 <div>
 <label>Minimum Reward ₦</label>
-<input type="number" id="minimumReward" min="0">
+<input
+type="number"
+id="normalMinReward"
+min="0"
+step="1"
+placeholder="e.g. 3"
+>
 </div>
 
 <div>
 <label>Maximum Reward ₦</label>
-<input type="number" id="maximumReward" min="0">
+<input
+type="number"
+id="normalMaxReward"
+min="0"
+step="1"
+placeholder="e.g. 5000"
+>
 </div>
 
 </div>
 
 </div>
+
+
+<div class="reward-card">
+
+<h3>VIP Tasker</h3>
+
+<p>
+Set the minimum and maximum reward allowed for VIP Taskers.
+</p>
+
+<div class="setting-grid">
+
+<div>
+<label>Minimum Reward ₦</label>
+<input
+type="number"
+id="vipMinReward"
+min="0"
+step="1"
+placeholder="e.g. 3"
+>
+</div>
+
+<div>
+<label>Maximum Reward ₦</label>
+<input
+type="number"
+id="vipMaxReward"
+min="0"
+step="1"
+placeholder="e.g. 10000"
+>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- Legacy values kept for database compatibility -->
+
+<div class="setting-box">
+
+<div class="setting-title">
+Internal Compatibility
+</div>
+
+<p class="small">
+The older global reward settings are kept only for compatibility with existing pages.
+The new Normal/VIP controls above are the new reward controls.
+</p>
+
+<div class="setting-grid">
+
+<div>
+<label>Legacy Minimum Reward ₦</label>
+<input
+type="number"
+id="minimumReward"
+min="0"
+step="1"
+>
+</div>
+
+<div>
+<label>Legacy Maximum Reward ₦</label>
+<input
+type="number"
+id="maximumReward"
+min="0"
+step="1"
+>
+</div>
+
+</div>
+
+</div>
+
 
 <button class="primary full" id="saveSettings">
 Save Platform Settings
@@ -1088,7 +1221,7 @@ Save Poster Settings
 </button>
 
 <p class="small" style="margin-top:12px;">
-Poster payment approval is now connected through the secure payment review system.
+Poster payment approval is connected through the secure payment review system.
 </p>
 
 </section>
@@ -1249,17 +1382,17 @@ SUPABASE
 ========================================================= */
 
 const SUPABASE_URL =
-"https://jwakveeiynpakunwjzkj.supabase.co";
+         "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 /*
 IMPORTANT:
-Insert your CURRENT Supabase publishable key here.
+Put your CURRENT Supabase publishable key here.
 
 DO NOT use a service-role key.
 */
 
 const SUPABASE_KEY =
-     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+"YOUR_CURRENT_SUPABASE_PUBLISHABLE_KEY";
 
 const db =
 window.supabase.createClient(
@@ -1513,6 +1646,28 @@ $("privateChat").checked =
 $("communityChat").checked =
 !!data.community_chat_enabled;
 
+
+/* NEW NORMAL / VIP REWARD CONTROLS */
+
+$("normalMinReward").value =
+data.normal_min_task_reward ?? 3;
+
+$("normalMaxReward").value =
+data.normal_max_task_reward ?? 150;
+
+$("vipMinReward").value =
+data.vip_min_task_reward ?? 3;
+
+$("vipMaxReward").value =
+data.vip_max_task_reward ?? 150;
+
+
+/*
+Keep old fields loaded because older pages
+may still read these columns until they
+are updated.
+*/
+
 $("minimumReward").value =
 data.minimum_task_reward ?? 0;
 
@@ -1583,6 +1738,50 @@ $("taskApproval").checked =
 
 
 /* =========================================================
+VALIDATE REWARD RANGE
+========================================================= */
+
+function validateRewardRange(minId,maxId,label){
+
+const min =
+Number($(minId).value);
+
+const max =
+Number($(maxId).value);
+
+if(
+!Number.isFinite(min) ||
+!Number.isFinite(max) ||
+min<0 ||
+max<0
+){
+
+showMessage(
+`${label}: enter valid minimum and maximum amounts.`,
+"error"
+);
+
+return false;
+
+}
+
+if(max < min){
+
+showMessage(
+`${label}: maximum reward cannot be lower than minimum reward.`,
+"error"
+);
+
+return false;
+
+}
+
+return true;
+
+}
+
+
+/* =========================================================
 SAVE SETTINGS
 ========================================================= */
 
@@ -1620,6 +1819,52 @@ error,
 
 $("saveSettings").onclick=async()=>{
 
+if(
+!validateRewardRange(
+"normalMinReward",
+"normalMaxReward",
+"Normal Tasker"
+)
+)return;
+
+if(
+!validateRewardRange(
+"vipMinReward",
+"vipMaxReward",
+"VIP Tasker"
+)
+)return;
+
+
+/*
+Use the highest configured maximum and
+lowest configured minimum for the older
+global columns.
+
+This keeps older pages working while
+the new Normal/VIP controls are being
+connected to the poster system.
+*/
+
+const normalMin =
+Number($("normalMinReward").value);
+
+const normalMax =
+Number($("normalMaxReward").value);
+
+const vipMin =
+Number($("vipMinReward").value);
+
+const vipMax =
+Number($("vipMaxReward").value);
+
+const legacyMinimum =
+Math.min(normalMin,vipMin);
+
+const legacyMaximum =
+Math.max(normalMax,vipMax);
+
+
 await saveSettings({
 
 site_name:
@@ -1646,11 +1891,29 @@ $("privateChat").checked,
 community_chat_enabled:
 $("communityChat").checked,
 
+
+/* NEW CONTROLS */
+
+normal_min_task_reward:
+normalMin,
+
+normal_max_task_reward:
+normalMax,
+
+vip_min_task_reward:
+vipMin,
+
+vip_max_task_reward:
+vipMax,
+
+
+/* LEGACY COMPATIBILITY */
+
 minimum_task_reward:
-Number($("minimumReward").value)||0,
+legacyMinimum,
 
 maximum_task_reward:
-Number($("maximumReward").value)||0,
+legacyMaximum,
 
 updated_at:
 new Date().toISOString()
@@ -1790,13 +2053,6 @@ list.innerHTML =
 
 return;
 }
-
-
-/*
-Load related task and poster information
-separately so this does not depend
-on an assumed foreign-key relationship.
-*/
 
 const taskIds =
 [
@@ -2033,7 +2289,6 @@ status!=="APPROVED" && status!=="REJECTED"
 </div>
 
 `;
-
 
 
 const viewButton =
