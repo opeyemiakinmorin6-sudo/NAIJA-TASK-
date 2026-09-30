@@ -11,74 +11,95 @@
 <style>
 *{
   box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
-html{scroll-behavior:smooth;}
-
-body{
-  font-family:Arial,sans-serif;
-  background:#f5fff7;
-  color:#123;
-  min-height:100vh;
-}
-
-body.modal-open{overflow:hidden;}
-
-button,input,select,textarea{font-family:inherit;}
-
-button{
-  cursor:pointer;
   -webkit-tap-highlight-color:transparent;
 }
 
-header{
-  background:#0b8f3c;
-  color:#fff;
-  padding:18px 15px;
+html,body{
+  margin:0;
+  padding:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5fff7;
+  color:#17231b;
+}
+
+body{
+  min-height:100vh;
+}
+
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.topbar{
   position:sticky;
   top:0;
-  z-index:20;
-  box-shadow:0 2px 12px rgba(0,0,0,.12);
+  z-index:100;
+  background:#0b8f3c;
+  color:#fff;
+  padding:14px 16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.12);
 }
 
-header h1{
-  font-size:20px;
-  line-height:1.25;
+.topbar-inner{
+  max-width:1250px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
 }
 
-header p{
-  font-size:12px;
-  opacity:.92;
-  margin-top:5px;
+.brand{
+  font-weight:900;
+  font-size:18px;
+}
+
+.brand small{
+  display:block;
+  font-size:11px;
+  opacity:.85;
+  margin-top:3px;
+}
+
+.top-actions{
+  display:flex;
+  gap:7px;
 }
 
 .container{
-  max-width:1100px;
+  width:100%;
+  max-width:1250px;
   margin:auto;
-  padding:15px;
+  padding:14px;
 }
 
 .menu{
   display:flex;
-  gap:8px;
+  gap:7px;
   overflow-x:auto;
-  padding:10px 0 15px;
+  padding-bottom:10px;
   scrollbar-width:none;
 }
 
-.menu::-webkit-scrollbar{display:none;}
+.menu::-webkit-scrollbar{
+  display:none;
+}
 
 .menu button{
-  border:1px solid #b9dfc5;
+  flex:0 0 auto;
+  border:1px solid #d8eadf;
   background:#fff;
-  color:#0b8f3c;
+  color:#176b3a;
   padding:10px 13px;
-  border-radius:9px;
-  white-space:nowrap;
-  font-weight:bold;
-  flex:none;
+  border-radius:10px;
+  font-weight:700;
 }
 
 .menu button.active{
@@ -87,29 +108,29 @@ header p{
   border-color:#0b8f3c;
 }
 
-.section{display:none;}
-.section.active{display:block;}
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
 
 .card{
   background:#fff;
-  border-radius:13px;
-  padding:15px;
-  margin-bottom:15px;
-  box-shadow:0 2px 10px rgba(0,0,0,.06);
+  border:1px solid #dfeee4;
+  border-radius:15px;
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:0 2px 9px rgba(0,0,0,.04);
 }
 
-.card h2{
-  color:#0b8f3c;
-  font-size:18px;
-  margin-bottom:12px;
-}
-
+.card h2,
 .card h3{
-  font-size:15px;
-  margin:15px 0 8px;
+  margin:0 0 12px;
 }
 
-.card-header{
+.card-title{
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -117,2648 +138,2432 @@ header p{
   margin-bottom:12px;
 }
 
-.card-header h2{margin:0;}
-
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
 
-.stat{
-  background:#f5fff7;
-  border:1px solid #d6efdc;
-  padding:14px;
-  border-radius:11px;
+.grid-2{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
 }
 
-.stat b{
+@media(max-width:850px){
+  .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:600px){
+  .grid,
+  .grid-2{
+    grid-template-columns:1fr;
+  }
+
+  .container{
+    padding:10px;
+  }
+}
+
+.stat{
+  background:#f8fffa;
+  border:1px solid #dceee2;
+  border-radius:13px;
+  padding:14px;
+}
+
+.stat small{
   display:block;
-  font-size:21px;
+  color:#66736b;
+  margin-bottom:7px;
+}
+
+.stat strong{
+  display:block;
+  font-size:24px;
   color:#0b8f3c;
-  margin-top:5px;
 }
 
 label{
   display:block;
   font-size:13px;
-  font-weight:bold;
-  margin:11px 0 5px;
+  font-weight:800;
+  margin:10px 0 6px;
 }
 
-input,select,textarea{
+input,
+textarea,
+select{
   width:100%;
-  padding:12px;
-  border:1px solid #cbded0;
-  border-radius:8px;
+  border:1px solid #cfe2d5;
+  border-radius:10px;
+  padding:11px;
   background:#fff;
-  font-size:16px;
-  color:#123;
+  color:#17231b;
   outline:none;
 }
 
-input:focus,select:focus,textarea:focus{
+input:focus,
+textarea:focus,
+select:focus{
   border-color:#0b8f3c;
-  box-shadow:0 0 0 3px rgba(11,143,60,.10);
+  box-shadow:0 0 0 2px rgba(11,143,60,.08);
 }
 
 textarea{
-  min-height:90px;
+  min-height:100px;
   resize:vertical;
-}
-
-button.action{
-  padding:10px 13px;
-  border-radius:8px;
-  border:1px solid #cbded0;
-  background:#fff;
-  font-weight:bold;
-  margin:5px 4px 5px 0;
-  min-height:40px;
-}
-
-.green{
-  background:#0b8f3c!important;
-  color:#fff!important;
-  border:0!important;
-}
-
-.danger{
-  background:#c62828!important;
-  color:#fff!important;
-  border:0!important;
-}
-
-.warning{
-  background:#f59e0b!important;
-  color:#fff!important;
-  border:0!important;
-}
-
-.blue{
-  background:#1769aa!important;
-  color:#fff!important;
-  border:0!important;
-}
-
-.gray{
-  background:#667085!important;
-  color:#fff!important;
-  border:0!important;
 }
 
 .row{
   display:flex;
+  gap:8px;
+  flex-wrap:wrap;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:10px 0;
-  border-bottom:1px solid #edf2ee;
 }
 
-.row:last-child{border-bottom:0;}
-
-.switch{
-  position:relative;
-  width:48px;
-  height:26px;
-  flex:none;
-  margin:0;
+.action{
+  border:0;
+  border-radius:9px;
+  padding:9px 12px;
+  font-weight:800;
+  margin:3px 3px 3px 0;
 }
 
-.switch input{display:none;}
-
-.slider{
-  position:absolute;
-  inset:0;
-  background:#ccc;
-  border-radius:30px;
+.action.green{
+  background:#0b8f3c;
+  color:#fff;
 }
 
-.slider:before{
-  content:"";
-  position:absolute;
-  width:20px;
-  height:20px;
-  left:3px;
-  top:3px;
-  background:#fff;
-  border-radius:50%;
-  transition:.2s;
+.action.blue{
+  background:#e8f1ff;
+  color:#1456a0;
 }
 
-.switch input:checked+.slider{background:#0b8f3c;}
-
-.switch input:checked+.slider:before{
-  transform:translateX(22px);
+.action.warning{
+  background:#fff2d9;
+  color:#8b5b00;
 }
 
-.item{
-  border:1px solid #dce9df;
-  border-radius:10px;
-  padding:12px;
-  margin:8px 0;
-  background:#fff;
+.action.danger{
+  background:#ffe7e7;
+  color:#a01818;
 }
 
-.item-title{
-  font-weight:bold;
-  font-size:15px;
-  margin-bottom:5px;
+.action.gray{
+  background:#edf1ee;
+  color:#455249;
+}
+
+.action.dark{
+  background:#18221c;
+  color:#fff;
 }
 
 .badge{
   display:inline-block;
-  padding:4px 8px;
-  border-radius:20px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#dff7e7;
+  color:#087534;
   font-size:11px;
-  font-weight:bold;
-  background:#e8f6ec;
-  color:#0b8f3c;
-}
-
-.badge.red{
-  background:#ffe8e8;
-  color:#c62828;
-}
-
-.badge.orange{
-  background:#fff1dc;
-  color:#b86600;
+  font-weight:900;
 }
 
 .badge.blue{
-  background:#e5f2ff;
-  color:#1769aa;
+  background:#e4efff;
+  color:#18579e;
+}
+
+.badge.orange{
+  background:#fff0d5;
+  color:#8a5b00;
+}
+
+.badge.red{
+  background:#ffe4e4;
+  color:#a21616;
 }
 
 .small{
   font-size:12px;
-  color:#667;
-  line-height:1.5;
+  color:#68746c;
 }
 
-.empty{
-  text-align:center;
-  color:#777;
-  padding:20px;
+.help-box{
+  background:#f5faf6;
+  border:1px dashed #bcd8c4;
+  border-radius:10px;
+  padding:10px;
+  margin-top:10px;
+}
+
+.check{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 0;
+}
+
+.check input{
+  width:auto;
 }
 
 .loading{
   text-align:center;
-  padding:15px;
-  color:#0b8f3c;
-  font-size:13px;
+  padding:30px;
+  color:#68746c;
 }
 
-.message{
-  margin-top:10px;
-  padding:10px;
-  border-radius:8px;
-  background:#f5fff7;
-  color:#0b8f3c;
-}
-
-.help-box{
-  background:#f5fff7;
-  border:1px solid #d6efdc;
-  border-radius:10px;
-  padding:12px;
-  margin:10px 0 15px;
-}
-
-.help-box strong{color:#0b8f3c;}
-
-.task-style-title{
-  font-size:14px;
-  font-weight:bold;
-  color:#123;
-  margin-bottom:8px;
-}
-
-.task-style-selector{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin:8px 0 15px;
-}
-
-.task-style-button{
-  border:1px solid #cbded0;
-  background:#fff;
-  border-radius:10px;
-  padding:12px 7px;
+.empty{
   text-align:center;
-  font-weight:bold;
-  color:#315;
-}
-
-.task-style-button span{
-  display:block;
-  font-size:22px;
-  margin-bottom:4px;
-}
-
-.task-style-button small{
-  display:block;
-  color:#667;
-  font-size:10px;
-  font-weight:normal;
-  margin-top:3px;
-}
-
-.task-style-button.active{
-  background:#e8f6ec;
-  border:2px solid #0b8f3c;
-  color:#0b8f3c;
-}
-
-.platform-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:8px;
-  margin:8px 0 12px;
-}
-
-.platform-button{
-  border:1px solid #d4e4d8;
-  background:#fff;
-  border-radius:10px;
-  padding:11px 8px;
-  text-align:left;
-  font-weight:bold;
-  min-height:55px;
-}
-
-.platform-button.active{
-  background:#e8f6ec;
-  border:2px solid #0b8f3c;
-  color:#0b8f3c;
-}
-
-.platform-button span{
-  font-size:20px;
-  margin-right:5px;
-}
-
-.platform-button small{
-  display:block;
-  color:#667;
-  font-size:10px;
-  font-weight:normal;
-  margin-top:3px;
-  padding-left:27px;
-}
-
-.action-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:7px;
-  margin:8px 0 12px;
-}
-
-.action-choice{
-  border:1px solid #d4e4d8;
-  background:#fff;
-  border-radius:9px;
-  padding:10px;
-  text-align:left;
-  font-size:13px;
-  font-weight:bold;
-}
-
-.action-choice.active{
-  background:#e8f6ec;
-  border:2px solid #0b8f3c;
-  color:#0b8f3c;
-}
-
-.task-builder-summary{
-  background:#123;
-  color:#fff;
-  border-radius:11px;
-  padding:12px;
-  margin:12px 0;
-}
-
-.task-builder-summary .path{
-  font-size:13px;
-  line-height:1.7;
-}
-
-.task-builder-summary b{
-  color:#8df0aa;
-}
-
-.task-type-help{
-  background:#f8faf8;
-  border-left:4px solid #0b8f3c;
-  padding:10px;
-  border-radius:7px;
-  margin:8px 0 12px;
-  font-size:12px;
-  color:#667;
-  line-height:1.5;
-}
-
-.field-note{
-  font-size:11px;
-  color:#777;
-  margin-top:4px;
-  line-height:1.4;
+  padding:30px 15px;
+  color:#68746c;
 }
 
 .task-card{
-  border:1px solid #dce9df;
-  border-radius:12px;
-  padding:14px;
-  margin:10px 0;
+  border:1px solid #dcebe0;
   background:#fff;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:12px;
 }
 
 .task-card-top{
   display:flex;
-  align-items:flex-start;
   justify-content:space-between;
   gap:10px;
+  align-items:flex-start;
 }
 
 .task-card-title{
-  font-size:16px;
-  font-weight:bold;
-  color:#123;
+  font-size:17px;
+  font-weight:900;
+  margin-bottom:6px;
 }
 
 .task-style-badge{
+  display:inline-block;
   font-size:11px;
-  font-weight:bold;
+  font-weight:800;
+  background:#f0f7f2;
+  color:#247143;
   padding:5px 8px;
-  border-radius:20px;
-  white-space:nowrap;
-  background:#e8f6ec;
-  color:#0b8f3c;
+  border-radius:8px;
 }
 
 .task-meta{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:7px;
-  margin:10px 0;
+  margin-top:12px;
+}
+
+@media(max-width:700px){
+  .task-meta{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
 }
 
 .task-meta-box{
-  background:#f7fbf8;
-  border-radius:8px;
-  padding:8px;
+  background:#f8fbf9;
+  border-radius:9px;
+  padding:9px;
 }
 
 .task-meta-box small{
   display:block;
-  color:#777;
+  color:#69756d;
   font-size:10px;
+  margin-bottom:3px;
 }
 
 .task-meta-box b{
+  font-size:12px;
+}
+
+.proof-card{
+  border:1px solid #dcebe0;
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:12px;
+}
+
+.proof-image{
+  max-width:100%;
+  max-height:75vh;
   display:block;
-  margin-top:2px;
-  font-size:13px;
-}
-
-.status-live{
-  color:#0b8f3c;
-  font-weight:bold;
-}
-
-pre{
-  white-space:pre-wrap;
-  word-break:break-word;
+  margin:auto;
+  border-radius:10px;
 }
 
 .modal{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.55);
-  z-index:100;
-  align-items:center;
-  justify-content:center;
+  z-index:500;
+  background:rgba(0,0,0,.62);
   padding:15px;
+  overflow:auto;
 }
 
-.modal.show{display:flex;}
+.modal.show{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
 .modal-box{
   background:#fff;
   width:100%;
-  max-width:600px;
-  max-height:90vh;
+  max-width:700px;
+  max-height:92vh;
   overflow:auto;
-  border-radius:14px;
-  padding:18px;
-  -webkit-overflow-scrolling:touch;
+  border-radius:16px;
+  padding:16px;
 }
 
-.modal-box h3{
-  color:#0b8f3c;
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
   margin-bottom:12px;
+}
+
+.close{
+  width:35px;
+  height:35px;
+  border:0;
+  border-radius:50%;
+  background:#edf2ee;
   font-size:18px;
 }
 
-.modal-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  position:sticky;
-  top:-18px;
-  background:#fff;
-  padding:2px 0 12px;
-  z-index:2;
-}
-
-.close-button{
-  width:38px;
-  height:38px;
-  border-radius:50%;
-  border:1px solid #dce9df;
-  background:#fff;
-  font-size:20px;
-}
-
-.proof-image{
-  display:block;
-  max-width:100%;
-  max-height:70vh;
-  margin:10px auto;
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%);
+  background:#17231b;
+  color:#fff;
+  padding:12px 16px;
   border-radius:10px;
+  z-index:1000;
+  max-width:90%;
+  text-align:center;
+  display:none;
 }
 
-.modal-actions{
-  display:flex;
-  gap:7px;
-  flex-wrap:wrap;
-  position:sticky;
-  bottom:-18px;
-  background:#fff;
-  padding-top:10px;
+.toast.show{
+  display:block;
 }
 
-.modal-actions .action{
-  flex:1;
-  min-width:110px;
+.preview{
+  width:100%;
+  max-height:250px;
+  object-fit:contain;
+  border-radius:10px;
+  background:#f5f5f5;
+  margin-top:8px;
 }
 
-@media(max-width:600px){
-
-  .container{padding:10px;}
-
-  .grid{grid-template-columns:1fr 1fr;}
-
-  .card{padding:13px;}
-
-  .task-style-selector{gap:6px;}
-
-  .task-style-button{padding:10px 4px;}
-
-  .task-style-button span{font-size:20px;}
-
-  .platform-grid,
-  .action-grid{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .modal{
-    align-items:flex-end;
-    padding:0;
-  }
-
-  .modal-box{
-    max-width:none;
-    max-height:94vh;
-    border-radius:18px 18px 0 0;
-    padding:16px;
-    padding-bottom:calc(16px + env(safe-area-inset-bottom));
-  }
-
-  .modal-header{top:-16px;}
-
-  .modal-actions{
-    bottom:-16px;
-    padding-bottom:calc(8px + env(safe-area-inset-bottom));
-  }
+hr{
+  border:0;
+  border-top:1px solid #e6eee8;
+  margin:16px 0;
 }
 
-@media(max-width:380px){
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
 
-  .grid{grid-template-columns:1fr;}
+th,
+td{
+  text-align:left;
+  padding:9px;
+  border-bottom:1px solid #e7eee9;
+  vertical-align:top;
+}
 
-  .task-meta{grid-template-columns:1fr;}
+.table-wrap{
+  overflow:auto;
+}
 
-  .platform-grid,
-  .action-grid{
-    grid-template-columns:1fr;
-  }
+.locked{
+  text-align:center;
+  padding:50px 15px;
+}
+
+.login-error{
+  color:#a01818;
+  font-size:13px;
+  margin-top:8px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>NAIJA TASK — Admin Control Center</h1>
-  <p>Manage your platform, tasks, payments, users and security</p>
-</header>
+<div class="topbar">
+  <div class="topbar-inner">
+
+    <div class="brand">
+      NAIJA TASK
+      <small>Admin Control Center</small>
+    </div>
+
+    <div class="top-actions">
+      <button class="action dark" onclick="refreshEverything()">↻</button>
+      <button class="action danger" onclick="logoutAdmin()">Logout</button>
+    </div>
+
+  </div>
+</div>
+
 
 <div class="container">
 
-<div class="menu">
-<button class="active" onclick="showSection('overview',this)">📊 Overview</button>
-<button onclick="showSection('platform',this)">⚙️ Platform</button>
-<button onclick="showSection('membership',this)">👑 Membership</button>
-<button onclick="showSection('money',this)">💰 Money</button>
-<button onclick="showSection('referrals',this)">🔗 Referrals</button>
-<button onclick="showSection('payments',this)">💳 Payments</button>
-<button onclick="showSection('tasks',this)">📋 Tasks</button>
-<button onclick="showSection('proofs',this)">🖼️ Proof Review</button>
-<button onclick="showSection('users',this)">👥 Users</button>
-<button onclick="showSection('posters',this)">📢 Posters</button>
-<button onclick="showSection('security',this)">🛡️ Security</button>
-</div>
+  <div id="lockedScreen" class="card locked" style="display:none;">
+    <h2>Admin Access Required</h2>
+    <p class="small">
+      Your account does not have permission to access the NAIJA TASK Admin Center.
+    </p>
+  </div>
 
-<section id="overview" class="section active">
-
-<div class="card">
-<h2>Admin Dashboard</h2>
-
-<div class="grid">
-<div class="stat">Total Users<b id="totalUsers">0</b></div>
-<div class="stat">Total Tasks<b id="totalTasks">0</b></div>
-<div class="stat">Withdrawals<b id="totalWithdrawals">0</b></div>
-<div class="stat">Pending Proofs<b id="pendingProofs">0</b></div>
-<div class="stat">Pending Payments<b id="pendingPayments">0</b></div>
-<div class="stat">Security Events<b id="securityEventCount">0</b></div>
-</div>
-</div>
 
-<div class="card">
-<h2>Admin Status</h2>
-<p class="small">Administrator: <strong id="adminEmail">Loading...</strong></p>
-<p class="small">Last dashboard refresh: <span id="lastRefresh">—</span></p>
-<button class="action green" onclick="refreshEverything()">🔄 Refresh Everything</button>
-</div>
+  <div id="adminApp" style="display:none;">
 
-</section>
+    <div class="menu">
 
-<section id="platform" class="section">
+      <button class="active" data-section="overview" onclick="showSection('overview',this)">
+        Overview
+      </button>
 
-<div class="card">
-<h2>Platform Settings</h2>
+      <button data-section="platform" onclick="showSection('platform',this)">
+        Platform
+      </button>
 
-<label>Site Name</label>
-<input id="siteName">
+      <button data-section="membership" onclick="showSection('membership',this)">
+        Membership
+      </button>
 
-<label>Support WhatsApp</label>
-<input id="supportWhatsapp" inputmode="tel">
+      <button data-section="money" onclick="showSection('money',this)">
+        Money
+      </button>
 
-<label>Support Email</label>
-<input id="supportEmail" type="email">
+      <button data-section="referrals" onclick="showSection('referrals',this)">
+        Referrals
+      </button>
 
-<div class="row">
-<span>Maintenance Mode</span>
-<label class="switch"><input type="checkbox" id="maintenanceMode"><span class="slider"></span></label>
-</div>
+      <button data-section="payments" onclick="showSection('payments',this)">
+        Payments
+      </button>
 
-<div class="row">
-<span>Photo Proof Enabled</span>
-<label class="switch"><input type="checkbox" id="photoProofEnabled"><span class="slider"></span></label>
-</div>
+      <button data-section="tasks" onclick="showSection('tasks',this)">
+        Tasks
+      </button>
 
-<div class="row">
-<span>AI Care Enabled</span>
-<label class="switch"><input type="checkbox" id="aiCareEnabled"><span class="slider"></span></label>
-</div>
+      <button data-section="proofs" onclick="showSection('proofs',this)">
+        Proof Review
+      </button>
 
-<div class="row">
-<span>Private Chat</span>
-<label class="switch"><input type="checkbox" id="privateChatEnabled"><span class="slider"></span></label>
-</div>
+      <button data-section="users" onclick="showSection('users',this)">
+        Users
+      </button>
 
-<div class="row">
-<span>Community Chat</span>
-<label class="switch"><input type="checkbox" id="communityChatEnabled"><span class="slider"></span></label>
-</div>
-</div>
+      <button data-section="posters" onclick="showSection('posters',this)">
+        Posters
+      </button>
 
-<div class="card">
-<h2>Task Reward Controls</h2>
+      <button data-section="security" onclick="showSection('security',this)">
+        Security
+      </button>
 
-<div class="help-box">
-<strong>Reward rules</strong><br>
-Set the allowed reward range separately for Normal Taskers and VIP Taskers.
-The server should validate the final reward before a task becomes available.
-</div>
+    </div>
 
-<h3>Normal Tasker</h3>
-<label>Minimum Reward (₦)</label>
-<input type="number" id="normalMinReward" min="0" inputmode="decimal">
 
-<label>Maximum Reward (₦)</label>
-<input type="number" id="normalMaxReward" min="0" inputmode="decimal">
+    <!-- OVERVIEW -->
 
-<h3>VIP Tasker</h3>
-<label>Minimum Reward (₦)</label>
-<input type="number" id="vipMinReward" min="0" inputmode="decimal">
+    <section id="overview" class="section active">
 
-<label>Maximum Reward (₦)</label>
-<input type="number" id="vipMaxReward" min="0" inputmode="decimal">
-</div>
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <h2>Dashboard Overview</h2>
+            <div class="small">
+              Real database information from Supabase.
+            </div>
+          </div>
 
-</section>
+          <button class="action blue" onclick="refreshEverything()">
+            Refresh
+          </button>
+        </div>
 
-<section id="membership" class="section">
+        <div class="grid">
 
-<div class="card">
-<h2>Membership</h2>
+          <div class="stat">
+            <small>Total Users</small>
+            <strong id="totalUsers">0</strong>
+          </div>
 
-<div class="row">
-<span>Activation Enabled</span>
-<label class="switch"><input type="checkbox" id="activationEnabled"><span class="slider"></span></label>
-</div>
+          <div class="stat">
+            <small>Total Tasks</small>
+            <strong id="totalTasks">0</strong>
+          </div>
 
-<label>Activation Fee (₦)</label>
-<input type="number" id="activationFee" min="0" inputmode="decimal">
+          <div class="stat">
+            <small>Total Withdrawals</small>
+            <strong id="totalWithdrawals">0</strong>
+          </div>
 
-<div class="row">
-<span>VIP Enabled</span>
-<label class="switch"><input type="checkbox" id="vipEnabled"><span class="slider"></span></label>
-</div>
+          <div class="stat">
+            <small>Pending Proofs</small>
+            <strong id="pendingProofs">0</strong>
+          </div>
 
-<label>VIP Price (₦)</label>
-<input type="number" id="vipPrice" min="0" inputmode="decimal">
+          <div class="stat">
+            <small>Pending Payments</small>
+            <strong id="pendingPayments">0</strong>
+          </div>
 
-<label>Free Daily Task Limit</label>
-<input type="number" id="freeDailyTaskLimit" min="0" inputmode="numeric">
+          <div class="stat">
+            <small>Security Events</small>
+            <strong id="securityEventCount">0</strong>
+          </div>
 
-<label>VIP Daily Task Limit</label>
-<input type="number" id="vipDailyTaskLimit" min="0" inputmode="numeric">
-</div>
+        </div>
+      </div>
 
-</section>
 
-<section id="money" class="section">
+      <div class="card">
 
-<div class="card">
-<h2>Withdrawal Settings</h2>
+        <h3>Admin Information</h3>
 
-<div class="row">
-<span>Withdrawals Enabled</span>
-<label class="switch"><input type="checkbox" id="withdrawalsEnabled"><span class="slider"></span></label>
-</div>
+        <div class="grid-2">
 
-<label>Minimum Withdrawal (₦)</label>
-<input type="number" id="minimumWithdrawal" min="0" inputmode="decimal">
+          <div>
+            <label>Admin Email</label>
+            <input id="adminEmail" readonly>
+          </div>
 
-<label>Free Withdrawal Fee (₦)</label>
-<input type="number" id="freeWithdrawalFee" min="0" inputmode="decimal">
+          <div>
+            <label>Last Refresh</label>
+            <input id="lastRefresh" readonly>
+          </div>
 
-<label>VIP Withdrawal Fee (₦)</label>
-<input type="number" id="vipWithdrawalFee" min="0" inputmode="decimal">
+        </div>
 
-<label>Withdrawals Per Day</label>
-<input type="number" id="withdrawalsPerDay" min="1" inputmode="numeric">
-</div>
+      </div>
 
-<div class="card">
-<div class="card-header">
-<h2>Withdrawal Records</h2>
-<button class="action green" onclick="loadWithdrawals()">Refresh</button>
-</div>
-<div id="withdrawalList"></div>
-</div>
+    </section>
 
-</section>
 
-<section id="referrals" class="section">
+    <!-- PLATFORM -->
 
-<div class="card">
-<h2>Referral Settings</h2>
+    <section id="platform" class="section">
 
-<div class="row">
-<span>Referrals Enabled</span>
-<label class="switch"><input type="checkbox" id="referralsEnabled"><span class="slider"></span></label>
-</div>
+      <div class="card">
 
-<label>Referral Reward (₦)</label>
-<input type="number" id="referralReward" min="0" inputmode="decimal">
-</div>
+        <h2>Platform Settings</h2>
 
-</section>
+        <div class="grid-2">
 
-<section id="payments" class="section">
+          <div>
+            <label>Site Name</label>
+            <input id="siteName">
+          </div>
 
-<div class="card">
-<div class="card-header">
-<h2>Poster Payments</h2>
-<button class="action green" onclick="loadPayments()">Refresh</button>
-</div>
+          <div>
+            <label>Support WhatsApp</label>
+            <input id="supportWhatsapp">
+          </div>
 
-<div class="help-box">
-<strong>Payment review</strong><br>
-Review the poster's payment information and proof before approving the task.
-</div>
+          <div>
+            <label>Support Email</label>
+            <input id="supportEmail">
+          </div>
 
-<div id="paymentList"></div>
-</div>
+          <div>
+            <label>Normal Minimum Reward</label>
+            <input id="rewardMin" type="number">
+          </div>
 
-</section>
+          <div>
+            <label>Normal Maximum Reward</label>
+            <input id="rewardMax" type="number">
+          </div>
 
-<section id="tasks" class="section">
+          <div>
+            <label>VIP Minimum Reward</label>
+            <input id="vipRewardMin" type="number">
+          </div>
 
-<div class="card">
+          <div>
+            <label>VIP Maximum Reward</label>
+            <input id="vipRewardMax" type="number">
+          </div>
 
-<h2>Create a Task</h2>
+        </div>
 
-<div class="help-box">
-<strong>Build the task in this order:</strong><br>
-Task Style → Platform/App/Website → Action → Instructions → Link → Reward → Proof.
-<br><br>
-The original task system remains available. The new selectors simply give you more control.
-</div>
 
-<div class="task-style-title">Task Style</div>
+        <div class="check">
+          <input id="maintenanceMode" type="checkbox">
+          <label for="maintenanceMode">Maintenance Mode</label>
+        </div>
 
-<div class="task-style-selector">
+        <div class="check">
+          <input id="photoProofEnabled" type="checkbox">
+          <label for="photoProofEnabled">Photo Proof Enabled</label>
+        </div>
 
-<button type="button" class="task-style-button active" id="createStyleSocial" onclick="selectCreateStyle('social')">
-<span>📱</span>
-Social Media
-<small>TikTok, WhatsApp, Instagram, etc.</small>
-</button>
+        <div class="check">
+          <input id="aiCareEnabled" type="checkbox">
+          <label for="aiCareEnabled">AI Care Enabled</label>
+        </div>
 
-<button type="button" class="task-style-button" id="createStyleWebsite" onclick="selectCreateStyle('website')">
-<span>🌐</span>
-Website
-<small>Browser and web tasks</small>
-</button>
+        <div class="check">
+          <input id="privateChatEnabled" type="checkbox">
+          <label for="privateChatEnabled">Private Chat Enabled</label>
+        </div>
 
-<button type="button" class="task-style-button" id="createStyleApp" onclick="selectCreateStyle('app')">
-<span>📲</span>
-App
-<small>Mobile application tasks</small>
-</button>
+        <div class="check">
+          <input id="communityChatEnabled" type="checkbox">
+          <label for="communityChatEnabled">Community Chat Enabled</label>
+        </div>
 
-</div>
+        <div class="check">
+          <input id="taskApprovalRequired" type="checkbox">
+          <label for="taskApprovalRequired">Require Admin Approval Before Tasks Go Live</label>
+        </div>
 
-<label>Platform / App / Website</label>
-<div id="createPlatformGrid" class="platform-grid"></div>
+        <button class="action green" onclick="saveSettings()">
+          Save Platform Settings
+        </button>
 
-<label>Action</label>
-<div id="createActionGrid" class="action-grid"></div>
+      </div>
 
-<div class="task-builder-summary">
-<div class="path">
-<b>Task path:</b>
-<span id="createTaskPath">Social Media → General Social → Custom Action</span>
-</div>
-</div>
+    </section>
 
-<label>Task Type</label>
-<select id="taskType" onchange="updateCreateStyleFromType()"></select>
 
-<div id="createTaskTypeHelp" class="task-type-help"></div>
+    <!-- MEMBERSHIP -->
 
-<label>Title</label>
-<input id="taskTitle" placeholder="Example: Follow our TikTok page">
+    <section id="membership" class="section">
 
-<label>Description</label>
-<textarea id="taskDescription" placeholder="Explain exactly what the tasker must do"></textarea>
+      <div class="card">
 
-<label>Reward (₦)</label>
-<input type="number" id="taskReward" min="1" inputmode="decimal" placeholder="Example: 10">
+        <h2>Membership</h2>
 
-<label>Available Slots</label>
-<input type="number" id="taskSlots" min="1" inputmode="numeric" placeholder="Example: 100">
+        <div class="grid-2">
 
-<label>Task Link</label>
-<input id="taskLink" type="url" placeholder="https://...">
+          <div>
+            <label>Activation Fee</label>
+            <input id="activationFee" type="number">
+          </div>
 
-<div class="field-note">
-The tasker can use this link to open the required page.
-</div>
+          <div>
+            <label>VIP Price</label>
+            <input id="vipPrice" type="number">
+          </div>
 
-<label>Copy Text</label>
-<textarea id="taskCopyText" placeholder="Optional text the tasker should copy or use"></textarea>
-
-<label>Required Proof / Instruction</label>
-<textarea id="taskRequiredProof" placeholder="Example: Upload a screenshot showing that you followed the page"></textarea>
-
-<label>Expiry Date</label>
-<input type="datetime-local" id="taskExpiry">
-
-<label>Uploader Username</label>
-<input id="taskUploader" placeholder="Poster username">
-
-<div class="row">
-<span>
-Photo Upload Required
-<br>
-<small class="small">Require an image with the submission.</small>
-</span>
-<label class="switch">
-<input type="checkbox" id="taskUploadRequired" checked>
-<span class="slider"></span>
-</label>
-</div>
+          <div>
+            <label>Free Daily Task Limit</label>
+            <input id="freeDailyTaskLimit" type="number">
+          </div>
 
-<button class="action green" onclick="createTask()">➕ Create Task</button>
-<button class="action" onclick="clearCreateTaskForm()">Clear</button>
+          <div>
+            <label>VIP Daily Task Limit</label>
+            <input id="vipDailyTaskLimit" type="number">
+          </div>
 
-</div>
+        </div>
 
-<div class="card">
+        <div class="check">
+          <input id="activationEnabled" type="checkbox">
+          <label for="activationEnabled">Activation Enabled</label>
+        </div>
 
-<div class="card-header">
-<h2>Task Manager</h2>
-<button class="action green" onclick="loadTasks()">Refresh</button>
-</div>
+        <div class="check">
+          <input id="vipEnabled" type="checkbox">
+          <label for="vipEnabled">VIP Enabled</label>
+        </div>
 
-<div class="help-box">
-<strong>Manage existing tasks</strong><br>
-Edit keeps the task's existing record. Pause temporarily hides a task.
-Activate makes a paused task live again.
-</div>
+        <button class="action green" onclick="saveSettings()">
+          Save Membership Settings
+        </button>
 
-<div id="taskList"></div>
+      </div>
 
-</div>
+    </section>
 
-</section>
 
-<section id="proofs" class="section">
+    <!-- MONEY -->
 
-<div class="card">
-<div class="card-header">
-<h2>Proof Review</h2>
-<button class="action green" onclick="loadProofs()">Refresh</button>
-</div>
-<div id="proofList"></div>
-</div>
+    <section id="money" class="section">
 
-</section>
+      <div class="card">
 
-<section id="users" class="section">
+        <h2>Money & Withdrawals</h2>
 
-<div class="card">
-<h2>User Search</h2>
+        <div class="grid-2">
 
-<input id="userSearch" placeholder="Search name, phone or user ID" autocomplete="off">
+          <div>
+            <label>Minimum Withdrawal</label>
+            <input id="minimumWithdrawal" type="number">
+          </div>
 
-<button class="action green" onclick="searchUsers()">Search</button>
+          <div>
+            <label>Free Withdrawal Fee</label>
+            <input id="freeWithdrawalFee" type="number">
+          </div>
 
-<div id="userList"></div>
-</div>
+          <div>
+            <label>VIP Withdrawal Fee</label>
+            <input id="vipWithdrawalFee" type="number">
+          </div>
 
-</section>
+          <div>
+            <label>Withdrawals Per Day</label>
+            <input id="withdrawalsPerDay" type="number">
+          </div>
 
-<section id="posters" class="section">
+        </div>
 
-<div class="card">
-<h2>Poster Controls</h2>
+        <div class="check">
+          <input id="withdrawalsEnabled" type="checkbox">
+          <label for="withdrawalsEnabled">Withdrawals Enabled</label>
+        </div>
 
-<div class="row">
-<span>Poster Registration</span>
-<label class="switch"><input type="checkbox" id="posterRegistrationEnabled"><span class="slider"></span></label>
-</div>
+        <button class="action green" onclick="saveSettings()">
+          Save Money Settings
+        </button>
 
-<div class="row">
-<span>Job Posting</span>
-<label class="switch"><input type="checkbox" id="jobPostingEnabled"><span class="slider"></span></label>
-</div>
+      </div>
 
-<div class="row">
-<span>Task Approval Required</span>
-<label class="switch"><input type="checkbox" id="taskApprovalRequired"><span class="slider"></span></label>
-</div>
-</div>
 
-</section>
+      <div class="card">
 
-<section id="security" class="section">
+        <div class="card-title">
+          <h3>Withdrawal Records</h3>
 
-<div class="card">
+          <button class="action blue" onclick="loadWithdrawals()">
+            Refresh
+          </button>
+        </div>
 
-<h2>🛡️ Security Control Center</h2>
+        <div id="withdrawalList">
+          <div class="loading">Loading...</div>
+        </div>
 
-<p class="small">
-Security settings control protection requirements across NAIJA TASK.
-Sensitive enforcement should be performed server-side.
-</p>
+      </div>
 
-<div class="row">
-<span>CAPTCHA Enabled</span>
-<label class="switch"><input type="checkbox" id="captchaEnabled"><span class="slider"></span></label>
-</div>
+    </section>
 
-<div class="row">
-<span>CAPTCHA During Signup</span>
-<label class="switch"><input type="checkbox" id="captchaSignupRequired"><span class="slider"></span></label>
-</div>
 
-<div class="row">
-<span>CAPTCHA During Withdrawal</span>
-<label class="switch"><input type="checkbox" id="captchaWithdrawalRequired"><span class="slider"></span></label>
-</div>
+    <!-- REFERRALS -->
 
-<div class="row">
-<span>Bot Detection</span>
-<label class="switch"><input type="checkbox" id="botDetectionEnabled"><span class="slider"></span></label>
-</div>
+    <section id="referrals" class="section">
 
-<div class="row">
-<span>Device Detection</span>
-<label class="switch"><input type="checkbox" id="deviceDetectionEnabled"><span class="slider"></span></label>
-</div>
+      <div class="card">
 
-<div class="row">
-<span>IP Detection</span>
-<label class="switch"><input type="checkbox" id="ipDetectionEnabled"><span class="slider"></span></label>
-</div>
+        <h2>Referral Settings</h2>
 
-<div class="row">
-<span>Suspicious Activity Detection</span>
-<label class="switch"><input type="checkbox" id="suspiciousActivityDetection"><span class="slider"></span></label>
-</div>
+        <div class="grid-2">
 
-<div class="row">
-<span>Automatic Temporary Restrictions</span>
-<label class="switch"><input type="checkbox" id="automaticRestrictionEnabled"><span class="slider"></span></label>
-</div>
+          <div>
+            <label>Referral Reward</label>
+            <input id="referralReward" type="number">
+          </div>
 
-<div class="row">
-<span>Security Warnings</span>
-<label class="switch"><input type="checkbox" id="securityWarningsEnabled"><span class="slider"></span></label>
-</div>
+        </div>
 
-<div class="row">
-<span>User 2FA Available</span>
-<label class="switch"><input type="checkbox" id="user2faEnabled"><span class="slider"></span></label>
-</div>
+        <div class="check">
+          <input id="referralsEnabled" type="checkbox">
+          <label for="referralsEnabled">Referrals Enabled</label>
+        </div>
 
-<div class="row">
-<span>Withdrawal Security Check</span>
-<label class="switch"><input type="checkbox" id="withdrawalSecurityCheck"><span class="slider"></span></label>
-</div>
+        <button class="action green" onclick="saveSettings()">
+          Save Referral Settings
+        </button>
 
-<label>Maximum Task Submissions Per Minute</label>
-<input type="number" id="maxTaskSubmissionsPerMinute" min="1" max="100" inputmode="numeric">
-
-<label>Suspicious Risk Score Threshold</label>
-<input type="number" id="suspiciousRiskScore" min="1" max="100" inputmode="numeric">
-
-<div class="row">
-<span>
-Permanent Automatic Ban
-<br>
-<small class="small">Keep OFF initially; admin review should remain available.</small>
-</span>
-<label class="switch"><input type="checkbox" id="automaticBanEnabled"><span class="slider"></span></label>
-</div>
+      </div>
 
-</div>
+    </section>
 
-<div class="card">
 
-<h2>📢 Advertisement Controls</h2>
+    <!-- PAYMENTS -->
 
-<div class="row">
-<span>Normal Tasker Ads</span>
-<label class="switch"><input type="checkbox" id="normalAdsEnabled"><span class="slider"></span></label>
-</div>
+    <section id="payments" class="section">
 
-<div class="row">
-<span>VIP Tasker Ads</span>
-<label class="switch"><input type="checkbox" id="vipAdsEnabled"><span class="slider"></span></label>
-</div>
+      <div class="card">
 
-<label>Ad Frequency</label>
-<input type="number" id="adFrequency" min="1" max="100" inputmode="numeric">
+        <div class="card-title">
+          <div>
+            <h2>Poster Payments</h2>
+            <div class="small">
+              Review payment proof before accepting poster tasks.
+            </div>
+          </div>
 
-<p class="small">
-This controls the configured frequency. Actual advertisement display must be handled by user-facing pages.
-</p>
+          <button class="action blue" onclick="loadPayments()">
+            Refresh
+          </button>
+        </div>
 
-</div>
+        <div id="paymentList">
+          <div class="loading">Loading...</div>
+        </div>
 
-<div class="card">
-<div class="card-header">
-<h2>🚨 Security Events</h2>
-<button class="action green" onclick="loadSecurityEvents()">Refresh</button>
-</div>
-<div id="securityEvents"></div>
-</div>
+      </div>
 
-<div class="card">
-<div class="card-header">
-<h2>⚠️ Security Warnings</h2>
-<button class="action green" onclick="loadSecurityWarnings()">Refresh</button>
-</div>
-<div id="securityWarnings"></div>
-</div>
+    </section>
 
-</section>
 
-<div class="card">
+    <!-- TASKS -->
 
-<button class="action green" onclick="saveSettings()">💾 Save All Settings</button>
-<button class="action danger" onclick="logout()">Logout</button>
+    <section id="tasks" class="section">
 
-<div id="message" class="message small"></div>
+      <div class="card">
 
-</div>
+        <h2>Create Task</h2>
 
-</div>
+        <div class="help-box">
+          <strong>Task approval:</strong>
+          When "Require Admin Approval" is enabled, a newly created task
+          becomes <strong>PENDING</strong> and is not available to taskers
+          until an admin approves it.
+        </div>
 
-<div class="modal" id="editModal">
 
-<div class="modal-box">
+        <label>Task Style</label>
 
-<div class="modal-header">
-<h3>✏️ Edit Task</h3>
-<button type="button" class="close-button" onclick="closeModal('editModal')">×</button>
-</div>
+        <div class="row">
 
-<input type="hidden" id="editTaskId">
+          <button
+            id="createStyleSocial"
+            class="action green"
+            onclick="selectCreateStyle('social')">
+            📱 Social
+          </button>
 
-<div class="help-box">
-<strong>Edit without changing the task identity.</strong><br>
-The old task fields remain available. The new platform and action information can also be updated.
-</div>
+          <button
+            id="createStyleWebsite"
+            class="action gray"
+            onclick="selectCreateStyle('website')">
+            🌐 Website
+          </button>
 
-<div class="task-style-title">Task Style</div>
+          <button
+            id="createStyleApp"
+            class="action gray"
+            onclick="selectCreateStyle('app')">
+            📲 App
+          </button>
 
-<div class="task-style-selector">
+        </div>
 
-<button type="button" class="task-style-button active" id="editStyleSocial" onclick="selectEditStyle('social')">
-<span>📱</span>
-Social Media
-<small>Social platforms</small>
-</button>
 
-<button type="button" class="task-style-button" id="editStyleWebsite" onclick="selectEditStyle('website')">
-<span>🌐</span>
-Website
-<small>Web actions</small>
-</button>
+        <div class="grid-2">
 
-<button type="button" class="task-style-button" id="editStyleApp" onclick="selectEditStyle('app')">
-<span>📲</span>
-App
-<small>App actions</small>
-</button>
+          <div>
+            <label>Platform</label>
+            <select id="createPlatform"></select>
+          </div>
 
-</div>
+          <div>
+            <label>Action</label>
+            <select id="createAction"></select>
+          </div>
 
-<label>Platform / App / Website</label>
-<div id="editPlatformGrid" class="platform-grid"></div>
+          <div>
+            <label>Task Type</label>
+            <select id="createTaskType"></select>
+            <div id="createTaskTypeHelp" class="small"></div>
+          </div>
 
-<label>Action</label>
-<div id="editActionGrid" class="action-grid"></div>
+          <div>
+            <label>Reward ₦</label>
+            <input id="createReward" type="number" min="0">
+          </div>
 
-<div class="task-builder-summary">
-<div class="path">
-<b>Task path:</b>
-<span id="editTaskPath">Social Media → General Social → Custom Action</span>
-</div>
-</div>
+          <div>
+            <label>Available Slots</label>
+            <input id="createSlots" type="number" min="1">
+          </div>
 
-<label>Task Type</label>
-<select id="editTaskType" onchange="updateEditStyleFromType()"></select>
+          <div>
+            <label>Expiry</label>
+            <input id="createExpiry" type="datetime-local">
+          </div>
 
-<div id="editTaskTypeHelp" class="task-type-help"></div>
+          <div>
+            <label>Uploader Username</label>
+            <input id="createUploader">
+          </div>
 
-<label>Title</label>
-<input id="editTitle">
+        </div>
 
-<label>Description</label>
-<textarea id="editDescription"></textarea>
 
-<label>Reward (₦)</label>
-<input type="number" id="editReward" min="1" inputmode="decimal">
+        <label>Task Title</label>
+        <input id="createTitle" placeholder="Example: Follow our TikTok account">
 
-<label>Available Slots</label>
-<input type="number" id="editSlots" min="1" inputmode="numeric">
 
-<label>Task Link</label>
-<input id="editLink" type="url">
+        <label>Description</label>
+        <textarea id="createDescription" placeholder="Explain exactly what the tasker must do."></textarea>
 
-<label>Copy Text</label>
-<textarea id="editCopyText"></textarea>
 
-<label>Required Proof / Instruction</label>
-<textarea id="editRequiredProof"></textarea>
+        <label>Task Link</label>
+        <input id="createLink" placeholder="https://...">
 
-<label>Expiry Date</label>
-<input type="datetime-local" id="editExpiry">
 
-<label>Uploader Username</label>
-<input id="editUploader">
+        <label>Copy Text</label>
+        <textarea id="createCopyText" placeholder="Text the tasker should copy, if required."></textarea>
 
-<div class="row">
-<span>
-Photo Required
-<br>
-<small class="small">Require photo proof for this task.</small>
-</span>
-<label class="switch">
-<input type="checkbox" id="editUploadRequired">
-<span class="slider"></span>
-</label>
-</div>
 
-<div class="modal-actions">
+        <label>Required Proof</label>
+        <textarea id="createRequiredProof" placeholder="Explain what proof the tasker must submit."></textarea>
 
-<button type="button" class="action green" onclick="saveTaskEdit()">💾 Save Changes</button>
-<button type="button" class="action" onclick="closeModal('editModal')">Cancel</button>
 
-</div>
+        <label>Task Image URL</label>
+        <input id="createTaskImageUrl" placeholder="Optional image URL">
 
-</div>
+        <div id="createImagePreview"></div>
 
-</div>
 
-<div class="modal" id="confirmModal">
+        <div class="check">
+          <input id="createUploadRequired" type="checkbox">
+          <label for="createUploadRequired">
+            Photo proof required
+          </label>
+        </div>
 
-<div class="modal-box">
 
-<div class="modal-header">
-<h3 id="confirmTitle">Confirm Action</h3>
-<button type="button" class="close-button" onclick="closeModal('confirmModal')">×</button>
-</div>
+        <button class="action green" onclick="createTask()">
+          + Create Task
+        </button>
 
-<p id="confirmText" class="small"></p>
+        <button class="action gray" onclick="clearCreateForm()">
+          Clear
+        </button>
 
-<div class="modal-actions">
-<button type="button" class="action green" id="confirmYes">Continue</button>
-<button type="button" class="action" onclick="closeModal('confirmModal')">Cancel</button>
-</div>
+      </div>
 
-</div>
+
+      <div class="card">
+
+        <div class="card-title">
+
+          <div>
+            <h2>Task Manager</h2>
+            <div class="small">
+              Approve, edit, pause, activate, reject or delete tasks.
+            </div>
+          </div>
+
+          <button class="action blue" onclick="loadTasks()">
+            Refresh
+          </button>
+
+        </div>
+
+        <div id="taskList">
+          <div class="loading">Loading tasks...</div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- PROOF REVIEW -->
+
+    <section id="proofs" class="section">
+
+      <div class="card">
+
+        <div class="card-title">
+
+          <div>
+            <h2>Proof Review</h2>
+            <div class="small">
+              Review text and uploaded proof pictures.
+            </div>
+          </div>
+
+          <button class="action blue" onclick="loadProofs()">
+            Refresh
+          </button>
+
+        </div>
+
+        <div id="proofList">
+          <div class="loading">Loading...</div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- USERS -->
+
+    <section id="users" class="section">
+
+      <div class="card">
+
+        <h2>User Search</h2>
+
+        <div class="row">
 
+          <input
+            id="userSearch"
+            placeholder="Name, phone or user ID"
+            style="flex:1;min-width:200px;">
+
+          <button class="action green" onclick="searchUsers()">
+            Search
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div id="userList">
+          <div class="empty">
+            Search for a user.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- POSTERS -->
+
+    <section id="posters" class="section">
+
+      <div class="card">
+
+        <h2>Poster Management</h2>
+
+        <p class="small">
+          Poster payment reviews are available under Payments.
+          Task approval is handled under Tasks.
+        </p>
+
+        <button class="action blue" onclick="showSectionByName('payments')">
+          Open Poster Payments
+        </button>
+
+        <button class="action blue" onclick="showSectionByName('tasks')">
+          Open Task Manager
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- SECURITY -->
+
+    <section id="security" class="section">
+
+      <div class="card">
+
+        <div class="card-title">
+          <h2>Security Events</h2>
+          <button class="action blue" onclick="loadSecurityEvents()">
+            Refresh
+          </button>
+        </div>
+
+        <div id="securityEvents">
+          <div class="loading">Loading...</div>
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="card-title">
+          <h2>Security Warnings</h2>
+          <button class="action blue" onclick="loadSecurityWarnings()">
+            Refresh
+          </button>
+        </div>
+
+        <div id="securityWarnings">
+          <div class="loading">Loading...</div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
 </div>
+
+
+<!-- EDIT TASK MODAL -->
+
+<div id="editModal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <h2>Edit Task</h2>
+
+      <button class="close" onclick="closeModal('editModal')">
+        ×
+      </button>
+
+    </div>
+
+    <input id="editTaskId" type="hidden">
+
+
+    <div class="grid-2">
+
+      <div>
+        <label>Task Style</label>
+
+        <div class="row">
+
+          <button
+            id="editStyleSocial"
+            class="action green"
+            onclick="selectEditStyle('social')">
+            📱 Social
+          </button>
+
+          <button
+            id="editStyleWebsite"
+            class="action gray"
+            onclick="selectEditStyle('website')">
+            🌐 Website
+          </button>
+
+          <button
+            id="editStyleApp"
+            class="action gray"
+            onclick="selectEditStyle('app')">
+            📲 App
+          </button>
+
+        </div>
+
+      </div>
 
-<div class="modal" id="imageModal">
+      <div>
+        <label>Platform</label>
+        <select id="editPlatform"></select>
+      </div>
 
-<div class="modal-box">
+      <div>
+        <label>Action</label>
+        <select id="editAction"></select>
+      </div>
 
-<div class="modal-header">
-<h3>🖼️ Proof Image</h3>
-<button type="button" class="close-button" onclick="closeModal('imageModal')">×</button>
+      <div>
+        <label>Task Type</label>
+        <select id="editTaskType"></select>
+        <div id="editTaskTypeHelp" class="small"></div>
+      </div>
+
+    </div>
+
+
+    <label>Title</label>
+    <input id="editTitle">
+
+
+    <label>Description</label>
+    <textarea id="editDescription"></textarea>
+
+
+    <div class="grid-2">
+
+      <div>
+        <label>Reward ₦</label>
+        <input id="editReward" type="number">
+      </div>
+
+      <div>
+        <label>Slots</label>
+        <input id="editSlots" type="number">
+      </div>
+
+      <div>
+        <label>Expiry</label>
+        <input id="editExpiry" type="datetime-local">
+      </div>
+
+      <div>
+        <label>Uploader Username</label>
+        <input id="editUploader">
+      </div>
+
+    </div>
+
+
+    <label>Task Link</label>
+    <input id="editLink">
+
+
+    <label>Copy Text</label>
+    <textarea id="editCopyText"></textarea>
+
+
+    <label>Required Proof</label>
+    <textarea id="editRequiredProof"></textarea>
+
+
+    <div class="check">
+      <input id="editUploadRequired" type="checkbox">
+      <label for="editUploadRequired">
+        Photo proof required
+      </label>
+    </div>
+
+
+    <button class="action green" onclick="saveTaskEdit()">
+      Save Changes
+    </button>
+
+    <button class="action gray" onclick="closeModal('editModal')">
+      Cancel
+    </button>
+
+  </div>
+
 </div>
 
-<div id="imageContent"></div>
 
-<button class="action" onclick="closeModal('imageModal')">Close</button>
+<!-- CONFIRM MODAL -->
 
+<div id="confirmModal" class="modal">
+
+  <div class="modal-box" style="max-width:450px;">
+
+    <div class="modal-head">
+
+      <h2 id="confirmTitle">Confirm</h2>
+
+      <button class="close" onclick="closeModal('confirmModal')">
+        ×
+      </button>
+
+    </div>
+
+    <p id="confirmMessage" class="small"></p>
+
+    <div class="row">
+
+      <button id="confirmYes" class="action green">
+        Confirm
+      </button>
+
+      <button class="action gray" onclick="closeModal('confirmModal')">
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+
 </div>
 
+
+<!-- IMAGE MODAL -->
+
+<div id="imageModal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <h2>Image</h2>
+
+      <button class="close" onclick="closeModal('imageModal')">
+        ×
+      </button>
+
+    </div>
+
+    <div id="imageContent"></div>
+
+  </div>
+
 </div>
+
+
+<div id="toast" class="toast"></div>
+
 
 <script>
-
 /* =====================================================
    SUPABASE
 ===================================================== */
 
 const SUPABASE_URL =
-"https://jwakveeiynpakunwjzkj.supabase.co";
+  "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
   IMPORTANT:
-  Replace ONLY the value below with your CURRENT
-  Supabase publishable key.
+  Put your CURRENT Supabase publishable key here.
 
-  NEVER use a service-role key in this browser file.
+  Do NOT use a service-role key.
 */
 const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D"; 
+  "YOUR_CURRENT_SUPABASE_PUBLISHABLE_KEY";
 
 const db =
-supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
-const $ =
-id => document.getElementById(id);
 
-let currentAdmin = null;
-let confirmAction = null;
+/* =====================================================
+   CONSTANTS
+===================================================== */
 
 const TASK_PROOF_BUCKET =
-"task-proofs";
+  "task-proofs";
 
 const PAYMENT_PROOF_BUCKET =
-"payment proof";
+  "payment proof";
 
 
 /* =====================================================
-   TASK DEFINITIONS
-   OLD TASK TYPES ARE KEPT.
-   NEW PLATFORM/ACTION SYSTEM IS ADDED.
+   STATE
 ===================================================== */
 
-const TASK_STYLES = {
+let currentAdmin = null;
 
-social:{
-
-  label:"Social Media",
-  icon:"📱",
-
-  types:[
-
-    {
-      value:"social",
-      label:"General Social",
-      help:"General social-media action."
-    },
-
-    {
-      value:"youtube",
-      label:"YouTube",
-      help:"YouTube task."
-    },
-
-    {
-      value:"tiktok",
-      label:"TikTok",
-      help:"TikTok task."
-    },
-
-    {
-      value:"instagram",
-      label:"Instagram",
-      help:"Instagram task."
-    },
-
-    {
-      value:"facebook",
-      label:"Facebook",
-      help:"Facebook task."
-    },
-
-    {
-      value:"telegram",
-      label:"Telegram",
-      help:"Telegram task."
-    }
-
-  ]
-
-},
-
-website:{
-
-  label:"Website",
-  icon:"🌐",
-
-  types:[
-
-    {
-      value:"website",
-      label:"Website Visit",
-      help:"Visit or interact with a website."
-    },
-
-    {
-      value:"survey",
-      label:"Website Survey",
-      help:"Complete a web survey."
-    },
-
-    {
-      value:"other",
-      label:"Other Website",
-      help:"Other browser-based task."
-    }
-
-  ]
-
-},
-
-app:{
-
-  label:"App",
-  icon:"📲",
-
-  types:[
-
-    {
-      value:"app_download",
-      label:"App Download",
-      help:"Download/install an application."
-    }
-
-  ]
-
-}
-
-};
-
-
-/* =====================================================
-   EXPANDED PLATFORM CATALOG
-===================================================== */
-
-const PLATFORM_CATALOG = {
-
-social:[
-
-  {
-    id:"general",
-    icon:"📱",
-    name:"General Social",
-    type:"social"
-  },
-
-  {
-    id:"tiktok",
-    icon:"🎵",
-    name:"TikTok",
-    type:"tiktok"
-  },
-
-  {
-    id:"instagram",
-    icon:"📸",
-    name:"Instagram",
-    type:"instagram"
-  },
-
-  {
-    id:"facebook",
-    icon:"📘",
-    name:"Facebook",
-    type:"facebook"
-  },
-
-  {
-    id:"youtube",
-    icon:"▶️",
-    name:"YouTube",
-    type:"youtube"
-  },
-
-  {
-    id:"whatsapp",
-    icon:"💬",
-    name:"WhatsApp",
-    type:"social"
-  },
-
-  {
-    id:"telegram",
-    icon:"✈️",
-    name:"Telegram",
-    type:"telegram"
-  },
-
-  {
-    id:"x",
-    icon:"𝕏",
-    name:"X",
-    type:"social"
-  },
-
-  {
-    id:"snapchat",
-    icon:"👻",
-    name:"Snapchat",
-    type:"social"
-  },
-
-  {
-    id:"threads",
-    icon:"🧵",
-    name:"Threads",
-    type:"social"
-  },
-
-  {
-    id:"linkedin",
-    icon:"💼",
-    name:"LinkedIn",
-    type:"social"
-  },
-
-  {
-    id:"discord",
-    icon:"🎮",
-    name:"Discord",
-    type:"social"
-  },
-
-  {
-    id:"reddit",
-    icon:"🔴",
-    name:"Reddit",
-    type:"social"
-  },
-
-  {
-    id:"pinterest",
-    icon:"📌",
-    name:"Pinterest",
-    type:"social"
-  },
-
-  {
-    id:"custom_social",
-    icon:"➕",
-    name:"Other Social",
-    type:"social"
-  }
-
-],
-
-app:[
-
-  {
-    id:"app_download",
-    icon:"📥",
-    name:"General App",
-    type:"app_download"
-  },
-
-  {
-    id:"game",
-    icon:"🎮",
-    name:"Game",
-    type:"app_download"
-  },
-
-  {
-    id:"shopping",
-    icon:"🛒",
-    name:"Shopping",
-    type:"app_download"
-  },
-
-  {
-    id:"finance",
-    icon:"💳",
-    name:"Finance",
-    type:"app_download"
-  },
-
-  {
-    id:"payment",
-    icon:"💰",
-    name:"Payment",
-    type:"app_download"
-  },
-
-  {
-    id:"transport",
-    icon:"🚗",
-    name:"Transport",
-    type:"app_download"
-  },
-
-  {
-    id:"education",
-    icon:"🎓",
-    name:"Education",
-    type:"app_download"
-  },
-
-  {
-    id:"entertainment",
-    icon:"🎬",
-    name:"Entertainment",
-    type:"app_download"
-  },
-
-  {
-    id:"utility",
-    icon:"🧰",
-    name:"Utility",
-    type:"app_download"
-  },
-
-  {
-    id:"custom_app",
-    icon:"➕",
-    name:"Other App",
-    type:"app_download"
-  }
-
-],
-
-website:[
-
-  {
-    id:"website",
-    icon:"🌐",
-    name:"General Website",
-    type:"website"
-  },
-
-  {
-    id:"survey",
-    icon:"📝",
-    name:"Survey",
-    type:"survey"
-  },
-
-  {
-    id:"store",
-    icon:"🛍️",
-    name:"Online Store",
-    type:"website"
-  },
-
-  {
-    id:"blog",
-    icon:"📰",
-    name:"Blog / News",
-    type:"website"
-  },
-
-  {
-    id:"form",
-    icon:"📄",
-    name:"Form / Registration",
-    type:"website"
-  },
-
-  {
-    id:"custom_website",
-    icon:"➕",
-    name:"Other Website",
-    type:"other"
-  }
-
-]
-
-};
-
-
-/* =====================================================
-   ACTION CATALOG
-===================================================== */
-
-const ACTION_CATALOG = {
-
-social:{
-
-  general:[
-    "Follow",
-    "Like",
-    "React",
-    "Comment",
-    "Share",
-    "Repost / Reshare",
-    "Save / Favourite",
-    "Watch",
-    "Subscribe",
-    "Join",
-    "Post",
-    "Mention / Tag",
-    "Copy Link",
-    "Open Profile",
-    "View Content",
-    "Other"
-  ],
-
-  tiktok:[
-    "Follow",
-    "Like",
-    "Comment",
-    "Repost",
-    "Favourite",
-    "Share",
-    "Watch Video",
-    "Use Sound",
-    "Use Effect",
-    "Follow Creator",
-    "Visit Profile",
-    "Copy Link",
-    "Post Video",
-    "Mention / Tag",
-    "Other"
-  ],
-
-  instagram:[
-    "Follow",
-    "Like",
-    "Comment",
-    "Save",
-    "Share",
-    "Share to Story",
-    "Repost",
-    "View Story",
-    "Watch Reel",
-    "Visit Profile",
-    "Send Message",
-    "Mention / Tag",
-    "Copy Link",
-    "Post",
-    "Other"
-  ],
-
-  facebook:[
-    "Follow",
-    "Like",
-    "React",
-    "Comment",
-    "Share",
-    "Repost",
-    "Save",
-    "Watch Video",
-    "Join Group",
-    "Follow Page",
-    "Visit Profile",
-    "Mention / Tag",
-    "Copy Link",
-    "Post",
-    "Other"
-  ],
-
-  youtube:[
-    "Subscribe",
-    "Like",
-    "Dislike",
-    "Comment",
-    "Share",
-    "Save",
-    "Watch Video",
-    "Watch Shorts",
-    "Join Channel",
-    "Visit Channel",
-    "Copy Link",
-    "Other"
-  ],
-
-  whatsapp:[
-    "Save Contact",
-    "Send Message",
-    "Join Group",
-    "Join Community",
-    "Share to Status",
-    "View Status",
-    "React to Status",
-    "Forward",
-    "Share Link",
-    "Use Sound",
-    "Post Status",
-    "Copy Link",
-    "Other"
-  ],
-
-  telegram:[
-    "Join Channel",
-    "Join Group",
-    "Follow Channel",
-    "View Post",
-    "React",
-    "Comment",
-    "Share",
-    "Forward",
-    "Save",
-    "Send Message",
-    "Copy Link",
-    "Other"
-  ],
-
-  x:[
-    "Follow",
-    "Like",
-    "Reply",
-    "Repost",
-    "Quote Post",
-    "Bookmark",
-    "Share",
-    "View Post",
-    "View Profile",
-    "Mention",
-    "Copy Link",
-    "Post",
-    "Other"
-  ],
-
-  snapchat:[
-    "Follow",
-    "Add Friend",
-    "View Story",
-    "View Spotlight",
-    "React",
-    "Share",
-    "Subscribe",
-    "Use Sound",
-    "Use Lens",
-    "Other"
-  ],
-
-  threads:[
-    "Follow",
-    "Like",
-    "Reply",
-    "Repost",
-    "Quote",
-    "Share",
-    "Save",
-    "View Profile",
-    "Mention",
-    "Copy Link",
-    "Other"
-  ],
-
-  linkedin:[
-    "Follow",
-    "Connect",
-    "Like",
-    "React",
-    "Comment",
-    "Repost",
-    "Share",
-    "Save",
-    "Visit Profile",
-    "View Company",
-    "Copy Link",
-    "Other"
-  ],
-
-  discord:[
-    "Join Server",
-    "Read Channel",
-    "Send Message",
-    "React",
-    "Reply",
-    "Share",
-    "Follow Channel",
-    "View Profile",
-    "Other"
-  ],
-
-  reddit:[
-    "Join Community",
-    "Upvote",
-    "Downvote",
-    "Comment",
-    "Share",
-    "Save",
-    "Follow",
-    "View Post",
-    "Copy Link",
-    "Other"
-  ],
-
-  pinterest:[
-    "Follow",
-    "Save Pin",
-    "Like",
-    "Comment",
-    "Share",
-    "Create Board",
-    "Visit Profile",
-    "Copy Link",
-    "Other"
-  ],
-
-  custom_social:[
-    "Follow",
-    "Like",
-    "Comment",
-    "Share",
-    "Repost / Reshare",
-    "Save / Favourite",
-    "Watch",
-    "Subscribe",
-    "Join",
-    "Post",
-    "Other"
-  ]
-
-},
-
-app:{
-
-  app_download:[
-    "Install App",
-    "Open App",
-    "Register",
-    "Login",
-    "Complete Profile",
-    "Complete Tutorial",
-    "Use App",
-    "Complete Action",
-    "Rate App",
-    "Review App",
-    "Share App",
-    "Invite User",
-    "Refer Friend",
-    "Download Content",
-    "Other"
-  ],
-
-  game:[
-    "Install Game",
-    "Open Game",
-    "Register",
-    "Create Profile",
-    "Complete Tutorial",
-    "Play Game",
-    "Reach Level",
-    "Complete Match",
-    "Win Match",
-    "Claim Reward",
-    "Invite Friend",
-    "Other"
-  ],
-
-  shopping:[
-    "Install",
-    "Register",
-    "Login",
-    "Browse Product",
-    "Search Product",
-    "View Product",
-    "Add to Cart",
-    "Wishlist",
-    "Share Product",
-    "Follow Store",
-    "Place Order",
-    "Other"
-  ],
-
-  finance:[
-    "Install",
-    "Register",
-    "Login",
-    "Complete Profile",
-    "Verify Account",
-    "View Feature",
-    "Complete Required Action",
-    "Share App",
-    "Other"
-  ],
-
-  payment:[
-    "Install",
-    "Register",
-    "Login",
-    "Complete Profile",
-    "Complete Required Action",
-    "View Feature",
-    "Share App",
-    "Other"
-  ],
-
-  transport:[
-    "Install",
-    "Register",
-    "Login",
-    "Complete Profile",
-    "Search Ride",
-    "View Service",
-    "Book Service",
-    "Share App",
-    "Other"
-  ],
-
-  education:[
-    "Install",
-    "Register",
-    "Login",
-    "Complete Profile",
-    "Join Course",
-    "View Lesson",
-    "Complete Lesson",
-    "Take Quiz",
-    "Other"
-  ],
-
-  entertainment:[
-    "Install",
-    "Register",
-    "Login",
-    "Watch Content",
-    "Listen",
-    "Follow Creator",
-    "Like",
-    "Share",
-    "Save",
-    "Other"
-  ],
-
-  utility:[
-    "Install",
-    "Register",
-    "Open App",
-    "Use Feature",
-    "Complete Action",
-    "Share App",
-    "Other"
-  ],
-
-  custom_app:[
-    "Install",
-    "Register",
-    "Login",
-    "Open App",
-    "Complete Action",
-    "Share",
-    "Other"
-  ]
-
-},
-
-website:{
-
-  website:[
-    "Visit Website",
-    "Open Page",
-    "Search",
-    "Read Content",
-    "Watch Video",
-    "Click Link",
-    "Register",
-    "Login",
-    "Subscribe",
-    "Share",
-    "Copy Link",
-    "Download",
-    "Submit Form",
-    "Other"
-  ],
-
-  survey:[
-    "Open Survey",
-    "Register",
-    "Answer Survey",
-    "Complete Survey",
-    "Submit Survey",
-    "Other"
-  ],
-
-  store:[
-    "Visit Store",
-    "Search Product",
-    "View Product",
-    "Add to Cart",
-    "Wishlist",
-    "Share Product",
-    "Register",
-    "Other"
-  ],
-
-  blog:[
-    "Visit Article",
-    "Read Article",
-    "View Page",
-    "Watch Video",
-    "Share",
-    "Subscribe",
-    "Copy Link",
-    "Other"
-  ],
-
-  form:[
-    "Open Form",
-    "Register",
-    "Fill Form",
-    "Submit Form",
-    "Upload Document",
-    "Other"
-  ],
-
-  custom_website:[
-    "Visit Website",
-    "Register",
-    "Login",
-    "Search",
-    "Read",
-    "Watch",
-    "Subscribe",
-    "Share",
-    "Download",
-    "Submit Form",
-    "Other"
-  ]
-
-}
-
-};
-
-
-/* =====================================================
-   BUILDER STATE
-===================================================== */
+let platformSettings = {};
 
 let createBuilder = {
   style:"social",
   platform:"general",
-  action:"Follow"
+  action:"Other"
 };
 
 let editBuilder = {
   style:"social",
   platform:"general",
-  action:"Follow"
+  action:"Other"
 };
 
 
 /* =====================================================
-   BASIC UI
+   TASK CATALOG
 ===================================================== */
 
+const TASK_STYLES = {
+
+  social:{
+    label:"Social Media",
+    icon:"📱"
+  },
+
+  website:{
+    label:"Website",
+    icon:"🌐"
+  },
+
+  app:{
+    label:"App",
+    icon:"📲"
+  }
+
+};
+
+
+const PLATFORM_CATALOG = {
+
+  social:[
+
+    {
+      id:"general",
+      name:"General Social",
+      type:"social"
+    },
+
+    {
+      id:"tiktok",
+      name:"TikTok",
+      type:"tiktok"
+    },
+
+    {
+      id:"instagram",
+      name:"Instagram",
+      type:"instagram"
+    },
+
+    {
+      id:"facebook",
+      name:"Facebook",
+      type:"facebook"
+    },
+
+    {
+      id:"youtube",
+      name:"YouTube",
+      type:"youtube"
+    },
+
+    {
+      id:"whatsapp",
+      name:"WhatsApp",
+      type:"social"
+    },
+
+    {
+      id:"telegram",
+      name:"Telegram",
+      type:"telegram"
+    },
+
+    {
+      id:"x",
+      name:"X",
+      type:"social"
+    },
+
+    {
+      id:"snapchat",
+      name:"Snapchat",
+      type:"social"
+    },
+
+    {
+      id:"threads",
+      name:"Threads",
+      type:"social"
+    },
+
+    {
+      id:"linkedin",
+      name:"LinkedIn",
+      type:"social"
+    },
+
+    {
+      id:"discord",
+      name:"Discord",
+      type:"social"
+    },
+
+    {
+      id:"reddit",
+      name:"Reddit",
+      type:"social"
+    },
+
+    {
+      id:"pinterest",
+      name:"Pinterest",
+      type:"social"
+    },
+
+    {
+      id:"custom_social",
+      name:"Custom Social",
+      type:"social"
+    }
+
+  ],
+
+
+  website:[
+
+    {
+      id:"website",
+      name:"Website",
+      type:"website"
+    },
+
+    {
+      id:"survey",
+      name:"Survey",
+      type:"survey"
+    },
+
+    {
+      id:"store",
+      name:"Online Store",
+      type:"website"
+    },
+
+    {
+      id:"blog",
+      name:"Blog",
+      type:"website"
+    },
+
+    {
+      id:"form",
+      name:"Online Form",
+      type:"website"
+    },
+
+    {
+      id:"custom_website",
+      name:"Custom Website",
+      type:"website"
+    }
+
+  ],
+
+
+  app:[
+
+    {
+      id:"app_download",
+      name:"App Download",
+      type:"app_download"
+    },
+
+    {
+      id:"game",
+      name:"Game",
+      type:"app_download"
+    },
+
+    {
+      id:"shopping",
+      name:"Shopping App",
+      type:"app_download"
+    },
+
+    {
+      id:"finance",
+      name:"Finance App",
+      type:"app_download"
+    },
+
+    {
+      id:"payment",
+      name:"Payment App",
+      type:"app_download"
+    },
+
+    {
+      id:"transport",
+      name:"Transport App",
+      type:"app_download"
+    },
+
+    {
+      id:"education",
+      name:"Education App",
+      type:"app_download"
+    },
+
+    {
+      id:"entertainment",
+      name:"Entertainment App",
+      type:"app_download"
+    },
+
+    {
+      id:"utility",
+      name:"Utility App",
+      type:"app_download"
+    },
+
+    {
+      id:"custom_app",
+      name:"Custom App",
+      type:"app_download"
+    }
+
+  ]
+
+};
+
+
+const ACTION_CATALOG = {
+
+  social:{
+
+    general:[
+      "Follow",
+      "Like",
+      "Comment",
+      "Share",
+      "Subscribe",
+      "Join",
+      "Visit Profile",
+      "Watch Video",
+      "Post Content",
+      "Other"
+    ],
+
+    tiktok:[
+      "Follow",
+      "Like",
+      "Comment",
+      "Share",
+      "Watch Video",
+      "Visit Profile",
+      "Post Video",
+      "Other"
+    ],
+
+    instagram:[
+      "Follow",
+      "Like",
+      "Comment",
+      "Share",
+      "Save",
+      "Visit Profile",
+      "View Story",
+      "Post Content",
+      "Other"
+    ],
+
+    facebook:[
+      "Follow",
+      "Like",
+      "Comment",
+      "Share",
+      "Join Group",
+      "Visit Page",
+      "Watch Video",
+      "Post Content",
+      "Other"
+    ],
+
+    youtube:[
+      "Subscribe",
+      "Like",
+      "Comment",
+      "Share",
+      "Watch Video",
+      "Visit Channel",
+      "Other"
+    ],
+
+    whatsapp:[
+      "Join Group",
+      "Send Message",
+      "Save Contact",
+      "View Status",
+      "Other"
+    ],
+
+    telegram:[
+      "Join Channel",
+      "Join Group",
+      "Start Bot",
+      "View Post",
+      "Other"
+    ]
+
+  },
+
+
+  website:{
+
+    website:[
+      "Visit Website",
+      "Register",
+      "Read Page",
+      "Click Button",
+      "Submit Form",
+      "Other"
+    ],
+
+    survey:[
+      "Complete Survey",
+      "Answer Questions",
+      "Submit Survey",
+      "Other"
+    ],
+
+    store:[
+      "Visit Store",
+      "View Product",
+      "Register",
+      "Add To Cart",
+      "Other"
+    ],
+
+    blog:[
+      "Read Article",
+      "Visit Blog",
+      "Comment",
+      "Other"
+    ],
+
+    form:[
+      "Complete Form",
+      "Submit Form",
+      "Other"
+    ],
+
+    custom_website:[
+      "Visit Website",
+      "Complete Task",
+      "Other"
+    ]
+
+  },
+
+
+  app:{
+
+    app_download:[
+      "Install App",
+      "Open App",
+      "Register",
+      "Complete Onboarding",
+      "Other"
+    ],
+
+    game:[
+      "Install Game",
+      "Open Game",
+      "Register",
+      "Play Game",
+      "Reach Level",
+      "Other"
+    ],
+
+    shopping:[
+      "Install App",
+      "Register",
+      "Open App",
+      "Other"
+    ],
+
+    finance:[
+      "Install App",
+      "Register",
+      "Verify Account",
+      "Other"
+    ],
+
+    payment:[
+      "Install App",
+      "Register",
+      "Make Required Action",
+      "Other"
+    ],
+
+    transport:[
+      "Install App",
+      "Register",
+      "Book/Test Feature",
+      "Other"
+    ],
+
+    education:[
+      "Install App",
+      "Register",
+      "Complete Lesson",
+      "Other"
+    ],
+
+    entertainment:[
+      "Install App",
+      "Register",
+      "Watch Content",
+      "Other"
+    ],
+
+    utility:[
+      "Install App",
+      "Open App",
+      "Register",
+      "Other"
+    ],
+
+    custom_app:[
+      "Install App",
+      "Open App",
+      "Register",
+      "Other"
+    ]
+
+  }
+
+};
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function $(id){
+  return document.getElementById(id);
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttr(value){
+  return escapeHtml(value);
+}
+
+
+function escapeJs(value){
+
+  return String(value ?? "")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'")
+    .replace(/\r/g,"\\r")
+    .replace(/\n/g,"\\n");
+
+}
+
+
+function formatDate(value){
+
+  if(!value) return "—";
+
+  const d =
+    new Date(value);
+
+  if(Number.isNaN(d.getTime()))
+    return "—";
+
+  return d.toLocaleString();
+
+}
+
+
 function showMessage(message){
-  $("message").textContent = message;
-}
 
-function showSection(id,button){
+  const toast =
+    $("toast");
 
-  document.querySelectorAll(".section")
-    .forEach(section =>
-      section.classList.remove("active")
-    );
+  toast.textContent =
+    message;
 
-  document.querySelectorAll(".menu button")
-    .forEach(btn =>
-      btn.classList.remove("active")
-    );
+  toast.classList.add("show");
 
-  $(id).classList.add("active");
+  clearTimeout(
+    showMessage.timer
+  );
 
-  if(button){
-    button.classList.add("active");
-  }
-
-  if(id==="payments") loadPayments();
-  if(id==="tasks") loadTasks();
-  if(id==="proofs") loadProofs();
-  if(id==="money") loadWithdrawals();
-
-  if(id==="security"){
-    loadSecurityEvents();
-    loadSecurityWarnings();
-  }
-}
-
-function closeModal(id){
-
-  $(id).classList.remove("show");
-  document.body.classList.remove("modal-open");
+  showMessage.timer =
+    setTimeout(()=>{
+      toast.classList.remove("show");
+    },3500);
 
 }
+
 
 function openModal(id){
 
   $(id).classList.add("show");
-  document.body.classList.add("modal-open");
 
 }
 
-function openConfirm(title,text,callback){
 
-  $("confirmTitle").textContent = title;
-  $("confirmText").textContent = text;
+function closeModal(id){
 
-  confirmAction = callback;
+  $(id).classList.remove("show");
+
+}
+
+
+function openConfirm(
+  title,
+  message,
+  callback
+){
+
+  $("confirmTitle").textContent =
+    title;
+
+  $("confirmMessage").textContent =
+    message;
+
+  $("confirmYes").onclick =
+    async()=>{
+
+      closeModal("confirmModal");
+
+      await callback();
+
+    };
 
   openModal("confirmModal");
 
-  $("confirmYes").onclick = async () => {
+}
 
-    closeModal("confirmModal");
 
-    if(confirmAction){
-      await confirmAction();
-    }
+function showSectionByName(name){
 
-  };
+  const button =
+    document.querySelector(
+      `.menu button[data-section="${name}"]`
+    );
+
+  showSection(name,button);
 
 }
 
 
-/* =====================================================
-   OLD TASK STYLE HELPERS
-===================================================== */
+function showSection(name,button){
+
+  document
+    .querySelectorAll(".section")
+    .forEach(section=>{
+      section.classList.remove("active");
+    });
+
+  const target =
+    $(name);
+
+  if(target)
+    target.classList.add("active");
+
+
+  document
+    .querySelectorAll(".menu button")
+    .forEach(btn=>{
+      btn.classList.remove("active");
+    });
+
+  if(button)
+    button.classList.add("active");
+
+
+  if(name === "tasks")
+    loadTasks();
+
+  if(name === "proofs")
+    loadProofs();
+
+  if(name === "payments")
+    loadPayments();
+
+  if(name === "money")
+    loadWithdrawals();
+
+  if(name === "security"){
+    loadSecurityEvents();
+    loadSecurityWarnings();
+  }
+
+}
+
 
 function getStyleForTaskType(type){
 
-  type = String(type || "").toLowerCase();
-
-  if([
-    "youtube",
-    "tiktok",
-    "instagram",
-    "facebook",
-    "telegram",
-    "social"
-  ].includes(type)){
-    return "social";
-  }
-
-  if([
-    "website",
-    "survey",
-    "other"
-  ].includes(type)){
-    return "website";
-  }
-
-  if(type==="app_download"){
+  if(
+    type === "app_download"
+  )
     return "app";
-  }
 
-  return "website";
-}
+  if(
+    type === "website" ||
+    type === "survey"
+  )
+    return "website";
 
-function getTaskTypeDefinition(style,type){
-
-  const list =
-    TASK_STYLES[style]?.types || [];
-
-  return list.find(
-    item => item.value===type
-  ) || list[0] || null;
+  return "social";
 
 }
 
-function fillTaskTypeSelect(selectId,style,selectedValue){
 
-  const select = $(selectId);
-
-  if(!select) return;
-
-  const definitions =
-    TASK_STYLES[style].types;
-
-  select.innerHTML =
-    definitions.map(item => `
-      <option value="${escapeHtml(item.value)}">
-        ${escapeHtml(item.label)}
-      </option>
-    `).join("");
-
-  if(definitions.some(
-    item => item.value===selectedValue
-  )){
-    select.value=selectedValue;
-  }else{
-    select.value=definitions[0].value;
-  }
-}
-
-function updateTaskTypeHelp(selectId,helpId){
-
-  const type = $(selectId).value;
-
-  const style =
-    getStyleForTaskType(type);
-
-  const definition =
-    getTaskTypeDefinition(style,type);
-
-  $(helpId).textContent =
-    definition?.help ||
-    "Follow the task instructions provided.";
-}
-
-
-/* =====================================================
-   NEW PLATFORM/ACTION BUILDER
-===================================================== */
-
-function renderPlatformGrid(mode){
-
-  const state =
-    mode==="create"
-      ? createBuilder
-      : editBuilder;
-
-  const grid =
-    mode==="create"
-      ? $("createPlatformGrid")
-      : $("editPlatformGrid");
-
-  const catalog =
-    PLATFORM_CATALOG[state.style] || [];
-
-  grid.innerHTML =
-    catalog.map(item => `
-      <button
-        type="button"
-        class="platform-button ${
-          item.id===state.platform ? "active" : ""
-        }"
-        onclick="selectPlatform('${mode}','${escapeJs(item.id)}')">
-
-        <span>${item.icon}</span>
-        ${escapeHtml(item.name)}
-
-        <small>
-          ${state.style==="social"
-            ? "Social media"
-            : state.style==="app"
-              ? "Application"
-              : "Website"}
-        </small>
-
-      </button>
-    `).join("");
-
-}
-
-function renderActionGrid(mode){
-
-  const state =
-    mode==="create"
-      ? createBuilder
-      : editBuilder;
-
-  const grid =
-    mode==="create"
-      ? $("createActionGrid")
-      : $("editActionGrid");
-
-  const actions =
-    ACTION_CATALOG[state.style]?.[state.platform]
-    || ACTION_CATALOG[state.style]?.general
-    || ["Other"];
-
-  if(!actions.includes(state.action)){
-    state.action=actions[0];
-  }
-
-  grid.innerHTML =
-    actions.map(action => `
-      <button
-        type="button"
-        class="action-choice ${
-          action===state.action ? "active" : ""
-        }"
-        onclick="selectAction('${mode}','${escapeJs(action)}')">
-
-        ${escapeHtml(action)}
-
-      </button>
-    `).join("");
-
-}
-
-function getPlatformName(style,id){
+function getPlatformName(
+  style,
+  platform
+){
 
   const item =
     (PLATFORM_CATALOG[style] || [])
-      .find(x=>x.id===id);
+      .find(x=>x.id === platform);
 
-  return item?.name || "Custom";
-
-}
-
-function updateBuilderSummary(mode){
-
-  const state =
-    mode==="create"
-      ? createBuilder
-      : editBuilder;
-
-  const platform =
-    getPlatformName(
-      state.style,
-      state.platform
-    );
-
-  const styleName =
-    TASK_STYLES[state.style]?.label
-    || state.style;
-
-  const target =
-    mode==="create"
-      ? $("createTaskPath")
-      : $("editTaskPath");
-
-  target.textContent =
-    `${styleName} → ${platform} → ${state.action}`;
+  return item
+    ? item.name
+    : platform;
 
 }
 
-function renderBuilder(mode){
 
-  renderPlatformGrid(mode);
-  renderActionGrid(mode);
-  updateBuilderSummary(mode);
-
-}
-
-function selectPlatform(mode,id){
-
-  const state =
-    mode==="create"
-      ? createBuilder
-      : editBuilder;
-
-  state.platform=id;
-
-  const actions =
-    ACTION_CATALOG[state.style]?.[id]
-    || ACTION_CATALOG[state.style]?.general
-    || ["Other"];
-
-  state.action=actions[0];
-
-  const platform =
-    (PLATFORM_CATALOG[state.style] || [])
-      .find(item=>item.id===id);
-
-  if(platform){
-
-    const type =
-      platform.type;
-
-    const select =
-      mode==="create"
-        ? $("taskType")
-        : $("editTaskType");
-
-    if(
-      [...select.options]
-        .some(option=>option.value===type)
-    ){
-      select.value=type;
-    }
-
-  }
-
-  renderBuilder(mode);
-
-  if(mode==="create"){
-    updateTaskTypeHelp(
-      "taskType",
-      "createTaskTypeHelp"
-    );
-  }else{
-    updateTaskTypeHelp(
-      "editTaskType",
-      "editTaskTypeHelp"
-    );
-  }
-
-}
-
-function selectAction(mode,action){
-
-  const state =
-    mode==="create"
-      ? createBuilder
-      : editBuilder;
-
-  state.action=action;
-
-  renderActionGrid(mode);
-  updateBuilderSummary(mode);
-
-}
-
-function selectCreateStyle(style){
-
-  createBuilder.style=style;
-
-  const catalog =
-    PLATFORM_CATALOG[style] || [];
-
-  createBuilder.platform =
-    catalog[0]?.id || "";
-
-  const actions =
-    ACTION_CATALOG[style]?.[createBuilder.platform]
-    || ["Other"];
-
-  createBuilder.action =
-    actions[0];
-
-  updateCreateStyleButtons(style);
-
-  fillTaskTypeSelect(
-    "taskType",
-    style,
-    catalog[0]?.type
-  );
-
-  renderBuilder("create");
-
-  updateTaskTypeHelp(
-    "taskType",
-    "createTaskTypeHelp"
-  );
-
-}
-
-function updateCreateStyleButtons(style){
-
-  [
-    "createStyleSocial",
-    "createStyleWebsite",
-    "createStyleApp"
-  ].forEach(id =>
-    $(id).classList.remove("active")
-  );
-
-  if(style==="social"){
-    $("createStyleSocial").classList.add("active");
-  }
-
-  if(style==="website"){
-    $("createStyleWebsite").classList.add("active");
-  }
-
-  if(style==="app"){
-    $("createStyleApp").classList.add("active");
-  }
-
-}
-
-function updateCreateStyleFromType(){
-
-  const style =
-    getStyleForTaskType(
-      $("taskType").value
-    );
-
-  createBuilder.style=style;
-
-  const platform =
-    (PLATFORM_CATALOG[style] || [])
-      .find(
-        item =>
-          item.type === $("taskType").value
-      )
-    || PLATFORM_CATALOG[style]?.[0];
-
-  createBuilder.platform =
-    platform?.id || "";
-
-  const actions =
-    ACTION_CATALOG[style]?.[
-      createBuilder.platform
-    ] || ["Other"];
-
-  createBuilder.action =
-    actions[0];
-
-  updateCreateStyleButtons(style);
-
-  renderBuilder("create");
-
-  updateTaskTypeHelp(
-    "taskType",
-    "createTaskTypeHelp"
-  );
-
-}
-
-function selectEditStyle(style){
-
-  editBuilder.style=style;
-
-  const catalog =
-    PLATFORM_CATALOG[style] || [];
-
-  editBuilder.platform =
-    catalog[0]?.id || "";
-
-  const actions =
-    ACTION_CATALOG[style]?.[
-      editBuilder.platform
-    ] || ["Other"];
-
-  editBuilder.action =
-    actions[0];
-
-  updateEditStyleButtons(style);
-
-  fillTaskTypeSelect(
-    "editTaskType",
-    style,
-    catalog[0]?.type
-  );
-
-  renderBuilder("edit");
-
-  updateTaskTypeHelp(
-    "editTaskType",
-    "editTaskTypeHelp"
-  );
-
-}
-
-function updateEditStyleButtons(style){
-
-  [
-    "editStyleSocial",
-    "editStyleWebsite",
-    "editStyleApp"
-  ].forEach(id =>
-    $(id).classList.remove("active")
-  );
-
-  if(style==="social"){
-    $("editStyleSocial").classList.add("active");
-  }
-
-  if(style==="website"){
-    $("editStyleWebsite").classList.add("active");
-  }
-
-  if(style==="app"){
-    $("editStyleApp").classList.add("active");
-  }
-
-}
-
-function updateEditStyleFromType(){
-
-  const style =
-    getStyleForTaskType(
-      $("editTaskType").value
-    );
-
-  editBuilder.style=style;
-
-  const platform =
-    (PLATFORM_CATALOG[style] || [])
-      .find(
-        item =>
-          item.type === $("editTaskType").value
-      )
-    || PLATFORM_CATALOG[style]?.[0];
-
-  editBuilder.platform =
-    platform?.id || "";
-
-  const actions =
-    ACTION_CATALOG[style]?.[
-      editBuilder.platform
-    ] || ["Other"];
-
-  editBuilder.action =
-    actions[0];
-
-  updateEditStyleButtons(style);
-
-  renderBuilder("edit");
-
-  updateTaskTypeHelp(
-    "editTaskType",
-    "editTaskTypeHelp"
+function getTaskTypeDefinition(
+  type
+){
+
+  const all = [
+    ...(PLATFORM_CATALOG.social || []),
+    ...(PLATFORM_CATALOG.website || []),
+    ...(PLATFORM_CATALOG.app || [])
+  ];
+
+  return all.find(
+    x=>x.type === type
   );
 
 }
 
 
 /* =====================================================
-   ADMIN AUTH
+   BUILDER
+===================================================== */
+
+function fillPlatformSelect(
+  selectId,
+  style,
+  selected
+){
+
+  const select =
+    $(selectId);
+
+  if(!select) return;
+
+  const list =
+    PLATFORM_CATALOG[style] || [];
+
+  select.innerHTML =
+    list.map(item=>
+      `<option value="${escapeAttr(item.id)}">
+        ${escapeHtml(item.name)}
+      </option>`
+    ).join("");
+
+  if(
+    selected &&
+    list.some(x=>x.id === selected)
+  ){
+
+    select.value =
+      selected;
+
+  }else if(list.length){
+
+    select.value =
+      list[0].id;
+
+  }
+
+}
+
+
+function fillActionSelect(
+  selectId,
+  style,
+  platform,
+  selected
+){
+
+  const select =
+    $(selectId);
+
+  if(!select) return;
+
+  const actions =
+    ACTION_CATALOG[style]?.[platform]
+    ||
+    ACTION_CATALOG[style]?.general
+    ||
+    ["Other"];
+
+  select.innerHTML =
+    actions.map(action=>
+      `<option value="${escapeAttr(action)}">
+        ${escapeHtml(action)}
+      </option>`
+    ).join("");
+
+  if(
+    selected &&
+    actions.includes(selected)
+  ){
+
+    select.value =
+      selected;
+
+  }else{
+
+    select.value =
+      actions[0];
+
+  }
+
+}
+
+
+function fillTaskTypeSelect(
+  selectId,
+  style,
+  selected
+){
+
+  const select =
+    $(selectId);
+
+  if(!select) return;
+
+  const types =
+    PLATFORM_CATALOG[style] || [];
+
+  const unique = [];
+
+  types.forEach(item=>{
+
+    if(
+      item.type &&
+      !unique.some(
+        x=>x.type === item.type
+      )
+    ){
+
+      unique.push(item);
+
+    }
+
+  });
+
+  select.innerHTML =
+    unique.map(item=>
+      `<option value="${escapeAttr(item.type)}">
+        ${escapeHtml(
+          item.name
+        )}
+      </option>`
+    ).join("");
+
+  if(
+    selected &&
+    unique.some(
+      x=>x.type === selected
+    )
+  ){
+
+    select.value =
+      selected;
+
+  }
+
+}
+
+
+function updateTaskTypeHelp(
+  selectId,
+  helpId
+){
+
+  const type =
+    $(selectId)?.value;
+
+  const help =
+    $(helpId);
+
+  if(!help) return;
+
+  const definition =
+    getTaskTypeDefinition(type);
+
+  help.textContent =
+    definition
+      ? `Task type: ${definition.name}`
+      : "";
+
+}
+
+
+function renderBuilder(mode){
+
+  const isCreate =
+    mode === "create";
+
+  const builder =
+    isCreate
+      ? createBuilder
+      : editBuilder;
+
+  const prefix =
+    isCreate
+      ? "create"
+      : "edit";
+
+
+  const platformId =
+    `${prefix}Platform`;
+
+  const actionId =
+    `${prefix}Action`;
+
+  const typeId =
+    `${prefix}TaskType`;
+
+  fillPlatformSelect(
+    platformId,
+    builder.style,
+    builder.platform
+  );
+
+
+  builder.platform =
+    $(platformId).value;
+
+
+  fillActionSelect(
+    actionId,
+    builder.style,
+    builder.platform,
+    builder.action
+  );
+
+
+  builder.action =
+    $(actionId).value;
+
+
+  fillTaskTypeSelect(
+    typeId,
+    builder.style,
+    null
+  );
+
+
+  updateTaskTypeHelp(
+    typeId,
+    `${prefix}TaskTypeHelp`
+  );
+
+
+  $(platformId).onchange =
+    ()=>{
+
+      builder.platform =
+        $(platformId).value;
+
+      fillActionSelect(
+        actionId,
+        builder.style,
+        builder.platform,
+        null
+      );
+
+      builder.action =
+        $(actionId).value;
+
+    };
+
+
+  $(actionId).onchange =
+    ()=>{
+
+      builder.action =
+        $(actionId).value;
+
+    };
+
+
+  $(typeId).onchange =
+    ()=>{
+
+      updateTaskTypeHelp(
+        typeId,
+        `${prefix}TaskTypeHelp`
+      );
+
+    };
+
+}
+
+
+function updateCreateStyleButtons(){
+
+  ["social","website","app"]
+    .forEach(style=>{
+
+      const btn =
+        $(`createStyle${
+          style.charAt(0).toUpperCase()
+          + style.slice(1)
+        }`);
+
+      if(!btn) return;
+
+      btn.className =
+        `action ${
+          createBuilder.style === style
+            ? "green"
+            : "gray"
+        }`;
+
+    });
+
+}
+
+
+function updateEditStyleButtons(style){
+
+  ["social","website","app"]
+    .forEach(item=>{
+
+      const btn =
+        $(`editStyle${
+          item.charAt(0).toUpperCase()
+          + item.slice(1)
+        }`);
+
+      if(!btn) return;
+
+      btn.className =
+        `action ${
+          style === item
+            ? "green"
+            : "gray"
+        }`;
+
+    });
+
+}
+
+
+function selectCreateStyle(style){
+
+  createBuilder.style =
+    style;
+
+  createBuilder.platform =
+    PLATFORM_CATALOG[style]?.[0]?.id
+    || "";
+
+  createBuilder.action =
+    null;
+
+  updateCreateStyleButtons();
+
+  renderBuilder("create");
+
+}
+
+
+function selectEditStyle(style){
+
+  editBuilder.style =
+    style;
+
+  editBuilder.platform =
+    PLATFORM_CATALOG[style]?.[0]?.id
+    || "";
+
+  editBuilder.action =
+    null;
+
+  updateEditStyleButtons(style);
+
+  renderBuilder("edit");
+
+}
+
+
+/* =====================================================
+   ADMIN CHECK
 ===================================================== */
 
 async function checkAdmin(){
 
-  const {
-    data:{user}
-  } =
-    await db.auth.getUser();
+  try{
 
-  if(!user){
-    location.href="admin-login.html";
+    const {
+      data:{
+        user
+      }
+    } =
+      await db.auth.getUser();
+
+
+    if(!user){
+
+      $("lockedScreen").style.display =
+        "block";
+
+      return false;
+
+    }
+
+
+    const {data,error} =
+      await db
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id",user.id)
+        .maybeSingle();
+
+
+    if(error){
+
+      console.error(error);
+
+      $("lockedScreen").style.display =
+        "block";
+
+      return false;
+
+    }
+
+
+    if(!data){
+
+      $("lockedScreen").style.display =
+        "block";
+
+      return false;
+
+    }
+
+
+    currentAdmin =
+      user;
+
+    $("adminEmail").value =
+      user.email || "";
+
+
+    $("adminApp").style.display =
+      "block";
+
+
+    return true;
+
+  }catch(error){
+
+    console.error(error);
+
+    $("lockedScreen").style.display =
+      "block";
+
     return false;
+
   }
 
-  const {
-    data,
-    error
-  } =
-    await db
-      .from("admin_users")
-      .select("user_id")
-      .eq("user_id",user.id)
-      .maybeSingle();
-
-  if(error || !data){
-
-    await db.auth.signOut();
-
-    location.href="admin-login.html";
-
-    return false;
-  }
-
-  currentAdmin=user;
-
-  $("adminEmail").textContent =
-    user.email || user.id;
-
-  return true;
 }
 
 
@@ -2768,227 +2573,118 @@ async function checkAdmin(){
 
 async function loadSettings(){
 
-  const {
-    data,
-    error
-  } =
+  const {data,error} =
     await db
       .from("platform_settings")
       .select("*")
       .eq("id",1)
-      .single();
+      .maybeSingle();
+
 
   if(error){
 
     console.error(error);
 
-    showMessage(
-      "Could not load platform settings."
-    );
-
     return;
+
   }
 
+
+  platformSettings =
+    data || {};
+
+
   $("siteName").value =
-    data.site_name || "NAIJA TASK";
+    data?.site_name || "NAIJA TASK";
 
   $("supportWhatsapp").value =
-    data.support_whatsapp || "09020934579";
+    data?.support_whatsapp || "";
 
   $("supportEmail").value =
-    data.support_email ||
-    "naijataskofficia@gmail.com";
+    data?.support_email || "";
 
   $("maintenanceMode").checked =
-    !!data.maintenance_mode;
+    !!data?.maintenance_mode;
 
   $("photoProofEnabled").checked =
-    data.photo_proof_enabled ?? true;
+    data?.photo_proof_enabled !== false;
 
   $("aiCareEnabled").checked =
-    data.ai_care_enabled ?? true;
+    !!data?.ai_care_enabled;
 
   $("privateChatEnabled").checked =
-    data.private_chat_enabled ?? true;
+    !!data?.private_chat_enabled;
 
   $("communityChatEnabled").checked =
-    data.community_chat_enabled ?? true;
-
-  $("normalMinReward").value =
-    data.normal_min_task_reward ?? 3;
-
-  $("normalMaxReward").value =
-    data.normal_max_task_reward ?? 150;
-
-  $("vipMinReward").value =
-    data.vip_min_task_reward ?? 3;
-
-  $("vipMaxReward").value =
-    data.vip_max_task_reward ?? 150;
-
-  $("activationEnabled").checked =
-    data.activation_enabled ?? false;
-
-  $("activationFee").value =
-    data.activation_fee ?? 1000;
-
-  $("vipEnabled").checked =
-    data.vip_enabled ?? true;
-
-  $("vipPrice").value =
-    data.vip_price ?? 0;
-
-  $("freeDailyTaskLimit").value =
-    data.free_daily_task_limit ?? 10;
-
-  $("vipDailyTaskLimit").value =
-    data.vip_daily_task_limit ?? 10;
-
-  $("withdrawalsEnabled").checked =
-    data.withdrawals_enabled ?? true;
-
-  $("minimumWithdrawal").value =
-    data.minimum_withdrawal ?? 1500;
-
-  $("freeWithdrawalFee").value =
-    data.free_withdrawal_fee ?? 100;
-
-  $("vipWithdrawalFee").value =
-    data.vip_withdrawal_fee ?? 50;
-
-  $("withdrawalsPerDay").value =
-    data.withdrawals_per_day ?? 1;
-
-  $("referralsEnabled").checked =
-    data.referrals_enabled ?? true;
-
-  $("referralReward").value =
-    data.referral_reward ?? 0;
-
-  $("posterRegistrationEnabled").checked =
-    data.poster_registration_enabled ?? true;
-
-  $("jobPostingEnabled").checked =
-    data.job_posting_enabled ?? true;
+    !!data?.community_chat_enabled;
 
   $("taskApprovalRequired").checked =
-    data.task_approval_required ?? true;
+    data?.task_approval_required !== false;
 
-  $("captchaEnabled").checked =
-    data.captcha_enabled ?? true;
 
-  $("captchaSignupRequired").checked =
-    data.captcha_signup_required ?? true;
+  $("rewardMin").value =
+    data?.reward_min ?? 3;
 
-  $("captchaWithdrawalRequired").checked =
-    data.captcha_withdrawal_required ?? true;
+  $("rewardMax").value =
+    data?.reward_max ?? 15;
 
-  $("botDetectionEnabled").checked =
-    data.bot_detection_enabled ?? true;
+  $("vipRewardMin").value =
+    data?.vip_reward_min ?? 5;
 
-  $("deviceDetectionEnabled").checked =
-    data.device_detection_enabled ?? true;
+  $("vipRewardMax").value =
+    data?.vip_reward_max ?? 20;
 
-  $("ipDetectionEnabled").checked =
-    data.ip_detection_enabled ?? true;
 
-  $("suspiciousActivityDetection").checked =
-    data.suspicious_activity_detection ?? true;
+  $("activationEnabled").checked =
+    data?.activation_enabled !== false;
 
-  $("automaticRestrictionEnabled").checked =
-    data.automatic_restriction_enabled ?? true;
+  $("activationFee").value =
+    data?.activation_fee ?? 1000;
 
-  $("securityWarningsEnabled").checked =
-    data.security_warnings_enabled ?? true;
+  $("vipEnabled").checked =
+    !!data?.vip_enabled;
 
-  $("user2faEnabled").checked =
-    data.user_2fa_enabled ?? true;
+  $("vipPrice").value =
+    data?.vip_price ?? 0;
 
-  $("withdrawalSecurityCheck").checked =
-    data.withdrawal_security_check ?? true;
+  $("freeDailyTaskLimit").value =
+    data?.free_daily_task_limit ?? 5;
 
-  $("maxTaskSubmissionsPerMinute").value =
-    data.max_task_submissions_per_minute ?? 5;
+  $("vipDailyTaskLimit").value =
+    data?.vip_daily_task_limit ?? 20;
 
-  $("suspiciousRiskScore").value =
-    data.suspicious_risk_score ?? 70;
 
-  $("automaticBanEnabled").checked =
-    data.automatic_ban_enabled ?? false;
+  $("withdrawalsEnabled").checked =
+    data?.withdrawals_enabled !== false;
 
-  $("normalAdsEnabled").checked =
-    data.normal_ads_enabled ?? true;
+  $("minimumWithdrawal").value =
+    data?.minimum_withdrawal ?? 1500;
 
-  $("vipAdsEnabled").checked =
-    data.vip_ads_enabled ?? false;
+  $("freeWithdrawalFee").value =
+    data?.free_withdrawal_fee ?? 100;
 
-  $("adFrequency").value =
-    data.ad_frequency ?? 5;
+  $("vipWithdrawalFee").value =
+    data?.vip_withdrawal_fee ?? 100;
+
+  $("withdrawalsPerDay").value =
+    data?.withdrawals_per_day ?? 1;
+
+
+  $("referralsEnabled").checked =
+    data?.referrals_enabled !== false;
+
+  $("referralReward").value =
+    data?.referral_reward ?? 0;
+
 }
+
 
 async function saveSettings(){
 
-  const normalMin =
-    Number($("normalMinReward").value);
+  const payload = {
 
-  const normalMax =
-    Number($("normalMaxReward").value);
-
-  const vipMin =
-    Number($("vipMinReward").value);
-
-  const vipMax =
-    Number($("vipMaxReward").value);
-
-  if(
-    normalMin<0 ||
-    normalMax<normalMin ||
-    vipMin<0 ||
-    vipMax<vipMin
-  ){
-
-    showMessage("Check the reward ranges.");
-
-    return;
-  }
-
-  const maxSubmissions =
-    Number(
-      $("maxTaskSubmissionsPerMinute").value
-    ) || 5;
-
-  const riskScore =
-    Number(
-      $("suspiciousRiskScore").value
-    ) || 70;
-
-  const adFrequency =
-    Number($("adFrequency").value) || 5;
-
-  if(maxSubmissions<1){
-    showMessage(
-      "Maximum submissions must be at least 1."
-    );
-    return;
-  }
-
-  if(riskScore<1 || riskScore>100){
-    showMessage(
-      "Risk score must be between 1 and 100."
-    );
-    return;
-  }
-
-  if(adFrequency<1){
-    showMessage(
-      "Ad frequency must be at least 1."
-    );
-    return;
-  }
-
-  const updates={
-
-    site_name:$("siteName").value.trim(),
+    site_name:
+      $("siteName").value.trim(),
 
     support_whatsapp:
       $("supportWhatsapp").value.trim(),
@@ -3011,446 +2707,200 @@ async function saveSettings(){
     community_chat_enabled:
       $("communityChatEnabled").checked,
 
-    normal_min_task_reward:normalMin,
-    normal_max_task_reward:normalMax,
-    vip_min_task_reward:vipMin,
-    vip_max_task_reward:vipMax,
+    task_approval_required:
+      $("taskApprovalRequired").checked,
 
-    minimum_task_reward:
-      Math.min(normalMin,vipMin),
+    reward_min:
+      Number($("rewardMin").value || 0),
 
-    maximum_task_reward:
-      Math.max(normalMax,vipMax),
+    reward_max:
+      Number($("rewardMax").value || 0),
+
+    vip_reward_min:
+      Number($("vipRewardMin").value || 0),
+
+    vip_reward_max:
+      Number($("vipRewardMax").value || 0),
 
     activation_enabled:
       $("activationEnabled").checked,
 
     activation_fee:
-      Number($("activationFee").value)||0,
+      Number($("activationFee").value || 0),
 
     vip_enabled:
       $("vipEnabled").checked,
 
     vip_price:
-      Number($("vipPrice").value)||0,
+      Number($("vipPrice").value || 0),
 
     free_daily_task_limit:
-      Number($("freeDailyTaskLimit").value)||10,
+      Number($("freeDailyTaskLimit").value || 0),
 
     vip_daily_task_limit:
-      Number($("vipDailyTaskLimit").value)||10,
+      Number($("vipDailyTaskLimit").value || 0),
 
     withdrawals_enabled:
       $("withdrawalsEnabled").checked,
 
     minimum_withdrawal:
-      Number($("minimumWithdrawal").value)||1500,
+      Number($("minimumWithdrawal").value || 0),
 
     free_withdrawal_fee:
-      Number($("freeWithdrawalFee").value)||100,
+      Number($("freeWithdrawalFee").value || 0),
 
     vip_withdrawal_fee:
-      Number($("vipWithdrawalFee").value)||50,
+      Number($("vipWithdrawalFee").value || 0),
 
     withdrawals_per_day:
-      Number($("withdrawalsPerDay").value)||1,
+      Number($("withdrawalsPerDay").value || 0),
 
     referrals_enabled:
       $("referralsEnabled").checked,
 
     referral_reward:
-      Number($("referralReward").value)||0,
+      Number($("referralReward").value || 0)
 
-    poster_registration_enabled:
-      $("posterRegistrationEnabled").checked,
-
-    job_posting_enabled:
-      $("jobPostingEnabled").checked,
-
-    task_approval_required:
-      $("taskApprovalRequired").checked,
-
-    captcha_enabled:
-      $("captchaEnabled").checked,
-
-    captcha_signup_required:
-      $("captchaSignupRequired").checked,
-
-    captcha_withdrawal_required:
-      $("captchaWithdrawalRequired").checked,
-
-    bot_detection_enabled:
-      $("botDetectionEnabled").checked,
-
-    device_detection_enabled:
-      $("deviceDetectionEnabled").checked,
-
-    ip_detection_enabled:
-      $("ipDetectionEnabled").checked,
-
-    suspicious_activity_detection:
-      $("suspiciousActivityDetection").checked,
-
-    automatic_restriction_enabled:
-      $("automaticRestrictionEnabled").checked,
-
-    security_warnings_enabled:
-      $("securityWarningsEnabled").checked,
-
-    user_2fa_enabled:
-      $("user2faEnabled").checked,
-
-    withdrawal_security_check:
-      $("withdrawalSecurityCheck").checked,
-
-    max_task_submissions_per_minute:
-      maxSubmissions,
-
-    suspicious_risk_score:
-      riskScore,
-
-    automatic_ban_enabled:
-      $("automaticBanEnabled").checked,
-
-    normal_ads_enabled:
-      $("normalAdsEnabled").checked,
-
-    vip_ads_enabled:
-      $("vipAdsEnabled").checked,
-
-    ad_frequency:
-      adFrequency,
-
-    updated_at:
-      new Date().toISOString()
   };
+
 
   const {error} =
     await db
       .from("platform_settings")
-      .update(updates)
-      .eq("id",1);
+      .upsert(
+        {
+          id:1,
+          ...payload
+        },
+        {
+          onConflict:"id"
+        }
+      );
+
 
   if(error){
 
     console.error(error);
 
     showMessage(
-      "Settings could not be saved: "+
+      "Settings could not be saved: " +
       error.message
     );
 
     return;
+
   }
 
+
+  platformSettings =
+    {
+      ...platformSettings,
+      ...payload
+    };
+
+
   showMessage(
-    "✅ All settings saved successfully."
+    "✅ Settings saved."
   );
+
 }
 
 
 /* =====================================================
-   OVERVIEW
+   STATS
 ===================================================== */
+
+async function countRows(
+  table,
+  filter
+){
+
+  let query =
+    db
+      .from(table)
+      .select("*",{count:"exact",head:true});
+
+  if(filter)
+    query =
+      filter(query);
+
+  const {count,error} =
+    await query;
+
+  if(error){
+
+    console.error(
+      table,
+      error
+    );
+
+    return 0;
+
+  }
+
+  return count || 0;
+
+}
+
 
 async function loadStats(){
 
-  const results =
+  const [
+    users,
+    tasks,
+    withdrawals,
+    proofs,
+    payments,
+    security
+  ] =
     await Promise.all([
 
-      db.from("profiles")
-        .select("id",{count:"exact",head:true}),
+      countRows("profiles"),
 
-      db.from("tasks")
-        .select("id",{count:"exact",head:true}),
+      countRows("tasks"),
 
-      db.from("withdrawals")
-        .select("id",{count:"exact",head:true}),
+      countRows("withdrawals"),
 
-      db.from("task_submissions")
-        .select("id",{count:"exact",head:true})
-        .eq("status","PENDING"),
+      countRows(
+        "task_submissions",
+        q=>q.eq("status","PENDING")
+      ),
 
-      db.from("poster_payments")
-        .select("id",{count:"exact",head:true})
-        .in("status",["PENDING","UNDER_REVIEW"]),
+      countRows(
+        "poster_payments",
+        q=>q.eq("status","PENDING")
+      ),
 
-      db.from("security_events")
-        .select("id",{count:"exact",head:true})
-        .eq("status","OPEN")
+      countRows(
+        "security_events",
+        q=>q.eq("status","OPEN")
+      )
 
     ]);
 
+
   $("totalUsers").textContent =
-    results[0].count||0;
+    users;
 
   $("totalTasks").textContent =
-    results[1].count||0;
+    tasks;
 
   $("totalWithdrawals").textContent =
-    results[2].count||0;
+    withdrawals;
 
   $("pendingProofs").textContent =
-    results[3].count||0;
+    proofs;
 
   $("pendingPayments").textContent =
-    results[4].count||0;
+    payments;
 
   $("securityEventCount").textContent =
-    results[5].count||0;
+    security;
 
-  $("lastRefresh").textContent =
+
+  $("lastRefresh").value =
     new Date().toLocaleString();
-}
 
-
-/* =====================================================
-   WITHDRAWALS
-===================================================== */
-
-async function loadWithdrawals(){
-
-  $("withdrawalList").innerHTML =
-    '<div class="loading">Loading withdrawals...</div>';
-
-  const {data,error} =
-    await db
-      .from("withdrawals")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(100);
-
-  if(error){
-
-    $("withdrawalList").innerHTML =
-      '<div class="empty">Could not load withdrawals.</div>';
-
-    return;
-  }
-
-  if(!data?.length){
-
-    $("withdrawalList").innerHTML =
-      '<div class="empty">No withdrawal records.</div>';
-
-    return;
-  }
-
-  $("withdrawalList").innerHTML =
-    data.map(w=>`
-
-      <div class="item">
-
-        <b>
-          ₦${Number(w.amount||0).toLocaleString()}
-        </b>
-
-        <p class="small">
-
-          User:
-          ${escapeHtml(w.user_id||"")}
-          <br>
-
-          Bank:
-          ${escapeHtml(w.bank_name||"")}
-          <br>
-
-          Account:
-          ${escapeHtml(w.account_number||"")}
-          <br>
-
-          Status:
-          ${escapeHtml(w.status||"")}
-          <br>
-
-          ${formatDate(w.created_at)}
-
-        </p>
-
-      </div>
-
-    `).join("");
-}
-
-
-/* =====================================================
-   PAYMENTS
-===================================================== */
-
-async function loadPayments(){
-
-  $("paymentList").innerHTML =
-    '<div class="loading">Loading payments...</div>';
-
-  const {data,error} =
-    await db
-      .from("poster_payments")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(100);
-
-  if(error){
-
-    $("paymentList").innerHTML =
-      '<div class="empty">Could not load payments.</div>';
-
-    console.error(error);
-
-    return;
-  }
-
-  if(!data?.length){
-
-    $("paymentList").innerHTML =
-      '<div class="empty">No poster payments.</div>';
-
-    return;
-  }
-
-  $("paymentList").innerHTML =
-    data.map(payment=>`
-
-      <div class="item">
-
-        <div class="item-title">
-          Payment #${payment.id}
-        </div>
-
-        <p class="small">
-
-          Poster:
-          ${escapeHtml(payment.poster_id||"")}
-          <br>
-
-          Task:
-          ${escapeHtml(String(payment.task_id||""))}
-          <br>
-
-          Amount:
-          ₦${Number(payment.amount||0).toLocaleString()}
-          <br>
-
-          Method:
-          ${escapeHtml(payment.payment_method||"Not supplied")}
-          <br>
-
-          Reference:
-          ${escapeHtml(payment.payment_reference||"Not supplied")}
-          <br>
-
-          Status:
-          ${escapeHtml(payment.status||"")}
-          <br>
-
-          ${formatDate(payment.created_at)}
-
-        </p>
-
-        ${
-          payment.proof_url
-          ?`
-          <button
-            class="action blue"
-            onclick="viewPaymentProof('${escapeJs(payment.proof_url)}')">
-            🖼️ View Payment Proof
-          </button>
-          `
-          :""
-        }
-
-        ${
-          ["PENDING","UNDER_REVIEW"].includes(payment.status)
-          ?`
-          <button
-            class="action green"
-            onclick="reviewPayment(${payment.id},'APPROVED')">
-            Approve
-          </button>
-
-          <button
-            class="action danger"
-            onclick="reviewPayment(${payment.id},'REJECTED')">
-            Reject
-          </button>
-          `
-          :""
-        }
-
-      </div>
-
-    `).join("");
-}
-
-async function reviewPayment(paymentId,decision){
-
-  openConfirm(
-    decision==="APPROVED"
-      ?"Approve Payment?"
-      :"Reject Payment?",
-
-    "This will update the poster payment and task status.",
-
-    async()=>{
-
-      const {error} =
-        await db.rpc(
-          "admin_review_poster_payment",
-          {
-            p_payment_id:paymentId,
-            p_decision:decision
-          }
-        );
-
-      if(error){
-        showMessage(error.message);
-        return;
-      }
-
-      showMessage(
-        "Payment review completed."
-      );
-
-      await Promise.all([
-        loadPayments(),
-        loadStats()
-      ]);
-    }
-  );
-}
-
-async function viewPaymentProof(path){
-
-  try{
-
-    const {data,error} =
-      await db.storage
-        .from(PAYMENT_PROOF_BUCKET)
-        .createSignedUrl(path,300);
-
-    if(error || !data?.signedUrl){
-
-      showMessage(
-        "Could not open payment proof."
-      );
-
-      return;
-    }
-
-    $("imageContent").innerHTML =
-      `<img class="proof-image"
-        src="${escapeAttr(data.signedUrl)}"
-        alt="Payment proof">`;
-
-    openModal("imageModal");
-
-  }catch(error){
-
-    console.error(error);
-
-    showMessage(
-      "Could not open payment proof."
-    );
-  }
 }
 
 
@@ -3458,72 +2908,67 @@ async function viewPaymentProof(path){
    CREATE TASK
 ===================================================== */
 
-function clearCreateTaskForm(){
-
-  [
-    "taskTitle",
-    "taskDescription",
-    "taskReward",
-    "taskSlots",
-    "taskLink",
-    "taskCopyText",
-    "taskRequiredProof",
-    "taskExpiry",
-    "taskUploader"
-  ].forEach(id=>{
-    $(id).value="";
-  });
-
-  $("taskUploadRequired").checked=true;
-
-  selectCreateStyle("social");
-}
-
 async function createTask(){
 
   const title =
-    $("taskTitle").value.trim();
+    $("createTitle").value.trim();
 
   const description =
-    $("taskDescription").value.trim();
+    $("createDescription").value.trim();
 
   const reward =
-    Number($("taskReward").value);
+    Number(
+      $("createReward").value
+    );
 
   const slots =
-    Number($("taskSlots").value);
+    Number(
+      $("createSlots").value
+    );
 
   const taskType =
-    $("taskType").value;
+    $("createTaskType").value;
+
 
   if(
     !title ||
     !description ||
-    reward<=0 ||
-    slots<=0 ||
+    !reward ||
+    reward <= 0 ||
+    !slots ||
+    slots <= 0 ||
     !taskType
   ){
 
     showMessage(
-      "Complete the task information."
+      "Please complete the required task fields."
     );
 
     return;
+
   }
 
-  /*
-    New structured information is stored in the
-    existing requirements JSONB column.
-    Existing task columns remain untouched.
-  */
+
+  if(!currentAdmin){
+
+    showMessage(
+      "Admin session is missing."
+    );
+
+    return;
+
+  }
+
 
   const requirements = {
 
     builder_version:2,
 
-    style:createBuilder.style,
+    style:
+      createBuilder.style,
 
-    platform_id:createBuilder.platform,
+    platform_id:
+      createBuilder.platform,
 
     platform_name:
       getPlatformName(
@@ -3531,11 +2976,40 @@ async function createTask(){
         createBuilder.platform
       ),
 
-    action:createBuilder.action,
+    action:
+      createBuilder.action,
 
-    task_type:taskType
+    task_type:
+      taskType,
+
+    task_image_url:
+      $("createTaskImageUrl")
+        .value
+        .trim()
+        || null
 
   };
+
+
+  /*
+    IMPORTANT:
+    If admin approval is enabled,
+    new tasks start as PENDING.
+  */
+
+  const requiresApproval =
+    $("taskApprovalRequired").checked;
+
+
+  const status =
+    requiresApproval
+      ? "PENDING"
+      : "LIVE";
+
+
+  const active =
+    !requiresApproval;
+
 
   const {data,error} =
     await db
@@ -3550,36 +3024,45 @@ async function createTask(){
 
         slots,
 
-        task_type:taskType,
-
-        task_link:
-          $("taskLink").value.trim()
-          || null,
-
-        copy_text:
-          $("taskCopyText").value.trim()
+        expiry_date:
+          $("createExpiry").value
           || null,
 
         required_proof:
-          $("taskRequiredProof").value.trim()
-          || null,
-
-        expiry_date:
-          $("taskExpiry").value
+          $("createRequiredProof")
+            .value
+            .trim()
           || null,
 
         uploader_username:
-          $("taskUploader").value.trim()
+          $("createUploader")
+            .value
+            .trim()
           || null,
 
         upload_required:
-          $("taskUploadRequired").checked,
+          $("createUploadRequired").checked,
+
+        task_type:
+          taskType,
+
+        task_link:
+          $("createLink")
+            .value
+            .trim()
+          || null,
+
+        copy_text:
+          $("createCopyText")
+            .value
+            .trim()
+          || null,
 
         requirements,
 
-        status:"LIVE",
+        status,
 
-        active:true,
+        active,
 
         created_by:
           currentAdmin.id
@@ -3588,35 +3071,91 @@ async function createTask(){
       .select()
       .single();
 
+
   if(error){
 
     console.error(error);
 
-    showMessage(error.message);
+    showMessage(
+      "Task could not be created: " +
+      error.message
+    );
 
     return;
+
   }
 
-  console.log(
-    "Created task:",
-    data
-  );
 
   showMessage(
-    "✅ Task created successfully."
+    requiresApproval
+      ? "✅ Task created as PENDING. Approve it from Task Manager."
+      : "✅ Task created and is LIVE."
   );
 
-  clearCreateTaskForm();
+
+  clearCreateForm();
 
   await Promise.all([
     loadTasks(),
     loadStats()
   ]);
+
 }
 
 
 /* =====================================================
-   TASK MANAGER
+   CLEAR CREATE FORM
+===================================================== */
+
+function clearCreateForm(){
+
+  [
+    "createTitle",
+    "createDescription",
+    "createReward",
+    "createSlots",
+    "createExpiry",
+    "createUploader",
+    "createLink",
+    "createCopyText",
+    "createRequiredProof",
+    "createTaskImageUrl"
+  ].forEach(id=>{
+
+    if($(id))
+      $(id).value = "";
+
+  });
+
+
+  $("createUploadRequired").checked =
+    false;
+
+
+  $("createImagePreview").innerHTML =
+    "";
+
+
+  createBuilder = {
+
+    style:"social",
+
+    platform:"general",
+
+    action:"Other"
+
+  };
+
+
+  updateCreateStyleButtons();
+
+  renderBuilder("create");
+
+}
+
+
+/* =====================================================
+   LOAD TASKS
 ===================================================== */
 
 async function loadTasks(){
@@ -3624,63 +3163,117 @@ async function loadTasks(){
   $("taskList").innerHTML =
     '<div class="loading">Loading tasks...</div>';
 
+
   const {data,error} =
     await db
       .from("tasks")
       .select("*")
       .order("created_at",{ascending:false})
-      .limit(200);
+      .limit(300);
+
 
   if(error){
 
-    $("taskList").innerHTML =
-      '<div class="empty">Could not load tasks.</div>';
-
     console.error(error);
 
+    $("taskList").innerHTML =
+      `<div class="empty">
+        Could not load tasks.<br>
+        <small>${escapeHtml(error.message)}</small>
+      </div>`;
+
     return;
+
   }
 
-  if(!data?.length){
+
+  if(!data || !data.length){
 
     $("taskList").innerHTML =
       '<div class="empty">No tasks found.</div>';
 
     return;
+
   }
+
 
   $("taskList").innerHTML =
     data.map(task=>{
 
+      let requirements = {};
+
+      try{
+
+        requirements =
+          typeof task.requirements === "string"
+            ? JSON.parse(task.requirements)
+            : (task.requirements || {});
+
+      }catch{
+
+        requirements = {};
+
+      }
+
+
       const status =
-        String(task.status||"").toUpperCase();
+        String(
+          task.status || "PENDING"
+        ).toUpperCase();
+
 
       const style =
+        requirements.style ||
         getStyleForTaskType(
           task.task_type
         );
 
+
       const styleInfo =
-        TASK_STYLES[style];
+        TASK_STYLES[style] ||
+        TASK_STYLES.social;
 
-      let requirement={};
 
-      try{
-        requirement =
-          typeof task.requirements==="string"
-            ?JSON.parse(task.requirements)
-            :(task.requirements||{});
-      }catch{
-        requirement={};
-      }
+      const platform =
+        requirements.platform_name ||
+        "General";
 
-      const platformName =
-        requirement.platform_name ||
-        styleInfo.label;
 
       const action =
-        requirement.action ||
-        "Existing task";
+        requirements.action ||
+        "Other";
+
+
+      const isPending =
+        status === "PENDING" ||
+        status === "UNDER_REVIEW" ||
+        status === "PENDING_APPROVAL";
+
+
+      const isLive =
+        status === "LIVE" ||
+        status === "APPROVED";
+
+
+      const isPaused =
+        status === "PAUSED";
+
+
+      const isRejected =
+        status === "REJECTED";
+
+
+      let statusClass = "";
+
+      if(isPending)
+        statusClass = "blue";
+
+      if(isPaused)
+        statusClass = "orange";
+
+      if(isRejected)
+        statusClass = "red";
+
 
       return `
 
@@ -3692,121 +3285,378 @@ async function loadTasks(){
 
             <div class="task-card-title">
               ${escapeHtml(
-                task.title||"Untitled Task"
+                task.title ||
+                "Untitled Task"
               )}
             </div>
 
             <span class="task-style-badge">
               ${styleInfo.icon}
-              ${styleInfo.label}
+              ${escapeHtml(
+                styleInfo.label
+              )}
             </span>
 
           </div>
 
-          <span class="badge ${
-            status==="LIVE"
-              ?""
-              :status==="PAUSED"
-                ?"orange"
-                :"blue"
-          }">
-
-            ${escapeHtml(
-              status||"UNKNOWN"
-            )}
-
+          <span class="badge ${statusClass}">
+            ${escapeHtml(status)}
           </span>
 
         </div>
 
-        <p class="small" style="margin-top:10px;">
-          ${escapeHtml(task.description||"")}
+
+        <p class="small">
+          ${escapeHtml(
+            task.description ||
+            "No description."
+          )}
         </p>
+
 
         <div class="task-meta">
 
           <div class="task-meta-box">
             <small>Platform</small>
-            <b>${escapeHtml(platformName)}</b>
+            <b>
+              ${escapeHtml(platform)}
+            </b>
           </div>
 
           <div class="task-meta-box">
             <small>Action</small>
-            <b>${escapeHtml(action)}</b>
+            <b>
+              ${escapeHtml(action)}
+            </b>
           </div>
 
           <div class="task-meta-box">
             <small>Reward</small>
-            <b>₦${Number(task.reward||0).toLocaleString()}</b>
+            <b>
+              ₦${Number(
+                task.reward || 0
+              ).toLocaleString()}
+            </b>
           </div>
 
           <div class="task-meta-box">
-            <small>Available Slots</small>
-            <b>${escapeHtml(String(task.slots||0))}</b>
-          </div>
-
-          <div class="task-meta-box">
-            <small>Task Type</small>
-            <b>${escapeHtml(task.task_type||"")}</b>
+            <small>Slots</small>
+            <b>
+              ${Number(
+                task.slots || 0
+              ).toLocaleString()}
+            </b>
           </div>
 
           <div class="task-meta-box">
             <small>Photo Proof</small>
-            <b>${task.upload_required?"Required":"Optional"}</b>
+            <b>
+              ${
+                task.upload_required
+                  ? "Required"
+                  : "Optional"
+              }
+            </b>
+          </div>
+
+          <div class="task-meta-box">
+            <small>Active</small>
+            <b>
+              ${
+                task.active
+                  ? "Yes"
+                  : "No"
+              }
+            </b>
           </div>
 
         </div>
 
+
+        ${
+          task.task_link
+          ? `
+          <div class="help-box">
+
+            <strong>🔗 Task Link</strong>
+
+            <br>
+
+            <a
+              href="${escapeAttr(task.task_link)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="color:#0b8f3c;word-break:break-all;">
+              ${escapeHtml(task.task_link)}
+            </a>
+
+          </div>
+          `
+          : ""
+        }
+
+
+        ${
+          task.copy_text
+          ? `
+          <div class="help-box">
+
+            <strong>📋 Copy Text</strong>
+
+            <br>
+
+            ${escapeHtml(task.copy_text)}
+
+          </div>
+          `
+          : ""
+        }
+
+
+        ${
+          requirements.task_image_url
+          ? `
+          <button
+            class="action blue"
+            onclick="viewTaskImage(
+              '${escapeJs(
+                requirements.task_image_url
+              )}'
+            )">
+            🖼️ View Task Image
+          </button>
+          `
+          : ""
+        }
+
+
         <p class="small">
 
-          Active:
-          <strong>
-            ${task.active?"Yes":"No"}
-          </strong>
+          Type:
+          ${escapeHtml(
+            task.task_type || ""
+          )}
 
           <br>
 
           Expiry:
           ${
             task.expiry_date
-              ?formatDate(task.expiry_date)
-              :"None"
+              ? formatDate(
+                  task.expiry_date
+                )
+              : "None"
           }
+
+          <br>
+
+          Created:
+          ${formatDate(
+            task.created_at
+          )}
 
         </p>
 
-        <button
-          class="action blue"
-          onclick="editTask('${escapeJs(task.id)}')">
-          ✏️ Edit
-        </button>
 
-        <button
-          class="action warning"
-          onclick="toggleTask(
-            '${escapeJs(task.id)}',
-            ${task.active?"false":"true"}
-          )">
+        <div>
 
           ${
-            task.active
-              ?"⏸ Pause"
-              :"▶️ Activate"
+            isPending
+            ? `
+
+            <button
+              class="action green"
+              onclick="approveTask(
+                '${escapeJs(task.id)}'
+              )">
+              ✅ Approve
+            </button>
+
+            <button
+              class="action danger"
+              onclick="rejectTask(
+                '${escapeJs(task.id)}'
+              )">
+              ❌ Reject
+            </button>
+
+            `
+            : ""
           }
 
-        </button>
 
-        <button
-          class="action danger"
-          onclick="deleteTask('${escapeJs(task.id)}')">
-          🗑 Delete
-        </button>
+          ${
+            isRejected
+            ? `
+
+            <button
+              class="action green"
+              onclick="approveTask(
+                '${escapeJs(task.id)}'
+              )">
+              ✅ Approve Again
+            </button>
+
+            `
+            : ""
+          }
+
+
+          <button
+            class="action blue"
+            onclick="editTask(
+              '${escapeJs(task.id)}'
+            )">
+            ✏️ Edit
+          </button>
+
+
+          ${
+            isLive || isPaused
+            ? `
+
+            <button
+              class="action warning"
+              onclick="toggleTask(
+                '${escapeJs(task.id)}',
+                ${task.active ? "false" : "true"}
+              )">
+
+              ${
+                task.active
+                  ? "⏸ Pause"
+                  : "▶️ Activate"
+              }
+
+            </button>
+
+            `
+            : ""
+          }
+
+
+          <button
+            class="action danger"
+            onclick="deleteTask(
+              '${escapeJs(task.id)}'
+            )">
+            🗑 Delete
+          </button>
+
+        </div>
 
       </div>
 
       `;
 
     }).join("");
+
+}
+
+
+/* =====================================================
+   APPROVE TASK
+===================================================== */
+
+async function approveTask(id){
+
+  openConfirm(
+
+    "Approve Task?",
+
+    "This will make the task LIVE and available to taskers.",
+
+    async()=>{
+
+      const {error} =
+        await db
+          .from("tasks")
+          .update({
+            status:"LIVE",
+            active:true
+          })
+          .eq("id",id);
+
+
+      if(error){
+
+        showMessage(
+          "Could not approve task: " +
+          error.message
+        );
+
+        return;
+
+      }
+
+
+      showMessage(
+        "✅ Task approved and is now LIVE."
+      );
+
+
+      await Promise.all([
+        loadTasks(),
+        loadStats()
+      ]);
+
+    }
+
+  );
+
+}
+
+
+/* =====================================================
+   REJECT TASK
+===================================================== */
+
+async function rejectTask(id){
+
+  openConfirm(
+
+    "Reject Task?",
+
+    "This will reject the task and keep it unavailable to taskers.",
+
+    async()=>{
+
+      const {error} =
+        await db
+          .from("tasks")
+          .update({
+            status:"REJECTED",
+            active:false
+          })
+          .eq("id",id);
+
+
+      if(error){
+
+        showMessage(
+          "Could not reject task: " +
+          error.message
+        );
+
+        return;
+
+      }
+
+
+      showMessage(
+        "❌ Task rejected."
+      );
+
+
+      await Promise.all([
+        loadTasks(),
+        loadStats()
+      ]);
+
+    }
+
+  );
+
 }
 
 
@@ -3816,8 +3666,6 @@ async function loadTasks(){
 
 async function editTask(id){
 
-  showMessage("Loading task...");
-
   const {data,error} =
     await db
       .from("tasks")
@@ -3825,124 +3673,177 @@ async function editTask(id){
       .eq("id",id)
       .single();
 
+
   if(error){
 
-    showMessage(error.message);
-
-    return;
-  }
-
-  $("editTaskId").value=data.id;
-  $("editTitle").value=data.title||"";
-  $("editDescription").value=data.description||"";
-  $("editReward").value=data.reward||"";
-  $("editSlots").value=data.slots||"";
-
-  let requirements={};
-
-  try{
-    requirements =
-      typeof data.requirements==="string"
-        ?JSON.parse(data.requirements)
-        :(data.requirements||{});
-  }catch{
-    requirements={};
-  }
-
-  const style =
-    requirements.style ||
-    getStyleForTaskType(
-      data.task_type
+    showMessage(
+      "Could not load task: " +
+      error.message
     );
 
+    return;
+
+  }
+
+
+  $("editTaskId").value =
+    data.id;
+
+  $("editTitle").value =
+    data.title || "";
+
+  $("editDescription").value =
+    data.description || "";
+
+  $("editReward").value =
+    data.reward || "";
+
+  $("editSlots").value =
+    data.slots || "";
+
+
+  let requirements = {};
+
+  try{
+
+    requirements =
+      typeof data.requirements === "string"
+        ? JSON.parse(data.requirements)
+        : (data.requirements || {});
+
+  }catch{
+
+    requirements = {};
+
+  }
+
+
+  const style =
+    ["social","website","app"]
+      .includes(requirements.style)
+      ? requirements.style
+      : getStyleForTaskType(
+          data.task_type
+        );
+
+
+  const platformExists =
+    (PLATFORM_CATALOG[style] || [])
+      .some(
+        item =>
+          item.id ===
+          requirements.platform_id
+      );
+
+
   const platform =
-    requirements.platform_id ||
-    (
-      PLATFORM_CATALOG[style] || []
-    ).find(
-      item =>
-        item.type===data.task_type
-    )?.id ||
-    PLATFORM_CATALOG[style]?.[0]?.id;
+    platformExists
+      ? requirements.platform_id
+      : (
+          PLATFORM_CATALOG[style]?.[0]?.id
+          || ""
+        );
+
 
   const actions =
     ACTION_CATALOG[style]?.[platform]
-    || ["Other"];
+    ||
+    ACTION_CATALOG[style]?.general
+    ||
+    ["Other"];
 
-  editBuilder={
-    style:style,
-    platform:platform || "",
+
+  editBuilder = {
+
+    style,
+
+    platform,
+
     action:
-      requirements.action &&
-      actions.includes(requirements.action)
-        ?requirements.action
-        :actions[0]
+      actions.includes(
+        requirements.action
+      )
+      ? requirements.action
+      : actions[0]
+
   };
+
 
   updateEditStyleButtons(style);
 
-  fillTaskTypeSelect(
-    "editTaskType",
-    style,
-    data.task_type
-  );
-
   renderBuilder("edit");
 
-  updateTaskTypeHelp(
-    "editTaskType",
-    "editTaskTypeHelp"
-  );
+
+  setTimeout(()=>{
+
+    $("editPlatform").value =
+      platform;
+
+    fillActionSelect(
+      "editAction",
+      style,
+      platform,
+      editBuilder.action
+    );
+
+    fillTaskTypeSelect(
+      "editTaskType",
+      style,
+      data.task_type
+    );
+
+    updateTaskTypeHelp(
+      "editTaskType",
+      "editTaskTypeHelp"
+    );
+
+  },0);
+
 
   $("editLink").value =
-    data.task_link||"";
+    data.task_link || "";
 
   $("editCopyText").value =
-    data.copy_text||"";
+    data.copy_text || "";
 
   $("editRequiredProof").value =
-    data.required_proof||"";
+    data.required_proof || "";
 
   $("editUploader").value =
-    data.uploader_username||"";
+    data.uploader_username || "";
 
   $("editUploadRequired").checked =
     !!data.upload_required;
 
+
   if(data.expiry_date){
 
-    const date =
+    const d =
       new Date(data.expiry_date);
 
-    const local =
+    $("editExpiry").value =
       new Date(
-        date.getTime() -
-        date.getTimezoneOffset()*60000
+        d.getTime() -
+        d.getTimezoneOffset()*60000
       )
       .toISOString()
       .slice(0,16);
 
-    $("editExpiry").value=local;
-
   }else{
 
-    $("editExpiry").value="";
+    $("editExpiry").value = "";
 
   }
 
+
   openModal("editModal");
 
-  setTimeout(()=>{
-
-    $("editTitle").focus();
-
-    $("editTitle").scrollIntoView({
-      behavior:"smooth",
-      block:"center"
-    });
-
-  },150);
 }
+
+
+/* =====================================================
+   SAVE TASK EDIT
+===================================================== */
 
 async function saveTaskEdit(){
 
@@ -3956,37 +3857,74 @@ async function saveTaskEdit(){
     $("editDescription").value.trim();
 
   const reward =
-    Number($("editReward").value);
+    Number(
+      $("editReward").value
+    );
 
   const slots =
-    Number($("editSlots").value);
+    Number(
+      $("editSlots").value
+    );
 
   const taskType =
     $("editTaskType").value;
+
 
   if(
     !id ||
     !title ||
     !description ||
-    reward<=0 ||
-    slots<=0 ||
+    reward <= 0 ||
+    slots <= 0 ||
     !taskType
   ){
 
     showMessage(
-      "Check the task information."
+      "Please complete the required fields."
     );
 
     return;
+
   }
 
-  const requirements={
+
+  const {data:oldTask} =
+    await db
+      .from("tasks")
+      .select("requirements")
+      .eq("id",id)
+      .single();
+
+
+  let oldRequirements = {};
+
+  try{
+
+    oldRequirements =
+      typeof oldTask?.requirements === "string"
+        ? JSON.parse(
+            oldTask.requirements
+          )
+        : (
+            oldTask?.requirements || {}
+          );
+
+  }catch{
+
+    oldRequirements = {};
+
+  }
+
+
+  const requirements = {
 
     builder_version:2,
 
-    style:editBuilder.style,
+    style:
+      editBuilder.style,
 
-    platform_id:editBuilder.platform,
+    platform_id:
+      editBuilder.platform,
 
     platform_name:
       getPlatformName(
@@ -3994,11 +3932,24 @@ async function saveTaskEdit(){
         editBuilder.platform
       ),
 
-    action:editBuilder.action,
+    action:
+      editBuilder.action,
 
-    task_type:taskType
+    task_type:
+      taskType
 
   };
+
+
+  if(
+    oldRequirements.task_image_url
+  ){
+
+    requirements.task_image_url =
+      oldRequirements.task_image_url;
+
+  }
+
 
   const {error} =
     await db
@@ -4013,55 +3964,71 @@ async function saveTaskEdit(){
 
         slots,
 
-        task_type:taskType,
-
-        task_link:
-          $("editLink").value.trim()
-          || null,
-
-        copy_text:
-          $("editCopyText").value.trim()
-          || null,
-
-        required_proof:
-          $("editRequiredProof").value.trim()
-          || null,
-
         expiry_date:
           $("editExpiry").value
           || null,
 
+        required_proof:
+          $("editRequiredProof")
+            .value
+            .trim()
+          || null,
+
         uploader_username:
-          $("editUploader").value.trim()
+          $("editUploader")
+            .value
+            .trim()
           || null,
 
         upload_required:
           $("editUploadRequired").checked,
+
+        task_type:
+          taskType,
+
+        task_link:
+          $("editLink")
+            .value
+            .trim()
+          || null,
+
+        copy_text:
+          $("editCopyText")
+            .value
+            .trim()
+          || null,
 
         requirements
 
       })
       .eq("id",id);
 
+
   if(error){
 
-    console.error(error);
-
-    showMessage(error.message);
+    showMessage(
+      "Could not update task: " +
+      error.message
+    );
 
     return;
+
   }
 
+
   closeModal("editModal");
+
 
   showMessage(
     "✅ Task updated successfully."
   );
 
+
   await Promise.all([
     loadTasks(),
     loadStats()
   ]);
+
 }
 
 
@@ -4069,40 +4036,67 @@ async function saveTaskEdit(){
    TOGGLE TASK
 ===================================================== */
 
-async function toggleTask(id,active){
+async function toggleTask(
+  id,
+  active
+){
 
-  const {error} =
-    await db
-      .from("tasks")
-      .update({
+  openConfirm(
 
-        active,
-
-        status:
-          active
-            ?"LIVE"
-            :"PAUSED"
-
-      })
-      .eq("id",id);
-
-  if(error){
-
-    showMessage(error.message);
-
-    return;
-  }
-
-  showMessage(
     active
-      ?"Task activated."
-      :"Task paused."
+      ? "Activate Task?"
+      : "Pause Task?",
+
+    active
+      ? "This will make the task LIVE."
+      : "This will pause the task.",
+
+    async()=>{
+
+      const {error} =
+        await db
+          .from("tasks")
+          .update({
+
+            active,
+
+            status:
+              active
+                ? "LIVE"
+                : "PAUSED"
+
+          })
+          .eq("id",id);
+
+
+      if(error){
+
+        showMessage(
+          "Could not update task: " +
+          error.message
+        );
+
+        return;
+
+      }
+
+
+      showMessage(
+        active
+          ? "▶️ Task activated."
+          : "⏸ Task paused."
+      );
+
+
+      await Promise.all([
+        loadTasks(),
+        loadStats()
+      ]);
+
+    }
+
   );
 
-  await Promise.all([
-    loadTasks(),
-    loadStats()
-  ]);
 }
 
 
@@ -4116,7 +4110,7 @@ async function deleteTask(id){
 
     "Delete Task?",
 
-    "This permanently deletes the task. Continue only if you are sure.",
+    "This permanently deletes the task. This cannot be undone.",
 
     async()=>{
 
@@ -4127,30 +4121,118 @@ async function deleteTask(id){
           .eq("id",id)
           .select("id");
 
+
       if(error){
 
-        showMessage(error.message);
-
-        return;
-      }
-
-      if(!data || !data.length){
-
         showMessage(
-          "Task was not deleted. Check admin permission."
+          "Could not delete task: " +
+          error.message
         );
 
         return;
+
       }
 
-      showMessage("Task deleted.");
+
+      if(!data?.length){
+
+        showMessage(
+          "Task was not deleted. Check your database permissions."
+        );
+
+        return;
+
+      }
+
+
+      showMessage(
+        "🗑 Task deleted."
+      );
+
 
       await Promise.all([
         loadTasks(),
         loadStats()
       ]);
+
     }
+
   );
+
+}
+
+
+/* =====================================================
+   TASK IMAGE
+===================================================== */
+
+async function viewTaskImage(url){
+
+  if(!url){
+
+    showMessage(
+      "No task image found."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    url.startsWith("http://") ||
+    url.startsWith("https://")
+  ){
+
+    $("imageContent").innerHTML =
+      `<img
+        class="proof-image"
+        src="${escapeAttr(url)}"
+        alt="Task image">`;
+
+    openModal("imageModal");
+
+    return;
+
+  }
+
+
+  const cleanPath =
+    normalizeStoragePath(
+      url,
+      TASK_PROOF_BUCKET
+    );
+
+
+  const {data,error} =
+    await db.storage
+      .from(TASK_PROOF_BUCKET)
+      .createSignedUrl(
+        cleanPath,
+        300
+      );
+
+
+  if(error || !data?.signedUrl){
+
+    showMessage(
+      "Could not open task image."
+    );
+
+    return;
+
+  }
+
+
+  $("imageContent").innerHTML =
+    `<img
+      class="proof-image"
+      src="${escapeAttr(data.signedUrl)}"
+      alt="Task image">`;
+
+
+  openModal("imageModal");
+
 }
 
 
@@ -4163,21 +4245,28 @@ async function loadProofs(){
   $("proofList").innerHTML =
     '<div class="loading">Loading proofs...</div>';
 
+
   const {data,error} =
     await db
       .from("task_submissions")
       .select("*")
       .eq("status","PENDING")
       .order("created_at",{ascending:false})
-      .limit(100);
+      .limit(200);
+
 
   if(error){
 
     $("proofList").innerHTML =
-      '<div class="empty">Could not load proofs.</div>';
+      `<div class="empty">
+        Could not load proofs.<br>
+        ${escapeHtml(error.message)}
+      </div>`;
 
     return;
+
   }
+
 
   if(!data?.length){
 
@@ -4185,137 +4274,234 @@ async function loadProofs(){
       '<div class="empty">No pending proofs.</div>';
 
     return;
+
   }
 
-  $("proofList").innerHTML =
-    data.map(p=>{
 
-      let proof={};
+  const userIds =
+    [...new Set(
+      data
+        .map(x=>x.user_id)
+        .filter(Boolean)
+    )];
+
+
+  const taskIds =
+    [...new Set(
+      data
+        .map(x=>x.task_id)
+        .filter(Boolean)
+    )];
+
+
+  let users = [];
+
+  let tasks = [];
+
+
+  if(userIds.length){
+
+    const result =
+      await db
+        .from("profiles")
+        .select("id,full_name,phone")
+        .in("id",userIds);
+
+    users =
+      result.data || [];
+
+  }
+
+
+  if(taskIds.length){
+
+    const result =
+      await db
+        .from("tasks")
+        .select("id,title")
+        .in("id",taskIds);
+
+    tasks =
+      result.data || [];
+
+  }
+
+
+  $("proofList").innerHTML =
+    data.map(proof=>{
+
+      let parsed = {};
 
       try{
 
-        proof =
-          typeof p.proof==="string"
-            ?JSON.parse(p.proof)
-            :(p.proof||{});
+        parsed =
+          typeof proof.proof === "string"
+            ? JSON.parse(proof.proof)
+            : (proof.proof || {});
 
       }catch{
 
-        proof={
-          text:String(p.proof||"")
-        };
+        parsed = {};
+
       }
 
-      const image =
-        proof.photo_path ||
-        proof.image_path ||
-        proof.photo_url ||
-        proof.image_url ||
-        proof.photo ||
+
+      const user =
+        users.find(
+          u=>u.id === proof.user_id
+        );
+
+
+      const task =
+        tasks.find(
+          t=>String(t.id) ===
+             String(proof.task_id)
+        );
+
+
+      const imagePath =
+        parsed.photo_path ||
+        parsed.image_path ||
+        parsed.photo_url ||
+        parsed.image_url ||
+        parsed.photo ||
         null;
+
+
+      const text =
+        parsed.comment ||
+        parsed.text ||
+        parsed.proof_text ||
+        (
+          typeof proof.proof === "string"
+            ? proof.proof
+            : ""
+        );
+
 
       return `
 
-      <div class="item">
+      <div class="proof-card">
 
-        <div class="item-title">
-          Submission #${p.id}
-        </div>
+        <strong>
+          ${escapeHtml(
+            task?.title ||
+            "Unknown Task"
+          )}
+        </strong>
 
         <p class="small">
 
           User:
-          ${escapeHtml(p.user_id||"")}
+          ${escapeHtml(
+            user?.full_name ||
+            proof.user_id ||
+            "Unknown"
+          )}
 
           <br>
 
-          Task:
-          ${escapeHtml(String(p.task_id||""))}
+          Phone:
+          ${escapeHtml(
+            user?.phone ||
+            "—"
+          )}
 
           <br>
 
           Submitted:
-          ${formatDate(p.created_at)}
+          ${formatDate(
+            proof.created_at
+          )}
 
         </p>
 
-        ${
-          proof.text
-          ?`
-          <p class="small">
-            <b>Proof:</b><br>
-            ${escapeHtml(proof.text)}
-          </p>
-          `
-          :""
-        }
 
         ${
-          proof.comment
-          ?`
-          <p class="small">
-            <b>Comment:</b><br>
-            ${escapeHtml(proof.comment)}
-          </p>
+          text
+          ? `
+          <div class="help-box">
+
+            <strong>Proof / Comment</strong>
+
+            <br>
+
+            ${escapeHtml(text)}
+
+          </div>
           `
-          :""
+          : ""
         }
 
-        ${
-          proof.username
-          ?`
-          <p class="small">
-            <b>Username:</b>
-            ${escapeHtml(proof.username)}
-          </p>
-          `
-          :""
-        }
 
         ${
-          image
-          ?`
+          imagePath
+          ? `
           <button
             class="action blue"
-            onclick="viewTaskProof('${escapeJs(image)}')">
-            🖼️ View Photo
+            onclick="viewTaskProof(
+              '${escapeJs(imagePath)}'
+            )">
+            🖼️ View Proof Image
           </button>
           `
-          :`
-          <span class="badge orange">
-            No photo
-          </span>
+          : `
+          <div class="small">
+            No image attached.
+          </div>
           `
         }
 
-        <button
-          class="action green"
-          onclick="reviewProof(${p.id},'APPROVED')">
-          Approve
-        </button>
 
-        <button
-          class="action danger"
-          onclick="reviewProof(${p.id},'REJECTED')">
-          Reject
-        </button>
+        <div style="margin-top:8px;">
+
+          <button
+            class="action green"
+            onclick="reviewProof(
+              '${escapeJs(proof.id)}',
+              'APPROVED'
+            )">
+            ✅ Approve
+          </button>
+
+          <button
+            class="action danger"
+            onclick="reviewProof(
+              '${escapeJs(proof.id)}',
+              'REJECTED'
+            )">
+            ❌ Reject
+          </button>
+
+        </div>
 
       </div>
 
       `;
 
     }).join("");
+
 }
 
-async function reviewProof(id,status){
+
+/* =====================================================
+   REVIEW PROOF
+===================================================== */
+
+async function reviewProof(
+  id,
+  status
+){
 
   openConfirm(
 
-    status==="APPROVED"
-      ?"Approve Proof?"
-      :"Reject Proof?",
+    status === "APPROVED"
+      ? "Approve Proof?"
+      : "Reject Proof?",
 
-    "Confirm this proof review.",
+    status === "APPROVED"
+      ? "The submission will be marked APPROVED."
+      : "The submission will be marked REJECTED.",
 
     async()=>{
 
@@ -4327,7 +4513,7 @@ async function reviewProof(id,status){
             status,
 
             reviewed_by:
-              currentAdmin.id,
+              currentAdmin?.id || null,
 
             reviewed_at:
               new Date().toISOString()
@@ -4335,28 +4521,108 @@ async function reviewProof(id,status){
           })
           .eq("id",id);
 
+
       if(error){
 
-        showMessage(error.message);
+        showMessage(
+          "Could not review proof: " +
+          error.message
+        );
 
         return;
+
       }
 
+
       showMessage(
-        "Proof review completed."
+        status === "APPROVED"
+          ? "✅ Proof approved."
+          : "❌ Proof rejected."
       );
+
 
       await Promise.all([
         loadProofs(),
         loadStats()
       ]);
+
     }
+
   );
+
 }
 
 
 /* =====================================================
-   TASK PROOF IMAGE
+   STORAGE PATH NORMALIZER
+===================================================== */
+
+function normalizeStoragePath(
+  path,
+  bucket
+){
+
+  let value =
+    String(path || "")
+      .trim();
+
+
+  if(
+    value.includes(
+      `/storage/v1/object/`
+    )
+  ){
+
+    const marker =
+      `/storage/v1/object/`;
+
+
+    const index =
+      value.indexOf(marker);
+
+
+    value =
+      value.slice(
+        index + marker.length
+      );
+
+
+    value =
+      value.replace(
+        /^sign\//,
+        ""
+      );
+
+    value =
+      value.replace(
+        /^public\//,
+        ""
+      );
+
+  }
+
+
+  value =
+    value.replace(
+      `${bucket}/`,
+      ""
+    );
+
+
+  value =
+    value.replace(
+      /^\/+/,
+      ""
+    );
+
+
+  return value;
+
+}
+
+
+/* =====================================================
+   VIEW SUBMITTED PROOF IMAGE
 ===================================================== */
 
 async function viewTaskProof(path){
@@ -4368,7 +4634,9 @@ async function viewTaskProof(path){
     );
 
     return;
+
   }
+
 
   if(
     path.startsWith("http://") ||
@@ -4379,34 +4647,458 @@ async function viewTaskProof(path){
       `<img
         class="proof-image"
         src="${escapeAttr(path)}"
-        alt="Task proof">`;
+        alt="Proof image">`;
 
     openModal("imageModal");
 
     return;
+
   }
+
+
+  const cleanPath =
+    normalizeStoragePath(
+      path,
+      TASK_PROOF_BUCKET
+    );
+
 
   const {data,error} =
     await db.storage
       .from(TASK_PROOF_BUCKET)
-      .createSignedUrl(path,300);
+      .createSignedUrl(
+        cleanPath,
+        600
+      );
+
 
   if(error || !data?.signedUrl){
 
     showMessage(
-      "Could not open task proof photo."
+      "Could not open proof image: " +
+      (error?.message || "")
     );
 
     return;
+
   }
+
 
   $("imageContent").innerHTML =
     `<img
       class="proof-image"
       src="${escapeAttr(data.signedUrl)}"
-      alt="Task proof">`;
+      alt="Proof image">`;
+
 
   openModal("imageModal");
+
+}
+
+
+/* =====================================================
+   WITHDRAWALS
+===================================================== */
+
+async function loadWithdrawals(){
+
+  $("withdrawalList").innerHTML =
+    '<div class="loading">Loading withdrawals...</div>';
+
+
+  const {data,error} =
+    await db
+      .from("withdrawals")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(200);
+
+
+  if(error){
+
+    $("withdrawalList").innerHTML =
+      `<div class="empty">
+        ${escapeHtml(error.message)}
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(!data?.length){
+
+    $("withdrawalList").innerHTML =
+      '<div class="empty">No withdrawal records.</div>';
+
+    return;
+
+  }
+
+
+  $("withdrawalList").innerHTML =
+    `<div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>User</th>
+            <th>Amount</th>
+            <th>Bank</th>
+            <th>Account</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${data.map(row=>`
+
+            <tr>
+
+              <td>
+                ${escapeHtml(
+                  row.user_id
+                )}
+              </td>
+
+              <td>
+                ₦${Number(
+                  row.amount || 0
+                ).toLocaleString()}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.bank_name || "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.account_number || "—"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.status || "—"
+                )}
+              </td>
+
+              <td>
+                ${formatDate(
+                  row.created_at
+                )}
+              </td>
+
+            </tr>
+
+          `).join("")}
+
+        </tbody>
+
+      </table>
+
+    </div>`;
+
+}
+
+
+/* =====================================================
+   PAYMENTS
+===================================================== */
+
+async function loadPayments(){
+
+  $("paymentList").innerHTML =
+    '<div class="loading">Loading payments...</div>';
+
+
+  const {data,error} =
+    await db
+      .from("poster_payments")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(200);
+
+
+  if(error){
+
+    $("paymentList").innerHTML =
+      `<div class="empty">
+        ${escapeHtml(error.message)}
+      </div>`;
+
+    return;
+
+  }
+
+
+  if(!data?.length){
+
+    $("paymentList").innerHTML =
+      '<div class="empty">No poster payments.</div>';
+
+    return;
+
+  }
+
+
+  $("paymentList").innerHTML =
+    data.map(payment=>`
+
+      <div class="proof-card">
+
+        <strong>
+          Poster Payment
+        </strong>
+
+        <p class="small">
+
+          Poster:
+          ${escapeHtml(
+            payment.poster_id || "—"
+          )}
+
+          <br>
+
+          Task:
+          ${escapeHtml(
+            payment.task_id || "—"
+          )}
+
+          <br>
+
+          Amount:
+          ₦${Number(
+            payment.amount || 0
+          ).toLocaleString()}
+
+          <br>
+
+          Method:
+          ${escapeHtml(
+            payment.payment_method || "—"
+          )}
+
+          <br>
+
+          Reference:
+          ${escapeHtml(
+            payment.payment_reference || "—"
+          )}
+
+          <br>
+
+          Status:
+          ${escapeHtml(
+            payment.status || "—"
+          )}
+
+          <br>
+
+          Date:
+          ${formatDate(
+            payment.created_at
+          )}
+
+        </p>
+
+
+        ${
+          payment.proof_url
+          ? `
+          <button
+            class="action blue"
+            onclick="viewPaymentProof(
+              '${escapeJs(
+                payment.proof_url
+              )}'
+            )">
+            🖼️ View Payment Proof
+          </button>
+          `
+          : ""
+        }
+
+
+        ${
+          String(
+            payment.status || ""
+          ).toUpperCase() === "PENDING"
+          ? `
+
+          <button
+            class="action green"
+            onclick="reviewPayment(
+              '${escapeJs(payment.id)}',
+              'APPROVED'
+            )">
+            ✅ Approve Payment
+          </button>
+
+          <button
+            class="action danger"
+            onclick="reviewPayment(
+              '${escapeJs(payment.id)}',
+              'REJECTED'
+            )">
+            ❌ Reject Payment
+          </button>
+
+          `
+          : ""
+        }
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* =====================================================
+   REVIEW PAYMENT
+===================================================== */
+
+async function reviewPayment(
+  id,
+  decision
+){
+
+  openConfirm(
+
+    decision === "APPROVED"
+      ? "Approve Payment?"
+      : "Reject Payment?",
+
+    "Confirm this poster payment decision.",
+
+    async()=>{
+
+      const {data,error} =
+        await db.rpc(
+          "admin_review_poster_payment",
+          {
+            p_payment_id:id,
+            p_decision:decision
+          }
+        );
+
+
+      if(error){
+
+        showMessage(
+          "Payment review failed: " +
+          error.message
+        );
+
+        return;
+
+      }
+
+
+      console.log(
+        "Payment review result:",
+        data
+      );
+
+
+      showMessage(
+        decision === "APPROVED"
+          ? "✅ Payment approved."
+          : "❌ Payment rejected."
+      );
+
+
+      await Promise.all([
+        loadPayments(),
+        loadStats()
+      ]);
+
+    }
+
+  );
+
+}
+
+
+/* =====================================================
+   PAYMENT PROOF
+===================================================== */
+
+async function viewPaymentProof(path){
+
+  if(!path){
+
+    showMessage(
+      "No payment proof."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    path.startsWith("http://") ||
+    path.startsWith("https://")
+  ){
+
+    $("imageContent").innerHTML =
+      `<img
+        class="proof-image"
+        src="${escapeAttr(path)}"
+        alt="Payment proof">`;
+
+    openModal("imageModal");
+
+    return;
+
+  }
+
+
+  const cleanPath =
+    normalizeStoragePath(
+      path,
+      PAYMENT_PROOF_BUCKET
+    );
+
+
+  const {data,error} =
+    await db.storage
+      .from(PAYMENT_PROOF_BUCKET)
+      .createSignedUrl(
+        cleanPath,
+        600
+      );
+
+
+  if(error || !data?.signedUrl){
+
+    showMessage(
+      "Could not open payment proof."
+    );
+
+    return;
+
+  }
+
+
+  $("imageContent").innerHTML =
+    `<img
+      class="proof-image"
+      src="${escapeAttr(data.signedUrl)}"
+      alt="Payment proof">`;
+
+
+  openModal("imageModal");
+
 }
 
 
@@ -4416,48 +5108,55 @@ async function viewTaskProof(path){
 
 async function searchUsers(){
 
-  const q =
-    $("userSearch").value.trim();
+  const value =
+    $("userSearch")
+      .value
+      .trim();
 
-  if(!q){
 
-    $("userList").innerHTML =
-      '<div class="empty">Enter a name, phone or user ID.</div>';
+  if(!value){
+
+    showMessage(
+      "Enter a name, phone or user ID."
+    );
 
     return;
+
   }
 
-  let query =
-    db
+
+  $("userList").innerHTML =
+    '<div class="loading">Searching...</div>';
+
+
+  const safe =
+    value
+      .replace(/%/g,"")
+      .replace(/,/g,"");
+
+
+  const {data,error} =
+    await db
       .from("profiles")
       .select("*")
+      .or(
+        `full_name.ilike.%${safe}%,phone.ilike.%${safe}%,id.eq.${safe}`
+      )
       .limit(50);
 
-  const uuidPattern =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-  if(uuidPattern.test(q)){
-
-    query=query.eq("id",q);
-
-  }else{
-
-    const safe=escapeFilter(q);
-
-    query=query.or(
-      `full_name.ilike.%${safe}%,phone.ilike.%${safe}%`
-    );
-  }
-
-  const {data,error}=await query;
 
   if(error){
 
     $("userList").innerHTML =
-      '<div class="empty">Search error.</div>';
+      `<div class="empty">
+        Search failed.<br>
+        ${escapeHtml(error.message)}
+      </div>`;
 
     return;
+
   }
+
 
   if(!data?.length){
 
@@ -4465,46 +5164,65 @@ async function searchUsers(){
       '<div class="empty">No users found.</div>';
 
     return;
+
   }
+
 
   $("userList").innerHTML =
     data.map(user=>`
 
-      <div class="item">
+      <div class="proof-card">
 
-        <div class="item-title">
+        <strong>
           ${escapeHtml(
-            user.full_name||"Unnamed User"
+            user.full_name ||
+            "Unnamed User"
           )}
-        </div>
+        </strong>
 
         <p class="small">
 
           ID:
-          ${escapeHtml(user.id||"")}
+          ${escapeHtml(
+            user.id
+          )}
 
           <br>
 
           Phone:
-          ${escapeHtml(user.phone||"")}
+          ${escapeHtml(
+            user.phone || "—"
+          )}
 
           <br>
 
           Balance:
           ₦${Number(
-            user.balance||0
+            user.balance || 0
           ).toLocaleString()}
 
           <br>
 
           Activated:
-          ${user.activated?"Yes":"No"}
+          ${
+            user.activated
+              ? "Yes"
+              : "No"
+          }
+
+          <br>
+
+          Created:
+          ${formatDate(
+            user.created_at
+          )}
 
         </p>
 
       </div>
 
     `).join("");
+
 }
 
 
@@ -4515,7 +5233,8 @@ async function searchUsers(){
 async function loadSecurityEvents(){
 
   $("securityEvents").innerHTML =
-    '<div class="loading">Loading security events...</div>';
+    '<div class="loading">Loading...</div>';
+
 
   const {data,error} =
     await db
@@ -4524,103 +5243,86 @@ async function loadSecurityEvents(){
       .order("created_at",{ascending:false})
       .limit(100);
 
+
   if(error){
 
     $("securityEvents").innerHTML =
-      '<div class="empty">Could not load security events.</div>';
-
-    console.error(error);
+      `<div class="empty">
+        ${escapeHtml(error.message)}
+      </div>`;
 
     return;
+
   }
+
 
   if(!data?.length){
 
     $("securityEvents").innerHTML =
-      '<div class="empty">No security events recorded.</div>';
+      '<div class="empty">No security events.</div>';
 
     return;
+
   }
 
+
   $("securityEvents").innerHTML =
-    data.map(event=>{
+    `<div class="table-wrap">
 
-      let badge="badge";
+      <table>
 
-      if(event.severity==="HIGH"){
-        badge="badge red";
-      }
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
 
-      if(event.severity==="MEDIUM"){
-        badge="badge orange";
-      }
+        <tbody>
 
-      return `
+          ${data.map(row=>`
 
-      <div class="item">
+            <tr>
 
-        <b>
-          ${escapeHtml(
-            event.event_type||
-            "Security Event"
-          )}
-        </b>
+              <td>
+                ${escapeHtml(
+                  row.event_type ||
+                  row.type ||
+                  row.description ||
+                  "Security event"
+                )}
+              </td>
 
-        <span class="${badge}">
-          ${escapeHtml(
-            event.severity||"LOW"
-          )}
-        </span>
+              <td>
+                ${escapeHtml(
+                  row.user_id || "—"
+                )}
+              </td>
 
-        <p class="small">
+              <td>
+                ${escapeHtml(
+                  row.status || "—"
+                )}
+              </td>
 
-          User:
-          ${escapeHtml(
-            event.user_id||"Unknown"
-          )}
+              <td>
+                ${formatDate(
+                  row.created_at
+                )}
+              </td>
 
-          <br>
+            </tr>
 
-          Description:
-          ${escapeHtml(
-            event.description||
-            "No description"
-          )}
+          `).join("")}
 
-          <br>
+        </tbody>
 
-          IP:
-          ${escapeHtml(
-            event.ip_address||
-            "Not recorded"
-          )}
+      </table>
 
-          <br>
+    </div>`;
 
-          Device:
-          ${escapeHtml(
-            event.device_fingerprint||
-            "Not recorded"
-          )}
-
-          <br>
-
-          Status:
-          ${escapeHtml(
-            event.status||"OPEN"
-          )}
-
-          <br>
-
-          ${formatDate(event.created_at)}
-
-        </p>
-
-      </div>
-
-      `;
-
-    }).join("");
 }
 
 
@@ -4631,7 +5333,8 @@ async function loadSecurityEvents(){
 async function loadSecurityWarnings(){
 
   $("securityWarnings").innerHTML =
-    '<div class="loading">Loading security warnings...</div>';
+    '<div class="loading">Loading...</div>';
+
 
   const {data,error} =
     await db
@@ -4640,151 +5343,108 @@ async function loadSecurityWarnings(){
       .order("created_at",{ascending:false})
       .limit(100);
 
+
   if(error){
 
     $("securityWarnings").innerHTML =
-      '<div class="empty">Could not load security warnings.</div>';
-
-    console.error(error);
+      `<div class="empty">
+        ${escapeHtml(error.message)}
+      </div>`;
 
     return;
+
   }
+
 
   if(!data?.length){
 
     $("securityWarnings").innerHTML =
-      '<div class="empty">No security warnings recorded.</div>';
+      '<div class="empty">No security warnings.</div>';
 
     return;
+
   }
 
+
   $("securityWarnings").innerHTML =
-    data.map(warning=>{
+    data.map(row=>`
 
-      let badge="badge orange";
+      <div class="proof-card">
 
-      if(
-        warning.severity==="CRITICAL" ||
-        warning.severity==="HIGH"
-      ){
-        badge="badge red";
-      }
-
-      return `
-
-      <div class="item">
-
-        <b>
+        <strong>
           ${escapeHtml(
-            warning.warning_type||"Warning"
+            row.title ||
+            row.type ||
+            "Security Warning"
           )}
-        </b>
-
-        <span class="${badge}">
-          ${escapeHtml(
-            warning.severity||"WARNING"
-          )}
-        </span>
+        </strong>
 
         <p class="small">
 
           User:
           ${escapeHtml(
-            warning.user_id||""
+            row.user_id || "—"
           )}
 
           <br>
 
-          Message:
+          Status:
           ${escapeHtml(
-            warning.message||""
+            row.status || "—"
           )}
 
           <br>
 
-          Acknowledged:
-          ${warning.acknowledged?"Yes":"No"}
+          ${escapeHtml(
+            row.message ||
+            row.description ||
+            ""
+          )}
 
           <br>
 
-          ${formatDate(warning.created_at)}
+          ${formatDate(
+            row.created_at
+          )}
 
         </p>
 
       </div>
 
-      `;
+    `).join("");
 
-    }).join("");
 }
 
 
 /* =====================================================
-   REFRESH
+   REFRESH EVERYTHING
 ===================================================== */
 
 async function refreshEverything(){
 
   showMessage(
-    "Refreshing Admin Control Center..."
+    "Refreshing admin data..."
   );
+
 
   await Promise.all([
     loadSettings(),
-    loadStats()
+    loadStats(),
+    loadTasks(),
+    loadProofs(),
+    loadPayments(),
+    loadWithdrawals()
   ]);
 
+
+  $("lastRefresh").value =
+    new Date().toLocaleString();
+
+
   showMessage(
-    "✅ Admin Control Center refreshed."
+    "✅ Admin data refreshed."
   );
-}
 
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function formatDate(value){
-
-  if(!value) return "";
-
-  try{
-    return new Date(value).toLocaleString();
-  }catch{
-    return value;
-  }
-}
-
-function escapeHtml(value){
-
-  return String(value??"")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-function escapeAttr(value){
-  return escapeHtml(value);
-}
-
-function escapeJs(value){
-
-  return String(value??"")
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'")
-    .replace(/\n/g,"\\n")
-    .replace(/\r/g,"\\r");
-}
-
-function escapeFilter(value){
-
-  return String(value??"")
-    .replace(/[%_]/g,"\\$&")
-    .replace(/,/g,"\\,")
-    .replace(/\(/g,"\\(")
-    .replace(/\)/g,"\\)");
 }
 
 
@@ -4792,11 +5452,39 @@ function escapeFilter(value){
    LOGOUT
 ===================================================== */
 
-async function logout(){
+async function logoutAdmin(){
 
-  await db.auth.signOut();
+  openConfirm(
 
-  location.href="admin-login.html";
+    "Logout?",
+
+    "You will be signed out of the admin account.",
+
+    async()=>{
+
+      const {error} =
+        await db.auth.signOut();
+
+
+      if(error){
+
+        showMessage(
+          "Logout failed: " +
+          error.message
+        );
+
+        return;
+
+      }
+
+
+      window.location.href =
+        "admin-login.html";
+
+    }
+
+  );
+
 }
 
 
@@ -4804,7 +5492,74 @@ async function logout(){
    INITIALISE
 ===================================================== */
 
-selectCreateStyle("social");
+async function init(){
+
+  const isAdmin =
+    await checkAdmin();
+
+
+  if(!isAdmin)
+    return;
+
+
+  await loadSettings();
+
+
+  selectCreateStyle("social");
+
+
+  await Promise.all([
+    loadStats(),
+    loadTasks(),
+    loadProofs(),
+    loadPayments(),
+    loadWithdrawals()
+  ]);
+
+
+  $("lastRefresh").value =
+    new Date().toLocaleString();
+
+}
+
+
+/* =====================================================
+   IMAGE PREVIEW
+===================================================== */
+
+$("createTaskImageUrl")
+  .addEventListener(
+    "input",
+    function(){
+
+      const url =
+        this.value.trim();
+
+      if(!url){
+
+        $("createImagePreview")
+          .innerHTML = "";
+
+        return;
+
+      }
+
+
+      $("createImagePreview")
+        .innerHTML =
+          `<img
+            class="preview"
+            src="${escapeAttr(url)}"
+            alt="Task image preview"
+            onerror="this.style.display='none'">`;
+
+    }
+  );
+
+
+/* =====================================================
+   CLOSE MODALS WHEN BACKGROUND IS CLICKED
+===================================================== */
 
 document
   .querySelectorAll(".modal")
@@ -4814,9 +5569,8 @@ document
       "click",
       event=>{
 
-        if(event.target===modal){
-          closeModal(modal.id);
-        }
+        if(event.target === modal)
+          modal.classList.remove("show");
 
       }
     );
@@ -4828,18 +5582,8 @@ document
    START
 ===================================================== */
 
-(async function(){
+init();
 
-  const ok=await checkAdmin();
-
-  if(!ok) return;
-
-  await Promise.all([
-    loadSettings(),
-    loadStats()
-  ]);
-
-})();
 </script>
 
 </body>
