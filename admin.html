@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Admin Control Center — NAIJA TASK</title>
 
@@ -23,7 +23,7 @@ body{
 
 header{
   background:#0b8f3c;
-  color:white;
+  color:#fff;
   padding:18px 15px;
   position:sticky;
   top:0;
@@ -54,10 +54,9 @@ header p{
 }
 
 .menu button{
-  border:0;
-  background:white;
-  color:#0b8f3c;
   border:1px solid #b9dfc5;
+  background:#fff;
+  color:#0b8f3c;
   padding:10px 13px;
   border-radius:9px;
   white-space:nowrap;
@@ -66,7 +65,7 @@ header p{
 
 .menu button.active{
   background:#0b8f3c;
-  color:white;
+  color:#fff;
 }
 
 .section{
@@ -78,7 +77,7 @@ header p{
 }
 
 .card{
-  background:white;
+  background:#fff;
   border-radius:13px;
   padding:15px;
   margin-bottom:15px;
@@ -130,20 +129,13 @@ textarea{
   padding:11px;
   border:1px solid #cbded0;
   border-radius:8px;
-  background:white;
+  background:#fff;
   font-size:14px;
 }
 
 textarea{
   min-height:90px;
   resize:vertical;
-}
-
-button.primary,
-button.green{
-  background:#0b8f3c;
-  color:white;
-  border:0;
 }
 
 button{
@@ -154,27 +146,39 @@ button{
   padding:10px 13px;
   border-radius:8px;
   border:1px solid #cbded0;
-  background:white;
+  background:#fff;
   font-weight:bold;
   margin:5px 4px 5px 0;
 }
 
+.green{
+  background:#0b8f3c!important;
+  color:#fff!important;
+  border:0!important;
+}
+
 .danger{
-  background:#c62828 !important;
-  color:white !important;
-  border:0 !important;
+  background:#c62828!important;
+  color:#fff!important;
+  border:0!important;
 }
 
 .warning{
-  background:#f59e0b !important;
-  color:white !important;
-  border:0 !important;
+  background:#f59e0b!important;
+  color:#fff!important;
+  border:0!important;
 }
 
 .blue{
-  background:#1769aa !important;
-  color:white !important;
-  border:0 !important;
+  background:#1769aa!important;
+  color:#fff!important;
+  border:0!important;
+}
+
+.gray{
+  background:#667085!important;
+  color:#fff!important;
+  border:0!important;
 }
 
 .row{
@@ -195,6 +199,7 @@ button{
   width:48px;
   height:26px;
   flex:none;
+  margin:0;
 }
 
 .switch input{
@@ -215,16 +220,16 @@ button{
   height:20px;
   left:3px;
   top:3px;
-  background:white;
+  background:#fff;
   border-radius:50%;
   transition:.2s;
 }
 
-.switch input:checked + .slider{
+.switch input:checked+.slider{
   background:#0b8f3c;
 }
 
-.switch input:checked + .slider:before{
+.switch input:checked+.slider:before{
   transform:translateX(22px);
 }
 
@@ -273,6 +278,13 @@ button{
   padding:20px;
 }
 
+.loading{
+  text-align:center;
+  padding:15px;
+  color:#0b8f3c;
+  font-size:13px;
+}
+
 .modal{
   display:none;
   position:fixed;
@@ -289,9 +301,9 @@ button{
 }
 
 .modal-box{
-  background:white;
+  background:#fff;
   width:100%;
-  max-width:500px;
+  max-width:520px;
   max-height:90vh;
   overflow:auto;
   border-radius:14px;
@@ -304,9 +316,36 @@ button{
 }
 
 .proof-image{
+  display:block;
   max-width:100%;
+  max-height:70vh;
+  margin:10px auto;
   border-radius:10px;
-  margin-top:10px;
+}
+
+.status-live{
+  color:#0b8f3c;
+  font-weight:bold;
+}
+
+.status-paused{
+  color:#b86600;
+  font-weight:bold;
+}
+
+.status-pending{
+  color:#b86600;
+  font-weight:bold;
+}
+
+.status-approved{
+  color:#0b8f3c;
+  font-weight:bold;
+}
+
+.status-rejected{
+  color:#c62828;
+  font-weight:bold;
 }
 
 pre{
@@ -322,6 +361,10 @@ pre{
   .grid{
     grid-template-columns:1fr 1fr;
   }
+
+  .card{
+    padding:13px;
+  }
 }
 </style>
 </head>
@@ -335,644 +378,887 @@ pre{
 
 <div class="container">
 
-  <div class="menu">
-    <button class="active" onclick="showSection('overview',this)">📊 Overview</button>
-    <button onclick="showSection('platform',this)">⚙️ Platform</button>
-    <button onclick="showSection('membership',this)">👑 Membership</button>
-    <button onclick="showSection('money',this)">💰 Money</button>
-    <button onclick="showSection('referrals',this)">🔗 Referrals</button>
-    <button onclick="showSection('payments',this)">💳 Payments</button>
-    <button onclick="showSection('tasks',this)">📋 Tasks</button>
-    <button onclick="showSection('proofs',this)">🖼️ Proof Review</button>
-    <button onclick="showSection('users',this)">👥 Users</button>
-    <button onclick="showSection('posters',this)">📢 Posters</button>
-    <button onclick="showSection('security',this)">🛡️ Security</button>
-  </div>
-
-  <!-- OVERVIEW -->
-  <section id="overview" class="section active">
-
-    <div class="card">
-      <h2>Dashboard</h2>
-
-      <div class="grid">
-
-        <div class="stat">
-          Total Users
-          <b id="totalUsers">0</b>
-        </div>
-
-        <div class="stat">
-          Total Tasks
-          <b id="totalTasks">0</b>
-        </div>
-
-        <div class="stat">
-          Withdrawals
-          <b id="totalWithdrawals">0</b>
-        </div>
-
-        <div class="stat">
-          Pending Proofs
-          <b id="pendingProofs">0</b>
-        </div>
-
-        <div class="stat">
-          Pending Payments
-          <b id="pendingPayments">0</b>
-        </div>
-
-        <div class="stat">
-          Security Events
-          <b id="securityEventCount">0</b>
-        </div>
-
-      </div>
-    </div>
-
-  </section>
-
-  <!-- PLATFORM -->
-  <section id="platform" class="section">
-
-    <div class="card">
-      <h2>Platform Settings</h2>
-
-      <label>Site Name</label>
-      <input id="siteName">
-
-      <label>Support WhatsApp</label>
-      <input id="supportWhatsapp">
-
-      <label>Support Email</label>
-      <input id="supportEmail">
-
-      <div class="row">
-        <span>Maintenance Mode</span>
-        <label class="switch">
-          <input type="checkbox" id="maintenanceMode">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Photo Proof Enabled</span>
-        <label class="switch">
-          <input type="checkbox" id="photoProofEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>AI Care Enabled</span>
-        <label class="switch">
-          <input type="checkbox" id="aiCareEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Private Chat</span>
-        <label class="switch">
-          <input type="checkbox" id="privateChatEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Community Chat</span>
-        <label class="switch">
-          <input type="checkbox" id="communityChatEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Task Reward Controls</h2>
-
-      <h3>Normal Tasker</h3>
-
-      <label>Minimum Reward (₦)</label>
-      <input type="number" id="normalMinReward" min="0">
-
-      <label>Maximum Reward (₦)</label>
-      <input type="number" id="normalMaxReward" min="0">
-
-      <h3>VIP Tasker</h3>
-
-      <label>Minimum Reward (₦)</label>
-      <input type="number" id="vipMinReward" min="0">
-
-      <label>Maximum Reward (₦)</label>
-      <input type="number" id="vipMaxReward" min="0">
-
-      <p class="small">
-        These values control the reward range available to task posters.
-      </p>
-    </div>
-
-  </section>
-
-  <!-- MEMBERSHIP -->
-  <section id="membership" class="section">
-
-    <div class="card">
-      <h2>Membership</h2>
-
-      <div class="row">
-        <span>Activation Enabled</span>
-        <label class="switch">
-          <input type="checkbox" id="activationEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <label>Activation Fee (₦)</label>
-      <input type="number" id="activationFee">
-
-      <div class="row">
-        <span>VIP Enabled</span>
-        <label class="switch">
-          <input type="checkbox" id="vipEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <label>VIP Price (₦)</label>
-      <input type="number" id="vipPrice">
-
-      <label>Free Daily Task Limit</label>
-      <input type="number" id="freeDailyTaskLimit">
-
-      <label>VIP Daily Task Limit</label>
-      <input type="number" id="vipDailyTaskLimit">
-    </div>
-
-  </section>
-
-  <!-- MONEY -->
-  <section id="money" class="section">
-
-    <div class="card">
-      <h2>Withdrawal Settings</h2>
-
-      <div class="row">
-        <span>Withdrawals Enabled</span>
-        <label class="switch">
-          <input type="checkbox" id="withdrawalsEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <label>Minimum Withdrawal (₦)</label>
-      <input type="number" id="minimumWithdrawal">
-
-      <label>Free Withdrawal Fee (₦)</label>
-      <input type="number" id="freeWithdrawalFee">
-
-      <label>VIP Withdrawal Fee (₦)</label>
-      <input type="number" id="vipWithdrawalFee">
-
-      <label>Withdrawals Per Day</label>
-      <input type="number" id="withdrawalsPerDay">
-    </div>
-
-    <div class="card">
-      <h2>Withdrawal Records</h2>
-      <button class="action green" onclick="loadWithdrawals()">Refresh</button>
-      <div id="withdrawalList"></div>
-    </div>
-
-  </section>
-
-  <!-- REFERRALS -->
-  <section id="referrals" class="section">
-
-    <div class="card">
-      <h2>Referral Settings</h2>
-
-      <div class="row">
-        <span>Referrals Enabled</span>
-        <label class="switch">
-          <input type="checkbox" id="referralsEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <label>Referral Reward (₦)</label>
-      <input type="number" id="referralReward">
-    </div>
-
-  </section>
-
-  <!-- PAYMENTS -->
-  <section id="payments" class="section">
-
-    <div class="card">
-      <h2>Poster Payments</h2>
-
-      <button class="action green" onclick="loadPayments()">Refresh Payments</button>
-
-      <div id="paymentList"></div>
-    </div>
-
-  </section>
-
-  <!-- TASKS -->
-  <section id="tasks" class="section">
-
-    <div class="card">
-      <h2>Create Task</h2>
-
-      <label>Title</label>
-      <input id="taskTitle">
-
-      <label>Description</label>
-      <textarea id="taskDescription"></textarea>
-
-      <label>Reward (₦)</label>
-      <input type="number" id="taskReward">
-
-      <label>Slots</label>
-      <input type="number" id="taskSlots">
-
-      <label>Task Type</label>
-      <select id="taskType">
-        <option value="social">Social</option>
-        <option value="website">Website</option>
-        <option value="app_download">App Download</option>
-        <option value="survey">Survey</option>
-        <option value="other">Other</option>
-      </select>
-
-      <label>Task Link</label>
-      <input id="taskLink">
-
-      <label>Copy Text</label>
-      <textarea id="taskCopyText"></textarea>
-
-      <label>Expiry Date</label>
-      <input type="datetime-local" id="taskExpiry">
-
-      <label>Uploader Username</label>
-      <input id="taskUploader">
-
-      <div class="row">
-        <span>Photo Upload Required</span>
-        <label class="switch">
-          <input type="checkbox" id="taskUploadRequired" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <button class="action green" onclick="createTask()">Create Task</button>
-    </div>
-
-    <div class="card">
-      <h2>Task Manager</h2>
-
-      <button class="action green" onclick="loadTasks()">Refresh Tasks</button>
-
-      <div id="taskList"></div>
-    </div>
-
-  </section>
-
-  <!-- PROOFS -->
-  <section id="proofs" class="section">
-
-    <div class="card">
-      <h2>Proof Review</h2>
-
-      <button class="action green" onclick="loadProofs()">Refresh Proofs</button>
-
-      <div id="proofList"></div>
-    </div>
-
-  </section>
-
-  <!-- USERS -->
-  <section id="users" class="section">
-
-    <div class="card">
-      <h2>User Search</h2>
-
-      <input id="userSearch"
-        placeholder="Search name, phone or user ID">
-
-      <button class="action green" onclick="searchUsers()">
-        Search
-      </button>
-
-      <div id="userList"></div>
-    </div>
-
-  </section>
-
-  <!-- POSTERS -->
-  <section id="posters" class="section">
-
-    <div class="card">
-      <h2>Poster Controls</h2>
-
-      <div class="row">
-        <span>Poster Registration</span>
-        <label class="switch">
-          <input type="checkbox" id="posterRegistrationEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Job Posting</span>
-        <label class="switch">
-          <input type="checkbox" id="jobPostingEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Task Approval Required</span>
-        <label class="switch">
-          <input type="checkbox" id="taskApprovalRequired">
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- SECURITY -->
-  <section id="security" class="section">
-
-    <div class="card">
-      <h2>🛡️ Security Control Center</h2>
-
-      <p class="small">
-        Control CAPTCHA, bot detection, device/IP monitoring,
-        suspicious activity protection, 2FA and security restrictions.
-      </p>
-
-      <div class="row">
-        <span>CAPTCHA Enabled</span>
-        <label class="switch">
-          <input type="checkbox" id="captchaEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>CAPTCHA Required During Signup</span>
-        <label class="switch">
-          <input type="checkbox" id="captchaSignupRequired">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>CAPTCHA Required During Withdrawal</span>
-        <label class="switch">
-          <input type="checkbox" id="captchaWithdrawalRequired">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Bot Detection</span>
-        <label class="switch">
-          <input type="checkbox" id="botDetectionEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Device Detection</span>
-        <label class="switch">
-          <input type="checkbox" id="deviceDetectionEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>IP Detection</span>
-        <label class="switch">
-          <input type="checkbox" id="ipDetectionEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Suspicious Activity Detection</span>
-        <label class="switch">
-          <input type="checkbox" id="suspiciousActivityDetection">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Automatic Temporary Restrictions</span>
-        <label class="switch">
-          <input type="checkbox" id="automaticRestrictionEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Security Warnings</span>
-        <label class="switch">
-          <input type="checkbox" id="securityWarningsEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>User 2FA Available</span>
-        <label class="switch">
-          <input type="checkbox" id="user2faEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>Withdrawal Security Check</span>
-        <label class="switch">
-          <input type="checkbox" id="withdrawalSecurityCheck">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <label>Maximum Task Submissions Per Minute</label>
-      <input
-        type="number"
-        id="maxTaskSubmissionsPerMinute"
-        min="1"
-        max="100"
-      >
-
-      <label>Suspicious Risk Score Threshold</label>
-      <input
-        type="number"
-        id="suspiciousRiskScore"
-        min="1"
-        max="100"
-      >
-
-      <div class="row">
-        <span>
-          Permanent Automatic Ban
-          <small class="small">
-            Keep OFF initially; use evidence and admin review.
-          </small>
-        </span>
-
-        <label class="switch">
-          <input type="checkbox" id="automaticBanEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-    </div>
-
-    <div class="card">
-      <h2>📢 Advertisement Controls</h2>
-
-      <div class="row">
-        <span>Normal Tasker Ads</span>
-        <label class="switch">
-          <input type="checkbox" id="normalAdsEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="row">
-        <span>VIP Tasker Ads</span>
-        <label class="switch">
-          <input type="checkbox" id="vipAdsEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <label>Ad Frequency</label>
-      <input
-        type="number"
-        id="adFrequency"
-        min="1"
-        max="100"
-      >
-
-      <p class="small">
-        Example: 5 means the platform can show an ad after approximately
-        every 5 eligible actions. Actual display logic will be handled
-        by the user-facing pages.
-      </p>
-    </div>
-
-    <div class="card">
-      <h2>🚨 Security Events</h2>
-
-      <button class="action green" onclick="loadSecurityEvents()">
-        Refresh Events
-      </button>
-
-      <div id="securityEvents"></div>
-    </div>
-
-    <div class="card">
-      <h2>⚠️ Security Warnings</h2>
-
-      <button class="action green" onclick="loadSecurityWarnings()">
-        Refresh Warnings
-      </button>
-
-      <div id="securityWarnings"></div>
-    </div>
-
-  </section>
-
-  <div class="card">
-    <button class="action green" onclick="saveSettings()">
-      💾 Save All Settings
-    </button>
-
-    <button class="action danger" onclick="logout()">
-      Logout
-    </button>
-
-    <div id="message" class="small"></div>
-  </div>
+<div class="menu">
+
+<button class="active" onclick="showSection('overview',this)">
+📊 Overview
+</button>
+
+<button onclick="showSection('platform',this)">
+⚙️ Platform
+</button>
+
+<button onclick="showSection('membership',this)">
+👑 Membership
+</button>
+
+<button onclick="showSection('money',this)">
+💰 Money
+</button>
+
+<button onclick="showSection('referrals',this)">
+🔗 Referrals
+</button>
+
+<button onclick="showSection('payments',this)">
+💳 Payments
+</button>
+
+<button onclick="showSection('tasks',this)">
+📋 Tasks
+</button>
+
+<button onclick="showSection('proofs',this)">
+🖼️ Proof Review
+</button>
+
+<button onclick="showSection('users',this)">
+👥 Users
+</button>
+
+<button onclick="showSection('posters',this)">
+📢 Posters
+</button>
+
+<button onclick="showSection('security',this)">
+🛡️ Security
+</button>
 
 </div>
 
-<!-- EDIT MODAL -->
+<!-- OVERVIEW -->
+
+<section id="overview" class="section active">
+
+<div class="card">
+
+<h2>Dashboard</h2>
+
+<div class="grid">
+
+<div class="stat">
+Total Users
+<b id="totalUsers">0</b>
+</div>
+
+<div class="stat">
+Total Tasks
+<b id="totalTasks">0</b>
+</div>
+
+<div class="stat">
+Withdrawals
+<b id="totalWithdrawals">0</b>
+</div>
+
+<div class="stat">
+Pending Proofs
+<b id="pendingProofs">0</b>
+</div>
+
+<div class="stat">
+Pending Payments
+<b id="pendingPayments">0</b>
+</div>
+
+<div class="stat">
+Security Events
+<b id="securityEventCount">0</b>
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Admin Status</h2>
+
+<p class="small">
+Administrator:
+<strong id="adminEmail">Loading...</strong>
+</p>
+
+<p class="small">
+Last dashboard refresh:
+<span id="lastRefresh">—</span>
+</p>
+
+<button class="action green" onclick="refreshEverything()">
+🔄 Refresh Everything
+</button>
+
+</div>
+
+</section>
+
+
+<!-- PLATFORM -->
+
+<section id="platform" class="section">
+
+<div class="card">
+
+<h2>Platform Settings</h2>
+
+<label>Site Name</label>
+<input id="siteName">
+
+<label>Support WhatsApp</label>
+<input id="supportWhatsapp">
+
+<label>Support Email</label>
+<input id="supportEmail">
+
+<div class="row">
+<span>Maintenance Mode</span>
+
+<label class="switch">
+<input type="checkbox" id="maintenanceMode">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Photo Proof Enabled</span>
+
+<label class="switch">
+<input type="checkbox" id="photoProofEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>AI Care Enabled</span>
+
+<label class="switch">
+<input type="checkbox" id="aiCareEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Private Chat</span>
+
+<label class="switch">
+<input type="checkbox" id="privateChatEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Community Chat</span>
+
+<label class="switch">
+<input type="checkbox" id="communityChatEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Task Reward Controls</h2>
+
+<h3>Normal Tasker</h3>
+
+<label>Minimum Reward (₦)</label>
+<input type="number" id="normalMinReward" min="0">
+
+<label>Maximum Reward (₦)</label>
+<input type="number" id="normalMaxReward" min="0">
+
+<h3>VIP Tasker</h3>
+
+<label>Minimum Reward (₦)</label>
+<input type="number" id="vipMinReward" min="0">
+
+<label>Maximum Reward (₦)</label>
+<input type="number" id="vipMaxReward" min="0">
+
+<p class="small">
+These settings define the reward range available when creating tasks.
+Actual task rewards should still be validated server-side.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- MEMBERSHIP -->
+
+<section id="membership" class="section">
+
+<div class="card">
+
+<h2>Membership</h2>
+
+<div class="row">
+<span>Activation Enabled</span>
+
+<label class="switch">
+<input type="checkbox" id="activationEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<label>Activation Fee (₦)</label>
+<input type="number" id="activationFee" min="0">
+
+<div class="row">
+<span>VIP Enabled</span>
+
+<label class="switch">
+<input type="checkbox" id="vipEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<label>VIP Price (₦)</label>
+<input type="number" id="vipPrice" min="0">
+
+<label>Free Daily Task Limit</label>
+<input type="number" id="freeDailyTaskLimit" min="0">
+
+<label>VIP Daily Task Limit</label>
+<input type="number" id="vipDailyTaskLimit" min="0">
+
+</div>
+
+</section>
+
+
+<!-- MONEY -->
+
+<section id="money" class="section">
+
+<div class="card">
+
+<h2>Withdrawal Settings</h2>
+
+<div class="row">
+<span>Withdrawals Enabled</span>
+
+<label class="switch">
+<input type="checkbox" id="withdrawalsEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<label>Minimum Withdrawal (₦)</label>
+<input type="number" id="minimumWithdrawal" min="0">
+
+<label>Free Withdrawal Fee (₦)</label>
+<input type="number" id="freeWithdrawalFee" min="0">
+
+<label>VIP Withdrawal Fee (₦)</label>
+<input type="number" id="vipWithdrawalFee" min="0">
+
+<label>Withdrawals Per Day</label>
+<input type="number" id="withdrawalsPerDay" min="1">
+
+</div>
+
+<div class="card">
+
+<h2>Withdrawal Records</h2>
+
+<button class="action green" onclick="loadWithdrawals()">
+Refresh
+</button>
+
+<div id="withdrawalList"></div>
+
+</div>
+
+</section>
+
+
+<!-- REFERRALS -->
+
+<section id="referrals" class="section">
+
+<div class="card">
+
+<h2>Referral Settings</h2>
+
+<div class="row">
+<span>Referrals Enabled</span>
+
+<label class="switch">
+<input type="checkbox" id="referralsEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<label>Referral Reward (₦)</label>
+<input type="number" id="referralReward" min="0">
+
+</div>
+
+</section>
+
+
+<!-- PAYMENTS -->
+
+<section id="payments" class="section">
+
+<div class="card">
+
+<h2>Poster Payments</h2>
+
+<button class="action green" onclick="loadPayments()">
+Refresh Payments
+</button>
+
+<div id="paymentList"></div>
+
+</div>
+
+</section>
+
+
+<!-- TASKS -->
+
+<section id="tasks" class="section">
+
+<div class="card">
+
+<h2>Create Task</h2>
+
+<label>Title</label>
+<input id="taskTitle">
+
+<label>Description</label>
+<textarea id="taskDescription"></textarea>
+
+<label>Reward (₦)</label>
+<input type="number" id="taskReward" min="1">
+
+<label>Slots</label>
+<input type="number" id="taskSlots" min="1">
+
+<label>Task Type</label>
+
+<select id="taskType">
+
+<option value="social">Social</option>
+<option value="website">Website</option>
+<option value="app_download">App Download</option>
+<option value="survey">Survey</option>
+<option value="youtube">YouTube</option>
+<option value="tiktok">TikTok</option>
+<option value="instagram">Instagram</option>
+<option value="facebook">Facebook</option>
+<option value="telegram">Telegram</option>
+<option value="other">Other</option>
+
+</select>
+
+<label>Task Link</label>
+<input id="taskLink">
+
+<label>Copy Text</label>
+<textarea id="taskCopyText"></textarea>
+
+<label>Expiry Date</label>
+<input type="datetime-local" id="taskExpiry">
+
+<label>Uploader Username</label>
+<input id="taskUploader">
+
+<div class="row">
+
+<span>Photo Upload Required</span>
+
+<label class="switch">
+<input type="checkbox" id="taskUploadRequired" checked>
+<span class="slider"></span>
+</label>
+
+</div>
+
+<button class="action green" onclick="createTask()">
+Create Task
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Task Manager</h2>
+
+<button class="action green" onclick="loadTasks()">
+Refresh Tasks
+</button>
+
+<div id="taskList"></div>
+
+</div>
+
+</section>
+
+
+<!-- PROOFS -->
+
+<section id="proofs" class="section">
+
+<div class="card">
+
+<h2>Proof Review</h2>
+
+<button class="action green" onclick="loadProofs()">
+Refresh Proofs
+</button>
+
+<div id="proofList"></div>
+
+</div>
+
+</section>
+
+
+<!-- USERS -->
+
+<section id="users" class="section">
+
+<div class="card">
+
+<h2>User Search</h2>
+
+<input
+id="userSearch"
+placeholder="Search name, phone or user ID">
+
+<button class="action green" onclick="searchUsers()">
+Search
+</button>
+
+<div id="userList"></div>
+
+</div>
+
+</section>
+
+
+<!-- POSTERS -->
+
+<section id="posters" class="section">
+
+<div class="card">
+
+<h2>Poster Controls</h2>
+
+<div class="row">
+
+<span>Poster Registration</span>
+
+<label class="switch">
+<input type="checkbox" id="posterRegistrationEnabled">
+<span class="slider"></span>
+</label>
+
+</div>
+
+<div class="row">
+
+<span>Job Posting</span>
+
+<label class="switch">
+<input type="checkbox" id="jobPostingEnabled">
+<span class="slider"></span>
+</label>
+
+</div>
+
+<div class="row">
+
+<span>Task Approval Required</span>
+
+<label class="switch">
+<input type="checkbox" id="taskApprovalRequired">
+<span class="slider"></span>
+</label>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- SECURITY -->
+
+<section id="security" class="section">
+
+<div class="card">
+
+<h2>🛡️ Security Control Center</h2>
+
+<p class="small">
+Security settings control protection requirements across NAIJA TASK.
+Sensitive enforcement should be performed server-side.
+</p>
+
+<div class="row">
+<span>CAPTCHA Enabled</span>
+
+<label class="switch">
+<input type="checkbox" id="captchaEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>CAPTCHA During Signup</span>
+
+<label class="switch">
+<input type="checkbox" id="captchaSignupRequired">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>CAPTCHA During Withdrawal</span>
+
+<label class="switch">
+<input type="checkbox" id="captchaWithdrawalRequired">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Bot Detection</span>
+
+<label class="switch">
+<input type="checkbox" id="botDetectionEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Device Detection</span>
+
+<label class="switch">
+<input type="checkbox" id="deviceDetectionEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>IP Detection</span>
+
+<label class="switch">
+<input type="checkbox" id="ipDetectionEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Suspicious Activity Detection</span>
+
+<label class="switch">
+<input type="checkbox" id="suspiciousActivityDetection">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Automatic Temporary Restrictions</span>
+
+<label class="switch">
+<input type="checkbox" id="automaticRestrictionEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Security Warnings</span>
+
+<label class="switch">
+<input type="checkbox" id="securityWarningsEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>User 2FA Available</span>
+
+<label class="switch">
+<input type="checkbox" id="user2faEnabled">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="row">
+<span>Withdrawal Security Check</span>
+
+<label class="switch">
+<input type="checkbox" id="withdrawalSecurityCheck">
+<span class="slider"></span>
+</label>
+</div>
+
+<label>Maximum Task Submissions Per Minute</label>
+<input
+type="number"
+id="maxTaskSubmissionsPerMinute"
+min="1"
+max="100">
+
+<label>Suspicious Risk Score Threshold</label>
+<input
+type="number"
+id="suspiciousRiskScore"
+min="1"
+max="100">
+
+<div class="row">
+
+<span>
+Permanent Automatic Ban
+<br>
+<small class="small">
+Keep OFF initially; admin review should remain available.
+</small>
+</span>
+
+<label class="switch">
+<input type="checkbox" id="automaticBanEnabled">
+<span class="slider"></span>
+</label>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>📢 Advertisement Controls</h2>
+
+<div class="row">
+
+<span>Normal Tasker Ads</span>
+
+<label class="switch">
+<input type="checkbox" id="normalAdsEnabled">
+<span class="slider"></span>
+</label>
+
+</div>
+
+<div class="row">
+
+<span>VIP Tasker Ads</span>
+
+<label class="switch">
+<input type="checkbox" id="vipAdsEnabled">
+<span class="slider"></span>
+</label>
+
+</div>
+
+<label>Ad Frequency</label>
+
+<input
+type="number"
+id="adFrequency"
+min="1"
+max="100">
+
+<p class="small">
+This controls the configured frequency. Actual advertisement display
+must be handled by the user-facing pages.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>🚨 Security Events</h2>
+
+<button class="action green" onclick="loadSecurityEvents()">
+Refresh Events
+</button>
+
+<div id="securityEvents"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>⚠️ Security Warnings</h2>
+
+<button class="action green" onclick="loadSecurityWarnings()">
+Refresh Warnings
+</button>
+
+<div id="securityWarnings"></div>
+
+</div>
+
+</section>
+
+
+<div class="card">
+
+<button class="action green" onclick="saveSettings()">
+💾 Save All Settings
+</button>
+
+<button class="action danger" onclick="logout()">
+Logout
+</button>
+
+<div id="message" class="small"></div>
+
+</div>
+
+</div>
+
+
+<!-- EDIT TASK MODAL -->
+
 <div class="modal" id="editModal">
-  <div class="modal-box">
-    <h3>Edit Task</h3>
 
-    <input type="hidden" id="editTaskId">
+<div class="modal-box">
 
-    <label>Title</label>
-    <input id="editTitle">
+<h3>Edit Task</h3>
 
-    <label>Description</label>
-    <textarea id="editDescription"></textarea>
+<input type="hidden" id="editTaskId">
 
-    <label>Reward</label>
-    <input type="number" id="editReward">
+<label>Title</label>
+<input id="editTitle">
 
-    <label>Slots</label>
-    <input type="number" id="editSlots">
+<label>Description</label>
+<textarea id="editDescription"></textarea>
 
-    <label>Task Link</label>
-    <input id="editLink">
+<label>Reward</label>
+<input type="number" id="editReward" min="1">
 
-    <label>Copy Text</label>
-    <textarea id="editCopyText"></textarea>
+<label>Slots</label>
+<input type="number" id="editSlots" min="1">
 
-    <button class="action green" onclick="saveTaskEdit()">
-      Save
-    </button>
+<label>Task Type</label>
 
-    <button class="action" onclick="closeModal('editModal')">
-      Cancel
-    </button>
-  </div>
+<select id="editTaskType">
+
+<option value="social">Social</option>
+<option value="website">Website</option>
+<option value="app_download">App Download</option>
+<option value="survey">Survey</option>
+<option value="youtube">YouTube</option>
+<option value="tiktok">TikTok</option>
+<option value="instagram">Instagram</option>
+<option value="facebook">Facebook</option>
+<option value="telegram">Telegram</option>
+<option value="other">Other</option>
+
+</select>
+
+<label>Task Link</label>
+<input id="editLink">
+
+<label>Copy Text</label>
+<textarea id="editCopyText"></textarea>
+
+<label>Expiry Date</label>
+<input type="datetime-local" id="editExpiry">
+
+<label>Uploader Username</label>
+<input id="editUploader">
+
+<div class="row">
+
+<span>Photo Required</span>
+
+<label class="switch">
+<input type="checkbox" id="editUploadRequired">
+<span class="slider"></span>
+</label>
+
 </div>
+
+<button class="action green" onclick="saveTaskEdit()">
+Save
+</button>
+
+<button class="action" onclick="closeModal('editModal')">
+Cancel
+</button>
+
+</div>
+
+</div>
+
 
 <!-- CONFIRM MODAL -->
+
 <div class="modal" id="confirmModal">
-  <div class="modal-box">
-    <h3 id="confirmTitle">Confirm Action</h3>
-    <p id="confirmText" class="small"></p>
 
-    <button class="action green" id="confirmYes">
-      Continue
-    </button>
+<div class="modal-box">
 
-    <button class="action" onclick="closeModal('confirmModal')">
-      Cancel
-    </button>
-  </div>
+<h3 id="confirmTitle">
+Confirm Action
+</h3>
+
+<p id="confirmText" class="small"></p>
+
+<button class="action green" id="confirmYes">
+Continue
+</button>
+
+<button class="action" onclick="closeModal('confirmModal')">
+Cancel
+</button>
+
 </div>
+
+</div>
+
 
 <!-- IMAGE MODAL -->
+
 <div class="modal" id="imageModal">
-  <div class="modal-box">
-    <h3>Proof Image</h3>
-    <div id="imageContent"></div>
-    <button class="action" onclick="closeModal('imageModal')">
-      Close
-    </button>
-  </div>
+
+<div class="modal-box">
+
+<h3>Proof Image</h3>
+
+<div id="imageContent"></div>
+
+<button class="action" onclick="closeModal('imageModal')">
+Close
+</button>
+
 </div>
 
+</div>
+
+
 <script>
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
 const SUPABASE_URL =
 "https://jwakveeiynpakunwjzkj.supabase.co";
 
+/*
+ IMPORTANT:
+ Put your CURRENT Supabase publishable key here.
+ Do not use a service-role key in this file.
+*/
 const SUPABASE_KEY =
-      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 const db = supabase.createClient(
   SUPABASE_URL,
@@ -984,17 +1270,34 @@ const $ = id => document.getElementById(id);
 let currentAdmin = null;
 let confirmAction = null;
 
+const TASK_PROOF_BUCKET = "task-proofs";
+const PAYMENT_PROOF_BUCKET = "payment proof";
+
+
+/* =====================================================
+   BASIC UI
+===================================================== */
+
 function showMessage(message){
+
   $("message").textContent = message;
+
 }
+
 
 function showSection(id,button){
 
-  document.querySelectorAll(".section")
-    .forEach(section => section.classList.remove("active"));
+  document
+    .querySelectorAll(".section")
+    .forEach(section =>
+      section.classList.remove("active")
+    );
 
-  document.querySelectorAll(".menu button")
-    .forEach(btn => btn.classList.remove("active"));
+  document
+    .querySelectorAll(".menu button")
+    .forEach(btn =>
+      btn.classList.remove("active")
+    );
 
   $(id).classList.add("active");
 
@@ -1002,19 +1305,36 @@ function showSection(id,button){
     button.classList.add("active");
   }
 
-  if(id === "payments") loadPayments();
-  if(id === "tasks") loadTasks();
-  if(id === "proofs") loadProofs();
-  if(id === "money") loadWithdrawals();
+  if(id === "payments"){
+    loadPayments();
+  }
+
+  if(id === "tasks"){
+    loadTasks();
+  }
+
+  if(id === "proofs"){
+    loadProofs();
+  }
+
+  if(id === "money"){
+    loadWithdrawals();
+  }
+
   if(id === "security"){
     loadSecurityEvents();
     loadSecurityWarnings();
   }
+
 }
 
+
 function closeModal(id){
+
   $(id).classList.remove("show");
+
 }
+
 
 function openConfirm(title,text,callback){
 
@@ -1034,7 +1354,13 @@ function openConfirm(title,text,callback){
     }
 
   };
+
 }
+
+
+/* =====================================================
+   ADMIN AUTH
+===================================================== */
 
 async function checkAdmin(){
 
@@ -1045,39 +1371,65 @@ async function checkAdmin(){
   } = await db.auth.getUser();
 
   if(!user){
+
     location.href = "admin-login.html";
+
     return false;
   }
 
-  const {data,error} = await db
+  const {
+    data,
+    error
+  } = await db
     .from("admin_users")
     .select("user_id")
     .eq("user_id",user.id)
     .maybeSingle();
 
   if(error || !data){
+
     await db.auth.signOut();
+
     location.href = "admin-login.html";
+
     return false;
   }
 
   currentAdmin = user;
+
+  $("adminEmail").textContent =
+    user.email || user.id;
+
   return true;
 }
 
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
 async function loadSettings(){
 
-  const {data,error} = await db
+  const {
+    data,
+    error
+  } = await db
     .from("platform_settings")
     .select("*")
     .eq("id",1)
     .single();
 
   if(error){
+
     console.error(error);
-    showMessage("Could not load platform settings.");
+
+    showMessage(
+      "Could not load platform settings."
+    );
+
     return;
   }
+
 
   $("siteName").value =
     data.site_name || "NAIJA TASK";
@@ -1086,7 +1438,8 @@ async function loadSettings(){
     data.support_whatsapp || "09020934579";
 
   $("supportEmail").value =
-    data.support_email || "naijataskofficia@gmail.com";
+    data.support_email ||
+    "naijataskofficia@gmail.com";
 
   $("maintenanceMode").checked =
     !!data.maintenance_mode;
@@ -1103,6 +1456,7 @@ async function loadSettings(){
   $("communityChatEnabled").checked =
     data.community_chat_enabled ?? true;
 
+
   $("normalMinReward").value =
     data.normal_min_task_reward ?? 3;
 
@@ -1114,6 +1468,7 @@ async function loadSettings(){
 
   $("vipMaxReward").value =
     data.vip_max_task_reward ?? 150;
+
 
   $("activationEnabled").checked =
     data.activation_enabled ?? false;
@@ -1133,6 +1488,7 @@ async function loadSettings(){
   $("vipDailyTaskLimit").value =
     data.vip_daily_task_limit ?? 10;
 
+
   $("withdrawalsEnabled").checked =
     data.withdrawals_enabled ?? true;
 
@@ -1148,11 +1504,13 @@ async function loadSettings(){
   $("withdrawalsPerDay").value =
     data.withdrawals_per_day ?? 1;
 
+
   $("referralsEnabled").checked =
     data.referrals_enabled ?? true;
 
   $("referralReward").value =
     data.referral_reward ?? 0;
+
 
   $("posterRegistrationEnabled").checked =
     data.poster_registration_enabled ?? true;
@@ -1162,6 +1520,7 @@ async function loadSettings(){
 
   $("taskApprovalRequired").checked =
     data.task_approval_required ?? true;
+
 
   /* SECURITY */
 
@@ -1215,7 +1574,9 @@ async function loadSettings(){
 
   $("adFrequency").value =
     data.ad_frequency ?? 5;
+
 }
+
 
 async function saveSettings(){
 
@@ -1231,38 +1592,67 @@ async function saveSettings(){
   const vipMax =
     Number($("vipMaxReward").value);
 
-  if(normalMin < 0 ||
-     normalMax < normalMin ||
-     vipMin < 0 ||
-     vipMax < vipMin){
 
-    showMessage("Check the reward ranges.");
+  if(
+    normalMin < 0 ||
+    normalMax < normalMin ||
+    vipMin < 0 ||
+    vipMax < vipMin
+  ){
+
+    showMessage(
+      "Check the reward ranges."
+    );
+
     return;
   }
+
 
   const maxSubmissions =
-    Number($("maxTaskSubmissionsPerMinute").value) || 5;
+    Number(
+      $("maxTaskSubmissionsPerMinute").value
+    ) || 5;
 
   const riskScore =
-    Number($("suspiciousRiskScore").value) || 70;
+    Number(
+      $("suspiciousRiskScore").value
+    ) || 70;
 
   const adFrequency =
-    Number($("adFrequency").value) || 5;
+    Number(
+      $("adFrequency").value
+    ) || 5;
+
 
   if(maxSubmissions < 1){
-    showMessage("Maximum submissions must be at least 1.");
+
+    showMessage(
+      "Maximum submissions must be at least 1."
+    );
+
     return;
   }
+
 
   if(riskScore < 1 || riskScore > 100){
-    showMessage("Risk score must be between 1 and 100.");
+
+    showMessage(
+      "Risk score must be between 1 and 100."
+    );
+
     return;
   }
 
+
   if(adFrequency < 1){
-    showMessage("Ad frequency must be at least 1.");
+
+    showMessage(
+      "Ad frequency must be at least 1."
+    );
+
     return;
   }
+
 
   const updates = {
 
@@ -1290,6 +1680,7 @@ async function saveSettings(){
     community_chat_enabled:
       $("communityChatEnabled").checked,
 
+
     normal_min_task_reward:
       normalMin,
 
@@ -1302,52 +1693,81 @@ async function saveSettings(){
     vip_max_task_reward:
       vipMax,
 
-    /* legacy compatibility */
 
     minimum_task_reward:
-      Math.min(normalMin,vipMin),
+      Math.min(
+        normalMin,
+        vipMin
+      ),
 
     maximum_task_reward:
-      Math.max(normalMax,vipMax),
+      Math.max(
+        normalMax,
+        vipMax
+      ),
+
 
     activation_enabled:
       $("activationEnabled").checked,
 
     activation_fee:
-      Number($("activationFee").value) || 0,
+      Number(
+        $("activationFee").value
+      ) || 0,
+
 
     vip_enabled:
       $("vipEnabled").checked,
 
     vip_price:
-      Number($("vipPrice").value) || 0,
+      Number(
+        $("vipPrice").value
+      ) || 0,
+
 
     free_daily_task_limit:
-      Number($("freeDailyTaskLimit").value) || 10,
+      Number(
+        $("freeDailyTaskLimit").value
+      ) || 10,
 
     vip_daily_task_limit:
-      Number($("vipDailyTaskLimit").value) || 10,
+      Number(
+        $("vipDailyTaskLimit").value
+      ) || 10,
+
 
     withdrawals_enabled:
       $("withdrawalsEnabled").checked,
 
     minimum_withdrawal:
-      Number($("minimumWithdrawal").value) || 1500,
+      Number(
+        $("minimumWithdrawal").value
+      ) || 1500,
 
     free_withdrawal_fee:
-      Number($("freeWithdrawalFee").value) || 100,
+      Number(
+        $("freeWithdrawalFee").value
+      ) || 100,
 
     vip_withdrawal_fee:
-      Number($("vipWithdrawalFee").value) || 50,
+      Number(
+        $("vipWithdrawalFee").value
+      ) || 50,
 
     withdrawals_per_day:
-      Number($("withdrawalsPerDay").value) || 1,
+      Number(
+        $("withdrawalsPerDay").value
+      ) || 1,
+
 
     referrals_enabled:
       $("referralsEnabled").checked,
 
     referral_reward:
-      Number($("referralReward").value) || 0,
+      Number(
+        $("referralReward").value
+      ) || 0,
+
 
     poster_registration_enabled:
       $("posterRegistrationEnabled").checked,
@@ -1358,7 +1778,6 @@ async function saveSettings(){
     task_approval_required:
       $("taskApprovalRequired").checked,
 
-    /* SECURITY */
 
     captcha_enabled:
       $("captchaEnabled").checked,
@@ -1413,136 +1832,207 @@ async function saveSettings(){
 
     updated_at:
       new Date().toISOString()
+
   };
 
-  const {error} = await db
-    .from("platform_settings")
-    .update(updates)
-    .eq("id",1);
+
+  const {error} =
+    await db
+      .from("platform_settings")
+      .update(updates)
+      .eq("id",1);
+
 
   if(error){
 
     console.error(error);
-    showMessage("Settings could not be saved: " + error.message);
+
+    showMessage(
+      "Settings could not be saved: " +
+      error.message
+    );
+
     return;
   }
 
-  showMessage("✅ All settings saved successfully.");
+
+  showMessage(
+    "✅ All settings saved successfully."
+  );
+
 }
 
-/* =========================
+
+/* =====================================================
    OVERVIEW
-========================= */
+===================================================== */
 
 async function loadStats(){
 
-  const users =
-    await db.from("profiles")
-      .select("id",{count:"exact",head:true});
+  const results =
+    await Promise.all([
 
-  const tasks =
-    await db.from("tasks")
-      .select("id",{count:"exact",head:true});
+      db
+        .from("profiles")
+        .select("id",{count:"exact",head:true}),
 
-  const withdrawals =
-    await db.from("withdrawals")
-      .select("id",{count:"exact",head:true});
+      db
+        .from("tasks")
+        .select("id",{count:"exact",head:true}),
 
-  const proofs =
-    await db.from("task_submissions")
-      .select("id",{count:"exact",head:true})
-      .eq("status","PENDING");
+      db
+        .from("withdrawals")
+        .select("id",{count:"exact",head:true}),
 
-  const payments =
-    await db.from("poster_payments")
-      .select("id",{count:"exact",head:true})
-      .in("status",["PENDING","UNDER_REVIEW"]);
+      db
+        .from("task_submissions")
+        .select("id",{count:"exact",head:true})
+        .eq("status","PENDING"),
 
-  const events =
-    await db.from("security_events")
-      .select("id",{count:"exact",head:true})
-      .eq("status","OPEN");
+      db
+        .from("poster_payments")
+        .select("id",{count:"exact",head:true})
+        .in(
+          "status",
+          ["PENDING","UNDER_REVIEW"]
+        ),
+
+      db
+        .from("security_events")
+        .select("id",{count:"exact",head:true})
+        .eq("status","OPEN")
+
+    ]);
+
 
   $("totalUsers").textContent =
-    users.count || 0;
+    results[0].count || 0;
 
   $("totalTasks").textContent =
-    tasks.count || 0;
+    results[1].count || 0;
 
   $("totalWithdrawals").textContent =
-    withdrawals.count || 0;
+    results[2].count || 0;
 
   $("pendingProofs").textContent =
-    proofs.count || 0;
+    results[3].count || 0;
 
   $("pendingPayments").textContent =
-    payments.count || 0;
+    results[4].count || 0;
 
   $("securityEventCount").textContent =
-    events.count || 0;
+    results[5].count || 0;
+
+
+  $("lastRefresh").textContent =
+    new Date().toLocaleString();
+
 }
 
-/* =========================
+
+/* =====================================================
    WITHDRAWALS
-========================= */
+===================================================== */
 
 async function loadWithdrawals(){
 
   $("withdrawalList").innerHTML =
-    '<div class="small">Loading...</div>';
+    '<div class="loading">Loading withdrawals...</div>';
 
-  const {data,error} = await db
+
+  const {
+    data,
+    error
+  } = await db
     .from("withdrawals")
     .select("*")
-    .order("created_at",{ascending:false})
+    .order(
+      "created_at",
+      {ascending:false}
+    )
     .limit(100);
 
+
   if(error){
+
     $("withdrawalList").innerHTML =
       '<div class="empty">Could not load withdrawals.</div>';
+
     return;
   }
 
-  if(!data.length){
+
+  if(!data?.length){
+
     $("withdrawalList").innerHTML =
       '<div class="empty">No withdrawal records.</div>';
+
     return;
   }
+
 
   $("withdrawalList").innerHTML =
     data.map(w => `
 
       <div class="item">
 
-        <b>₦${Number(w.amount || 0).toLocaleString()}</b>
+        <b>
+          ₦${Number(
+            w.amount || 0
+          ).toLocaleString()}
+        </b>
 
         <p class="small">
-          User: ${escapeHtml(w.user_id || "")}<br>
-          Bank: ${escapeHtml(w.bank_name || "")}<br>
-          Account: ${escapeHtml(w.account_number || "")}<br>
-          Status: ${escapeHtml(w.status || "")}<br>
+
+          User:
+          ${escapeHtml(w.user_id || "")}
+          <br>
+
+          Bank:
+          ${escapeHtml(w.bank_name || "")}
+          <br>
+
+          Account:
+          ${escapeHtml(w.account_number || "")}
+          <br>
+
+          Status:
+          ${escapeHtml(w.status || "")}
+          <br>
+
           ${formatDate(w.created_at)}
+
         </p>
 
       </div>
 
     `).join("");
+
 }
 
-/* =========================
+
+/* =====================================================
    PAYMENTS
-========================= */
+===================================================== */
 
 async function loadPayments(){
 
   $("paymentList").innerHTML =
-    '<div class="small">Loading payments...</div>';
+    '<div class="loading">Loading payments...</div>';
 
-  const {data,error} = await db
+
+  const {
+    data,
+    error
+  } = await db
     .from("poster_payments")
     .select("*")
-    .order("created_at",{ascending:false})
+    .order(
+      "created_at",
+      {ascending:false}
+    )
     .limit(100);
+
 
   if(error){
 
@@ -1550,10 +2040,12 @@ async function loadPayments(){
       '<div class="empty">Could not load payments.</div>';
 
     console.error(error);
+
     return;
   }
 
-  if(!data.length){
+
+  if(!data?.length){
 
     $("paymentList").innerHTML =
       '<div class="empty">No poster payments.</div>';
@@ -1561,44 +2053,99 @@ async function loadPayments(){
     return;
   }
 
+
   $("paymentList").innerHTML =
     data.map(payment => `
 
       <div class="item">
 
-        <b>Payment #${payment.id}</b>
+        <b>
+          Payment #${payment.id}
+        </b>
 
         <p class="small">
-          Poster: ${escapeHtml(payment.poster_id || "")}<br>
-          Task: ${escapeHtml(payment.task_id || "")}<br>
-          Amount: ₦${Number(payment.amount || 0).toLocaleString()}<br>
-          Method: ${escapeHtml(payment.payment_method || "Not supplied")}<br>
-          Reference: ${escapeHtml(payment.payment_reference || "Not supplied")}<br>
-          Status: ${escapeHtml(payment.status || "")}<br>
-          ${formatDate(payment.created_at)}
+
+          Poster:
+          ${escapeHtml(payment.poster_id || "")}
+          <br>
+
+          Task:
+          ${escapeHtml(
+            String(payment.task_id || "")
+          )}
+          <br>
+
+          Amount:
+          ₦${Number(
+            payment.amount || 0
+          ).toLocaleString()}
+          <br>
+
+          Method:
+          ${escapeHtml(
+            payment.payment_method ||
+            "Not supplied"
+          )}
+          <br>
+
+          Reference:
+          ${escapeHtml(
+            payment.payment_reference ||
+            "Not supplied"
+          )}
+          <br>
+
+          Status:
+          ${escapeHtml(
+            payment.status || ""
+          )}
+          <br>
+
+          ${formatDate(
+            payment.created_at
+          )}
+
         </p>
+
 
         ${
           payment.proof_url
-          ? `<button class="action blue"
-              onclick="viewPaymentProof('${escapeJs(payment.proof_url)}')">
-              View Payment Proof
-             </button>`
+          ? `
+          <button
+            class="action blue"
+            onclick="viewPaymentProof(
+              '${escapeJs(payment.proof_url)}'
+            )">
+            View Payment Proof
+          </button>
+          `
           : ""
         }
 
-        ${
-          ["PENDING","UNDER_REVIEW"].includes(payment.status)
-          ? `
-            <button class="action green"
-              onclick="reviewPayment(${payment.id},'APPROVED')">
-              Approve
-            </button>
 
-            <button class="action danger"
-              onclick="reviewPayment(${payment.id},'REJECTED')">
-              Reject
-            </button>
+        ${
+          ["PENDING","UNDER_REVIEW"]
+          .includes(payment.status)
+          ? `
+
+          <button
+            class="action green"
+            onclick="reviewPayment(
+              ${payment.id},
+              'APPROVED'
+            )">
+            Approve
+          </button>
+
+          <button
+            class="action danger"
+            onclick="reviewPayment(
+              ${payment.id},
+              'REJECTED'
+            )">
+            Reject
+          </button>
+
           `
           : ""
         }
@@ -1606,18 +2153,28 @@ async function loadPayments(){
       </div>
 
     `).join("");
+
 }
 
-async function reviewPayment(paymentId,decision){
+
+async function reviewPayment(
+  paymentId,
+  decision
+){
 
   openConfirm(
+
     decision === "APPROVED"
       ? "Approve Payment?"
       : "Reject Payment?",
+
     "This will update the poster payment and task status.",
+
     async () => {
 
-      const {error} = await db.rpc(
+      const {
+        error
+      } = await db.rpc(
         "admin_review_poster_payment",
         {
           p_payment_id:paymentId,
@@ -1625,51 +2182,87 @@ async function reviewPayment(paymentId,decision){
         }
       );
 
+
       if(error){
 
-        showMessage(error.message);
+        showMessage(
+          error.message
+        );
+
         return;
       }
 
-      showMessage("Payment review completed.");
 
-      await loadPayments();
-      await loadStats();
+      showMessage(
+        "Payment review completed."
+      );
+
+
+      await Promise.all([
+        loadPayments(),
+        loadStats()
+      ]);
+
     }
+
   );
+
 }
+
 
 async function viewPaymentProof(path){
 
   try{
 
-    const {data,error} =
-      await db.storage
-        .from("payment proof")
-        .createSignedUrl(path,300);
+    const {
+      data,
+      error
+    } = await db.storage
+      .from(PAYMENT_PROOF_BUCKET)
+      .createSignedUrl(
+        path,
+        300
+      );
+
 
     if(error || !data?.signedUrl){
 
-      showMessage("Could not open payment proof.");
+      showMessage(
+        "Could not open payment proof."
+      );
+
       return;
     }
 
-    $("imageContent").innerHTML =
-      `<img class="proof-image"
-       src="${escapeAttr(data.signedUrl)}">`;
 
-    $("imageModal").classList.add("show");
+    $("imageContent").innerHTML =
+      `<img
+        class="proof-image"
+        src="${escapeAttr(
+          data.signedUrl
+        )}"
+        alt="Payment proof">`;
+
+
+    $("imageModal")
+      .classList.add("show");
 
   }catch(error){
 
     console.error(error);
-    showMessage("Could not open payment proof.");
+
+    showMessage(
+      "Could not open payment proof."
+    );
+
   }
+
 }
 
-/* =========================
-   TASKS
-========================= */
+
+/* =====================================================
+   TASK CREATION
+===================================================== */
 
 async function createTask(){
 
@@ -1680,44 +2273,94 @@ async function createTask(){
     $("taskDescription").value.trim();
 
   const reward =
-    Number($("taskReward").value);
+    Number(
+      $("taskReward").value
+    );
 
   const slots =
-    Number($("taskSlots").value);
+    Number(
+      $("taskSlots").value
+    );
 
-  if(!title || !description || reward <= 0 || slots <= 0){
 
-    showMessage("Complete the task information.");
+  if(
+    !title ||
+    !description ||
+    reward <= 0 ||
+    slots <= 0
+  ){
+
+    showMessage(
+      "Complete the task information."
+    );
+
     return;
   }
 
-  const {data,error} = await db
+
+  const {
+    data,
+    error
+  } = await db
     .from("tasks")
     .insert({
+
       title,
+
       description,
+
       reward,
+
       slots,
-      task_type:$("taskType").value,
-      task_link:$("taskLink").value.trim() || null,
-      copy_text:$("taskCopyText").value.trim() || null,
-      expiry_date:$("taskExpiry").value || null,
-      uploader_username:$("taskUploader").value.trim() || null,
-      upload_required:$("taskUploadRequired").checked,
+
+      task_type:
+        $("taskType").value,
+
+      task_link:
+        $("taskLink").value.trim()
+        || null,
+
+      copy_text:
+        $("taskCopyText").value.trim()
+        || null,
+
+      expiry_date:
+        $("taskExpiry").value
+        || null,
+
+      uploader_username:
+        $("taskUploader").value.trim()
+        || null,
+
+      upload_required:
+        $("taskUploadRequired").checked,
+
       status:"LIVE",
+
       active:true,
-      created_by:currentAdmin.id
+
+      created_by:
+        currentAdmin.id
+
     })
     .select()
     .single();
 
+
   if(error){
 
-    showMessage(error.message);
+    showMessage(
+      error.message
+    );
+
     return;
   }
 
-  showMessage("Task created successfully.");
+
+  showMessage(
+    "Task created successfully."
+  );
+
 
   [
     "taskTitle",
@@ -1728,22 +2371,47 @@ async function createTask(){
     "taskCopyText",
     "taskExpiry",
     "taskUploader"
-  ].forEach(id => $(id).value = "");
+  ].forEach(id => {
 
-  await loadTasks();
-  await loadStats();
+    $(id).value = "";
+
+  });
+
+
+  $("taskUploadRequired").checked =
+    true;
+
+
+  await Promise.all([
+    loadTasks(),
+    loadStats()
+  ]);
+
 }
+
+
+/* =====================================================
+   TASK MANAGER
+===================================================== */
 
 async function loadTasks(){
 
   $("taskList").innerHTML =
-    '<div class="small">Loading tasks...</div>';
+    '<div class="loading">Loading tasks...</div>';
 
-  const {data,error} = await db
+
+  const {
+    data,
+    error
+  } = await db
     .from("tasks")
     .select("*")
-    .order("created_at",{ascending:false})
+    .order(
+      "created_at",
+      {ascending:false}
+    )
     .limit(200);
+
 
   if(error){
 
@@ -1753,7 +2421,8 @@ async function loadTasks(){
     return;
   }
 
-  if(!data.length){
+
+  if(!data?.length){
 
     $("taskList").innerHTML =
       '<div class="empty">No tasks found.</div>';
@@ -1761,171 +2430,425 @@ async function loadTasks(){
     return;
   }
 
+
   $("taskList").innerHTML =
-    data.map(task => `
+    data.map(task => {
+
+      const status =
+        String(
+          task.status || ""
+        ).toUpperCase();
+
+
+      return `
 
       <div class="item">
 
-        <b>${escapeHtml(task.title || "Untitled Task")}</b>
+        <b>
+          ${escapeHtml(
+            task.title ||
+            "Untitled Task"
+          )}
+        </b>
 
         <p class="small">
-          ${escapeHtml(task.description || "")}<br><br>
+
+          ${escapeHtml(
+            task.description || ""
+          )}
+
+          <br><br>
 
           Reward:
-          ₦${Number(task.reward || 0).toLocaleString()}<br>
+          ₦${Number(
+            task.reward || 0
+          ).toLocaleString()}
+
+          <br>
 
           Slots:
-          ${escapeHtml(String(task.slots || 0))}<br>
+          ${escapeHtml(
+            String(task.slots || 0)
+          )}
+
+          <br>
 
           Type:
-          ${escapeHtml(task.task_type || "")}<br>
+          ${escapeHtml(
+            task.task_type || ""
+          )}
+
+          <br>
 
           Status:
-          ${escapeHtml(task.status || "")}
+          ${escapeHtml(status)}
+
+          <br>
+
+          Active:
+          ${task.active ? "Yes" : "No"}
+
+          <br>
+
+          Expiry:
+          ${task.expiry_date
+            ? formatDate(task.expiry_date)
+            : "None"}
+
         </p>
 
-        <button class="action blue"
-          onclick="editTask('${escapeJs(task.id)}')">
+
+        <button
+          class="action blue"
+          onclick="editTask(
+            '${escapeJs(task.id)}'
+          )">
           Edit
         </button>
 
-        <button class="action warning"
-          onclick="toggleTask('${escapeJs(task.id)}',
-          ${task.active ? "false" : "true"})">
-          ${task.active ? "Pause" : "Activate"}
+
+        <button
+          class="action warning"
+          onclick="toggleTask(
+            '${escapeJs(task.id)}',
+            ${task.active ? "false" : "true"}
+          )">
+
+          ${
+            task.active
+              ? "Pause"
+              : "Activate"
+          }
+
         </button>
 
-        <button class="action danger"
-          onclick="deleteTask('${escapeJs(task.id)}')">
+
+        <button
+          class="action danger"
+          onclick="deleteTask(
+            '${escapeJs(task.id)}'
+          )">
           Delete
         </button>
 
       </div>
 
-    `).join("");
+      `;
+
+    }).join("");
+
 }
+
 
 async function editTask(id){
 
-  const {data,error} = await db
+  const {
+    data,
+    error
+  } = await db
     .from("tasks")
     .select("*")
     .eq("id",id)
     .single();
 
+
   if(error){
-    showMessage(error.message);
+
+    showMessage(
+      error.message
+    );
+
     return;
   }
 
-  $("editTaskId").value = data.id;
-  $("editTitle").value = data.title || "";
-  $("editDescription").value = data.description || "";
-  $("editReward").value = data.reward || "";
-  $("editSlots").value = data.slots || "";
-  $("editLink").value = data.task_link || "";
-  $("editCopyText").value = data.copy_text || "";
 
-  $("editModal").classList.add("show");
+  $("editTaskId").value =
+    data.id;
+
+  $("editTitle").value =
+    data.title || "";
+
+  $("editDescription").value =
+    data.description || "";
+
+  $("editReward").value =
+    data.reward || "";
+
+  $("editSlots").value =
+    data.slots || "";
+
+  $("editTaskType").value =
+    data.task_type || "social";
+
+  $("editLink").value =
+    data.task_link || "";
+
+  $("editCopyText").value =
+    data.copy_text || "";
+
+  $("editUploader").value =
+    data.uploader_username || "";
+
+  $("editUploadRequired").checked =
+    !!data.upload_required;
+
+
+  if(data.expiry_date){
+
+    const date =
+      new Date(data.expiry_date);
+
+    const local =
+      new Date(
+        date.getTime() -
+        date.getTimezoneOffset()*60000
+      )
+      .toISOString()
+      .slice(0,16);
+
+    $("editExpiry").value =
+      local;
+
+  }else{
+
+    $("editExpiry").value =
+      "";
+
+  }
+
+
+  $("editModal")
+    .classList.add("show");
+
 }
+
 
 async function saveTaskEdit(){
 
   const id =
     $("editTaskId").value;
 
-  const {error} = await db
-    .from("tasks")
-    .update({
-      title:$("editTitle").value.trim(),
-      description:$("editDescription").value.trim(),
-      reward:Number($("editReward").value),
-      slots:Number($("editSlots").value),
-      task_link:$("editLink").value.trim() || null,
-      copy_text:$("editCopyText").value.trim() || null
-    })
-    .eq("id",id);
 
-  if(error){
+  const title =
+    $("editTitle").value.trim();
 
-    showMessage(error.message);
+  const description =
+    $("editDescription").value.trim();
+
+  const reward =
+    Number(
+      $("editReward").value
+    );
+
+  const slots =
+    Number(
+      $("editSlots").value
+    );
+
+
+  if(
+    !title ||
+    !description ||
+    reward <= 0 ||
+    slots <= 0
+  ){
+
+    showMessage(
+      "Check the task information."
+    );
+
     return;
   }
 
-  closeModal("editModal");
 
-  showMessage("Task updated.");
-
-  await loadTasks();
-}
-
-async function toggleTask(id,active){
-
-  const {error} = await db
+  const {
+    error
+  } = await db
     .from("tasks")
     .update({
+
+      title,
+
+      description,
+
+      reward,
+
+      slots,
+
+      task_type:
+        $("editTaskType").value,
+
+      task_link:
+        $("editLink").value.trim()
+        || null,
+
+      copy_text:
+        $("editCopyText").value.trim()
+        || null,
+
+      expiry_date:
+        $("editExpiry").value
+        || null,
+
+      uploader_username:
+        $("editUploader").value.trim()
+        || null,
+
+      upload_required:
+        $("editUploadRequired").checked
+
+    })
+    .eq("id",id);
+
+
+  if(error){
+
+    showMessage(
+      error.message
+    );
+
+    return;
+  }
+
+
+  closeModal(
+    "editModal"
+  );
+
+
+  showMessage(
+    "Task updated."
+  );
+
+
+  await loadTasks();
+
+}
+
+
+async function toggleTask(
+  id,
+  active
+){
+
+  const {
+    error
+  } = await db
+    .from("tasks")
+    .update({
+
       active,
-      status:active ? "LIVE" : "PAUSED"
+
+      status:
+        active
+          ? "LIVE"
+          : "PAUSED"
+
     })
     .eq("id",id);
 
+
   if(error){
 
-    showMessage(error.message);
+    showMessage(
+      error.message
+    );
+
     return;
   }
 
-  await loadTasks();
+
+  await Promise.all([
+    loadTasks(),
+    loadStats()
+  ]);
+
 }
+
 
 async function deleteTask(id){
 
   openConfirm(
+
     "Delete Task?",
-    "This action permanently deletes the task.",
+
+    "This action permanently deletes the task and its related records may also be affected.",
+
     async () => {
 
-      const {data,error} = await db
+      const {
+        data,
+        error
+      } = await db
         .from("tasks")
         .delete()
         .eq("id",id)
         .select("id");
 
+
       if(error){
 
-        showMessage(error.message);
+        showMessage(
+          error.message
+        );
+
         return;
       }
 
-      if(!data || !data.length){
 
-        showMessage("Task was not deleted. Check admin permission.");
+      if(
+        !data ||
+        !data.length
+      ){
+
+        showMessage(
+          "Task was not deleted. Check admin permission."
+        );
+
         return;
       }
 
-      showMessage("Task deleted.");
 
-      await loadTasks();
-      await loadStats();
+      showMessage(
+        "Task deleted."
+      );
+
+
+      await Promise.all([
+        loadTasks(),
+        loadStats()
+      ]);
+
     }
+
   );
+
 }
 
-/* =========================
+
+/* =====================================================
    PROOF REVIEW
-========================= */
+===================================================== */
 
 async function loadProofs(){
 
   $("proofList").innerHTML =
-    '<div class="small">Loading proofs...</div>';
+    '<div class="loading">Loading proofs...</div>';
 
-  const {data,error} = await db
+
+  const {
+    data,
+    error
+  } = await db
     .from("task_submissions")
     .select("*")
     .eq("status","PENDING")
-    .order("created_at",{ascending:false})
+    .order(
+      "created_at",
+      {ascending:false}
+    )
     .limit(100);
+
 
   if(error){
 
@@ -1935,7 +2858,8 @@ async function loadProofs(){
     return;
   }
 
-  if(!data.length){
+
+  if(!data?.length){
 
     $("proofList").innerHTML =
       '<div class="empty">No pending proofs.</div>';
@@ -1943,20 +2867,29 @@ async function loadProofs(){
     return;
   }
 
+
   $("proofList").innerHTML =
     data.map(p => {
 
       let proof = {};
 
       try{
-        proof = typeof p.proof === "string"
-          ? JSON.parse(p.proof)
-          : (p.proof || {});
+
+        proof =
+          typeof p.proof === "string"
+            ? JSON.parse(p.proof)
+            : (p.proof || {});
+
       }catch{
+
         proof = {
-          text:p.proof || ""
+          text:String(
+            p.proof || ""
+          )
         };
+
       }
+
 
       const image =
         proof.photo_url ||
@@ -1964,110 +2897,275 @@ async function loadProofs(){
         proof.photo ||
         null;
 
+
       return `
 
-        <div class="item">
+      <div class="item">
 
-          <b>Submission #${p.id}</b>
+        <b>
+          Submission #${p.id}
+        </b>
 
+        <p class="small">
+
+          User:
+          ${escapeHtml(
+            p.user_id || ""
+          )}
+
+          <br>
+
+          Task:
+          ${escapeHtml(
+            String(p.task_id || "")
+          )}
+
+          <br>
+
+          Submitted:
+          ${formatDate(
+            p.created_at
+          )}
+
+        </p>
+
+
+        ${
+          proof.text
+          ? `
           <p class="small">
-            User: ${escapeHtml(p.user_id || "")}<br>
-            Task: ${escapeHtml(p.task_id || "")}<br>
-            Submitted: ${formatDate(p.created_at)}
+            <b>Proof:</b><br>
+            ${escapeHtml(
+              proof.text
+            )}
           </p>
+          `
+          : ""
+        }
 
-          ${
-            proof.text
-            ? `<p class="small">
-                <b>Proof:</b><br>
-                ${escapeHtml(proof.text)}
-               </p>`
-            : ""
-          }
 
-          ${
-            proof.comment
-            ? `<p class="small">
-                <b>Comment:</b><br>
-                ${escapeHtml(proof.comment)}
-               </p>`
-            : ""
-          }
+        ${
+          proof.comment
+          ? `
+          <p class="small">
+            <b>Comment:</b><br>
+            ${escapeHtml(
+              proof.comment
+            )}
+          </p>
+          `
+          : ""
+        }
 
-          ${
-            image
-            ? `<button class="action blue"
-                onclick="viewImage('${escapeJs(image)}')">
-                View Photo
-               </button>`
-            : ""
-          }
 
-          <button class="action green"
-            onclick="reviewProof(${p.id},'APPROVED')">
-            Approve
+        ${
+          proof.username
+          ? `
+          <p class="small">
+            <b>Username:</b>
+            ${escapeHtml(
+              proof.username
+            )}
+          </p>
+          `
+          : ""
+        }
+
+
+        ${
+          image
+          ? `
+          <button
+            class="action blue"
+            onclick="viewTaskProof(
+              '${escapeJs(image)}'
+            )">
+            🖼️ View Photo
           </button>
+          `
+          : `
+          <span class="badge orange">
+            No photo
+          </span>
+          `
+        }
 
-          <button class="action danger"
-            onclick="reviewProof(${p.id},'REJECTED')">
-            Reject
-          </button>
 
-        </div>
+        <button
+          class="action green"
+          onclick="reviewProof(
+            ${p.id},
+            'APPROVED'
+          )">
+          Approve
+        </button>
+
+
+        <button
+          class="action danger"
+          onclick="reviewProof(
+            ${p.id},
+            'REJECTED'
+          )">
+          Reject
+        </button>
+
+      </div>
+
       `;
 
     }).join("");
+
 }
 
-async function reviewProof(id,status){
+
+async function reviewProof(
+  id,
+  status
+){
 
   openConfirm(
+
     status === "APPROVED"
       ? "Approve Proof?"
       : "Reject Proof?",
+
     "Confirm this proof review.",
+
     async () => {
 
-      const {error} = await db
+      const {
+        error
+      } = await db
         .from("task_submissions")
         .update({
+
           status,
-          reviewed_by:currentAdmin.id,
-          reviewed_at:new Date().toISOString()
+
+          reviewed_by:
+            currentAdmin.id,
+
+          reviewed_at:
+            new Date().toISOString()
+
         })
         .eq("id",id);
 
+
       if(error){
 
-        showMessage(error.message);
+        showMessage(
+          error.message
+        );
+
         return;
       }
 
-      showMessage("Proof review completed.");
 
-      await loadProofs();
-      await loadStats();
+      showMessage(
+        "Proof review completed."
+      );
+
+
+      await Promise.all([
+        loadProofs(),
+        loadStats()
+      ]);
+
     }
+
   );
+
 }
 
-async function viewImage(url){
+
+/* =====================================================
+   TASK PROOF IMAGE
+===================================================== */
+
+async function viewTaskProof(path){
+
+  if(!path){
+
+    showMessage(
+      "No proof image found."
+    );
+
+    return;
+  }
+
+
+  /*
+   The task proof bucket is private.
+   If the stored value is already a complete URL,
+   use it directly. Otherwise create a signed URL.
+  */
+
+  if(
+    path.startsWith("http://") ||
+    path.startsWith("https://")
+  ){
+
+    $("imageContent").innerHTML =
+      `<img
+        class="proof-image"
+        src="${escapeAttr(path)}"
+        alt="Task proof">`;
+
+    $("imageModal")
+      .classList.add("show");
+
+    return;
+  }
+
+
+  const {
+    data,
+    error
+  } = await db.storage
+    .from(TASK_PROOF_BUCKET)
+    .createSignedUrl(
+      path,
+      300
+    );
+
+
+  if(error || !data?.signedUrl){
+
+    showMessage(
+      "Could not open task proof photo."
+    );
+
+    return;
+  }
+
 
   $("imageContent").innerHTML =
-    `<img class="proof-image"
-      src="${escapeAttr(url)}">`;
+    `<img
+      class="proof-image"
+      src="${escapeAttr(
+        data.signedUrl
+      )}"
+      alt="Task proof">`;
 
-  $("imageModal").classList.add("show");
+
+  $("imageModal")
+    .classList.add("show");
+
 }
 
-/* =========================
+
+/* =====================================================
    USERS
-========================= */
+===================================================== */
 
 async function searchUsers(){
 
   const q =
-    $("userSearch").value.trim();
+    $("userSearch")
+      .value
+      .trim();
+
 
   if(!q){
 
@@ -2077,13 +3175,47 @@ async function searchUsers(){
     return;
   }
 
-  const {data,error} = await db
-    .from("profiles")
-    .select("*")
-    .or(
-      `full_name.ilike.%${escapeFilter(q)}%,phone.ilike.%${escapeFilter(q)}%,id.eq.${escapeFilter(q)}`
-    )
-    .limit(50);
+
+  /*
+   UUID searches must be valid UUIDs.
+   For ordinary name/phone searches,
+   only those fields are queried.
+  */
+
+  let query =
+    db
+      .from("profiles")
+      .select("*")
+      .limit(50);
+
+
+  const uuidPattern =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+
+  if(uuidPattern.test(q)){
+
+    query =
+      query.eq("id",q);
+
+  }else{
+
+    const safe =
+      escapeFilter(q);
+
+    query =
+      query.or(
+        `full_name.ilike.%${safe}%,phone.ilike.%${safe}%`
+      );
+
+  }
+
+
+  const {
+    data,
+    error
+  } = await query;
+
 
   if(error){
 
@@ -2093,7 +3225,8 @@ async function searchUsers(){
     return;
   }
 
-  if(!data.length){
+
+  if(!data?.length){
 
     $("userList").innerHTML =
       '<div class="empty">No users found.</div>';
@@ -2101,39 +3234,78 @@ async function searchUsers(){
     return;
   }
 
+
   $("userList").innerHTML =
     data.map(user => `
 
       <div class="item">
 
-        <b>${escapeHtml(user.full_name || "Unnamed User")}</b>
+        <b>
+          ${escapeHtml(
+            user.full_name ||
+            "Unnamed User"
+          )}
+        </b>
 
         <p class="small">
-          ID: ${escapeHtml(user.id || "")}<br>
-          Phone: ${escapeHtml(user.phone || "")}<br>
-          Balance: ₦${Number(user.balance || 0).toLocaleString()}<br>
-          Activated: ${user.activated ? "Yes" : "No"}
+
+          ID:
+          ${escapeHtml(
+            user.id || ""
+          )}
+
+          <br>
+
+          Phone:
+          ${escapeHtml(
+            user.phone || ""
+          )}
+
+          <br>
+
+          Balance:
+          ₦${Number(
+            user.balance || 0
+          ).toLocaleString()}
+
+          <br>
+
+          Activated:
+          ${user.activated
+            ? "Yes"
+            : "No"}
+
         </p>
 
       </div>
 
     `).join("");
+
 }
 
-/* =========================
+
+/* =====================================================
    SECURITY EVENTS
-========================= */
+===================================================== */
 
 async function loadSecurityEvents(){
 
   $("securityEvents").innerHTML =
-    '<div class="small">Loading security events...</div>';
+    '<div class="loading">Loading security events...</div>';
 
-  const {data,error} = await db
+
+  const {
+    data,
+    error
+  } = await db
     .from("security_events")
     .select("*")
-    .order("created_at",{ascending:false})
+    .order(
+      "created_at",
+      {ascending:false}
+    )
     .limit(100);
+
 
   if(error){
 
@@ -2141,10 +3313,12 @@ async function loadSecurityEvents(){
       '<div class="empty">Could not load security events.</div>';
 
     console.error(error);
+
     return;
   }
 
-  if(!data.length){
+
+  if(!data?.length){
 
     $("securityEvents").innerHTML =
       '<div class="empty">No security events recorded.</div>';
@@ -2152,78 +3326,123 @@ async function loadSecurityEvents(){
     return;
   }
 
+
   $("securityEvents").innerHTML =
     data.map(event => {
 
-      let badge = "badge";
+      let badge =
+        "badge";
+
 
       if(event.severity === "HIGH"){
-        badge = "badge red";
+        badge =
+          "badge red";
       }
 
+
       if(event.severity === "MEDIUM"){
-        badge = "badge orange";
+        badge =
+          "badge orange";
       }
+
 
       return `
 
-        <div class="item">
+      <div class="item">
 
-          <b>
-            ${escapeHtml(event.event_type || "Security Event")}
-          </b>
+        <b>
+          ${escapeHtml(
+            event.event_type ||
+            "Security Event"
+          )}
+        </b>
 
-          <span class="${badge}">
-            ${escapeHtml(event.severity || "LOW")}
-          </span>
+        <span class="${badge}">
+          ${escapeHtml(
+            event.severity ||
+            "LOW"
+          )}
+        </span>
 
-          <p class="small">
+        <p class="small">
 
-            User:
-            ${escapeHtml(event.user_id || "Unknown")}
-            <br>
+          User:
+          ${escapeHtml(
+            event.user_id ||
+            "Unknown"
+          )}
 
-            Description:
-            ${escapeHtml(event.description || "No description")}
-            <br>
+          <br>
 
-            IP:
-            ${escapeHtml(event.ip_address || "Not recorded")}
-            <br>
+          Description:
+          ${escapeHtml(
+            event.description ||
+            "No description"
+          )}
 
-            Device:
-            ${escapeHtml(event.device_fingerprint || "Not recorded")}
-            <br>
+          <br>
 
-            Status:
-            ${escapeHtml(event.status || "OPEN")}
-            <br>
+          IP:
+          ${escapeHtml(
+            event.ip_address ||
+            "Not recorded"
+          )}
 
-            ${formatDate(event.created_at)}
+          <br>
 
-          </p>
+          Device:
+          ${escapeHtml(
+            event.device_fingerprint ||
+            "Not recorded"
+          )}
 
-        </div>
+          <br>
+
+          Status:
+          ${escapeHtml(
+            event.status ||
+            "OPEN"
+          )}
+
+          <br>
+
+          ${formatDate(
+            event.created_at
+          )}
+
+        </p>
+
+      </div>
 
       `;
 
     }).join("");
+
 }
 
-/* =========================
+
+/* =====================================================
    SECURITY WARNINGS
-========================= */
+===================================================== */
 
 async function loadSecurityWarnings(){
 
   $("securityWarnings").innerHTML =
-    '<div class="small">Loading security warnings...</div>';
+    '<div class="loading">Loading security warnings...</div>';
 
-  const {data,error} = await db
+
+  const {
+    data,
+    error
+  } = await db
     .from("security_warnings")
     .select("*")
-    .order("created_at",{ascending:false})
+    .order(
+      "created_at",
+      {ascending:false}
+    )
     .limit(100);
+
 
   if(error){
 
@@ -2231,10 +3450,12 @@ async function loadSecurityWarnings(){
       '<div class="empty">Could not load security warnings.</div>';
 
     console.error(error);
+
     return;
   }
 
-  if(!data.length){
+
+  if(!data?.length){
 
     $("securityWarnings").innerHTML =
       '<div class="empty">No security warnings recorded.</div>';
@@ -2242,121 +3463,263 @@ async function loadSecurityWarnings(){
     return;
   }
 
+
   $("securityWarnings").innerHTML =
     data.map(warning => {
 
-      let badge = "badge orange";
+      let badge =
+        "badge orange";
 
-      if(warning.severity === "CRITICAL" ||
-         warning.severity === "HIGH"){
 
-        badge = "badge red";
+      if(
+        warning.severity === "CRITICAL" ||
+        warning.severity === "HIGH"
+      ){
+
+        badge =
+          "badge red";
+
       }
+
 
       return `
 
-        <div class="item">
+      <div class="item">
 
-          <b>
-            ${escapeHtml(warning.warning_type || "Warning")}
-          </b>
+        <b>
+          ${escapeHtml(
+            warning.warning_type ||
+            "Warning"
+          )}
+        </b>
 
-          <span class="${badge}">
-            ${escapeHtml(warning.severity || "WARNING")}
-          </span>
+        <span class="${badge}">
+          ${escapeHtml(
+            warning.severity ||
+            "WARNING"
+          )}
+        </span>
 
-          <p class="small">
+        <p class="small">
 
-            User:
-            ${escapeHtml(warning.user_id || "")}
-            <br>
+          User:
+          ${escapeHtml(
+            warning.user_id ||
+            ""
+          )}
 
-            Message:
-            ${escapeHtml(warning.message || "")}
-            <br>
+          <br>
 
-            Acknowledged:
-            ${warning.acknowledged ? "Yes" : "No"}
-            <br>
+          Message:
+          ${escapeHtml(
+            warning.message ||
+            ""
+          )}
 
-            ${formatDate(warning.created_at)}
+          <br>
 
-          </p>
+          Acknowledged:
+          ${warning.acknowledged
+            ? "Yes"
+            : "No"}
 
-        </div>
+          <br>
+
+          ${formatDate(
+            warning.created_at
+          )}
+
+        </p>
+
+      </div>
 
       `;
 
     }).join("");
+
 }
 
-/* =========================
+
+/* =====================================================
+   REFRESH EVERYTHING
+===================================================== */
+
+async function refreshEverything(){
+
+  showMessage(
+    "Refreshing Admin Control Center..."
+  );
+
+
+  await Promise.all([
+
+    loadSettings(),
+
+    loadStats()
+
+  ]);
+
+
+  showMessage(
+    "✅ Admin Control Center refreshed."
+  );
+
+}
+
+
+/* =====================================================
    HELPERS
-========================= */
+===================================================== */
 
 function formatDate(value){
 
-  if(!value) return "";
+  if(!value){
+    return "";
+  }
+
 
   try{
-    return new Date(value).toLocaleString();
+
+    return new Date(
+      value
+    ).toLocaleString();
+
   }catch{
+
     return value;
+
   }
+
 }
+
 
 function escapeHtml(value){
 
-  return String(value ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+  .replace(
+    /</g,
+    "&lt;"
+  )
+  .replace(
+    />/g,
+    "&gt;"
+  )
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
 }
+
 
 function escapeAttr(value){
 
   return escapeHtml(value);
+
 }
+
 
 function escapeJs(value){
 
-  return String(value ?? "")
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'")
-    .replace(/\n/g,"\\n")
-    .replace(/\r/g,"\\r");
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /\\/g,
+    "\\\\"
+  )
+  .replace(
+    /'/g,
+    "\\'"
+  )
+  .replace(
+    /\n/g,
+    "\\n"
+  )
+  .replace(
+    /\r/g,
+    "\\r"
+  );
+
 }
+
 
 function escapeFilter(value){
 
-  return String(value ?? "")
-    .replace(/[%_]/g,"\\$&")
-    .replace(/,/g,"\\,")
-    .replace(/\(/g,"\\(")
-    .replace(/\)/g,"\\)");
+  return String(
+    value ?? ""
+  )
+  .replace(
+    /[%_]/g,
+    "\\$&"
+  )
+  .replace(
+    /,/g,
+    "\\,"
+  )
+  .replace(
+    /\(/g,
+    "\\("
+  )
+  .replace(
+    /\)/g,
+    "\\)"
+  );
+
 }
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
 
 async function logout(){
 
   await db.auth.signOut();
 
-  location.href = "admin-login.html";
+  location.href =
+    "admin-login.html";
+
 }
 
-/* =========================
+
+/* =====================================================
    START
-========================= */
+===================================================== */
 
 (async function(){
 
-  const ok = await checkAdmin();
+  const ok =
+    await checkAdmin();
 
-  if(!ok) return;
+  if(!ok){
+    return;
+  }
 
-  await loadSettings();
-  await loadStats();
+
+  /*
+   Load independent data together.
+   This removes the unnecessary
+   settings → wait → stats delay.
+  */
+
+  await Promise.all([
+
+    loadSettings(),
+
+    loadStats()
+
+  ]);
 
 })();
 </script>
