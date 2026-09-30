@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 
 <title>Admin Control Center — NAIJA TASK</title>
 
@@ -15,10 +15,31 @@
   padding:0;
 }
 
+html{
+  scroll-behavior:smooth;
+}
+
 body{
   font-family:Arial,sans-serif;
   background:#f5fff7;
   color:#123;
+  min-height:100vh;
+}
+
+body.modal-open{
+  overflow:hidden;
+}
+
+button,
+input,
+select,
+textarea{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
 }
 
 header{
@@ -28,16 +49,18 @@ header{
   position:sticky;
   top:0;
   z-index:20;
+  box-shadow:0 2px 12px rgba(0,0,0,.12);
 }
 
 header h1{
   font-size:20px;
+  line-height:1.25;
 }
 
 header p{
   font-size:12px;
-  opacity:.9;
-  margin-top:4px;
+  opacity:.92;
+  margin-top:5px;
 }
 
 .container{
@@ -51,6 +74,11 @@ header p{
   gap:8px;
   overflow-x:auto;
   padding:10px 0 15px;
+  scrollbar-width:none;
+}
+
+.menu::-webkit-scrollbar{
+  display:none;
 }
 
 .menu button{
@@ -61,11 +89,13 @@ header p{
   border-radius:9px;
   white-space:nowrap;
   font-weight:bold;
+  flex:none;
 }
 
 .menu button.active{
   background:#0b8f3c;
   color:#fff;
+  border-color:#0b8f3c;
 }
 
 .section{
@@ -93,6 +123,18 @@ header p{
 .card h3{
   font-size:15px;
   margin:15px 0 8px;
+}
+
+.card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.card-header h2{
+  margin:0;
 }
 
 .grid{
@@ -126,11 +168,20 @@ input,
 select,
 textarea{
   width:100%;
-  padding:11px;
+  padding:12px;
   border:1px solid #cbded0;
   border-radius:8px;
   background:#fff;
-  font-size:14px;
+  font-size:16px;
+  color:#123;
+  outline:none;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:#0b8f3c;
+  box-shadow:0 0 0 3px rgba(11,143,60,.10);
 }
 
 textarea{
@@ -138,17 +189,14 @@ textarea{
   resize:vertical;
 }
 
-button{
-  cursor:pointer;
-}
-
-.action{
+button.action{
   padding:10px 13px;
   border-radius:8px;
   border:1px solid #cbded0;
   background:#fff;
   font-weight:bold;
   margin:5px 4px 5px 0;
+  min-height:40px;
 }
 
 .green{
@@ -241,6 +289,12 @@ button{
   background:#fff;
 }
 
+.item-title{
+  font-weight:bold;
+  font-size:15px;
+  margin-bottom:5px;
+}
+
 .badge{
   display:inline-block;
   padding:4px 8px;
@@ -285,42 +339,146 @@ button{
   font-size:13px;
 }
 
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.55);
-  z-index:100;
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-}
-
-.modal.show{
-  display:flex;
-}
-
-.modal-box{
-  background:#fff;
-  width:100%;
-  max-width:520px;
-  max-height:90vh;
-  overflow:auto;
-  border-radius:14px;
-  padding:18px;
-}
-
-.modal-box h3{
+.message{
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  background:#f5fff7;
   color:#0b8f3c;
-  margin-bottom:12px;
 }
 
-.proof-image{
-  display:block;
-  max-width:100%;
-  max-height:70vh;
-  margin:10px auto;
+.help-box{
+  background:#f5fff7;
+  border:1px solid #d6efdc;
   border-radius:10px;
+  padding:12px;
+  margin:10px 0 15px;
+}
+
+.help-box strong{
+  color:#0b8f3c;
+}
+
+.task-style-title{
+  font-size:14px;
+  font-weight:bold;
+  color:#123;
+  margin-bottom:8px;
+}
+
+.task-style-selector{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:8px 0 15px;
+}
+
+.task-style-button{
+  border:1px solid #cbded0;
+  background:#fff;
+  border-radius:10px;
+  padding:12px 7px;
+  text-align:center;
+  font-weight:bold;
+  color:#315;
+}
+
+.task-style-button span{
+  display:block;
+  font-size:22px;
+  margin-bottom:4px;
+}
+
+.task-style-button small{
+  display:block;
+  color:#667;
+  font-size:10px;
+  font-weight:normal;
+  margin-top:3px;
+}
+
+.task-style-button.active{
+  background:#e8f6ec;
+  border:2px solid #0b8f3c;
+  color:#0b8f3c;
+}
+
+.task-type-help{
+  background:#f8faf8;
+  border-left:4px solid #0b8f3c;
+  padding:10px;
+  border-radius:7px;
+  margin:8px 0 12px;
+  font-size:12px;
+  color:#667;
+  line-height:1.5;
+}
+
+.field-group{
+  margin-bottom:5px;
+}
+
+.field-note{
+  font-size:11px;
+  color:#777;
+  margin-top:4px;
+  line-height:1.4;
+}
+
+.task-card{
+  border:1px solid #dce9df;
+  border-radius:12px;
+  padding:14px;
+  margin:10px 0;
+  background:#fff;
+}
+
+.task-card-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.task-card-title{
+  font-size:16px;
+  font-weight:bold;
+  color:#123;
+}
+
+.task-style-badge{
+  font-size:11px;
+  font-weight:bold;
+  padding:5px 8px;
+  border-radius:20px;
+  white-space:nowrap;
+  background:#e8f6ec;
+  color:#0b8f3c;
+}
+
+.task-meta{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:7px;
+  margin:10px 0;
+}
+
+.task-meta-box{
+  background:#f7fbf8;
+  border-radius:8px;
+  padding:8px;
+}
+
+.task-meta-box small{
+  display:block;
+  color:#777;
+  font-size:10px;
+}
+
+.task-meta-box b{
+  display:block;
+  margin-top:2px;
+  font-size:13px;
 }
 
 .status-live{
@@ -353,7 +511,84 @@ pre{
   word-break:break-word;
 }
 
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:15px;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  background:#fff;
+  width:100%;
+  max-width:560px;
+  max-height:90vh;
+  overflow:auto;
+  border-radius:14px;
+  padding:18px;
+  -webkit-overflow-scrolling:touch;
+}
+
+.modal-box h3{
+  color:#0b8f3c;
+  margin-bottom:12px;
+  font-size:18px;
+}
+
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  position:sticky;
+  top:-18px;
+  background:#fff;
+  padding:2px 0 12px;
+  z-index:2;
+}
+
+.close-button{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  border:1px solid #dce9df;
+  background:#fff;
+  font-size:20px;
+}
+
+.proof-image{
+  display:block;
+  max-width:100%;
+  max-height:70vh;
+  margin:10px auto;
+  border-radius:10px;
+}
+
+.modal-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  position:sticky;
+  bottom:-18px;
+  background:#fff;
+  padding-top:10px;
+}
+
+.modal-actions .action{
+  flex:1;
+  min-width:110px;
+}
+
 @media(max-width:600px){
+
   .container{
     padding:10px;
   }
@@ -365,6 +600,50 @@ pre{
   .card{
     padding:13px;
   }
+
+  .task-style-selector{
+    gap:6px;
+  }
+
+  .task-style-button{
+    padding:10px 4px;
+  }
+
+  .task-style-button span{
+    font-size:20px;
+  }
+
+  .modal{
+    align-items:flex-end;
+    padding:0;
+  }
+
+  .modal-box{
+    max-width:none;
+    max-height:94vh;
+    border-radius:18px 18px 0 0;
+    padding:16px;
+    padding-bottom:calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .modal-header{
+    top:-16px;
+  }
+
+  .modal-actions{
+    bottom:-16px;
+    padding-bottom:calc(8px + env(safe-area-inset-bottom));
+  }
+}
+
+@media(max-width:380px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .task-meta{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
@@ -373,66 +652,37 @@ pre{
 
 <header>
   <h1>NAIJA TASK — Admin Control Center</h1>
-  <p>Platform management, payments, tasks, users and security</p>
+  <p>Manage your platform, tasks, payments, users and security</p>
 </header>
 
 <div class="container">
 
 <div class="menu">
 
-<button class="active" onclick="showSection('overview',this)">
-📊 Overview
-</button>
-
-<button onclick="showSection('platform',this)">
-⚙️ Platform
-</button>
-
-<button onclick="showSection('membership',this)">
-👑 Membership
-</button>
-
-<button onclick="showSection('money',this)">
-💰 Money
-</button>
-
-<button onclick="showSection('referrals',this)">
-🔗 Referrals
-</button>
-
-<button onclick="showSection('payments',this)">
-💳 Payments
-</button>
-
-<button onclick="showSection('tasks',this)">
-📋 Tasks
-</button>
-
-<button onclick="showSection('proofs',this)">
-🖼️ Proof Review
-</button>
-
-<button onclick="showSection('users',this)">
-👥 Users
-</button>
-
-<button onclick="showSection('posters',this)">
-📢 Posters
-</button>
-
-<button onclick="showSection('security',this)">
-🛡️ Security
-</button>
+<button class="active" onclick="showSection('overview',this)">📊 Overview</button>
+<button onclick="showSection('platform',this)">⚙️ Platform</button>
+<button onclick="showSection('membership',this)">👑 Membership</button>
+<button onclick="showSection('money',this)">💰 Money</button>
+<button onclick="showSection('referrals',this)">🔗 Referrals</button>
+<button onclick="showSection('payments',this)">💳 Payments</button>
+<button onclick="showSection('tasks',this)">📋 Tasks</button>
+<button onclick="showSection('proofs',this)">🖼️ Proof Review</button>
+<button onclick="showSection('users',this)">👥 Users</button>
+<button onclick="showSection('posters',this)">📢 Posters</button>
+<button onclick="showSection('security',this)">🛡️ Security</button>
 
 </div>
 
-<!-- OVERVIEW -->
+
+<!-- =====================================================
+     OVERVIEW
+===================================================== -->
 
 <section id="overview" class="section active">
 
 <div class="card">
 
-<h2>Dashboard</h2>
+<h2>Admin Dashboard</h2>
 
 <div class="grid">
 
@@ -493,7 +743,9 @@ Last dashboard refresh:
 </section>
 
 
-<!-- PLATFORM -->
+<!-- =====================================================
+     PLATFORM
+===================================================== -->
 
 <section id="platform" class="section">
 
@@ -505,14 +757,13 @@ Last dashboard refresh:
 <input id="siteName">
 
 <label>Support WhatsApp</label>
-<input id="supportWhatsapp">
+<input id="supportWhatsapp" inputmode="tel">
 
 <label>Support Email</label>
-<input id="supportEmail">
+<input id="supportEmail" type="email">
 
 <div class="row">
 <span>Maintenance Mode</span>
-
 <label class="switch">
 <input type="checkbox" id="maintenanceMode">
 <span class="slider"></span>
@@ -521,7 +772,6 @@ Last dashboard refresh:
 
 <div class="row">
 <span>Photo Proof Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="photoProofEnabled">
 <span class="slider"></span>
@@ -530,7 +780,6 @@ Last dashboard refresh:
 
 <div class="row">
 <span>AI Care Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="aiCareEnabled">
 <span class="slider"></span>
@@ -539,7 +788,6 @@ Last dashboard refresh:
 
 <div class="row">
 <span>Private Chat</span>
-
 <label class="switch">
 <input type="checkbox" id="privateChatEnabled">
 <span class="slider"></span>
@@ -548,7 +796,6 @@ Last dashboard refresh:
 
 <div class="row">
 <span>Community Chat</span>
-
 <label class="switch">
 <input type="checkbox" id="communityChatEnabled">
 <span class="slider"></span>
@@ -562,33 +809,36 @@ Last dashboard refresh:
 
 <h2>Task Reward Controls</h2>
 
+<div class="help-box">
+<strong>Reward rules</strong><br>
+Set the allowed reward range separately for Normal Taskers and VIP Taskers.
+The server should validate the final reward before a task becomes available.
+</div>
+
 <h3>Normal Tasker</h3>
 
 <label>Minimum Reward (₦)</label>
-<input type="number" id="normalMinReward" min="0">
+<input type="number" id="normalMinReward" min="0" inputmode="decimal">
 
 <label>Maximum Reward (₦)</label>
-<input type="number" id="normalMaxReward" min="0">
+<input type="number" id="normalMaxReward" min="0" inputmode="decimal">
 
 <h3>VIP Tasker</h3>
 
 <label>Minimum Reward (₦)</label>
-<input type="number" id="vipMinReward" min="0">
+<input type="number" id="vipMinReward" min="0" inputmode="decimal">
 
 <label>Maximum Reward (₦)</label>
-<input type="number" id="vipMaxReward" min="0">
-
-<p class="small">
-These settings define the reward range available when creating tasks.
-Actual task rewards should still be validated server-side.
-</p>
+<input type="number" id="vipMaxReward" min="0" inputmode="decimal">
 
 </div>
 
 </section>
 
 
-<!-- MEMBERSHIP -->
+<!-- =====================================================
+     MEMBERSHIP
+===================================================== -->
 
 <section id="membership" class="section">
 
@@ -598,7 +848,6 @@ Actual task rewards should still be validated server-side.
 
 <div class="row">
 <span>Activation Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="activationEnabled">
 <span class="slider"></span>
@@ -606,11 +855,10 @@ Actual task rewards should still be validated server-side.
 </div>
 
 <label>Activation Fee (₦)</label>
-<input type="number" id="activationFee" min="0">
+<input type="number" id="activationFee" min="0" inputmode="decimal">
 
 <div class="row">
 <span>VIP Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="vipEnabled">
 <span class="slider"></span>
@@ -618,20 +866,22 @@ Actual task rewards should still be validated server-side.
 </div>
 
 <label>VIP Price (₦)</label>
-<input type="number" id="vipPrice" min="0">
+<input type="number" id="vipPrice" min="0" inputmode="decimal">
 
 <label>Free Daily Task Limit</label>
-<input type="number" id="freeDailyTaskLimit" min="0">
+<input type="number" id="freeDailyTaskLimit" min="0" inputmode="numeric">
 
 <label>VIP Daily Task Limit</label>
-<input type="number" id="vipDailyTaskLimit" min="0">
+<input type="number" id="vipDailyTaskLimit" min="0" inputmode="numeric">
 
 </div>
 
 </section>
 
 
-<!-- MONEY -->
+<!-- =====================================================
+     MONEY
+===================================================== -->
 
 <section id="money" class="section">
 
@@ -641,7 +891,6 @@ Actual task rewards should still be validated server-side.
 
 <div class="row">
 <span>Withdrawals Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="withdrawalsEnabled">
 <span class="slider"></span>
@@ -649,26 +898,25 @@ Actual task rewards should still be validated server-side.
 </div>
 
 <label>Minimum Withdrawal (₦)</label>
-<input type="number" id="minimumWithdrawal" min="0">
+<input type="number" id="minimumWithdrawal" min="0" inputmode="decimal">
 
 <label>Free Withdrawal Fee (₦)</label>
-<input type="number" id="freeWithdrawalFee" min="0">
+<input type="number" id="freeWithdrawalFee" min="0" inputmode="decimal">
 
 <label>VIP Withdrawal Fee (₦)</label>
-<input type="number" id="vipWithdrawalFee" min="0">
+<input type="number" id="vipWithdrawalFee" min="0" inputmode="decimal">
 
 <label>Withdrawals Per Day</label>
-<input type="number" id="withdrawalsPerDay" min="1">
+<input type="number" id="withdrawalsPerDay" min="1" inputmode="numeric">
 
 </div>
 
 <div class="card">
 
+<div class="card-header">
 <h2>Withdrawal Records</h2>
-
-<button class="action green" onclick="loadWithdrawals()">
-Refresh
-</button>
+<button class="action green" onclick="loadWithdrawals()">Refresh</button>
+</div>
 
 <div id="withdrawalList"></div>
 
@@ -677,7 +925,9 @@ Refresh
 </section>
 
 
-<!-- REFERRALS -->
+<!-- =====================================================
+     REFERRALS
+===================================================== -->
 
 <section id="referrals" class="section">
 
@@ -687,7 +937,6 @@ Refresh
 
 <div class="row">
 <span>Referrals Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="referralsEnabled">
 <span class="slider"></span>
@@ -695,24 +944,30 @@ Refresh
 </div>
 
 <label>Referral Reward (₦)</label>
-<input type="number" id="referralReward" min="0">
+<input type="number" id="referralReward" min="0" inputmode="decimal">
 
 </div>
 
 </section>
 
 
-<!-- PAYMENTS -->
+<!-- =====================================================
+     PAYMENTS
+===================================================== -->
 
 <section id="payments" class="section">
 
 <div class="card">
 
+<div class="card-header">
 <h2>Poster Payments</h2>
+<button class="action green" onclick="loadPayments()">Refresh</button>
+</div>
 
-<button class="action green" onclick="loadPayments()">
-Refresh Payments
-</button>
+<div class="help-box">
+<strong>Payment review</strong><br>
+Review the poster's payment information and proof before approving the task.
+</div>
 
 <div id="paymentList"></div>
 
@@ -721,58 +976,133 @@ Refresh Payments
 </section>
 
 
-<!-- TASKS -->
+<!-- =====================================================
+     TASKS
+===================================================== -->
 
 <section id="tasks" class="section">
 
 <div class="card">
 
-<h2>Create Task</h2>
+<h2>Create a Task</h2>
 
-<label>Title</label>
-<input id="taskTitle">
+<div class="help-box">
+<strong>Choose the task style first.</strong><br>
+Social tasks are for social platforms. Website tasks are for browser/web actions.
+App tasks are for mobile application actions.
+</div>
 
-<label>Description</label>
-<textarea id="taskDescription"></textarea>
+<div class="task-style-title">Task Style</div>
 
-<label>Reward (₦)</label>
-<input type="number" id="taskReward" min="1">
+<div class="task-style-selector">
 
-<label>Slots</label>
-<input type="number" id="taskSlots" min="1">
+<button
+type="button"
+class="task-style-button active"
+id="createStyleSocial"
+onclick="selectCreateStyle('social')">
+
+<span>📱</span>
+Social
+<small>Social media tasks</small>
+
+</button>
+
+<button
+type="button"
+class="task-style-button"
+id="createStyleWebsite"
+onclick="selectCreateStyle('website')">
+
+<span>🌐</span>
+Website
+<small>Web actions</small>
+
+</button>
+
+<button
+type="button"
+class="task-style-button"
+id="createStyleApp"
+onclick="selectCreateStyle('app')">
+
+<span>📲</span>
+App
+<small>App tasks</small>
+
+</button>
+
+</div>
 
 <label>Task Type</label>
 
-<select id="taskType">
+<select id="taskType" onchange="updateCreateStyleFromType()"></select>
 
-<option value="social">Social</option>
-<option value="website">Website</option>
-<option value="app_download">App Download</option>
-<option value="survey">Survey</option>
-<option value="youtube">YouTube</option>
-<option value="tiktok">TikTok</option>
-<option value="instagram">Instagram</option>
-<option value="facebook">Facebook</option>
-<option value="telegram">Telegram</option>
-<option value="other">Other</option>
+<div id="createTaskTypeHelp" class="task-type-help"></div>
 
-</select>
+<label>Title</label>
+<input
+id="taskTitle"
+placeholder="Example: Follow our TikTok page">
+
+<label>Description</label>
+<textarea
+id="taskDescription"
+placeholder="Explain exactly what the tasker must do"></textarea>
+
+<label>Reward (₦)</label>
+<input
+type="number"
+id="taskReward"
+min="1"
+inputmode="decimal"
+placeholder="Example: 10">
+
+<label>Available Slots</label>
+<input
+type="number"
+id="taskSlots"
+min="1"
+inputmode="numeric"
+placeholder="Example: 100">
 
 <label>Task Link</label>
-<input id="taskLink">
+<input
+id="taskLink"
+type="url"
+placeholder="https://...">
+
+<div class="field-note">
+The tasker can use this link to open the required page.
+</div>
 
 <label>Copy Text</label>
-<textarea id="taskCopyText"></textarea>
+<textarea
+id="taskCopyText"
+placeholder="Optional text the tasker should copy or use"></textarea>
+
+<label>Required Proof / Instruction</label>
+<textarea
+id="taskRequiredProof"
+placeholder="Example: Upload a screenshot showing that you followed the page"></textarea>
 
 <label>Expiry Date</label>
-<input type="datetime-local" id="taskExpiry">
+<input
+type="datetime-local"
+id="taskExpiry">
 
 <label>Uploader Username</label>
-<input id="taskUploader">
+<input
+id="taskUploader"
+placeholder="Poster username">
 
 <div class="row">
 
-<span>Photo Upload Required</span>
+<span>
+Photo Upload Required
+<br>
+<small class="small">Require an image with the submission.</small>
+</span>
 
 <label class="switch">
 <input type="checkbox" id="taskUploadRequired" checked>
@@ -782,7 +1112,11 @@ Refresh Payments
 </div>
 
 <button class="action green" onclick="createTask()">
-Create Task
+➕ Create Task
+</button>
+
+<button class="action" onclick="clearCreateTaskForm()">
+Clear
 </button>
 
 </div>
@@ -790,11 +1124,16 @@ Create Task
 
 <div class="card">
 
+<div class="card-header">
 <h2>Task Manager</h2>
+<button class="action green" onclick="loadTasks()">Refresh</button>
+</div>
 
-<button class="action green" onclick="loadTasks()">
-Refresh Tasks
-</button>
+<div class="help-box">
+<strong>Manage existing tasks</strong><br>
+Edit keeps the task's existing record. Pause temporarily hides a task.
+Activate makes a paused task live again.
+</div>
 
 <div id="taskList"></div>
 
@@ -803,17 +1142,18 @@ Refresh Tasks
 </section>
 
 
-<!-- PROOFS -->
+<!-- =====================================================
+     PROOFS
+===================================================== -->
 
 <section id="proofs" class="section">
 
 <div class="card">
 
+<div class="card-header">
 <h2>Proof Review</h2>
-
-<button class="action green" onclick="loadProofs()">
-Refresh Proofs
-</button>
+<button class="action green" onclick="loadProofs()">Refresh</button>
+</div>
 
 <div id="proofList"></div>
 
@@ -822,7 +1162,9 @@ Refresh Proofs
 </section>
 
 
-<!-- USERS -->
+<!-- =====================================================
+     USERS
+===================================================== -->
 
 <section id="users" class="section">
 
@@ -832,7 +1174,8 @@ Refresh Proofs
 
 <input
 id="userSearch"
-placeholder="Search name, phone or user ID">
+placeholder="Search name, phone or user ID"
+autocomplete="off">
 
 <button class="action green" onclick="searchUsers()">
 Search
@@ -845,7 +1188,9 @@ Search
 </section>
 
 
-<!-- POSTERS -->
+<!-- =====================================================
+     POSTERS
+===================================================== -->
 
 <section id="posters" class="section">
 
@@ -854,36 +1199,27 @@ Search
 <h2>Poster Controls</h2>
 
 <div class="row">
-
 <span>Poster Registration</span>
-
 <label class="switch">
 <input type="checkbox" id="posterRegistrationEnabled">
 <span class="slider"></span>
 </label>
-
 </div>
 
 <div class="row">
-
 <span>Job Posting</span>
-
 <label class="switch">
 <input type="checkbox" id="jobPostingEnabled">
 <span class="slider"></span>
 </label>
-
 </div>
 
 <div class="row">
-
 <span>Task Approval Required</span>
-
 <label class="switch">
 <input type="checkbox" id="taskApprovalRequired">
 <span class="slider"></span>
 </label>
-
 </div>
 
 </div>
@@ -891,7 +1227,9 @@ Search
 </section>
 
 
-<!-- SECURITY -->
+<!-- =====================================================
+     SECURITY
+===================================================== -->
 
 <section id="security" class="section">
 
@@ -906,7 +1244,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>CAPTCHA Enabled</span>
-
 <label class="switch">
 <input type="checkbox" id="captchaEnabled">
 <span class="slider"></span>
@@ -915,7 +1252,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>CAPTCHA During Signup</span>
-
 <label class="switch">
 <input type="checkbox" id="captchaSignupRequired">
 <span class="slider"></span>
@@ -924,7 +1260,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>CAPTCHA During Withdrawal</span>
-
 <label class="switch">
 <input type="checkbox" id="captchaWithdrawalRequired">
 <span class="slider"></span>
@@ -933,7 +1268,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>Bot Detection</span>
-
 <label class="switch">
 <input type="checkbox" id="botDetectionEnabled">
 <span class="slider"></span>
@@ -942,7 +1276,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>Device Detection</span>
-
 <label class="switch">
 <input type="checkbox" id="deviceDetectionEnabled">
 <span class="slider"></span>
@@ -951,7 +1284,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>IP Detection</span>
-
 <label class="switch">
 <input type="checkbox" id="ipDetectionEnabled">
 <span class="slider"></span>
@@ -960,7 +1292,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>Suspicious Activity Detection</span>
-
 <label class="switch">
 <input type="checkbox" id="suspiciousActivityDetection">
 <span class="slider"></span>
@@ -969,7 +1300,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>Automatic Temporary Restrictions</span>
-
 <label class="switch">
 <input type="checkbox" id="automaticRestrictionEnabled">
 <span class="slider"></span>
@@ -978,7 +1308,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>Security Warnings</span>
-
 <label class="switch">
 <input type="checkbox" id="securityWarningsEnabled">
 <span class="slider"></span>
@@ -987,7 +1316,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>User 2FA Available</span>
-
 <label class="switch">
 <input type="checkbox" id="user2faEnabled">
 <span class="slider"></span>
@@ -996,7 +1324,6 @@ Sensitive enforcement should be performed server-side.
 
 <div class="row">
 <span>Withdrawal Security Check</span>
-
 <label class="switch">
 <input type="checkbox" id="withdrawalSecurityCheck">
 <span class="slider"></span>
@@ -1008,14 +1335,16 @@ Sensitive enforcement should be performed server-side.
 type="number"
 id="maxTaskSubmissionsPerMinute"
 min="1"
-max="100">
+max="100"
+inputmode="numeric">
 
 <label>Suspicious Risk Score Threshold</label>
 <input
 type="number"
 id="suspiciousRiskScore"
 min="1"
-max="100">
+max="100"
+inputmode="numeric">
 
 <div class="row">
 
@@ -1042,38 +1371,32 @@ Keep OFF initially; admin review should remain available.
 <h2>📢 Advertisement Controls</h2>
 
 <div class="row">
-
 <span>Normal Tasker Ads</span>
-
 <label class="switch">
 <input type="checkbox" id="normalAdsEnabled">
 <span class="slider"></span>
 </label>
-
 </div>
 
 <div class="row">
-
 <span>VIP Tasker Ads</span>
-
 <label class="switch">
 <input type="checkbox" id="vipAdsEnabled">
 <span class="slider"></span>
 </label>
-
 </div>
 
 <label>Ad Frequency</label>
-
 <input
 type="number"
 id="adFrequency"
 min="1"
-max="100">
+max="100"
+inputmode="numeric">
 
 <p class="small">
 This controls the configured frequency. Actual advertisement display
-must be handled by the user-facing pages.
+must be handled by user-facing pages.
 </p>
 
 </div>
@@ -1081,11 +1404,10 @@ must be handled by the user-facing pages.
 
 <div class="card">
 
+<div class="card-header">
 <h2>🚨 Security Events</h2>
-
-<button class="action green" onclick="loadSecurityEvents()">
-Refresh Events
-</button>
+<button class="action green" onclick="loadSecurityEvents()">Refresh</button>
+</div>
 
 <div id="securityEvents"></div>
 
@@ -1094,11 +1416,10 @@ Refresh Events
 
 <div class="card">
 
+<div class="card-header">
 <h2>⚠️ Security Warnings</h2>
-
-<button class="action green" onclick="loadSecurityWarnings()">
-Refresh Warnings
-</button>
+<button class="action green" onclick="loadSecurityWarnings()">Refresh</button>
+</div>
 
 <div id="securityWarnings"></div>
 
@@ -1106,6 +1427,10 @@ Refresh Warnings
 
 </section>
 
+
+<!-- =====================================================
+     GLOBAL ACTIONS
+===================================================== -->
 
 <div class="card">
 
@@ -1117,22 +1442,88 @@ Refresh Warnings
 Logout
 </button>
 
-<div id="message" class="small"></div>
+<div id="message" class="message small"></div>
 
 </div>
 
 </div>
 
 
-<!-- EDIT TASK MODAL -->
+<!-- =====================================================
+     EDIT TASK MODAL
+===================================================== -->
 
 <div class="modal" id="editModal">
 
 <div class="modal-box">
 
-<h3>Edit Task</h3>
+<div class="modal-header">
+
+<h3>✏️ Edit Task</h3>
+
+<button
+type="button"
+class="close-button"
+onclick="closeModal('editModal')">
+×
+</button>
+
+</div>
 
 <input type="hidden" id="editTaskId">
+
+<div class="help-box">
+<strong>Edit without changing the task identity.</strong><br>
+Choose the correct style, update the task information, then save.
+</div>
+
+<div class="task-style-title">Task Style</div>
+
+<div class="task-style-selector">
+
+<button
+type="button"
+class="task-style-button active"
+id="editStyleSocial"
+onclick="selectEditStyle('social')">
+
+<span>📱</span>
+Social
+<small>Social media tasks</small>
+
+</button>
+
+<button
+type="button"
+class="task-style-button"
+id="editStyleWebsite"
+onclick="selectEditStyle('website')">
+
+<span>🌐</span>
+Website
+<small>Web actions</small>
+
+</button>
+
+<button
+type="button"
+class="task-style-button"
+id="editStyleApp"
+onclick="selectEditStyle('app')">
+
+<span>📲</span>
+App
+<small>App tasks</small>
+
+</button>
+
+</div>
+
+<label>Task Type</label>
+
+<select id="editTaskType" onchange="updateEditStyleFromType()"></select>
+
+<div id="editTaskTypeHelp" class="task-type-help"></div>
 
 <label>Title</label>
 <input id="editTitle">
@@ -1140,44 +1531,46 @@ Logout
 <label>Description</label>
 <textarea id="editDescription"></textarea>
 
-<label>Reward</label>
-<input type="number" id="editReward" min="1">
+<label>Reward (₦)</label>
+<input
+type="number"
+id="editReward"
+min="1"
+inputmode="decimal">
 
-<label>Slots</label>
-<input type="number" id="editSlots" min="1">
-
-<label>Task Type</label>
-
-<select id="editTaskType">
-
-<option value="social">Social</option>
-<option value="website">Website</option>
-<option value="app_download">App Download</option>
-<option value="survey">Survey</option>
-<option value="youtube">YouTube</option>
-<option value="tiktok">TikTok</option>
-<option value="instagram">Instagram</option>
-<option value="facebook">Facebook</option>
-<option value="telegram">Telegram</option>
-<option value="other">Other</option>
-
-</select>
+<label>Available Slots</label>
+<input
+type="number"
+id="editSlots"
+min="1"
+inputmode="numeric">
 
 <label>Task Link</label>
-<input id="editLink">
+<input
+id="editLink"
+type="url">
 
 <label>Copy Text</label>
 <textarea id="editCopyText"></textarea>
 
+<label>Required Proof / Instruction</label>
+<textarea id="editRequiredProof"></textarea>
+
 <label>Expiry Date</label>
-<input type="datetime-local" id="editExpiry">
+<input
+type="datetime-local"
+id="editExpiry">
 
 <label>Uploader Username</label>
 <input id="editUploader">
 
 <div class="row">
 
-<span>Photo Required</span>
+<span>
+Photo Required
+<br>
+<small class="small">Require photo proof for this task.</small>
+</span>
 
 <label class="switch">
 <input type="checkbox" id="editUploadRequired">
@@ -1186,11 +1579,19 @@ Logout
 
 </div>
 
-<button class="action green" onclick="saveTaskEdit()">
-Save
+<div class="modal-actions">
+
+<button
+type="button"
+class="action green"
+onclick="saveTaskEdit()">
+💾 Save Changes
 </button>
 
-<button class="action" onclick="closeModal('editModal')">
+<button
+type="button"
+class="action"
+onclick="closeModal('editModal')">
 Cancel
 </button>
 
@@ -1198,24 +1599,47 @@ Cancel
 
 </div>
 
+</div>
 
-<!-- CONFIRM MODAL -->
+
+<!-- =====================================================
+     CONFIRM MODAL
+===================================================== -->
 
 <div class="modal" id="confirmModal">
 
 <div class="modal-box">
 
+<div class="modal-header">
+
 <h3 id="confirmTitle">
 Confirm Action
 </h3>
 
+<button
+type="button"
+class="close-button"
+onclick="closeModal('confirmModal')">
+×
+</button>
+
+</div>
+
 <p id="confirmText" class="small"></p>
 
-<button class="action green" id="confirmYes">
+<div class="modal-actions">
+
+<button
+type="button"
+class="action green"
+id="confirmYes">
 Continue
 </button>
 
-<button class="action" onclick="closeModal('confirmModal')">
+<button
+type="button"
+class="action"
+onclick="closeModal('confirmModal')">
 Cancel
 </button>
 
@@ -1223,18 +1647,35 @@ Cancel
 
 </div>
 
+</div>
 
-<!-- IMAGE MODAL -->
+
+<!-- =====================================================
+     IMAGE MODAL
+===================================================== -->
 
 <div class="modal" id="imageModal">
 
 <div class="modal-box">
 
-<h3>Proof Image</h3>
+<div class="modal-header">
+
+<h3>🖼️ Proof Image</h3>
+
+<button
+type="button"
+class="close-button"
+onclick="closeModal('imageModal')">
+×
+</button>
+
+</div>
 
 <div id="imageContent"></div>
 
-<button class="action" onclick="closeModal('imageModal')">
+<button
+class="action"
+onclick="closeModal('imageModal')">
 Close
 </button>
 
@@ -1253,25 +1694,141 @@ const SUPABASE_URL =
 "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
+ Use your CURRENT Supabase publishable key here.
+
  IMPORTANT:
- Put your CURRENT Supabase publishable key here.
- Do not use a service-role key in this file.
+ Never put a service-role key in this file.
 */
 const SUPABASE_KEY =
-    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-const db = supabase.createClient(
+
+const db =
+supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
-const $ = id => document.getElementById(id);
+const $ =
+id => document.getElementById(id);
 
 let currentAdmin = null;
 let confirmAction = null;
 
-const TASK_PROOF_BUCKET = "task-proofs";
-const PAYMENT_PROOF_BUCKET = "payment proof";
+const TASK_PROOF_BUCKET =
+"task-proofs";
+
+const PAYMENT_PROOF_BUCKET =
+"payment proof";
+
+
+/* =====================================================
+   TASK STYLE DEFINITIONS
+   These use the existing task_type column.
+   No new database column is required.
+===================================================== */
+
+const TASK_STYLES = {
+
+  social:{
+
+    label:"Social",
+
+    icon:"📱",
+
+    types:[
+
+      {
+        value:"social",
+        label:"General Social",
+        help:"General social-media action such as following, liking, commenting or sharing."
+      },
+
+      {
+        value:"youtube",
+        label:"YouTube",
+        help:"Watch, subscribe, like or interact with a YouTube task."
+      },
+
+      {
+        value:"tiktok",
+        label:"TikTok",
+        help:"Follow, like, watch or interact with a TikTok task."
+      },
+
+      {
+        value:"instagram",
+        label:"Instagram",
+        help:"Follow, like, comment or interact with an Instagram task."
+      },
+
+      {
+        value:"facebook",
+        label:"Facebook",
+        help:"Follow, like, react, comment or interact with a Facebook task."
+      },
+
+      {
+        value:"telegram",
+        label:"Telegram",
+        help:"Join, follow or interact with a Telegram channel or group."
+      }
+
+    ]
+
+  },
+
+
+  website:{
+
+    label:"Website",
+
+    icon:"🌐",
+
+    types:[
+
+      {
+        value:"website",
+        label:"Website Visit",
+        help:"Visit a website and complete the instruction provided by the poster."
+      },
+
+      {
+        value:"survey",
+        label:"Website Survey",
+        help:"Complete a survey or questionnaire through a website."
+      },
+
+      {
+        value:"other",
+        label:"Other Website",
+        help:"A web-based task that does not fit the other website categories."
+      }
+
+    ]
+
+  },
+
+
+  app:{
+
+    label:"App",
+
+    icon:"📲",
+
+    types:[
+
+      {
+        value:"app_download",
+        label:"App Download",
+        help:"Download or install an application and complete the specified action."
+      }
+
+    ]
+
+  }
+
+};
 
 
 /* =====================================================
@@ -1280,7 +1837,8 @@ const PAYMENT_PROOF_BUCKET = "payment proof";
 
 function showMessage(message){
 
-  $("message").textContent = message;
+  $("message").textContent =
+    message;
 
 }
 
@@ -1322,8 +1880,11 @@ function showSection(id,button){
   }
 
   if(id === "security"){
+
     loadSecurityEvents();
+
     loadSecurityWarnings();
+
   }
 
 }
@@ -1333,27 +1894,296 @@ function closeModal(id){
 
   $(id).classList.remove("show");
 
+  document.body.classList.remove("modal-open");
+
+}
+
+
+function openModal(id){
+
+  $(id).classList.add("show");
+
+  document.body.classList.add("modal-open");
+
 }
 
 
 function openConfirm(title,text,callback){
 
-  $("confirmTitle").textContent = title;
-  $("confirmText").textContent = text;
+  $("confirmTitle").textContent =
+    title;
 
-  confirmAction = callback;
+  $("confirmText").textContent =
+    text;
 
-  $("confirmModal").classList.add("show");
+  confirmAction =
+    callback;
 
-  $("confirmYes").onclick = async () => {
+  openModal("confirmModal");
 
-    closeModal("confirmModal");
+  $("confirmYes").onclick =
+    async () => {
 
-    if(confirmAction){
-      await confirmAction();
-    }
+      closeModal("confirmModal");
 
-  };
+      if(confirmAction){
+
+        await confirmAction();
+
+      }
+
+    };
+
+}
+
+
+/* =====================================================
+   TASK STYLE HELPERS
+===================================================== */
+
+function getStyleForTaskType(type){
+
+  type =
+    String(type || "").toLowerCase();
+
+  if(
+    [
+      "youtube",
+      "tiktok",
+      "instagram",
+      "facebook",
+      "telegram",
+      "social"
+    ].includes(type)
+  ){
+
+    return "social";
+
+  }
+
+  if(
+    [
+      "website",
+      "survey"
+    ].includes(type)
+  ){
+
+    return "website";
+
+  }
+
+  if(
+    type === "app_download"
+  ){
+
+    return "app";
+
+  }
+
+  return "website";
+
+}
+
+
+function getTaskTypeDefinition(style,type){
+
+  const list =
+    TASK_STYLES[style]?.types || [];
+
+  return (
+    list.find(
+      item =>
+        item.value === type
+    )
+    || list[0]
+    || null
+  );
+
+}
+
+
+function fillTaskTypeSelect(selectId,style,selectedValue){
+
+  const select =
+    $(selectId);
+
+  if(!select){
+    return;
+  }
+
+  const definitions =
+    TASK_STYLES[style].types;
+
+  select.innerHTML =
+    definitions.map(item => `
+
+      <option
+        value="${escapeHtml(item.value)}">
+        ${escapeHtml(item.label)}
+      </option>
+
+    `).join("");
+
+  if(
+    definitions.some(
+      item =>
+        item.value === selectedValue
+    )
+  ){
+
+    select.value =
+      selectedValue;
+
+  }else{
+
+    select.value =
+      definitions[0].value;
+
+  }
+
+}
+
+
+function updateTaskTypeHelp(selectId,helpId){
+
+  const type =
+    $(selectId).value;
+
+  const style =
+    getStyleForTaskType(type);
+
+  const definition =
+    getTaskTypeDefinition(
+      style,
+      type
+    );
+
+  $(helpId).textContent =
+    definition?.help ||
+    "Follow the task instructions provided.";
+
+}
+
+
+function updateCreateStyleButtons(style){
+
+  [
+    "createStyleSocial",
+    "createStyleWebsite",
+    "createStyleApp"
+  ].forEach(id =>
+    $(id).classList.remove("active")
+  );
+
+  if(style === "social"){
+    $("createStyleSocial").classList.add("active");
+  }
+
+  if(style === "website"){
+    $("createStyleWebsite").classList.add("active");
+  }
+
+  if(style === "app"){
+    $("createStyleApp").classList.add("active");
+  }
+
+}
+
+
+function selectCreateStyle(style){
+
+  updateCreateStyleButtons(style);
+
+  fillTaskTypeSelect(
+    "taskType",
+    style
+  );
+
+  updateTaskTypeHelp(
+    "taskType",
+    "createTaskTypeHelp"
+  );
+
+}
+
+
+function updateCreateStyleFromType(){
+
+  const style =
+    getStyleForTaskType(
+      $("taskType").value
+    );
+
+  updateCreateStyleButtons(
+    style
+  );
+
+  updateTaskTypeHelp(
+    "taskType",
+    "createTaskTypeHelp"
+  );
+
+}
+
+
+function updateEditStyleButtons(style){
+
+  [
+    "editStyleSocial",
+    "editStyleWebsite",
+    "editStyleApp"
+  ].forEach(id =>
+    $(id).classList.remove("active")
+  );
+
+  if(style === "social"){
+    $("editStyleSocial").classList.add("active");
+  }
+
+  if(style === "website"){
+    $("editStyleWebsite").classList.add("active");
+  }
+
+  if(style === "app"){
+    $("editStyleApp").classList.add("active");
+  }
+
+}
+
+
+function selectEditStyle(style){
+
+  updateEditStyleButtons(style);
+
+  fillTaskTypeSelect(
+    "editTaskType",
+    style,
+    undefined
+  );
+
+  updateTaskTypeHelp(
+    "editTaskType",
+    "editTaskTypeHelp"
+  );
+
+}
+
+
+function updateEditStyleFromType(){
+
+  const style =
+    getStyleForTaskType(
+      $("editTaskType").value
+    );
+
+  updateEditStyleButtons(
+    style
+  );
+
+  updateTaskTypeHelp(
+    "editTaskType",
+    "editTaskTypeHelp"
+  );
 
 }
 
@@ -1368,39 +2198,47 @@ async function checkAdmin(){
     data:{
       user
     }
-  } = await db.auth.getUser();
+  } =
+    await db.auth.getUser();
 
   if(!user){
 
-    location.href = "admin-login.html";
+    location.href =
+      "admin-login.html";
 
     return false;
+
   }
 
   const {
     data,
     error
-  } = await db
-    .from("admin_users")
-    .select("user_id")
-    .eq("user_id",user.id)
-    .maybeSingle();
+  } =
+    await db
+      .from("admin_users")
+      .select("user_id")
+      .eq("user_id",user.id)
+      .maybeSingle();
 
   if(error || !data){
 
     await db.auth.signOut();
 
-    location.href = "admin-login.html";
+    location.href =
+      "admin-login.html";
 
     return false;
+
   }
 
-  currentAdmin = user;
+  currentAdmin =
+    user;
 
   $("adminEmail").textContent =
     user.email || user.id;
 
   return true;
+
 }
 
 
@@ -1413,11 +2251,12 @@ async function loadSettings(){
   const {
     data,
     error
-  } = await db
-    .from("platform_settings")
-    .select("*")
-    .eq("id",1)
-    .single();
+  } =
+    await db
+      .from("platform_settings")
+      .select("*")
+      .eq("id",1)
+      .single();
 
   if(error){
 
@@ -1428,6 +2267,7 @@ async function loadSettings(){
     );
 
     return;
+
   }
 
 
@@ -1435,11 +2275,13 @@ async function loadSettings(){
     data.site_name || "NAIJA TASK";
 
   $("supportWhatsapp").value =
-    data.support_whatsapp || "09020934579";
+    data.support_whatsapp ||
+    "09020934579";
 
   $("supportEmail").value =
     data.support_email ||
     "naijataskofficia@gmail.com";
+
 
   $("maintenanceMode").checked =
     !!data.maintenance_mode;
@@ -1522,8 +2364,6 @@ async function loadSettings(){
     data.task_approval_required ?? true;
 
 
-  /* SECURITY */
-
   $("captchaEnabled").checked =
     data.captcha_enabled ?? true;
 
@@ -1581,16 +2421,24 @@ async function loadSettings(){
 async function saveSettings(){
 
   const normalMin =
-    Number($("normalMinReward").value);
+    Number(
+      $("normalMinReward").value
+    );
 
   const normalMax =
-    Number($("normalMaxReward").value);
+    Number(
+      $("normalMaxReward").value
+    );
 
   const vipMin =
-    Number($("vipMinReward").value);
+    Number(
+      $("vipMinReward").value
+    );
 
   const vipMax =
-    Number($("vipMaxReward").value);
+    Number(
+      $("vipMaxReward").value
+    );
 
 
   if(
@@ -1605,6 +2453,7 @@ async function saveSettings(){
     );
 
     return;
+
   }
 
 
@@ -1631,16 +2480,21 @@ async function saveSettings(){
     );
 
     return;
+
   }
 
 
-  if(riskScore < 1 || riskScore > 100){
+  if(
+    riskScore < 1 ||
+    riskScore > 100
+  ){
 
     showMessage(
       "Risk score must be between 1 and 100."
     );
 
     return;
+
   }
 
 
@@ -1651,6 +2505,7 @@ async function saveSettings(){
     );
 
     return;
+
   }
 
 
@@ -1836,7 +2691,9 @@ async function saveSettings(){
   };
 
 
-  const {error} =
+  const {
+    error
+  } =
     await db
       .from("platform_settings")
       .update(updates)
@@ -1853,6 +2710,7 @@ async function saveSettings(){
     );
 
     return;
+
   }
 
 
@@ -1874,33 +2732,60 @@ async function loadStats(){
 
       db
         .from("profiles")
-        .select("id",{count:"exact",head:true}),
+        .select(
+          "id",
+          {count:"exact",head:true}
+        ),
 
       db
         .from("tasks")
-        .select("id",{count:"exact",head:true}),
+        .select(
+          "id",
+          {count:"exact",head:true}
+        ),
 
       db
         .from("withdrawals")
-        .select("id",{count:"exact",head:true}),
+        .select(
+          "id",
+          {count:"exact",head:true}
+        ),
 
       db
         .from("task_submissions")
-        .select("id",{count:"exact",head:true})
-        .eq("status","PENDING"),
+        .select(
+          "id",
+          {count:"exact",head:true}
+        )
+        .eq(
+          "status",
+          "PENDING"
+        ),
 
       db
         .from("poster_payments")
-        .select("id",{count:"exact",head:true})
+        .select(
+          "id",
+          {count:"exact",head:true}
+        )
         .in(
           "status",
-          ["PENDING","UNDER_REVIEW"]
+          [
+            "PENDING",
+            "UNDER_REVIEW"
+          ]
         ),
 
       db
         .from("security_events")
-        .select("id",{count:"exact",head:true})
-        .eq("status","OPEN")
+        .select(
+          "id",
+          {count:"exact",head:true}
+        )
+        .eq(
+          "status",
+          "OPEN"
+        )
 
     ]);
 
@@ -1943,14 +2828,15 @@ async function loadWithdrawals(){
   const {
     data,
     error
-  } = await db
-    .from("withdrawals")
-    .select("*")
-    .order(
-      "created_at",
-      {ascending:false}
-    )
-    .limit(100);
+  } =
+    await db
+      .from("withdrawals")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      )
+      .limit(100);
 
 
   if(error){
@@ -1959,6 +2845,7 @@ async function loadWithdrawals(){
       '<div class="empty">Could not load withdrawals.</div>';
 
     return;
+
   }
 
 
@@ -1968,6 +2855,7 @@ async function loadWithdrawals(){
       '<div class="empty">No withdrawal records.</div>';
 
     return;
+
   }
 
 
@@ -1985,22 +2873,32 @@ async function loadWithdrawals(){
         <p class="small">
 
           User:
-          ${escapeHtml(w.user_id || "")}
+          ${escapeHtml(
+            w.user_id || ""
+          )}
           <br>
 
           Bank:
-          ${escapeHtml(w.bank_name || "")}
+          ${escapeHtml(
+            w.bank_name || ""
+          )}
           <br>
 
           Account:
-          ${escapeHtml(w.account_number || "")}
+          ${escapeHtml(
+            w.account_number || ""
+          )}
           <br>
 
           Status:
-          ${escapeHtml(w.status || "")}
+          ${escapeHtml(
+            w.status || ""
+          )}
           <br>
 
-          ${formatDate(w.created_at)}
+          ${formatDate(
+            w.created_at
+          )}
 
         </p>
 
@@ -2024,14 +2922,15 @@ async function loadPayments(){
   const {
     data,
     error
-  } = await db
-    .from("poster_payments")
-    .select("*")
-    .order(
-      "created_at",
-      {ascending:false}
-    )
-    .limit(100);
+  } =
+    await db
+      .from("poster_payments")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      )
+      .limit(100);
 
 
   if(error){
@@ -2042,6 +2941,7 @@ async function loadPayments(){
     console.error(error);
 
     return;
+
   }
 
 
@@ -2051,6 +2951,7 @@ async function loadPayments(){
       '<div class="empty">No poster payments.</div>';
 
     return;
+
   }
 
 
@@ -2059,19 +2960,23 @@ async function loadPayments(){
 
       <div class="item">
 
-        <b>
+        <div class="item-title">
           Payment #${payment.id}
-        </b>
+        </div>
 
         <p class="small">
 
           Poster:
-          ${escapeHtml(payment.poster_id || "")}
+          ${escapeHtml(
+            payment.poster_id || ""
+          )}
           <br>
 
           Task:
           ${escapeHtml(
-            String(payment.task_id || "")
+            String(
+              payment.task_id || ""
+            )
           )}
           <br>
 
@@ -2111,21 +3016,29 @@ async function loadPayments(){
         ${
           payment.proof_url
           ? `
+
           <button
             class="action blue"
             onclick="viewPaymentProof(
-              '${escapeJs(payment.proof_url)}'
+              '${escapeJs(
+                payment.proof_url
+              )}'
             )">
-            View Payment Proof
+            🖼️ View Payment Proof
           </button>
+
           `
           : ""
         }
 
 
         ${
-          ["PENDING","UNDER_REVIEW"]
-          .includes(payment.status)
+          [
+            "PENDING",
+            "UNDER_REVIEW"
+          ].includes(
+            payment.status
+          )
           ? `
 
           <button
@@ -2174,13 +3087,17 @@ async function reviewPayment(
 
       const {
         error
-      } = await db.rpc(
-        "admin_review_poster_payment",
-        {
-          p_payment_id:paymentId,
-          p_decision:decision
-        }
-      );
+      } =
+        await db.rpc(
+          "admin_review_poster_payment",
+          {
+            p_payment_id:
+              paymentId,
+
+            p_decision:
+              decision
+          }
+        );
 
 
       if(error){
@@ -2190,6 +3107,7 @@ async function reviewPayment(
         );
 
         return;
+
       }
 
 
@@ -2199,8 +3117,11 @@ async function reviewPayment(
 
 
       await Promise.all([
+
         loadPayments(),
+
         loadStats()
+
       ]);
 
     }
@@ -2217,21 +3138,28 @@ async function viewPaymentProof(path){
     const {
       data,
       error
-    } = await db.storage
-      .from(PAYMENT_PROOF_BUCKET)
-      .createSignedUrl(
-        path,
-        300
-      );
+    } =
+      await db.storage
+        .from(
+          PAYMENT_PROOF_BUCKET
+        )
+        .createSignedUrl(
+          path,
+          300
+        );
 
 
-    if(error || !data?.signedUrl){
+    if(
+      error ||
+      !data?.signedUrl
+    ){
 
       showMessage(
         "Could not open payment proof."
       );
 
       return;
+
     }
 
 
@@ -2244,8 +3172,9 @@ async function viewPaymentProof(path){
         alt="Payment proof">`;
 
 
-    $("imageModal")
-      .classList.add("show");
+    openModal(
+      "imageModal"
+    );
 
   }catch(error){
 
@@ -2261,106 +3190,10 @@ async function viewPaymentProof(path){
 
 
 /* =====================================================
-   TASK CREATION
+   CREATE TASK
 ===================================================== */
 
-async function createTask(){
-
-  const title =
-    $("taskTitle").value.trim();
-
-  const description =
-    $("taskDescription").value.trim();
-
-  const reward =
-    Number(
-      $("taskReward").value
-    );
-
-  const slots =
-    Number(
-      $("taskSlots").value
-    );
-
-
-  if(
-    !title ||
-    !description ||
-    reward <= 0 ||
-    slots <= 0
-  ){
-
-    showMessage(
-      "Complete the task information."
-    );
-
-    return;
-  }
-
-
-  const {
-    data,
-    error
-  } = await db
-    .from("tasks")
-    .insert({
-
-      title,
-
-      description,
-
-      reward,
-
-      slots,
-
-      task_type:
-        $("taskType").value,
-
-      task_link:
-        $("taskLink").value.trim()
-        || null,
-
-      copy_text:
-        $("taskCopyText").value.trim()
-        || null,
-
-      expiry_date:
-        $("taskExpiry").value
-        || null,
-
-      uploader_username:
-        $("taskUploader").value.trim()
-        || null,
-
-      upload_required:
-        $("taskUploadRequired").checked,
-
-      status:"LIVE",
-
-      active:true,
-
-      created_by:
-        currentAdmin.id
-
-    })
-    .select()
-    .single();
-
-
-  if(error){
-
-    showMessage(
-      error.message
-    );
-
-    return;
-  }
-
-
-  showMessage(
-    "Task created successfully."
-  );
-
+function clearCreateTaskForm(){
 
   [
     "taskTitle",
@@ -2369,6 +3202,7 @@ async function createTask(){
     "taskSlots",
     "taskLink",
     "taskCopyText",
+    "taskRequiredProof",
     "taskExpiry",
     "taskUploader"
   ].forEach(id => {
@@ -2382,9 +3216,147 @@ async function createTask(){
     true;
 
 
+  selectCreateStyle(
+    "social"
+  );
+
+}
+
+
+async function createTask(){
+
+  const title =
+    $("taskTitle")
+      .value
+      .trim();
+
+  const description =
+    $("taskDescription")
+      .value
+      .trim();
+
+  const reward =
+    Number(
+      $("taskReward").value
+    );
+
+  const slots =
+    Number(
+      $("taskSlots").value
+    );
+
+  const taskType =
+    $("taskType").value;
+
+
+  if(
+    !title ||
+    !description ||
+    reward <= 0 ||
+    slots <= 0 ||
+    !taskType
+  ){
+
+    showMessage(
+      "Complete the task information."
+    );
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("tasks")
+      .insert({
+
+        title,
+
+        description,
+
+        reward,
+
+        slots,
+
+        task_type:
+          taskType,
+
+        task_link:
+          $("taskLink")
+            .value
+            .trim()
+            || null,
+
+        copy_text:
+          $("taskCopyText")
+            .value
+            .trim()
+            || null,
+
+        required_proof:
+          $("taskRequiredProof")
+            .value
+            .trim()
+            || null,
+
+        expiry_date:
+          $("taskExpiry")
+            .value
+            || null,
+
+        uploader_username:
+          $("taskUploader")
+            .value
+            .trim()
+            || null,
+
+        upload_required:
+          $("taskUploadRequired")
+            .checked,
+
+        status:"LIVE",
+
+        active:true,
+
+        created_by:
+          currentAdmin.id
+
+      })
+      .select()
+      .single();
+
+
+  if(error){
+
+    console.error(error);
+
+    showMessage(
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  showMessage(
+    "✅ Task created successfully."
+  );
+
+
+  clearCreateTaskForm();
+
+
   await Promise.all([
+
     loadTasks(),
+
     loadStats()
+
   ]);
 
 }
@@ -2403,14 +3375,15 @@ async function loadTasks(){
   const {
     data,
     error
-  } = await db
-    .from("tasks")
-    .select("*")
-    .order(
-      "created_at",
-      {ascending:false}
-    )
-    .limit(200);
+  } =
+    await db
+      .from("tasks")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      )
+      .limit(200);
 
 
   if(error){
@@ -2418,7 +3391,10 @@ async function loadTasks(){
     $("taskList").innerHTML =
       '<div class="empty">Could not load tasks.</div>';
 
+    console.error(error);
+
     return;
+
   }
 
 
@@ -2428,6 +3404,7 @@ async function loadTasks(){
       '<div class="empty">No tasks found.</div>';
 
     return;
+
   }
 
 
@@ -2439,61 +3416,140 @@ async function loadTasks(){
           task.status || ""
         ).toUpperCase();
 
+      const style =
+        getStyleForTaskType(
+          task.task_type
+        );
+
+      const styleInfo =
+        TASK_STYLES[style];
+
 
       return `
 
-      <div class="item">
+      <div class="task-card">
 
-        <b>
-          ${escapeHtml(
-            task.title ||
-            "Untitled Task"
-          )}
-        </b>
+        <div class="task-card-top">
 
-        <p class="small">
+          <div>
+
+            <div class="task-card-title">
+              ${escapeHtml(
+                task.title ||
+                "Untitled Task"
+              )}
+            </div>
+
+            <span class="task-style-badge">
+              ${styleInfo.icon}
+              ${styleInfo.label}
+            </span>
+
+          </div>
+
+          <span class="badge ${
+            status === "LIVE"
+              ? ""
+              : status === "PAUSED"
+                ? "orange"
+                : "blue"
+          }">
+
+            ${escapeHtml(
+              status || "UNKNOWN"
+            )}
+
+          </span>
+
+        </div>
+
+
+        <p class="small" style="margin-top:10px;">
 
           ${escapeHtml(
             task.description || ""
           )}
 
-          <br><br>
+        </p>
 
-          Reward:
-          ₦${Number(
-            task.reward || 0
-          ).toLocaleString()}
 
-          <br>
+        <div class="task-meta">
 
-          Slots:
-          ${escapeHtml(
-            String(task.slots || 0)
-          )}
+          <div class="task-meta-box">
 
-          <br>
+            <small>Reward</small>
 
-          Type:
-          ${escapeHtml(
-            task.task_type || ""
-          )}
+            <b>
+              ₦${Number(
+                task.reward || 0
+              ).toLocaleString()}
+            </b>
 
-          <br>
+          </div>
 
-          Status:
-          ${escapeHtml(status)}
 
-          <br>
+          <div class="task-meta-box">
+
+            <small>Available Slots</small>
+
+            <b>
+              ${escapeHtml(
+                String(
+                  task.slots || 0
+                )
+              )}
+            </b>
+
+          </div>
+
+
+          <div class="task-meta-box">
+
+            <small>Task Type</small>
+
+            <b>
+              ${escapeHtml(
+                task.task_type || ""
+              )}
+            </b>
+
+          </div>
+
+
+          <div class="task-meta-box">
+
+            <small>Photo Proof</small>
+
+            <b>
+              ${task.upload_required
+                ? "Required"
+                : "Optional"}
+            </b>
+
+          </div>
+
+        </div>
+
+
+        <p class="small">
 
           Active:
-          ${task.active ? "Yes" : "No"}
+          <strong>
+            ${task.active
+              ? "Yes"
+              : "No"}
+          </strong>
 
           <br>
 
           Expiry:
-          ${task.expiry_date
-            ? formatDate(task.expiry_date)
-            : "None"}
+          ${
+            task.expiry_date
+              ? formatDate(
+                  task.expiry_date
+                )
+              : "None"
+          }
 
         </p>
 
@@ -2501,23 +3557,29 @@ async function loadTasks(){
         <button
           class="action blue"
           onclick="editTask(
-            '${escapeJs(task.id)}'
+            '${escapeJs(
+              task.id
+            )}'
           )">
-          Edit
+          ✏️ Edit
         </button>
 
 
         <button
           class="action warning"
           onclick="toggleTask(
-            '${escapeJs(task.id)}',
-            ${task.active ? "false" : "true"}
+            '${escapeJs(
+              task.id
+            )}',
+            ${task.active
+              ? "false"
+              : "true"}
           )">
 
           ${
             task.active
-              ? "Pause"
-              : "Activate"
+              ? "⏸ Pause"
+              : "▶️ Activate"
           }
 
         </button>
@@ -2526,9 +3588,11 @@ async function loadTasks(){
         <button
           class="action danger"
           onclick="deleteTask(
-            '${escapeJs(task.id)}'
+            '${escapeJs(
+              task.id
+            )}'
           )">
-          Delete
+          🗑 Delete
         </button>
 
       </div>
@@ -2540,16 +3604,26 @@ async function loadTasks(){
 }
 
 
+/* =====================================================
+   EDIT TASK
+===================================================== */
+
 async function editTask(id){
+
+  showMessage(
+    "Loading task..."
+  );
+
 
   const {
     data,
     error
-  } = await db
-    .from("tasks")
-    .select("*")
-    .eq("id",id)
-    .single();
+  } =
+    await db
+      .from("tasks")
+      .select("*")
+      .eq("id",id)
+      .single();
 
 
   if(error){
@@ -2559,6 +3633,7 @@ async function editTask(id){
     );
 
     return;
+
   }
 
 
@@ -2577,14 +3652,39 @@ async function editTask(id){
   $("editSlots").value =
     data.slots || "";
 
-  $("editTaskType").value =
-    data.task_type || "social";
+
+  const style =
+    getStyleForTaskType(
+      data.task_type
+    );
+
+
+  updateEditStyleButtons(
+    style
+  );
+
+
+  fillTaskTypeSelect(
+    "editTaskType",
+    style,
+    data.task_type
+  );
+
+
+  updateTaskTypeHelp(
+    "editTaskType",
+    "editTaskTypeHelp"
+  );
+
 
   $("editLink").value =
     data.task_link || "";
 
   $("editCopyText").value =
     data.copy_text || "";
+
+  $("editRequiredProof").value =
+    data.required_proof || "";
 
   $("editUploader").value =
     data.uploader_username || "";
@@ -2596,12 +3696,15 @@ async function editTask(id){
   if(data.expiry_date){
 
     const date =
-      new Date(data.expiry_date);
+      new Date(
+        data.expiry_date
+      );
 
     const local =
       new Date(
         date.getTime() -
-        date.getTimezoneOffset()*60000
+        date.getTimezoneOffset()
+        * 60000
       )
       .toISOString()
       .slice(0,16);
@@ -2617,8 +3720,22 @@ async function editTask(id){
   }
 
 
-  $("editModal")
-    .classList.add("show");
+  openModal(
+    "editModal"
+  );
+
+
+  /*
+   Focus the first editable field after
+   the modal opens. The inputs use 16px
+   text size to behave better on Android.
+  */
+
+  setTimeout(() => {
+
+    $("editTitle").focus();
+
+  },120);
 
 }
 
@@ -2628,12 +3745,15 @@ async function saveTaskEdit(){
   const id =
     $("editTaskId").value;
 
-
   const title =
-    $("editTitle").value.trim();
+    $("editTitle")
+      .value
+      .trim();
 
   const description =
-    $("editDescription").value.trim();
+    $("editDescription")
+      .value
+      .trim();
 
   const reward =
     Number(
@@ -2645,12 +3765,17 @@ async function saveTaskEdit(){
       $("editSlots").value
     );
 
+  const taskType =
+    $("editTaskType").value;
+
 
   if(
+    !id ||
     !title ||
     !description ||
     reward <= 0 ||
-    slots <= 0
+    slots <= 0 ||
+    !taskType
   ){
 
     showMessage(
@@ -2658,56 +3783,78 @@ async function saveTaskEdit(){
     );
 
     return;
+
   }
 
 
   const {
     error
-  } = await db
-    .from("tasks")
-    .update({
+  } =
+    await db
+      .from("tasks")
+      .update({
 
-      title,
+        title,
 
-      description,
+        description,
 
-      reward,
+        reward,
 
-      slots,
+        slots,
 
-      task_type:
-        $("editTaskType").value,
+        task_type:
+          taskType,
 
-      task_link:
-        $("editLink").value.trim()
-        || null,
+        task_link:
+          $("editLink")
+            .value
+            .trim()
+            || null,
 
-      copy_text:
-        $("editCopyText").value.trim()
-        || null,
+        copy_text:
+          $("editCopyText")
+            .value
+            .trim()
+            || null,
 
-      expiry_date:
-        $("editExpiry").value
-        || null,
+        required_proof:
+          $("editRequiredProof")
+            .value
+            .trim()
+            || null,
 
-      uploader_username:
-        $("editUploader").value.trim()
-        || null,
+        expiry_date:
+          $("editExpiry")
+            .value
+            || null,
 
-      upload_required:
-        $("editUploadRequired").checked
+        uploader_username:
+          $("editUploader")
+            .value
+            .trim()
+            || null,
 
-    })
-    .eq("id",id);
+        upload_required:
+          $("editUploadRequired")
+            .checked
+
+      })
+      .eq(
+        "id",
+        id
+      );
 
 
   if(error){
+
+    console.error(error);
 
     showMessage(
       error.message
     );
 
     return;
+
   }
 
 
@@ -2717,14 +3864,24 @@ async function saveTaskEdit(){
 
 
   showMessage(
-    "Task updated."
+    "✅ Task updated successfully."
   );
 
 
-  await loadTasks();
+  await Promise.all([
+
+    loadTasks(),
+
+    loadStats()
+
+  ]);
 
 }
 
+
+/* =====================================================
+   TOGGLE TASK
+===================================================== */
 
 async function toggleTask(
   id,
@@ -2733,19 +3890,23 @@ async function toggleTask(
 
   const {
     error
-  } = await db
-    .from("tasks")
-    .update({
+  } =
+    await db
+      .from("tasks")
+      .update({
 
-      active,
+        active,
 
-      status:
-        active
-          ? "LIVE"
-          : "PAUSED"
+        status:
+          active
+            ? "LIVE"
+            : "PAUSED"
 
-    })
-    .eq("id",id);
+      })
+      .eq(
+        "id",
+        id
+      );
 
 
   if(error){
@@ -2755,16 +3916,31 @@ async function toggleTask(
     );
 
     return;
+
   }
 
 
+  showMessage(
+    active
+      ? "Task activated."
+      : "Task paused."
+  );
+
+
   await Promise.all([
+
     loadTasks(),
+
     loadStats()
+
   ]);
 
 }
 
+
+/* =====================================================
+   DELETE TASK
+===================================================== */
 
 async function deleteTask(id){
 
@@ -2772,18 +3948,22 @@ async function deleteTask(id){
 
     "Delete Task?",
 
-    "This action permanently deletes the task and its related records may also be affected.",
+    "This permanently deletes the task. Continue only if you are sure.",
 
     async () => {
 
       const {
         data,
         error
-      } = await db
-        .from("tasks")
-        .delete()
-        .eq("id",id)
-        .select("id");
+      } =
+        await db
+          .from("tasks")
+          .delete()
+          .eq(
+            "id",
+            id
+          )
+          .select("id");
 
 
       if(error){
@@ -2793,6 +3973,7 @@ async function deleteTask(id){
         );
 
         return;
+
       }
 
 
@@ -2806,6 +3987,7 @@ async function deleteTask(id){
         );
 
         return;
+
       }
 
 
@@ -2815,8 +3997,11 @@ async function deleteTask(id){
 
 
       await Promise.all([
+
         loadTasks(),
+
         loadStats()
+
       ]);
 
     }
@@ -2839,15 +4024,19 @@ async function loadProofs(){
   const {
     data,
     error
-  } = await db
-    .from("task_submissions")
-    .select("*")
-    .eq("status","PENDING")
-    .order(
-      "created_at",
-      {ascending:false}
-    )
-    .limit(100);
+  } =
+    await db
+      .from("task_submissions")
+      .select("*")
+      .eq(
+        "status",
+        "PENDING"
+      )
+      .order(
+        "created_at",
+        {ascending:false}
+      )
+      .limit(100);
 
 
   if(error){
@@ -2856,6 +4045,7 @@ async function loadProofs(){
       '<div class="empty">Could not load proofs.</div>';
 
     return;
+
   }
 
 
@@ -2865,6 +4055,7 @@ async function loadProofs(){
       '<div class="empty">No pending proofs.</div>';
 
     return;
+
   }
 
 
@@ -2878,7 +4069,10 @@ async function loadProofs(){
         proof =
           typeof p.proof === "string"
             ? JSON.parse(p.proof)
-            : (p.proof || {});
+            : (
+                p.proof ||
+                {}
+              );
 
       }catch{
 
@@ -2892,6 +4086,8 @@ async function loadProofs(){
 
 
       const image =
+        proof.photo_path ||
+        proof.image_path ||
         proof.photo_url ||
         proof.image_url ||
         proof.photo ||
@@ -2902,9 +4098,9 @@ async function loadProofs(){
 
       <div class="item">
 
-        <b>
+        <div class="item-title">
           Submission #${p.id}
-        </b>
+        </div>
 
         <p class="small">
 
@@ -2917,7 +4113,9 @@ async function loadProofs(){
 
           Task:
           ${escapeHtml(
-            String(p.task_id || "")
+            String(
+              p.task_id || ""
+            )
           )}
 
           <br>
@@ -2975,13 +4173,17 @@ async function loadProofs(){
         ${
           image
           ? `
+
           <button
             class="action blue"
             onclick="viewTaskProof(
-              '${escapeJs(image)}'
+              '${escapeJs(
+                image
+              )}'
             )">
             🖼️ View Photo
           </button>
+
           `
           : `
           <span class="badge orange">
@@ -3036,20 +4238,25 @@ async function reviewProof(
 
       const {
         error
-      } = await db
-        .from("task_submissions")
-        .update({
+      } =
+        await db
+          .from("task_submissions")
+          .update({
 
-          status,
+            status,
 
-          reviewed_by:
-            currentAdmin.id,
+            reviewed_by:
+              currentAdmin.id,
 
-          reviewed_at:
-            new Date().toISOString()
+            reviewed_at:
+              new Date()
+                .toISOString()
 
-        })
-        .eq("id",id);
+          })
+          .eq(
+            "id",
+            id
+          );
 
 
       if(error){
@@ -3059,6 +4266,7 @@ async function reviewProof(
         );
 
         return;
+
       }
 
 
@@ -3068,8 +4276,11 @@ async function reviewProof(
 
 
       await Promise.all([
+
         loadProofs(),
+
         loadStats()
+
       ]);
 
     }
@@ -3092,51 +4303,61 @@ async function viewTaskProof(path){
     );
 
     return;
+
   }
 
 
-  /*
-   The task proof bucket is private.
-   If the stored value is already a complete URL,
-   use it directly. Otherwise create a signed URL.
-  */
-
   if(
-    path.startsWith("http://") ||
-    path.startsWith("https://")
+    path.startsWith(
+      "http://"
+    ) ||
+    path.startsWith(
+      "https://"
+    )
   ){
 
     $("imageContent").innerHTML =
       `<img
         class="proof-image"
-        src="${escapeAttr(path)}"
+        src="${escapeAttr(
+          path
+        )}"
         alt="Task proof">`;
 
-    $("imageModal")
-      .classList.add("show");
+    openModal(
+      "imageModal"
+    );
 
     return;
+
   }
 
 
   const {
     data,
     error
-  } = await db.storage
-    .from(TASK_PROOF_BUCKET)
-    .createSignedUrl(
-      path,
-      300
-    );
+  } =
+    await db.storage
+      .from(
+        TASK_PROOF_BUCKET
+      )
+      .createSignedUrl(
+        path,
+        300
+      );
 
 
-  if(error || !data?.signedUrl){
+  if(
+    error ||
+    !data?.signedUrl
+  ){
 
     showMessage(
       "Could not open task proof photo."
     );
 
     return;
+
   }
 
 
@@ -3149,8 +4370,9 @@ async function viewTaskProof(path){
       alt="Task proof">`;
 
 
-  $("imageModal")
-    .classList.add("show");
+  openModal(
+    "imageModal"
+  );
 
 }
 
@@ -3173,14 +4395,9 @@ async function searchUsers(){
       '<div class="empty">Enter a name, phone or user ID.</div>';
 
     return;
+
   }
 
-
-  /*
-   UUID searches must be valid UUIDs.
-   For ordinary name/phone searches,
-   only those fields are queried.
-  */
 
   let query =
     db
@@ -3193,10 +4410,15 @@ async function searchUsers(){
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 
-  if(uuidPattern.test(q)){
+  if(
+    uuidPattern.test(q)
+  ){
 
     query =
-      query.eq("id",q);
+      query.eq(
+        "id",
+        q
+      );
 
   }else{
 
@@ -3214,7 +4436,8 @@ async function searchUsers(){
   const {
     data,
     error
-  } = await query;
+  } =
+    await query;
 
 
   if(error){
@@ -3223,6 +4446,7 @@ async function searchUsers(){
       '<div class="empty">Search error.</div>';
 
     return;
+
   }
 
 
@@ -3232,6 +4456,7 @@ async function searchUsers(){
       '<div class="empty">No users found.</div>';
 
     return;
+
   }
 
 
@@ -3240,12 +4465,12 @@ async function searchUsers(){
 
       <div class="item">
 
-        <b>
+        <div class="item-title">
           ${escapeHtml(
             user.full_name ||
             "Unnamed User"
           )}
-        </b>
+        </div>
 
         <p class="small">
 
@@ -3297,14 +4522,15 @@ async function loadSecurityEvents(){
   const {
     data,
     error
-  } = await db
-    .from("security_events")
-    .select("*")
-    .order(
-      "created_at",
-      {ascending:false}
-    )
-    .limit(100);
+  } =
+    await db
+      .from("security_events")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      )
+      .limit(100);
 
 
   if(error){
@@ -3315,6 +4541,7 @@ async function loadSecurityEvents(){
     console.error(error);
 
     return;
+
   }
 
 
@@ -3324,6 +4551,7 @@ async function loadSecurityEvents(){
       '<div class="empty">No security events recorded.</div>';
 
     return;
+
   }
 
 
@@ -3334,15 +4562,23 @@ async function loadSecurityEvents(){
         "badge";
 
 
-      if(event.severity === "HIGH"){
+      if(
+        event.severity === "HIGH"
+      ){
+
         badge =
           "badge red";
+
       }
 
 
-      if(event.severity === "MEDIUM"){
+      if(
+        event.severity === "MEDIUM"
+      ){
+
         badge =
           "badge orange";
+
       }
 
 
@@ -3434,14 +4670,15 @@ async function loadSecurityWarnings(){
   const {
     data,
     error
-  } = await db
-    .from("security_warnings")
-    .select("*")
-    .order(
-      "created_at",
-      {ascending:false}
-    )
-    .limit(100);
+  } =
+    await db
+      .from("security_warnings")
+      .select("*")
+      .order(
+        "created_at",
+        {ascending:false}
+      )
+      .limit(100);
 
 
   if(error){
@@ -3452,6 +4689,7 @@ async function loadSecurityWarnings(){
     console.error(error);
 
     return;
+
   }
 
 
@@ -3461,6 +4699,7 @@ async function loadSecurityWarnings(){
       '<div class="empty">No security warnings recorded.</div>';
 
     return;
+
   }
 
 
@@ -3541,7 +4780,7 @@ async function loadSecurityWarnings(){
 
 
 /* =====================================================
-   REFRESH EVERYTHING
+   REFRESH
 ===================================================== */
 
 async function refreshEverything(){
@@ -3576,7 +4815,6 @@ function formatDate(value){
   if(!value){
     return "";
   }
-
 
   try{
 
@@ -3624,7 +4862,9 @@ function escapeHtml(value){
 
 function escapeAttr(value){
 
-  return escapeHtml(value);
+  return escapeHtml(
+    value
+  );
 
 }
 
@@ -3694,6 +4934,43 @@ async function logout(){
 
 
 /* =====================================================
+   INITIALISE TASK EDITOR
+===================================================== */
+
+selectCreateStyle(
+  "social"
+);
+
+
+/* =====================================================
+   CLOSE MODALS WHEN BACKDROP IS TAPPED
+===================================================== */
+
+document
+  .querySelectorAll(".modal")
+  .forEach(modal => {
+
+    modal.addEventListener(
+      "click",
+      event => {
+
+        if(
+          event.target === modal
+        ){
+
+          closeModal(
+            modal.id
+          );
+
+        }
+
+      }
+    );
+
+  });
+
+
+/* =====================================================
    START
 ===================================================== */
 
@@ -3706,12 +4983,6 @@ async function logout(){
     return;
   }
 
-
-  /*
-   Load independent data together.
-   This removes the unnecessary
-   settings → wait → stats delay.
-  */
 
   await Promise.all([
 
