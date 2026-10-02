@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Tasks — NAIJA TASK</title>
+<title>Available Tasks — NAIJA TASK</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -15,170 +15,225 @@
   padding:0;
 }
 
+:root{
+  --green:#0b8f3c;
+  --green-dark:#08752f;
+  --green-light:#eaf8ee;
+  --bg:#f5fff7;
+  --text:#17231b;
+  --muted:#647067;
+  --border:#dcebe0;
+  --red:#c62828;
+  --orange:#b86b00;
+  --blue:#1267a8;
+}
+
 body{
   font-family:Arial,Helvetica,sans-serif;
-  background:#f5fff7;
-  color:#18251d;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+}
+
+button,
+input,
+textarea{
+  font:inherit;
+}
+
+button{
+  -webkit-tap-highlight-color:transparent;
 }
 
 header{
-  background:#0b8f3c;
-  color:#fff;
-  padding:17px 16px;
   position:sticky;
   top:0;
-  z-index:20;
-  box-shadow:0 2px 10px rgba(0,0,0,.12);
+  z-index:50;
+  background:var(--green);
+  color:#fff;
+  box-shadow:0 3px 14px rgba(0,0,0,.14);
 }
 
 .header-inner{
-  max-width:700px;
+  max-width:760px;
   margin:auto;
+  padding:15px;
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:12px;
 }
 
 .brand{
-  font-size:21px;
-  font-weight:800;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.3px;
 }
 
 .subtitle{
+  margin-top:3px;
   font-size:12px;
   opacity:.9;
-  margin-top:3px;
 }
 
 .back-btn{
   border:1px solid rgba(255,255,255,.35);
-  background:rgba(255,255,255,.12);
+  background:rgba(255,255,255,.13);
   color:#fff;
-  border-radius:9px;
-  padding:9px 12px;
-  font-weight:700;
-  cursor:pointer;
+  border-radius:10px;
+  padding:9px 13px;
+  font-weight:800;
 }
 
 .container{
-  max-width:700px;
+  max-width:760px;
   margin:auto;
-  padding:18px 14px 40px;
+  padding:16px 13px 50px;
 }
 
-.top-info{
+.hero{
   background:#fff;
-  border:1px solid #dcefe1;
-  border-radius:15px;
-  padding:16px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
   margin-bottom:16px;
+  box-shadow:0 5px 18px rgba(20,70,35,.05);
 }
 
-.top-info h1{
-  font-size:22px;
-  margin-bottom:6px;
+.hero h1{
+  font-size:23px;
+  font-weight:900;
 }
 
-.top-info p{
-  color:#647067;
+.hero p{
+  margin-top:7px;
+  color:var(--muted);
   font-size:14px;
-  line-height:1.5;
+  line-height:1.55;
+}
+
+.notice{
+  margin-top:13px;
+  background:var(--green-light);
+  color:var(--green-dark);
+  border-radius:11px;
+  padding:10px 12px;
+  font-size:12px;
+  font-weight:700;
 }
 
 .loading,
 .empty,
 .error{
   background:#fff;
-  border:1px solid #dcefe1;
-  border-radius:15px;
-  padding:25px 16px;
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:28px 16px;
   text-align:center;
 }
 
 .error{
-  color:#b42318;
+  color:var(--red);
 }
 
 .task-card{
   background:#fff;
-  border:1px solid #dcefe1;
-  border-radius:17px;
-  margin-bottom:16px;
+  border:1px solid var(--border);
+  border-radius:18px;
   overflow:hidden;
-  box-shadow:0 4px 14px rgba(20,70,35,.06);
+  margin-bottom:17px;
+  box-shadow:0 5px 18px rgba(20,70,35,.06);
 }
 
 .task-head{
   padding:16px;
-  border-bottom:1px solid #edf3ee;
+  border-bottom:1px solid #edf2ee;
 }
 
 .platform-row{
   display:flex;
   align-items:center;
   gap:11px;
-  margin-bottom:12px;
+}
+
+.platform-icon,
+.platform-fallback{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  border-radius:12px;
 }
 
 .platform-icon{
-  width:42px;
-  height:42px;
-  border-radius:11px;
   object-fit:contain;
-  background:#f2f7f3;
   padding:7px;
+  background:#f1f6f2;
 }
 
 .platform-fallback{
-  width:42px;
-  height:42px;
-  border-radius:11px;
-  background:#0b8f3c;
-  color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:800;
+  background:var(--green);
+  color:#fff;
+  font-weight:900;
 }
 
 .platform-name{
-  font-size:13px;
-  color:#647067;
-  font-weight:700;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.4px;
 }
 
 .task-title{
-  font-size:19px;
-  font-weight:800;
   margin-top:3px;
+  font-size:19px;
+  font-weight:900;
+  line-height:1.3;
 }
 
 .task-meta{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:9px;
-  margin-top:14px;
+  margin-top:15px;
 }
 
 .meta-box{
   background:#f7faf8;
-  border-radius:10px;
+  border-radius:11px;
   padding:10px;
 }
 
 .meta-label{
-  font-size:11px;
-  color:#748078;
-  margin-bottom:4px;
+  color:#758079;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
 }
 
 .meta-value{
+  margin-top:4px;
   font-size:14px;
-  font-weight:800;
+  font-weight:900;
 }
 
 .reward{
-  color:#087f35;
+  color:var(--green-dark);
+}
+
+.remaining{
+  color:var(--green-dark);
+}
+
+.remaining.low{
+  color:var(--orange);
+}
+
+.remaining.none{
+  color:var(--red);
 }
 
 .task-body{
@@ -186,156 +241,188 @@ header{
 }
 
 .section{
-  margin-bottom:17px;
+  margin-bottom:18px;
+}
+
+.section:last-child{
+  margin-bottom:0;
 }
 
 .section-title{
-  font-size:14px;
-  font-weight:800;
   margin-bottom:8px;
+  font-size:14px;
+  font-weight:900;
 }
 
 .description{
-  color:#4d5b52;
+  color:#4e5b53;
   font-size:14px;
-  line-height:1.6;
+  line-height:1.65;
   white-space:pre-wrap;
+  word-break:break-word;
 }
 
 .owner{
   display:inline-block;
-  background:#edf9f0;
-  color:#087f35;
-  border-radius:8px;
+  background:var(--green-light);
+  color:var(--green-dark);
+  border-radius:9px;
   padding:7px 10px;
   font-size:13px;
-  font-weight:700;
+  font-weight:800;
 }
 
-.link-box{
-  background:#f6faf7;
-  border:1px solid #dfece2;
+.link-box,
+.copy-box{
+  background:#f7faf8;
+  border:1px solid #dfeae2;
   border-radius:12px;
   padding:12px;
 }
 
 .task-link{
   display:block;
-  color:#0877d1;
+  color:var(--blue);
   font-size:13px;
   line-height:1.45;
   word-break:break-all;
-  text-decoration:underline;
   margin-bottom:10px;
+}
+
+.copy-text{
+  color:#35433a;
+  font-size:13px;
+  line-height:1.55;
+  white-space:pre-wrap;
+  word-break:break-word;
 }
 
 .action-row{
   display:flex;
-  gap:8px;
   flex-wrap:wrap;
+  gap:8px;
 }
 
 .action-btn{
   border:0;
   border-radius:9px;
   padding:10px 13px;
-  font-weight:800;
-  cursor:pointer;
   font-size:13px;
+  font-weight:900;
 }
 
 .open-btn{
-  background:#0877d1;
+  background:var(--blue);
   color:#fff;
 }
 
 .copy-btn{
-  background:#eaf5ed;
-  color:#087f35;
+  background:#e9f6ed;
+  color:var(--green-dark);
 }
 
 .copy-btn.copied{
-  background:#0b8f3c;
+  background:var(--green);
   color:#fff;
 }
 
-.copy-text{
-  background:#f6faf7;
-  border:1px solid #dfece2;
+.start-btn,
+.submit-btn{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:14px;
+  background:var(--green);
+  color:#fff;
+  font-size:15px;
+  font-weight:900;
+}
+
+.start-btn:active,
+.submit-btn:active{
+  transform:scale(.99);
+}
+
+.submit-btn:disabled{
+  opacity:.6;
+}
+
+.status-box{
   border-radius:12px;
   padding:12px;
   font-size:13px;
-  line-height:1.5;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
-
-form{
-  margin-top:8px;
-}
-
-label.field-label{
-  display:block;
-  font-size:13px;
+  line-height:1.45;
   font-weight:800;
-  margin-bottom:6px;
+}
+
+.status-success{
+  background:#eaf8ee;
+  color:var(--green-dark);
+}
+
+.status-warning{
+  background:#fff7e8;
+  color:var(--orange);
+}
+
+.status-error{
+  background:#fff0ef;
+  color:var(--red);
 }
 
 .field{
   margin-bottom:14px;
 }
 
-input[type="text"],
-input[type="url"],
+.field-label{
+  display:block;
+  margin-bottom:6px;
+  font-size:13px;
+  font-weight:900;
+}
+
+input[type=text],
+input[type=url],
 textarea{
   width:100%;
-  border:1px solid #ccdacf;
+  border:1px solid #cbd9cf;
   border-radius:10px;
   padding:12px;
-  font-size:14px;
   outline:none;
   background:#fff;
+  color:var(--text);
 }
 
 textarea{
-  min-height:95px;
+  min-height:100px;
   resize:vertical;
 }
 
 input:focus,
 textarea:focus{
-  border-color:#0b8f3c;
+  border-color:var(--green);
   box-shadow:0 0 0 3px rgba(11,143,60,.08);
 }
 
 .photo-upload{
   position:relative;
-  width:100%;
-  min-height:150px;
-  border:3px dashed #0b8f3c;
-  border-radius:16px;
+  min-height:155px;
+  border:2px dashed var(--green);
+  border-radius:15px;
   background:#effbf2;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  cursor:pointer;
   overflow:hidden;
-  transition:.2s;
 }
 
-.photo-upload:active{
-  transform:scale(.985);
-  background:#e4f7e9;
-}
-
-.photo-upload input[type="file"]{
+.photo-upload input{
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
   opacity:0;
-  cursor:pointer;
   z-index:5;
 }
 
@@ -345,31 +432,29 @@ textarea:focus{
 }
 
 .upload-icon{
-  font-size:42px;
-  line-height:1;
-  margin-bottom:8px;
+  font-size:38px;
 }
 
 .upload-title{
-  font-size:17px;
+  margin-top:7px;
+  color:var(--green-dark);
+  font-size:16px;
   font-weight:900;
-  color:#087f35;
-  letter-spacing:.2px;
 }
 
 .upload-subtitle{
-  font-size:12px;
-  color:#607068;
-  margin-top:6px;
+  margin-top:5px;
+  color:#65736b;
+  font-size:11px;
 }
 
 .photo-preview{
   display:none;
   width:100%;
-  max-height:300px;
+  max-height:330px;
   object-fit:contain;
-  border-radius:13px;
   margin-top:10px;
+  border-radius:13px;
   background:#f2f2f2;
 }
 
@@ -381,26 +466,9 @@ textarea:focus{
   display:none;
 }
 
-.submit-btn{
-  width:100%;
-  border:0;
-  border-radius:12px;
-  background:#0b8f3c;
-  color:#fff;
-  padding:14px;
-  font-size:15px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.submit-btn:disabled{
-  opacity:.65;
-  cursor:not-allowed;
-}
-
 .message{
   display:none;
-  margin-top:12px;
+  margin-top:10px;
   padding:11px;
   border-radius:10px;
   font-size:13px;
@@ -409,39 +477,26 @@ textarea:focus{
 
 .message.success{
   display:block;
-  background:#e9f8ed;
-  color:#087f35;
+  background:#eaf8ee;
+  color:var(--green-dark);
 }
 
 .message.error{
   display:block;
   background:#fff0ef;
-  color:#b42318;
+  color:var(--red);
 }
 
-.start-btn{
-  width:100%;
-  border:0;
-  border-radius:11px;
-  padding:13px;
-  background:#0b8f3c;
-  color:#fff;
-  font-size:14px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.expired{
-  background:#fff1f0;
-  color:#b42318;
-  border-radius:10px;
-  padding:10px;
+.locked{
+  padding:12px;
+  border-radius:12px;
+  background:#f4f5f4;
+  color:#59645d;
   font-size:13px;
-  font-weight:700;
-  text-align:center;
+  font-weight:800;
 }
 
-@media(max-width:420px){
+@media(max-width:430px){
   .task-meta{
     grid-template-columns:1fr;
   }
@@ -453,55 +508,53 @@ textarea:focus{
 
 <header>
   <div class="header-inner">
-
     <div>
       <div class="brand">NAIJA TASK</div>
       <div class="subtitle">Complete tasks. Earn money.</div>
     </div>
 
-    <button class="back-btn" onclick="goBack()">
-      Back
-    </button>
-
+    <button class="back-btn" onclick="goBack()">Back</button>
   </div>
 </header>
 
 <main class="container">
 
-  <div class="top-info">
-
+  <section class="hero">
     <h1>Available Tasks</h1>
-
     <p>
-      Complete genuine tasks and submit clear proof for review.
-      Photo proof is required for every task.
+      Complete genuine tasks, follow the poster's instructions
+      and submit clear proof for review.
     </p>
 
-  </div>
+    <div class="notice">
+      📷 Photo proof is required for every task.
+    </div>
+  </section>
 
   <div id="tasksArea" class="loading">
-    Loading tasks...
+    Loading available tasks...
   </div>
 
 </main>
 
 <script>
-
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 /*
-  IMPORTANT:
-  Put your CURRENT Supabase publishable key below.
+  Keep the CURRENT publishable key already used
+  in your local project here.
 */
 const SUPABASE_KEY =
      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 
-const db = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+
+const db =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 const TASK_PROOF_BUCKET = "task-proofs";
 
@@ -510,298 +563,367 @@ const tasksArea =
 
 let currentUser = null;
 let loadedTasks = [];
+let completionCounts = {};
+let userTaskStates = {};
 
 const platformIcons = {
-
   TikTok:"https://cdn.simpleicons.org/tiktok",
-
   YouTube:"https://cdn.simpleicons.org/youtube",
-
   Instagram:"https://cdn.simpleicons.org/instagram",
-
   Facebook:"https://cdn.simpleicons.org/facebook",
-
   X:"https://cdn.simpleicons.org/x",
-
   Twitter:"https://cdn.simpleicons.org/x",
-
-  Snapchat:"https://cdn.simpleicons.org/snapchat",
-
   Telegram:"https://cdn.simpleicons.org/telegram",
-
   WhatsApp:"https://cdn.simpleicons.org/whatsapp",
-
   LinkedIn:"https://cdn.simpleicons.org/linkedin",
-
-  Pinterest:"https://cdn.simpleicons.org/pinterest",
-
-  Reddit:"https://cdn.simpleicons.org/reddit",
-
-  Threads:"https://cdn.simpleicons.org/threads",
-
+  Snapchat:"https://cdn.simpleicons.org/snapchat",
   Discord:"https://cdn.simpleicons.org/discord",
-
-  Messenger:"https://cdn.simpleicons.org/messenger",
-
-  Twitch:"https://cdn.simpleicons.org/twitch",
-
-  Tumblr:"https://cdn.simpleicons.org/tumblr",
-
-  Quora:"https://cdn.simpleicons.org/quora",
-
-  Medium:"https://cdn.simpleicons.org/medium",
-
-  VK:"https://cdn.simpleicons.org/vk",
-
-  WeChat:"https://cdn.simpleicons.org/wechat",
-
-  LINE:"https://cdn.simpleicons.org/line",
-
-  Signal:"https://cdn.simpleicons.org/signal",
-
-  Google:"https://cdn.simpleicons.org/google",
-
   Spotify:"https://cdn.simpleicons.org/spotify",
-
-  Audiomack:"https://cdn.simpleicons.org/audiomack"
+  Audiomack:"https://cdn.simpleicons.org/audiomack",
+  Google:"https://cdn.simpleicons.org/google"
 };
 
 function goBack(){
-
   if(history.length > 1){
-
     history.back();
-
   }else{
-
-    window.location.href =
-      "dashboard.html";
+    location.href="dashboard.html";
   }
-}
-
-async function getCurrentUser(){
-
-  const {data,error} =
-    await db.auth.getUser();
-
-  if(error || !data.user){
-
-    window.location.href =
-      "index.html";
-
-    return null;
-  }
-
-  currentUser =
-    data.user;
-
-  return data.user;
 }
 
 function escapeHTML(value){
-
   return String(value ?? "")
-
     .replace(/&/g,"&amp;")
-
     .replace(/</g,"&lt;")
-
     .replace(/>/g,"&gt;")
-
     .replace(/"/g,"&quot;")
-
     .replace(/'/g,"&#039;");
 }
 
-function normalizeUrl(url){
-
-  if(!url) return "";
-
-  let value =
-    String(url).trim();
-
+function normalizeUrl(value){
   if(!value) return "";
-
-  if(!/^https?:\/\//i.test(value)){
-
-    value =
-      "https://" + value;
+  let url=String(value).trim();
+  if(!url) return "";
+  if(!/^https?:\/\//i.test(url)){
+    url="https://"+url;
   }
-
-  return value;
+  return url;
 }
 
-function isTaskExpired(task){
-
-  if(!task.expiry_date)
-    return false;
-
-  return new Date(
-    task.expiry_date
-  ).getTime() <= Date.now();
+function expired(task){
+  if(!task.expiry_date) return false;
+  return new Date(task.expiry_date).getTime() <= Date.now();
 }
 
-function formatExpiry(date){
+function capacity(task){
+  const value =
+    task.max_total_completions ??
+    task.max_completions ??
+    task.slots ??
+    0;
 
-  if(!date)
-    return "No expiry";
+  const n=Number(value);
 
-  const d =
-    new Date(date);
-
-  if(Number.isNaN(d.getTime()))
-    return "No expiry";
-
-  return d.toLocaleString();
+  return Number.isFinite(n) && n>0 ? n : 0;
 }
 
-function getPlatformHTML(type){
+function remaining(task){
+  return Math.max(
+    0,
+    capacity(task) -
+    Number(completionCounts[task.id] || 0)
+  );
+}
 
-  const name =
-    type || "Task";
+function userState(task){
+  return userTaskStates[task.id] || null;
+}
 
-  const icon =
-    platformIcons[name];
+function platformHTML(type){
+  const name=type || "Task";
+  const icon=platformIcons[name];
 
-  if(icon){
-
-    return `
-      <img
-        class="platform-icon"
-        src="${icon}"
-        alt="${escapeHTML(name)}"
-        onerror="
-          this.style.display='none';
-          this.nextElementSibling.style.display='flex';
-        "
-      >
-
-      <div
-        class="platform-fallback"
-        style="display:none;"
-      >
-        NT
-      </div>
-    `;
+  if(!icon){
+    return `<div class="platform-fallback">NT</div>`;
   }
 
   return `
-    <div class="platform-fallback">
-      NT
-    </div>
+    <img
+      class="platform-icon"
+      src="${icon}"
+      alt="${escapeHTML(name)}"
+      onerror="
+        this.style.display='none';
+        this.nextElementSibling.style.display='flex';
+      "
+    >
+    <div class="platform-fallback" style="display:none">NT</div>
   `;
 }
 
-function taskLinkHTML(task,index){
+function linkHTML(task,index){
+  const url=normalizeUrl(
+    task.task_link ||
+    task.post_link ||
+    ""
+  );
 
-  const link =
-    normalizeUrl(
-      task.task_link ||
-      task.post_link ||
-      ""
-    );
-
-  if(!link){
-
+  if(!url){
     return `
       <div class="link-box">
-
-        <div
-          style="
-            font-size:13px;
-            color:#68756c;
-          "
-        >
-          No task link was provided.
+        <div class="description">
+          No external task link was provided.
         </div>
-
       </div>
     `;
   }
 
   return `
     <div class="link-box">
-
       <a
         class="task-link"
-        href="${escapeHTML(link)}"
+        href="${escapeHTML(url)}"
         target="_blank"
         rel="noopener noreferrer"
       >
-        ${escapeHTML(link)}
+        ${escapeHTML(url)}
       </a>
 
       <div class="action-row">
-
         <button
-          type="button"
           class="action-btn open-btn"
-          onclick="openTaskLink(${index})"
+          onclick="openTask(${index})"
+          type="button"
         >
           Open Task
         </button>
 
         <button
-          type="button"
           class="action-btn copy-btn"
-          id="copyLinkBtn-${index}"
-          onclick="copyTaskLink(${index})"
+          id="copy-link-${index}"
+          onclick="copyLink(${index})"
+          type="button"
         >
           Copy Link
         </button>
-
       </div>
-
     </div>
   `;
 }
 
-function copyButtonHTML(task,index){
-
-  const text =
-    task.copy_text || "";
-
-  if(!text)
-    return "";
+function copyTextHTML(task,index){
+  if(!task.copy_text) return "";
 
   return `
     <div class="section">
+      <div class="section-title">Copy Text</div>
 
-      <div class="section-title">
-        Copy Text
+      <div class="copy-box">
+        <div class="copy-text">
+          ${escapeHTML(task.copy_text)}
+        </div>
+
+        <div class="action-row" style="margin-top:9px">
+          <button
+            class="action-btn copy-btn"
+            id="copy-text-${index}"
+            onclick="copyTaskText(${index})"
+            type="button"
+          >
+            Copy Text
+          </button>
+        </div>
       </div>
+    </div>
+  `;
+}
 
-      <div
-        class="copy-text"
-        id="copyText-${index}"
-      >
-        ${escapeHTML(text)}
+function actionHTML(task,index){
+  const left=remaining(task);
+  const state=userState(task);
+
+  if(expired(task)){
+    return `
+      <div class="status-box status-error">
+        This task has expired.
       </div>
+    `;
+  }
 
-      <div
-        class="action-row"
-        style="margin-top:9px;"
-      >
+  if(left<=0){
+    return `
+      <div class="status-box status-warning">
+        This task is full. All available worker slots have been used.
+      </div>
+    `;
+  }
+
+  if(state==="APPROVED"){
+    return `
+      <div class="status-box status-success">
+        ✓ You already completed this task.
+        The same task cannot be completed twice.
+      </div>
+    `;
+  }
+
+  if(state==="PENDING"){
+    return `
+      <div class="status-box status-warning">
+        ⏳ Your proof for this task is already under review.
+        Do not submit it again.
+      </div>
+    `;
+  }
+
+  if(state==="REJECTED"){
+    return `
+      <div class="section">
+        <div class="status-box status-error">
+          Your previous proof was rejected. You may submit corrected proof.
+        </div>
 
         <button
+          class="start-btn"
+          style="margin-top:10px"
+          onclick="showProof(${index})"
           type="button"
-          class="action-btn copy-btn"
-          id="copyTextBtn-${index}"
-          onclick="copyTaskText(${index})"
         >
-          Copy Text
+          Submit Corrected Proof
         </button>
 
+        ${proofForm(index)}
+      </div>
+    `;
+  }
+
+  return `
+    <div class="section">
+      <button
+        class="start-btn"
+        onclick="showProof(${index})"
+        type="button"
+      >
+        Start Task & Submit Proof
+      </button>
+
+      ${proofForm(index)}
+    </div>
+  `;
+}
+
+function proofForm(index){
+  return `
+    <div
+      id="proof-${index}"
+      style="display:none;margin-top:14px"
+    >
+      <div class="section-title">
+        Submit Proof
       </div>
 
+      <div class="description" style="margin-bottom:13px">
+        Complete the task according to the poster's instructions.
+        Then provide the requested details and upload a clear photo
+        or screenshot.
+      </div>
+
+      <form onsubmit="submitProof(event,${index})">
+
+        <div class="field">
+          <label class="field-label">
+            Username / Account Used *
+          </label>
+
+          <input
+            type="text"
+            id="username-${index}"
+            placeholder="Username you used"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            Comment / Report *
+          </label>
+
+          <textarea
+            id="comment-${index}"
+            placeholder="Explain what you completed..."
+            required
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            Extra Proof Link
+          </label>
+
+          <input
+            type="url"
+            id="proof-link-${index}"
+            placeholder="https://..."
+          >
+        </div>
+
+        <div class="field">
+          <label class="field-label">
+            Photo Proof *
+          </label>
+
+          <div
+            class="photo-upload"
+            id="upload-${index}"
+          >
+            <input
+              type="file"
+              id="photo-${index}"
+              accept="image/jpeg,image/png,image/webp"
+              required
+              onchange="selectPhoto(event,${index})"
+            >
+
+            <div class="upload-content">
+              <div class="upload-icon">📷</div>
+
+              <div class="upload-title">
+                TAP TO UPLOAD PHOTO
+              </div>
+
+              <div class="upload-subtitle">
+                JPG, PNG or WEBP • Maximum 5MB
+              </div>
+            </div>
+          </div>
+
+          <img
+            id="preview-${index}"
+            class="photo-preview"
+            alt="Selected proof"
+          >
+        </div>
+
+        <button
+          class="submit-btn"
+          id="submit-${index}"
+          type="submit"
+        >
+          Submit Proof
+        </button>
+
+        <div
+          id="message-${index}"
+          class="message"
+        ></div>
+
+      </form>
     </div>
   `;
 }
 
 function taskCard(task,index){
-
-  const expired =
-    isTaskExpired(task);
+  const left=remaining(task);
 
   return `
     <article class="task-card">
@@ -810,23 +932,18 @@ function taskCard(task,index){
 
         <div class="platform-row">
 
-          ${getPlatformHTML(task.task_type)}
+          ${platformHTML(task.task_type)}
 
           <div>
-
             <div class="platform-name">
               ${escapeHTML(
-                task.task_type ||
-                "General Task"
+                task.task_type || "General Task"
               )}
             </div>
 
             <div class="task-title">
-              ${escapeHTML(
-                task.title
-              )}
+              ${escapeHTML(task.title)}
             </div>
-
           </div>
 
         </div>
@@ -834,69 +951,52 @@ function taskCard(task,index){
         <div class="task-meta">
 
           <div class="meta-box">
-
-            <div class="meta-label">
-              Reward
-            </div>
-
+            <div class="meta-label">Reward</div>
             <div class="meta-value reward">
-              ₦${Number(
-                task.reward || 0
-              ).toLocaleString()}
+              ₦${Number(task.reward || 0).toLocaleString()}
             </div>
-
           </div>
 
           <div class="meta-box">
-
-            <div class="meta-label">
-              Available Slots
+            <div class="meta-label">Remaining</div>
+            <div class="
+              meta-value remaining
+              ${left<=0 ? "none" : left<=5 ? "low" : ""}
+            ">
+              ${left.toLocaleString()}
             </div>
+          </div>
 
+          <div class="meta-box">
+            <div class="meta-label">Total Slots</div>
             <div class="meta-value">
-              ${Number(
-                task.slots || 0
-              ).toLocaleString()}
+              ${capacity(task).toLocaleString()}
             </div>
-
           </div>
 
           <div class="meta-box">
-
-            <div class="meta-label">
-              Expires
-            </div>
-
+            <div class="meta-label">Status</div>
             <div class="meta-value">
-              ${escapeHTML(
-                formatExpiry(
-                  task.expiry_date
-                )
-              )}
+              ${
+                expired(task)
+                ? "EXPIRED"
+                : left<=0
+                ? "FULL"
+                : userState(task)==="APPROVED"
+                ? "COMPLETED"
+                : userState(task)==="PENDING"
+                ? "REVIEW"
+                : "LIVE"
+              }
             </div>
-
-          </div>
-
-          <div class="meta-box">
-
-            <div class="meta-label">
-              Status
-            </div>
-
-            <div class="meta-value reward">
-              LIVE
-            </div>
-
           </div>
 
         </div>
-
       </div>
 
       <div class="task-body">
 
         <div class="section">
-
           <div class="section-title">
             Task Description
           </div>
@@ -904,14 +1004,12 @@ function taskCard(task,index){
           <div class="description">
             ${escapeHTML(
               task.description ||
-              "Follow the instructions provided by the task poster."
+              "No additional instructions were provided by the poster."
             )}
           </div>
-
         </div>
 
         <div class="section">
-
           <div class="section-title">
             Task Poster
           </div>
@@ -919,1120 +1017,601 @@ function taskCard(task,index){
           <span class="owner">
             ${escapeHTML(
               task.uploader_username ||
-              "Task Poster"
+              "NAIJA TASK Poster"
             )}
           </span>
-
         </div>
 
         <div class="section">
-
           <div class="section-title">
             Task Link
           </div>
 
-          ${taskLinkHTML(
-            task,
-            index
-          )}
-
+          ${linkHTML(task,index)}
         </div>
 
-        ${copyButtonHTML(
-          task,
-          index
-        )}
+        ${copyTextHTML(task,index)}
 
-        ${
-          expired
-
-          ?
-
-          `
-            <div class="expired">
-              This task has expired and cannot receive new submissions.
-            </div>
-          `
-
-          :
-
-          `
-            <div class="section">
-
-              <div class="section-title">
-                Start Task
-              </div>
-
-              <button
-                class="start-btn"
-                type="button"
-                onclick="showProofForm(${index})"
-              >
-                Start Task & Submit Proof
-              </button>
-
-            </div>
-
-            <div
-              id="proof-${index}"
-              style="display:none;"
-            >
-
-              <div class="section">
-
-                <div class="section-title">
-                  Submit Proof
-                </div>
-
-                <div
-                  class="description"
-                  style="margin-bottom:12px;"
-                >
-                  Complete the task first. Then provide your account username,
-                  comment/report, and a clear photo or screenshot as proof.
-                </div>
-
-                <form
-                  onsubmit="submitProof(event,${index})"
-                >
-
-                  <div class="field">
-
-                    <label class="field-label">
-                      Username / Account Used *
-                    </label>
-
-                    <input
-                      type="text"
-                      id="username-${index}"
-                      placeholder="Enter the username you used"
-                      required
-                    >
-
-                  </div>
-
-                  <div class="field">
-
-                    <label class="field-label">
-                      Comment / Report *
-                    </label>
-
-                    <textarea
-                      id="comment-${index}"
-                      placeholder="Tell the poster what you completed..."
-                      required
-                    ></textarea>
-
-                  </div>
-
-                  <div class="field">
-
-                    <label class="field-label">
-                      Extra Proof Link
-                    </label>
-
-                    <input
-                      type="url"
-                      id="proofLink-${index}"
-                      placeholder="https://..."
-                    >
-
-                  </div>
-
-                  <div class="field">
-
-                    <label class="field-label">
-                      Photo Proof *
-                    </label>
-
-                    <div
-                      class="photo-upload"
-                      id="photoUpload-${index}"
-                    >
-
-                      <input
-                        type="file"
-                        id="photo-${index}"
-                        accept="image/jpeg,image/png,image/webp"
-                        required
-                        onchange="
-                          handlePhotoSelect(
-                            event,
-                            ${index}
-                          )
-                        "
-                      >
-
-                      <div class="upload-content">
-
-                        <div class="upload-icon">
-                          📷
-                        </div>
-
-                        <div class="upload-title">
-                          TAP TO UPLOAD PHOTO
-                        </div>
-
-                        <div class="upload-subtitle">
-                          Choose a photo or screenshot from your phone
-                        </div>
-
-                        <div class="upload-subtitle">
-                          JPG, PNG or WEBP • Maximum 5MB
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                    <img
-                      id="preview-${index}"
-                      class="photo-preview"
-                      alt="Proof preview"
-                    >
-
-                  </div>
-
-                  <button
-                    type="submit"
-                    class="submit-btn"
-                    id="submit-${index}"
-                  >
-                    Submit Proof
-                  </button>
-
-                  <div
-                    id="message-${index}"
-                    class="message"
-                  ></div>
-
-                </form>
-
-              </div>
-
-            </div>
-          `
-        }
+        ${actionHTML(task,index)}
 
       </div>
-
     </article>
   `;
 }
 
 async function loadTasks(){
 
-  tasksArea.className =
-    "loading";
+  tasksArea.className="loading";
+  tasksArea.innerHTML="Loading available tasks...";
 
-  tasksArea.innerHTML =
-    "Loading tasks...";
+  completionCounts={};
+  userTaskStates={};
 
-  const {data,error} =
-    await db
-
-      .from("tasks")
-
-      .select(`
-        id,
-        title,
-        description,
-        reward,
-        slots,
-        expiry_date,
-        requirements,
-        proof_type,
-        active,
-        status,
-        task_type,
-        task_link,
-        uploader_username,
-        copy_text,
-        post_link,
-        upload_required,
-        created_at
-      `)
-
-      .eq("active",true)
-
-      .eq("status","LIVE")
-
-      .order(
-        "created_at",
-        {ascending:false}
-      );
+  const {
+    data,
+    error
+  }=await db
+    .from("tasks")
+    .select(`
+      id,
+      title,
+      description,
+      reward,
+      slots,
+      max_total_completions,
+      max_completions,
+      max_completions_per_user,
+      expiry_date,
+      requirements,
+      proof_type,
+      proof_required,
+      active,
+      status,
+      task_type,
+      task_link,
+      uploader_username,
+      copy_text,
+      post_link,
+      upload_required,
+      created_at
+    `)
+    .eq("active",true)
+    .eq("status","LIVE")
+    .order("created_at",{ascending:false});
 
   if(error){
-
     console.error(error);
 
-    tasksArea.className =
-      "error";
-
-    tasksArea.innerHTML = `
-      <strong>
-        Unable to load tasks.
-      </strong>
-
+    tasksArea.className="error";
+    tasksArea.innerHTML=`
+      <strong>Unable to load tasks.</strong>
       <br><br>
-
-      ${escapeHTML(
-        error.message ||
-        "Please refresh the page."
-      )}
+      ${escapeHTML(error.message)}
     `;
-
     return;
   }
 
-  loadedTasks =
-    (data || [])
-      .filter(
-        task =>
-          !isTaskExpired(task)
-      );
+  loadedTasks=(data || []).filter(
+    task=>!expired(task)
+  );
 
   if(!loadedTasks.length){
-
-    tasksArea.className =
-      "empty";
-
-    tasksArea.innerHTML = `
-      <strong>
-        No live tasks available right now.
-      </strong>
-
+    tasksArea.className="empty";
+    tasksArea.innerHTML=`
+      <strong>No live tasks available right now.</strong>
       <br><br>
-
-      Check again later for new tasks.
+      Please check again later.
     `;
-
     return;
   }
 
-  tasksArea.className = "";
+  const ids=loadedTasks.map(t=>t.id);
 
-  tasksArea.innerHTML =
-    loadedTasks
-      .map(
-        (task,index) =>
-          taskCard(
-            task,
-            index
-          )
-      )
-      .join("");
+  const {
+    data:completions,
+    error:completionError
+  }=await db
+    .from("task_completions")
+    .select("task_id,user_id")
+    .in("task_id",ids);
+
+  if(completionError){
+    console.error(completionError);
+
+    tasksArea.className="error";
+    tasksArea.innerHTML=`
+      <strong>Could not calculate task availability.</strong>
+      <br><br>
+      ${escapeHTML(completionError.message)}
+    `;
+    return;
+  }
+
+  (completions || []).forEach(row=>{
+    completionCounts[row.task_id]=
+      Number(completionCounts[row.task_id] || 0)+1;
+
+    if(row.user_id===currentUser.id){
+      userTaskStates[row.task_id]="APPROVED";
+    }
+  });
+
+  /*
+    Pending/rejected submissions are checked separately.
+    Approved completion always takes priority.
+  */
+  const {
+    data:subs
+  }=await db
+    .from("task_submissions")
+    .select("task_id,status")
+    .eq("user_id",currentUser.id)
+    .in("task_id",ids);
+
+  (subs || []).forEach(row=>{
+    if(userTaskStates[row.task_id]==="APPROVED") return;
+
+    const status=String(
+      row.status || ""
+    ).toUpperCase();
+
+    if(status==="PENDING"){
+      userTaskStates[row.task_id]="PENDING";
+    }else if(status==="REJECTED"){
+      userTaskStates[row.task_id]="REJECTED";
+    }else if(status==="APPROVED"){
+      userTaskStates[row.task_id]="APPROVED";
+    }
+  });
+
+  tasksArea.className="";
+
+  tasksArea.innerHTML=
+    loadedTasks.map(
+      (task,index)=>taskCard(task,index)
+    ).join("");
 }
 
-function showProofForm(index){
+function showProof(index){
 
-  const box =
-    document.getElementById(
-      `proof-${index}`
-    );
+  const task=loadedTasks[index];
 
-  if(!box)
+  if(!task) return;
+
+  if(remaining(task)<=0){
+    alert("This task is already full.");
     return;
+  }
 
-  box.style.display =
-    "block";
+  if(
+    userTaskStates[task.id]==="APPROVED" ||
+    userTaskStates[task.id]==="PENDING"
+  ){
+    return;
+  }
+
+  const box=document.getElementById(
+    `proof-${index}`
+  );
+
+  if(!box) return;
+
+  box.style.display="block";
 
   box.scrollIntoView({
     behavior:"smooth",
     block:"start"
   });
 
-  trackTaskStart(
-    loadedTasks[index]
-  );
+  trackStart(task);
 }
 
-async function trackTaskStart(task){
-
-  if(!currentUser || !task)
-    return;
+async function trackStart(task){
 
   try{
-
     await db
-
       .from("task_activity")
-
       .insert({
-
-        task_id:
-          task.id,
-
-        user_id:
-          currentUser.id,
-
-        activity_type:
-          "STARTED"
-
+        task_id:task.id,
+        user_id:currentUser.id,
+        activity_type:"STARTED"
       });
-
-  }catch(error){
-
-    console.log(
-      "Activity tracking skipped:",
-      error
-    );
+  }catch(e){
+    console.log("Activity tracking skipped:",e);
   }
 }
 
-function handlePhotoSelect(
-  event,
-  index
-){
+function selectPhoto(event,index){
 
-  const file =
-    event.target.files?.[0];
+  const file=event.target.files?.[0];
 
-  const uploadBox =
-    document.getElementById(
-      `photoUpload-${index}`
-    );
-
-  const preview =
-    document.getElementById(
-      `preview-${index}`
-    );
-
-  if(!file)
-    return;
+  if(!file) return;
 
   if(!file.type.startsWith("image/")){
-
-    event.target.value = "";
-
-    alert(
-      "Please choose an image file."
-    );
-
+    event.target.value="";
+    alert("Please select an image.");
     return;
   }
 
-  if(
-    file.size >
-    5 * 1024 * 1024
-  ){
-
-    event.target.value = "";
-
-    alert(
-      "Photo must be 5MB or smaller."
-    );
-
+  if(file.size>5*1024*1024){
+    event.target.value="";
+    alert("Photo must be 5MB or smaller.");
     return;
   }
 
-  const reader =
-    new FileReader();
+  const preview=document.getElementById(
+    `preview-${index}`
+  );
 
-  reader.onload =
-    function(e){
+  const box=document.getElementById(
+    `upload-${index}`
+  );
 
-      preview.src =
-        e.target.result;
+  const reader=new FileReader();
 
-      preview.style.display =
-        "block";
-
-      uploadBox.classList.add(
-        "photo-selected"
-      );
-    };
+  reader.onload=e=>{
+    preview.src=e.target.result;
+    preview.style.display="block";
+    box.classList.add("photo-selected");
+  };
 
   reader.readAsDataURL(file);
 }
 
-function openTaskLink(index){
+function showMessage(index,type,text){
 
-  const task =
-    loadedTasks[index];
+  const box=document.getElementById(
+    `message-${index}`
+  );
 
-  if(!task)
-    return;
+  if(!box) return;
 
-  const raw =
-    task.task_link ||
-    task.post_link ||
-    "";
-
-  const url =
-    normalizeUrl(raw);
-
-  if(!url){
-
-    alert(
-      "This task does not have a link."
-    );
-
-    return;
-  }
-
-  const newWindow =
-    window.open(
-      url,
-      "_blank",
-      "noopener,noreferrer"
-    );
-
-  if(!newWindow){
-
-    const a =
-      document.createElement("a");
-
-    a.href =
-      url;
-
-    a.target =
-      "_blank";
-
-    a.rel =
-      "noopener noreferrer";
-
-    document.body.appendChild(a);
-
-    a.click();
-
-    a.remove();
-  }
+  box.className=`message ${type}`;
+  box.textContent=text;
 }
 
-async function copyTextReliable(text){
-
-  if(!text)
-    return false;
-
-  try{
-
-    if(
-      navigator.clipboard &&
-      window.isSecureContext
-    ){
-
-      await navigator.clipboard
-        .writeText(text);
-
-      return true;
-    }
-
-  }catch(error){
-
-    console.log(
-      "Clipboard API failed:",
-      error
-    );
-  }
-
-  try{
-
-    const textarea =
-      document.createElement(
-        "textarea"
-      );
-
-    textarea.value =
-      text;
-
-    textarea.setAttribute(
-      "readonly",
-      ""
-    );
-
-    textarea.style.position =
-      "fixed";
-
-    textarea.style.left =
-      "-9999px";
-
-    textarea.style.top =
-      "0";
-
-    textarea.style.opacity =
-      "0";
-
-    document.body.appendChild(
-      textarea
-    );
-
-    textarea.focus();
-
-    textarea.select();
-
-    textarea.setSelectionRange(
-      0,
-      text.length
-    );
-
-    const copied =
-      document.execCommand(
-        "copy"
-      );
-
-    textarea.remove();
-
-    return copied;
-
-  }catch(error){
-
-    console.error(
-      "Copy failed:",
-      error
-    );
-
-    return false;
-  }
-}
-
-async function copyTaskLink(index){
-
-  const task =
-    loadedTasks[index];
-
-  if(!task)
-    return;
-
-  const link =
-    normalizeUrl(
-      task.task_link ||
-      task.post_link ||
-      ""
-    );
-
-  if(!link){
-
-    alert(
-      "There is no task link to copy."
-    );
-
-    return;
-  }
-
-  const button =
-    document.getElementById(
-      `copyLinkBtn-${index}`
-    );
-
-  const success =
-    await copyTextReliable(
-      link
-    );
-
-  if(success){
-
-    const oldText =
-      button.innerText;
-
-    button.innerText =
-      "Copied ✓";
-
-    button.classList.add(
-      "copied"
-    );
-
-    setTimeout(() => {
-
-      button.innerText =
-        oldText;
-
-      button.classList.remove(
-        "copied"
-      );
-
-    },1800);
-
-  }else{
-
-    alert(
-      "Copy was blocked by your browser. Long-press the link and choose Copy."
-    );
-  }
-}
-
-async function copyTaskText(index){
-
-  const task =
-    loadedTasks[index];
-
-  if(
-    !task ||
-    !task.copy_text
-  )
-    return;
-
-  const button =
-    document.getElementById(
-      `copyTextBtn-${index}`
-    );
-
-  const success =
-    await copyTextReliable(
-      task.copy_text
-    );
-
-  if(success){
-
-    const oldText =
-      button.innerText;
-
-    button.innerText =
-      "Copied ✓";
-
-    button.classList.add(
-      "copied"
-    );
-
-    setTimeout(() => {
-
-      button.innerText =
-        oldText;
-
-      button.classList.remove(
-        "copied"
-      );
-
-    },1800);
-
-  }else{
-
-    alert(
-      "Copy was blocked by your browser. Select the text and copy it manually."
-    );
-  }
-}
-
-function showMessage(
-  index,
-  type,
-  text
-){
-
-  const box =
-    document.getElementById(
-      `message-${index}`
-    );
-
-  if(!box)
-    return;
-
-  box.className =
-    `message ${type}`;
-
-  box.textContent =
-    text;
-}
-
-async function submitProof(
-  event,
-  index
-){
+async function submitProof(event,index){
 
   event.preventDefault();
 
-  const task =
-    loadedTasks[index];
+  const task=loadedTasks[index];
 
-  if(!task){
+  if(!task) return;
 
-    alert(
-      "Task not found."
+  if(remaining(task)<=0){
+    showMessage(
+      index,
+      "error",
+      "This task is already full."
     );
-
+    await loadTasks();
     return;
   }
 
-  if(!currentUser){
+  const state=userTaskStates[task.id];
 
-    alert(
-      "Please log in again."
+  if(state==="APPROVED" || state==="PENDING"){
+    showMessage(
+      index,
+      "error",
+      "You cannot submit this task again."
     );
-
-    window.location.href =
-      "index.html";
-
     return;
   }
 
-  if(isTaskExpired(task)){
-
+  if(expired(task)){
     showMessage(
       index,
       "error",
       "This task has expired."
     );
-
     return;
   }
 
-  const username =
-    document
-      .getElementById(
-        `username-${index}`
-      )
-      .value
-      .trim();
+  const username=document
+    .getElementById(`username-${index}`)
+    .value.trim();
 
-  const comment =
-    document
-      .getElementById(
-        `comment-${index}`
-      )
-      .value
-      .trim();
+  const comment=document
+    .getElementById(`comment-${index}`)
+    .value.trim();
 
-  const proofLink =
-    document
-      .getElementById(
-        `proofLink-${index}`
-      )
-      .value
-      .trim();
+  const proofLink=document
+    .getElementById(`proof-link-${index}`)
+    .value.trim();
 
-  const fileInput =
-    document.getElementById(
-      `photo-${index}`
-    );
+  const fileInput=document.getElementById(
+    `photo-${index}`
+  );
 
-  const file =
-    fileInput.files?.[0];
+  const file=fileInput.files?.[0];
 
   if(!username){
-
-    showMessage(
-      index,
-      "error",
-      "Enter the username or account you used."
-    );
-
+    showMessage(index,"error","Enter the username used.");
     return;
   }
 
   if(!comment){
-
-    showMessage(
-      index,
-      "error",
-      "Please enter your comment or report."
-    );
-
+    showMessage(index,"error","Enter your report/comment.");
     return;
   }
 
   if(!file){
-
-    showMessage(
-      index,
-      "error",
-      "Photo proof is required. Tap the large upload box and choose a photo."
-    );
-
+    showMessage(index,"error","Photo proof is required.");
     return;
   }
 
-  if(
-    file.size >
-    5 * 1024 * 1024
-  ){
-
-    showMessage(
-      index,
-      "error",
-      "Photo must be 5MB or smaller."
-    );
-
+  if(file.size>5*1024*1024){
+    showMessage(index,"error","Photo must be 5MB or smaller.");
     return;
   }
 
-  const submitButton =
-    document.getElementById(
-      `submit-${index}`
-    );
-
-  submitButton.disabled =
-    true;
-
-  submitButton.innerText =
-    "Uploading proof...";
-
-  showMessage(
-    index,
-    "success",
-    "Uploading your photo proof..."
+  const button=document.getElementById(
+    `submit-${index}`
   );
 
-  let uploadedPath =
-    null;
+  button.disabled=true;
+  button.textContent="Uploading proof...";
+
+  let uploadedPath=null;
 
   try{
 
     /*
-      Prevent duplicate pending/approved submissions.
-      Rejected submissions may be submitted again.
+      Re-check immediately before upload.
+      This prevents stale browser state.
     */
     const {
-      data:existing,
-      error:existingError
-    } = await db
-
-      .from("task_submissions")
-
-      .select(
-        "id,status"
-      )
-
-      .eq(
-        "task_id",
-        task.id
-      )
-
-      .eq(
-        "user_id",
-        currentUser.id
-      )
-
-      .in(
-        "status",
-        [
-          "PENDING",
-          "APPROVED"
-        ]
-      )
-
+      data:latest
+    }=await db
+      .from("task_completions")
+      .select("id")
+      .eq("task_id",task.id)
+      .eq("user_id",currentUser.id)
       .limit(1);
 
-    if(existingError){
-
-      throw existingError;
-    }
-
-    if(
-      existing &&
-      existing.length
-    ){
-
+    if(latest?.length){
       throw new Error(
-        "You have already submitted this task."
+        "You have already completed this task."
       );
     }
 
-    /*
-      Create a safe filename.
-    */
-    const extension =
+    const {
+      data:pending
+    }=await db
+      .from("task_submissions")
+      .select("id,status")
+      .eq("task_id",task.id)
+      .eq("user_id",currentUser.id)
+      .in("status",["PENDING","APPROVED"])
+      .limit(1);
+
+    if(pending?.length){
+      throw new Error(
+        "You already have a submission for this task."
+      );
+    }
+
+    const extension=
       file.name.includes(".")
-      ? file.name
-          .split(".")
-          .pop()
-          .toLowerCase()
+      ? file.name.split(".").pop().toLowerCase()
       : "jpg";
 
-    uploadedPath =
+    uploadedPath=
       `${currentUser.id}/${task.id}/${Date.now()}.${extension}`;
 
-    /*
-      IMPORTANT:
-      Actual bucket name is task-proofs.
-    */
     const {
       error:uploadError
-    } = await db
-
+    }=await db
       .storage
-
       .from(TASK_PROOF_BUCKET)
-
       .upload(
         uploadedPath,
         file,
         {
-          contentType:
-            file.type,
-
-          upsert:
-            false
+          contentType:file.type,
+          upsert:false
         }
       );
 
-    if(uploadError){
+    if(uploadError) throw uploadError;
 
-      throw uploadError;
-    }
+    button.textContent="Saving proof...";
 
-    /*
-      The proof column is TEXT,
-      so save the complete proof
-      object as JSON text.
-    */
-    const proof = {
-
+    const proof={
       photo:{
-
-        bucket:
-          TASK_PROOF_BUCKET,
-
-        path:
-          uploadedPath,
-
-        name:
-          file.name,
-
-        type:
-          file.type,
-
-        size:
-          file.size
+        bucket:TASK_PROOF_BUCKET,
+        path:uploadedPath,
+        name:file.name,
+        type:file.type,
+        size:file.size
       },
-
-      worker_username:
-        username,
-
-      worker_comment:
-        comment,
-
-      worker_link:
-        proofLink || null,
-
-      task_owner:
-        task.uploader_username ||
-        null,
-
-      submitted_at:
-        new Date().toISOString()
+      worker_username:username,
+      worker_comment:comment,
+      worker_link:proofLink || null,
+      submitted_at:new Date().toISOString()
     };
-
-    submitButton.innerText =
-      "Saving submission...";
 
     const {
       error:insertError
-    } = await db
-
+    }=await db
       .from("task_submissions")
-
       .insert({
-
-        user_id:
-          currentUser.id,
-
-        task_id:
-          task.id,
-
-        /*
-          FIX:
-          proof column is TEXT.
-        */
-        proof:
-          JSON.stringify(proof),
-
-        status:
-          "PENDING"
+        user_id:currentUser.id,
+        task_id:task.id,
+        proof:JSON.stringify(proof),
+        status:"PENDING"
       });
 
-    if(insertError){
+    if(insertError) throw insertError;
 
-      throw insertError;
-    }
+    userTaskStates[task.id]="PENDING";
 
     showMessage(
       index,
       "success",
-      "Proof submitted successfully. Your photo will be reviewed."
+      "Proof submitted successfully. It is now under review."
     );
 
-    submitButton.innerText =
-      "Proof Submitted ✓";
+    button.textContent="Proof Submitted ✓";
 
-    /*
-      Disable the form after
-      successful submission.
-    */
-    const form =
-      event.target;
+    event.target
+      .querySelectorAll("input,textarea")
+      .forEach(el=>el.disabled=true);
 
-    form
-      .querySelectorAll(
-        "input,textarea,button"
-      )
-      .forEach(element => {
-
-        if(
-          element !==
-          submitButton
-        ){
-
-          element.disabled =
-            true;
-        }
-
-      });
+    await loadTasks();
 
   }catch(error){
 
-    console.error(
-      "Proof submission error:",
-      error
-    );
+    console.error(error);
 
-    /*
-      If upload succeeded but
-      database insertion failed,
-      remove the orphaned photo.
-    */
     if(uploadedPath){
-
       try{
-
         await db
-
           .storage
-
-          .from(
-            TASK_PROOF_BUCKET
-          )
-
-          .remove([
-            uploadedPath
-          ]);
-
-      }catch(removeError){
-
-        console.log(
-          "Could not remove uploaded proof:",
-          removeError
-        );
+          .from(TASK_PROOF_BUCKET)
+          .remove([uploadedPath]);
+      }catch(e){
+        console.log("Orphan cleanup failed:",e);
       }
     }
 
-    submitButton.disabled =
-      false;
-
-    submitButton.innerText =
-      "Submit Proof";
+    button.disabled=false;
+    button.textContent="Submit Proof";
 
     showMessage(
       index,
       "error",
       error?.message ||
-      "Something went wrong while submitting your proof."
+      "Could not submit your proof."
     );
+  }
+}
+
+function openTask(index){
+
+  const task=loadedTasks[index];
+
+  if(!task) return;
+
+  const url=normalizeUrl(
+    task.task_link ||
+    task.post_link ||
+    ""
+  );
+
+  if(!url){
+    alert("This task has no external link.");
+    return;
+  }
+
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+async function copyReliable(text){
+
+  try{
+    if(navigator.clipboard){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(e){}
+
+  try{
+    const area=document.createElement("textarea");
+    area.value=text;
+    area.style.position="fixed";
+    area.style.left="-9999px";
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+
+    const result=document.execCommand("copy");
+
+    area.remove();
+
+    return result;
+  }catch(e){
+    return false;
+  }
+}
+
+async function copyLink(index){
+
+  const task=loadedTasks[index];
+
+  const url=normalizeUrl(
+    task?.task_link ||
+    task?.post_link ||
+    ""
+  );
+
+  if(!url) return;
+
+  const ok=await copyReliable(url);
+
+  const btn=document.getElementById(
+    `copy-link-${index}`
+  );
+
+  if(ok){
+    btn.textContent="Copied ✓";
+
+    setTimeout(()=>{
+      btn.textContent="Copy Link";
+    },1500);
+  }else{
+    alert("Copy was blocked. Long-press the link to copy it.");
+  }
+}
+
+async function copyTaskText(index){
+
+  const task=loadedTasks[index];
+
+  if(!task?.copy_text) return;
+
+  const ok=await copyReliable(
+    task.copy_text
+  );
+
+  const btn=document.getElementById(
+    `copy-text-${index}`
+  );
+
+  if(ok){
+    btn.textContent="Copied ✓";
+
+    setTimeout(()=>{
+      btn.textContent="Copy Text";
+    },1500);
+  }else{
+    alert("Copy was blocked. Select the text manually.");
   }
 }
 
 async function startPage(){
 
-  const user =
-    await getCurrentUser();
+  const {
+    data,
+    error
+  }=await db.auth.getUser();
 
-  if(!user)
+  if(error || !data?.user){
+    location.href="index.html";
     return;
+  }
+
+  currentUser=data.user;
 
   await loadTasks();
 }
 
 startPage();
-
 </script>
 
 </body>
