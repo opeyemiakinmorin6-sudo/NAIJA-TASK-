@@ -7311,3 +7311,2564 @@ setupLogin();
    PART 4 WILL CONTAIN THE FINAL HTML STRUCTURE,
    ADMIN DASHBOARD UI, MODALS, STYLES AND CLOSING TAGS.
 ========================================================= */
+
+
+  <!-- =========================================================
+     ADMIN CONTROL CENTER — FINAL HTML
+========================================================= -->
+
+</script>
+
+<style>
+/* =========================================================
+   ADMIN UI
+========================================================= */
+
+:root{
+  --green:#0b8f3c;
+  --green-dark:#087331;
+  --green-light:#eaf8ef;
+  --bg:#f5fff7;
+  --white:#fff;
+  --text:#15251b;
+  --muted:#66736b;
+  --border:#dce8df;
+  --danger:#c62828;
+  --danger-bg:#fff0f0;
+  --warning:#9a6700;
+  --warning-bg:#fff8df;
+  --blue:#1565c0;
+  --shadow:0 8px 28px rgba(16,50,28,.08);
+}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body{
+  overflow-x:hidden;
+}
+
+button,
+input,
+textarea,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+button:disabled{
+  cursor:not-allowed;
+  opacity:.6;
+}
+
+a{
+  color:var(--green);
+  text-decoration:none;
+}
+
+.hidden{
+  display:none!important;
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+#loginScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at top,#e5f8eb 0,#f5fff7 42%,#eef9f1 100%);
+}
+
+.login-card{
+  width:100%;
+  max-width:430px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:28px;
+  box-shadow:var(--shadow);
+}
+
+.brand{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.brand-logo{
+  width:64px;
+  height:64px;
+  margin:0 auto 12px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--green);
+  color:#fff;
+  font-size:28px;
+  font-weight:900;
+}
+
+.brand h1{
+  margin:0;
+  font-size:26px;
+}
+
+.brand p{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.form-group{
+  margin-bottom:15px;
+}
+
+.form-group label,
+label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:11px;
+  padding:12px 13px;
+  background:#fff;
+  color:var(--text);
+  outline:none;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(11,143,60,.10);
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+.primary-btn{
+  width:100%;
+  border:0;
+  border-radius:11px;
+  padding:13px 16px;
+  background:var(--green);
+  color:#fff;
+  font-weight:800;
+}
+
+.primary-btn:hover{
+  background:var(--green-dark);
+}
+
+.secondary-btn{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 14px;
+  background:#fff;
+  color:var(--text);
+  font-weight:700;
+}
+
+.danger-btn{
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  background:var(--danger);
+  color:#fff;
+  font-weight:700;
+}
+
+.small-btn{
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:7px 10px;
+  background:#fff;
+  color:var(--text);
+  font-size:12px;
+  font-weight:700;
+}
+
+.small-btn:hover{
+  border-color:var(--green);
+  color:var(--green);
+}
+
+.login-help{
+  text-align:center;
+  margin-top:16px;
+  font-size:13px;
+}
+
+.login-help button{
+  border:0;
+  background:none;
+  color:var(--green);
+  font-weight:700;
+}
+
+
+/* =========================================================
+   MAIN APP
+========================================================= */
+
+#app{
+  min-height:100vh;
+}
+
+.admin-layout{
+  min-height:100vh;
+  display:flex;
+}
+
+.admin-sidebar{
+  position:fixed;
+  z-index:50;
+  left:0;
+  top:0;
+  bottom:0;
+  width:255px;
+  background:#073d1e;
+  color:#fff;
+  overflow-y:auto;
+}
+
+.sidebar-brand{
+  padding:22px 18px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+
+.sidebar-brand strong{
+  font-size:21px;
+}
+
+.sidebar-brand small{
+  display:block;
+  margin-top:4px;
+  color:#bde6ca;
+}
+
+.sidebar-nav{
+  padding:12px;
+}
+
+.nav-group-title{
+  padding:13px 10px 6px;
+  color:#8fc6a1;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-weight:800;
+}
+
+.sidebar-nav button{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#dff4e5;
+  text-align:left;
+  padding:11px 12px;
+  margin:2px 0;
+  border-radius:9px;
+  font-weight:650;
+  font-size:13px;
+}
+
+.sidebar-nav button:hover,
+.sidebar-nav button.active{
+  background:#0b8f3c;
+  color:#fff;
+}
+
+.main-area{
+  min-width:0;
+  width:calc(100% - 255px);
+  margin-left:255px;
+}
+
+.topbar{
+  position:sticky;
+  z-index:30;
+  top:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:65px;
+  padding:10px 18px;
+  background:rgba(255,255,255,.96);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);
+}
+
+.topbar-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.mobile-menu-btn{
+  display:none;
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:9px;
+  padding:9px 11px;
+}
+
+.topbar-title{
+  font-weight:900;
+}
+
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.admin-user{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+}
+
+.admin-avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:var(--green);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+}
+
+.connection-status{
+  font-size:11px;
+  padding:5px 8px;
+  border-radius:20px;
+  background:#e9f7ed;
+  color:var(--green-dark);
+  font-weight:800;
+}
+
+.connection-status.offline{
+  background:#fff0f0;
+  color:var(--danger);
+}
+
+.content{
+  padding:18px;
+  max-width:1600px;
+  margin:auto;
+}
+
+.admin-section{
+  display:none;
+}
+
+.admin-section.active{
+  display:block;
+}
+
+.section-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.section-header h2{
+  margin:0;
+  font-size:22px;
+}
+
+.section-header p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.header-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.stat-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:17px;
+  box-shadow:0 3px 14px rgba(0,0,0,.03);
+}
+
+.stat-card span{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.stat-card strong{
+  display:block;
+  margin-top:7px;
+  font-size:25px;
+}
+
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:17px;
+  margin-bottom:15px;
+}
+
+.card h3{
+  margin:0 0 7px;
+}
+
+.card p{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.quick-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.quick-card{
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:14px;
+  padding:15px;
+  cursor:pointer;
+}
+
+.quick-card:hover{
+  border-color:var(--green);
+}
+
+
+/* =========================================================
+   TABLES
+========================================================= */
+
+.table-wrap{
+  width:100%;
+  overflow:auto;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:760px;
+}
+
+th,
+td{
+  padding:11px 12px;
+  border-bottom:1px solid #edf2ee;
+  text-align:left;
+  vertical-align:top;
+  font-size:12px;
+}
+
+th{
+  background:#f7fbf8;
+  color:#405048;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  white-space:nowrap;
+}
+
+tr:last-child td{
+  border-bottom:0;
+}
+
+.message-cell{
+  max-width:300px;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+.mono{
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-size:11px;
+}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.status-pill,
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:800;
+  white-space:nowrap;
+  background:#edf1ee;
+  color:#45534a;
+}
+
+.status-pill.good,
+.badge.approved,
+.badge.active,
+.badge.success,
+.badge.completed{
+  background:#e5f7eb;
+  color:#087331;
+}
+
+.status-pill.bad,
+.badge.rejected,
+.badge.failed,
+.badge.inactive,
+.badge.cancelled{
+  background:#ffeaea;
+  color:#a71919;
+}
+
+.badge.pending,
+.badge.processing{
+  background:#fff5d7;
+  color:#815800;
+}
+
+
+/* =========================================================
+   FORMS / MODALS
+========================================================= */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+.form-grid .full{
+  grid-column:1/-1;
+}
+
+.field-help{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:rgba(0,0,0,.52);
+}
+
+.modal.open{
+  display:flex;
+}
+
+.modal-card{
+  width:100%;
+  max-width:650px;
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:17px;
+  box-shadow:0 20px 70px rgba(0,0,0,.25);
+}
+
+.modal-header{
+  position:sticky;
+  top:0;
+  z-index:2;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:15px 17px;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+}
+
+.modal-header h3{
+  margin:0;
+}
+
+.close-modal{
+  border:0;
+  background:#f1f4f2;
+  border-radius:8px;
+  width:34px;
+  height:34px;
+  font-size:20px;
+}
+
+.modal-body{
+  padding:17px;
+}
+
+.modal-footer{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  padding:13px 17px;
+  border-top:1px solid var(--border);
+}
+
+
+/* =========================================================
+   NOTICES
+========================================================= */
+
+.info-box,
+.success-box,
+.error-box,
+.warning-box,
+.notice{
+  border-radius:11px;
+  padding:12px 14px;
+  margin:10px 0;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.info-box,
+.notice{
+  background:#eef6ff;
+  color:#244a70;
+  border:1px solid #d8e8f8;
+}
+
+.success-box{
+  background:#eaf8ee;
+  color:#087331;
+  border:1px solid #ccebd5;
+}
+
+.error-box{
+  background:var(--danger-bg);
+  color:#9d1d1d;
+  border:1px solid #f3caca;
+}
+
+.warning-box{
+  background:var(--warning-bg);
+  color:var(--warning);
+  border:1px solid #f0df9e;
+}
+
+.empty{
+  text-align:center;
+  padding:45px 20px;
+  background:#fff;
+  border:1px dashed var(--border);
+  border-radius:14px;
+}
+
+.empty-icon{
+  font-size:32px;
+  margin-bottom:8px;
+}
+
+.empty p{
+  color:var(--muted);
+  font-size:13px;
+}
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+.settings-form{
+  max-width:900px;
+}
+
+.settings-section{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:14px;
+}
+
+.settings-section h3{
+  margin:0 0 14px;
+}
+
+.settings-section label:not(.switch-row){
+  margin-bottom:13px;
+}
+
+.switch-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:11px 0;
+  border-bottom:1px solid #edf2ee;
+}
+
+.switch-row:last-child{
+  border-bottom:0;
+}
+
+.switch-row input{
+  width:20px;
+  height:20px;
+}
+
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+.security-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+
+.security-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+}
+
+.security-card h3{
+  margin:0 0 7px;
+}
+
+.security-card p{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+
+
+/* =========================================================
+   INTEGRITY
+========================================================= */
+
+.integrity-summary{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:15px;
+}
+
+.integrity-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:16px;
+}
+
+.integrity-card b{
+  display:block;
+  font-size:25px;
+}
+
+.integrity-card span{
+  color:var(--muted);
+  font-size:12px;
+}
+
+
+/* =========================================================
+   PROOF IMAGE
+========================================================= */
+
+.proof-image{
+  display:block;
+  width:100%;
+  max-height:420px;
+  object-fit:contain;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#f7f7f7;
+}
+
+.proof-image-link{
+  display:block;
+  margin-top:8px;
+  word-break:break-all;
+}
+
+
+/* =========================================================
+   DETAIL GRID
+========================================================= */
+
+.detail-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.detail-grid > div{
+  background:#f8fbf9;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px;
+}
+
+.detail-grid .full{
+  grid-column:1/-1;
+}
+
+.detail-grid span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-bottom:5px;
+  text-transform:uppercase;
+}
+
+.detail-grid p{
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+#sidebarOverlay{
+  display:none;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:1000px){
+
+  .stats-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .quick-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+}
+
+@media(max-width:800px){
+
+  .admin-sidebar{
+    transform:translateX(-105%);
+    transition:transform .2s ease;
+    width:270px;
+  }
+
+  .admin-sidebar.open{
+    transform:translateX(0);
+  }
+
+  .main-area{
+    width:100%;
+    margin-left:0;
+  }
+
+  .mobile-menu-btn{
+    display:block;
+  }
+
+  #sidebarOverlay{
+    position:fixed;
+    z-index:40;
+    inset:0;
+    background:rgba(0,0,0,.45);
+  }
+
+  #sidebarOverlay.open{
+    display:block;
+  }
+
+  .topbar{
+    padding:9px 11px;
+  }
+
+  .topbar-title{
+    font-size:13px;
+  }
+
+  .admin-user > div{
+    display:none;
+  }
+
+  .content{
+    padding:12px;
+  }
+
+  .section-header{
+    flex-direction:column;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid .full{
+    grid-column:auto;
+  }
+
+  .security-grid{
+    grid-template-columns:1fr;
+  }
+
+  .integrity-summary{
+    grid-template-columns:1fr;
+  }
+
+  .detail-grid{
+    grid-template-columns:1fr;
+  }
+
+  .detail-grid .full{
+    grid-column:auto;
+  }
+}
+
+@media(max-width:560px){
+
+  .stats-grid{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+
+  .quick-grid{
+    grid-template-columns:1fr;
+  }
+
+  .stat-card{
+    padding:12px;
+  }
+
+  .stat-card strong{
+    font-size:20px;
+  }
+
+  .login-card{
+    padding:20px;
+  }
+
+  .modal{
+    padding:7px;
+  }
+
+  .modal-card{
+    max-height:96vh;
+    border-radius:13px;
+  }
+}
+</style>
+
+
+<!-- =========================================================
+     APPLICATION
+========================================================= -->
+
+<div id="app" class="hidden">
+
+  <div class="admin-layout">
+
+    <aside
+      id="adminSidebar"
+      class="admin-sidebar">
+
+      <div class="sidebar-brand">
+        <strong>NAIJA TASK</strong>
+        <small>Admin Control Center</small>
+      </div>
+
+      <nav class="sidebar-nav">
+
+        <div class="nav-group-title">Management</div>
+
+        <button
+          type="button"
+          data-section="overview"
+          class="active">
+          📊 Overview
+        </button>
+
+        <button
+          type="button"
+          data-section="users">
+          👥 Users
+        </button>
+
+        <button
+          type="button"
+          data-section="tasks">
+          📋 Tasks
+        </button>
+
+        <button
+          type="button"
+          data-section="submissions">
+          🧾 Proof Review
+        </button>
+
+        <button
+          type="button"
+          data-section="withdrawals">
+          💸 Withdrawals
+        </button>
+
+        <div class="nav-group-title">Finance</div>
+
+        <button
+          type="button"
+          data-section="wallet">
+          💳 Wallet Ledger
+        </button>
+
+        <button
+          type="button"
+          data-section="referrals">
+          👥 Referrals
+        </button>
+
+        <button
+          type="button"
+          data-section="posters">
+          📢 Posters
+        </button>
+
+        <div class="nav-group-title">Platform</div>
+
+        <button
+          type="button"
+          data-section="support">
+          💬 Customer Support
+        </button>
+
+        <button
+          type="button"
+          data-section="appeals">
+          ⚖️ Appeals
+        </button>
+
+        <button
+          type="button"
+          data-section="marketplace">
+          🛍️ Marketplace
+        </button>
+
+        <button
+          type="button"
+          data-section="airtime">
+          📱 Airtime & Data
+        </button>
+
+        <div class="nav-group-title">Control</div>
+
+        <button
+          type="button"
+          data-section="security">
+          🔐 Security
+        </button>
+
+        <button
+          type="button"
+          data-section="audit">
+          🛡️ Audit Logs
+        </button>
+
+        <button
+          type="button"
+          data-section="integrity">
+          🩺 Integrity Check
+        </button>
+
+        <button
+          type="button"
+          data-section="settings">
+          ⚙️ Platform Settings
+        </button>
+
+      </nav>
+    </aside>
+
+
+    <div
+      id="sidebarOverlay">
+    </div>
+
+
+    <main class="main-area">
+
+      <header class="topbar">
+
+        <div class="topbar-left">
+
+          <button
+            id="mobileMenuBtn"
+            class="mobile-menu-btn"
+            type="button">
+            ☰
+          </button>
+
+          <div class="topbar-title">
+            NAIJA TASK Admin
+          </div>
+
+          <span
+            id="connectionStatus"
+            class="connection-status online">
+            Online
+          </span>
+
+        </div>
+
+
+        <div class="topbar-right">
+
+          <button
+            id="refreshBtn"
+            class="small-btn"
+            type="button">
+            ↻ Refresh
+          </button>
+
+          <div class="admin-user">
+
+            <div class="admin-avatar">
+              A
+            </div>
+
+            <div>
+              <b id="adminName">Administrator</b>
+              <small
+                id="adminEmail"
+                style="display:block;color:#66736b">
+                —
+              </small>
+            </div>
+
+          </div>
+
+          <button
+            id="logoutBtn"
+            class="small-btn"
+            type="button">
+            Logout
+          </button>
+
+        </div>
+
+      </header>
+
+
+      <div class="content">
+
+        <!-- =================================================
+             OVERVIEW
+        ================================================= -->
+
+        <section
+          id="section-overview"
+          class="admin-section active">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Overview</h2>
+              <p>
+                Live operational information from NAIJA TASK.
+              </p>
+            </div>
+
+          </div>
+
+          <div
+            id="overviewContent">
+            <div class="info-box">
+              Loading overview…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             USERS
+        ================================================= -->
+
+        <section
+          id="section-users"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Users</h2>
+              <p>
+                Manage registered NAIJA TASK accounts.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="usersContent">
+            <div class="info-box">
+              Loading users…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TASKS
+        ================================================= -->
+
+        <section
+          id="section-tasks"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Task Manager</h2>
+              <p>
+                Create, edit, activate and manage tasks.
+              </p>
+            </div>
+
+            <div class="header-actions">
+
+              <button
+                type="button"
+                class="primary-btn"
+                style="width:auto"
+                onclick="openTaskModal()">
+                + Create Task
+              </button>
+
+            </div>
+
+          </div>
+
+          <div id="tasksContent">
+            <div class="info-box">
+              Loading tasks…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SUBMISSIONS
+        ================================================= -->
+
+        <section
+          id="section-submissions"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Proof Review</h2>
+              <p>
+                Review submitted task proof before financial approval.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="submissionsContent">
+            <div class="info-box">
+              Loading submissions…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             WITHDRAWALS
+        ================================================= -->
+
+        <section
+          id="section-withdrawals"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Withdrawals</h2>
+              <p>
+                Review and process withdrawal requests securely.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="warning-box">
+            <b>Financial protection:</b>
+            approval must use the secure server-side withdrawal
+            RPC. The browser must never manually deduct a user's
+            balance.
+          </div>
+
+          <div id="withdrawalsContent">
+            <div class="info-box">
+              Loading withdrawals…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             WALLET
+        ================================================= -->
+
+        <section
+          id="section-wallet"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Wallet Ledger</h2>
+              <p>
+                Financial transaction records.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="walletContent">
+            <div class="info-box">
+              Loading wallet ledger…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             REFERRALS
+        ================================================= -->
+
+        <section
+          id="section-referrals"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Referrals</h2>
+              <p>
+                Referral records currently stored by the platform.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="referralsContent">
+            <div class="info-box">
+              Loading referrals…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             POSTERS
+        ================================================= -->
+
+        <section
+          id="section-posters"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Posters</h2>
+              <p>
+                Job poster payment and activity records.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="postersContent">
+            <div class="info-box">
+              Loading poster records…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SUPPORT
+        ================================================= -->
+
+        <section
+          id="section-support"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Customer Support</h2>
+              <p>
+                Review support requests from platform users.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="card">
+            <b>NAIJA TASK Customer Care</b>
+            <p>
+              WhatsApp / Phone:
+              <strong>09020934579</strong><br>
+              Email:
+              <strong>naijataskofficia@gmail.com</strong>
+            </p>
+          </div>
+
+          <div id="supportContent">
+            <div class="info-box">
+              Loading support tickets…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             APPEALS
+        ================================================= -->
+
+        <section
+          id="section-appeals"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Appeals</h2>
+              <p>
+                Appeal management area.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="appealsContent">
+            <div class="info-box">
+              Loading appeals…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MARKETPLACE
+        ================================================= -->
+
+        <section
+          id="section-marketplace"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Marketplace</h2>
+              <p>
+                Marketplace management.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="marketplaceContent">
+            <div class="info-box">
+              Loading marketplace…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             AIRTIME / DATA
+        ================================================= -->
+
+        <section
+          id="section-airtime"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Airtime & Data</h2>
+              <p>
+                Airtime and data service controls.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="airtimeContent">
+            <div class="info-box">
+              Loading airtime/data status…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SECURITY
+        ================================================= -->
+
+        <section
+          id="section-security"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Security</h2>
+              <p>
+                Authentication, access and financial-security controls.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="securityContent">
+            <div class="info-box">
+              Loading security information…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             AUDIT
+        ================================================= -->
+
+        <section
+          id="section-audit"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Admin Audit Logs</h2>
+              <p>
+                Recorded administrative actions.
+              </p>
+            </div>
+
+          </div>
+
+          <div id="auditContent">
+            <div class="info-box">
+              Loading audit logs…
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INTEGRITY
+        ================================================= -->
+
+        <section
+          id="section-integrity"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Database Integrity</h2>
+              <p>
+                Check expected tables and identify configuration problems.
+              </p>
+            </div>
+
+            <button
+              class="secondary-btn"
+              type="button"
+              onclick="runIntegrityCheck()">
+              Run Check
+            </button>
+
+          </div>
+
+          <div id="integrityContent">
+            <div class="info-box">
+              Run the integrity check to inspect the database.
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SETTINGS
+        ================================================= -->
+
+        <section
+          id="section-settings"
+          class="admin-section">
+
+          <div class="section-header">
+
+            <div>
+              <h2>Platform Settings</h2>
+              <p>
+                Routine platform controls for administrators.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="warning-box">
+            <b>Important:</b>
+            these settings control the platform UI and configuration,
+            but financial rules and security-sensitive enforcement
+            must also exist server-side.
+          </div>
+
+          <div id="settingsContent">
+            <div class="info-box">
+              Loading settings…
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+
+<!-- =========================================================
+     LOGIN SCREEN
+========================================================= -->
+
+<div id="loginScreen">
+
+  <div class="login-card">
+
+    <div class="brand">
+
+      <div class="brand-logo">
+        NT
+      </div>
+
+      <h1>NAIJA TASK</h1>
+
+      <p>
+        Secure Admin Control Center
+      </p>
+
+    </div>
+
+
+    <form id="loginForm">
+
+      <div class="form-group">
+
+        <label for="loginEmail">
+          Admin Email
+        </label>
+
+        <input
+          id="loginEmail"
+          type="email"
+          autocomplete="username"
+          placeholder="Enter admin email"
+          required>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="loginPassword">
+          Password
+        </label>
+
+        <input
+          id="loginPassword"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Enter password"
+          required>
+
+      </div>
+
+
+      <div id="loginError"></div>
+
+
+      <button
+        id="loginBtn"
+        class="primary-btn"
+        type="submit">
+        Sign In
+      </button>
+
+    </form>
+
+
+    <div class="login-help">
+
+      <button
+        id="forgotPasswordBtn"
+        type="button">
+        Forgot admin password?
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =========================================================
+     TASK MODAL
+========================================================= -->
+
+<div
+  id="taskModal"
+  class="modal">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h3 id="taskModalTitle">
+        Create Task
+      </h3>
+
+      <button
+        type="button"
+        class="close-modal"
+        data-close-modal="taskModal">
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <form id="taskForm">
+
+        <input
+          id="taskId"
+          type="hidden">
+
+
+        <div class="form-grid">
+
+          <div class="full">
+
+            <label>
+              Task Title
+            </label>
+
+            <input
+              id="taskTitle"
+              maxlength="200"
+              required>
+
+          </div>
+
+
+          <div class="full">
+
+            <label>
+              Task Description / Instructions
+            </label>
+
+            <textarea
+              id="taskDescription"
+              required></textarea>
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Reward (₦)
+            </label>
+
+            <input
+              id="taskReward"
+              type="number"
+              min="0"
+              step="0.01"
+              required>
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Slots
+            </label>
+
+            <input
+              id="taskSlots"
+              type="number"
+              min="1"
+              step="1"
+              required>
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Start Date
+            </label>
+
+            <input
+              id="taskStartDate"
+              type="datetime-local">
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Expiry Date
+            </label>
+
+            <input
+              id="taskExpiryDate"
+              type="datetime-local">
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Max Completions Per User
+            </label>
+
+            <input
+              id="taskMaxPerUser"
+              type="number"
+              min="1"
+              step="1"
+              value="1">
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Task Type
+            </label>
+
+            <select id="taskType">
+
+              <option value="social">
+                Social
+              </option>
+
+              <option value="username">
+                Username
+              </option>
+
+              <option value="upload">
+                Upload
+              </option>
+
+              <option value="open_link">
+                Open Link
+              </option>
+
+              <option value="place_task">
+                Place Task
+              </option>
+
+              <option value="youtube_watch">
+                YouTube Watch
+              </option>
+
+              <option value="website">
+                Website
+              </option>
+
+              <option value="survey">
+                Survey
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Required Proof
+            </label>
+
+            <select id="taskProofType">
+
+              <option value="photo">
+                Photo
+              </option>
+
+              <option value="photo_username">
+                Photo + Username
+              </option>
+
+              <option value="photo_text">
+                Photo + Text
+              </option>
+
+              <option value="photo_url">
+                Photo + URL
+              </option>
+
+              <option value="photo_reference">
+                Photo + Reference
+              </option>
+
+              <option value="photo_username_text">
+                Photo + Username + Text
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="full">
+
+            <label>
+              Task Link
+            </label>
+
+            <input
+              id="taskLink"
+              type="url"
+              placeholder="https://...">
+
+          </div>
+
+
+          <div class="full">
+
+            <label>
+              Post / Target Link
+            </label>
+
+            <input
+              id="taskPostLink"
+              type="url"
+              placeholder="https://...">
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Uploader Username
+            </label>
+
+            <input
+              id="taskUploaderUsername"
+              maxlength="150">
+
+          </div>
+
+
+          <div>
+
+            <label>
+              Watch Timer (seconds)
+            </label>
+
+            <input
+              id="taskWatchTimer"
+              type="number"
+              min="0"
+              step="1"
+              value="0">
+
+          </div>
+
+
+          <div class="full">
+
+            <label>
+              Copy Text
+            </label>
+
+            <textarea
+              id="taskCopyText"
+              placeholder="Optional text the worker can copy."></textarea>
+
+          </div>
+
+
+          <div class="full">
+
+            <label>
+              Required Proof Configuration
+            </label>
+
+            <textarea
+              id="taskRequiredProof"
+              placeholder='Example: {"photo":true,"username":true}'></textarea>
+
+            <div class="field-help">
+              Photo upload remains mandatory for every NAIJA TASK task.
+              This cannot be disabled from the admin interface.
+            </div>
+
+          </div>
+
+
+          <div class="full">
+
+            <label class="switch-row">
+
+              <span>
+                Task Active
+              </span>
+
+              <input
+                id="taskActive"
+                type="checkbox"
+                checked>
+
+            </label>
+
+          </div>
+
+
+          <div class="full">
+
+            <label class="switch-row">
+
+              <span>
+                Photo Upload Required
+              </span>
+
+              <input
+                id="taskUploadRequired"
+                type="checkbox"
+                checked
+                disabled>
+
+            </label>
+
+            <div class="field-help">
+              Locked by platform policy: every task requires photo proof.
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div id="taskFormMessage"></div>
+
+      </form>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="secondary-btn"
+        data-close-modal="taskModal">
+        Cancel
+      </button>
+
+      <button
+        id="saveTaskBtn"
+        type="button"
+        class="primary-btn"
+        style="width:auto">
+        Save Task
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =========================================================
+     PROOF REVIEW MODAL
+========================================================= -->
+
+<div
+  id="proofModal"
+  class="modal">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h3>
+        Proof Review
+      </h3>
+
+      <button
+        type="button"
+        class="close-modal"
+        data-close-modal="proofModal">
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <div id="proofDetails"></div>
+
+      <div
+        id="proofImageWrap"
+        style="margin-top:14px">
+      </div>
+
+      <div
+        id="proofMessage">
+      </div>
+
+      <div style="margin-top:14px">
+
+        <label>
+          Rejection Reason
+        </label>
+
+        <textarea
+          id="proofRejectReason"
+          placeholder="Required when rejecting proof."></textarea>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="secondary-btn"
+        data-close-modal="proofModal">
+        Close
+      </button>
+
+      <button
+        id="rejectProofBtn"
+        type="button"
+        class="danger-btn">
+        Reject Proof
+      </button>
+
+      <button
+        id="approveProofBtn"
+        type="button"
+        class="primary-btn"
+        style="width:auto">
+        Approve & Credit
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =========================================================
+     WITHDRAWAL MODAL
+========================================================= -->
+
+<div
+  id="withdrawalModal"
+  class="modal">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h3>
+        Withdrawal Review
+      </h3>
+
+      <button
+        type="button"
+        class="close-modal"
+        data-close-modal="withdrawalModal">
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <div id="withdrawalDetails"></div>
+
+      <div id="withdrawalMessage"></div>
+
+      <div style="margin-top:14px">
+
+        <label>
+          Rejection Reason
+        </label>
+
+        <textarea
+          id="withdrawalRejectReason"
+          placeholder="Required when rejecting a withdrawal."></textarea>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="secondary-btn"
+        data-close-modal="withdrawalModal">
+        Close
+      </button>
+
+      <button
+        id="rejectWithdrawalBtn"
+        type="button"
+        class="danger-btn">
+        Reject
+      </button>
+
+      <button
+        id="approveWithdrawalBtn"
+        type="button"
+        class="primary-btn"
+        style="width:auto">
+        Approve & Process
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =========================================================
+     SUPPORT MODAL
+========================================================= -->
+
+<div
+  id="supportModal"
+  class="modal">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h3>
+        Support Ticket
+      </h3>
+
+      <button
+        type="button"
+        class="close-modal"
+        data-close-modal="supportModal">
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <div id="supportDetails"></div>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+      <button
+        type="button"
+        class="secondary-btn"
+        data-close-modal="supportModal">
+        Close
+      </button>
+
+      <button
+        type="button"
+        class="small-btn"
+        data-support-status="pending">
+        Mark Pending
+      </button>
+
+      <button
+        type="button"
+        class="small-btn"
+        data-support-status="resolved">
+        Resolve
+      </button>
+
+      <button
+        type="button"
+        class="small-btn"
+        data-support-status="closed">
+        Close Ticket
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =========================================================
+     PASSWORD RECOVERY MODAL
+========================================================= -->
+
+<div
+  id="passwordRecoveryModal"
+  class="modal">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h3>
+        Reset Admin Password
+      </h3>
+
+      <button
+        type="button"
+        class="close-modal"
+        data-close-modal="passwordRecoveryModal">
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <form id="passwordRecoveryForm">
+
+        <div class="form-group">
+
+          <label for="newPassword">
+            New Password
+          </label>
+
+          <input
+            id="newPassword"
+            type="password"
+            minlength="8"
+            autocomplete="new-password"
+            required>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="confirmPassword">
+            Confirm Password
+          </label>
+
+          <input
+            id="confirmPassword"
+            type="password"
+            minlength="8"
+            autocomplete="new-password"
+            required>
+
+        </div>
+
+
+        <div id="passwordRecoveryMessage"></div>
+
+
+        <button
+          id="passwordRecoveryBtn"
+          type="submit"
+          class="primary-btn">
+          Update Password
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =========================================================
+     GLOBAL MESSAGE
+========================================================= -->
+
+<div
+  id="globalMessage"
+  style="
+    position:fixed;
+    z-index:300;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%);
+    width:min(92%,520px);
+    pointer-events:none;
+  ">
+</div>
+
+
+<!-- =========================================================
+     FINAL BOOTSTRAP
+========================================================= -->
+
+<script>
+/*
+  The main JavaScript was defined earlier in this file.
+  This final bootstrap guarantees that the DOM exists before
+  login bindings and admin initialization are started.
+*/
+
+window.addEventListener("DOMContentLoaded",()=>{
+  try{
+
+    if(typeof setupLogin==="function"){
+      setupLogin();
+    }
+
+    if(typeof initAdmin==="function"){
+      initAdmin();
+    }
+
+  }catch(error){
+
+    console.error(
+      "NAIJA TASK admin bootstrap error:",
+      error
+    );
+
+    const box=document.getElementById("loginError");
+
+    if(box){
+      box.innerHTML=`
+        <div class="error-box">
+          Admin panel could not start.<br>
+          <small>${String(
+            error?.message || error
+          ).replace(/[<>&"]/g,"")}</small>
+        </div>`;
+    }
+  }
+});
+</script>
+
+</body>
+  </html>
