@@ -5122,4 +5122,2192 @@ window.addEventListener(
   }
 );
 
-  
+  /* =========================================================
+   WALLET LEDGER
+========================================================= */
+
+async function loadWalletLedger(){
+  const box = $("walletContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  try{
+    const {data,error} = await supabaseClient
+      .from("wallet_transactions")
+      .select("id,user_id,type,amount,description,reference,status,created_at")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(error) throw error;
+
+    if(!data || !data.length){
+      box.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">💳</div>
+          <b>No wallet transactions found</b>
+          <p>The wallet ledger is currently empty.</p>
+        </div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(row=>`
+              <tr>
+                <td>${escapeHtml(formatDate(row.created_at))}</td>
+                <td class="mono">${escapeHtml(row.user_id || "—")}</td>
+                <td>${escapeHtml(row.type || "—")}</td>
+                <td><b>₦${formatMoney(row.amount)}</b></td>
+                <td>${badge(row.status || "unknown")}</td>
+                <td>${escapeHtml(row.description || "—")}</td>
+                <td class="mono">${escapeHtml(row.reference || "—")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(error){
+    console.error(error);
+    box.innerHTML = `
+      <div class="error-box">
+        Failed to load wallet ledger.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+/* =========================================================
+   REFERRALS
+========================================================= */
+
+async function loadReferrals(){
+  const box = $("referralsContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  try{
+    const {data,error} = await supabaseClient
+      .from("referrals")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(error) throw error;
+
+    if(!data || !data.length){
+      box.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">👥</div>
+          <b>No referrals found</b>
+          <p>No referral records are currently available.</p>
+        </div>`;
+      return;
+    }
+
+    const columns = Object.keys(data[0]);
+
+    box.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              ${columns.map(c=>`<th>${escapeHtml(c)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(row=>`
+              <tr>
+                ${columns.map(c=>{
+                  let value=row[c];
+
+                  if(value===null || value===undefined){
+                    value="—";
+                  }else if(typeof value==="object"){
+                    value=JSON.stringify(value);
+                  }
+
+                  return `<td>${escapeHtml(String(value))}</td>`;
+                }).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(error){
+    console.error(error);
+    box.innerHTML = `
+      <div class="error-box">
+        Failed to load referrals.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+/* =========================================================
+   POSTER PAYMENTS
+========================================================= */
+
+async function loadPosters(){
+  const box = $("postersContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  try{
+    const {data,error} = await supabaseClient
+      .from("poster_payments")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(error) throw error;
+
+    if(!data || !data.length){
+      box.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📢</div>
+          <b>No poster payments found</b>
+          <p>Poster payment records will appear here.</p>
+        </div>`;
+      return;
+    }
+
+    const columns=Object.keys(data[0]);
+
+    box.innerHTML=`
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              ${columns.map(c=>`<th>${escapeHtml(c)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(row=>`
+              <tr>
+                ${columns.map(c=>{
+                  let value=row[c];
+
+                  if(value===null || value===undefined){
+                    value="—";
+                  }else if(typeof value==="object"){
+                    value=JSON.stringify(value);
+                  }
+
+                  return `<td>${escapeHtml(String(value))}</td>`;
+                }).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(error){
+    console.error(error);
+
+    box.innerHTML=`
+      <div class="error-box">
+        Failed to load poster payments.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+/* =========================================================
+   SUPPORT TICKETS
+========================================================= */
+
+async function loadSupport(){
+  const box=$("supportContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("support_tickets")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(error) throw error;
+
+    if(!data || !data.length){
+      box.innerHTML=`
+        <div class="empty">
+          <div class="empty-icon">💬</div>
+          <b>No support tickets</b>
+          <p>Customer support requests will appear here.</p>
+        </div>`;
+      return;
+    }
+
+    box.innerHTML=`
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>User</th>
+              <th>Subject</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(row=>`
+              <tr>
+                <td>${escapeHtml(formatDate(row.created_at))}</td>
+                <td class="mono">${escapeHtml(row.user_id || "—")}</td>
+                <td>${escapeHtml(row.subject || row.title || "—")}</td>
+                <td class="message-cell">${escapeHtml(row.message || row.description || "—")}</td>
+                <td>${badge(row.status || "open")}</td>
+                <td>${badge(row.priority || "normal")}</td>
+                <td>
+                  <button
+                    class="small-btn"
+                    data-support-id="${escapeAttr(row.id)}"
+                    onclick="openSupportTicket('${escapeAttr(row.id)}')">
+                    View
+                  </button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(error){
+    console.error(error);
+
+    box.innerHTML=`
+      <div class="error-box">
+        Failed to load support tickets.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+async function openSupportTicket(id){
+  if(!id) return;
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("support_tickets")
+      .select("*")
+      .eq("id",id)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    if(!data){
+      setGlobalMessage("Support ticket was not found.","error");
+      return;
+    }
+
+    const details=$("supportDetails");
+
+    if(details){
+      details.innerHTML=`
+        <div class="detail-grid">
+          <div>
+            <span>ID</span>
+            <b class="mono">${escapeHtml(data.id)}</b>
+          </div>
+
+          <div>
+            <span>User ID</span>
+            <b class="mono">${escapeHtml(data.user_id || "—")}</b>
+          </div>
+
+          <div>
+            <span>Status</span>
+            <b>${escapeHtml(data.status || "—")}</b>
+          </div>
+
+          <div>
+            <span>Priority</span>
+            <b>${escapeHtml(data.priority || "—")}</b>
+          </div>
+
+          <div class="full">
+            <span>Subject</span>
+            <b>${escapeHtml(data.subject || data.title || "—")}</b>
+          </div>
+
+          <div class="full">
+            <span>Message</span>
+            <p>${escapeHtml(data.message || data.description || "—")}</p>
+          </div>
+
+          <div>
+            <span>Created</span>
+            <b>${escapeHtml(formatDate(data.created_at))}</b>
+          </div>
+        </div>`;
+    }
+
+    state.currentSupportTicket=data;
+
+    showModal("supportModal");
+  }catch(error){
+    console.error(error);
+    setGlobalMessage(error.message || "Unable to open ticket.","error");
+  }
+}
+
+
+async function updateSupportStatus(status){
+  const ticket=state.currentSupportTicket;
+
+  if(!ticket || !ticket.id){
+    setGlobalMessage("No support ticket selected.","error");
+    return;
+  }
+
+  const allowed=["open","pending","resolved","closed"];
+
+  if(!allowed.includes(status)){
+    setGlobalMessage("Invalid support status.","error");
+    return;
+  }
+
+  try{
+    const {error}=await supabaseClient
+      .from("support_tickets")
+      .update({
+        status:status,
+        updated_at:new Date().toISOString()
+      })
+      .eq("id",ticket.id);
+
+    if(error) throw error;
+
+    await writeAudit(
+      "support_ticket_status",
+      ticket.id,
+      {status:status}
+    );
+
+    setGlobalMessage("Support ticket updated.","success");
+
+    closeModal("supportModal");
+    loadSupport();
+  }catch(error){
+    console.error(error);
+    setGlobalMessage(
+      error.message || "Unable to update support ticket.",
+      "error"
+    );
+  }
+}
+
+
+/* =========================================================
+   APPEALS
+========================================================= */
+
+async function loadAppeals(){
+  const box=$("appealsContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  /*
+    The current supplied schema does not include a dedicated
+    appeals table.
+
+    Do NOT silently create fake appeal data.
+  */
+
+  box.innerHTML=`
+    <div class="notice">
+      <b>Appeals system</b>
+      <p>
+        A dedicated appeals table is not present in the supplied
+        database schema. No fake appeal records are displayed.
+      </p>
+      <p>
+        When an appeals table is added, it should contain at minimum:
+        user_id, related_type, related_id, reason, status,
+        reviewed_by, reviewed_at, resolution, created_at.
+      </p>
+    </div>`;
+
+  setLoading(box,false);
+}
+
+
+/* =========================================================
+   MARKETPLACE
+========================================================= */
+
+async function loadMarketplace(){
+  const box=$("marketplaceContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  /*
+    Marketplace requires its own persistent table/schema.
+    Never present hard-coded products as if they were real.
+  */
+
+  box.innerHTML=`
+    <div class="notice">
+      <b>Marketplace</b>
+      <p>
+        Marketplace data is not loaded because no marketplace
+        table was included in the current database schema.
+      </p>
+      <p>
+        This prevents the admin panel from showing fake products,
+        fake prices, fake orders, or meaningless controls.
+      </p>
+    </div>`;
+
+  setLoading(box,false);
+}
+
+
+/* =========================================================
+   AIRTIME & DATA
+========================================================= */
+
+async function loadAirtimeData(){
+  const box=$("airtimeContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  box.innerHTML=`
+    <div class="notice">
+      <b>Airtime & Data</b>
+      <p>
+        No airtime/data provider API is currently connected.
+      </p>
+      <p>
+        The admin panel will not pretend that airtime or data
+        purchases are working until a real provider and secure
+        server-side transaction flow are connected.
+      </p>
+
+      <div class="warning-box">
+        <b>Security requirement</b><br>
+        Provider API credentials must never be placed in this
+        browser-side admin HTML file.
+      </div>
+    </div>`;
+
+  setLoading(box,false);
+}
+
+
+/* =========================================================
+   PLATFORM SETTINGS
+========================================================= */
+
+const DEFAULT_SETTINGS={
+  platform_name:"NAIJA TASK",
+
+  activation_fee:1000,
+
+  minimum_withdrawal:1500,
+
+  withdrawal_fee:100,
+
+  upgraded_withdrawal_fee:50,
+
+  free_tasks_limit:0,
+
+  one_withdrawal_per_day:true,
+
+  activation_enabled:true,
+
+  vip_enabled:true,
+
+  poster_enabled:true,
+
+  maintenance_mode:false,
+
+  registration_enabled:true,
+
+  task_posting_enabled:true,
+
+  marketplace_enabled:false,
+
+  airtime_enabled:false,
+
+  data_enabled:false,
+
+  referrals_enabled:true,
+
+  support_enabled:true
+};
+
+
+async function loadSettings(){
+  const box=$("settingsContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("platform_settings")
+      .select("*")
+      .limit(500);
+
+    if(error) throw error;
+
+    renderSettings(data || []);
+  }catch(error){
+    console.error(error);
+
+    box.innerHTML=`
+      <div class="error-box">
+        Unable to load platform settings.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+function normaliseSettingRows(rows){
+  const settings={};
+
+  for(const row of rows){
+    if(!row) continue;
+
+    let key=
+      row.key ??
+      row.setting_key ??
+      row.name;
+
+    let value=
+      row.value ??
+      row.setting_value;
+
+    if(!key) continue;
+
+    settings[String(key)]=value;
+  }
+
+  return settings;
+}
+
+
+function parseSettingBoolean(value,fallback=false){
+  if(value===true || value===false) return value;
+
+  if(typeof value==="string"){
+    const v=value.trim().toLowerCase();
+
+    if(["true","1","yes","on","enabled"].includes(v)) return true;
+
+    if(["false","0","no","off","disabled"].includes(v)) return false;
+  }
+
+  return fallback;
+}
+
+
+function parseSettingNumber(value,fallback){
+  const n=Number(value);
+
+  return Number.isFinite(n) ? n : fallback;
+}
+
+
+function renderSettings(rows){
+  const box=$("settingsContent");
+  if(!box) return;
+
+  const saved=normaliseSettingRows(rows);
+
+  const settings={
+    ...DEFAULT_SETTINGS
+  };
+
+  for(const key of Object.keys(settings)){
+    if(saved[key]!==undefined){
+      settings[key]=saved[key];
+    }
+  }
+
+  box.innerHTML=`
+    <form id="settingsForm" class="settings-form">
+
+      <div class="settings-section">
+        <h3>Platform</h3>
+
+        <label>
+          Platform Name
+          <input
+            id="settingPlatformName"
+            value="${escapeAttr(settings.platform_name)}"
+            maxlength="100">
+        </label>
+
+        <label class="switch-row">
+          <span>Maintenance Mode</span>
+          <input
+            type="checkbox"
+            id="settingMaintenance"
+            ${parseSettingBoolean(settings.maintenance_mode)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>Allow New Registration</span>
+          <input
+            type="checkbox"
+            id="settingRegistration"
+            ${parseSettingBoolean(settings.registration_enabled,true)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>Allow Task Posting</span>
+          <input
+            type="checkbox"
+            id="settingTaskPosting"
+            ${parseSettingBoolean(settings.task_posting_enabled,true)?"checked":""}>
+        </label>
+      </div>
+
+
+      <div class="settings-section">
+        <h3>Activation & VIP</h3>
+
+        <label>
+          Activation Fee (₦)
+          <input
+            type="number"
+            id="settingActivationFee"
+            min="0"
+            step="1"
+            value="${escapeAttr(parseSettingNumber(settings.activation_fee,1000))}">
+        </label>
+
+        <label class="switch-row">
+          <span>Activation System Enabled</span>
+          <input
+            type="checkbox"
+            id="settingActivationEnabled"
+            ${parseSettingBoolean(settings.activation_enabled,true)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>VIP System Enabled</span>
+          <input
+            type="checkbox"
+            id="settingVipEnabled"
+            ${parseSettingBoolean(settings.vip_enabled,true)?"checked":""}>
+        </label>
+      </div>
+
+
+      <div class="settings-section">
+        <h3>Withdrawals</h3>
+
+        <label>
+          Minimum Withdrawal (₦)
+          <input
+            type="number"
+            id="settingMinimumWithdrawal"
+            min="0"
+            step="1"
+            value="${escapeAttr(parseSettingNumber(settings.minimum_withdrawal,1500))}">
+        </label>
+
+        <label>
+          Standard Withdrawal Fee (₦)
+          <input
+            type="number"
+            id="settingWithdrawalFee"
+            min="0"
+            step="1"
+            value="${escapeAttr(parseSettingNumber(settings.withdrawal_fee,100))}">
+        </label>
+
+        <label>
+          Upgraded/VIP Withdrawal Fee (₦)
+          <input
+            type="number"
+            id="settingVipWithdrawalFee"
+            min="0"
+            step="1"
+            value="${escapeAttr(parseSettingNumber(settings.upgraded_withdrawal_fee,50))}">
+        </label>
+
+        <label class="switch-row">
+          <span>One Withdrawal Per Day</span>
+          <input
+            type="checkbox"
+            id="settingOneWithdrawal"
+            ${parseSettingBoolean(settings.one_withdrawal_per_day,true)?"checked":""}>
+        </label>
+      </div>
+
+
+      <div class="settings-section">
+        <h3>Tasks</h3>
+
+        <label>
+          Free Task Limit
+          <input
+            type="number"
+            id="settingFreeTasks"
+            min="0"
+            step="1"
+            value="${escapeAttr(parseSettingNumber(settings.free_tasks_limit,0))}">
+        </label>
+
+        <p class="field-help">
+          This controls the configured free-task allowance.
+          Enforcement should also exist server-side.
+        </p>
+      </div>
+
+
+      <div class="settings-section">
+        <h3>Features</h3>
+
+        <label class="switch-row">
+          <span>Posters Enabled</span>
+          <input
+            type="checkbox"
+            id="settingPoster"
+            ${parseSettingBoolean(settings.poster_enabled,true)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>Referrals Enabled</span>
+          <input
+            type="checkbox"
+            id="settingReferrals"
+            ${parseSettingBoolean(settings.referrals_enabled,true)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>Customer Support Enabled</span>
+          <input
+            type="checkbox"
+            id="settingSupport"
+            ${parseSettingBoolean(settings.support_enabled,true)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>Marketplace Enabled</span>
+          <input
+            type="checkbox"
+            id="settingMarketplace"
+            ${parseSettingBoolean(settings.marketplace_enabled,false)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>Airtime Enabled</span>
+          <input
+            type="checkbox"
+            id="settingAirtime"
+            ${parseSettingBoolean(settings.airtime_enabled,false)?"checked":""}>
+        </label>
+
+        <label class="switch-row">
+          <span>Data Enabled</span>
+          <input
+            type="checkbox"
+            id="settingData"
+            ${parseSettingBoolean(settings.data_enabled,false)?"checked":""}>
+        </label>
+      </div>
+
+
+      <div id="settingsMessage"></div>
+
+      <button
+        type="submit"
+        class="primary-btn"
+        id="saveSettingsBtn">
+        Save Platform Settings
+      </button>
+
+    </form>`;
+}
+
+
+async function saveSetting(key,value){
+  /*
+    Supports common platform_settings layouts:
+      key/value
+    or:
+      setting_key/setting_value
+
+    We first try key/value, then fall back to setting_key/
+    setting_value if the table uses that naming convention.
+  */
+
+  let result=await supabaseClient
+    .from("platform_settings")
+    .upsert(
+      {
+        key:key,
+        value:String(value)
+      },
+      {
+        onConflict:"key"
+      }
+    );
+
+  if(!result.error) return result;
+
+  const firstError=result.error;
+
+  result=await supabaseClient
+    .from("platform_settings")
+    .upsert(
+      {
+        setting_key:key,
+        setting_value:String(value)
+      },
+      {
+        onConflict:"setting_key"
+      }
+    );
+
+  if(result.error){
+    throw new Error(
+      `${firstError.message || "Unable to save setting"}`
+    );
+  }
+
+  return result;
+}
+
+
+async function saveAllSettings(){
+  if(!await requireAdmin()) return;
+
+  const message=$("settingsMessage");
+
+  if(message){
+    message.innerHTML=`<div class="info-box">Saving settings…</div>`;
+  }
+
+  const values={
+    platform_name:$("settingPlatformName")?.value.trim() || "NAIJA TASK",
+
+    activation_fee:Math.max(
+      0,
+      Number($("settingActivationFee")?.value || 0)
+    ),
+
+    activation_enabled:$("settingActivationEnabled")?.checked===true,
+
+    vip_enabled:$("settingVipEnabled")?.checked===true,
+
+    minimum_withdrawal:Math.max(
+      0,
+      Number($("settingMinimumWithdrawal")?.value || 0)
+    ),
+
+    withdrawal_fee:Math.max(
+      0,
+      Number($("settingWithdrawalFee")?.value || 0)
+    ),
+
+    upgraded_withdrawal_fee:Math.max(
+      0,
+      Number($("settingVipWithdrawalFee")?.value || 0)
+    ),
+
+    one_withdrawal_per_day:$("settingOneWithdrawal")?.checked===true,
+
+    free_tasks_limit:Math.max(
+      0,
+      Number($("settingFreeTasks")?.value || 0)
+    ),
+
+    maintenance_mode:$("settingMaintenance")?.checked===true,
+
+    registration_enabled:$("settingRegistration")?.checked===true,
+
+    task_posting_enabled:$("settingTaskPosting")?.checked===true,
+
+    poster_enabled:$("settingPoster")?.checked===true,
+
+    referrals_enabled:$("settingReferrals")?.checked===true,
+
+    support_enabled:$("settingSupport")?.checked===true,
+
+    marketplace_enabled:$("settingMarketplace")?.checked===true,
+
+    airtime_enabled:$("settingAirtime")?.checked===true,
+
+    data_enabled:$("settingData")?.checked===true
+  };
+
+
+  if(values.minimum_withdrawal < 0){
+    if(message) message.innerHTML=
+      `<div class="error-box">Minimum withdrawal cannot be negative.</div>`;
+    return;
+  }
+
+  if(values.free_tasks_limit < 0){
+    if(message) message.innerHTML=
+      `<div class="error-box">Free task limit cannot be negative.</div>`;
+    return;
+  }
+
+
+  const button=$("saveSettingsBtn");
+
+  if(button){
+    button.disabled=true;
+    button.textContent="Saving…";
+  }
+
+  try{
+    for(const [key,value] of Object.entries(values)){
+      await saveSetting(key,value);
+    }
+
+    await writeAudit(
+      "platform_settings_update",
+      null,
+      values
+    );
+
+    if(message){
+      message.innerHTML=
+        `<div class="success-box">Platform settings saved successfully.</div>`;
+    }
+
+    setGlobalMessage(
+      "Platform settings updated.",
+      "success"
+    );
+
+  }catch(error){
+    console.error(error);
+
+    if(message){
+      message.innerHTML=`
+        <div class="error-box">
+          Settings could not be saved.<br>
+          <small>${escapeHtml(error.message || "Unknown error")}</small>
+        </div>`;
+    }
+  }finally{
+    if(button){
+      button.disabled=false;
+      button.textContent="Save Platform Settings";
+    }
+  }
+}
+
+
+/* =========================================================
+   SECURITY CENTER
+========================================================= */
+
+async function loadSecurity(){
+  const box=$("securityContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("admin_users")
+      .select("*")
+      .limit(100);
+
+    if(error) throw error;
+
+    const admins=data || [];
+
+    box.innerHTML=`
+      <div class="security-grid">
+
+        <div class="security-card">
+          <h3>Admin Access</h3>
+          <p>
+            ${admins.length}
+            admin record${admins.length===1?"":"s"}
+            detected.
+          </p>
+          <p class="field-help">
+            Admin access must be enforced by database policies/RPCs,
+            not only by hiding pages in the browser.
+          </p>
+        </div>
+
+        <div class="security-card">
+          <h3>Authentication</h3>
+          <p>
+            Supabase Authentication is used for admin sign-in.
+          </p>
+          <button
+            class="small-btn"
+            onclick="sendAdminPasswordReset()">
+            Send Password Reset
+          </button>
+        </div>
+
+        <div class="security-card">
+          <h3>Financial Operations</h3>
+          <p>
+            Submission approval and withdrawal approval must use
+            secure server-side RPCs.
+          </p>
+          <span class="status-pill good">
+            RPC protection required
+          </span>
+        </div>
+
+        <div class="security-card">
+          <h3>Browser Security</h3>
+          <p>
+            Service-role keys must never be placed in this file.
+            Use only the public/publishable Supabase key.
+          </p>
+          <span class="status-pill good">
+            Secret key blocked by design
+          </span>
+        </div>
+
+      </div>`;
+  }catch(error){
+    console.error(error);
+
+    box.innerHTML=`
+      <div class="error-box">
+        Security information could not be loaded.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+async function sendAdminPasswordReset(){
+  const email=state.user?.email;
+
+  if(!email){
+    setGlobalMessage(
+      "No authenticated admin email is available.",
+      "error"
+    );
+    return;
+  }
+
+  try{
+    const redirectTo=
+      `${window.location.origin}${window.location.pathname}`;
+
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo:redirectTo
+      }
+    );
+
+    if(error) throw error;
+
+    setGlobalMessage(
+      "Password reset email sent.",
+      "success"
+    );
+  }catch(error){
+    console.error(error);
+
+    setGlobalMessage(
+      error.message || "Unable to send password reset email.",
+      "error"
+    );
+  }
+}
+
+
+/* =========================================================
+   ADMIN AUDIT LOG
+========================================================= */
+
+async function loadAuditLogs(){
+  const box=$("auditContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  try{
+    const {data,error}=await supabaseClient
+      .from("admin_audit_logs")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(error) throw error;
+
+    if(!data || !data.length){
+      box.innerHTML=`
+        <div class="empty">
+          <div class="empty-icon">🛡️</div>
+          <b>No audit events found</b>
+          <p>Admin actions will appear here when recorded.</p>
+        </div>`;
+      return;
+    }
+
+    const columns=Object.keys(data[0]);
+
+    box.innerHTML=`
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              ${columns.map(c=>`<th>${escapeHtml(c)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(row=>`
+              <tr>
+                ${columns.map(c=>{
+                  let value=row[c];
+
+                  if(value===null || value===undefined){
+                    value="—";
+                  }else if(typeof value==="object"){
+                    value=JSON.stringify(value);
+                  }
+
+                  return `<td>${escapeHtml(String(value))}</td>`;
+                }).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(error){
+    console.error(error);
+
+    box.innerHTML=`
+      <div class="error-box">
+        Audit logs could not be loaded.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+/* =========================================================
+   DATABASE INTEGRITY CHECK
+========================================================= */
+
+async function runIntegrityCheck(){
+  const box=$("integrityContent");
+  if(!box) return;
+
+  setLoading(box,true);
+
+  box.innerHTML=`
+    <div class="info-box">
+      Running database integrity checks…
+    </div>`;
+
+  const checks=[];
+
+  async function countTable(table){
+    const {count,error}=await supabaseClient
+      .from(table)
+      .select("id",{count:"exact",head:true});
+
+    if(error){
+      return {
+        table,
+        ok:false,
+        count:null,
+        error:error.message
+      };
+    }
+
+    return {
+      table,
+      ok:true,
+      count:count ?? 0,
+      error:null
+    };
+  }
+
+
+  try{
+    const tables=[
+      "profiles",
+      "tasks",
+      "task_submissions",
+      "task_completions",
+      "wallet_transactions",
+      "withdrawals",
+      "referrals",
+      "poster_payments",
+      "support_tickets",
+      "platform_settings",
+      "admin_users",
+      "admin_audit_logs"
+    ];
+
+    for(const table of tables){
+      checks.push(await countTable(table));
+    }
+
+    const missing=checks.filter(x=>!x.ok);
+
+    box.innerHTML=`
+      <div class="integrity-summary">
+
+        <div class="integrity-card">
+          <b>${checks.length}</b>
+          <span>Tables checked</span>
+        </div>
+
+        <div class="integrity-card">
+          <b>${checks.filter(x=>x.ok).length}</b>
+          <span>Accessible</span>
+        </div>
+
+        <div class="integrity-card">
+          <b>${missing.length}</b>
+          <span>Unavailable</span>
+        </div>
+
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Table</th>
+              <th>Status</th>
+              <th>Rows</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${checks.map(check=>`
+              <tr>
+                <td class="mono">${escapeHtml(check.table)}</td>
+                <td>
+                  ${check.ok
+                    ? `<span class="status-pill good">Accessible</span>`
+                    : `<span class="status-pill bad">Unavailable</span>`}
+                </td>
+                <td>
+                  ${check.ok
+                    ? escapeHtml(String(check.count))
+                    : "—"}
+                </td>
+                <td>
+                  ${check.error
+                    ? escapeHtml(check.error)
+                    : "OK"}
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warning-box">
+        <b>Important:</b>
+        table accessibility does not prove that every RLS policy,
+        RPC, trigger, constraint, or financial invariant is correct.
+        Financial integrity must be enforced server-side.
+      </div>`;
+  }catch(error){
+    console.error(error);
+
+    box.innerHTML=`
+      <div class="error-box">
+        Integrity check failed.<br>
+        <small>${escapeHtml(error.message || "Unknown error")}</small>
+      </div>`;
+  }finally{
+    setLoading(box,false);
+  }
+}
+
+
+/* =========================================================
+   NAVIGATION / PAGE LOADING
+========================================================= */
+
+async function loadSection(section){
+  if(!state.user){
+    return;
+  }
+
+  switch(section){
+
+    case "overview":
+      await loadOverview();
+      break;
+
+    case "users":
+      await loadUsers();
+      break;
+
+    case "tasks":
+      await loadTasks();
+      break;
+
+    case "submissions":
+      await loadSubmissions();
+      break;
+
+    case "withdrawals":
+      await loadWithdrawals();
+      break;
+
+    case "wallet":
+      await loadWalletLedger();
+      break;
+
+    case "referrals":
+      await loadReferrals();
+      break;
+
+    case "posters":
+      await loadPosters();
+      break;
+
+    case "support":
+      await loadSupport();
+      break;
+
+    case "appeals":
+      await loadAppeals();
+      break;
+
+    case "marketplace":
+      await loadMarketplace();
+      break;
+
+    case "airtime":
+      await loadAirtimeData();
+      break;
+
+    case "security":
+      await loadSecurity();
+      break;
+
+    case "audit":
+      await loadAuditLogs();
+      break;
+
+    case "settings":
+      await loadSettings();
+      break;
+
+    case "integrity":
+      await runIntegrityCheck();
+      break;
+
+    default:
+      await loadOverview();
+  }
+}
+
+
+function setupNavigation(){
+  document.querySelectorAll("[data-section]").forEach(button=>{
+    button.addEventListener("click",async ()=>{
+      const section=button.dataset.section;
+
+      if(!section) return;
+
+      document
+        .querySelectorAll("[data-section]")
+        .forEach(item=>item.classList.remove("active"));
+
+      button.classList.add("active");
+
+      document
+        .querySelectorAll(".admin-section")
+        .forEach(sectionElement=>{
+          sectionElement.classList.remove("active");
+        });
+
+      const target=document.getElementById(
+        `section-${section}`
+      );
+
+      if(target){
+        target.classList.add("active");
+      }
+
+      state.currentSection=section;
+
+      await loadSection(section);
+
+      window.scrollTo({
+        top:0,
+        behavior:"smooth"
+      });
+    });
+  });
+}
+
+
+/* =========================================================
+   REFRESH CURRENT SECTION
+========================================================= */
+
+async function refreshCurrentSection(){
+  if(!state.user) return;
+
+  await loadSection(
+    state.currentSection || "overview"
+  );
+}
+
+
+/* =========================================================
+   GLOBAL ACTION BUTTONS
+========================================================= */
+
+function setupGlobalButtons(){
+
+  const refresh=$("refreshBtn");
+
+  if(refresh){
+    refresh.addEventListener("click",async ()=>{
+      refresh.disabled=true;
+
+      try{
+        await refreshCurrentSection();
+      }finally{
+        refresh.disabled=false;
+      }
+    });
+  }
+
+
+  const logout=$("logoutBtn");
+
+  if(logout){
+    logout.addEventListener("click",async ()=>{
+      if(!confirm("Sign out of the NAIJA TASK admin panel?")){
+        return;
+      }
+
+      await supabaseClient.auth.signOut();
+
+      state.user=null;
+      state.admin=null;
+
+      showLogin();
+    });
+  }
+
+
+  const closeButtons=
+    document.querySelectorAll("[data-close-modal]");
+
+  closeButtons.forEach(button=>{
+    button.addEventListener("click",()=>{
+      const modal=button.dataset.closeModal;
+
+      if(modal){
+        closeModal(modal);
+      }
+    });
+  });
+
+
+  document.querySelectorAll(".modal").forEach(modal=>{
+    modal.addEventListener("click",event=>{
+      if(event.target===modal){
+        modal.classList.remove("open");
+      }
+    });
+  });
+
+
+  document.addEventListener("keydown",event=>{
+    if(event.key!=="Escape") return;
+
+    document
+      .querySelectorAll(".modal.open")
+      .forEach(modal=>{
+        modal.classList.remove("open");
+      });
+  });
+}
+
+
+/* =========================================================
+   SETTINGS FORM EVENT
+========================================================= */
+
+document.addEventListener("submit",event=>{
+  if(event.target?.id==="settingsForm"){
+    event.preventDefault();
+    saveAllSettings();
+  }
+});
+
+
+/* =========================================================
+   SUPPORT ACTION EVENTS
+========================================================= */
+
+document.addEventListener("click",event=>{
+  const statusButton=
+    event.target.closest("[data-support-status]");
+
+  if(statusButton){
+    const status=statusButton.dataset.supportStatus;
+
+    if(status){
+      updateSupportStatus(status);
+    }
+  }
+});
+
+
+/* =========================================================
+   MOBILE MENU
+========================================================= */
+
+function setupMobileMenu(){
+
+  const menuButton=$("mobileMenuBtn");
+  const sidebar=$("adminSidebar");
+  const overlay=$("sidebarOverlay");
+
+  if(menuButton && sidebar){
+
+    menuButton.addEventListener("click",()=>{
+      sidebar.classList.toggle("open");
+
+      if(overlay){
+        overlay.classList.toggle(
+          "open",
+          sidebar.classList.contains("open")
+        );
+      }
+    });
+  }
+
+  if(overlay && sidebar){
+
+    overlay.addEventListener("click",()=>{
+      sidebar.classList.remove("open");
+      overlay.classList.remove("open");
+    });
+  }
+
+  document.querySelectorAll("[data-section]")
+    .forEach(button=>{
+      button.addEventListener("click",()=>{
+        if(window.innerWidth<=800){
+          sidebar?.classList.remove("open");
+          overlay?.classList.remove("open");
+        }
+      });
+    });
+}
+
+
+/* =========================================================
+   ONLINE / OFFLINE STATUS
+========================================================= */
+
+function updateConnectionStatus(){
+
+  const indicator=$("connectionStatus");
+
+  if(!indicator) return;
+
+  if(navigator.onLine){
+    indicator.textContent="Online";
+    indicator.classList.remove("offline");
+    indicator.classList.add("online");
+  }else{
+    indicator.textContent="Offline";
+    indicator.classList.remove("online");
+    indicator.classList.add("offline");
+  }
+}
+
+
+window.addEventListener(
+  "online",
+  updateConnectionStatus
+);
+
+window.addEventListener(
+  "offline",
+  updateConnectionStatus
+);
+
+
+/* =========================================================
+   INITIAL ADMIN BOOTSTRAP
+========================================================= */
+
+async function initAdmin(){
+
+  try{
+
+    setupNavigation();
+    setupGlobalButtons();
+    setupMobileMenu();
+    updateConnectionStatus();
+
+    /*
+      Supabase auth state is checked before displaying
+      privileged admin sections.
+    */
+
+    const {
+      data:{
+        session
+      },
+      error
+    }=await supabaseClient.auth.getSession();
+
+    if(error){
+      console.error(error);
+    }
+
+    if(session?.user){
+      await handleAuthenticatedUser(session.user);
+    }else{
+      showLogin();
+    }
+
+
+    supabaseClient.auth.onAuthStateChange(
+      async (event,session)=>{
+        try{
+
+          if(
+            event==="PASSWORD_RECOVERY"
+          ){
+            state.user=session?.user || null;
+
+            if(session?.user){
+              completePasswordReset();
+            }
+
+            return;
+          }
+
+
+          if(
+            event==="SIGNED_IN" &&
+            session?.user
+          ){
+            await handleAuthenticatedUser(
+              session.user
+            );
+
+            return;
+          }
+
+
+          if(event==="SIGNED_OUT"){
+            state.user=null;
+            state.admin=null;
+
+            showLogin();
+          }
+
+        }catch(error){
+          console.error(
+            "Auth state error:",
+            error
+          );
+
+          handleAuthError(error);
+        }
+      }
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    showLogin();
+
+    setGlobalMessage(
+      error.message ||
+      "Admin panel initialization failed.",
+      "error"
+    );
+  }
+}
+
+
+/* =========================================================
+   AUTHENTICATED ADMIN HANDLER
+========================================================= */
+
+async function handleAuthenticatedUser(user){
+
+  if(!user){
+    showLogin();
+    return false;
+  }
+
+  state.user=user;
+
+  try{
+
+    const admin=await requireAdmin();
+
+    if(!admin){
+      await supabaseClient.auth.signOut();
+
+      showLogin();
+
+      setGlobalMessage(
+        "This account does not have admin access.",
+        "error"
+      );
+
+      return false;
+    }
+
+    state.admin=admin;
+
+    showApp();
+
+    const emailElement=$("adminEmail");
+
+    if(emailElement){
+      emailElement.textContent=
+        user.email || "Admin";
+    }
+
+    const nameElement=$("adminName");
+
+    if(nameElement){
+      nameElement.textContent=
+        admin.full_name ||
+        admin.name ||
+        user.email ||
+        "Administrator";
+    }
+
+    await testRequiredTables();
+
+    state.currentSection=
+      state.currentSection || "overview";
+
+    const initialButton=
+      document.querySelector(
+        `[data-section="${state.currentSection}"]`
+      );
+
+    if(initialButton){
+      document
+        .querySelectorAll("[data-section]")
+        .forEach(item=>{
+          item.classList.remove("active");
+        });
+
+      initialButton.classList.add("active");
+    }
+
+    const initialSection=
+      document.getElementById(
+        `section-${state.currentSection}`
+      );
+
+    document
+      .querySelectorAll(".admin-section")
+      .forEach(item=>{
+        item.classList.remove("active");
+      });
+
+    if(initialSection){
+      initialSection.classList.add("active");
+    }
+
+    await loadSection(state.currentSection);
+
+    return true;
+
+  }catch(error){
+
+    console.error(error);
+
+    await supabaseClient.auth.signOut();
+
+    showLogin();
+
+    setGlobalMessage(
+      error.message ||
+      "Admin authorization failed.",
+      "error"
+    );
+
+    return false;
+  }
+}
+
+
+/* =========================================================
+   PASSWORD RECOVERY
+========================================================= */
+
+function completePasswordReset(){
+
+  const modal=$("passwordRecoveryModal");
+
+  if(modal){
+    modal.classList.add("open");
+  }
+
+  const form=$("passwordRecoveryForm");
+
+  if(!form) return;
+
+  if(form.dataset.bound==="1") return;
+
+  form.dataset.bound="1";
+
+  form.addEventListener("submit",async event=>{
+    event.preventDefault();
+
+    const password=$("newPassword")?.value || "";
+    const confirmPassword=
+      $("confirmPassword")?.value || "";
+
+    const message=$("passwordRecoveryMessage");
+    const button=$("passwordRecoveryBtn");
+
+    if(password.length<8){
+      if(message){
+        message.innerHTML=
+          `<div class="error-box">
+            Password must contain at least 8 characters.
+          </div>`;
+      }
+      return;
+    }
+
+    if(password!==confirmPassword){
+      if(message){
+        message.innerHTML=
+          `<div class="error-box">
+            Passwords do not match.
+          </div>`;
+      }
+      return;
+    }
+
+    if(button){
+      button.disabled=true;
+      button.textContent="Updating…";
+    }
+
+    try{
+
+      const {error}=
+        await supabaseClient.auth.updateUser({
+          password:password
+        });
+
+      if(error) throw error;
+
+      if(message){
+        message.innerHTML=
+          `<div class="success-box">
+            Password updated successfully.
+          </div>`;
+      }
+
+      setTimeout(()=>{
+        closeModal("passwordRecoveryModal");
+      },1000);
+
+    }catch(error){
+
+      console.error(error);
+
+      if(message){
+        message.innerHTML=`
+          <div class="error-box">
+            ${escapeHtml(
+              error.message ||
+              "Unable to update password."
+            )}
+          </div>`;
+      }
+
+    }finally{
+
+      if(button){
+        button.disabled=false;
+        button.textContent="Update Password";
+      }
+    }
+  });
+}
+
+
+/* =========================================================
+   AUTH LOGIN
+========================================================= */
+
+function setupLogin(){
+
+  const form=$("loginForm");
+
+  if(!form) return;
+
+  if(form.dataset.bound==="1") return;
+
+  form.dataset.bound="1";
+
+  form.addEventListener("submit",async event=>{
+    event.preventDefault();
+
+    const email=
+      $("loginEmail")?.value.trim() || "";
+
+    const password=
+      $("loginPassword")?.value || "";
+
+    const errorBox=$("loginError");
+    const button=$("loginBtn");
+
+    if(errorBox){
+      errorBox.innerHTML="";
+    }
+
+    if(!email || !password){
+
+      if(errorBox){
+        errorBox.innerHTML=
+          `<div class="error-box">
+            Enter your admin email and password.
+          </div>`;
+      }
+
+      return;
+    }
+
+    if(button){
+      button.disabled=true;
+      button.textContent="Signing in…";
+    }
+
+    try{
+
+      const {data,error}=
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if(error) throw error;
+
+      if(!data?.user){
+        throw new Error(
+          "Authentication succeeded but no user session was returned."
+        );
+      }
+
+      await handleAuthenticatedUser(
+        data.user
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+      if(errorBox){
+        errorBox.innerHTML=`
+          <div class="error-box">
+            ${escapeHtml(
+              error.message ||
+              "Unable to sign in."
+            )}
+          </div>`;
+      }
+
+    }finally{
+
+      if(button){
+        button.disabled=false;
+        button.textContent="Sign In";
+      }
+    }
+  });
+
+
+  const forgot=$("forgotPasswordBtn");
+
+  if(forgot){
+    forgot.addEventListener(
+      "click",
+      ()=>{
+        const email=
+          $("loginEmail")?.value.trim() || "";
+
+        if(!email){
+
+          setGlobalMessage(
+            "Enter your admin email first.",
+            "error"
+          );
+
+          $("loginEmail")?.focus();
+
+          return;
+        }
+
+        sendPasswordReset(email);
+      }
+    );
+  }
+}
+
+
+async function sendPasswordReset(email){
+
+  try{
+
+    const redirectTo=
+      `${window.location.origin}${window.location.pathname}`;
+
+    const {error}=
+      await supabaseClient.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo
+        }
+      );
+
+    if(error) throw error;
+
+    setGlobalMessage(
+      "Password reset email sent. Check your inbox.",
+      "success"
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setGlobalMessage(
+      error.message ||
+      "Unable to send password reset email.",
+      "error"
+    );
+  }
+}
+
+
+/* =========================================================
+   REQUIRED TABLE CHECK
+========================================================= */
+
+async function testRequiredTables(){
+
+  const required=[
+    "profiles",
+    "tasks",
+    "task_submissions",
+    "task_completions",
+    "wallet_transactions",
+    "withdrawals",
+    "referrals",
+    "poster_payments",
+    "support_tickets",
+    "platform_settings",
+    "admin_users",
+    "admin_audit_logs"
+  ];
+
+  const results=[];
+
+  for(const table of required){
+
+    const {error}=await supabaseClient
+      .from(table)
+      .select("id")
+      .limit(1);
+
+    results.push({
+      table,
+      ok:!error,
+      error:error?.message || null
+    });
+  }
+
+  state.tableChecks=results;
+
+  const failed=
+    results.filter(item=>!item.ok);
+
+  if(failed.length){
+
+    console.warn(
+      "Some expected tables are unavailable:",
+      failed
+    );
+  }
+
+  return results;
+}
+
+
+/* =========================================================
+   START LOGIN BINDINGS
+========================================================= */
+
+setupLogin();
+
+
+/* =========================================================
+   END OF PART 3
+   PART 4 WILL CONTAIN THE FINAL HTML STRUCTURE,
+   ADMIN DASHBOARD UI, MODALS, STYLES AND CLOSING TAGS.
+========================================================= */
