@@ -3090,6 +3090,95 @@ function reviewProof(row){
 async function approveCurrentProof(){
 
   if(!currentProof?.id){
+    toast("No submission selected.");
+    return;
+  }
+
+  const submissionId = currentProof.id;
+
+  if(!confirm(
+    "Approve this proof? The secure server transaction will verify the submission, prevent duplicate completion, credit the worker and record the ledger entry."
+  )){
+    return;
+  }
+
+  setLoading(true);
+
+  try{
+
+    /*
+      SECURE APPROVAL
+
+      The browser does NOT:
+        - credit the wallet
+        - create a completion
+        - create a wallet transaction
+        - change the submission status
+
+      All financial/reward processing is performed by the
+      PostgreSQL RPC inside one server-side transaction.
+    */
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        "admin_approve_task_submission",
+        {
+          submission_id: submissionId
+        }
+      );
+
+    if(error){
+      throw error;
+    }
+
+    console.log(
+      "admin_approve_task_submission result:",
+      data
+    );
+
+    /*
+      The RPC has completed the authoritative operation.
+
+      Refresh the submission list from the database instead
+      of changing the row locally.
+    */
+
+    currentProof = null;
+
+    closeModal("proofModal");
+
+    toast(
+      "Proof approved successfully. Reward transaction completed."
+    );
+
+    await loadSubmissions();
+
+  }catch(error){
+
+    console.error(
+      "Secure submission approval failed:",
+      error
+    );
+
+    /*
+      Important:
+      Do NOT change the UI to Approved when the RPC fails.
+      The database remains the source of truth.
+    */
+
+    toast(
+      error?.message ||
+      "Approval failed. No reward was processed."
+    );
+
+  }finally{
+
+    setLoading(false);
+
+  }
+  }
+
+  if(!currentProof?.id){
 
     toast("No submission selected.");
 
