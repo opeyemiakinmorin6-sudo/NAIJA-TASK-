@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
 <title>Dashboard — NAIJA TASK</title>
 
@@ -11,86 +11,580 @@
 <style>
 *{
   box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+  --green:#0b8f3c;
+  --green-dark:#087431;
+  --green-light:#eaf8ef;
+  --bg:#f6faf7;
+  --card:#ffffff;
+  --text:#101512;
+  --muted:#718078;
+  --border:#e3ebe5;
+  --gold:#d99818;
+  --red:#c62828;
+  --shadow:0 8px 28px rgba(16,24,18,.07);
+}
+
+html{
+  scroll-behavior:smooth;
 }
 
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#f5fff7;
-  color:#111;
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
 }
 
+a{
+  -webkit-tap-highlight-color:transparent;
+}
+
+button{
+  font-family:inherit;
+}
+
+/* ================================
+   HEADER
+================================ */
+
 header{
-  background:#0b8f3c;
-  color:white;
-  padding:18px 16px;
+  background:
+    linear-gradient(145deg,#087431,#0b8f3c 55%,#12a84d);
+  color:#fff;
+  padding:
+    calc(17px + env(safe-area-inset-top))
+    16px
+    18px;
   position:sticky;
   top:0;
-  z-index:20;
-  box-shadow:0 2px 10px rgba(0,0,0,.12);
+  z-index:50;
+  box-shadow:0 4px 18px rgba(0,0,0,.13);
 }
 
 .header-top{
   display:flex;
   align-items:center;
   justify-content:space-between;
+  max-width:920px;
+  margin:auto;
 }
 
-.logo{
-  font-size:22px;
+.brand-row{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.brand-mark{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  background:rgba(255,255,255,.17);
+  border:1px solid rgba(255,255,255,.24);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
   font-weight:900;
 }
 
+.logo{
+  font-size:20px;
+  font-weight:950;
+  letter-spacing:-.4px;
+}
+
 .header-sub{
-  font-size:12px;
-  opacity:.9;
+  font-size:11px;
+  opacity:.88;
   margin-top:3px;
 }
 
 .profile-btn{
-  width:42px;
-  height:42px;
+  width:43px;
+  height:43px;
   border-radius:50%;
-  background:white;
-  color:#0b8f3c;
+  background:#fff;
+  color:var(--green);
   display:flex;
   align-items:center;
   justify-content:center;
   text-decoration:none;
-  font-size:20px;
-  font-weight:bold;
+  font-size:19px;
+  box-shadow:0 3px 12px rgba(0,0,0,.14);
 }
+
+/* ================================
+   MAIN
+================================ */
 
 main{
-  max-width:900px;
+  max-width:920px;
   margin:auto;
-  padding:18px 14px 110px;
+  padding:18px 14px 115px;
 }
 
+/* ================================
+   WELCOME
+================================ */
+
 .welcome{
-  margin-bottom:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:12px;
+  margin:4px 0 17px;
 }
 
 .welcome h1{
   margin:0;
   font-size:25px;
+  line-height:1.15;
+  letter-spacing:-.6px;
 }
 
 .welcome p{
-  margin:6px 0 0;
-  color:#666;
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.live-pill{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:#eaf8ef;
+  color:var(--green-dark);
+  padding:7px 9px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:900;
+}
+
+.live-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#16a34a;
+}
+
+/* ================================
+   WALLET HERO
+================================ */
+
+.wallet{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(145deg,#086f35,#0b8f3c 55%,#13a94e);
+  color:#fff;
+  border-radius:22px;
+  padding:21px;
+  margin-bottom:14px;
+  box-shadow:0 12px 30px rgba(11,143,60,.22);
+}
+
+.wallet:after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  right:-70px;
+  top:-80px;
+  background:rgba(255,255,255,.08);
+}
+
+.wallet-top{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.wallet-label{
+  font-size:12px;
+  opacity:.86;
+  font-weight:700;
+}
+
+.wallet-status{
+  font-size:10px;
+  font-weight:900;
+  padding:6px 9px;
+  border-radius:20px;
+  background:rgba(255,255,255,.14);
+}
+
+.balance{
+  position:relative;
+  z-index:1;
+  font-size:34px;
+  font-weight:950;
+  letter-spacing:-1px;
+  margin:8px 0 16px;
+}
+
+.wallet-meta{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-bottom:14px;
+}
+
+.wallet-mini{
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:12px;
+  padding:10px;
+}
+
+.wallet-mini-label{
+  font-size:10px;
+  opacity:.75;
+}
+
+.wallet-mini-value{
+  margin-top:3px;
+  font-size:14px;
+  font-weight:900;
+}
+
+.wallet-actions{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+
+.wallet-actions a{
+  background:#fff;
+  color:var(--green-dark);
+  text-decoration:none;
+  padding:12px;
+  border-radius:11px;
+  text-align:center;
+  font-weight:900;
+  font-size:12px;
+}
+
+/* ================================
+   ACTIVATION
+================================ */
+
+.activation-card{
+  border-radius:18px;
+  padding:17px;
+  margin-bottom:14px;
+  box-shadow:0 4px 16px rgba(0,0,0,.04);
+}
+
+.activation-required{
+  background:#fff9ea;
+  border:1px solid #f0d28b;
+}
+
+.activation-success{
+  background:#eaf8ef;
+  border:1px solid #b9dfc3;
+}
+
+.activation-icon{
+  font-size:27px;
+  margin-bottom:6px;
+}
+
+.activation-card h2{
+  margin:0 0 6px;
+  font-size:17px;
+}
+
+.activation-card p{
+  margin:5px 0;
+  color:#5d665f;
+  font-size:12px;
+  line-height:1.55;
+}
+
+.activation-button{
+  display:inline-block;
+  margin-top:10px;
+  padding:12px 15px;
+  border-radius:10px;
+  background:var(--green);
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+  font-size:12px;
+}
+
+/* ================================
+   EARNINGS SUMMARY
+================================ */
+
+.section-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:22px 1px 11px;
+  font-size:17px;
+  font-weight:950;
+  letter-spacing:-.2px;
+}
+
+.section-link{
+  color:var(--green);
+  text-decoration:none;
+  font-size:11px;
+  font-weight:900;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+}
+
+.stat{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px 8px;
+  min-width:0;
+  box-shadow:0 3px 12px rgba(0,0,0,.025);
+}
+
+.stat-number{
+  font-size:20px;
+  font-weight:950;
+  color:var(--green-dark);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.stat-label{
+  font-size:10px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+/* ================================
+   QUICK ACTIONS
+================================ */
+
+.quick{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+}
+
+.quick a{
+  min-width:0;
+  background:#fff;
+  border:1px solid var(--border);
+  color:var(--text);
+  text-decoration:none;
+  padding:13px 7px;
+  border-radius:14px;
+  text-align:center;
+  font-size:10px;
+  font-weight:900;
+  box-shadow:0 3px 12px rgba(0,0,0,.025);
+}
+
+.quick-icon{
+  display:block;
+  font-size:21px;
+  margin-bottom:5px;
+}
+
+/* ================================
+   EARNING ACTIVITY
+================================ */
+
+.activity-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 3px 12px rgba(0,0,0,.025);
+}
+
+.activity-row{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:13px;
+  border-bottom:1px solid #edf1ee;
+}
+
+.activity-row:last-child{
+  border-bottom:0;
+}
+
+.activity-icon{
+  width:39px;
+  height:39px;
+  flex:0 0 39px;
+  border-radius:12px;
+  background:#eaf8ef;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+}
+
+.activity-info{
+  min-width:0;
+  flex:1;
+}
+
+.activity-title{
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.activity-date{
+  margin-top:3px;
+  font-size:10px;
+  color:var(--muted);
+}
+
+.activity-amount{
+  font-size:12px;
+  font-weight:950;
+  color:var(--green-dark);
+}
+
+.empty-activity{
+  padding:24px 15px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* ================================
+   MENU
+================================ */
+
+.menu-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.menu-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:15px 13px;
+  text-decoration:none;
+  color:var(--text);
+  box-shadow:0 3px 12px rgba(0,0,0,.025);
+  transition:transform .12s;
+}
+
+.menu-card:active{
+  transform:scale(.975);
+}
+
+.icon{
+  width:43px;
+  height:43px;
+  border-radius:13px;
+  background:var(--green-light);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:21px;
+  margin-bottom:10px;
+}
+
+.menu-card h3{
+  margin:0;
   font-size:14px;
 }
 
-/* SECURITY NOTICE */
+.menu-card p{
+  margin:5px 0 0;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.45;
+}
+
+/* ================================
+   READY CARD
+================================ */
+
+.feature{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:19px;
+  padding:18px;
+  margin-top:20px;
+  box-shadow:0 3px 12px rgba(0,0,0,.025);
+}
+
+.feature.primary{
+  background:
+    linear-gradient(145deg,#f0fbf3,#fff);
+  border-color:#cde8d4;
+}
+
+.feature h2{
+  margin:0 0 7px;
+  font-size:17px;
+}
+
+.feature p{
+  margin:0;
+  color:#68726c;
+  font-size:12px;
+  line-height:1.55;
+}
+
+.feature a{
+  display:inline-block;
+  background:var(--green);
+  color:#fff;
+  text-decoration:none;
+  padding:12px 17px;
+  border-radius:10px;
+  font-weight:900;
+  font-size:12px;
+  margin-top:12px;
+}
+
+/* ================================
+   SECURITY
+================================ */
 
 .security-notice{
   display:none;
   border-radius:16px;
-  padding:16px;
-  margin-bottom:18px;
+  padding:15px;
+  margin-bottom:15px;
   background:#fff4e5;
-  border:1px solid #f0c77c;
+  border:1px solid #efcf8b;
 }
 
 .security-notice.show{
@@ -103,404 +597,155 @@ main{
 }
 
 .security-notice h2{
-  margin:0 0 7px;
-  font-size:17px;
+  margin:0 0 6px;
+  font-size:16px;
 }
 
 .security-notice p{
   margin:5px 0;
-  font-size:13px;
+  font-size:12px;
   line-height:1.5;
-  color:#555;
+  color:#5d625e;
 }
 
 .security-notice button{
   border:0;
-  background:#0b8f3c;
+  background:var(--green);
   color:white;
-  padding:11px 15px;
+  padding:10px 14px;
   border-radius:9px;
   font-weight:bold;
-  margin-top:8px;
-}
-
-/* WARNINGS */
-
-.warning-list{
-  margin-top:10px;
+  margin-top:7px;
 }
 
 .warning-item{
   background:#fff8e6;
   border:1px solid #f1d28a;
-  border-radius:12px;
-  padding:12px;
+  border-radius:11px;
+  padding:11px;
   margin-top:8px;
 }
 
 .warning-item strong{
-  font-size:13px;
+  font-size:12px;
 }
 
 .warning-item p{
   margin:5px 0 0;
-  font-size:12px;
-  color:#666;
-  line-height:1.5;
-}
-
-/* ACTIVATION */
-
-.activation-card{
-  border-radius:18px;
-  padding:19px;
-  margin-bottom:20px;
-  box-shadow:0 3px 14px rgba(0,0,0,.07);
-}
-
-.activation-required{
-  background:#fff8e6;
-  border:1px solid #f1d28a;
-}
-
-.activation-success{
-  background:#eaf9ee;
-  border:1px solid #b9e5c5;
-}
-
-.activation-icon{
-  font-size:30px;
-  margin-bottom:7px;
-}
-
-.activation-card h2{
-  margin:0 0 7px;
-  font-size:19px;
-}
-
-.activation-card p{
-  margin:5px 0;
-  color:#555;
-  font-size:13px;
-  line-height:1.5;
-}
-
-.activation-button{
-  display:inline-block;
-  margin-top:12px;
-  padding:13px 18px;
-  border-radius:11px;
-  background:#0b8f3c;
-  color:white;
-  text-decoration:none;
-  font-weight:900;
-  font-size:13px;
-}
-
-.activation-note{
-  font-size:11px !important;
-  color:#777 !important;
-  margin-top:9px !important;
-}
-
-/* WALLET */
-
-.wallet{
-  background:#0b8f3c;
-  color:white;
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:20px;
-  box-shadow:0 5px 18px rgba(11,143,60,.2);
-}
-
-.wallet-label{
-  font-size:13px;
-  opacity:.9;
-}
-
-.balance{
-  font-size:32px;
-  font-weight:900;
-  margin:7px 0 15px;
-}
-
-.wallet-actions{
-  display:flex;
-  gap:10px;
-}
-
-.wallet-actions a{
-  flex:1;
-  background:white;
-  color:#0b8f3c;
-  text-decoration:none;
-  padding:11px;
-  border-radius:10px;
-  text-align:center;
-  font-weight:bold;
-  font-size:13px;
-}
-
-/* SECTIONS */
-
-.section-title{
-  font-size:18px;
-  font-weight:900;
-  margin:22px 0 12px;
-}
-
-.menu-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-
-.menu-card{
-  background:white;
-  border:1px solid #e2eee5;
-  border-radius:16px;
-  padding:17px 14px;
-  text-decoration:none;
-  color:#111;
-  box-shadow:0 2px 8px rgba(0,0,0,.04);
-  transition:.15s;
-}
-
-.menu-card:active{
-  transform:scale(.97);
-}
-
-.icon{
-  width:45px;
-  height:45px;
-  border-radius:13px;
-  background:#e9f8ed;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:23px;
-  margin-bottom:11px;
-}
-
-.menu-card h3{
-  margin:0;
-  font-size:15px;
-}
-
-.menu-card p{
-  margin:5px 0 0;
-  font-size:12px;
-  color:#777;
-  line-height:1.4;
-}
-
-/* STATS */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-top:20px;
-}
-
-.stat{
-  background:white;
-  border:1px solid #e2eee5;
-  border-radius:14px;
-  padding:14px 8px;
-  text-align:center;
-}
-
-.stat-number{
-  font-size:22px;
-  font-weight:900;
-  color:#0b8f3c;
-}
-
-.stat-label{
   font-size:11px;
-  color:#777;
-  margin-top:4px;
 }
 
-/* QUICK */
+/* ================================
+   ABOUT / SUPPORT
+================================ */
 
-.quick{
-  display:flex;
-  overflow-x:auto;
-  gap:10px;
-  padding-bottom:4px;
-  scrollbar-width:none;
-}
-
-.quick::-webkit-scrollbar{
-  display:none;
-}
-
-.quick a{
-  flex:0 0 auto;
-  background:white;
-  border:1px solid #e1eee4;
-  color:#111;
-  text-decoration:none;
-  padding:11px 14px;
-  border-radius:12px;
-  font-size:12px;
-  font-weight:bold;
-}
-
-/* FEATURE */
-
-.feature{
-  background:white;
-  border:1px solid #dfeee3;
+.about{
+  background:#fff;
+  border:1px solid var(--border);
   border-radius:18px;
   padding:18px;
   margin-top:20px;
 }
 
-.feature h2{
-  margin:0 0 7px;
-  font-size:18px;
-}
-
-.feature p{
-  color:#666;
-  font-size:13px;
-  line-height:1.5;
-}
-
-.feature a{
-  display:inline-block;
-  background:#0b8f3c;
-  color:white;
-  text-decoration:none;
-  padding:12px 18px;
-  border-radius:10px;
-  font-weight:bold;
-  font-size:13px;
-  margin-top:5px;
-}
-
-/* ABOUT */
-
-.about{
-  background:white;
-  border:1px solid #dfeee3;
-  border-radius:18px;
-  padding:19px;
-  margin-top:24px;
-}
-
 .about h2{
-  margin:0 0 10px;
-  font-size:19px;
+  margin:0 0 9px;
+  font-size:18px;
 }
 
 .about h3{
   margin:17px 0 6px;
-  font-size:14px;
+  font-size:13px;
 }
 
-.about p{
-  margin:0;
-  color:#666;
-  font-size:13px;
+.about p,
+.about li{
+  color:#68726c;
+  font-size:12px;
   line-height:1.6;
 }
 
 .about ul{
-  padding-left:19px;
-  margin:8px 0 0;
-}
-
-.about li{
-  color:#666;
-  font-size:13px;
-  line-height:1.7;
+  padding-left:18px;
+  margin:7px 0 0;
 }
 
 .support{
-  background:#f4fbf6;
+  background:#f3faf5;
   border-radius:13px;
-  padding:13px;
-  margin-top:15px;
+  padding:12px;
+  margin-top:14px;
 }
 
 .support a{
-  color:#0b8f3c;
-  font-weight:bold;
+  color:var(--green-dark);
+  font-weight:900;
   text-decoration:none;
 }
 
-/* ACCOUNT */
+/* ================================
+   LOGOUT
+================================ */
 
 .logout-btn{
   width:100%;
   border:1px solid #ffd0d0;
   background:#fff5f5;
   color:#c00000;
-  padding:14px;
-  border-radius:13px;
+  padding:13px;
+  border-radius:12px;
   font-weight:900;
-  font-size:14px;
+  font-size:13px;
   cursor:pointer;
 }
 
-/* BOTTOM NAV */
+/* ================================
+   BOTTOM NAV
+================================ */
 
 .bottom-nav{
   position:fixed;
   bottom:0;
   left:0;
   right:0;
-  height:68px;
-  background:white;
-  border-top:1px solid #ddd;
+  height:69px;
+  padding-bottom:env(safe-area-inset-bottom);
+  background:rgba(255,255,255,.97);
+  backdrop-filter:blur(12px);
+  border-top:1px solid #e1e6e2;
   display:flex;
   justify-content:space-around;
   align-items:center;
-  z-index:30;
+  z-index:100;
 }
 
 .bottom-nav a{
+  min-width:52px;
   text-decoration:none;
-  color:#666;
+  color:#78817b;
   text-align:center;
-  font-size:10px;
-  font-weight:bold;
+  font-size:9px;
+  font-weight:900;
 }
 
 .bottom-nav span{
   display:block;
-  font-size:21px;
+  font-size:20px;
   margin-bottom:3px;
 }
 
 .bottom-nav a.active{
-  color:#0b8f3c;
+  color:var(--green);
 }
 
-/* LOADING */
-
-.loading{
-  opacity:.65;
-}
-
-.error{
-  color:#b00020;
-  font-size:12px;
-  margin-top:8px;
-}
-
-/* PAGE LOADER */
+/* ================================
+   LOADER
+================================ */
 
 .page-loader{
   position:fixed;
   inset:0;
-  background:#f5fff7;
-  z-index:100;
+  background:var(--bg);
+  z-index:200;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -508,24 +753,34 @@ main{
 }
 
 .loader-logo{
-  color:#0b8f3c;
-  font-size:25px;
-  font-weight:900;
+  color:var(--green);
+  font-size:24px;
+  font-weight:950;
 }
 
 .loader-text{
-  color:#666;
-  font-size:13px;
+  color:var(--muted);
+  font-size:12px;
   margin-top:8px;
 }
 
-/* HIDDEN */
+/* ================================
+   ERROR
+================================ */
+
+.error{
+  color:#b00020;
+  font-size:11px;
+  margin-top:8px;
+}
 
 .hidden{
   display:none !important;
 }
 
-/* MOBILE */
+/* ================================
+   MOBILE
+================================ */
 
 @media(max-width:430px){
 
@@ -534,29 +789,35 @@ main{
     padding-right:12px;
   }
 
-  .menu-grid{
-    gap:9px;
-  }
-
-  .menu-card{
-    padding:14px 12px;
+  .welcome h1{
+    font-size:23px;
   }
 
   .balance{
-    font-size:29px;
+    font-size:30px;
   }
 
-  .stats{
+  .quick{
     gap:7px;
   }
 
-  .stat{
-    padding:12px 5px;
+  .quick a{
+    padding-left:4px;
+    padding-right:4px;
   }
 
-  .stat-number{
-    font-size:19px;
+  .menu-grid{
+    gap:8px;
   }
+
+}
+
+@media(min-width:700px){
+
+  .menu-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
 }
 </style>
 </head>
@@ -565,16 +826,23 @@ main{
 
 <div class="page-loader" id="pageLoader">
   <div class="loader-logo">NAIJA TASK</div>
-  <div class="loader-text">Checking your account security...</div>
+  <div class="loader-text">Loading your real account data...</div>
 </div>
 
 <header>
-
   <div class="header-top">
 
-    <div>
-      <div class="logo">NAIJA TASK</div>
-      <div class="header-sub">Complete Tasks. Earn Naira.</div>
+    <div class="brand-row">
+
+      <div class="brand-mark">₦</div>
+
+      <div>
+        <div class="logo">NAIJA TASK</div>
+        <div class="header-sub">
+          Complete Tasks. Earn Naira.
+        </div>
+      </div>
+
     </div>
 
     <a href="profile.html" class="profile-btn">
@@ -582,24 +850,31 @@ main{
     </a>
 
   </div>
-
 </header>
 
 <main>
 
   <section class="welcome">
 
-    <h1>
-      Welcome, <span id="userName">User</span> 👋
-    </h1>
+    <div>
+      <h1>
+        Welcome, <span id="userName">User</span> 👋
+      </h1>
 
-    <p>
-      Manage your tasks, proofs, wallet and account.
-    </p>
+      <p>
+        Your tasks, earnings and activity in one place.
+      </p>
+    </div>
+
+    <div class="live-pill">
+      <span class="live-dot"></span>
+      LIVE
+    </div>
 
   </section>
 
-  <!-- SECURITY NOTICE -->
+
+  <!-- SECURITY -->
 
   <section
     class="security-notice"
@@ -615,7 +890,6 @@ main{
     </p>
 
     <div
-      class="warning-list"
       id="warningList"
     ></div>
 
@@ -629,7 +903,8 @@ main{
 
   </section>
 
-  <!-- ACTIVATION -->
+
+  <!-- ACTIVATION REQUIRED -->
 
   <section
     class="activation-card activation-required"
@@ -648,8 +923,8 @@ main{
     </p>
 
     <p>
-      Activation is required before you can access
-      the normal earning features of your account.
+      Activation is required before restricted
+      earning features become available.
     </p>
 
     <a
@@ -659,12 +934,10 @@ main{
       Activate Account — ₦1,000
     </a>
 
-    <p class="activation-note">
-      Your activation status is checked directly from
-      your NAIJA TASK profile.
-    </p>
-
   </section>
+
+
+  <!-- ACTIVATED -->
 
   <section
     class="activation-card activation-success hidden"
@@ -678,32 +951,77 @@ main{
     </h2>
 
     <p>
-      Your NAIJA TASK account is activated.
-    </p>
-
-    <p>
-      You can now access the available earning
-      features on your account.
+      Your account is active and ready for available
+      earning opportunities.
     </p>
 
   </section>
+
 
   <!-- WALLET -->
 
   <section class="wallet">
 
-    <div class="wallet-label">
-      Available Balance
+    <div class="wallet-top">
+
+      <div class="wallet-label">
+        AVAILABLE BALANCE
+      </div>
+
+      <div
+        class="wallet-status"
+        id="walletStatus"
+      >
+        LIVE BALANCE
+      </div>
+
     </div>
 
-    <div class="balance" id="balance">
+    <div
+      class="balance"
+      id="balance"
+    >
       ₦0.00
+    </div>
+
+    <div class="wallet-meta">
+
+      <div class="wallet-mini">
+
+        <div class="wallet-mini-label">
+          Approved Earnings
+        </div>
+
+        <div
+          class="wallet-mini-value"
+          id="approvedEarnings"
+        >
+          ₦0.00
+        </div>
+
+      </div>
+
+      <div class="wallet-mini">
+
+        <div class="wallet-mini-label">
+          Pending Rewards
+        </div>
+
+        <div
+          class="wallet-mini-value"
+          id="pendingEarnings"
+        >
+          ₦0.00
+        </div>
+
+      </div>
+
     </div>
 
     <div class="wallet-actions">
 
       <a href="wallet.html">
-        Wallet
+        View Wallet
       </a>
 
       <a href="withdrawal.html">
@@ -714,229 +1032,341 @@ main{
 
   </section>
 
+
   <!-- STATS -->
+
+  <div class="section-title">
+    <span>Your Activity</span>
+    <a href="transactions.html" class="section-link">
+      Transactions
+    </a>
+  </div>
 
   <div class="stats">
 
     <div class="stat">
+
       <div
         class="stat-number"
         id="taskCount"
-      >0</div>
+      >
+        0
+      </div>
 
       <div class="stat-label">
         Available Tasks
       </div>
+
     </div>
 
     <div class="stat">
+
       <div
         class="stat-number"
-        id="proofCount"
-      >0</div>
+        id="completedCount"
+      >
+        0
+      </div>
 
       <div class="stat-label">
-        My Proofs
+        Completed
       </div>
+
     </div>
 
     <div class="stat">
+
       <div
         class="stat-number"
         id="approvedCount"
-      >0</div>
+      >
+        0
+      </div>
 
       <div class="stat-label">
         Approved
       </div>
+
     </div>
 
   </div>
 
-  <!-- QUICK -->
+
+  <!-- QUICK ACTIONS -->
 
   <div class="section-title">
-    Quick Actions
+    <span>Quick Actions</span>
   </div>
 
   <div class="quick">
 
     <a href="task.html">
-      📋 Do a Job
+      <span class="quick-icon">📋</span>
+      Jobs
     </a>
 
     <a href="proofs.html">
-      📸 My Proofs
+      <span class="quick-icon">📸</span>
+      Proofs
     </a>
 
-    <a href="marketplace.html">
-      🛒 Marketplace
+    <a href="wallet.html">
+      <span class="quick-icon">💰</span>
+      Wallet
     </a>
 
     <a href="referrals.html">
-      🎁 Referrals
+      <span class="quick-icon">🎁</span>
+      Referrals
     </a>
 
   </div>
 
+
+  <!-- RECENT EARNINGS -->
+
+  <div class="section-title">
+
+    <span>Recent Earnings</span>
+
+    <a href="transactions.html" class="section-link">
+      See all
+    </a>
+
+  </div>
+
+  <section class="activity-card">
+
+    <div
+      id="activityList"
+      class="empty-activity"
+    >
+      Loading your earning activity...
+    </div>
+
+  </section>
+
+
   <!-- WORK -->
 
   <div class="section-title">
-    Work
+    <span>Find Work</span>
   </div>
 
   <div class="menu-grid">
 
     <a href="task.html" class="menu-card">
+
       <div class="icon">📋</div>
+
       <h3>Do a Job</h3>
-      <p>Find available tasks and earn money.</p>
+
+      <p>
+        Find available tasks and earn rewards.
+      </p>
+
     </a>
 
     <a href="applied-jobs.html" class="menu-card">
+
       <div class="icon">💼</div>
+
       <h3>Applied Jobs</h3>
-      <p>View jobs and tasks you have applied for.</p>
+
+      <p>
+        Track jobs and tasks you have started.
+      </p>
+
     </a>
 
     <a href="marketplace.html" class="menu-card">
+
       <div class="icon">🛒</div>
+
       <h3>Marketplace</h3>
-      <p>Explore available services and job offers.</p>
+
+      <p>
+        Explore available services and offers.
+      </p>
+
     </a>
 
   </div>
 
-  <!-- PROOFS -->
+
+  <!-- PROOF -->
 
   <div class="section-title">
-    Proof & Activity
+    <span>Proof & Activity</span>
   </div>
 
   <div class="menu-grid">
 
     <a href="proofs.html" class="menu-card">
+
       <div class="icon">📸</div>
+
       <h3>My Proofs</h3>
-      <p>View submitted task proofs and their status.</p>
+
+      <p>
+        View submitted proofs and their status.
+      </p>
+
     </a>
 
     <a href="approved.html" class="menu-card">
+
       <div class="icon">✅</div>
+
       <h3>Approved</h3>
-      <p>See proofs and tasks that have been approved.</p>
+
+      <p>
+        See approved tasks and earnings.
+      </p>
+
     </a>
 
     <a href="retry.html" class="menu-card">
+
       <div class="icon">🔄</div>
+
       <h3>Retry</h3>
-      <p>Check proofs that need correction and resubmission.</p>
+
+      <p>
+        Correct proofs that need resubmission.
+      </p>
+
     </a>
 
     <a href="cancelled.html" class="menu-card">
+
       <div class="icon">❌</div>
+
       <h3>Cancelled</h3>
-      <p>View cancelled tasks and submissions.</p>
+
+      <p>
+        View cancelled submissions.
+      </p>
+
     </a>
 
   </div>
 
-  <!-- JOBS -->
-
-  <div class="section-title">
-    Your Jobs & Ads
-  </div>
-
-  <div class="menu-grid">
-
-    <a href="my-ads.html" class="menu-card">
-      <div class="icon">📣</div>
-      <h3>My Ads</h3>
-      <p>Manage your posted advertisements.</p>
-    </a>
-
-    <a href="appeals.html" class="menu-card">
-      <div class="icon">⚠️</div>
-      <h3>Appeals</h3>
-      <p>Submit and track task or account appeals.</p>
-    </a>
-
-  </div>
 
   <!-- MONEY -->
 
   <div class="section-title">
-    Money
+    <span>Your Money</span>
   </div>
 
   <div class="menu-grid">
 
     <a href="wallet.html" class="menu-card">
+
       <div class="icon">💰</div>
+
       <h3>Wallet</h3>
-      <p>View your balance and transaction history.</p>
+
+      <p>
+        View your available balance and earnings.
+      </p>
+
     </a>
 
     <a href="withdrawal.html" class="menu-card">
-      <div class="icon">🏦</div>
-      <h3>Withdraw</h3>
-      <p>Request a withdrawal from your available balance.</p>
-    </a>
 
-    <a href="referrals.html" class="menu-card">
-      <div class="icon">🎁</div>
-      <h3>Referrals</h3>
-      <p>Invite users and manage your referrals.</p>
+      <div class="icon">🏦</div>
+
+      <h3>Withdraw</h3>
+
+      <p>
+        Request a withdrawal from your balance.
+      </p>
+
     </a>
 
     <a href="transactions.html" class="menu-card">
+
       <div class="icon">🧾</div>
+
       <h3>Transactions</h3>
-      <p>Review your account transaction history.</p>
+
+      <p>
+        Review your real wallet activity.
+      </p>
+
+    </a>
+
+    <a href="referrals.html" class="menu-card">
+
+      <div class="icon">🎁</div>
+
+      <h3>Referrals</h3>
+
+      <p>
+        Invite users and track referral rewards.
+      </p>
+
     </a>
 
   </div>
 
+
   <!-- ACCOUNT -->
 
   <div class="section-title">
-    Account
+    <span>Account</span>
   </div>
 
   <div class="menu-grid">
 
     <a href="profile.html" class="menu-card">
+
       <div class="icon">👤</div>
+
       <h3>Profile</h3>
-      <p>Manage your personal account information.</p>
+
+      <p>
+        Manage your account information.
+      </p>
+
     </a>
 
     <a href="more.html" class="menu-card">
+
       <div class="icon">⚙️</div>
+
       <h3>More</h3>
-      <p>Account settings, security and more features.</p>
+
+      <p>
+        Security, settings and additional features.
+      </p>
+
     </a>
 
   </div>
 
-  <!-- READY -->
 
-  <section class="feature">
+  <!-- PRIMARY CTA -->
+
+  <section class="feature primary">
 
     <h2>
-      📋 Ready to earn?
+      📋 Find your next task
     </h2>
 
     <p>
-      Browse available jobs, complete the instructions,
-      upload your required proof and submit it for review.
+      Browse available jobs, follow the task owner's
+      instructions, upload the required proof and submit
+      it for review.
     </p>
 
     <a href="task.html">
-      Browse Tasks
+      Browse Available Tasks
     </a>
 
   </section>
+
 
   <!-- ABOUT -->
 
@@ -947,26 +1377,45 @@ main{
     </h2>
 
     <p>
-      NAIJA TASK is a platform designed to connect users
-      with available tasks, jobs and digital opportunities.
-      Users can complete eligible tasks, submit the required
-      proof and receive rewards when their submissions are
-      reviewed and approved.
+      NAIJA TASK connects users with available tasks,
+      jobs and digital opportunities. Eligible rewards
+      are credited after required proof has been reviewed
+      and approved according to platform rules.
     </p>
 
     <h3>
-      How NAIJA TASK Works
+      How it works
     </h3>
 
     <ul>
 
-      <li>Create and verify your NAIJA TASK account.</li>
-      <li>Activate your account when activation is required.</li>
-      <li>Browse available tasks or jobs.</li>
-      <li>Follow the instructions provided by the task owner.</li>
-      <li>Submit the required proof.</li>
-      <li>Wait for review and approval.</li>
-      <li>Approved rewards are reflected according to platform rules.</li>
+      <li>
+        Create and verify your account.
+      </li>
+
+      <li>
+        Activate your account when required.
+      </li>
+
+      <li>
+        Browse available tasks.
+      </li>
+
+      <li>
+        Follow the task instructions.
+      </li>
+
+      <li>
+        Upload the required proof.
+      </li>
+
+      <li>
+        Submit the proof for review.
+      </li>
+
+      <li>
+        Approved rewards are credited to your wallet.
+      </li>
 
     </ul>
 
@@ -994,6 +1443,7 @@ main{
 
   </section>
 
+
   <!-- LOGOUT -->
 
   <section class="feature">
@@ -1003,8 +1453,7 @@ main{
     </h2>
 
     <p>
-      When you are finished using NAIJA TASK,
-      you can safely sign out of your account.
+      Sign out safely when you finish using your account.
     </p>
 
     <button
@@ -1023,6 +1472,9 @@ main{
   </section>
 
 </main>
+
+
+<!-- BOTTOM NAV -->
 
 <nav class="bottom-nav">
 
@@ -1056,26 +1508,26 @@ main{
 
 </nav>
 
+
 <script>
 
 /* ==================================================
-   NAIJA TASK SUPABASE
-   ==================================================
+   NAIJA TASK — WORKER DASHBOARD
+==================================================
 
    IMPORTANT:
-   Do NOT put a service-role key here.
+   Never use a service-role key in browser code.
 
-   Put your current Supabase publishable key in
-   SUPABASE_KEY on your own device.
-
-   Do not send the key back in chat.
+   Keep your existing Supabase publishable key here
+   locally. Do not send it back into chat.
 ================================================== */
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 const SUPABASE_KEY =
-     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
 
 
 const supabaseClient =
@@ -1085,7 +1537,9 @@ const supabaseClient =
   );
 
 
-/* ELEMENTS */
+/* ================================
+   ELEMENTS
+================================ */
 
 const pageLoader =
   document.getElementById("pageLoader");
@@ -1096,14 +1550,23 @@ const userNameEl =
 const balanceEl =
   document.getElementById("balance");
 
+const approvedEarningsEl =
+  document.getElementById("approvedEarnings");
+
+const pendingEarningsEl =
+  document.getElementById("pendingEarnings");
+
 const taskCountEl =
   document.getElementById("taskCount");
 
-const proofCountEl =
-  document.getElementById("proofCount");
+const completedCountEl =
+  document.getElementById("completedCount");
 
 const approvedCountEl =
   document.getElementById("approvedCount");
+
+const activityList =
+  document.getElementById("activityList");
 
 const activationRequired =
   document.getElementById("activationRequired");
@@ -1135,11 +1598,12 @@ const logoutError =
 
 let currentUser = null;
 let securitySettings = null;
+let refreshTimer = null;
 
 
-/* ==================================================
+/* ================================
    FORMAT NAIRA
-================================================== */
+================================ */
 
 function formatNaira(amount){
 
@@ -1151,12 +1615,13 @@ function formatNaira(amount){
         maximumFractionDigits:2
       }
     );
+
 }
 
 
-/* ==================================================
+/* ================================
    ESCAPE HTML
-================================================== */
+================================ */
 
 function escapeHtml(value){
 
@@ -1166,17 +1631,44 @@ function escapeHtml(value){
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
+
 }
 
 
-/* ==================================================
+/* ================================
+   DATE
+================================ */
+
+function formatDate(value){
+
+  if(!value){
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if(Number.isNaN(date.getTime())){
+    return "";
+  }
+
+  return date.toLocaleString(
+    "en-NG",
+    {
+      day:"numeric",
+      month:"short",
+      year:"numeric",
+      hour:"numeric",
+      minute:"2-digit"
+    }
+  );
+
+}
+
+
+/* ================================
    DEVICE FINGERPRINT
-==================================================
-
-   This is an abuse-detection signal.
-
-   It is NOT treated as a permanent identity.
-================================================== */
+================================ */
 
 async function createDeviceFingerprint(){
 
@@ -1185,22 +1677,16 @@ async function createDeviceFingerprint(){
     const parts = [
 
       navigator.userAgent || "",
-
       navigator.language || "",
-
       navigator.platform || "",
-
       navigator.hardwareConcurrency || "",
-
       navigator.deviceMemory || "",
-
       screen.width || "",
-
       screen.height || "",
-
       screen.colorDepth || "",
-
-      Intl.DateTimeFormat().resolvedOptions().timeZone || ""
+      Intl.DateTimeFormat()
+        .resolvedOptions()
+        .timeZone || ""
 
     ];
 
@@ -1227,13 +1713,13 @@ async function createDeviceFingerprint(){
 
       return Array.from(bytes)
         .map(
-          b => b.toString(16).padStart(2,"0")
+          b =>
+            b.toString(16)
+              .padStart(2,"0")
         )
         .join("");
 
     }
-
-    /* Fallback */
 
     let hash = 0;
 
@@ -1248,9 +1734,12 @@ async function createDeviceFingerprint(){
         raw.charCodeAt(i);
 
       hash |= 0;
+
     }
 
-    return String(Math.abs(hash));
+    return String(
+      Math.abs(hash)
+    );
 
   }catch(error){
 
@@ -1260,13 +1749,15 @@ async function createDeviceFingerprint(){
     );
 
     return null;
+
   }
+
 }
 
 
-/* ==================================================
-   LOAD SECURITY SETTINGS
-================================================== */
+/* ================================
+   SECURITY SETTINGS
+================================ */
 
 async function loadSecuritySettings(){
 
@@ -1299,17 +1790,20 @@ async function loadSecuritySettings(){
     );
 
     return null;
+
   }
 
-  securitySettings = data;
+  securitySettings =
+    data;
 
   return data;
+
 }
 
 
-/* ==================================================
-   RECORD SECURITY EVENT
-================================================== */
+/* ================================
+   SECURITY EVENT
+================================ */
 
 async function recordSecurityEvent(
   userId,
@@ -1317,7 +1811,7 @@ async function recordSecurityEvent(
   severity,
   description,
   deviceFingerprint,
-  metadata = {}
+  metadata={}
 ){
 
   try{
@@ -1328,6 +1822,7 @@ async function recordSecurityEvent(
     ){
 
       return;
+
     }
 
     await supabaseClient
@@ -1335,18 +1830,12 @@ async function recordSecurityEvent(
       .insert({
 
         user_id:userId,
-
         event_type:eventType,
-
         severity:severity,
-
         description:description,
-
         device_fingerprint:
           deviceFingerprint || null,
-
         metadata:metadata,
-
         status:"OPEN"
 
       });
@@ -1357,13 +1846,15 @@ async function recordSecurityEvent(
       "Security event error:",
       error
     );
+
   }
+
 }
 
 
-/* ==================================================
-   LOAD SECURITY STATUS
-================================================== */
+/* ================================
+   SECURITY STATUS
+================================ */
 
 async function loadSecurityStatus(
   userId,
@@ -1392,7 +1883,10 @@ async function loadSecurityStatus(
         last_device_fingerprint,
         last_seen_at
       `)
-      .eq("user_id",userId)
+      .eq(
+        "user_id",
+        userId
+      )
       .maybeSingle();
 
   if(error){
@@ -1403,27 +1897,14 @@ async function loadSecurityStatus(
     );
 
     return null;
+
   }
-
-  /*
-    No security status row means the user
-    has not yet been flagged/restricted.
-
-    That is not treated as an error.
-  */
 
   if(!data){
 
     return null;
+
   }
-
-  /*
-  Update device activity only when security
-  monitoring is enabled.
-
-  This does NOT grant the browser permission
-  to access private device information.
-  */
 
   if(
     securitySettings &&
@@ -1449,12 +1930,13 @@ async function loadSecurityStatus(
   }
 
   return data;
+
 }
 
 
-/* ==================================================
-   SECURITY WARNING DISPLAY
-================================================== */
+/* ================================
+   SECURITY WARNINGS
+================================ */
 
 async function loadSecurityWarnings(userId){
 
@@ -1464,6 +1946,7 @@ async function loadSecurityWarnings(userId){
   ){
 
     return;
+
   }
 
   const {
@@ -1504,14 +1987,21 @@ async function loadSecurityWarnings(userId){
     );
 
     return;
+
   }
 
-  if(!data || !data.length){
+  if(
+    !data ||
+    !data.length
+  ){
 
     return;
+
   }
 
-  securityNotice.classList.add("show");
+  securityNotice.classList.add(
+    "show"
+  );
 
   securityTitle.textContent =
     "⚠️ Account Security Warning";
@@ -1543,9 +2033,9 @@ async function loadSecurityWarnings(userId){
               warning.severity || "WARNING"
             )}
             ·
-            ${new Date(
+            ${formatDate(
               warning.created_at
-            ).toLocaleString()}
+            )}
           </p>
 
         </div>
@@ -1556,9 +2046,9 @@ async function loadSecurityWarnings(userId){
 }
 
 
-/* ==================================================
+/* ================================
    APPLY SECURITY STATUS
-================================================== */
+================================ */
 
 function applySecurityStatus(status){
 
@@ -1569,9 +2059,6 @@ function applySecurityStatus(status){
   const now =
     new Date();
 
-  /*
-  BAN
-  */
 
   if(status.is_banned === true){
 
@@ -1585,7 +2072,7 @@ function applySecurityStatus(status){
 
     securityMessage.textContent =
       status.ban_reason ||
-      "Your account has been banned from using NAIJA TASK.";
+      "Your account has been restricted.";
 
     securityAction.classList.remove(
       "hidden"
@@ -1593,17 +2080,16 @@ function applySecurityStatus(status){
 
     securityAction.onclick =
       () => {
+
         window.location.href =
           "mailto:naijataskofficia@gmail.com?subject=NAIJA TASK Account Review";
+
       };
 
     return true;
+
   }
 
-
-  /*
-  SUSPENDED
-  */
 
   if(status.is_suspended === true){
 
@@ -1646,17 +2132,16 @@ function applySecurityStatus(status){
 
     securityAction.onclick =
       () => {
+
         window.location.href =
           "mailto:naijataskofficia@gmail.com?subject=NAIJA TASK Suspension Review";
+
       };
 
     return true;
+
   }
 
-
-  /*
-  RESTRICTED
-  */
 
   if(status.is_restricted === true){
 
@@ -1698,20 +2183,16 @@ function applySecurityStatus(status){
 
     securityAction.onclick =
       () => {
+
         window.location.href =
           "mailto:naijataskofficia@gmail.com?subject=NAIJA TASK Account Restriction";
+
       };
 
     return false;
+
   }
 
-
-  /*
-  HIGH RISK SCORE
-
-  We show a warning but do not automatically
-  ban the user from the dashboard.
-  */
 
   if(
     securitySettings &&
@@ -1729,17 +2210,18 @@ function applySecurityStatus(status){
       "⚠️ Security Review";
 
     securityMessage.textContent =
-      "Some unusual activity has been detected on your account. Please use NAIJA TASK normally and avoid duplicate or automated activity.";
+      "Some unusual activity has been detected. Please use NAIJA TASK normally and avoid duplicate or automated activity.";
 
   }
 
   return false;
+
 }
 
 
-/* ==================================================
+/* ================================
    SECURITY HEARTBEAT
-================================================== */
+================================ */
 
 async function updateSecurityHeartbeat(
   userId,
@@ -1747,29 +2229,13 @@ async function updateSecurityHeartbeat(
 ){
 
   if(
-    !securitySettings
-  ){
-
-    return;
-  }
-
-  if(
+    !securitySettings ||
     securitySettings.device_detection_enabled !== true
   ){
 
     return;
+
   }
-
-  /*
-    This records the current device signal.
-
-    It does NOT attempt to collect:
-    - contacts
-    - photos
-    - files
-    - passwords
-    - private device data
-  */
 
   try{
 
@@ -1795,21 +2261,626 @@ async function updateSecurityHeartbeat(
       "Security heartbeat error:",
       error
     );
+
   }
+
 }
 
 
 /* ==================================================
-   LOAD DASHBOARD
+   LOAD REAL PROFILE
+================================================== */
+
+async function loadProfile(userId){
+
+  /*
+    IMPORTANT:
+    The real database column is is_activated.
+    The old dashboard incorrectly requested "activated".
+  */
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("profiles")
+      .select(`
+        full_name,
+        balance,
+        is_activated
+      `)
+      .eq(
+        "id",
+        userId
+      )
+      .maybeSingle();
+
+  if(error){
+
+    throw error;
+
+  }
+
+  if(!data){
+
+    throw new Error(
+      "Your profile could not be found."
+    );
+
+  }
+
+  userNameEl.textContent =
+    data.full_name ||
+    currentUser?.email?.split("@")[0] ||
+    "User";
+
+  /*
+    THIS IS THE REAL WALLET BALANCE.
+  */
+
+  balanceEl.textContent =
+    formatNaira(
+      data.balance
+    );
+
+  /*
+    REAL ACTIVATION FIELD.
+  */
+
+  if(data.is_activated === true){
+
+    activationRequired.classList.add(
+      "hidden"
+    );
+
+    activationSuccess.classList.remove(
+      "hidden"
+    );
+
+  }else{
+
+    activationRequired.classList.remove(
+      "hidden"
+    );
+
+    activationSuccess.classList.add(
+      "hidden"
+    );
+
+  }
+
+  return data;
+
+}
+
+
+/* ==================================================
+   LOAD TASK COUNTS
+================================================== */
+
+async function loadTaskCounts(userId){
+
+  /*
+    LIVE AVAILABLE TASKS
+  */
+
+  const {
+    count:liveCount,
+    error:liveError
+  } =
+    await supabaseClient
+      .from("tasks")
+      .select(
+        "id",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "active",
+        true
+      )
+      .eq(
+        "status",
+        "LIVE"
+      );
+
+  if(liveError){
+
+    console.error(
+      "Available task count:",
+      liveError
+    );
+
+  }else{
+
+    taskCountEl.textContent =
+      liveCount || 0;
+
+  }
+
+
+  /*
+    COMPLETED TASKS
+
+    This uses the actual completion table.
+  */
+
+  const {
+    count:completedCount,
+    error:completedError
+  } =
+    await supabaseClient
+      .from("task_completions")
+      .select(
+        "id",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "user_id",
+        userId
+      );
+
+  if(completedError){
+
+    console.error(
+      "Completed count:",
+      completedError
+    );
+
+  }else{
+
+    completedCountEl.textContent =
+      completedCount || 0;
+
+  }
+
+
+  /*
+    APPROVED SUBMISSIONS
+  */
+
+  const {
+    count:approvedCount,
+    error:approvedError
+  } =
+    await supabaseClient
+      .from("task_submissions")
+      .select(
+        "id",
+        {
+          count:"exact",
+          head:true
+        }
+      )
+      .eq(
+        "user_id",
+        userId
+      )
+      .eq(
+        "status",
+        "APPROVED"
+      );
+
+  if(approvedError){
+
+    console.error(
+      "Approved count:",
+      approvedError
+    );
+
+  }else{
+
+    approvedCountEl.textContent =
+      approvedCount || 0;
+
+  }
+
+}
+
+
+/* ==================================================
+   LOAD REAL EARNINGS
+================================================== */
+
+async function loadEarnings(userId){
+
+  /*
+    Approved wallet credits.
+
+    We intentionally read wallet_transactions
+    instead of inventing an earnings number.
+  */
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("wallet_transactions")
+      .select(`
+        id,
+        type,
+        amount,
+        description,
+        reference,
+        status,
+        created_at
+      `)
+      .eq(
+        "user_id",
+        userId
+      )
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(30);
+
+  if(error){
+
+    console.error(
+      "Wallet transaction error:",
+      error
+    );
+
+    approvedEarningsEl.textContent =
+      "₦0.00";
+
+    activityList.innerHTML = `
+      <div class="empty-activity">
+        Wallet activity could not be loaded.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  let approvedTotal = 0;
+  let pendingTotal = 0;
+
+
+  /*
+    Count only actual wallet credits.
+
+    We do not assume every transaction is earnings.
+  */
+
+  for(const row of (data || [])){
+
+    const amount =
+      Number(row.amount || 0);
+
+    const type =
+      String(row.type || "").toLowerCase();
+
+    const status =
+      String(row.status || "").toLowerCase();
+
+    const isCredit =
+      amount > 0;
+
+    const isSuccessful =
+      !status ||
+      status === "approved" ||
+      status === "completed" ||
+      status === "success" ||
+      status === "successful";
+
+    if(
+      isCredit &&
+      isSuccessful &&
+      (
+        type.includes("earning") ||
+        type.includes("task") ||
+        type.includes("reward") ||
+        type.includes("credit")
+      )
+    ){
+
+      approvedTotal += amount;
+
+    }
+
+  }
+
+
+  /*
+    Pending task submissions.
+
+    We use the task reward when available.
+  */
+
+  const {
+    data:pendingRows,
+    error:pendingError
+  } =
+    await supabaseClient
+      .from("task_submissions")
+      .select(`
+        id,
+        task_id,
+        status
+      `)
+      .eq(
+        "user_id",
+        userId
+      )
+      .eq(
+        "status",
+        "PENDING"
+      )
+      .limit(100);
+
+
+  if(
+    !pendingError &&
+    pendingRows &&
+    pendingRows.length
+  ){
+
+    const taskIds =
+      pendingRows
+        .map(row => row.task_id)
+        .filter(Boolean);
+
+    if(taskIds.length){
+
+      const {
+        data:pendingTasks
+      } =
+        await supabaseClient
+          .from("tasks")
+          .select(`
+            id,
+            reward,
+            reward_per_worker
+          `)
+          .in(
+            "id",
+            taskIds
+          );
+
+      const rewardMap =
+        new Map(
+          (pendingTasks || [])
+            .map(task => [
+              task.id,
+              Number(
+                task.reward_per_worker ??
+                task.reward ??
+                0
+              )
+            ])
+        );
+
+      for(const row of pendingRows){
+
+        pendingTotal +=
+          rewardMap.get(
+            row.task_id
+          ) || 0;
+
+      }
+
+    }
+
+  }
+
+
+  approvedEarningsEl.textContent =
+    formatNaira(
+      approvedTotal
+    );
+
+  pendingEarningsEl.textContent =
+    formatNaira(
+      pendingTotal
+    );
+
+
+  /*
+    RECENT ACTIVITY
+  */
+
+  if(!data || !data.length){
+
+    activityList.innerHTML = `
+      <div class="empty-activity">
+        No wallet earnings yet.<br>
+        Complete and get a task approved to see
+        your reward here.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  const earningRows =
+    data.filter(row => {
+
+      const amount =
+        Number(row.amount || 0);
+
+      const type =
+        String(row.type || "").toLowerCase();
+
+      return (
+        amount > 0 &&
+        (
+          type.includes("earning") ||
+          type.includes("task") ||
+          type.includes("reward") ||
+          type.includes("credit")
+        )
+      );
+
+    }).slice(0,6);
+
+
+  if(!earningRows.length){
+
+    activityList.innerHTML = `
+      <div class="empty-activity">
+        No approved task earnings yet.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  activityList.innerHTML =
+    earningRows.map(row => {
+
+      const amount =
+        Number(row.amount || 0);
+
+      return `
+
+        <div class="activity-row">
+
+          <div class="activity-icon">
+            ₦
+          </div>
+
+          <div class="activity-info">
+
+            <div class="activity-title">
+              ${escapeHtml(
+                row.description ||
+                "Task reward"
+              )}
+            </div>
+
+            <div class="activity-date">
+              ${formatDate(
+                row.created_at
+              )}
+            </div>
+
+          </div>
+
+          <div class="activity-amount">
+            +${formatNaira(amount)}
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* ==================================================
+   RESTRICT TASK LINKS
+================================================== */
+
+function restrictTaskLinks(){
+
+  document
+    .querySelectorAll(
+      'a[href="task.html"]'
+    )
+    .forEach(link => {
+
+      link.addEventListener(
+        "click",
+        function(event){
+
+          event.preventDefault();
+
+          alert(
+            "Your account currently has a temporary security restriction. Please check the security notice above."
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* ==================================================
+   LOAD DASHBOARD DATA
+================================================== */
+
+async function loadDashboardData(){
+
+  if(!currentUser){
+    return;
+  }
+
+  try{
+
+    /*
+      PROFILE FIRST.
+
+      This is where the real balance is read.
+    */
+
+    await loadProfile(
+      currentUser.id
+    );
+
+
+    /*
+      Counts and earnings can load together.
+    */
+
+    await Promise.all([
+      loadTaskCounts(currentUser.id),
+      loadEarnings(currentUser.id)
+    ]);
+
+  }catch(error){
+
+    console.error(
+      "Dashboard data error:",
+      error
+    );
+
+    /*
+      Do NOT silently claim the user has ₦0
+      when the database failed.
+
+      Keep the existing displayed balance instead.
+    */
+
+    activityList.innerHTML = `
+      <div class="empty-activity">
+        Some account information could not be refreshed.
+        Please try again.
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* ==================================================
+   FULL DASHBOARD
 ================================================== */
 
 async function loadDashboard(){
 
   try{
-
-    /*
-    AUTH
-    */
 
     const {
       data:{
@@ -1820,7 +2891,6 @@ async function loadDashboard(){
       await supabaseClient.auth.getUser();
 
     if(authError){
-
       throw authError;
     }
 
@@ -1831,6 +2901,7 @@ async function loadDashboard(){
       );
 
       return;
+
     }
 
     currentUser =
@@ -1838,18 +2909,13 @@ async function loadDashboard(){
 
 
     /*
-    SECURITY SETTINGS
+      SECURITY
     */
 
     await loadSecuritySettings();
 
 
-    /*
-    DEVICE SIGNAL
-    */
-
-    let deviceFingerprint =
-      null;
+    let deviceFingerprint = null;
 
     if(
       securitySettings &&
@@ -1862,10 +2928,6 @@ async function loadDashboard(){
     }
 
 
-    /*
-    SECURITY STATUS
-    */
-
     const securityStatus =
       await loadSecurityStatus(
         user.id,
@@ -1873,28 +2935,16 @@ async function loadDashboard(){
       );
 
 
-    /*
-    SHOW SECURITY STATUS
-    */
-
     const blocked =
       applySecurityStatus(
         securityStatus
       );
 
 
-    /*
-    SECURITY WARNINGS
-    */
-
     await loadSecurityWarnings(
       user.id
     );
 
-
-    /*
-    SECURITY HEARTBEAT
-    */
 
     if(!blocked){
 
@@ -1907,219 +2957,14 @@ async function loadDashboard(){
 
 
     /*
-    PROFILE
+      REAL ACCOUNT DATA
     */
 
-    const {
-      data:profile,
-      error:profileError
-    } =
-      await supabaseClient
-        .from("profiles")
-        .select(
-          "full_name,balance,activated"
-        )
-        .eq(
-          "id",
-          user.id
-        )
-        .maybeSingle();
-
-
-    if(profileError){
-
-      console.error(
-        "Profile error:",
-        profileError
-      );
-
-    }
+    await loadDashboardData();
 
 
     /*
-    NAME + BALANCE
-    */
-
-    if(profile){
-
-      userNameEl.textContent =
-        profile.full_name ||
-        user.email?.split("@")[0] ||
-        "User";
-
-      balanceEl.textContent =
-        formatNaira(
-          profile.balance
-        );
-
-      if(profile.activated === true){
-
-        activationRequired.classList.add(
-          "hidden"
-        );
-
-        activationSuccess.classList.remove(
-          "hidden"
-        );
-
-      }else{
-
-        activationSuccess.classList.add(
-          "hidden"
-        );
-
-        activationRequired.classList.remove(
-          "hidden"
-        );
-
-      }
-
-    }else{
-
-      userNameEl.textContent =
-        user.email?.split("@")[0] ||
-        "User";
-
-      balanceEl.textContent =
-        "₦0.00";
-
-      activationSuccess.classList.add(
-        "hidden"
-      );
-
-      activationRequired.classList.remove(
-        "hidden"
-      );
-
-    }
-
-
-    /*
-    AVAILABLE TASKS
-    */
-
-    const {
-      count:taskCount,
-      error:taskError
-    } =
-      await supabaseClient
-        .from("tasks")
-        .select(
-          "id",
-          {
-            count:"exact",
-            head:true
-          }
-        )
-        .eq(
-          "active",
-          true
-        )
-        .eq(
-          "status",
-          "LIVE"
-        );
-
-    if(taskError){
-
-      console.error(
-        "Task count error:",
-        taskError
-      );
-
-    }else{
-
-      taskCountEl.textContent =
-        taskCount || 0;
-
-    }
-
-
-    /*
-    MY PROOFS
-    */
-
-    const {
-      count:proofCount,
-      error:proofError
-    } =
-      await supabaseClient
-        .from("task_submissions")
-        .select(
-          "id",
-          {
-            count:"exact",
-            head:true
-          }
-        )
-        .eq(
-          "user_id",
-          user.id
-        );
-
-    if(proofError){
-
-      console.error(
-        "Proof count error:",
-        proofError
-      );
-
-    }else{
-
-      proofCountEl.textContent =
-        proofCount || 0;
-
-    }
-
-
-    /*
-    APPROVED
-    */
-
-    const {
-      count:approvedCount,
-      error:approvedError
-    } =
-      await supabaseClient
-        .from("task_submissions")
-        .select(
-          "id",
-          {
-            count:"exact",
-            head:true
-          }
-        )
-        .eq(
-          "user_id",
-          user.id
-        )
-        .eq(
-          "status",
-          "APPROVED"
-        );
-
-    if(approvedError){
-
-      console.error(
-        "Approved count error:",
-        approvedError
-      );
-
-    }else{
-
-      approvedCountEl.textContent =
-        approvedCount || 0;
-
-    }
-
-
-    /*
-    DEVICE MISMATCH SIGNAL
-
-    If the stored device is different from the
-    current device, record a LOW security event.
-
-    This is only a signal, not an automatic ban.
+      Device-change signal
     */
 
     if(
@@ -2128,7 +2973,8 @@ async function loadDashboard(){
       securityStatus &&
       securityStatus.last_device_fingerprint &&
       deviceFingerprint &&
-      securityStatus.last_device_fingerprint !== deviceFingerprint
+      securityStatus.last_device_fingerprint !==
+        deviceFingerprint
     ){
 
       await recordSecurityEvent(
@@ -2140,6 +2986,7 @@ async function loadDashboard(){
         {
           previous_device:
             securityStatus.last_device_fingerprint,
+
           current_device:
             deviceFingerprint
         }
@@ -2148,37 +2995,12 @@ async function loadDashboard(){
     }
 
 
-    /*
-    RESTRICTION NOTICE
-
-    If restricted, keep the dashboard visible,
-    but the task page will later enforce the same
-    security status before allowing submissions.
-    */
-
     if(
       securityStatus &&
       securityStatus.is_restricted === true
     ){
 
-      document.querySelectorAll(
-        'a[href="task.html"]'
-      ).forEach(link => {
-
-        link.addEventListener(
-          "click",
-          function(event){
-
-            event.preventDefault();
-
-            alert(
-              "Your account currently has a temporary security restriction. Please check the security notice above."
-            );
-
-          }
-        );
-
-      });
+      restrictTaskLinks();
 
     }
 
@@ -2189,20 +3011,19 @@ async function loadDashboard(){
       error
     );
 
-    userNameEl.textContent =
-      "User";
+    /*
+      Authentication failure should go back to login.
+    */
 
-    balanceEl.textContent =
-      "₦0.00";
+    if(
+      !currentUser
+    ){
 
-    taskCountEl.textContent =
-      "0";
+      window.location.replace(
+        "index.html"
+      );
 
-    proofCountEl.textContent =
-      "0";
-
-    approvedCountEl.textContent =
-      "0";
+    }
 
   }finally{
 
@@ -2213,6 +3034,182 @@ async function loadDashboard(){
   }
 
 }
+
+
+/* ==================================================
+   REFRESH REAL MONEY DATA
+================================================== */
+
+async function refreshMoneyData(){
+
+  if(!currentUser){
+    return;
+  }
+
+  try{
+
+    /*
+      Profile balance
+    */
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("profiles")
+        .select(
+          "balance,is_activated"
+        )
+        .eq(
+          "id",
+          currentUser.id
+        )
+        .maybeSingle();
+
+    if(
+      !error &&
+      data
+    ){
+
+      balanceEl.textContent =
+        formatNaira(
+          data.balance
+        );
+
+    }
+
+
+    /*
+      Earnings + counters
+    */
+
+    await Promise.all([
+      loadTaskCounts(currentUser.id),
+      loadEarnings(currentUser.id)
+    ]);
+
+  }catch(error){
+
+    console.error(
+      "Money refresh error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==================================================
+   REALTIME WALLET / PROFILE
+================================================== */
+
+function startRealtime(){
+
+  if(!currentUser){
+    return;
+  }
+
+
+  /*
+    Listen for profile balance changes.
+
+    When the approval RPC updates profiles.balance,
+    the dashboard can update without the user manually
+    refreshing the page.
+  */
+
+  supabaseClient
+    .channel(
+      "worker-wallet-" +
+      currentUser.id
+    )
+    .on(
+      "postgres_changes",
+      {
+        event:"UPDATE",
+        schema:"public",
+        table:"profiles",
+        filter:
+          "id=eq." +
+          currentUser.id
+      },
+      () => {
+
+        refreshMoneyData();
+
+      }
+    )
+    .on(
+      "postgres_changes",
+      {
+        event:"INSERT",
+        schema:"public",
+        table:"wallet_transactions",
+        filter:
+          "user_id=eq." +
+          currentUser.id
+      },
+      () => {
+
+        refreshMoneyData();
+
+      }
+    )
+    .on(
+      "postgres_changes",
+      {
+        event:"UPDATE",
+        schema:"public",
+        table:"wallet_transactions",
+        filter:
+          "user_id=eq." +
+          currentUser.id
+      },
+      () => {
+
+        refreshMoneyData();
+
+      }
+    )
+    .subscribe();
+
+}
+
+
+/* ==================================================
+   PAGE VISIBILITY
+================================================== */
+
+document.addEventListener(
+  "visibilitychange",
+  function(){
+
+    if(
+      document.visibilityState === "visible"
+    ){
+
+      refreshMoneyData();
+
+    }
+
+  }
+);
+
+
+/* ==================================================
+   WINDOW FOCUS
+================================================== */
+
+window.addEventListener(
+  "focus",
+  function(){
+
+    refreshMoneyData();
+
+  }
+);
 
 
 /* ==================================================
@@ -2241,9 +3238,7 @@ logoutButton.addEventListener(
         await supabaseClient.auth.signOut();
 
       if(error){
-
         throw error;
-
       }
 
       window.location.replace(
@@ -2302,7 +3297,35 @@ supabaseClient.auth.onAuthStateChange(
    START
 ================================================== */
 
-loadDashboard();
+async function start(){
+
+  await loadDashboard();
+
+  /*
+    Start realtime only after authentication.
+  */
+
+  if(currentUser){
+
+    startRealtime();
+
+    /*
+      Safety refresh every 30 seconds.
+      This is not the source of truth;
+      Supabase remains the source of truth.
+    */
+
+    refreshTimer =
+      setInterval(
+        refreshMoneyData,
+        30000
+      );
+
+  }
+
+}
+
+start();
 
 </script>
 
