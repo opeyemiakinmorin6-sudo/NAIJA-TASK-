@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b8f3c">
+<meta name="color-scheme" content="light">
 <title>Admin Control Center — NAIJA TASK</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,10 +21,17 @@ html,body{
   min-height:100%;
   font-family:Arial,Helvetica,sans-serif;
   background:#f5fff7;
-  color:#17251b;
+  color:#17231b;
 }
 
-button,input,select,textarea{
+body{
+  overflow-x:hidden;
+}
+
+button,
+input,
+select,
+textarea{
   font:inherit;
 }
 
@@ -35,261 +43,115 @@ button{
   display:none!important;
 }
 
-#loading{
-  position:fixed;
-  inset:0;
-  z-index:99999;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#f5fff7;
-}
-
-.loader{
-  width:42px;
-  height:42px;
-  border:4px solid #d7f1df;
-  border-top-color:#0b8f3c;
-  border-radius:50%;
-  animation:spin .8s linear infinite;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-
-.login-screen{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-
-.login-card{
-  width:100%;
-  max-width:430px;
-  background:#fff;
-  border:1px solid #dceee1;
-  border-radius:20px;
-  padding:24px;
-  box-shadow:0 12px 40px rgba(0,0,0,.07);
-}
-
-.logo{
-  width:58px;
-  height:58px;
-  border-radius:16px;
-  background:#0b8f3c;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:25px;
-  font-weight:900;
-  margin-bottom:15px;
-}
-
-.login-card h1{
-  margin:0 0 7px;
-  font-size:24px;
-}
-
-.login-card p{
-  color:#66736a;
-  margin:0 0 20px;
-  line-height:1.5;
-}
-
-.field{
-  margin-bottom:14px;
-}
-
-.field label{
-  display:block;
-  font-size:13px;
-  font-weight:700;
-  margin-bottom:7px;
-}
-
-input,select,textarea{
-  width:100%;
-  border:1px solid #d7e7dc;
-  background:#fff;
-  border-radius:11px;
-  padding:12px;
-  outline:none;
-}
-
-input:focus,select:focus,textarea:focus{
-  border-color:#0b8f3c;
-  box-shadow:0 0 0 3px rgba(11,143,60,.09);
-}
-
-textarea{
-  min-height:100px;
-  resize:vertical;
-}
-
-.primary{
-  border:0;
-  border-radius:11px;
-  background:#0b8f3c;
-  color:#fff;
-  padding:12px 16px;
-  font-weight:800;
-}
-
-.primary:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.secondary{
-  border:1px solid #cfe2d4;
-  background:#fff;
-  color:#173b23;
-  border-radius:11px;
-  padding:10px 13px;
-  font-weight:700;
-}
-
-.danger{
-  border:0;
-  background:#c62828;
-  color:#fff;
-  border-radius:10px;
-  padding:9px 12px;
-  font-weight:700;
-}
-
-.warning{
-  border:0;
-  background:#e68a00;
-  color:#fff;
-  border-radius:10px;
-  padding:9px 12px;
-  font-weight:700;
-}
-
-.success{
-  border:0;
-  background:#087a33;
-  color:#fff;
-  border-radius:10px;
-  padding:9px 12px;
-  font-weight:700;
-}
-
-.login-links{
-  display:flex;
-  justify-content:space-between;
-  margin-top:14px;
-}
-
-.login-links button{
-  border:0;
-  background:none;
-  color:#087a33;
-  font-weight:700;
-}
-
-#app{
+.app{
   min-height:100vh;
 }
 
 .topbar{
-  position:fixed;
+  position:sticky;
   top:0;
-  left:0;
-  right:0;
-  height:64px;
-  z-index:1000;
+  z-index:100;
   background:#0b8f3c;
   color:#fff;
+  min-height:60px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 15px;
+  gap:10px;
+  padding:10px 14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.12);
 }
 
 .brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:900;
+  min-width:0;
 }
 
-.brand-mark{
-  width:38px;
-  height:38px;
-  border-radius:11px;
-  background:#fff;
-  color:#0b8f3c;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:900;
+.brand strong{
+  display:block;
+  font-size:18px;
+  letter-spacing:.2px;
 }
 
-.menu-btn{
+.brand small{
+  display:block;
+  opacity:.86;
+  margin-top:2px;
+  font-size:11px;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.icon-btn{
   border:0;
-  background:rgba(255,255,255,.13);
+  background:rgba(255,255,255,.15);
   color:#fff;
-  width:40px;
+  border-radius:9px;
+  min-width:40px;
   height:40px;
-  border-radius:10px;
-  font-size:20px;
+  padding:0 10px;
+  font-weight:700;
+}
+
+.icon-btn:hover{
+  background:rgba(255,255,255,.22);
 }
 
 .layout{
   display:flex;
-  padding-top:64px;
+  min-height:calc(100vh - 60px);
 }
 
 .sidebar{
-  position:fixed;
-  top:64px;
-  bottom:0;
-  left:0;
-  width:245px;
+  width:250px;
+  flex:0 0 250px;
   background:#fff;
-  border-right:1px solid #dceee1;
+  border-right:1px solid #dce9df;
+  padding:12px 9px;
+  position:sticky;
+  top:60px;
+  height:calc(100vh - 60px);
   overflow-y:auto;
-  padding:12px;
-  z-index:900;
 }
 
 .nav-title{
-  padding:12px 10px 6px;
-  color:#829088;
-  font-size:11px;
-  font-weight:900;
+  color:#718078;
+  font-size:10px;
+  font-weight:800;
   text-transform:uppercase;
+  padding:10px 10px 6px;
+  letter-spacing:.7px;
 }
 
 .nav-btn{
   width:100%;
   border:0;
   background:transparent;
+  color:#26362c;
   text-align:left;
-  padding:11px;
-  border-radius:10px;
-  margin-bottom:3px;
-  color:#304237;
+  padding:11px 10px;
+  margin:2px 0;
+  border-radius:9px;
   font-weight:700;
+  font-size:13px;
 }
 
-.nav-btn:hover,
+.nav-btn:hover{
+  background:#edf9f0;
+}
+
 .nav-btn.active{
-  background:#eaf8ee;
-  color:#087a33;
+  background:#dff5e5;
+  color:#087632;
 }
 
 .main{
-  width:calc(100% - 245px);
-  margin-left:245px;
-  padding:18px;
+  flex:1;
+  min-width:0;
+  padding:16px;
 }
 
 .page{
@@ -300,22 +162,23 @@ textarea{
   display:block;
 }
 
-.page-header{
+.page-head{
   display:flex;
-  justify-content:space-between;
   align-items:flex-start;
+  justify-content:space-between;
   gap:12px;
-  margin-bottom:17px;
+  margin-bottom:16px;
 }
 
-.page-header h2{
+.page-head h1{
   margin:0;
-  font-size:23px;
+  font-size:22px;
 }
 
-.page-header p{
+.page-head p{
   margin:5px 0 0;
-  color:#728078;
+  color:#66756b;
+  font-size:13px;
 }
 
 .actions{
@@ -324,51 +187,110 @@ textarea{
   gap:8px;
 }
 
+.btn{
+  border:1px solid #cbd9cf;
+  background:#fff;
+  color:#26362c;
+  border-radius:8px;
+  padding:10px 13px;
+  font-weight:700;
+  font-size:13px;
+}
+
+.btn:hover{
+  background:#f3f8f4;
+}
+
+.btn.primary{
+  background:#0b8f3c;
+  border-color:#0b8f3c;
+  color:#fff;
+}
+
+.btn.primary:hover{
+  background:#087832;
+}
+
+.btn.danger{
+  background:#b42318;
+  border-color:#b42318;
+  color:#fff;
+}
+
+.btn.warning{
+  background:#a15c00;
+  border-color:#a15c00;
+  color:#fff;
+}
+
+.btn.success{
+  background:#087832;
+  border-color:#087832;
+  color:#fff;
+}
+
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
 .grid{
   display:grid;
-  gap:14px;
-}
-
-.grid-2{
-  grid-template-columns:repeat(2,minmax(0,1fr));
-}
-
-.grid-3{
-  grid-template-columns:repeat(3,minmax(0,1fr));
-}
-
-.grid-4{
   grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
 }
 
 .card{
   background:#fff;
-  border:1px solid #dceee1;
-  border-radius:15px;
-  padding:16px;
-  box-shadow:0 4px 18px rgba(0,0,0,.025);
-}
-
-.card h3{
-  margin:0 0 12px;
-  font-size:16px;
+  border:1px solid #dce9df;
+  border-radius:12px;
+  padding:14px;
+  box-shadow:0 1px 4px rgba(0,0,0,.035);
 }
 
 .stat-label{
-  color:#78857d;
+  color:#68766e;
   font-size:12px;
   font-weight:700;
 }
 
 .stat-value{
-  font-size:26px;
-  font-weight:900;
+  font-size:24px;
+  font-weight:800;
   margin-top:7px;
+  color:#13251a;
+  word-break:break-word;
+}
+
+.stat-note{
+  color:#78857d;
+  font-size:11px;
+  margin-top:5px;
+}
+
+.section{
+  margin-top:14px;
+}
+
+.section-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:9px;
+}
+
+.section-title h2{
+  margin:0;
+  font-size:16px;
 }
 
 .table-wrap{
   width:100%;
-  overflow-x:auto;
+  overflow:auto;
+  border:1px solid #dce9df;
+  border-radius:10px;
+  background:#fff;
 }
 
 table{
@@ -377,175 +299,63 @@ table{
   min-width:720px;
 }
 
-th,td{
-  padding:11px 9px;
-  border-bottom:1px solid #edf3ee;
+th,
+td{
+  border-bottom:1px solid #e7eee9;
+  padding:10px;
   text-align:left;
   vertical-align:top;
-  font-size:13px;
+  font-size:12px;
 }
 
 th{
-  background:#f7fbf8;
-  font-size:12px;
-  color:#627068;
+  background:#f1f8f3;
+  color:#34443a;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.25px;
+  white-space:nowrap;
+}
+
+tr:last-child td{
+  border-bottom:0;
 }
 
 .badge{
   display:inline-flex;
-  padding:5px 8px;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
   border-radius:999px;
-  font-size:11px;
-  font-weight:900;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.2px;
 }
 
 .badge.green{
-  background:#e4f7ea;
-  color:#087a33;
+  background:#ddf5e4;
+  color:#087832;
 }
 
 .badge.red{
-  background:#fde9e9;
-  color:#b52222;
+  background:#fde5e3;
+  color:#a61b11;
 }
 
-.badge.orange{
-  background:#fff1d9;
-  color:#a86000;
+.badge.yellow{
+  background:#fff1d8;
+  color:#875000;
 }
 
 .badge.gray{
-  background:#edf1ee;
-  color:#5c6860;
+  background:#edf0ee;
+  color:#59655e;
 }
 
-.notice{
-  padding:12px;
-  border-radius:11px;
-  background:#eef9f1;
-  border:1px solid #cce8d4;
-  color:#245a34;
-  line-height:1.45;
-  margin-bottom:14px;
-}
-
-.notice.danger-box{
-  background:#fff0f0;
-  border-color:#f0cccc;
-  color:#8b2020;
-}
-
-.setting{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  padding:12px 0;
-  border-bottom:1px solid #edf3ee;
-}
-
-.setting:last-child{
-  border-bottom:0;
-}
-
-.setting strong{
-  display:block;
-  font-size:14px;
-}
-
-.setting small{
-  display:block;
-  color:#78857d;
-  margin-top:3px;
-  line-height:1.35;
-}
-
-.switch{
-  position:relative;
-  width:48px;
-  height:27px;
-  flex:0 0 auto;
-}
-
-.switch input{
-  opacity:0;
-  width:0;
-  height:0;
-}
-
-.slider{
-  position:absolute;
-  inset:0;
-  background:#cbd8ce;
-  border-radius:30px;
-  transition:.2s;
-}
-
-.slider:before{
-  content:"";
-  position:absolute;
-  width:21px;
-  height:21px;
-  left:3px;
-  top:3px;
-  background:#fff;
-  border-radius:50%;
-  transition:.2s;
-  box-shadow:0 1px 3px rgba(0,0,0,.2);
-}
-
-.switch input:checked + .slider{
-  background:#0b8f3c;
-}
-
-.switch input:checked + .slider:before{
-  transform:translateX(21px);
-}
-
-.modal{
-  position:fixed;
-  inset:0;
-  z-index:3000;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-  background:rgba(0,0,0,.48);
-}
-
-.modal.show{
-  display:flex;
-}
-
-.modal-box{
-  width:100%;
-  max-width:720px;
-  max-height:92vh;
-  overflow:auto;
-  background:#fff;
-  border-radius:18px;
-  padding:18px;
-}
-
-.modal-head{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-  margin-bottom:14px;
-}
-
-.modal-head h3{
-  margin:0;
-}
-
-.close{
-  border:0;
-  background:#eef3ef;
-  width:36px;
-  height:36px;
-  border-radius:9px;
-  font-size:20px;
+.badge.blue{
+  background:#e4f0ff;
+  color:#175a9e;
 }
 
 .form-grid{
@@ -554,148 +364,401 @@ th{
   gap:12px;
 }
 
-.full{
+.field{
+  min-width:0;
+}
+
+.field.full{
   grid-column:1/-1;
 }
 
-.modal-footer{
+.field label{
+  display:block;
+  margin-bottom:5px;
+  color:#34443a;
+  font-size:12px;
+  font-weight:800;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid #cbd9cf;
+  border-radius:8px;
+  padding:10px;
+  background:#fff;
+  color:#17231b;
+  outline:none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:#0b8f3c;
+  box-shadow:0 0 0 2px rgba(11,143,60,.08);
+}
+
+.field textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+.check-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:40px;
+  padding:9px 10px;
+  border:1px solid #dce9df;
+  border-radius:8px;
+  background:#fbfefc;
+}
+
+.check-row input{
+  width:17px;
+  height:17px;
+  accent-color:#0b8f3c;
+}
+
+.check-row span{
+  font-size:12px;
+  font-weight:700;
+}
+
+.notice{
+  border:1px solid #dce9df;
+  border-left:4px solid #0b8f3c;
+  background:#f8fcf9;
+  border-radius:8px;
+  padding:11px;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.notice.warning{
+  border-left-color:#a15c00;
+  background:#fffaf1;
+}
+
+.notice.danger{
+  border-left-color:#b42318;
+  background:#fff7f6;
+}
+
+.notice.info{
+  border-left-color:#276aa8;
+  background:#f5f9ff;
+}
+
+.loading{
+  padding:22px;
+  text-align:center;
+  color:#6c796f;
+  font-size:13px;
+}
+
+.empty{
+  padding:24px;
+  text-align:center;
+  color:#6c796f;
+  font-size:13px;
+}
+
+.error-box{
+  margin:10px 0;
+  padding:11px;
+  border-radius:8px;
+  background:#fff0ef;
+  border:1px solid #f1c5c1;
+  color:#9d2118;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.success-box{
+  margin:10px 0;
+  padding:11px;
+  border-radius:8px;
+  background:#edfbf1;
+  border:1px solid #c6e8ce;
+  color:#087832;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  background:rgba(0,0,0,.48);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:14px;
+}
+
+.modal-backdrop.show{
+  display:flex;
+}
+
+.modal{
+  width:min(720px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:13px;
+  box-shadow:0 15px 50px rgba(0,0,0,.22);
+}
+
+.modal-head{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#fff;
+  border-bottom:1px solid #e2eae4;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.modal-head h3{
+  margin:0;
+  font-size:16px;
+}
+
+.modal-body{
+  padding:14px;
+}
+
+.modal-foot{
+  position:sticky;
+  bottom:0;
+  background:#fff;
+  border-top:1px solid #e2eae4;
+  padding:12px 14px;
   display:flex;
   justify-content:flex-end;
+  flex-wrap:wrap;
   gap:8px;
-  margin-top:15px;
+}
+
+.close-btn{
+  border:0;
+  background:#eef3ef;
+  width:34px;
+  height:34px;
+  border-radius:8px;
+  font-weight:800;
 }
 
 .proof-image{
   display:block;
   max-width:100%;
-  max-height:450px;
+  max-height:380px;
   object-fit:contain;
-  margin:auto;
-  border-radius:12px;
-  background:#f2f4f2;
+  border-radius:8px;
+  border:1px solid #dce9df;
+  background:#f4f7f5;
 }
 
-.empty{
+.kv{
+  display:grid;
+  grid-template-columns:150px 1fr;
+  gap:6px 10px;
+  font-size:12px;
+}
+
+.kv strong{
+  color:#536158;
+}
+
+.login-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:#f5fff7;
+}
+
+.login-card{
+  width:min(430px,100%);
+  background:#fff;
+  border:1px solid #dce9df;
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.07);
+}
+
+.login-logo{
+  width:54px;
+  height:54px;
+  border-radius:13px;
+  background:#0b8f3c;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  margin-bottom:12px;
+}
+
+.login-card h1{
+  margin:0;
+  font-size:22px;
+}
+
+.login-card p{
+  margin:6px 0 16px;
+  color:#68766e;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.login-card .field{
+  margin-bottom:11px;
+}
+
+.login-foot{
+  margin-top:14px;
   text-align:center;
-  padding:25px;
-  color:#7a867e;
+  color:#738077;
+  font-size:10px;
 }
 
-.mobile-bottom{
+.auth-loading{
+  text-align:center;
+  padding:30px 15px;
+  color:#68766e;
+}
+
+.mobile-nav{
   display:none;
 }
 
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:20px;
-  transform:translateX(-50%) translateY(20px);
-  background:#18221b;
-  color:#fff;
-  padding:11px 15px;
-  border-radius:10px;
-  z-index:9999;
-  opacity:0;
-  pointer-events:none;
-  transition:.2s;
-  max-width:90%;
-  text-align:center;
-}
+@media(max-width:1050px){
+  .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
 
-.toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-
-@media(max-width:900px){
   .sidebar{
-    transform:translateX(-100%);
-    transition:.2s;
-  }
-
-  .sidebar.open{
-    transform:translateX(0);
-  }
-
-  .main{
-    width:100%;
-    margin-left:0;
-    padding:13px;
-  }
-
-  .grid-4{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-
-  .grid-3{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-
-  .mobile-bottom{
-    display:flex;
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-    z-index:800;
-    background:#fff;
-    border-top:1px solid #dceee1;
-    padding:7px;
-    gap:5px;
-  }
-
-  .mobile-bottom button{
-    flex:1;
-    border:0;
-    background:none;
-    padding:7px 3px;
-    color:#637168;
-    font-size:10px;
-    font-weight:800;
-  }
-
-  .mobile-bottom button.active{
-    color:#087a33;
-  }
-
-  .main{
-    padding-bottom:75px;
+    width:220px;
+    flex-basis:220px;
   }
 }
 
-@media(max-width:600px){
-  .grid-2,
-  .grid-3,
-  .grid-4{
-    grid-template-columns:1fr 1fr;
+@media(max-width:760px){
+  .topbar{
+    min-height:56px;
+    padding:8px 10px;
   }
 
-  .page-header{
+  .brand strong{
+    font-size:16px;
+  }
+
+  .layout{
+    display:block;
+    min-height:calc(100vh - 56px);
+  }
+
+  .sidebar{
+    display:none;
+  }
+
+  .main{
+    padding:11px;
+    padding-bottom:76px;
+  }
+
+  .page-head{
     flex-direction:column;
+    margin-bottom:12px;
+  }
+
+  .page-head h1{
+    font-size:19px;
+  }
+
+  .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .card{
+    padding:11px;
+  }
+
+  .stat-value{
+    font-size:19px;
   }
 
   .form-grid{
     grid-template-columns:1fr;
+    gap:9px;
   }
 
-  .full{
+  .field.full{
     grid-column:auto;
   }
 
-  .stat-value{
-    font-size:21px;
+  .mobile-nav{
+    position:fixed;
+    display:flex;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:150;
+    background:#fff;
+    border-top:1px solid #dce9df;
+    padding:6px 5px calc(6px + env(safe-area-inset-bottom));
+    gap:4px;
   }
 
-  .card{
-    padding:13px;
+  .mobile-nav button{
+    flex:1;
+    border:0;
+    background:transparent;
+    color:#5e6b63;
+    padding:7px 3px;
+    border-radius:7px;
+    font-size:9px;
+    font-weight:800;
+  }
+
+  .mobile-nav button.active{
+    color:#087832;
+    background:#edf9f0;
+  }
+
+  .kv{
+    grid-template-columns:1fr;
+    gap:2px;
+  }
+
+  .kv strong{
+    margin-top:6px;
   }
 }
 
 @media(max-width:400px){
-  .grid-2,
-  .grid-3,
-  .grid-4{
-    grid-template-columns:1fr;
+  .grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stat-value{
+    font-size:17px;
+  }
+
+  .actions{
+    width:100%;
+  }
+
+  .actions .btn{
+    flex:1;
   }
 }
 </style>
@@ -703,842 +766,597 @@ th{
 
 <body>
 
-<div id="loading">
-  <div class="loader"></div>
+<div id="authLoading" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">NT</div>
+    <h1>NAIJA TASK</h1>
+    <p>Checking secure administrator session...</p>
+    <div class="auth-loading">Please wait.</div>
+  </div>
 </div>
 
-<section id="loginScreen" class="login-screen hidden">
+<div id="loginScreen" class="login-screen hidden">
   <div class="login-card">
-    <div class="logo">NT</div>
-    <h1>NAIJA TASK</h1>
-    <p>Secure Admin Control Center</p>
+    <div class="login-logo">NT</div>
+    <h1>Admin Control Center</h1>
+    <p>
+      Secure administrator access for NAIJA TASK.
+      Normal tasker or poster accounts are not permitted here.
+    </p>
 
-    <div id="loginMessage" class="notice hidden"></div>
+    <div id="loginError"></div>
 
-    <div class="field">
-      <label>Admin Email</label>
-      <input id="loginEmail" type="email" autocomplete="username" placeholder="admin email">
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Admin Email</label>
+        <input id="loginEmail" type="email" autocomplete="username" required>
+      </div>
+
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+      </div>
+
+      <button id="loginBtn" class="btn primary" type="submit" style="width:100%;">
+        Sign In
+      </button>
+    </form>
+
+    <div style="margin-top:10px;text-align:center;">
+      <button class="btn" type="button" onclick="resetPassword()">
+        Forgot Password?
+      </button>
     </div>
 
-    <div class="field">
-      <label>Password</label>
-      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="password">
-    </div>
-
-    <button class="primary" style="width:100%" onclick="login()">Sign In</button>
-
-    <div class="login-links">
-      <button onclick="resetPassword()">Forgot password?</button>
+    <div class="login-foot">
+      NAIJA TASK • Administrator area
     </div>
   </div>
-</section>
+</div>
 
-<section id="app" class="hidden">
+<div id="app" class="app hidden">
 
   <header class="topbar">
     <div class="brand">
-      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-      <div class="brand-mark">NT</div>
-      <span>NAIJA TASK</span>
+      <strong>NAIJA TASK</strong>
+      <small>Admin Control Center</small>
     </div>
 
-    <button class="menu-btn" onclick="logout()">↪</button>
+    <div class="top-actions">
+      <button class="icon-btn" type="button" onclick="refreshCurrentPage()" title="Refresh">
+        ↻
+      </button>
+      <button class="icon-btn" type="button" onclick="logout()" title="Logout">
+        ⇥
+      </button>
+    </div>
   </header>
 
   <div class="layout">
 
-    <aside id="sidebar" class="sidebar">
+    <aside class="sidebar">
 
-      <div class="nav-title">Control Center</div>
+      <div class="nav-title">Main</div>
 
-      <button class="nav-btn active" data-page="overview" onclick="navigate('overview')">📊 Overview</button>
-      <button class="nav-btn" data-page="users" onclick="navigate('users')">👥 Users</button>
-      <button class="nav-btn" data-page="tasks" onclick="navigate('tasks')">📋 Tasks</button>
-      <button class="nav-btn" data-page="submissions" onclick="navigate('submissions')">🧾 Submissions</button>
-      <button class="nav-btn" data-page="withdrawals" onclick="navigate('withdrawals')">💸 Withdrawals</button>
-      <button class="nav-btn" data-page="wallet" onclick="navigate('wallet')">💰 Wallet</button>
-      <button class="nav-btn" data-page="referrals" onclick="navigate('referrals')">🔗 Referrals</button>
-      <button class="nav-btn" data-page="posters" onclick="navigate('posters')">📢 Posters</button>
+      <button class="nav-btn active" data-page="overview" onclick="navigate('overview')">
+        Overview
+      </button>
+
+      <button class="nav-btn" data-page="users" onclick="navigate('users')">
+        Users
+      </button>
+
+      <button class="nav-btn" data-page="tasks" onclick="navigate('tasks')">
+        Tasks
+      </button>
+
+      <button class="nav-btn" data-page="submissions" onclick="navigate('submissions')">
+        Submissions / Proof Review
+      </button>
+
+      <button class="nav-btn" data-page="withdrawals" onclick="navigate('withdrawals')">
+        Withdrawals
+      </button>
+
+      <button class="nav-btn" data-page="wallet" onclick="navigate('wallet')">
+        Wallet Ledger
+      </button>
+
+      <button class="nav-btn" data-page="referrals" onclick="navigate('referrals')">
+        Referrals
+      </button>
+
+      <button class="nav-btn" data-page="posters" onclick="navigate('posters')">
+        Posters
+      </button>
 
       <div class="nav-title">Operations</div>
 
-      <button class="nav-btn" data-page="support" onclick="navigate('support')">🎧 Support</button>
-      <button class="nav-btn" data-page="appeals" onclick="navigate('appeals')">⚖️ Appeals</button>
-      <button class="nav-btn" data-page="marketplace" onclick="navigate('marketplace')">🛒 Marketplace</button>
-      <button class="nav-btn" data-page="airtime" onclick="navigate('airtime')">📱 Airtime & Data</button>
+      <button class="nav-btn" data-page="support" onclick="navigate('support')">
+        Support
+      </button>
 
-      <div class="nav-title">Administration</div>
+      <button class="nav-btn" data-page="appeals" onclick="navigate('appeals')">
+        Appeals
+      </button>
 
-      <button class="nav-btn" data-page="security" onclick="navigate('security')">🔐 Security</button>
-      <button class="nav-btn" data-page="audit" onclick="navigate('audit')">📝 Audit Log</button>
-      <button class="nav-btn" data-page="settings" onclick="navigate('settings')">⚙️ Settings</button>
+      <button class="nav-btn" data-page="marketplace" onclick="navigate('marketplace')">
+        Marketplace
+      </button>
+
+      <button class="nav-btn" data-page="airtime" onclick="navigate('airtime')">
+        Airtime & Data
+      </button>
+
+      <div class="nav-title">Control & Security</div>
+
+      <button class="nav-btn" data-page="security" onclick="navigate('security')">
+        Security
+      </button>
+
+      <button class="nav-btn" data-page="integrity" onclick="navigate('integrity')">
+        Integrity & Risk
+      </button>
+
+      <button class="nav-btn" data-page="audit" onclick="navigate('audit')">
+        Audit Log
+      </button>
+
+      <button class="nav-btn" data-page="settings" onclick="navigate('settings')">
+        Platform Settings
+      </button>
 
     </aside>
 
     <main class="main">
 
+      <div id="globalMessage"></div>
+
       <!-- OVERVIEW -->
       <section id="page-overview" class="page active">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Admin Overview</h2>
-            <p>Live platform control and operational monitoring.</p>
+            <h1>Overview</h1>
+            <p>Live information read from the NAIJA TASK database.</p>
           </div>
+
           <div class="actions">
-            <button class="secondary" onclick="loadOverview()">Refresh</button>
+            <button class="btn" onclick="loadOverview()">Refresh</button>
           </div>
         </div>
 
-        <div id="overviewWarning"></div>
-
-        <div class="grid grid-4">
-
+        <div id="overviewStats" class="grid">
           <div class="card">
             <div class="stat-label">Total Users</div>
-            <div id="statUsers" class="stat-value">—</div>
+            <div class="stat-value">—</div>
+            <div class="stat-note">Loading...</div>
           </div>
 
           <div class="card">
             <div class="stat-label">Active Tasks</div>
-            <div id="statTasks" class="stat-value">—</div>
+            <div class="stat-value">—</div>
+            <div class="stat-note">Loading...</div>
           </div>
 
           <div class="card">
             <div class="stat-label">Pending Proofs</div>
-            <div id="statProofs" class="stat-value">—</div>
+            <div class="stat-value">—</div>
+            <div class="stat-note">Loading...</div>
           </div>
 
           <div class="card">
             <div class="stat-label">Pending Withdrawals</div>
-            <div id="statWithdrawals" class="stat-value">—</div>
+            <div class="stat-value">—</div>
+            <div class="stat-note">Loading...</div>
           </div>
-
         </div>
 
-        <br>
+        <div class="section">
+          <div class="grid">
 
-        <div class="grid grid-3">
+            <div class="card">
+              <div class="stat-label">Wallet Transactions</div>
+              <div id="overviewWalletCount" class="stat-value">—</div>
+              <div class="stat-note">Records currently available.</div>
+            </div>
 
-          <div class="card">
-            <div class="stat-label">Wallet Transactions</div>
-            <div id="statTransactions" class="stat-value">—</div>
+            <div class="card">
+              <div class="stat-label">Referrals</div>
+              <div id="overviewReferralCount" class="stat-value">—</div>
+              <div class="stat-note">Referral records.</div>
+            </div>
+
+            <div class="card">
+              <div class="stat-label">Support Tickets</div>
+              <div id="overviewSupportCount" class="stat-value">—</div>
+              <div class="stat-note">Support records.</div>
+            </div>
+
+            <div class="card">
+              <div class="stat-label">Admin Session</div>
+              <div class="stat-value" style="font-size:14px;">SECURE</div>
+              <div class="stat-note" id="adminIdentity">Checking...</div>
+            </div>
+
           </div>
-
-          <div class="card">
-            <div class="stat-label">Referrals</div>
-            <div id="statReferrals" class="stat-value">—</div>
-          </div>
-
-          <div class="card">
-            <div class="stat-label">Support Tickets</div>
-            <div id="statTickets" class="stat-value">—</div>
-          </div>
-
         </div>
 
-        <br>
+        <div class="section">
+          <div class="section-title">
+            <h2>System Status</h2>
+          </div>
 
-        <div class="card">
-          <h3>Operational Rules</h3>
-          <div id="capacitySummary" class="empty">Loading...</div>
+          <div id="overviewSystemStatus" class="notice info">
+            Loading database status...
+          </div>
         </div>
 
       </section>
+
 
       <!-- USERS -->
       <section id="page-users" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>User Management</h2>
-            <p>Review accounts and control account status.</p>
+            <h1>Users</h1>
+            <p>Review real registered accounts and account status.</p>
           </div>
 
           <div class="actions">
-            <button class="secondary" onclick="loadUsers()">Refresh</button>
+            <button class="btn" onclick="loadUsers()">Refresh</button>
           </div>
         </div>
 
-        <div class="card">
-          <div class="field">
-            <input id="userSearch" placeholder="Search name, phone or user ID..." oninput="filterUsers()">
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Phone</th>
-                  <th>Balance</th>
-                  <th>Activation</th>
-                  <th>Created</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="usersBody"></tbody>
-            </table>
-          </div>
+        <div id="usersContent" class="card">
+          <div class="loading">Loading users...</div>
         </div>
 
       </section>
+
 
       <!-- TASKS -->
       <section id="page-tasks" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Task Manager</h2>
-            <p>Create, edit, approve, disable and monitor tasks.</p>
+            <h1>Tasks</h1>
+            <p>Create, edit, activate and deactivate real tasks.</p>
           </div>
 
           <div class="actions">
-            <button class="primary" onclick="openTaskModal()">+ New Task</button>
-            <button class="secondary" onclick="loadTasks()">Refresh</button>
+            <button class="btn" onclick="loadTasks()">Refresh</button>
+            <button class="btn primary" onclick="openTaskModal()">
+              Create Task
+            </button>
           </div>
         </div>
 
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Task</th>
-                  <th>Type</th>
-                  <th>Reward</th>
-                  <th>Slots</th>
-                  <th>Status</th>
-                  <th>Proof</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="tasksBody"></tbody>
-            </table>
-          </div>
+        <div id="tasksContent" class="card">
+          <div class="loading">Loading tasks...</div>
         </div>
 
       </section>
+
 
       <!-- SUBMISSIONS -->
       <section id="page-submissions" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Proof Review</h2>
-            <p>Every task proof must be reviewed before reward processing.</p>
+            <h1>Submissions / Proof Review</h1>
+            <p>
+              Approvals that affect worker rewards must use the secure
+              server-side approval RPC.
+            </p>
           </div>
 
-          <button class="secondary" onclick="loadSubmissions()">Refresh</button>
+          <div class="actions">
+            <button class="btn" onclick="loadSubmissions()">Refresh</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Worker</th>
-                  <th>Task</th>
-                  <th>Submitted</th>
-                  <th>Status</th>
-                  <th>Proof</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="submissionsBody"></tbody>
-            </table>
-          </div>
+        <div class="notice warning">
+          <strong>Financial safety:</strong>
+          the browser must never directly credit a worker's balance when a
+          proof is approved. Approval uses the database transaction function.
+        </div>
+
+        <div id="submissionsContent" class="card" style="margin-top:12px;">
+          <div class="loading">Loading submissions...</div>
         </div>
 
       </section>
+
 
       <!-- WITHDRAWALS -->
       <section id="page-withdrawals" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Withdrawals</h2>
-            <p>Review requests. Money movement must be processed server-side.</p>
+            <h1>Withdrawals</h1>
+            <p>Review pending withdrawal requests and server-side approval.</p>
           </div>
 
-          <button class="secondary" onclick="loadWithdrawals()">Refresh</button>
-        </div>
-
-        <div class="notice danger-box">
-          Approval must never simply change a status and pretend money was transferred.
-          The final debit/ledger/payment operation must be atomic and server-side.
-        </div>
-
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Amount</th>
-                  <th>Fee</th>
-                  <th>Method</th>
-                  <th>Details</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="withdrawalsBody"></tbody>
-            </table>
+          <div class="actions">
+            <button class="btn" onclick="loadWithdrawals()">Refresh</button>
           </div>
+        </div>
+
+        <div class="notice danger">
+          <strong>Financial safety:</strong>
+          changing a withdrawal row to APPROVED in the browser is not an
+          approval mechanism. Approval must be performed by the trusted
+          PostgreSQL RPC.
+        </div>
+
+        <div id="withdrawalsContent" class="card" style="margin-top:12px;">
+          <div class="loading">Loading withdrawals...</div>
         </div>
 
       </section>
+
 
       <!-- WALLET -->
       <section id="page-wallet" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Wallet Ledger</h2>
-            <p>Financial transaction records.</p>
+            <h1>Wallet Ledger</h1>
+            <p>Read-only financial ledger review from the database.</p>
           </div>
 
-          <button class="secondary" onclick="loadWallet()">Refresh</button>
+          <div class="actions">
+            <button class="btn" onclick="loadWallet()">Refresh</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Type</th>
-                  <th>Amount</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="walletBody"></tbody>
-            </table>
-          </div>
+        <div class="notice info">
+          Wallet ledger entries are displayed from the database. This admin
+          page does not fabricate balances or create financial entries.
+        </div>
+
+        <div id="walletContent" class="card" style="margin-top:12px;">
+          <div class="loading">Loading wallet ledger...</div>
         </div>
 
       </section>
+
 
       <!-- REFERRALS -->
       <section id="page-referrals" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Referral System</h2>
-            <p>Monitor referral records and rewards.</p>
+            <h1>Referrals</h1>
+            <p>Review actual referral records.</p>
           </div>
 
-          <button class="secondary" onclick="loadReferrals()">Refresh</button>
+          <div class="actions">
+            <button class="btn" onclick="loadReferrals()">Refresh</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Referrer</th>
-                  <th>Referred</th>
-                  <th>Status</th>
-                  <th>Reward</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="referralsBody"></tbody>
-            </table>
-          </div>
+        <div id="referralsContent" class="card">
+          <div class="loading">Loading referrals...</div>
         </div>
 
       </section>
+
 
       <!-- POSTERS -->
       <section id="page-posters" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Poster Management</h2>
-            <p>Review job posters, payments and task activity.</p>
+            <h1>Posters</h1>
+            <p>Review users who create jobs and poster-related records.</p>
           </div>
 
-          <button class="secondary" onclick="loadPosters()">Refresh</button>
+          <div class="actions">
+            <button class="btn" onclick="loadPosters()">Refresh</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Poster/User</th>
-                  <th>Amount</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="postersBody"></tbody>
-            </table>
-          </div>
+        <div id="postersContent" class="card">
+          <div class="loading">Loading posters...</div>
         </div>
 
       </section>
+
 
       <!-- SUPPORT -->
       <section id="page-support" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Customer Support</h2>
-            <p>Manage support tickets and customer-care requests.</p>
+            <h1>Support</h1>
+            <p>Customer-support tickets and operational follow-up.</p>
           </div>
 
-          <button class="secondary" onclick="loadSupport()">Refresh</button>
+          <div class="actions">
+            <button class="btn" onclick="loadSupport()">Refresh</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>User</th>
-                  <th>Subject</th>
-                  <th>Message</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="supportBody"></tbody>
-            </table>
-          </div>
+        <div id="supportContent" class="card">
+          <div class="loading">Loading support tickets...</div>
         </div>
 
       </section>
+
 
       <!-- APPEALS -->
       <section id="page-appeals" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Appeals & Disputes</h2>
-            <p>Review rejected proof and user disputes without silently changing records.</p>
+            <h1>Appeals</h1>
+            <p>Review available appeal information without inventing records.</p>
           </div>
 
-          <button class="secondary" onclick="loadAppeals()">Refresh</button>
+          <div class="actions">
+            <button class="btn" onclick="loadAppeals()">Refresh</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div id="appealsContainer" class="empty">
-            Appeals require an appeals/disputes table before they can be processed safely.
-          </div>
+        <div id="appealsContent" class="card">
+          <div class="loading">Checking appeals configuration...</div>
         </div>
 
       </section>
+
 
       <!-- MARKETPLACE -->
       <section id="page-marketplace" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Marketplace</h2>
-            <p>Control marketplace availability and records.</p>
+            <h1>Marketplace</h1>
+            <p>Marketplace status and available database configuration.</p>
+          </div>
+
+          <div class="actions">
+            <button class="btn" onclick="loadMarketplace()">Refresh</button>
           </div>
         </div>
 
-        <div class="card">
-          <div class="notice">
-            Marketplace administration is intentionally connected to real records only.
-            No fake products, fake orders or fake balances are generated here.
-          </div>
-
-          <div id="marketplaceContainer" class="empty">
-            Marketplace tables are not configured in the current database schema.
-          </div>
+        <div id="marketplaceContent" class="card">
+          <div class="loading">Checking marketplace configuration...</div>
         </div>
 
       </section>
+
 
       <!-- AIRTIME -->
       <section id="page-airtime" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Airtime & Data</h2>
-            <p>Prepare the platform for real VTU/API integration.</p>
+            <h1>Airtime & Data</h1>
+            <p>Review actual airtime/data service configuration.</p>
+          </div>
+
+          <div class="actions">
+            <button class="btn" onclick="loadAirtime()">Refresh</button>
           </div>
         </div>
 
-        <div class="card">
-
-          <div class="notice danger-box">
-            Airtime/data must not deduct a user's wallet until a verified provider confirms the transaction.
-            Never simulate successful delivery.
-          </div>
-
-          <div class="setting">
-            <div>
-              <strong>Airtime & Data Service</strong>
-              <small>Controls whether the feature is available to users.</small>
-            </div>
-
-            <label class="switch">
-              <input id="settingAirtimeEnabled" type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
+        <div id="airtimeContent" class="card">
+          <div class="loading">Checking airtime/data configuration...</div>
         </div>
 
       </section>
+
 
       <!-- SECURITY -->
       <section id="page-security" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Security Center</h2>
-            <p>Security controls are stored as platform policy. Enforcement belongs in backend/database rules.</p>
+            <h1>Security</h1>
+            <p>Security policies and administrative controls.</p>
+          </div>
+
+          <div class="actions">
+            <button class="btn" onclick="loadSecurity()">Refresh</button>
           </div>
         </div>
 
-        <div class="card">
+        <div class="notice warning">
+          Security switches shown here are policy controls. A frontend switch
+          is not itself backend enforcement. Database RLS, RPCs, Auth and
+          server-side functions remain authoritative.
+        </div>
 
-          <div class="setting">
-            <div>
-              <strong>CAPTCHA / Bot Protection</strong>
-              <small>Require bot protection where configured.</small>
-            </div>
-            <label class="switch">
-              <input id="securityCaptcha" type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="setting">
-            <div>
-              <strong>Suspicious Activity Detection</strong>
-              <small>Flag abnormal account/task/payment behavior.</small>
-            </div>
-            <label class="switch">
-              <input id="securitySuspicious" type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="setting">
-            <div>
-              <strong>Automatic Restriction</strong>
-              <small>Backend must enforce restrictions before this is considered active protection.</small>
-            </div>
-            <label class="switch">
-              <input id="securityRestriction" type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="setting">
-            <div>
-              <strong>Automatic Ban</strong>
-              <small>Use only with backend rules and audit records.</small>
-            </div>
-            <label class="switch">
-              <input id="securityBan" type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="setting">
-            <div>
-              <strong>Security Warnings</strong>
-              <small>Display security warnings to users.</small>
-            </div>
-            <label class="switch">
-              <input id="securityWarnings" type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <div class="setting">
-            <div>
-              <strong>Withdrawal Security Check</strong>
-              <small>Require additional backend verification for withdrawals.</small>
-            </div>
-            <label class="switch">
-              <input id="securityWithdrawal" type="checkbox">
-              <span class="slider"></span>
-            </label>
-          </div>
-
-          <br>
-
-          <button class="primary" onclick="saveSecuritySettings()">Save Security Policy</button>
-
+        <div id="securityContent" style="margin-top:12px;">
+          <div class="loading">Loading security settings...</div>
         </div>
 
       </section>
+
+
+      <!-- INTEGRITY -->
+      <section id="page-integrity" class="page">
+
+        <div class="page-head">
+          <div>
+            <h1>Integrity & Risk</h1>
+            <p>
+              Database consistency checks using real records. No fake
+              “healthy” result is generated when a required table or
+              enforcement function is unavailable.
+            </p>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" onclick="runIntegrityChecks()">
+              Run Checks
+            </button>
+          </div>
+        </div>
+
+        <div class="notice warning">
+          These checks are administrative diagnostics. For large datasets,
+          authoritative integrity enforcement should also exist in PostgreSQL
+          functions/constraints rather than depending on this browser page.
+        </div>
+
+        <div id="integrityContent" style="margin-top:12px;">
+          <div class="empty">Run an integrity check.</div>
+        </div>
+
+      </section>
+
 
       <!-- AUDIT -->
       <section id="page-audit" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Admin Audit Log</h2>
-            <p>Administrative actions should be traceable.</p>
+            <h1>Audit Log</h1>
+            <p>Administrative actions recorded by the platform.</p>
           </div>
 
-          <button class="secondary" onclick="loadAudit()">Refresh</button>
+          <div class="actions">
+            <button class="btn" onclick="loadAudit()">Refresh</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Action</th>
-                  <th>Target</th>
-                  <th>Details</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="auditBody"></tbody>
-            </table>
-          </div>
+        <div class="notice info">
+          Audit logging is only trustworthy when database permissions prevent
+          unauthorized users from inserting or altering administrative logs.
+        </div>
+
+        <div id="auditContent" class="card" style="margin-top:12px;">
+          <div class="loading">Loading audit records...</div>
         </div>
 
       </section>
 
+
       <!-- SETTINGS -->
       <section id="page-settings" class="page">
 
-        <div class="page-header">
+        <div class="page-head">
           <div>
-            <h2>Platform Settings</h2>
-            <p>Central configuration for NAIJA TASK.</p>
+            <h1>Platform Settings</h1>
+            <p>Administrative platform policies stored in platform_settings.</p>
           </div>
 
-          <button class="primary" onclick="saveSettings()">Save All Settings</button>
+          <div class="actions">
+            <button class="btn" onclick="loadSettings()">Refresh</button>
+          </div>
         </div>
 
-        <div class="grid grid-2">
+        <div class="notice warning">
+          Mandatory photo proof is a hard platform requirement and cannot be
+          disabled from this panel.
+        </div>
 
-          <div class="card">
-            <h3>Platform</h3>
-
-            <div class="field">
-              <label>Site Name</label>
-              <input id="siteName">
-            </div>
-
-            <div class="setting">
-              <div>
-                <strong>Maintenance Mode</strong>
-                <small>Restrict normal platform operation when enabled.</small>
-              </div>
-              <label class="switch">
-                <input id="maintenanceMode" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting">
-              <div>
-                <strong>AI Customer Care</strong>
-                <small>Enable AI support feature when its backend is configured.</small>
-              </div>
-              <label class="switch">
-                <input id="aiCare" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting">
-              <div>
-                <strong>Private Chat</strong>
-                <small>Enable private messaging feature.</small>
-              </div>
-              <label class="switch">
-                <input id="privateChat" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting">
-              <div>
-                <strong>Community Chat</strong>
-                <small>Enable community/group communication.</small>
-              </div>
-              <label class="switch">
-                <input id="communityChat" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-          </div>
-
-          <div class="card">
-            <h3>Activation & VIP</h3>
-
-            <div class="setting">
-              <div>
-                <strong>Activation Enabled</strong>
-                <small>Controls whether activation is required.</small>
-              </div>
-              <label class="switch">
-                <input id="activationEnabled" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="field">
-              <label>Activation Fee (₦)</label>
-              <input id="activationFee" type="number" min="0">
-            </div>
-
-            <div class="setting">
-              <div>
-                <strong>VIP Enabled</strong>
-                <small>Enable VIP membership when payment handling is configured.</small>
-              </div>
-              <label class="switch">
-                <input id="vipEnabled" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="field">
-              <label>VIP Price (₦)</label>
-              <input id="vipPrice" type="number" min="0">
-            </div>
-
-          </div>
-
-          <div class="card">
-            <h3>Withdrawals</h3>
-
-            <div class="setting">
-              <div>
-                <strong>Withdrawals Enabled</strong>
-              </div>
-              <label class="switch">
-                <input id="withdrawalsEnabled" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="field">
-              <label>Minimum Withdrawal (₦)</label>
-              <input id="withdrawalMinimum" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>Normal Withdrawal Fee (₦)</label>
-              <input id="withdrawalFee" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>VIP Withdrawal Fee (₦)</label>
-              <input id="vipWithdrawalFee" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>Withdrawals Per Day</label>
-              <input id="withdrawalsPerDay" type="number" min="1">
-            </div>
-
-          </div>
-
-          <div class="card">
-            <h3>Task Rules</h3>
-
-            <div class="setting">
-              <div>
-                <strong>Task Approval Required</strong>
-              </div>
-              <label class="switch">
-                <input id="taskApproval" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting">
-              <div>
-                <strong>Photo Proof Required</strong>
-                <small>NAIJA TASK requires photo proof for every task type.</small>
-              </div>
-              <label class="switch">
-                <input id="photoProof" type="checkbox" checked>
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="field">
-              <label>Normal Minimum Reward (₦)</label>
-              <input id="normalRewardMin" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>Normal Maximum Reward (₦)</label>
-              <input id="normalRewardMax" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>VIP Minimum Reward (₦)</label>
-              <input id="vipRewardMin" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>VIP Maximum Reward (₦)</label>
-              <input id="vipRewardMax" type="number" min="0">
-            </div>
-
-          </div>
-
-          <div class="card">
-            <h3>Daily Limits</h3>
-
-            <div class="field">
-              <label>Normal Free Tasks Per Day</label>
-              <input id="freeDailyLimit" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>VIP Tasks Per Day</label>
-              <input id="vipDailyLimit" type="number" min="0">
-            </div>
-
-            <div class="field">
-              <label>Referral Reward (₦)</label>
-              <input id="referralReward" type="number" min="0">
-            </div>
-
-            <div class="setting">
-              <div>
-                <strong>Referral System</strong>
-              </div>
-              <label class="switch">
-                <input id="referralsEnabled" type="checkbox">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-          </div>
-
-          <div class="card">
-            <h3>Support</h3>
-
-            <div class="field">
-              <label>Support Email</label>
-              <input id="supportEmail" type="email">
-            </div>
-
-            <div class="field">
-              <label>Support WhatsApp / Phone</label>
-              <input id="supportPhone">
-            </div>
-
-          </div>
-
+        <div id="settingsContent" style="margin-top:12px;">
+          <div class="loading">Loading settings...</div>
         </div>
 
       </section>
@@ -1546,1160 +1364,1909 @@ th{
     </main>
   </div>
 
-  <nav class="mobile-bottom">
-    <button data-page="overview" onclick="navigate('overview')">📊<br>Home</button>
-    <button data-page="users" onclick="navigate('users')">👥<br>Users</button>
-    <button data-page="tasks" onclick="navigate('tasks')">📋<br>Tasks</button>
-    <button data-page="submissions" onclick="navigate('submissions')">🧾<br>Proof</button>
-    <button data-page="settings" onclick="navigate('settings')">⚙️<br>Settings</button>
+  <nav class="mobile-nav">
+    <button data-mobile-page="overview" class="active" onclick="navigate('overview')">
+      Overview
+    </button>
+    <button data-mobile-page="users" onclick="navigate('users')">
+      Users
+    </button>
+    <button data-mobile-page="tasks" onclick="navigate('tasks')">
+      Tasks
+    </button>
+    <button data-mobile-page="submissions" onclick="navigate('submissions')">
+      Proof
+    </button>
+    <button data-mobile-page="withdrawals" onclick="navigate('withdrawals')">
+      Withdraw
+    </button>
   </nav>
 
-</section>
+</div>
+
 
 <!-- TASK MODAL -->
-<div id="taskModal" class="modal">
-  <div class="modal-box">
+<div id="taskModal" class="modal-backdrop">
+  <div class="modal">
 
     <div class="modal-head">
       <h3 id="taskModalTitle">Create Task</h3>
-      <button class="close" onclick="closeModal('taskModal')">×</button>
+      <button class="close-btn" type="button" onclick="closeModal('taskModal')">
+        ×
+      </button>
     </div>
 
-    <input id="taskId" type="hidden">
+    <form id="taskForm">
 
-    <div class="form-grid">
+      <div class="modal-body">
 
-      <div class="field full">
-        <label>Task Title</label>
-        <input id="taskTitle">
-      </div>
+        <div id="taskFormMessage"></div>
 
-      <div class="field full">
-        <label>Task Description / Instructions</label>
-        <textarea id="taskDescription"></textarea>
-      </div>
+        <input id="taskId" type="hidden">
 
-      <div class="field">
-        <label>Reward Per Worker (₦)</label>
-        <input id="taskReward" type="number" min="0">
-      </div>
+        <div class="form-grid">
 
-      <div class="field">
-        <label>Total Worker Slots</label>
-        <input id="taskSlots" type="number" min="1">
-      </div>
-
-      <div class="field">
-        <label>Maximum Completions Per User</label>
-        <input id="taskMaxPerUser" type="number" min="1" value="1">
-      </div>
-
-      <div class="field">
-        <label>Task Type</label>
-        <select id="taskType">
-          <option value="username">Username + Photo</option>
-          <option value="upload">Upload + Photo</option>
-          <option value="open_link">Open Link + Action + Photo</option>
-          <option value="place_task">Place Task + Photo</option>
-          <option value="youtube_watch">YouTube Watch + Photo</option>
-          <option value="social">Social Task + Photo</option>
-          <option value="website">Website Task + Photo</option>
-          <option value="survey">Survey + Photo</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Task Link</label>
-        <input id="taskLink" type="url" placeholder="https://...">
-      </div>
-
-      <div class="field">
-        <label>Post Link</label>
-        <input id="postLink" type="url" placeholder="https://...">
-      </div>
-
-      <div class="field">
-        <label>Uploader Username</label>
-        <input id="uploaderUsername">
-      </div>
-
-      <div class="field">
-        <label>Copy Text</label>
-        <input id="copyText">
-      </div>
-
-      <div class="field">
-        <label>Start Date</label>
-        <input id="taskStart" type="datetime-local">
-      </div>
-
-      <div class="field">
-        <label>Expiry Date</label>
-        <input id="taskExpiry" type="datetime-local">
-      </div>
-
-      <div class="field">
-        <label>Proof Type</label>
-        <select id="proofType">
-          <option value="photo">Photo</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Moderation Status</label>
-        <select id="moderationStatus">
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Payment Status</label>
-        <select id="paymentStatus">
-          <option value="pending">Pending</option>
-          <option value="funded">Funded</option>
-          <option value="paid">Paid</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Watch Timer (seconds)</label>
-        <input id="watchTimer" type="number" min="0" value="0">
-      </div>
-
-      <div class="field full">
-
-        <div class="setting">
-          <div>
-            <strong>Task Active</strong>
+          <div class="field full">
+            <label for="taskTitle">Task Title *</label>
+            <input id="taskTitle" required maxlength="180">
           </div>
 
-          <label class="switch">
-            <input id="taskActive" type="checkbox" checked>
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="setting">
-          <div>
-            <strong>Photo Upload Required</strong>
-            <small>Mandatory for every NAIJA TASK task.</small>
+          <div class="field full">
+            <label for="taskDescription">Task Description / Instructions *</label>
+            <textarea id="taskDescription" required maxlength="10000"></textarea>
           </div>
 
-          <label class="switch">
-            <input id="taskUploadRequired" type="checkbox" checked disabled>
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="setting">
-          <div>
-            <strong>Proof Required</strong>
+          <div class="field">
+            <label for="taskReward">Reward per Worker (₦) *</label>
+            <input id="taskReward" type="number" min="0.01" step="0.01" required>
           </div>
 
-          <label class="switch">
-            <input id="taskProofRequired" type="checkbox" checked disabled>
-            <span class="slider"></span>
-          </label>
+          <div class="field">
+            <label for="taskSlots">Slots *</label>
+            <input id="taskSlots" type="number" min="1" step="1" required>
+          </div>
+
+          <div class="field">
+            <label for="taskStartDate">Start Date *</label>
+            <input id="taskStartDate" type="datetime-local" required>
+          </div>
+
+          <div class="field">
+            <label for="taskExpiryDate">Expiry Date *</label>
+            <input id="taskExpiryDate" type="datetime-local" required>
+          </div>
+
+          <div class="field">
+            <label for="taskMaxPerUser">Maximum Completions Per User</label>
+            <input id="taskMaxPerUser" type="number" min="1" step="1" value="1">
+          </div>
+
+          <div class="field">
+            <label for="taskType">Task Type *</label>
+            <select id="taskType" required>
+              <option value="social">Social Media</option>
+              <option value="username">Username</option>
+              <option value="upload">Upload</option>
+              <option value="open_link">Open Link</option>
+              <option value="place_task">Place Task</option>
+              <option value="youtube_watch">YouTube Watch</option>
+              <option value="website">Website</option>
+              <option value="app_download">App Download</option>
+              <option value="survey">Survey</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="taskProofType">Proof Type</label>
+            <select id="taskProofType">
+              <option value="photo">Photo + configured evidence</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="taskLink">Task Link</label>
+            <input id="taskLink" type="url" placeholder="https://...">
+          </div>
+
+          <div class="field">
+            <label for="taskPostLink">Post / Destination Link</label>
+            <input id="taskPostLink" type="url" placeholder="https://...">
+          </div>
+
+          <div class="field">
+            <label for="taskUploaderUsername">Uploader / Owner Username</label>
+            <input id="taskUploaderUsername" maxlength="120">
+          </div>
+
+          <div class="field">
+            <label for="taskCopyText">Copy Text</label>
+            <input id="taskCopyText" maxlength="2000">
+          </div>
+
+          <div class="field">
+            <label for="taskWatchTimer">Watch Timer (seconds)</label>
+            <input id="taskWatchTimer" type="number" min="0" step="1" value="0">
+          </div>
+
+          <div class="field full">
+            <div class="check-row">
+              <input id="taskActive" type="checkbox">
+              <span>Task is active</span>
+            </div>
+          </div>
+
+          <div class="field full">
+            <div class="check-row">
+              <input id="taskUploadRequired" type="checkbox" checked disabled>
+              <span>Photo upload required — mandatory and cannot be disabled</span>
+            </div>
+          </div>
+
+          <div class="field full">
+            <div class="check-row">
+              <input id="taskRequiredProof" type="checkbox" checked disabled>
+              <span>Proof required — mandatory and cannot be disabled</span>
+            </div>
+          </div>
+
         </div>
 
       </div>
 
-    </div>
+      <div class="modal-foot">
+        <button class="btn" type="button" onclick="closeModal('taskModal')">
+          Cancel
+        </button>
 
-    <div class="modal-footer">
-      <button class="secondary" onclick="closeModal('taskModal')">Cancel</button>
-      <button class="primary" onclick="saveTask()">Save Task</button>
-    </div>
+        <button id="saveTaskBtn" class="btn primary" type="submit">
+          Save Task
+        </button>
+      </div>
 
+    </form>
   </div>
 </div>
 
+
 <!-- PROOF MODAL -->
-<div id="proofModal" class="modal">
-  <div class="modal-box">
+<div id="proofModal" class="modal-backdrop">
+  <div class="modal">
 
     <div class="modal-head">
       <h3>Proof Review</h3>
-      <button class="close" onclick="closeModal('proofModal')">×</button>
+      <button class="close-btn" type="button" onclick="closeModal('proofModal')">
+        ×
+      </button>
     </div>
 
-    <div id="proofContent"></div>
+    <div class="modal-body">
 
-    <div class="modal-footer">
-      <button class="danger" onclick="rejectCurrentProof()">Reject</button>
-      <button class="success" onclick="approveCurrentProof()">Approve</button>
+      <div id="proofMessage"></div>
+
+      <div id="proofDetails"></div>
+
+      <div id="proofImageWrap" style="margin-top:14px;"></div>
+
+      <div class="field" style="margin-top:14px;">
+        <label for="proofRejectReason">Rejection Reason</label>
+        <textarea
+          id="proofRejectReason"
+          maxlength="2000"
+          placeholder="Required when rejecting a proof."
+        ></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn" type="button" onclick="closeModal('proofModal')">
+        Close
+      </button>
+
+      <button id="rejectProofBtn" class="btn danger" type="button">
+        Reject Proof
+      </button>
+
+      <button id="approveProofBtn" class="btn success" type="button">
+        Approve Proof
+      </button>
+
     </div>
 
   </div>
 </div>
 
-<div id="toast" class="toast"></div>
+
+<!-- WITHDRAWAL MODAL -->
+<div id="withdrawalModal" class="modal-backdrop">
+  <div class="modal">
+
+    <div class="modal-head">
+      <h3>Withdrawal Review</h3>
+      <button class="close-btn" type="button" onclick="closeModal('withdrawalModal')">
+        ×
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div id="withdrawalMessage"></div>
+
+      <div id="withdrawalDetails"></div>
+
+      <div class="field" style="margin-top:14px;">
+        <label for="withdrawalRejectReason">Rejection Reason</label>
+        <textarea
+          id="withdrawalRejectReason"
+          maxlength="2000"
+          placeholder="Required when rejecting a withdrawal."
+        ></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn" type="button" onclick="closeModal('withdrawalModal')">
+        Close
+      </button>
+
+      <button id="rejectWithdrawalBtn" class="btn danger" type="button">
+        Reject Withdrawal
+      </button>
+
+      <button id="approveWithdrawalBtn" class="btn success" type="button">
+        Approve Withdrawal
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PASSWORD RECOVERY MODAL -->
+<div id="passwordRecoveryModal" class="modal-backdrop">
+  <div class="modal">
+
+    <div class="modal-head">
+      <h3>Set New Admin Password</h3>
+    </div>
+
+    <form id="passwordRecoveryForm">
+
+      <div class="modal-body">
+
+        <div id="passwordRecoveryMessage"></div>
+
+        <div class="notice info">
+          You are completing a Supabase password-recovery session.
+          Set a new password below.
+        </div>
+
+        <div class="field" style="margin-top:12px;">
+          <label for="newAdminPassword">New Password</label>
+          <input
+            id="newAdminPassword"
+            type="password"
+            minlength="8"
+            autocomplete="new-password"
+            required
+          >
+        </div>
+
+        <div class="field" style="margin-top:10px;">
+          <label for="confirmAdminPassword">Confirm New Password</label>
+          <input
+            id="confirmAdminPassword"
+            type="password"
+            minlength="8"
+            autocomplete="new-password"
+            required
+          >
+        </div>
+
+      </div>
+
+      <div class="modal-foot">
+        <button id="completeRecoveryBtn" class="btn primary" type="submit">
+          Update Password
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
 
 <script>
-"use strict";
+/*
+  ============================================================
+  NAIJA TASK — ADMIN CONTROL CENTER
+  PART 1 / 4
+  ============================================================
+
+  SECURITY RULES:
+  - Never place a Supabase service-role key here.
+  - Use only the existing publishable/anon key.
+  - Browser code is NOT financial authority.
+  - Financial operations must use trusted PostgreSQL RPCs.
+  - Mandatory photo proof remains enabled.
+*/
 
 /*
-  NAIJA TASK ADMIN CONTROL CENTER
-
   IMPORTANT:
-  Never put a Supabase service-role key in this browser page.
-
-  Replace only the publishable/anon key below locally.
+  Paste your EXISTING Supabase publishable/anon key here.
+  Do NOT use a service-role key.
 */
 const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const SUPABASE_PUBLISHABLE_KEY =
+  "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE";
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 
-let currentUser = null;
-let currentAdmin = null;
-let currentProof = null;
-let usersCache = [];
-let tasksCache = [];
+const state = {
+  currentPage: "overview",
+  adminUser: null,
+  adminRecord: null,
+  currentProof: null,
+  currentWithdrawal: null,
+  currentTask: null,
+  tables: {},
+  settings: {},
+  busy: false
+};
 
-const $ = id => document.getElementById(id);
+const REQUIRED_TABLES = [
+  "profiles",
+  "tasks",
+  "task_submissions",
+  "task_completions",
+  "wallet_transactions",
+  "withdrawals",
+  "referrals",
+  "poster_payments",
+  "support_tickets",
+  "platform_settings",
+  "admin_users",
+  "admin_audit_logs"
+];
 
-function toast(message){
-  const el = $("toast");
-  el.textContent = message;
-  el.classList.add("show");
-
-  clearTimeout(window.__toastTimer);
-
-  window.__toastTimer = setTimeout(()=>{
-    el.classList.remove("show");
-  },3000);
+function $(id){
+  return document.getElementById(id);
 }
 
-function setLoading(show){
-  $("loading").classList.toggle("hidden", !show);
-}
+function escapeHtml(value){
+  if(value === null || value === undefined){
+    return "";
+  }
 
-function escapeHTML(value){
-  if(value === null || value === undefined) return "";
   return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
-function money(value){
-  const n = Number(value || 0);
-  return "₦" + n.toLocaleString("en-NG");
+function escapeAttr(value){
+  return escapeHtml(value)
+    .replace(/`/g,"&#096;");
 }
 
-function dateText(value){
-  if(!value) return "—";
+function formatMoney(value){
+  const n = Number(value);
+
+  if(!Number.isFinite(n)){
+    return "₦0.00";
+  }
+
+  return "₦" + n.toLocaleString("en-NG",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
+
+function formatDate(value){
+  if(!value){
+    return "—";
+  }
 
   const d = new Date(value);
 
-  if(Number.isNaN(d.getTime())) return escapeHTML(value);
+  if(Number.isNaN(d.getTime())){
+    return escapeHtml(value);
+  }
 
-  return d.toLocaleString("en-NG");
+  return d.toLocaleString("en-NG",{
+    dateStyle:"medium",
+    timeStyle:"short"
+  });
+}
+
+function normalizeStatus(value){
+  return String(value || "").trim().toLowerCase();
 }
 
 function badge(status){
-  const s = String(status || "unknown").toLowerCase();
+  const s = normalizeStatus(status);
 
   let cls = "gray";
 
-  if(["approved","active","completed","paid","funded","open"].includes(s)){
+  if(
+    [
+      "approved",
+      "active",
+      "success",
+      "completed",
+      "paid",
+      "enabled",
+      "open"
+    ].includes(s)
+  ){
     cls = "green";
-  }
-
-  if(["pending","processing","review"].includes(s)){
-    cls = "orange";
-  }
-
-  if(["rejected","failed","blocked","cancelled","banned"].includes(s)){
+  }else if(
+    [
+      "rejected",
+      "failed",
+      "cancelled",
+      "banned",
+      "disabled",
+      "inactive"
+    ].includes(s)
+  ){
     cls = "red";
+  }else if(
+    [
+      "pending",
+      "processing",
+      "review",
+      "warning"
+    ].includes(s)
+  ){
+    cls = "yellow";
+  }else if(
+    [
+      "info",
+      "active_task"
+    ].includes(s)
+  ){
+    cls = "blue";
   }
 
-  return `<span class="badge ${cls}">${escapeHTML(status || "Unknown")}</span>`;
+  return `<span class="badge ${cls}">${escapeHtml(status || "unknown")}</span>`;
+}
+
+function setGlobalMessage(message,type="info"){
+  const el = $("globalMessage");
+
+  if(!el){
+    return;
+  }
+
+  if(!message){
+    el.innerHTML = "";
+    return;
+  }
+
+  const cls =
+    type === "danger"
+      ? "error-box"
+      : type === "success"
+        ? "success-box"
+        : "notice info";
+
+  el.innerHTML = `<div class="${cls}">${escapeHtml(message)}</div>`;
+
+  window.setTimeout(()=>{
+    if(el){
+      el.innerHTML = "";
+    }
+  },6000);
+}
+
+function setElementMessage(id,message,type="info"){
+  const el = $(id);
+
+  if(!el){
+    return;
+  }
+
+  if(!message){
+    el.innerHTML = "";
+    return;
+  }
+
+  const cls =
+    type === "danger"
+      ? "error-box"
+      : type === "success"
+        ? "success-box"
+        : "notice info";
+
+  el.innerHTML = `<div class="${cls}">${escapeHtml(message)}</div>`;
+}
+
+function showModal(id){
+  const el = $(id);
+
+  if(el){
+    el.classList.add("show");
+  }
 }
 
 function closeModal(id){
-  $(id).classList.remove("show");
+  const el = $(id);
+
+  if(el){
+    el.classList.remove("show");
+  }
 }
 
-function openModal(id){
-  $(id).classList.add("show");
+function confirmAction(message){
+  return window.confirm(message);
 }
 
-function toggleSidebar(){
-  $("sidebar").classList.toggle("open");
-}
-
-function navigate(page){
-
-  document.querySelectorAll(".page").forEach(p=>{
-    p.classList.remove("active");
-  });
-
-  const target = $("page-" + page);
-
-  if(!target) return;
-
-  target.classList.add("active");
-
-  document.querySelectorAll(".nav-btn").forEach(btn=>{
-    btn.classList.toggle(
-      "active",
-      btn.dataset.page === page
-    );
-  });
-
-  document.querySelectorAll(".mobile-bottom button").forEach(btn=>{
-    btn.classList.toggle(
-      "active",
-      btn.dataset.page === page
-    );
-  });
-
-  $("sidebar").classList.remove("open");
-
-  if(page === "overview") loadOverview();
-  if(page === "users") loadUsers();
-  if(page === "tasks") loadTasks();
-  if(page === "submissions") loadSubmissions();
-  if(page === "withdrawals") loadWithdrawals();
-  if(page === "wallet") loadWallet();
-  if(page === "referrals") loadReferrals();
-  if(page === "posters") loadPosters();
-  if(page === "support") loadSupport();
-  if(page === "appeals") loadAppeals();
-  if(page === "security") loadSecuritySettings();
-  if(page === "audit") loadAudit();
-  if(page === "settings") loadSettings();
-}
-
-async function login(){
-
-  const email = $("loginEmail").value.trim();
-  const password = $("loginPassword").value;
-
-  if(!email || !password){
-    showLoginMessage("Enter your admin email and password.");
-    return;
+function isValidHttpUrl(value){
+  if(!value){
+    return true;
   }
 
-  setLoading(true);
-
   try{
+    const u = new URL(value);
 
-    const {data,error} =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
+    return u.protocol === "http:" ||
+           u.protocol === "https:";
+  }catch{
+    return false;
+  }
+}
 
-    if(error) throw error;
+function toLocalInputValue(value){
+  if(!value){
+    return "";
+  }
 
-    currentUser = data.user;
+  const d = new Date(value);
 
-    const {data:admin,error:adminError} =
-      await supabaseClient
-        .from("admin_users")
-        .select("*")
-        .eq("user_id",currentUser.id)
-        .maybeSingle();
+  if(Number.isNaN(d.getTime())){
+    return "";
+  }
 
-    if(adminError) throw adminError;
+  const pad = n => String(n).padStart(2,"0");
 
-    if(!admin){
-      await supabaseClient.auth.signOut();
-      throw new Error("This account is not authorized as an administrator.");
+  return [
+    d.getFullYear(),
+    pad(d.getMonth()+1),
+    pad(d.getDate())
+  ].join("-") + "T" + [
+    pad(d.getHours()),
+    pad(d.getMinutes())
+  ].join(":");
+}
+
+function fromLocalInput(id){
+  const value = $(id)?.value;
+
+  if(!value){
+    return null;
+  }
+
+  const d = new Date(value);
+
+  if(Number.isNaN(d.getTime())){
+    return null;
+  }
+
+  return d.toISOString();
+}
+
+function tableErrorMessage(table,error){
+  if(!error){
+    return `${table}: unavailable`;
+  }
+
+  return `${table}: ${error.message || "database error"}`;
+}
+
+async function testTable(table){
+  try{
+    const { error } = await supabaseClient
+      .from(table)
+      .select("*",{count:"exact",head:true});
+
+    if(error){
+      state.tables[table] = {
+        available:false,
+        error:error.message
+      };
+
+      return false;
     }
 
-    currentAdmin = admin;
+    state.tables[table] = {
+      available:true,
+      error:null
+    };
 
-    showApp();
-
-    await writeAudit(
-      "admin_login",
-      currentUser.id,
-      {email:currentUser.email}
-    );
+    return true;
 
   }catch(error){
 
-    console.error(error);
+    state.tables[table] = {
+      available:false,
+      error:error?.message || String(error)
+    };
 
-    showLoginMessage(
-      error.message || "Unable to sign in."
-    );
-
-  }finally{
-    setLoading(false);
+    return false;
   }
 }
 
-function showLoginMessage(message){
+async function testRequiredTables(){
+  const results = {};
 
-  const el = $("loginMessage");
-
-  el.textContent = message;
-  el.classList.remove("hidden");
-}
-
-async function resetPassword(){
-
-  const email = $("loginEmail").value.trim();
-
-  if(!email){
-    showLoginMessage("Enter your admin email first.");
-    return;
+  for(const table of REQUIRED_TABLES){
+    results[table] = await testTable(table);
   }
 
-  setLoading(true);
-
-  try{
-
-    const redirect =
-      window.location.origin +
-      window.location.pathname;
-
-    const {error} =
-      await supabaseClient.auth.resetPasswordForEmail(
-        email,
-        {redirectTo:redirect}
-      );
-
-    if(error) throw error;
-
-    showLoginMessage(
-      "Password reset email sent. Check your email."
-    );
-
-  }catch(error){
-
-    showLoginMessage(
-      error.message || "Password reset failed."
-    );
-
-  }finally{
-    setLoading(false);
-  }
+  return results;
 }
 
-async function logout(){
+function tableAvailable(table){
+  return state.tables[table]?.available === true;
+}
 
-  try{
+async function requireAdmin(){
+  const {
+    data:{user},
+    error
+  } = await supabaseClient.auth.getUser();
 
-    if(currentUser){
-      await writeAudit(
-        "admin_logout",
-        currentUser.id,
-        {}
-      );
-    }
+  if(error){
+    throw new Error(error.message);
+  }
 
+  if(!user){
+    throw new Error("No authenticated Supabase session.");
+  }
+
+  state.adminUser = user;
+
+  const {
+    data:admin,
+    error:adminError
+  } = await supabaseClient
+    .from("admin_users")
+    .select("*")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(adminError){
+    throw new Error(
+      "Administrator verification failed: " +
+      adminError.message
+    );
+  }
+
+  if(!admin){
     await supabaseClient.auth.signOut();
+    throw new Error(
+      "This account is authenticated but is not registered as an administrator."
+    );
+  }
+
+  state.adminRecord = admin;
+
+  return admin;
+}
+
+async function writeAudit(action,details={}){
+  if(!state.adminUser){
+    return {
+      ok:false,
+      error:"No authenticated administrator."
+    };
+  }
+
+  if(!tableAvailable("admin_audit_logs")){
+    return {
+      ok:false,
+      error:"admin_audit_logs is unavailable."
+    };
+  }
+
+  try{
+
+    const payload = {
+      admin_id:state.adminUser.id,
+      action:String(action),
+      details:details,
+      created_at:new Date().toISOString()
+    };
+
+    const { error } = await supabaseClient
+      .from("admin_audit_logs")
+      .insert(payload);
+
+    if(error){
+      return {
+        ok:false,
+        error:error.message
+      };
+    }
+
+    return {
+      ok:true
+    };
 
   }catch(error){
 
-    console.error(error);
-
-  }finally{
-
-    currentUser = null;
-    currentAdmin = null;
-
-    $("app").classList.add("hidden");
-    $("loginScreen").classList.remove("hidden");
-
+    return {
+      ok:false,
+      error:error?.message || String(error)
+    };
   }
 }
 
-function showApp(){
+function setLoading(id,text="Loading..."){
+  const el = $(id);
 
-  $("loginScreen").classList.add("hidden");
-  $("app").classList.remove("hidden");
+  if(el){
+    el.innerHTML =
+      `<div class="loading">${escapeHtml(text)}</div>`;
+  }
+}
+
+async function handleAuthError(message){
+  $("authLoading")?.classList.add("hidden");
+
+  $("app")?.classList.add("hidden");
+
+  $("loginScreen")?.classList.remove("hidden");
+
+  setElementMessage(
+    "loginError",
+    message,
+    "danger"
+  );
+}
+
+async function showApp(){
+  $("authLoading")?.classList.add("hidden");
+  $("loginScreen")?.classList.add("hidden");
+  $("app")?.classList.remove("hidden");
+
+  if(state.adminUser){
+    $("adminIdentity").textContent =
+      state.adminUser.email || state.adminUser.id;
+  }
 
   navigate("overview");
 }
 
-async function verifyAdmin(){
-
-  const {
-    data:{session},
-    error
-  } = await supabaseClient.auth.getSession();
-
-  if(error || !session){
-    $("loginScreen").classList.remove("hidden");
-    setLoading(false);
-    return false;
-  }
-
-  currentUser = session.user;
-
-  const {data:admin,error:adminError} =
-    await supabaseClient
-      .from("admin_users")
-      .select("*")
-      .eq("user_id",currentUser.id)
-      .maybeSingle();
-
-  if(adminError || !admin){
-
-    await supabaseClient.auth.signOut();
-
-    $("loginScreen").classList.remove("hidden");
-
-    setLoading(false);
-
-    return false;
-  }
-
-  currentAdmin = admin;
-
-  showApp();
-
-  return true;
-}
-
-/* -----------------------------
-   AUDIT
------------------------------ */
-
-async function writeAudit(action,targetId,details){
-
-  if(!currentUser) return;
-
+async function initAdmin(){
   try{
 
-    /*
-      The audit table is expected to contain:
-      admin_id, action, target_id, details, created_at
-
-      If it is absent, normal admin operation should not be
-      falsely reported as audited.
-    */
-
-    const {error} =
-      await supabaseClient
-        .from("admin_audit_logs")
-        .insert({
-          admin_id:currentUser.id,
-          action,
-          target_id:targetId || null,
-          details:details || {}
-        });
-
-    if(error){
-      console.warn("Audit log unavailable:",error.message);
+    if(
+      !SUPABASE_PUBLISHABLE_KEY ||
+      SUPABASE_PUBLISHABLE_KEY ===
+      "PASTE_YOUR_EXISTING_PUBLISHABLE_KEY_HERE"
+    ){
+      throw new Error(
+        "Supabase publishable/anon key has not been configured in admin.html."
+      );
     }
+
+    const {
+      data:{session}
+    } = await supabaseClient.auth.getSession();
+
+    if(!session){
+      $("authLoading")?.classList.add("hidden");
+      $("loginScreen")?.classList.remove("hidden");
+      return;
+    }
+
+    await requireAdmin();
+
+    await testRequiredTables();
+
+    await showApp();
 
   }catch(error){
 
-    console.warn(error);
+    console.error("Admin initialization error:",error);
 
+    await handleAuthError(
+      error?.message ||
+      "Unable to initialize administrator access."
+    );
   }
 }
 
-async function loadAudit(){
+async function logout(){
+  if(!confirmAction("Sign out of the NAIJA TASK administrator account?")){
+    return;
+  }
 
-  const body = $("auditBody");
+  try{
+    await writeAudit("admin_logout");
 
-  body.innerHTML =
-    `<tr><td colspan="4" class="empty">Loading...</td></tr>`;
+    await supabaseClient.auth.signOut();
 
-  const {data,error} =
-    await supabaseClient
-      .from("admin_audit_logs")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(200);
+  }catch(error){
+    console.error(error);
+  }
 
-  if(error){
+  state.adminUser = null;
+  state.adminRecord = null;
 
-    body.innerHTML =
-      `<tr><td colspan="4" class="empty">
-        Audit log table is not configured.
-      </td></tr>`;
+  $("app")?.classList.add("hidden");
+  $("loginScreen")?.classList.remove("hidden");
+}
+
+async function resetPassword(){
+  const email =
+    $("loginEmail")?.value?.trim();
+
+  if(!email){
+    setElementMessage(
+      "loginError",
+      "Enter your administrator email first.",
+      "danger"
+    );
 
     return;
   }
 
-  if(!data?.length){
+  try{
 
-    body.innerHTML =
-      `<tr><td colspan="4" class="empty">
-        No administrative audit records.
-      </td></tr>`;
+    const redirectUrl =
+      window.location.origin +
+      window.location.pathname;
+
+    const { error } =
+      await supabaseClient.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo:redirectUrl
+        }
+      );
+
+    if(error){
+      throw error;
+    }
+
+    setElementMessage(
+      "loginError",
+      "Password recovery email sent. Check the administrator email account.",
+      "success"
+    );
+
+  }catch(error){
+
+    setElementMessage(
+      "loginError",
+      error?.message ||
+      "Unable to send password recovery email.",
+      "danger"
+    );
+  }
+}
+
+async function completePasswordReset(){
+  const password =
+    $("newAdminPassword")?.value || "";
+
+  const confirm =
+    $("confirmAdminPassword")?.value || "";
+
+  if(password.length < 8){
+    setElementMessage(
+      "passwordRecoveryMessage",
+      "Password must contain at least 8 characters.",
+      "danger"
+    );
 
     return;
   }
 
-  body.innerHTML = data.map(row=>`
+  if(password !== confirm){
+    setElementMessage(
+      "passwordRecoveryMessage",
+      "The passwords do not match.",
+      "danger"
+    );
 
-    <tr>
-
-      <td>${escapeHTML(row.action)}</td>
-
-      <td>${escapeHTML(row.target_id || "—")}</td>
-
-      <td>
-        <pre style="white-space:pre-wrap;max-width:420px">${escapeHTML(
-          JSON.stringify(row.details || {},null,2)
-        )}</pre>
-      </td>
-
-      <td>${dateText(row.created_at)}</td>
-
-    </tr>
-
-  `).join("");
-}
-
-/* -----------------------------
-   OVERVIEW
------------------------------ */
-
-async function countTable(table,filters={}){
-
-  let q =
-    supabaseClient
-      .from(table)
-      .select("*",{count:"exact",head:true});
-
-  for(const [column,value] of Object.entries(filters)){
-
-    if(value === undefined) continue;
-
-    q = q.eq(column,value);
+    return;
   }
 
-  const {count,error} = await q;
+  const button = $("completeRecoveryBtn");
 
-  if(error) return null;
+  if(button){
+    button.disabled = true;
+    button.textContent = "Updating...";
+  }
 
-  return count ?? 0;
+  try{
+
+    const {
+      data:{user},
+      error:userError
+    } = await supabaseClient.auth.getUser();
+
+    if(userError){
+      throw userError;
+    }
+
+    if(!user){
+      throw new Error(
+        "Password recovery session is no longer active."
+      );
+    }
+
+    const {
+      data:admin,
+      error:adminError
+    } = await supabaseClient
+      .from("admin_users")
+      .select("id")
+      .eq("id",user.id)
+      .maybeSingle();
+
+    if(adminError){
+      throw adminError;
+    }
+
+    if(!admin){
+      throw new Error(
+        "This account is not authorized as an administrator."
+      );
+    }
+
+    const { error } =
+      await supabaseClient.auth.updateUser({
+        password
+      });
+
+    if(error){
+      throw error;
+    }
+
+    state.adminUser = user;
+    state.adminRecord = admin;
+
+    await writeAudit("admin_password_reset");
+
+    $("newAdminPassword").value = "";
+    $("confirmAdminPassword").value = "";
+
+    closeModal("passwordRecoveryModal");
+
+    await showApp();
+
+    setGlobalMessage(
+      "Administrator password updated successfully.",
+      "success"
+    );
+
+  }catch(error){
+
+    setElementMessage(
+      "passwordRecoveryMessage",
+      error?.message ||
+      "Unable to update password.",
+      "danger"
+    );
+
+  }finally{
+
+    if(button){
+      button.disabled = false;
+      button.textContent = "Update Password";
+    }
+  }
+}
+
+function navigate(page){
+  const pages =
+    document.querySelectorAll(".page");
+
+  pages.forEach(el=>{
+    el.classList.toggle(
+      "active",
+      el.id === `page-${page}`
+    );
+  });
+
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach(btn=>{
+      btn.classList.toggle(
+        "active",
+        btn.dataset.page === page
+      );
+    });
+
+  document
+    .querySelectorAll(".mobile-nav button")
+    .forEach(btn=>{
+      btn.classList.toggle(
+        "active",
+        btn.dataset.mobilePage === page
+      );
+    });
+
+  state.currentPage = page;
+
+  const loaders = {
+    overview:loadOverview,
+    users:loadUsers,
+    tasks:loadTasks,
+    submissions:loadSubmissions,
+    withdrawals:loadWithdrawals,
+    wallet:loadWallet,
+    referrals:loadReferrals,
+    posters:loadPosters,
+    support:loadSupport,
+    appeals:loadAppeals,
+    marketplace:loadMarketplace,
+    airtime:loadAirtime,
+    security:loadSecurity,
+    integrity:()=>{},
+    audit:loadAudit,
+    settings:loadSettings
+  };
+
+  const loader = loaders[page];
+
+  if(loader){
+    loader().catch(error=>{
+      console.error(
+        `Failed to load ${page}:`,
+        error
+      );
+
+      setGlobalMessage(
+        error?.message ||
+        `Unable to load ${page}.`,
+        "danger"
+      );
+    });
+  }
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+async function refreshCurrentPage(){
+  navigate(state.currentPage);
 }
 
 async function loadOverview(){
+  const container = $("overviewStats");
 
-  const [
-    users,
-    tasks,
-    proofs,
-    withdrawals,
-    transactions,
-    referrals,
-    tickets
-  ] = await Promise.all([
+  if(container){
+    container.innerHTML = `
+      <div class="card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">…</div>
+        <div class="stat-note">Reading profiles</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Active Tasks</div>
+        <div class="stat-value">…</div>
+        <div class="stat-note">Reading tasks</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Pending Proofs</div>
+        <div class="stat-value">…</div>
+        <div class="stat-note">Reading submissions</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Pending Withdrawals</div>
+        <div class="stat-value">…</div>
+        <div class="stat-note">Reading withdrawals</div>
+      </div>
+    `;
+  }
 
-    countTable("profiles"),
+  const counts = {};
 
-    countTable("tasks",{active:true}),
+  const countTables = [
+    "profiles",
+    "tasks",
+    "task_submissions",
+    "withdrawals",
+    "wallet_transactions",
+    "referrals",
+    "support_tickets"
+  ];
 
-    countTable("task_submissions",{status:"pending"}),
+  for(const table of countTables){
 
-    countTable("withdrawals",{status:"pending"}),
+    if(!tableAvailable(table)){
+      counts[table] = null;
+      continue;
+    }
 
-    countTable("wallet_transactions"),
+    try{
 
-    countTable("referrals"),
+      const { count,error } =
+        await supabaseClient
+          .from(table)
+          .select("*",{
+            count:"exact",
+            head:true
+          });
 
-    countTable("support_tickets")
+      if(error){
+        counts[table] = null;
+      }else{
+        counts[table] = count ?? 0;
+      }
 
-  ]);
+    }catch{
+      counts[table] = null;
+    }
+  }
 
-  $("statUsers").textContent =
-    users === null ? "—" : users;
+  let activeTasks = null;
+  let pendingProofs = null;
+  let pendingWithdrawals = null;
 
-  $("statTasks").textContent =
-    tasks === null ? "—" : tasks;
+  if(tableAvailable("tasks")){
+    try{
 
-  $("statProofs").textContent =
-    proofs === null ? "—" : proofs;
+      const { count,error } =
+        await supabaseClient
+          .from("tasks")
+          .select("*",{
+            count:"exact",
+            head:true
+          })
+          .eq("active",true);
 
-  $("statWithdrawals").textContent =
-    withdrawals === null ? "—" : withdrawals;
+      activeTasks =
+        error ? null : (count ?? 0);
 
-  $("statTransactions").textContent =
-    transactions === null ? "—" : transactions;
+    }catch{
+      activeTasks = null;
+    }
+  }
 
-  $("statReferrals").textContent =
-    referrals === null ? "—" : referrals;
+  if(tableAvailable("task_submissions")){
+    try{
 
-  $("statTickets").textContent =
-    tickets === null ? "—" : tickets;
+      const { count,error } =
+        await supabaseClient
+          .from("task_submissions")
+          .select("*",{
+            count:"exact",
+            head:true
+          })
+          .eq("status","pending");
 
-  loadCapacitySummary();
+      pendingProofs =
+        error ? null : (count ?? 0);
+
+    }catch{
+      pendingProofs = null;
+    }
+  }
+
+  if(tableAvailable("withdrawals")){
+    try{
+
+      const { count,error } =
+        await supabaseClient
+          .from("withdrawals")
+          .select("*",{
+            count:"exact",
+            head:true
+          })
+          .eq("status","pending");
+
+      pendingWithdrawals =
+        error ? null : (count ?? 0);
+
+    }catch{
+      pendingWithdrawals = null;
+    }
+  }
+
+  if(container){
+    container.innerHTML = `
+      <div class="card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">
+          ${counts.profiles === null ? "—" : counts.profiles}
+        </div>
+        <div class="stat-note">
+          ${counts.profiles === null
+            ? "profiles unavailable"
+            : "Real profile records"}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="stat-label">Active Tasks</div>
+        <div class="stat-value">
+          ${activeTasks === null ? "—" : activeTasks}
+        </div>
+        <div class="stat-note">
+          ${activeTasks === null
+            ? "tasks unavailable"
+            : "Currently marked active"}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="stat-label">Pending Proofs</div>
+        <div class="stat-value">
+          ${pendingProofs === null ? "—" : pendingProofs}
+        </div>
+        <div class="stat-note">
+          ${pendingProofs === null
+            ? "submissions unavailable"
+            : "Awaiting review"}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="stat-label">Pending Withdrawals</div>
+        <div class="stat-value">
+          ${pendingWithdrawals === null ? "—" : pendingWithdrawals}
+        </div>
+        <div class="stat-note">
+          ${pendingWithdrawals === null
+            ? "withdrawals unavailable"
+            : "Awaiting review"}
+        </div>
+      </div>
+    `;
+  }
+
+  $("overviewWalletCount").textContent =
+    counts.wallet_transactions === null
+      ? "—"
+      : counts.wallet_transactions;
+
+  $("overviewReferralCount").textContent =
+    counts.referrals === null
+      ? "—"
+      : counts.referrals;
+
+  $("overviewSupportCount").textContent =
+    counts.support_tickets === null
+      ? "—"
+      : counts.support_tickets;
+
+  const unavailable =
+    REQUIRED_TABLES.filter(
+      table => !tableAvailable(table)
+    );
+
+  const statusEl =
+    $("overviewSystemStatus");
+
+  if(statusEl){
+
+    if(unavailable.length){
+
+      statusEl.className =
+        "notice warning";
+
+      statusEl.innerHTML =
+        `<strong>Database configuration warning:</strong>
+         Some expected tables could not be read:
+         ${escapeHtml(unavailable.join(", "))}.
+         Features depending on those tables are not being simulated.`;
+
+    }else{
+
+      statusEl.className =
+        "notice";
+
+      statusEl.innerHTML =
+        `<strong>Database connectivity:</strong>
+         All expected admin tables responded to the initial availability check.
+         Backend RLS/RPC enforcement still remains authoritative.`;
+    }
+  }
 }
 
-async function loadCapacitySummary(){
+  async function loadUsers(){
+  const container = $("usersContent");
 
-  const el = $("capacitySummary");
-
-  const {data,error} =
-    await supabaseClient
-      .from("platform_settings")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-
-  if(error || !data){
-
-    el.innerHTML =
-      "Platform settings are not available.";
-
+  if(!container){
     return;
   }
 
-  const s = normalizeSettings(data);
-
-  el.innerHTML = `
-
-    <div class="grid grid-3">
-
-      <div>
-        <strong>Activation</strong><br>
-        ${s.activation_enabled ? "Enabled" : "Disabled"}
-        — ${money(s.activation_fee)}
+  if(!tableAvailable("profiles")){
+    container.innerHTML = `
+      <div class="error-box">
+        The <strong>profiles</strong> table could not be read.
+        User management is unavailable until the database configuration
+        or RLS policy is corrected.
       </div>
-
-      <div>
-        <strong>VIP</strong><br>
-        ${s.vip_enabled ? "Enabled" : "Disabled"}
-        — ${money(s.vip_price)}
-      </div>
-
-      <div>
-        <strong>Withdrawal</strong><br>
-        ${s.withdrawals_enabled ? "Enabled" : "Disabled"}
-        — minimum ${money(s.withdrawal_minimum)}
-      </div>
-
-    </div>
-  `;
-}
-
-/* -----------------------------
-   USERS
------------------------------ */
-
-async function loadUsers(){
-
-  const body = $("usersBody");
-
-  body.innerHTML =
-    `<tr><td colspan="6" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
+    `;
     return;
   }
 
-  usersCache = data || [];
+  setLoading("usersContent","Loading users...");
 
-  renderUsers(usersCache);
-}
+  try{
 
-function renderUsers(rows){
+    const { data,error } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .order("created_at",{ascending:false})
+        .limit(500);
 
-  const body = $("usersBody");
+    if(error){
+      throw error;
+    }
 
-  if(!rows.length){
+    if(!data || !data.length){
+      container.innerHTML =
+        `<div class="empty">No user records found.</div>`;
+      return;
+    }
 
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">No users found.</td></tr>`;
+    const rows = data.map(user=>{
+      const active =
+        user.is_active !== false;
 
-    return;
-  }
+      const activated =
+        user.activated === true ||
+        user.is_activated === true;
 
-  body.innerHTML = rows.map(user=>{
+      return `
+        <tr>
+          <td>
+            <strong>${escapeHtml(
+              user.full_name ||
+              user.username ||
+              "Unnamed user"
+            )}</strong>
+            <div style="font-size:10px;color:#78857d;margin-top:3px;">
+              ${escapeHtml(user.id || "")}
+            </div>
+          </td>
 
-    const active =
-      user.is_active !== false &&
-      user.banned !== true;
+          <td>
+            ${escapeHtml(user.phone || "—")}
+          </td>
 
-    const activated =
-      user.activated === true ||
-      user.is_activated === true;
+          <td>
+            ${formatMoney(user.balance)}
+          </td>
 
-    return `
+          <td>
+            ${active
+              ? badge("active")
+              : badge("inactive")}
+          </td>
 
-      <tr>
+          <td>
+            ${activated
+              ? badge("activated")
+              : badge("not activated")}
+          </td>
 
-        <td>
-          <strong>${escapeHTML(
-            user.full_name || "Unnamed"
-          )}</strong>
+          <td>
+            ${formatDate(user.created_at)}
+          </td>
 
-          <br>
-
-          <small>${escapeHTML(user.id)}</small>
-        </td>
-
-        <td>${escapeHTML(user.phone || "—")}</td>
-
-        <td>${money(user.balance)}</td>
-
-        <td>
-          ${activated
-            ? badge("Activated")
-            : badge("Not Activated")}
-        </td>
-
-        <td>${dateText(user.created_at)}</td>
-
-        <td>
-
-          <div class="actions">
-
+          <td>
             <button
-              class="${active ? "warning" : "success"}"
-              onclick="toggleUserStatus('${escapeHTML(user.id)}',${active})"
+              class="btn ${active ? "danger" : "success"}"
+              type="button"
+              onclick="toggleUserActive(
+                '${escapeAttr(user.id)}',
+                ${active}
+              )"
             >
-              ${active ? "Restrict" : "Enable"}
+              ${active ? "Restrict" : "Restore"}
             </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
 
-          </div>
+    container.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Phone</th>
+              <th>Balance</th>
+              <th>Account</th>
+              <th>Activation</th>
+              <th>Created</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-        </td>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </div>
 
-      </tr>
-
+      <div style="margin-top:9px;color:#748078;font-size:11px;">
+        Showing ${data.length} user record(s). Restriction changes require
+        appropriate backend/RLS authorization; this browser page is not a
+        security boundary.
+      </div>
     `;
 
-  }).join("");
+  }catch(error){
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="error-box">
+        Unable to load users:
+        ${escapeHtml(error?.message || String(error))}
+      </div>
+    `;
+  }
 }
 
-function filterUsers(){
 
-  const term =
-    $("userSearch").value
-      .trim()
-      .toLowerCase();
+async function toggleUserActive(userId,currentActive){
 
-  if(!term){
-
-    renderUsers(usersCache);
-
+  if(!userId){
     return;
   }
 
-  renderUsers(
-    usersCache.filter(user=>{
-
-      const text = [
-        user.id,
-        user.full_name,
-        user.phone
-      ].join(" ").toLowerCase();
-
-      return text.includes(term);
-    })
-  );
-}
-
-async function toggleUserStatus(id,currentActive){
-
-  if(!confirm(
+  const action =
     currentActive
-      ? "Restrict this account?"
-      : "Enable this account?"
-  )) return;
+      ? "restrict this user"
+      : "restore this user";
 
-  /*
-    This changes account status only if the column exists.
-    Financial/account-security enforcement must also exist
-    in database policies/RPCs.
-  */
-
-  const {error} =
-    await supabaseClient
-      .from("profiles")
-      .update({
-        is_active:!currentActive
-      })
-      .eq("id",id);
-
-  if(error){
-
-    toast(error.message);
-
+  if(!confirmAction(
+    `Are you sure you want to ${action}?`
+  )){
     return;
   }
 
-  await writeAudit(
-    currentActive ? "restrict_user" : "enable_user",
-    id,
-    {}
-  );
+  try{
 
-  toast("Account status updated.");
+    if(!tableAvailable("profiles")){
+      throw new Error(
+        "profiles table is unavailable."
+      );
+    }
 
-  loadUsers();
+    const nextValue =
+      !currentActive;
+
+    const { error } =
+      await supabaseClient
+        .from("profiles")
+        .update({
+          is_active:nextValue
+        })
+        .eq("id",userId);
+
+    if(error){
+      throw error;
+    }
+
+    await writeAudit(
+      nextValue
+        ? "user_restore"
+        : "user_restrict",
+      {
+        user_id:userId
+      }
+    );
+
+    setGlobalMessage(
+      nextValue
+        ? "User restored."
+        : "User restricted.",
+      "success"
+    );
+
+    await loadUsers();
+
+  }catch(error){
+
+    setGlobalMessage(
+      error?.message ||
+      "Unable to change user status.",
+      "danger"
+    );
+  }
 }
 
-/* -----------------------------
-   TASKS
------------------------------ */
+
+/* ============================================================
+   TASK MANAGEMENT
+   ============================================================ */
 
 async function loadTasks(){
 
-  const body = $("tasksBody");
+  const container = $("tasksContent");
 
-  body.innerHTML =
-    `<tr><td colspan="7" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("tasks")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="7" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
+  if(!container){
     return;
   }
 
-  tasksCache = data || [];
-
-  if(!tasksCache.length){
-
-    body.innerHTML =
-      `<tr><td colspan="7" class="empty">
-        No tasks found.
-      </td></tr>`;
-
+  if(!tableAvailable("tasks")){
+    container.innerHTML = `
+      <div class="error-box">
+        The <strong>tasks</strong> table could not be read.
+        Task management is unavailable.
+      </div>
+    `;
     return;
   }
 
-  body.innerHTML = tasksCache.map(task=>{
+  setLoading("tasksContent","Loading tasks...");
 
-    const slots =
-      task.max_total_completions ??
-      task.max_completions ??
-      task.slots ??
-      "—";
+  try{
 
-    const reward =
-      task.reward_per_worker ??
-      task.reward ??
-      0;
+    const { data,error } =
+      await supabaseClient
+        .from("tasks")
+        .select("*")
+        .order("created_at",{ascending:false})
+        .limit(500);
 
-    const proofRequired =
-      task.upload_required === true ||
-      task.required_proof === true ||
-      task.proof_type === "photo";
+    if(error){
+      throw error;
+    }
 
-    return `
+    if(!data || !data.length){
+      container.innerHTML =
+        `<div class="empty">No task records found.</div>`;
+      return;
+    }
 
-      <tr>
+    const rows = data.map(task=>{
 
-        <td>
-          <strong>${escapeHTML(task.title || "Untitled")}</strong>
-          <br>
-          <small>${escapeHTML(
-            String(task.description || "").slice(0,100)
-          )}</small>
-        </td>
+      const active =
+        task.active === true;
 
-        <td>${escapeHTML(task.task_type || "—")}</td>
+      const moderation =
+        task.moderation_status ||
+        task.status ||
+        "";
 
-        <td>${money(reward)}</td>
+      const reward =
+        task.reward_per_worker ??
+        task.reward ??
+        0;
 
-        <td>${escapeHTML(slots)}</td>
+      const slots =
+        task.slots ??
+        task.max_total_completions ??
+        "";
 
-        <td>${badge(
-          task.active ? "Active" : "Inactive"
-        )}</td>
+      return `
+        <tr>
 
-        <td>${proofRequired
-          ? badge("Photo Required")
-          : badge("Invalid Rule")}</td>
+          <td>
+            <strong>
+              ${escapeHtml(task.title || "Untitled task")}
+            </strong>
 
-        <td>
+            <div style="font-size:10px;color:#78857d;margin-top:3px;">
+              ${escapeHtml(task.id || "")}
+            </div>
+          </td>
 
-          <div class="actions">
+          <td>
+            ${escapeHtml(task.task_type || "—")}
+          </td>
 
-            <button
-              class="secondary"
-              onclick="editTask('${escapeHTML(task.id)}')"
-            >
-              Edit
-            </button>
+          <td>
+            ${formatMoney(reward)}
+          </td>
 
-            <button
-              class="${task.active ? "warning" : "success"}"
-              onclick="toggleTask('${escapeHTML(task.id)}',${!!task.active})"
-            >
-              ${task.active ? "Disable" : "Activate"}
-            </button>
+          <td>
+            ${escapeHtml(slots)}
+          </td>
 
-          </div>
+          <td>
+            ${badge(
+              active
+                ? "active"
+                : "inactive"
+            )}
+          </td>
 
-        </td>
+          <td>
+            ${badge(
+              moderation || "not set"
+            )}
+          </td>
 
-      </tr>
+          <td>
+            ${formatDate(
+              task.expiry_date
+            )}
+          </td>
 
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn"
+                type="button"
+                onclick="editTask(
+                  '${escapeAttr(task.id)}'
+                )"
+              >
+                Edit
+              </button>
+
+              <button
+                class="btn ${active ? "danger" : "success"}"
+                type="button"
+                onclick="toggleTask(
+                  '${escapeAttr(task.id)}',
+                  ${active}
+                )"
+              >
+                ${active ? "Deactivate" : "Activate"}
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `;
+    }).join("");
+
+    container.innerHTML = `
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Type</th>
+              <th>Reward</th>
+              <th>Slots</th>
+              <th>Active</th>
+              <th>Moderation</th>
+              <th>Expiry</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <div style="margin-top:9px;color:#748078;font-size:11px;">
+        Showing ${data.length} task record(s).
+      </div>
     `;
 
-  }).join("");
+  }catch(error){
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="error-box">
+        Unable to load tasks:
+        ${escapeHtml(error?.message || String(error))}
+      </div>
+    `;
+  }
 }
 
-function openTaskModal(){
 
-  $("taskModalTitle").textContent = "Create Task";
+function resetTaskForm(){
 
-  clearTaskForm();
+  $("taskId").value = "";
 
-  openModal("taskModal");
+  $("taskTitle").value = "";
+
+  $("taskDescription").value = "";
+
+  $("taskReward").value = "";
+
+  $("taskSlots").value = "";
+
+  $("taskStartDate").value = "";
+
+  $("taskExpiryDate").value = "";
+
+  $("taskMaxPerUser").value = "1";
+
+  $("taskType").value = "social";
+
+  $("taskProofType").value = "photo";
+
+  $("taskLink").value = "";
+
+  $("taskPostLink").value = "";
+
+  $("taskUploaderUsername").value = "";
+
+  $("taskCopyText").value = "";
+
+  $("taskWatchTimer").value = "0";
+
+  $("taskActive").checked = false;
+
+  /*
+    These are deliberately forced true.
+    They are mandatory platform requirements.
+  */
+  $("taskUploadRequired").checked = true;
+
+  $("taskRequiredProof").checked = true;
+
+  setElementMessage(
+    "taskFormMessage",
+    "",
+    "info"
+  );
 }
 
-function clearTaskForm(){
 
-  [
-    "taskId",
-    "taskTitle",
-    "taskDescription",
-    "taskReward",
-    "taskSlots",
-    "taskLink",
-    "postLink",
-    "uploaderUsername",
-    "copyText",
-    "taskStart",
-    "taskExpiry"
-  ].forEach(id=>{
+function openTaskModal(task=null){
 
-    const el = $(id);
+  resetTaskForm();
 
-    if(el) el.value = "";
+  state.currentTask = task || null;
 
-  });
+  if(task){
 
-  $("taskMaxPerUser").value = 1;
-  $("watchTimer").value = 0;
+    $("taskModalTitle").textContent =
+      "Edit Task";
 
-  $("taskType").value = "username";
-  $("proofType").value = "photo";
-  $("moderationStatus").value = "pending";
-  $("paymentStatus").value = "pending";
+    $("taskId").value =
+      task.id || "";
 
-  $("taskActive").checked = true;
+    $("taskTitle").value =
+      task.title || "";
+
+    $("taskDescription").value =
+      task.description || "";
+
+    $("taskReward").value =
+      task.reward_per_worker ??
+      task.reward ??
+      "";
+
+    $("taskSlots").value =
+      task.slots ??
+      task.max_total_completions ??
+      "";
+
+    $("taskStartDate").value =
+      toLocalInputValue(
+        task.start_date
+      );
+
+    $("taskExpiryDate").value =
+      toLocalInputValue(
+        task.expiry_date
+      );
+
+    $("taskMaxPerUser").value =
+      task.max_completions_per_user ??
+      task.max_per_user ??
+      "1";
+
+    $("taskType").value =
+      task.task_type ||
+      "social";
+
+    $("taskProofType").value =
+      task.proof_type ||
+      "photo";
+
+    $("taskLink").value =
+      task.task_link ||
+      "";
+
+    $("taskPostLink").value =
+      task.post_link ||
+      "";
+
+    $("taskUploaderUsername").value =
+      task.uploader_username ||
+      "";
+
+    $("taskCopyText").value =
+      task.copy_text ||
+      "";
+
+    $("taskWatchTimer").value =
+      Number.isFinite(Number(task.watch_timer))
+        ? Number(task.watch_timer)
+        : 0;
+
+    $("taskActive").checked =
+      task.active === true;
+
+    /*
+      Never inherit a false value here.
+      Photo proof remains mandatory.
+    */
+    $("taskUploadRequired").checked = true;
+
+    $("taskRequiredProof").checked = true;
+
+  }else{
+
+    $("taskModalTitle").textContent =
+      "Create Task";
+
+    $("taskUploadRequired").checked = true;
+    $("taskRequiredProof").checked = true;
+  }
+
+  showModal("taskModal");
 }
 
-function editTask(id){
 
-  const task =
-    tasksCache.find(t=>String(t.id) === String(id));
+async function editTask(taskId){
 
-  if(!task){
-
-    toast("Task not found.");
-
+  if(!taskId){
     return;
   }
 
-  $("taskModalTitle").textContent = "Edit Task";
+  try{
 
-  $("taskId").value = task.id || "";
-  $("taskTitle").value = task.title || "";
-  $("taskDescription").value = task.description || "";
+    const { data,error } =
+      await supabaseClient
+        .from("tasks")
+        .select("*")
+        .eq("id",taskId)
+        .maybeSingle();
 
-  $("taskReward").value =
-    task.reward_per_worker ??
-    task.reward ??
-    "";
+    if(error){
+      throw error;
+    }
 
-  $("taskSlots").value =
-    task.max_total_completions ??
-    task.max_completions ??
-    task.slots ??
-    "";
+    if(!data){
+      throw new Error(
+        "Task could not be found."
+      );
+    }
 
-  $("taskMaxPerUser").value =
-    task.max_per_user ??
-    task.max_completions_per_user ??
-    1;
+    openTaskModal(data);
 
-  $("taskType").value =
-    task.task_type || "username";
+  }catch(error){
 
-  $("taskLink").value =
-    task.task_link || "";
-
-  $("postLink").value =
-    task.post_link || "";
-
-  $("uploaderUsername").value =
-    task.uploader_username || "";
-
-  $("copyText").value =
-    task.copy_text || "";
-
-  $("taskStart").value =
-    localDateTime(task.start_date);
-
-  $("taskExpiry").value =
-    localDateTime(task.expiry_date);
-
-  $("taskActive").checked =
-    task.active !== false;
-
-  $("proofType").value = "photo";
-
-  $("moderationStatus").value =
-    task.moderation_status || "pending";
-
-  $("paymentStatus").value =
-    task.payment_status || "pending";
-
-  $("watchTimer").value =
-    task.watch_timer || 0;
-
-  openModal("taskModal");
+    setGlobalMessage(
+      error?.message ||
+      "Unable to open task.",
+      "danger"
+    );
+  }
 }
 
-function localDateTime(value){
 
-  if(!value) return "";
-
-  const d = new Date(value);
-
-  if(Number.isNaN(d.getTime())) return "";
-
-  const pad=n=>String(n).padStart(2,"0");
-
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-async function saveTask(){
-
-  const id =
-    $("taskId").value.trim();
+function validateTaskForm(){
 
   const title =
     $("taskTitle").value.trim();
@@ -2716,1614 +3283,1843 @@ async function saveTask(){
   const maxPerUser =
     Number($("taskMaxPerUser").value);
 
-  if(!title || !description){
+  const startDate =
+    fromLocalInput("taskStartDate");
 
-    toast("Title and description are required.");
+  const expiryDate =
+    fromLocalInput("taskExpiryDate");
 
-    return;
+  const taskLink =
+    $("taskLink").value.trim();
+
+  const postLink =
+    $("taskPostLink").value.trim();
+
+  const watchTimer =
+    Number($("taskWatchTimer").value);
+
+  if(title.length < 3){
+    return {
+      ok:false,
+      message:"Task title must contain at least 3 characters."
+    };
+  }
+
+  if(description.length < 3){
+    return {
+      ok:false,
+      message:"Task description/instructions are required."
+    };
   }
 
   if(!Number.isFinite(reward) || reward <= 0){
-
-    toast("Enter a valid reward.");
-
-    return;
+    return {
+      ok:false,
+      message:"Reward must be greater than ₦0."
+    };
   }
 
-  if(!Number.isInteger(slots) || slots < 1){
-
-    toast("Enter valid task slots.");
-
-    return;
+  if(!Number.isFinite(slots) ||
+     !Number.isInteger(slots) ||
+     slots < 1){
+    return {
+      ok:false,
+      message:"Slots must be a whole number greater than zero."
+    };
   }
 
-  if(maxPerUser !== 1){
+  if(!Number.isFinite(maxPerUser) ||
+     !Number.isInteger(maxPerUser) ||
+     maxPerUser < 1){
+    return {
+      ok:false,
+      message:
+        "Maximum completions per user must be a whole number of at least 1."
+    };
+  }
 
-    toast(
-      "NAIJA TASK currently allows one completion per worker per task."
+  if(!startDate){
+    return {
+      ok:false,
+      message:"A valid task start date is required."
+    };
+  }
+
+  if(!expiryDate){
+    return {
+      ok:false,
+      message:"A valid task expiry date is required."
+    };
+  }
+
+  const start =
+    new Date(startDate);
+
+  const expiry =
+    new Date(expiryDate);
+
+  if(expiry <= start){
+    return {
+      ok:false,
+      message:"Expiry date must be later than the start date."
+    };
+  }
+
+  if(taskLink &&
+     !isValidHttpUrl(taskLink)){
+    return {
+      ok:false,
+      message:
+        "Task Link must be a valid http:// or https:// URL."
+    };
+  }
+
+  if(postLink &&
+     !isValidHttpUrl(postLink)){
+    return {
+      ok:false,
+      message:
+        "Post / Destination Link must be a valid http:// or https:// URL."
+    };
+  }
+
+  if(!Number.isFinite(watchTimer) ||
+     !Number.isInteger(watchTimer) ||
+     watchTimer < 0){
+    return {
+      ok:false,
+      message:
+        "Watch timer must be a whole number of zero or greater."
+    };
+  }
+
+  /*
+    Hard platform rule.
+    These must NEVER become false.
+  */
+  if(!$("taskUploadRequired").checked){
+    return {
+      ok:false,
+      message:
+        "Photo upload is mandatory for every NAIJA TASK."
+    };
+  }
+
+  if(!$("taskRequiredProof").checked){
+    return {
+      ok:false,
+      message:
+        "Proof is mandatory for every NAIJA TASK."
+    };
+  }
+
+  return {
+    ok:true,
+    data:{
+      title,
+      description,
+      reward,
+      slots,
+      startDate,
+      expiryDate,
+      maxPerUser,
+      taskType:$("taskType").value,
+      proofType:"photo",
+      taskLink:taskLink || null,
+      postLink:postLink || null,
+      uploaderUsername:
+        $("taskUploaderUsername").value.trim() || null,
+      copyText:
+        $("taskCopyText").value.trim() || null,
+      watchTimer
+    }
+  };
+}
+
+
+async function saveTask(){
+
+  const validation =
+    validateTaskForm();
+
+  if(!validation.ok){
+
+    setElementMessage(
+      "taskFormMessage",
+      validation.message,
+      "danger"
     );
 
     return;
   }
 
-  /*
-    PHOTO PROOF IS HARD-LOCKED.
-  */
+  const data =
+    validation.data;
 
-  const payload = {
+  const taskId =
+    $("taskId").value.trim();
 
-    title,
-    description,
+  const button =
+    $("saveTaskBtn");
 
-    reward,
-    reward_per_worker:reward,
-
-    slots,
-
-    max_total_completions:slots,
-    max_per_user:1,
-
-    task_type:$("taskType").value,
-
-    task_link:$("taskLink").value.trim() || null,
-    post_link:$("postLink").value.trim() || null,
-
-    uploader_username:
-      $("uploaderUsername").value.trim() || null,
-
-    copy_text:
-      $("copyText").value.trim() || null,
-
-    start_date:
-      $("taskStart").value
-        ? new Date($("taskStart").value).toISOString()
-        : null,
-
-    expiry_date:
-      $("taskExpiry").value
-        ? new Date($("taskExpiry").value).toISOString()
-        : null,
-
-    active:$("taskActive").checked,
-
-    /*
-      NEVER allow a task to be created without photo proof.
-    */
-    upload_required:true,
-    required_proof:true,
-    proof_type:"photo",
-
-    moderation_status:
-      $("moderationStatus").value,
-
-    payment_status:
-      $("paymentStatus").value,
-
-    watch_timer:
-      Number($("watchTimer").value || 0)
-
-  };
-
-  setLoading(true);
+  if(button){
+    button.disabled = true;
+    button.textContent = "Saving...";
+  }
 
   try{
 
+    const payload = {
+      title:data.title,
+      description:data.description,
+      reward_per_worker:data.reward,
+      reward:data.reward,
+      slots:data.slots,
+      max_total_completions:data.slots,
+      start_date:data.startDate,
+      expiry_date:data.expiryDate,
+      max_completions_per_user:data.maxPerUser,
+      max_per_user:data.maxPerUser,
+      task_type:data.taskType,
+      proof_type:"photo",
+      required_proof:true,
+      upload_required:true,
+      task_link:data.taskLink,
+      post_link:data.postLink,
+      uploader_username:data.uploaderUsername,
+      copy_text:data.copyText,
+      watch_timer:data.watchTimer
+    };
+
     let result;
 
-    if(id){
+    if(taskId){
 
       result =
         await supabaseClient
           .from("tasks")
           .update(payload)
-          .eq("id",id)
-          .select()
-          .single();
+          .eq("id",taskId)
+          .select("*")
+          .maybeSingle();
 
     }else{
+
+      /*
+        New tasks are intentionally not automatically activated
+        unless the administrator selected the active option.
+      */
+      payload.active =
+        $("taskActive").checked;
 
       result =
         await supabaseClient
           .from("tasks")
           .insert(payload)
-          .select()
+          .select("*")
           .single();
-
     }
 
-    if(result.error) throw result.error;
+    if(result.error){
+      throw result.error;
+    }
+
+    if(!result.data){
+      throw new Error(
+        "The database did not return the saved task."
+      );
+    }
 
     await writeAudit(
-      id ? "edit_task" : "create_task",
-      result.data?.id || id,
+      taskId
+        ? "task_edit"
+        : "task_create",
       {
-        title,
-        reward,
-        slots
+        task_id:result.data.id,
+        title:data.title
       }
     );
 
     closeModal("taskModal");
 
-    toast(
-      id
-        ? "Task updated."
-        : "Task created."
+    setGlobalMessage(
+      taskId
+        ? "Task updated successfully."
+        : "Task created successfully.",
+      "success"
     );
 
-    loadTasks();
+    await loadTasks();
 
   }catch(error){
 
     console.error(error);
 
-    toast(
-      error.message ||
-      "Unable to save task."
+    setElementMessage(
+      "taskFormMessage",
+      error?.message ||
+      "Unable to save task.",
+      "danger"
     );
 
   }finally{
 
-    setLoading(false);
-
+    if(button){
+      button.disabled = false;
+      button.textContent = "Save Task";
+    }
   }
 }
 
-async function toggleTask(id,current){
+
+async function toggleTask(taskId,currentActive){
+
+  if(!taskId){
+    return;
+  }
+
+  const nextActive =
+    !currentActive;
 
   const action =
-    current ? "disable" : "activate";
+    nextActive
+      ? "activate"
+      : "deactivate";
 
-  if(!confirm(
-    current
-      ? "Disable this task? Existing records will remain."
-      : "Activate this task?"
-  )) return;
-
-  const {error} =
-    await supabaseClient
-      .from("tasks")
-      .update({
-        active:!current
-      })
-      .eq("id",id);
-
-  if(error){
-
-    toast(error.message);
-
-    return;
-  }
-
-  await writeAudit(
-    action + "_task",
-    id,
-    {}
-  );
-
-  toast(
-    current
-      ? "Task disabled."
-      : "Task activated."
-  );
-
-  loadTasks();
-}
-
-/* -----------------------------
-   SUBMISSIONS
------------------------------ */
-
-async function loadSubmissions(){
-
-  const body = $("submissionsBody");
-
-  body.innerHTML =
-    `<tr><td colspan="6" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("task_submissions")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
-    return;
-  }
-
-  if(!data?.length){
-
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">
-        No submissions found.
-      </td></tr>`;
-
-    return;
-  }
-
-  body.innerHTML = data.map(row=>`
-
-    <tr>
-
-      <td>
-        ${escapeHTML(
-          row.user_id ||
-          row.worker_id ||
-          "—"
-        )}
-      </td>
-
-      <td>${escapeHTML(row.task_id || "—")}</td>
-
-      <td>${dateText(row.created_at)}</td>
-
-      <td>${badge(row.status)}</td>
-
-      <td>
-        ${
-          row.proof_image_url ||
-          row.proof_url ||
-          row.proof
-            ? "Available"
-            : "Missing"
-        }
-      </td>
-
-      <td>
-
-        ${
-          String(row.status).toLowerCase() === "pending"
-          ?
-          `<button
-             class="primary"
-             onclick='reviewProof(${JSON.stringify(row)})'
-           >
-             Review
-           </button>`
-          :
-          "—"
-        }
-
-      </td>
-
-    </tr>
-
-  `).join("");
-}
-
-function reviewProof(row){
-
-  currentProof = row;
-
-  let proofUrl =
-    row.proof_image_url ||
-    row.proof_url ||
-    "";
-
-  let proofText =
-    row.proof ||
-    row.proof_text ||
-    "";
-
-  let imageHTML = "";
-
-  if(proofUrl){
-
-    imageHTML = `
-      <div style="margin-bottom:14px">
-        <img
-          class="proof-image"
-          src="${escapeHTML(proofUrl)}"
-          alt="Task proof"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='block'"
-        >
-
-        <div
-          style="display:none"
-          class="notice danger-box"
-        >
-          Proof image could not be loaded.
-        </div>
-      </div>
-    `;
-
-  }else{
-
-    imageHTML = `
-      <div class="notice danger-box">
-        No direct proof image URL is available.
-        A real photo proof must reference an uploaded storage object.
-      </div>
-    `;
-
-  }
-
-  $("proofContent").innerHTML = `
-
-    <div class="card">
-
-      <strong>Submission ID</strong>
-
-      <p>${escapeHTML(currentProof.id || "—")}</p>
-
-      <strong>Worker</strong>
-
-      <p>${escapeHTML(
-        currentProof.user_id ||
-        currentProof.worker_id ||
-        "—"
-      )}</p>
-
-      <strong>Task</strong>
-
-      <p>${escapeHTML(
-        currentProof.task_id || "—"
-      )}</p>
-
-    </div>
-
-    ${imageHTML}
-
-    ${
-      proofText
-      ?
-      `<div class="card">
-        <h3>Submitted Proof</h3>
-        <div style="white-space:pre-wrap">${escapeHTML(proofText)}</div>
-      </div>`
-      :
-      ""
-    }
-
-  `;
-
-  openModal("proofModal");
-}
-
-async function approveCurrentProof(){
-
-  if(!currentProof?.id){
-    toast("No submission selected.");
-    return;
-  }
-
-  const submissionId = currentProof.id;
-
-  if(!confirm(
-    "Approve this proof? The secure server transaction will verify the submission, prevent duplicate completion, credit the worker and record the ledger entry."
+  if(!confirmAction(
+    `Are you sure you want to ${action} this task?`
   )){
     return;
   }
 
-  setLoading(true);
-
   try{
 
     /*
-      SECURE APPROVAL
-
-      The browser does NOT:
-        - credit the wallet
-        - create a completion
-        - create a wallet transaction
-        - change the submission status
-
-      All financial/reward processing is performed by the
-      PostgreSQL RPC inside one server-side transaction.
+      Do not activate an impossible task.
+      Re-read the actual record before changing active state.
     */
+    const {
+      data:task,
+      error:readError
+    } = await supabaseClient
+      .from("tasks")
+      .select("*")
+      .eq("id",taskId)
+      .maybeSingle();
 
-    const { data, error } =
-      await supabaseClient.rpc(
-        "admin_approve_task_submission",
-        {
-          submission_id: submissionId
-        }
+    if(readError){
+      throw readError;
+    }
+
+    if(!task){
+      throw new Error(
+        "Task no longer exists."
       );
+    }
+
+    if(nextActive){
+
+      const reward =
+        Number(
+          task.reward_per_worker ??
+          task.reward
+        );
+
+      const slots =
+        Number(
+          task.slots ??
+          task.max_total_completions
+        );
+
+      const start =
+        task.start_date
+          ? new Date(task.start_date)
+          : null;
+
+      const expiry =
+        task.expiry_date
+          ? new Date(task.expiry_date)
+          : null;
+
+      if(!Number.isFinite(reward) ||
+         reward <= 0){
+        throw new Error(
+          "This task has an invalid reward and cannot be activated."
+        );
+      }
+
+      if(!Number.isInteger(slots) ||
+         slots < 1){
+        throw new Error(
+          "This task has invalid slots and cannot be activated."
+        );
+      }
+
+      if(!start ||
+         Number.isNaN(start.getTime())){
+        throw new Error(
+          "This task has no valid start date."
+        );
+      }
+
+      if(!expiry ||
+         Number.isNaN(expiry.getTime())){
+        throw new Error(
+          "This task has no valid expiry date."
+        );
+      }
+
+      if(expiry <= start){
+        throw new Error(
+          "This task has an invalid date range."
+        );
+      }
+
+      if(!task.required_proof ||
+         !task.upload_required){
+        throw new Error(
+          "This task does not have mandatory proof/photo upload configured."
+        );
+      }
+
+      if(
+        task.task_link &&
+        !isValidHttpUrl(task.task_link)
+      ){
+        throw new Error(
+          "This task has an invalid task link."
+        );
+      }
+
+      if(
+        task.post_link &&
+        !isValidHttpUrl(task.post_link)
+      ){
+        throw new Error(
+          "This task has an invalid post link."
+        );
+      }
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("tasks")
+        .update({
+          active:nextActive
+        })
+        .eq("id",taskId);
 
     if(error){
       throw error;
     }
 
-    console.log(
-      "admin_approve_task_submission result:",
-      data
-    );
-
-    /*
-      The RPC has completed the authoritative operation.
-
-      Refresh the submission list from the database instead
-      of changing the row locally.
-    */
-
-    currentProof = null;
-
-    closeModal("proofModal");
-
-    toast(
-      "Proof approved successfully. Reward transaction completed."
-    );
-
-    await loadSubmissions();
-
-  }catch(error){
-
-    console.error(
-      "Secure submission approval failed:",
-      error
-    );
-
-    /*
-      Important:
-      Do NOT change the UI to Approved when the RPC fails.
-      The database remains the source of truth.
-    */
-
-    toast(
-      error?.message ||
-      "Approval failed. No reward was processed."
-    );
-
-  }finally{
-
-    setLoading(false);
-
-  }
-  }
-
-  if(!currentProof?.id){
-
-    toast("No submission selected.");
-
-    return;
-  }
-
-  if(!confirm(
-    "Approve this proof? Reward processing must be atomic and must prevent duplicate payment."
-  )) return;
-
-  /*
-    CRITICAL:
-
-    Do NOT:
-      1. insert task_completions
-      2. update submission
-      3. separately update wallet
-
-    That approach can double-pay or leave inconsistent records.
-
-    The correct production implementation is one server-side
-    transaction/RPC that:
-      - locks the task
-      - locks the worker
-      - verifies submission is still pending
-      - verifies task slot availability
-      - verifies worker has not completed it before
-      - verifies proof exists
-      - creates completion
-      - credits reward
-      - creates ledger entry
-      - updates submission
-      - writes audit record
-      - commits everything atomically.
-  */
-
-  toast(
-    "Secure reward transaction is not configured. No money was moved."
-  );
-}
-
-async function rejectCurrentProof(){
-
-  if(!currentProof?.id){
-
-    toast("No submission selected.");
-
-    return;
-  }
-
-  const reason =
-    prompt("Enter rejection reason:");
-
-  if(!reason?.trim()) return;
-
-  const {error} =
-    await supabaseClient
-      .from("task_submissions")
-      .update({
-        status:"rejected",
-        rejection_reason:reason.trim()
-      })
-      .eq("id",currentProof.id)
-      .eq("status","pending");
-
-  if(error){
-
-    toast(error.message);
-
-    return;
-  }
-
-  await writeAudit(
-    "reject_submission",
-    currentProof.id,
-    {reason}
-  );
-
-  closeModal("proofModal");
-
-  toast("Proof rejected.");
-
-  loadSubmissions();
-}
-
-/* -----------------------------
-   WITHDRAWALS
------------------------------ */
-
-async function loadWithdrawals(){
-
-  const body = $("withdrawalsBody");
-
-  body.innerHTML =
-    `<tr><td colspan="7" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("withdrawals")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="7" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
-    return;
-  }
-
-  if(!data?.length){
-
-    body.innerHTML =
-      `<tr><td colspan="7" class="empty">
-        No withdrawals found.
-      </td></tr>`;
-
-    return;
-  }
-
-  body.innerHTML = data.map(row=>`
-
-    <tr>
-
-      <td>${escapeHTML(
-        row.user_id || "—"
-      )}</td>
-
-      <td>${money(row.amount)}</td>
-
-      <td>${money(row.fee)}</td>
-
-      <td>${escapeHTML(
-        row.method ||
-        row.payment_method ||
-        "—"
-      )}</td>
-
-      <td>
-        ${escapeHTML(
-          row.account_number ||
-          row.account_details ||
-          row.bank_name ||
-          "—"
-        )}
-      </td>
-
-      <td>${badge(row.status)}</td>
-
-      <td>
-
-        ${
-          String(row.status).toLowerCase() === "pending"
-          ?
-          `<div class="actions">
-             <button class="success"
-               onclick="processWithdrawal('${escapeHTML(row.id)}','approve')">
-               Approve
-             </button>
-
-             <button class="danger"
-               onclick="processWithdrawal('${escapeHTML(row.id)}','reject')">
-               Reject
-             </button>
-           </div>`
-          :
-          "—"
-        }
-
-      </td>
-
-    </tr>
-
-  `).join("");
-}
-
-async function processWithdrawal(id,action){
-
-  if(action === "approve"){
-
-    /*
-      NEVER simply:
-        UPDATE withdrawals SET status='approved'
-
-      Approval must be a server-side atomic operation.
-    */
-
-    toast(
-      "Secure withdrawal processing is not configured. No wallet was changed."
-    );
-
-    return;
-  }
-
-  const reason =
-    prompt("Enter rejection reason:");
-
-  if(!reason?.trim()) return;
-
-  const {error} =
-    await supabaseClient
-      .from("withdrawals")
-      .update({
-        status:"rejected",
-        rejection_reason:reason.trim()
-      })
-      .eq("id",id)
-      .eq("status","pending");
-
-  if(error){
-
-    toast(error.message);
-
-    return;
-  }
-
-  await writeAudit(
-    "reject_withdrawal",
-    id,
-    {reason}
-  );
-
-  toast("Withdrawal rejected.");
-
-  loadWithdrawals();
-}
-
-/* -----------------------------
-   WALLET
------------------------------ */
-
-async function loadWallet(){
-
-  const body = $("walletBody");
-
-  body.innerHTML =
-    `<tr><td colspan="6" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("wallet_transactions")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
-    return;
-  }
-
-  if(!data?.length){
-
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">
-        No wallet transactions.
-      </td></tr>`;
-
-    return;
-  }
-
-  body.innerHTML = data.map(row=>`
-
-    <tr>
-
-      <td>${escapeHTML(row.user_id || "—")}</td>
-
-      <td>${escapeHTML(
-        row.type ||
-        row.transaction_type ||
-        "—"
-      )}</td>
-
-      <td>${money(row.amount)}</td>
-
-      <td>${escapeHTML(
-        row.description || "—"
-      )}</td>
-
-      <td>${badge(row.status || "completed")}</td>
-
-      <td>${dateText(row.created_at)}</td>
-
-    </tr>
-
-  `).join("");
-}
-
-/* -----------------------------
-   REFERRALS
------------------------------ */
-
-async function loadReferrals(){
-
-  const body = $("referralsBody");
-
-  body.innerHTML =
-    `<tr><td colspan="5" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("referrals")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="5" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
-    return;
-  }
-
-  if(!data?.length){
-
-    body.innerHTML =
-      `<tr><td colspan="5" class="empty">
-        No referrals found.
-      </td></tr>`;
-
-    return;
-  }
-
-  body.innerHTML = data.map(row=>`
-
-    <tr>
-
-      <td>${escapeHTML(
-        row.referrer_id || row.referrer || "—"
-      )}</td>
-
-      <td>${escapeHTML(
-        row.referred_id ||
-        row.referred_user_id ||
-        "—"
-      )}</td>
-
-      <td>${badge(row.status || "pending")}</td>
-
-      <td>${money(row.reward)}</td>
-
-      <td>${dateText(row.created_at)}</td>
-
-    </tr>
-
-  `).join("");
-}
-
-/* -----------------------------
-   POSTERS
------------------------------ */
-
-async function loadPosters(){
-
-  const body = $("postersBody");
-
-  body.innerHTML =
-    `<tr><td colspan="5" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("poster_payments")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="5" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
-    return;
-  }
-
-  if(!data?.length){
-
-    body.innerHTML =
-      `<tr><td colspan="5" class="empty">
-        No poster payment records.
-      </td></tr>`;
-
-    return;
-  }
-
-  body.innerHTML = data.map(row=>`
-
-    <tr>
-
-      <td>${escapeHTML(
-        row.user_id ||
-        row.poster_id ||
-        "—"
-      )}</td>
-
-      <td>${money(row.amount)}</td>
-
-      <td>${escapeHTML(
-        row.type ||
-        row.payment_type ||
-        "—"
-      )}</td>
-
-      <td>${badge(row.status)}</td>
-
-      <td>${dateText(row.created_at)}</td>
-
-    </tr>
-
-  `).join("");
-}
-
-/* -----------------------------
-   SUPPORT
------------------------------ */
-
-async function loadSupport(){
-
-  const body = $("supportBody");
-
-  body.innerHTML =
-    `<tr><td colspan="6" class="empty">Loading...</td></tr>`;
-
-  const {data,error} =
-    await supabaseClient
-      .from("support_tickets")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(500);
-
-  if(error){
-
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">
-        ${escapeHTML(error.message)}
-      </td></tr>`;
-
-    return;
-  }
-
-  if(!data?.length){
-
-    body.innerHTML =
-      `<tr><td colspan="6" class="empty">
-        No support tickets.
-      </td></tr>`;
-
-    return;
-  }
-
-  body.innerHTML = data.map(row=>`
-
-    <tr>
-
-      <td>${escapeHTML(row.user_id || "—")}</td>
-
-      <td>${escapeHTML(row.subject || "—")}</td>
-
-      <td>
-        ${escapeHTML(
-          String(row.message || "").slice(0,180)
-        )}
-      </td>
-
-      <td>${badge(row.status || "open")}</td>
-
-      <td>${dateText(row.created_at)}</td>
-
-      <td>
-
-        ${
-          row.status !== "closed"
-          ?
-          `<button class="success"
-             onclick="closeTicket('${escapeHTML(row.id)}')">
-             Close
-           </button>`
-          :
-          "Closed"
-        }
-
-      </td>
-
-    </tr>
-
-  `).join("");
-}
-
-async function closeTicket(id){
-
-  const {error} =
-    await supabaseClient
-      .from("support_tickets")
-      .update({
-        status:"closed"
-      })
-      .eq("id",id);
-
-  if(error){
-
-    toast(error.message);
-
-    return;
-  }
-
-  await writeAudit(
-    "close_support_ticket",
-    id,
-    {}
-  );
-
-  toast("Ticket closed.");
-
-  loadSupport();
-}
-
-/* -----------------------------
-   APPEALS
------------------------------ */
-
-async function loadAppeals(){
-
-  $("appealsContainer").innerHTML =
-    "Appeals require an appeals/disputes table before they can be processed safely.";
-
-}
-
-/* -----------------------------
-   SECURITY SETTINGS
------------------------------ */
-
-function securityPayload(){
-
-  return {
-
-    captcha_enabled:$("securityCaptcha").checked,
-
-    suspicious_activity_detection:
-      $("securitySuspicious").checked,
-
-    automatic_restriction:
-      $("securityRestriction").checked,
-
-    automatic_ban:
-      $("securityBan").checked,
-
-    security_warnings:
-      $("securityWarnings").checked,
-
-    withdrawal_security_check:
-      $("securityWithdrawal").checked
-
-  };
-}
-
-async function loadSecuritySettings(){
-
-  const {data,error} =
-    await supabaseClient
-      .from("platform_settings")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-
-  if(error || !data) return;
-
-  const s = normalizeSettings(data);
-
-  $("securityCaptcha").checked =
-    !!s.captcha_enabled;
-
-  $("securitySuspicious").checked =
-    !!s.suspicious_activity_detection;
-
-  $("securityRestriction").checked =
-    !!s.automatic_restriction;
-
-  $("securityBan").checked =
-    !!s.automatic_ban;
-
-  $("securityWarnings").checked =
-    !!s.security_warnings;
-
-  $("securityWithdrawal").checked =
-    !!s.withdrawal_security_check;
-}
-
-async function saveSecuritySettings(){
-
-  const payload =
-    securityPayload();
-
-  const {data:existing,error:findError} =
-    await supabaseClient
-      .from("platform_settings")
-      .select("id")
-      .limit(1)
-      .maybeSingle();
-
-  if(findError){
-
-    toast(findError.message);
-
-    return;
-  }
-
-  let result;
-
-  if(existing?.id){
-
-    result =
-      await supabaseClient
-        .from("platform_settings")
-        .update(payload)
-        .eq("id",existing.id);
-
-  }else{
-
-    result =
-      await supabaseClient
-        .from("platform_settings")
-        .insert(payload);
-
-  }
-
-  if(result.error){
-
-    toast(result.error.message);
-
-    return;
-  }
-
-  await writeAudit(
-    "save_security_settings",
-    existing?.id || null,
-    payload
-  );
-
-  toast("Security policy saved.");
-}
-
-/* -----------------------------
-   SETTINGS
------------------------------ */
-
-function normalizeSettings(row){
-
-  return {
-
-    ...row,
-
-    site_name:
-      row.site_name ?? "NAIJA TASK",
-
-    activation_enabled:
-      row.activation_enabled ?? false,
-
-    activation_fee:
-      Number(row.activation_fee ?? 1000),
-
-    vip_enabled:
-      row.vip_enabled ?? false,
-
-    vip_price:
-      Number(row.vip_price ?? 0),
-
-    withdrawals_enabled:
-      row.withdrawals_enabled ?? true,
-
-    withdrawal_minimum:
-      Number(row.withdrawal_minimum ?? 1500),
-
-    withdrawal_fee:
-      Number(row.withdrawal_fee ?? 100),
-
-    vip_withdrawal_fee:
-      Number(row.vip_withdrawal_fee ?? 50),
-
-    withdrawals_per_day:
-      Number(row.withdrawals_per_day ?? 1),
-
-    task_approval_required:
-      row.task_approval_required ?? true,
-
-    photo_proof_required:
-      true,
-
-    normal_reward_min:
-      Number(row.normal_reward_min ?? 3),
-
-    normal_reward_max:
-      Number(row.normal_reward_max ?? 15),
-
-    vip_reward_min:
-      Number(row.vip_reward_min ?? 3),
-
-    vip_reward_max:
-      Number(row.vip_reward_max ?? 15),
-
-    free_daily_limit:
-      Number(row.free_daily_limit ?? 5),
-
-    vip_daily_limit:
-      Number(row.vip_daily_limit ?? 20),
-
-    referral_reward:
-      Number(row.referral_reward ?? 0),
-
-    referrals_enabled:
-      row.referrals_enabled ?? true,
-
-    maintenance_mode:
-      row.maintenance_mode ?? false,
-
-    ai_care_enabled:
-      row.ai_care_enabled ?? false,
-
-    private_chat_enabled:
-      row.private_chat_enabled ?? false,
-
-    community_chat_enabled:
-      row.community_chat_enabled ?? false,
-
-    support_email:
-      row.support_email ?? "",
-
-    support_phone:
-      row.support_phone ?? "",
-
-    captcha_enabled:
-      row.captcha_enabled ?? false,
-
-    suspicious_activity_detection:
-      row.suspicious_activity_detection ?? false,
-
-    automatic_restriction:
-      row.automatic_restriction ?? false,
-
-    automatic_ban:
-      row.automatic_ban ?? false,
-
-    security_warnings:
-      row.security_warnings ?? false,
-
-    withdrawal_security_check:
-      row.withdrawal_security_check ?? false
-
-  };
-}
-
-function settingsPayload(){
-
-  return {
-
-    site_name:
-      $("siteName").value.trim(),
-
-    activation_enabled:
-      $("activationEnabled").checked,
-
-    activation_fee:
-      Number($("activationFee").value || 0),
-
-    vip_enabled:
-      $("vipEnabled").checked,
-
-    vip_price:
-      Number($("vipPrice").value || 0),
-
-    withdrawals_enabled:
-      $("withdrawalsEnabled").checked,
-
-    withdrawal_minimum:
-      Number($("withdrawalMinimum").value || 0),
-
-    withdrawal_fee:
-      Number($("withdrawalFee").value || 0),
-
-    vip_withdrawal_fee:
-      Number($("vipWithdrawalFee").value || 0),
-
-    withdrawals_per_day:
-      Number($("withdrawalsPerDay").value || 1),
-
-    task_approval_required:
-      $("taskApproval").checked,
-
-    /*
-      HARD RULE:
-      photo proof cannot be disabled.
-    */
-    photo_proof_required:true,
-
-    normal_reward_min:
-      Number($("normalRewardMin").value || 0),
-
-    normal_reward_max:
-      Number($("normalRewardMax").value || 0),
-
-    vip_reward_min:
-      Number($("vipRewardMin").value || 0),
-
-    vip_reward_max:
-      Number($("vipRewardMax").value || 0),
-
-    free_daily_limit:
-      Number($("freeDailyLimit").value || 0),
-
-    vip_daily_limit:
-      Number($("vipDailyLimit").value || 0),
-
-    referral_reward:
-      Number($("referralReward").value || 0),
-
-    referrals_enabled:
-      $("referralsEnabled").checked,
-
-    maintenance_mode:
-      $("maintenanceMode").checked,
-
-    ai_care_enabled:
-      $("aiCare").checked,
-
-    private_chat_enabled:
-      $("privateChat").checked,
-
-    community_chat_enabled:
-      $("communityChat").checked,
-
-    support_email:
-      $("supportEmail").value.trim(),
-
-    support_phone:
-      $("supportPhone").value.trim(),
-
-    airtime_enabled:
-      $("settingAirtimeEnabled").checked
-
-  };
-}
-
-async function loadSettings(){
-
-  const {data,error} =
-    await supabaseClient
-      .from("platform_settings")
-      .select("*")
-      .limit(1)
-      .maybeSingle();
-
-  if(error){
-
-    toast(
-      "Unable to load platform settings: " +
-      error.message
-    );
-
-    return;
-  }
-
-  if(!data){
-
-    toast(
-      "No platform settings row exists yet."
-    );
-
-    return;
-  }
-
-  const s =
-    normalizeSettings(data);
-
-  $("siteName").value =
-    s.site_name;
-
-  $("activationEnabled").checked =
-    s.activation_enabled;
-
-  $("activationFee").value =
-    s.activation_fee;
-
-  $("vipEnabled").checked =
-    s.vip_enabled;
-
-  $("vipPrice").value =
-    s.vip_price;
-
-  $("withdrawalsEnabled").checked =
-    s.withdrawals_enabled;
-
-  $("withdrawalMinimum").value =
-    s.withdrawal_minimum;
-
-  $("withdrawalFee").value =
-    s.withdrawal_fee;
-
-  $("vipWithdrawalFee").value =
-    s.vip_withdrawal_fee;
-
-  $("withdrawalsPerDay").value =
-    s.withdrawals_per_day;
-
-  $("taskApproval").checked =
-    s.task_approval_required;
-
-  /*
-    Photo proof is deliberately forced on.
-  */
-  $("photoProof").checked = true;
-
-  $("normalRewardMin").value =
-    s.normal_reward_min;
-
-  $("normalRewardMax").value =
-    s.normal_reward_max;
-
-  $("vipRewardMin").value =
-    s.vip_reward_min;
-
-  $("vipRewardMax").value =
-    s.vip_reward_max;
-
-  $("freeDailyLimit").value =
-    s.free_daily_limit;
-
-  $("vipDailyLimit").value =
-    s.vip_daily_limit;
-
-  $("referralReward").value =
-    s.referral_reward;
-
-  $("referralsEnabled").checked =
-    s.referrals_enabled;
-
-  $("maintenanceMode").checked =
-    s.maintenance_mode;
-
-  $("aiCare").checked =
-    s.ai_care_enabled;
-
-  $("privateChat").checked =
-    s.private_chat_enabled;
-
-  $("communityChat").checked =
-    s.community_chat_enabled;
-
-  $("supportEmail").value =
-    s.support_email;
-
-  $("supportPhone").value =
-    s.support_phone;
-
-  $("settingAirtimeEnabled").checked =
-    !!s.airtime_enabled;
-
-}
-
-async function saveSettings(){
-
-  const payload =
-    settingsPayload();
-
-  if(payload.withdrawal_minimum < 0 ||
-     payload.withdrawal_fee < 0 ||
-     payload.vip_withdrawal_fee < 0){
-
-    toast("Withdrawal values cannot be negative.");
-
-    return;
-  }
-
-  if(payload.normal_reward_min >
-     payload.normal_reward_max){
-
-    toast("Normal reward minimum cannot exceed maximum.");
-
-    return;
-  }
-
-  if(payload.vip_reward_min >
-     payload.vip_reward_max){
-
-    toast("VIP reward minimum cannot exceed maximum.");
-
-    return;
-  }
-
-  if(payload.withdrawals_per_day < 1){
-
-    toast("Withdrawals per day must be at least 1.");
-
-    return;
-  }
-
-  setLoading(true);
-
-  try{
-
-    const {data:existing,error:findError} =
-      await supabaseClient
-        .from("platform_settings")
-        .select("id")
-        .limit(1)
-        .maybeSingle();
-
-    if(findError) throw findError;
-
-    let result;
-
-    if(existing?.id){
-
-      result =
-        await supabaseClient
-          .from("platform_settings")
-          .update(payload)
-          .eq("id",existing.id);
-
-    }else{
-
-      result =
-        await supabaseClient
-          .from("platform_settings")
-          .insert(payload);
-
-    }
-
-    if(result.error) throw result.error;
-
     await writeAudit(
-      "save_platform_settings",
-      existing?.id || null,
-      payload
+      nextActive
+        ? "task_activate"
+        : "task_deactivate",
+      {
+        task_id:taskId
+      }
     );
 
-    toast("Platform settings saved.");
+    setGlobalMessage(
+      nextActive
+        ? "Task activated."
+        : "Task deactivated.",
+      "success"
+    );
 
-    loadOverview();
+    await loadTasks();
 
   }catch(error){
 
-    toast(
-      error.message ||
-      "Unable to save settings."
+    setGlobalMessage(
+      error?.message ||
+      "Unable to change task status.",
+      "danger"
     );
-
-  }finally{
-
-    setLoading(false);
-
   }
 }
 
-/* -----------------------------
-   INITIALIZATION
------------------------------ */
 
-async function initialize(){
+/* ============================================================
+   PROOF REVIEW
+   ============================================================ */
+
+async function loadSubmissions(){
+
+  const container =
+    $("submissionsContent");
+
+  if(!container){
+    return;
+  }
+
+  if(!tableAvailable("task_submissions")){
+    container.innerHTML = `
+      <div class="error-box">
+        The <strong>task_submissions</strong> table could not be read.
+        Proof review is unavailable.
+      </div>
+    `;
+    return;
+  }
+
+  setLoading(
+    "submissionsContent",
+    "Loading proof submissions..."
+  );
 
   try{
 
-    const ok =
-      await verifyAdmin();
+    const { data,error } =
+      await supabaseClient
+        .from("task_submissions")
+        .select("*")
+        .order("created_at",{ascending:false})
+        .limit(500);
 
-    if(ok){
-
-      await loadSettings();
-
-    }else{
-
-      $("loginScreen").classList.remove("hidden");
-
+    if(error){
+      throw error;
     }
+
+    if(!data || !data.length){
+
+      container.innerHTML =
+        `<div class="empty">
+          No proof submissions found.
+        </div>`;
+
+      return;
+    }
+
+    const rows =
+      data.map(submission=>{
+
+        const status =
+          submission.status ||
+          "unknown";
+
+        const proof =
+          submission.proof;
+
+        let proofPreview =
+          "No proof data";
+
+        if(typeof proof === "string"){
+          proofPreview =
+            proof.length > 80
+              ? proof.slice(0,80) + "…"
+              : proof;
+        }else if(proof){
+          proofPreview =
+            "Proof submitted";
+        }
+
+        return `
+          <tr>
+
+            <td>
+              <strong>
+                ${escapeHtml(
+                  submission.user_id || "Unknown"
+                )}
+              </strong>
+            </td>
+
+            <td>
+              ${escapeHtml(
+                submission.task_id || "Unknown"
+              )}
+            </td>
+
+            <td>
+              ${badge(status)}
+            </td>
+
+            <td>
+              ${formatDate(
+                submission.created_at
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(proofPreview)}
+            </td>
+
+            <td>
+
+              <button
+                class="btn"
+                type="button"
+                onclick="openProofReview(
+                  '${escapeAttr(submission.id)}'
+                )"
+              >
+                Review
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      }).join("");
+
+    container.innerHTML = `
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Worker</th>
+              <th>Task</th>
+              <th>Status</th>
+              <th>Submitted</th>
+              <th>Proof</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
+        </table>
+
+      </div>
+    `;
 
   }catch(error){
 
     console.error(error);
 
-    $("loginScreen").classList.remove("hidden");
+    container.innerHTML = `
+      <div class="error-box">
+        Unable to load proof submissions:
+        ${escapeHtml(
+          error?.message || String(error)
+        )}
+      </div>
+    `;
+  }
+}
+
+
+async function openProofReview(submissionId){
+
+  if(!submissionId){
+    return;
+  }
+
+  setElementMessage(
+    "proofMessage",
+    "",
+    "info"
+  );
+
+  $("proofDetails").innerHTML =
+    `<div class="loading">
+      Loading submission...
+    </div>`;
+
+  $("proofImageWrap").innerHTML = "";
+
+  $("proofRejectReason").value = "";
+
+  state.currentProof = null;
+
+  showModal("proofModal");
+
+  try{
+
+    const {
+      data:submission,
+      error
+    } = await supabaseClient
+      .from("task_submissions")
+      .select("*")
+      .eq("id",submissionId)
+      .maybeSingle();
+
+    if(error){
+      throw error;
+    }
+
+    if(!submission){
+      throw new Error(
+        "Submission could not be found."
+      );
+    }
+
+    let task = null;
+
+    if(
+      submission.task_id &&
+      tableAvailable("tasks")
+    ){
+
+      const {
+        data,
+        error:taskError
+      } = await supabaseClient
+        .from("tasks")
+        .select("*")
+        .eq("id",submission.task_id)
+        .maybeSingle();
+
+      if(taskError){
+        throw taskError;
+      }
+
+      task = data;
+    }
+
+    state.currentProof = {
+      submission,
+      task
+    };
+
+    const proof =
+      submission.proof;
+
+    let proofImageUrl = null;
+
+    /*
+      Supports common proof formats without assuming
+      a specific schema. URLs are accepted only when they
+      are explicitly http/https.
+    */
+    if(typeof proof === "string"){
+
+      const trimmed =
+        proof.trim();
+
+      if(isValidHttpUrl(trimmed)){
+        proofImageUrl = trimmed;
+      }else{
+        try{
+          const parsed =
+            JSON.parse(trimmed);
+
+          proofImageUrl =
+            parsed?.image_url ||
+            parsed?.photo_url ||
+            parsed?.url ||
+            null;
+        }catch{
+          proofImageUrl = null;
+        }
+      }
+
+    }else if(
+      proof &&
+      typeof proof === "object"
+    ){
+
+      proofImageUrl =
+        proof.image_url ||
+        proof.photo_url ||
+        proof.url ||
+        null;
+    }
+
+    const status =
+      normalizeStatus(
+        submission.status
+      );
+
+    $("proofDetails").innerHTML = `
+      <div class="kv">
+
+        <strong>Submission ID</strong>
+        <span>${escapeHtml(submission.id)}</span>
+
+        <strong>Worker ID</strong>
+        <span>${escapeHtml(submission.user_id || "—")}</span>
+
+        <strong>Task ID</strong>
+        <span>${escapeHtml(submission.task_id || "—")}</span>
+
+        <strong>Task</strong>
+        <span>
+          ${escapeHtml(
+            task?.title || "Task unavailable"
+          )}
+        </span>
+
+        <strong>Status</strong>
+        <span>${badge(status || "unknown")}</span>
+
+        <strong>Submitted</strong>
+        <span>${formatDate(submission.created_at)}</span>
+
+        <strong>Reviewed</strong>
+        <span>${formatDate(submission.reviewed_at)}</span>
+
+        <strong>Reviewed By</strong>
+        <span>${escapeHtml(submission.reviewed_by || "—")}</span>
+
+        <strong>Rejection Reason</strong>
+        <span>${escapeHtml(
+          submission.rejection_reason || "—"
+        )}</span>
+
+      </div>
+    `;
+
+    if(proofImageUrl &&
+       isValidHttpUrl(proofImageUrl)){
+
+      $("proofImageWrap").innerHTML = `
+        <div style="font-weight:800;font-size:12px;margin-bottom:7px;">
+          Submitted Proof Image
+        </div>
+
+        <img
+          class="proof-image"
+          src="${escapeAttr(proofImageUrl)}"
+          alt="Submitted proof"
+          referrerpolicy="no-referrer"
+          onerror="this.parentElement.innerHTML='<div class=&quot;error-box&quot;>Proof image could not be loaded.</div>'"
+        />
+      `;
+
+    }else{
+
+      $("proofImageWrap").innerHTML = `
+        <div class="notice warning">
+          No directly displayable proof image URL was found in this
+          submission record. The stored proof data is still shown as
+          database data below.
+        </div>
+
+        <pre style="
+          white-space:pre-wrap;
+          overflow:auto;
+          background:#f7faf8;
+          border:1px solid #dce9df;
+          border-radius:8px;
+          padding:10px;
+          font-size:11px;
+          margin-top:8px;
+        ">${escapeHtml(
+          typeof proof === "string"
+            ? proof
+            : JSON.stringify(proof,null,2)
+        )}</pre>
+      `;
+    }
+
+    const isPending =
+      status === "pending";
+
+    $("approveProofBtn").disabled =
+      !isPending;
+
+    $("rejectProofBtn").disabled =
+      !isPending;
+
+    $("approveProofBtn").onclick =
+      () => approveCurrentProof();
+
+    $("rejectProofBtn").onclick =
+      () => rejectCurrentProof();
+
+  }catch(error){
+
+    $("proofDetails").innerHTML = `
+      <div class="error-box">
+        Unable to load submission:
+        ${escapeHtml(
+          error?.message || String(error)
+        )}
+      </div>
+    `;
+
+    $("approveProofBtn").disabled = true;
+    $("rejectProofBtn").disabled = true;
+  }
+}
+
+
+async function approveCurrentProof(){
+
+  const current =
+    state.currentProof;
+
+  if(!current?.submission?.id){
+    return;
+  }
+
+  const submission =
+    current.submission;
+
+  if(
+    normalizeStatus(submission.status) !==
+    "pending"
+  ){
+    setElementMessage(
+      "proofMessage",
+      "This submission is no longer pending.",
+      "danger"
+    );
+
+    return;
+  }
+
+  if(!confirmAction(
+    "Approve this proof? The trusted database RPC will validate the task, prevent duplicates, and credit the worker atomically if approved."
+  )){
+    return;
+  }
+
+  const button =
+    $("approveProofBtn");
+
+  if(button){
+    button.disabled = true;
+    button.textContent = "Approving...";
+  }
+
+  try{
+
+    /*
+      CRITICAL:
+      No browser-side balance update.
+      No browser-side completion insert.
+      No browser-side wallet transaction insert.
+
+      The PostgreSQL RPC is the financial authority.
+    */
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_approve_task_submission",
+      {
+        submission_id:submission.id
+      }
+    );
+
+    if(error){
+
+      if(
+        /function.*admin_approve_task_submission/i.test(
+          error.message || ""
+        )
+      ){
+        throw new Error(
+          "The secure admin_approve_task_submission RPC is missing or unavailable. No wallet change was attempted."
+        );
+      }
+
+      throw error;
+    }
+
+    await writeAudit(
+      "proof_approve",
+      {
+        submission_id:submission.id,
+        rpc_result:data ?? null
+      }
+    );
+
+    setElementMessage(
+      "proofMessage",
+      "Proof approved successfully through the secure server-side transaction.",
+      "success"
+    );
+
+    await loadSubmissions();
+
+    /*
+      Re-read the database so the UI cannot claim approval
+      based only on the browser's previous state.
+    */
+    await openProofReview(
+      submission.id
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setElementMessage(
+      "proofMessage",
+      error?.message ||
+      "Proof approval failed. No browser-side financial change was made.",
+      "danger"
+    );
 
   }finally{
 
-    setLoading(false);
-
+    if(button){
+      button.disabled = false;
+      button.textContent = "Approve Proof";
+    }
   }
 }
+
+
+async function rejectCurrentProof(){
+
+  const current =
+    state.currentProof;
+
+  if(!current?.submission?.id){
+    return;
+  }
+
+  const submission =
+    current.submission;
+
+  if(
+    normalizeStatus(submission.status) !==
+    "pending"
+  ){
+    setElementMessage(
+      "proofMessage",
+      "This submission is no longer pending.",
+      "danger"
+    );
+
+    return;
+  }
+
+  const reason =
+    $("proofRejectReason")
+      .value
+      .trim();
+
+  if(reason.length < 3){
+
+    setElementMessage(
+      "proofMessage",
+      "A clear rejection reason is required.",
+      "danger"
+    );
+
+    return;
+  }
+
+  if(!confirmAction(
+    "Reject this proof submission?"
+  )){
+    return;
+  }
+
+  const button =
+    $("rejectProofBtn");
+
+  if(button){
+    button.disabled = true;
+    button.textContent = "Rejecting...";
+  }
+
+  try{
+
+    /*
+      Rejection does not create money.
+      It still requires backend/RLS authorization.
+    */
+    const { error } =
+      await supabaseClient
+        .from("task_submissions")
+        .update({
+          status:"rejected",
+          rejection_reason:reason,
+          reviewed_by:state.adminUser?.id || null,
+          reviewed_at:new Date().toISOString()
+        })
+        .eq("id",submission.id)
+        .eq("status","pending");
+
+    if(error){
+      throw error;
+    }
+
+    await writeAudit(
+      "proof_reject",
+      {
+        submission_id:submission.id,
+        reason
+      }
+    );
+
+    setElementMessage(
+      "proofMessage",
+      "Proof rejected.",
+      "success"
+    );
+
+    await loadSubmissions();
+
+    await openProofReview(
+      submission.id
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setElementMessage(
+      "proofMessage",
+      error?.message ||
+      "Unable to reject proof.",
+      "danger"
+    );
+
+  }finally{
+
+    if(button){
+      button.disabled = false;
+      button.textContent = "Reject Proof";
+    }
+  }
+}
+
+
+/* ============================================================
+   WITHDRAWALS
+   ============================================================ */
+
+async function loadWithdrawals(){
+
+  const container =
+    $("withdrawalsContent");
+
+  if(!container){
+    return;
+  }
+
+  if(!tableAvailable("withdrawals")){
+    container.innerHTML = `
+      <div class="error-box">
+        The <strong>withdrawals</strong> table could not be read.
+        Withdrawal management is unavailable.
+      </div>
+    `;
+    return;
+  }
+
+  setLoading(
+    "withdrawalsContent",
+    "Loading withdrawals..."
+  );
+
+  try{
+
+    const { data,error } =
+      await supabaseClient
+        .from("withdrawals")
+        .select("*")
+        .order("created_at",{ascending:false})
+        .limit(500);
+
+    if(error){
+      throw error;
+    }
+
+    if(!data || !data.length){
+
+      container.innerHTML =
+        `<div class="empty">
+          No withdrawal records found.
+        </div>`;
+
+      return;
+    }
+
+    const rows =
+      data.map(withdrawal=>{
+
+        const status =
+          withdrawal.status ||
+          "unknown";
+
+        const amount =
+          withdrawal.amount;
+
+        return `
+          <tr>
+
+            <td>
+              <strong>
+                ${escapeHtml(
+                  withdrawal.user_id || "Unknown"
+                )}
+              </strong>
+            </td>
+
+            <td>
+              ${formatMoney(amount)}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                withdrawal.reference ||
+                withdrawal.id ||
+                "—"
+              )}
+            </td>
+
+            <td>
+              ${badge(status)}
+            </td>
+
+            <td>
+              ${formatDate(
+                withdrawal.created_at
+              )}
+            </td>
+
+            <td>
+              ${escapeHtml(
+                withdrawal.rejection_reason ||
+                "—"
+              )}
+            </td>
+
+            <td>
+
+              <button
+                class="btn"
+                type="button"
+                onclick="openWithdrawalReview(
+                  '${escapeAttr(withdrawal.id)}'
+                )"
+              >
+                Review
+              </button>
+
+            </td>
+
+          </tr>
+        `;
+      }).join("");
+
+    container.innerHTML = `
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Amount</th>
+              <th>Reference</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Rejection Reason</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+
+        </table>
+
+      </div>
+    `;
+
+  }catch(error){
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="error-box">
+        Unable to load withdrawals:
+        ${escapeHtml(
+          error?.message || String(error)
+        )}
+      </div>
+    `;
+  }
+}
+
+
+async function openWithdrawalReview(withdrawalId){
+
+  if(!withdrawalId){
+    return;
+  }
+
+  state.currentWithdrawal = null;
+
+  setElementMessage(
+    "withdrawalMessage",
+    "",
+    "info"
+  );
+
+  $("withdrawalDetails").innerHTML =
+    `<div class="loading">
+      Loading withdrawal...
+    </div>`;
+
+  $("withdrawalRejectReason").value = "";
+
+  showModal("withdrawalModal");
+
+  try{
+
+    const {
+      data:withdrawal,
+      error
+    } = await supabaseClient
+      .from("withdrawals")
+      .select("*")
+      .eq("id",withdrawalId)
+      .maybeSingle();
+
+    if(error){
+      throw error;
+    }
+
+    if(!withdrawal){
+      throw new Error(
+        "Withdrawal could not be found."
+      );
+    }
+
+    state.currentWithdrawal =
+      withdrawal;
+
+    const status =
+      normalizeStatus(
+        withdrawal.status
+      );
+
+    $("withdrawalDetails").innerHTML = `
+      <div class="kv">
+
+        <strong>Withdrawal ID</strong>
+        <span>${escapeHtml(
+          withdrawal.id
+        )}</span>
+
+        <strong>User ID</strong>
+        <span>${escapeHtml(
+          withdrawal.user_id || "—"
+        )}</span>
+
+        <strong>Amount</strong>
+        <span>${formatMoney(
+          withdrawal.amount
+        )}</span>
+
+        <strong>Reference</strong>
+        <span>${escapeHtml(
+          withdrawal.reference || "—"
+        )}</span>
+
+        <strong>Status</strong>
+        <span>${badge(
+          status || "unknown"
+        )}</span>
+
+        <strong>Created</strong>
+        <span>${formatDate(
+          withdrawal.created_at
+        )}</span>
+
+        <strong>Reviewed</strong>
+        <span>${formatDate(
+          withdrawal.reviewed_at
+        )}</span>
+
+        <strong>Rejection Reason</strong>
+        <span>${escapeHtml(
+          withdrawal.rejection_reason || "—"
+        )}</span>
+
+      </div>
+    `;
+
+    const pending =
+      status === "pending";
+
+    $("approveWithdrawalBtn").disabled =
+      !pending;
+
+    $("rejectWithdrawalBtn").disabled =
+      !pending;
+
+    $("approveWithdrawalBtn").onclick =
+      () => approveCurrentWithdrawal();
+
+    $("rejectWithdrawalBtn").onclick =
+      () => rejectCurrentWithdrawal();
+
+  }catch(error){
+
+    $("withdrawalDetails").innerHTML = `
+      <div class="error-box">
+        Unable to load withdrawal:
+        ${escapeHtml(
+          error?.message || String(error)
+        )}
+      </div>
+    `;
+
+    $("approveWithdrawalBtn").disabled = true;
+    $("rejectWithdrawalBtn").disabled = true;
+  }
+}
+
+
+async function approveCurrentWithdrawal(){
+
+  const withdrawal =
+    state.currentWithdrawal;
+
+  if(!withdrawal?.id){
+    return;
+  }
+
+  if(
+    normalizeStatus(withdrawal.status) !==
+    "pending"
+  ){
+    setElementMessage(
+      "withdrawalMessage",
+      "This withdrawal is no longer pending.",
+      "danger"
+    );
+
+    return;
+  }
+
+  if(!confirmAction(
+    "Approve this withdrawal? The trusted server-side RPC must validate the balance, amount, duplicate processing and ledger transaction atomically."
+  )){
+    return;
+  }
+
+  const button =
+    $("approveWithdrawalBtn");
+
+  if(button){
+    button.disabled = true;
+    button.textContent = "Approving...";
+  }
+
+  try{
+
+    /*
+      CRITICAL FINANCIAL RULE:
+      There is deliberately NO:
+        profiles.balance update
+        wallet_transactions insert
+        withdrawals.status = approved
+
+      in this browser function.
+
+      The database RPC is responsible for the
+      complete atomic financial operation.
+    */
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_approve_withdrawal",
+      {
+        withdrawal_id:withdrawal.id
+      }
+    );
+
+    if(error){
+
+      if(
+        /function.*admin_approve_withdrawal/i.test(
+          error.message || ""
+        )
+      ){
+        throw new Error(
+          "The secure admin_approve_withdrawal RPC is missing or unavailable. No wallet deduction was attempted."
+        );
+      }
+
+      throw error;
+    }
+
+    await writeAudit(
+      "withdraw_approve",
+      {
+        withdrawal_id:withdrawal.id,
+        rpc_result:data ?? null
+      }
+    );
+
+    setElementMessage(
+      "withdrawalMessage",
+      "Withdrawal approved through the secure server-side transaction.",
+      "success"
+    );
+
+    await loadWithdrawals();
+
+    await openWithdrawalReview(
+      withdrawal.id
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setElementMessage(
+      "withdrawalMessage",
+      error?.message ||
+      "Withdrawal approval failed. No browser-side wallet deduction was made.",
+      "danger"
+    );
+
+  }finally{
+
+    if(button){
+      button.disabled = false;
+      button.textContent = "Approve Withdrawal";
+    }
+  }
+}
+
+
+async function rejectCurrentWithdrawal(){
+
+  const withdrawal =
+    state.currentWithdrawal;
+
+  if(!withdrawal?.id){
+    return;
+  }
+
+  if(
+    normalizeStatus(withdrawal.status) !==
+    "pending"
+  ){
+    setElementMessage(
+      "withdrawalMessage",
+      "This withdrawal is no longer pending.",
+      "danger"
+    );
+
+    return;
+  }
+
+  const reason =
+    $("withdrawalRejectReason")
+      .value
+      .trim();
+
+  if(reason.length < 3){
+
+    setElementMessage(
+      "withdrawalMessage",
+      "A clear rejection reason is required.",
+      "danger"
+    );
+
+    return;
+  }
+
+  if(!confirmAction(
+    "Reject this withdrawal request?"
+  )){
+    return;
+  }
+
+  const button =
+    $("rejectWithdrawalBtn");
+
+  if(button){
+    button.disabled = true;
+    button.textContent = "Rejecting...";
+  }
+
+  try{
+
+    const { error } =
+      await supabaseClient
+        .from("withdrawals")
+        .update({
+          status:"rejected",
+          rejection_reason:reason,
+          reviewed_by:state.adminUser?.id || null,
+          reviewed_at:new Date().toISOString()
+        })
+        .eq("id",withdrawal.id)
+        .eq("status","pending");
+
+    if(error){
+      throw error;
+    }
+
+    await writeAudit(
+      "withdraw_reject",
+      {
+        withdrawal_id:withdrawal.id,
+        reason
+      }
+    );
+
+    setElementMessage(
+      "withdrawalMessage",
+      "Withdrawal rejected.",
+      "success"
+    );
+
+    await loadWithdrawals();
+
+    await openWithdrawalReview(
+      withdrawal.id
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    setElementMessage(
+      "withdrawalMessage",
+      error?.message ||
+      "Unable to reject withdrawal.",
+      "danger"
+    );
+
+  }finally{
+
+    if(button){
+      button.disabled = false;
+      button.textContent = "Reject Withdrawal";
+    }
+  }
+}
+
+
+/* ============================================================
+   EVENT HANDLERS
+   ============================================================ */
+
+$("loginForm")?.addEventListener(
+  "submit",
+  async event=>{
+
+    event.preventDefault();
+
+    const email =
+      $("loginEmail")
+        .value
+        .trim();
+
+    const password =
+      $("loginPassword")
+        .value;
+
+    if(!email || !password){
+      setElementMessage(
+        "loginError",
+        "Email and password are required.",
+        "danger"
+      );
+
+      return;
+    }
+
+    const button =
+      $("loginBtn");
+
+    if(button){
+      button.disabled = true;
+      button.textContent = "Signing In...";
+    }
+
+    try{
+
+      const {
+        data,
+        error
+      } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if(error){
+        throw error;
+      }
+
+      if(!data?.user){
+        throw new Error(
+          "Supabase did not return an authenticated user."
+        );
+      }
+
+      /*
+        Authentication alone is NOT sufficient.
+        The user's ID must exist in admin_users.
+      */
+      await requireAdmin();
+
+      await writeAudit(
+        "admin_login"
+      );
+
+      await testRequiredTables();
+
+      await showApp();
+
+    }catch(error){
+
+      console.error(error);
+
+      try{
+        await supabaseClient.auth.signOut();
+      }catch{}
+
+      setElementMessage(
+        "loginError",
+        error?.message ||
+        "Administrator login failed.",
+        "danger"
+      );
+
+    }finally{
+
+      if(button){
+        button.disabled = false;
+        button.textContent = "Sign In";
+      }
+    }
+  }
+);
+
+
+$("taskForm")?.addEventListener(
+  "submit",
+  async event=>{
+    event.preventDefault();
+    await saveTask();
+  }
+);
+
+
+$("passwordRecoveryForm")?.addEventListener(
+  "submit",
+  async event=>{
+    event.preventDefault();
+    await completePasswordReset();
+  }
+);
+
 
 supabaseClient.auth.onAuthStateChange(
   async(event,session)=>{
 
+    /*
+      PASSWORD_RECOVERY can occur before the normal
+      authenticated-admin screen is shown. Keep the recovery
+      flow separate and verify admin_users before accepting
+      the new password.
+    */
+    if(event === "PASSWORD_RECOVERY"){
+
+      $("authLoading")?.classList.add("hidden");
+
+      showModal(
+        "passwordRecoveryModal"
+      );
+
+      return;
+    }
+
     if(event === "SIGNED_OUT"){
 
-      currentUser = null;
-      currentAdmin = null;
+      state.adminUser = null;
+      state.adminRecord = null;
 
-      $("app").classList.add("hidden");
-      $("loginScreen").classList.remove("hidden");
+      $("app")?.classList.add("hidden");
+
+      $("authLoading")?.classList.add("hidden");
+
+      $("loginScreen")?.classList.remove("hidden");
 
       return;
     }
-
-    /*
-      Do not repeatedly run the entire admin bootstrap
-      for every token refresh.
-    */
 
     if(
-      event === "PASSWORD_RECOVERY" &&
-      session
+      event === "SIGNED_IN" &&
+      session &&
+      !state.adminRecord
     ){
 
-      currentUser = session.user;
+      try{
 
-      return;
+        await requireAdmin();
+
+        await testRequiredTables();
+
+        await showApp();
+
+      }catch(error){
+
+        console.error(error);
+
+        try{
+          await supabaseClient.auth.signOut();
+        }catch{}
+
+        await handleAuthError(
+          error?.message ||
+          "Administrator verification failed."
+        );
+      }
     }
-
   }
 );
 
-document.addEventListener("keydown",event=>{
 
-  if(
-    event.key === "Enter" &&
-    document.activeElement?.id === "loginPassword"
-  ){
+/*
+  Close modals when tapping outside the modal itself.
+  This does not automatically perform destructive actions.
+*/
+document
+  .querySelectorAll(".modal-backdrop")
+  .forEach(backdrop=>{
 
-    login();
+    backdrop.addEventListener(
+      "click",
+      event=>{
 
+        if(event.target !== backdrop){
+          return;
+        }
+
+        /*
+          Keep the password recovery modal protected
+          from accidental dismissal.
+        */
+        if(
+          backdrop.id ===
+          "passwordRecoveryModal"
+        ){
+          return;
+        }
+
+        backdrop.classList.remove("show");
+      }
+    );
+  });
+
+
+/*
+  Initialize after the complete DOM is available.
+*/
+window.addEventListener(
+  "DOMContentLoaded",
+  ()=>{
+    initAdmin();
   }
+);
 
-});
-
-window.addEventListener("load",initialize);
-
-</script>
-
-</body>
-      </html>
+  
