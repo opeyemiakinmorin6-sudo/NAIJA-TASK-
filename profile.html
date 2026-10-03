@@ -2,261 +2,702 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 
-<title>Profile — NAIJA TASK</title>
+<title>My Profile — NAIJA TASK</title>
+
+<meta name="theme-color" content="#0b8f3c">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-  box-sizing: border-box;
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5fff7;
-  color: #111;
+html,body{
+  margin:0;
+  padding:0;
+  background:#f5fff7;
+  color:#172019;
+  font-family:Arial,Helvetica,sans-serif;
 }
 
-header {
-  background: #0b8f3c;
-  color: white;
-  padding: 18px 20px 22px;
+body{
+  min-height:100vh;
 }
 
-.header-inner {
-  max-width: 600px;
-  margin: auto;
+button,
+input{
+  font:inherit;
 }
 
-.back {
-  display: inline-block;
-  background: white;
-  color: #0b8f3c;
-  text-decoration: none;
-  border: 2px solid white;
-  padding: 10px 15px;
-  border-radius: 9px;
-  font-weight: bold;
-  margin-bottom: 18px;
+button{
+  cursor:pointer;
 }
 
-header h1 {
-  margin: 0 0 6px;
-  font-size: 25px;
+.header{
+  background:#0b8f3c;
+  color:#fff;
+  padding:
+    calc(14px + env(safe-area-inset-top))
+    16px
+    18px;
+  position:sticky;
+  top:0;
+  z-index:20;
+  box-shadow:0 3px 12px rgba(0,0,0,.12);
 }
 
-header p {
-  margin: 0;
+.header-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
-.container {
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
+.back{
+  width:42px;
+  height:42px;
+  border:0;
+  border-radius:12px;
+  background:rgba(255,255,255,.15);
+  color:#fff;
+  font-size:22px;
 }
 
-.card {
-  background: white;
-  padding: 20px;
-  margin-bottom: 16px;
-  border-radius: 16px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+.header-title{
+  flex:1;
 }
 
-.card h2 {
-  margin-top: 0;
-  color: #0b8f3c;
+.header-title h1{
+  margin:0;
+  font-size:20px;
 }
 
-label {
-  display: block;
-  margin-top: 16px;
-  font-weight: bold;
+.header-title p{
+  margin:4px 0 0;
+  font-size:12px;
+  opacity:.85;
 }
 
-input {
-  width: 100%;
-  padding: 13px;
-  margin-top: 7px;
-  border: 1px solid #ccc;
-  border-radius: 9px;
-  font-size: 15px;
+.container{
+  width:min(700px,100%);
+  margin:auto;
+  padding:16px 14px 35px;
 }
 
-input:focus {
-  outline: none;
-  border-color: #0b8f3c;
+.card{
+  background:#fff;
+  border:1px solid #e1eee4;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:14px;
+  box-shadow:0 5px 18px rgba(0,0,0,.05);
 }
 
-input[readonly] {
-  background: #f3f3f3;
-  color: #666;
+.profile-top{
+  text-align:center;
+  padding:20px 16px;
 }
 
-button.save {
-  width: 100%;
-  border: none;
-  padding: 14px;
-  margin-top: 20px;
-  border-radius: 9px;
-  background: #0b8f3c;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+.avatar{
+  width:76px;
+  height:76px;
+  margin:auto;
+  border-radius:50%;
+  background:#0b8f3c;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:27px;
+  font-weight:800;
 }
 
-button.save:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.profile-name{
+  margin:12px 0 4px;
+  font-size:20px;
+  font-weight:800;
 }
 
-.logout {
-  width: 100%;
-  border: 1px solid #d32f2f;
-  padding: 13px;
-  border-radius: 9px;
-  background: white;
-  color: #d32f2f;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
+.profile-email{
+  margin:0;
+  color:#68736b;
+  font-size:13px;
+  word-break:break-word;
 }
 
-#message {
-  text-align: center;
-  margin-top: 15px;
-  font-weight: bold;
+.status-row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:13px;
 }
 
-.success {
-  color: #0b8f3c;
+.badge{
+  padding:7px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
 }
 
-.error {
-  color: #d32f2f;
+.badge.green{
+  background:#e4f8ea;
+  color:#087b32;
 }
 
-.loading {
-  text-align: center;
-  color: #777;
+.badge.orange{
+  background:#fff1d8;
+  color:#9a5c00;
+}
+
+.section-title{
+  margin:0 0 14px;
+  font-size:16px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.info-box{
+  background:#f7fbf8;
+  border:1px solid #e3eee6;
+  border-radius:13px;
+  padding:13px;
+}
+
+.info-label{
+  color:#718078;
+  font-size:11px;
+  margin-bottom:6px;
+}
+
+.info-value{
+  font-size:15px;
+  font-weight:700;
+  word-break:break-word;
+}
+
+.balance{
+  font-size:24px;
+  color:#0b8f3c;
+}
+
+.form-group{
+  margin-bottom:13px;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+input{
+  width:100%;
+  border:1px solid #d8e5dc;
+  background:#fff;
+  border-radius:12px;
+  padding:13px;
+  outline:none;
+  color:#172019;
+}
+
+input:focus{
+  border-color:#0b8f3c;
+  box-shadow:0 0 0 3px rgba(11,143,60,.10);
+}
+
+input[readonly]{
+  background:#f4f7f5;
+  color:#69746d;
+}
+
+.hint{
+  margin:5px 0 0;
+  color:#78847c;
+  font-size:11px;
+  line-height:1.4;
+}
+
+.btn{
+  width:100%;
+  border:0;
+  border-radius:13px;
+  padding:14px;
+  font-weight:800;
+  font-size:14px;
+}
+
+.btn-primary{
+  background:#0b8f3c;
+  color:#fff;
+}
+
+.btn-secondary{
+  background:#e9f7ed;
+  color:#087b32;
+}
+
+.btn-danger{
+  background:#fff0f0;
+  color:#c62828;
+}
+
+.btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.action-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.message{
+  display:none;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:13px;
+  font-size:13px;
+  line-height:1.4;
+}
+
+.message.show{
+  display:block;
+}
+
+.message.success{
+  background:#e8f8ed;
+  color:#087b32;
+}
+
+.message.error{
+  background:#fff0f0;
+  color:#b42318;
+}
+
+.loading{
+  text-align:center;
+  padding:35px 10px;
+  color:#68736b;
+}
+
+.spinner{
+  width:28px;
+  height:28px;
+  border:3px solid #dceee2;
+  border-top-color:#0b8f3c;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  margin:0 auto 10px;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+.footer{
+  text-align:center;
+  color:#7a857d;
+  font-size:11px;
+  padding:5px 0 25px;
+}
+
+@media(max-width:430px){
+  .grid{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:350px){
+  .grid,
+  .action-grid{
+    grid-template-columns:1fr;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <div class="header-inner">
+<header class="header">
+  <div class="header-row">
 
-    <a href="dashboard.html" class="back">
-      ← Back to Dashboard
-    </a>
+    <button class="back" id="backBtn" aria-label="Go back">
+      ←
+    </button>
 
-    <h1>👤 My Profile</h1>
-    <p>Manage your account information</p>
+    <div class="header-title">
+      <h1>My Profile</h1>
+      <p>Manage your NAIJA TASK account</p>
+    </div>
 
   </div>
 </header>
 
+<main class="container">
 
-<div class="container">
+  <div id="loadingBox" class="card loading">
+    <div class="spinner"></div>
+    Loading your profile...
+  </div>
 
-  <div class="card">
+  <div id="profileContent" style="display:none;">
 
-    <h2>Account Information</h2>
+    <!-- PROFILE HEADER -->
+    <section class="card profile-top">
 
-    <p id="loadingMessage" class="loading">
-      Loading profile...
-    </p>
+      <div class="avatar" id="avatar">
+        NT
+      </div>
 
-    <div id="profileForm" style="display:none;">
+      <div class="profile-name" id="displayName">
+        NAIJA TASK User
+      </div>
 
-      <label for="fullName">
-        Full Name
-      </label>
+      <p class="profile-email" id="displayEmail">
+        —
+      </p>
 
-      <input
-        id="fullName"
-        type="text"
-        placeholder="Enter your full name"
-      >
+      <div class="status-row">
 
+        <span class="badge orange" id="activationBadge">
+          Checking activation...
+        </span>
 
-      <label for="phone">
-        Phone Number
-      </label>
+        <span class="badge orange" id="verificationBadge">
+          Checking email...
+        </span>
 
-      <input
-        id="phone"
-        type="tel"
-        placeholder="Enter your phone number"
-      >
+      </div>
 
+    </section>
 
-      <label for="email">
-        Email Address
-      </label>
+    <!-- MESSAGE -->
+    <div id="message" class="message"></div>
 
-      <input
-        id="email"
-        type="email"
-        readonly
-      >
+    <!-- ACCOUNT OVERVIEW -->
+    <section class="card">
 
+      <h2 class="section-title">
+        Account Overview
+      </h2>
+
+      <div class="grid">
+
+        <div class="info-box">
+          <div class="info-label">
+            Wallet Balance
+          </div>
+          <div class="info-value balance" id="balance">
+            ₦0.00
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">
+            Account Status
+          </div>
+          <div class="info-value" id="accountStatus">
+            —
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">
+            Age
+          </div>
+          <div class="info-value" id="age">
+            —
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-label">
+            Birth Year
+          </div>
+          <div class="info-value" id="birthYear">
+            —
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- PERSONAL INFORMATION -->
+    <section class="card">
+
+      <h2 class="section-title">
+        Personal Information
+      </h2>
+
+      <div class="form-group">
+        <label for="fullName">
+          Full Name
+        </label>
+
+        <input
+          id="fullName"
+          type="text"
+          maxlength="100"
+          autocomplete="name"
+          placeholder="Enter your full name"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="phone">
+          Phone Number
+        </label>
+
+        <input
+          id="phone"
+          type="tel"
+          maxlength="30"
+          autocomplete="tel"
+          placeholder="Enter your phone number"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="email">
+          Email
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          readonly
+        >
+
+        <p class="hint">
+          Your login email is managed by your NAIJA TASK account.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">
+          Date of Birth
+        </label>
+
+        <input
+          id="dateOfBirth"
+          type="date"
+          autocomplete="bday"
+        >
+
+        <p class="hint">
+          Your age and birth year are calculated automatically.
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label for="address">
+          Address
+        </label>
+
+        <input
+          id="address"
+          type="text"
+          maxlength="250"
+          autocomplete="street-address"
+          placeholder="Enter your address"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="city">
+          City
+        </label>
+
+        <input
+          id="city"
+          type="text"
+          maxlength="100"
+          autocomplete="address-level2"
+          placeholder="Enter your city"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="state">
+          State
+        </label>
+
+        <input
+          id="state"
+          type="text"
+          maxlength="100"
+          autocomplete="address-level1"
+          placeholder="Enter your state"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="country">
+          Country
+        </label>
+
+        <input
+          id="country"
+          type="text"
+          maxlength="100"
+          autocomplete="country-name"
+          placeholder="Enter your country"
+          value="Nigeria"
+        >
+      </div>
 
       <button
-        id="saveButton"
-        class="save"
-        onclick="saveProfile()"
+        class="btn btn-primary"
+        id="saveBtn"
       >
         Save Profile
       </button>
 
-      <p id="message"></p>
+    </section>
 
-    </div>
+    <!-- ACCOUNT ID -->
+    <section class="card">
+
+      <h2 class="section-title">
+        Account Information
+      </h2>
+
+      <div class="form-group">
+
+        <label>
+          Account ID
+        </label>
+
+        <input
+          id="accountId"
+          readonly
+        >
+
+      </div>
+
+      <button
+        class="btn btn-secondary"
+        id="copyIdBtn"
+      >
+        Copy Account ID
+      </button>
+
+    </section>
+
+    <!-- SECURITY -->
+    <section class="card">
+
+      <h2 class="section-title">
+        Security
+      </h2>
+
+      <div class="form-group">
+
+        <label for="newPassword">
+          New Password
+        </label>
+
+        <input
+          id="newPassword"
+          type="password"
+          minlength="6"
+          autocomplete="new-password"
+          placeholder="Enter a new password"
+        >
+
+        <p class="hint">
+          Use at least 6 characters.
+        </p>
+
+      </div>
+
+      <button
+        class="btn btn-secondary"
+        id="passwordBtn"
+      >
+        Change Password
+      </button>
+
+    </section>
+
+    <!-- QUICK ACTIONS -->
+    <section class="card">
+
+      <h2 class="section-title">
+        Account Services
+      </h2>
+
+      <div class="action-grid">
+
+        <button
+          class="btn btn-secondary"
+          onclick="goTo('wallet.html')"
+        >
+          Wallet
+        </button>
+
+        <button
+          class="btn btn-secondary"
+          onclick="goTo('withdrawal.html')"
+        >
+          Withdraw
+        </button>
+
+        <button
+          class="btn btn-secondary"
+          onclick="goTo('referrals.html')"
+        >
+          Referrals
+        </button>
+
+        <button
+          class="btn btn-secondary"
+          onclick="goTo('task.html')"
+        >
+          Find Tasks
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- LOGOUT -->
+    <section class="card">
+
+      <button
+        class="btn btn-danger"
+        id="logoutBtn"
+      >
+        Logout
+      </button>
+
+    </section>
 
   </div>
 
-
-  <div class="card">
-
-    <h2>🔐 Account</h2>
-
-    <p>
-      Your account information is connected to your
-      NAIJA TASK account.
-    </p>
-
-    <button
-      class="logout"
-      onclick="logoutUser()"
-    >
-      🚪 Logout
-    </button>
-
+  <div class="footer">
+    © 2026 NAIJA TASK — Legitimate task marketplace
   </div>
 
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</main>
 
 <script>
-
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
-/*
-  Put your CURRENT Supabase publishable key here.
-
-  Do NOT use the secret/service-role key.
-*/
 const SUPABASE_KEY =
   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
 
 const supabaseClient =
   window.supabase.createClient(
@@ -264,243 +705,769 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
-
-async function loadProfile() {
-
-  const loadingMessage =
-    document.getElementById(
-      "loadingMessage"
-    );
-
-  const profileForm =
-    document.getElementById(
-      "profileForm"
-    );
+let currentUser = null;
+let profileData = null;
 
 
-  const {
-    data: { user },
-    error: authError
-  } =
-    await supabaseClient.auth.getUser();
+/* =========================
+   BASIC HELPERS
+========================= */
 
+function $(id){
+  return document.getElementById(id);
+}
 
-  if (authError || !user) {
+function escapeText(value){
+  return value == null ? "" : String(value);
+}
 
-    window.location.href =
-      "index.html";
+function formatMoney(value){
+  const number = Number(value || 0);
 
-    return;
+  return "₦" + number.toLocaleString("en-NG", {
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
+}
 
+function initials(name){
+
+  const clean = String(name || "").trim();
+
+  if(!clean){
+    return "NT";
   }
 
+  const parts = clean.split(/\s+/);
 
-  document.getElementById(
-    "email"
-  ).value =
-    user.email || "";
+  if(parts.length === 1){
+    return parts[0].substring(0,2).toUpperCase();
+  }
 
+  return (
+    parts[0].charAt(0) +
+    parts[parts.length - 1].charAt(0)
+  ).toUpperCase();
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function showMessage(text,type="success"){
+
+  const box = $("message");
+
+  box.textContent = text;
+
+  box.className =
+    "message show " +
+    (type === "error" ? "error" : "success");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+  setTimeout(()=>{
+    box.classList.remove("show");
+  },5000);
+}
+
+
+/* =========================
+   AGE CALCULATION
+========================= */
+
+function calculateAge(dateString){
+
+  if(!dateString){
+    return null;
+  }
+
+  const dob = new Date(dateString + "T00:00:00");
+
+  if(Number.isNaN(dob.getTime())){
+    return null;
+  }
+
+  const today = new Date();
+
+  let age =
+    today.getFullYear() -
+    dob.getFullYear();
+
+  const monthDifference =
+    today.getMonth() -
+    dob.getMonth();
+
+  if(
+    monthDifference < 0 ||
+    (
+      monthDifference === 0 &&
+      today.getDate() < dob.getDate()
+    )
+  ){
+    age--;
+  }
+
+  if(age < 0 || age > 130){
+    return null;
+  }
+
+  return age;
+}
+
+
+/* =========================
+   DISPLAY AGE
+========================= */
+
+function updateAgeDisplay(){
+
+  const dob =
+    $("dateOfBirth").value;
+
+  if(!dob){
+
+    $("age").textContent = "Not set";
+    $("birthYear").textContent = "Not set";
+
+    return;
+  }
+
+  const age =
+    calculateAge(dob);
+
+  if(age === null){
+
+    $("age").textContent = "Invalid";
+    $("birthYear").textContent = "Invalid";
+
+    return;
+  }
+
+  const year =
+    new Date(dob + "T00:00:00")
+      .getFullYear();
+
+  $("age").textContent =
+    age + (age === 1 ? " year" : " years");
+
+  $("birthYear").textContent =
+    year;
+}
+
+
+/* =========================
+   LOAD USER
+========================= */
+
+async function loadUser(){
 
   const {
     data,
-    error: profileError
-  } =
-    await supabaseClient
-      .from("profiles")
-      .select(
-        "full_name, phone"
-      )
-      .eq(
-        "id",
-        user.id
-      )
-      .single();
-
-
-  if (profileError) {
-
-    console.error(
-      profileError
-    );
-
-    loadingMessage.textContent =
-      "Unable to load your profile.";
-
-    loadingMessage.className =
-      "error";
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "fullName"
-  ).value =
-    data?.full_name || "";
-
-
-  document.getElementById(
-    "phone"
-  ).value =
-    data?.phone || "";
-
-
-  loadingMessage.style.display =
-    "none";
-
-  profileForm.style.display =
-    "block";
-
-}
-
-
-async function saveProfile() {
-
-  const message =
-    document.getElementById(
-      "message"
-    );
-
-  const saveButton =
-    document.getElementById(
-      "saveButton"
-    );
-
-
-  message.textContent =
-    "Saving...";
-
-  message.className = "";
-
-
-  saveButton.disabled =
-    true;
-
-
-  const {
-    data: { user },
-    error: authError
+    error
   } =
     await supabaseClient.auth.getUser();
 
+  if(error){
+    throw error;
+  }
 
-  if (authError || !user) {
+  if(!data || !data.user){
 
     window.location.href =
       "index.html";
 
-    return;
-
+    return null;
   }
 
+  currentUser =
+    data.user;
 
-  const fullName =
-    document.getElementById(
-      "fullName"
-    ).value.trim();
-
-
-  const phone =
-    document.getElementById(
-      "phone"
-    ).value.trim();
+  return currentUser;
+}
 
 
-  if (!fullName) {
+/* =========================
+   LOAD PROFILE
+========================= */
 
-    message.textContent =
-      "Please enter your full name.";
-
-    message.className =
-      "error";
-
-    saveButton.disabled =
-      false;
-
-    return;
-
-  }
-
+async function loadProfile(){
 
   const {
+    data,
     error
   } =
     await supabaseClient
       .from("profiles")
-      .update({
-        full_name:
-          fullName,
-        phone:
-          phone
-      })
-      .eq(
-        "id",
-        user.id
+      .select(`
+        id,
+        full_name,
+        phone,
+        balance,
+        is_activated,
+        date_of_birth,
+        address,
+        city,
+        state,
+        country
+      `)
+      .eq("id", currentUser.id)
+      .maybeSingle();
+
+  if(error){
+    throw error;
+  }
+
+  profileData =
+    data || {};
+
+  return profileData;
+}
+
+
+/* =========================
+   RENDER PROFILE
+========================= */
+
+function renderProfile(){
+
+  const profile =
+    profileData || {};
+
+  const email =
+    currentUser.email || "";
+
+  const fullName =
+    profile.full_name ||
+    currentUser.user_metadata?.full_name ||
+    "NAIJA TASK User";
+
+  $("displayName").textContent =
+    fullName;
+
+  $("displayEmail").textContent =
+    email || "No email";
+
+  $("avatar").textContent =
+    initials(fullName);
+
+  $("fullName").value =
+    profile.full_name || "";
+
+  $("phone").value =
+    profile.phone || "";
+
+  $("email").value =
+    email;
+
+  $("dateOfBirth").value =
+    profile.date_of_birth || "";
+
+  $("address").value =
+    profile.address || "";
+
+  $("city").value =
+    profile.city || "";
+
+  $("state").value =
+    profile.state || "";
+
+  $("country").value =
+    profile.country || "Nigeria";
+
+  $("accountId").value =
+    currentUser.id;
+
+  $("balance").textContent =
+    formatMoney(profile.balance);
+
+  updateAgeDisplay();
+
+
+  /* ACTIVATION */
+
+  const activated =
+    profile.is_activated === true;
+
+  if(activated){
+
+    $("activationBadge").textContent =
+      "Account Activated";
+
+    $("activationBadge").className =
+      "badge green";
+
+    $("accountStatus").textContent =
+      "Activated";
+
+  }else{
+
+    $("activationBadge").textContent =
+      "Activation Required";
+
+    $("activationBadge").className =
+      "badge orange";
+
+    $("accountStatus").textContent =
+      "Not Activated";
+  }
+
+
+  /* EMAIL */
+
+  if(currentUser.email_confirmed_at){
+
+    $("verificationBadge").textContent =
+      "Email Verified";
+
+    $("verificationBadge").className =
+      "badge green";
+
+  }else{
+
+    $("verificationBadge").textContent =
+      "Email Not Verified";
+
+    $("verificationBadge").className =
+      "badge orange";
+  }
+}
+
+
+/* =========================
+   SAVE PROFILE
+========================= */
+
+async function saveProfile(){
+
+  if(!currentUser){
+    return;
+  }
+
+  const fullName =
+    $("fullName").value.trim();
+
+  const phone =
+    $("phone").value.trim();
+
+  const dateOfBirth =
+    $("dateOfBirth").value;
+
+  const address =
+    $("address").value.trim();
+
+  const city =
+    $("city").value.trim();
+
+  const state =
+    $("state").value.trim();
+
+  const country =
+    $("country").value.trim();
+
+
+  if(!fullName){
+
+    showMessage(
+      "Please enter your full name.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if(dateOfBirth){
+
+    const age =
+      calculateAge(dateOfBirth);
+
+    if(age === null){
+
+      showMessage(
+        "Please enter a valid date of birth.",
+        "error"
       );
 
+      return;
+    }
+  }
 
-  if (error) {
+
+  const button =
+    $("saveBtn");
+
+  button.disabled = true;
+
+  button.textContent =
+    "Saving...";
+
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("profiles")
+        .update({
+          full_name: fullName,
+          phone: phone || null,
+          date_of_birth:
+            dateOfBirth || null,
+          address:
+            address || null,
+          city:
+            city || null,
+          state:
+            state || null,
+          country:
+            country || null
+        })
+        .eq("id", currentUser.id)
+        .select(`
+          id,
+          full_name,
+          phone,
+          balance,
+          is_activated,
+          date_of_birth,
+          address,
+          city,
+          state,
+          country
+        `)
+        .single();
+
+
+    if(error){
+      throw error;
+    }
+
+
+    profileData =
+      data;
+
+    renderProfile();
+
+    showMessage(
+      "Your profile has been updated successfully."
+    );
+
+  }catch(error){
 
     console.error(
+      "Profile update error:",
       error
     );
 
-    message.textContent =
-      "Unable to save profile.";
+    showMessage(
+      error.message ||
+      "Unable to update your profile.",
+      "error"
+    );
 
-    message.className =
-      "error";
+  }finally{
 
-    saveButton.disabled =
-      false;
+    button.disabled = false;
 
-    return;
-
+    button.textContent =
+      "Save Profile";
   }
-
-
-  message.textContent =
-    "Profile saved successfully.";
-
-  message.className =
-    "success";
-
-
-  saveButton.disabled =
-    false;
-
 }
 
 
-async function logoutUser() {
+/* =========================
+   CHANGE PASSWORD
+========================= */
 
-  const {
-    error
-  } =
-    await supabaseClient.auth.signOut();
+async function changePassword(){
 
+  const password =
+    $("newPassword").value;
 
-  if (error) {
+  if(!password){
 
-    alert(
-      "Unable to logout. Please try again."
+    showMessage(
+      "Enter your new password.",
+      "error"
     );
 
     return;
-
   }
 
+  if(password.length < 6){
 
-  window.location.href =
-    "index.html";
+    showMessage(
+      "Password must contain at least 6 characters.",
+      "error"
+    );
 
+    return;
+  }
+
+  const button =
+    $("passwordBtn");
+
+  button.disabled = true;
+
+  button.textContent =
+    "Updating...";
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient.auth.updateUser({
+        password: password
+      });
+
+    if(error){
+      throw error;
+    }
+
+    $("newPassword").value = "";
+
+    showMessage(
+      "Password changed successfully."
+    );
+
+  }catch(error){
+
+    console.error(
+      "Password error:",
+      error
+    );
+
+    showMessage(
+      error.message ||
+      "Unable to change password.",
+      "error"
+    );
+
+  }finally{
+
+    button.disabled = false;
+
+    button.textContent =
+      "Change Password";
+  }
 }
 
 
-loadProfile();
+/* =========================
+   COPY ACCOUNT ID
+========================= */
 
+async function copyAccountId(){
+
+  const id =
+    $("accountId").value;
+
+  if(!id){
+    return;
+  }
+
+  try{
+
+    await navigator.clipboard.writeText(id);
+
+    showMessage(
+      "Account ID copied."
+    );
+
+  }catch(error){
+
+    $("accountId").select();
+
+    document.execCommand("copy");
+
+    showMessage(
+      "Account ID copied."
+    );
+  }
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout(){
+
+  const button =
+    $("logoutBtn");
+
+  button.disabled = true;
+
+  button.textContent =
+    "Logging out...";
+
+
+  try{
+
+    const {
+      error
+    } =
+      await supabaseClient.auth.signOut();
+
+    if(error){
+      throw error;
+    }
+
+    window.location.href =
+      "index.html";
+
+  }catch(error){
+
+    console.error(
+      "Logout error:",
+      error
+    );
+
+    button.disabled = false;
+
+    button.textContent =
+      "Logout";
+
+    showMessage(
+      error.message ||
+      "Unable to logout.",
+      "error"
+    );
+  }
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function goTo(page){
+
+  window.location.href =
+    page;
+}
+
+
+/* =========================
+   BACK
+========================= */
+
+$("backBtn").addEventListener(
+  "click",
+  ()=>{
+    if(document.referrer){
+      history.back();
+    }else{
+      window.location.href =
+        "dashboard.html";
+    }
+  }
+);
+
+
+/* =========================
+   EVENTS
+========================= */
+
+$("saveBtn").addEventListener(
+  "click",
+  saveProfile
+);
+
+$("passwordBtn").addEventListener(
+  "click",
+  changePassword
+);
+
+$("copyIdBtn").addEventListener(
+  "click",
+  copyAccountId
+);
+
+$("logoutBtn").addEventListener(
+  "click",
+  logout
+);
+
+$("dateOfBirth").addEventListener(
+  "change",
+  updateAgeDisplay
+);
+
+
+/* =========================
+   INITIALIZE
+========================= */
+
+async function init(){
+
+  try{
+
+    const user =
+      await loadUser();
+
+    if(!user){
+      return;
+    }
+
+    await loadProfile();
+
+    renderProfile();
+
+    $("loadingBox").style.display =
+      "none";
+
+    $("profileContent").style.display =
+      "block";
+
+  }catch(error){
+
+    console.error(
+      "Profile initialization error:",
+      error
+    );
+
+    $("loadingBox").innerHTML = `
+      <strong>Unable to load your profile.</strong>
+      <br><br>
+      <span style="font-size:13px;">
+        ${escapeText(error.message || "Please try again.")}
+      </span>
+      <br><br>
+      <button
+        class="btn btn-primary"
+        onclick="location.reload()"
+      >
+        Try Again
+      </button>
+    `;
+  }
+}
+
+
+supabaseClient.auth.onAuthStateChange(
+  (event, session)=>{
+
+    if(event === "SIGNED_OUT"){
+      window.location.href =
+        "index.html";
+    }
+
+  }
+);
+
+
+init();
 </script>
 
 </body>
-</html>
+  </html>
