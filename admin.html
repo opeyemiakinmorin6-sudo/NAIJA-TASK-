@@ -2091,74 +2091,61 @@ document.querySelectorAll("[data-section]")
 
 async function checkAdmin(){
   try {
-    const { data: { session }, error: sessionError } =
+    const { data: { session }, error } =
       await supabaseClient.auth.getSession();
 
-    if (sessionError || !session) {
-      document.getElementById("adminStatus").textContent =
-        "NOT SIGNED IN";
-
-      showToast("Please sign in as admin.");
-
-      setTimeout(() => {
-        location.href = "admin-login.html";
-      }, 800);
-
+    if (error || !session) {
+      showToast("Please log in as admin.");
+      location.href = "admin-login.html";
       return false;
     }
 
     currentUser = session.user;
 
-    const { data: isAdmin, error: adminError } =
+    const { data, error: adminError } =
       await supabaseClient.rpc("is_admin");
 
+    console.log("ADMIN CHECK:", data, adminError);
+
     if (adminError) {
-      console.error("Admin verification error:", adminError);
-
-      document.getElementById("adminStatus").textContent =
-        "VERIFICATION ERROR";
-
+      console.error(adminError);
       showToast("Admin verification failed.");
       return false;
     }
 
-    if (isAdmin !== true) {
-      document.getElementById("adminStatus").textContent =
-        "ACCESS DENIED";
-
-      showToast("This account is not authorized as admin.");
+    if (data !== true) {
+      showToast("This account is not an admin.");
       return false;
     }
 
-    const { data: profile } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", currentUser.id)
-      .maybeSingle();
+    const { data: profile } =
+      await supabaseClient
+        .from("profiles")
+        .select("full_name")
+        .eq("id", currentUser.id)
+        .maybeSingle();
 
     currentProfile = profile || {};
 
-    document.getElementById("adminStatus").textContent =
-      "ADMIN • " +
-      (
-        currentProfile.full_name ||
-        currentUser.email ||
-        "Administrator"
-      );
+    const name =
+      currentProfile.full_name ||
+      currentUser.email ||
+      "Administrator";
+
+    const status = document.getElementById("adminStatus");
+
+    if (status) {
+      status.textContent = "ADMIN • " + name;
+    }
 
     return true;
 
-  } catch (error) {
-    console.error("Admin check error:", error);
-
-    document.getElementById("adminStatus").textContent =
-      "ERROR";
-
+  } catch (err) {
+    console.error("CHECK ADMIN ERROR:", err);
     showToast("Unable to verify administrator.");
     return false;
   }
-} 
-
+}
   if(
     !SUPABASE_ANON_KEY ||
     SUPABASE_ANON_KEY.includes("PASTE_YOUR")
