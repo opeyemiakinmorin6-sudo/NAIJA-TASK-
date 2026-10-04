@@ -2090,6 +2090,74 @@ document.querySelectorAll("[data-section]")
 --------------------------------------------------------- */
 
 async function checkAdmin(){
+  try {
+    const { data: { session }, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+      document.getElementById("adminStatus").textContent =
+        "NOT SIGNED IN";
+
+      showToast("Please sign in as admin.");
+
+      setTimeout(() => {
+        location.href = "admin-login.html";
+      }, 800);
+
+      return false;
+    }
+
+    currentUser = session.user;
+
+    const { data: isAdmin, error: adminError } =
+      await supabaseClient.rpc("is_admin");
+
+    if (adminError) {
+      console.error("Admin verification error:", adminError);
+
+      document.getElementById("adminStatus").textContent =
+        "VERIFICATION ERROR";
+
+      showToast("Admin verification failed.");
+      return false;
+    }
+
+    if (isAdmin !== true) {
+      document.getElementById("adminStatus").textContent =
+        "ACCESS DENIED";
+
+      showToast("This account is not authorized as admin.");
+      return false;
+    }
+
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+
+    currentProfile = profile || {};
+
+    document.getElementById("adminStatus").textContent =
+      "ADMIN • " +
+      (
+        currentProfile.full_name ||
+        currentUser.email ||
+        "Administrator"
+      );
+
+    return true;
+
+  } catch (error) {
+    console.error("Admin check error:", error);
+
+    document.getElementById("adminStatus").textContent =
+      "ERROR";
+
+    showToast("Unable to verify administrator.");
+    return false;
+  }
+} 
 
   if(
     !SUPABASE_ANON_KEY ||
