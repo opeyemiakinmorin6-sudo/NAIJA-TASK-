@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#087f36">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#064d25">
+<meta name="description" content="NAIJA TASK Admin Control Center">
 
 <title>Admin Control Center — NAIJA TASK</title>
 
@@ -13,440 +13,458 @@
 <style>
 *{
   box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
-:root{
-  --green:#087f36;
-  --green2:#0b9b45;
-  --green3:#064d25;
-  --lime:#b7ef43;
-  --bg:#f3f8f5;
-  --card:#ffffff;
-  --text:#102019;
-  --muted:#68766f;
-  --border:#dce8e1;
-  --danger:#d62828;
-  --warning:#e89b00;
-  --blue:#1769aa;
-  --shadow:0 8px 28px rgba(0,40,20,.08);
-}
-
-html,body{
   margin:0;
   padding:0;
+}
+
+html,
+body{
+  width:100%;
   min-height:100%;
   font-family:Arial,Helvetica,sans-serif;
-  background:
-    radial-gradient(circle at top right,#d9f7e4 0,transparent 28%),
-    var(--bg);
-  color:var(--text);
+  background:#f3f8f5;
+  color:#17251d;
 }
 
 body{
   overflow-x:hidden;
 }
 
-button,input,select,textarea{
-  font:inherit;
+button,
+input,
+select,
+textarea{
+  font-family:inherit;
 }
 
 button{
   cursor:pointer;
 }
 
-.app{
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.hidden{
+  display:none !important;
+}
+
+/* =========================
+   LOADING / ERROR
+========================= */
+
+#bootScreen{
+  position:fixed;
+  z-index:99999;
+  inset:0;
+  background:#064d25;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:25px;
+}
+
+.bootBox{
+  width:100%;
+  max-width:430px;
+}
+
+.bootLogo{
+  width:70px;
+  height:70px;
+  border-radius:20px;
+  background:#b7ef43;
+  color:#064d25;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 18px;
+  font-weight:900;
+  font-size:22px;
+}
+
+.bootBox h1{
+  font-size:24px;
+  margin-bottom:8px;
+}
+
+.bootBox p{
+  opacity:.8;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.loader{
+  width:38px;
+  height:38px;
+  border:4px solid rgba(255,255,255,.25);
+  border-top-color:#b7ef43;
+  border-radius:50%;
+  margin:22px auto 0;
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+#errorBox{
+  position:fixed;
+  z-index:100000;
+  inset:0;
+  background:#f7f8f7;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.errorCard{
+  width:100%;
+  max-width:520px;
+  background:#fff;
+  border:1px solid #e5e8e6;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 15px 45px rgba(0,0,0,.12);
+}
+
+.errorCard h2{
+  color:#b42318;
+  margin-bottom:10px;
+}
+
+.errorCard p{
+  color:#4d5b52;
+  line-height:1.55;
+  margin-bottom:14px;
+}
+
+#errorDetails{
+  background:#f5f6f5;
+  border-radius:12px;
+  padding:12px;
+  font-size:12px;
+  word-break:break-word;
+  white-space:pre-wrap;
+  color:#27352c;
+  max-height:220px;
+  overflow:auto;
+}
+
+.retryBtn{
+  margin-top:15px;
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:13px;
+  background:#087f36;
+  color:#fff;
+  font-weight:800;
+}
+
+/* =========================
+   APP
+========================= */
+
+#app{
+  display:none;
   min-height:100vh;
 }
 
 .topbar{
-  position:sticky;
-  top:0;
-  z-index:100;
-  background:
-    linear-gradient(135deg,var(--green3),var(--green),#10a64d);
+  height:68px;
+  background:linear-gradient(120deg,#064d25,#087f36,#0b9b45);
   color:#fff;
-  padding:
-    calc(12px + env(safe-area-inset-top))
-    14px 12px;
-  box-shadow:0 5px 20px rgba(0,0,0,.16);
-}
-
-.topbar-inner{
-  max-width:1450px;
-  margin:auto;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  box-shadow:0 5px 20px rgba(0,0,0,.12);
 }
 
 .brand{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:11px;
 }
 
-.logo{
-  width:43px;
-  height:43px;
+.brandMark{
+  width:42px;
+  height:42px;
   border-radius:13px;
-  display:grid;
-  place-items:center;
-  background:#fff;
-  color:var(--green);
+  background:#b7ef43;
+  color:#064d25;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-weight:900;
   font-size:15px;
-  box-shadow:0 4px 12px rgba(0,0,0,.15);
 }
 
-.brand h1{
-  margin:0;
-  font-size:18px;
-  letter-spacing:.3px;
-}
-
-.brand small{
+.brandText strong{
   display:block;
-  margin-top:2px;
-  opacity:.78;
-  font-size:11px;
+  font-size:16px;
 }
 
-.admin-chip{
-  border:1px solid rgba(255,255,255,.22);
-  background:rgba(255,255,255,.12);
-  border-radius:999px;
-  padding:8px 11px;
+.brandText span{
+  display:block;
   font-size:11px;
-  font-weight:800;
+  opacity:.75;
+  margin-top:2px;
+}
+
+.topActions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.iconBtn{
+  width:40px;
+  height:40px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:12px;
+  background:rgba(255,255,255,.1);
+  color:#fff;
+  font-size:17px;
 }
 
 .layout{
-  max-width:1450px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:245px 1fr;
+  display:flex;
   min-height:calc(100vh - 68px);
 }
 
 .sidebar{
+  width:245px;
+  flex-shrink:0;
+  background:#fff;
+  border-right:1px solid #e3ebe5;
+  padding:16px 12px 90px;
   position:sticky;
   top:68px;
   height:calc(100vh - 68px);
-  padding:16px 12px;
-  overflow:auto;
-  background:#fff;
-  border-right:1px solid var(--border);
+  overflow-y:auto;
 }
 
-.nav-title{
-  padding:8px 10px;
-  color:#849089;
+.navTitle{
   font-size:10px;
+  color:#819087;
   font-weight:900;
-  text-transform:uppercase;
   letter-spacing:1px;
+  padding:14px 10px 7px;
+  text-transform:uppercase;
 }
 
-.nav{
-  display:flex;
-  flex-direction:column;
-  gap:5px;
-}
-
-.nav button{
-  border:0;
+.navBtn{
   width:100%;
-  text-align:left;
+  border:0;
   background:transparent;
-  color:#405048;
+  color:#536259;
+  text-align:left;
+  border-radius:11px;
   padding:11px 12px;
-  border-radius:12px;
-  font-weight:800;
+  margin-bottom:3px;
+  font-weight:700;
   font-size:13px;
 }
 
-.nav button:hover,
-.nav button.active{
-  background:#e6f7ed;
-  color:var(--green3);
+.navBtn:hover,
+.navBtn.active{
+  background:#eaf7ee;
+  color:#087f36;
 }
 
-.nav-icon{
-  width:24px;
-  display:inline-block;
+.navBtn.danger{
+  color:#b42318;
 }
 
 .main{
-  padding:18px;
+  flex:1;
   min-width:0;
+  padding:22px;
+  padding-bottom:100px;
 }
 
-.section{
+.page{
   display:none;
 }
 
-.section.active{
+.page.active{
   display:block;
 }
 
-.section-head{
+.pageHead{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
-  gap:12px;
-  margin-bottom:16px;
+  gap:15px;
+  margin-bottom:20px;
 }
 
-.section-head h2{
-  margin:0;
-  font-size:22px;
+.pageHead h1{
+  font-size:25px;
+  color:#102219;
 }
 
-.section-head p{
-  margin:5px 0 0;
-  color:var(--muted);
-  font-size:12px;
+.pageHead p{
+  margin-top:5px;
+  color:#718078;
+  font-size:13px;
 }
 
-.actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
-.btn{
-  border:0;
+.refreshBtn{
+  border:1px solid #d9e5dd;
+  background:#fff;
+  color:#087f36;
   border-radius:11px;
   padding:10px 13px;
   font-weight:800;
-  font-size:12px;
-  background:var(--green);
-  color:#fff;
 }
 
-.btn:hover{
-  filter:brightness(.96);
+/* =========================
+   CARDS
+========================= */
+
+.metrics{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:13px;
+  margin-bottom:20px;
 }
 
-.btn.secondary{
-  background:#e8f1ec;
-  color:var(--green3);
+.metric{
+  background:#fff;
+  border:1px solid #e3ebe5;
+  border-radius:17px;
+  padding:17px;
+  min-height:112px;
+  box-shadow:0 5px 16px rgba(15,55,30,.04);
 }
 
-.btn.danger{
-  background:var(--danger);
+.metricLabel{
+  color:#718078;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.3px;
 }
 
-.btn.warning{
-  background:var(--warning);
-  color:#fff;
+.metricValue{
+  font-size:25px;
+  font-weight:900;
+  margin-top:10px;
+  color:#102219;
 }
 
-.btn.blue{
-  background:var(--blue);
-}
-
-.btn.small{
-  padding:7px 9px;
+.metric small{
+  color:#8b9890;
   font-size:11px;
 }
 
-.grid{
+.grid2{
   display:grid;
-  gap:13px;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
 }
 
-.stats{
-  grid-template-columns:repeat(5,minmax(0,1fr));
+.grid3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
 }
 
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:16px;
-  box-shadow:var(--shadow);
-}
-
-.stat-label{
-  color:var(--muted);
-  font-size:11px;
-  font-weight:800;
-}
-
-.stat-value{
-  margin-top:7px;
-  font-size:25px;
-  font-weight:900;
-  color:var(--green3);
-}
-
-.stat-note{
-  margin-top:5px;
-  color:#8a968f;
-  font-size:10px;
-}
-
-.two{
-  grid-template-columns:1.2fr .8fr;
-  margin-top:14px;
-}
-
-.three{
-  grid-template-columns:repeat(3,minmax(0,1fr));
-}
-
-.card h3{
-  margin:0 0 5px;
-  font-size:15px;
-}
-
-.card-sub{
-  color:var(--muted);
-  font-size:11px;
-  margin-bottom:13px;
-}
-
-.table-wrap{
-  width:100%;
-  overflow:auto;
-  border:1px solid var(--border);
-  border-radius:13px;
-}
-
-table{
-  width:100%;
-  min-width:700px;
-  border-collapse:collapse;
-  font-size:11px;
   background:#fff;
+  border:1px solid #e3ebe5;
+  border-radius:17px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 5px 16px rgba(15,55,30,.035);
 }
 
-th,td{
-  padding:10px 9px;
-  border-bottom:1px solid #edf2ef;
-  text-align:left;
-  vertical-align:top;
+.card h2{
+  font-size:16px;
+  margin-bottom:5px;
 }
 
-th{
-  background:#f1f7f3;
-  color:#52625a;
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:.4px;
+.cardSub{
+  color:#7a877f;
+  font-size:12px;
+  margin-bottom:15px;
 }
 
-tr:last-child td{
-  border-bottom:0;
-}
+/* =========================
+   STATUS / SWITCHES
+========================= */
 
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  padding:5px 8px;
-  border-radius:999px;
-  font-size:9px;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-.badge.green{
-  color:#087f36;
-  background:#ddf6e7;
-}
-
-.badge.red{
-  color:#b51f1f;
-  background:#ffe2e2;
-}
-
-.badge.yellow{
-  color:#9b6800;
-  background:#fff1c8;
-}
-
-.badge.blue{
-  color:#135f98;
-  background:#dceeff;
-}
-
-.badge.gray{
-  color:#68736e;
-  background:#edf0ef;
-}
-
-.form-grid{
+.statusGrid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
 }
 
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+.statusBox{
+  border:1px solid #e2e9e4;
+  border-radius:13px;
+  padding:12px;
+  background:#fafcfb;
 }
 
-.field.full{
-  grid-column:1/-1;
+.statusBox strong{
+  display:block;
+  font-size:13px;
+  margin-bottom:8px;
 }
 
-.field label{
-  color:#425149;
-  font-size:11px;
+.statusPill{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:30px;
+  font-size:10px;
   font-weight:900;
 }
 
-.field input,
-.field select,
-.field textarea{
-  width:100%;
-  border:1px solid var(--border);
-  background:#fbfdfc;
-  color:var(--text);
-  border-radius:10px;
-  padding:10px 11px;
-  outline:none;
+.on{
+  background:#e5f7eb;
+  color:#087f36;
 }
 
-.field textarea{
-  min-height:95px;
-  resize:vertical;
+.off{
+  background:#fce9e7;
+  color:#b42318;
 }
 
-.field input:focus,
-.field select:focus,
-.field textarea:focus{
-  border-color:#61b983;
-  box-shadow:0 0 0 3px rgba(11,155,69,.08);
-}
-
-.switch-row{
+.switchRow{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
-  padding:12px 0;
-  border-bottom:1px solid #edf2ef;
+  gap:15px;
+  padding:13px 0;
+  border-bottom:1px solid #edf1ee;
 }
 
-.switch-row:last-child{
+.switchRow:last-child{
   border-bottom:0;
 }
 
-.switch-info strong{
+.switchInfo strong{
   display:block;
-  font-size:12px;
+  font-size:13px;
 }
 
-.switch-info span{
+.switchInfo span{
   display:block;
-  color:var(--muted);
-  font-size:10px;
+  color:#7b887f;
+  font-size:11px;
   margin-top:3px;
 }
 
@@ -454,7 +472,7 @@ tr:last-child td{
   position:relative;
   width:48px;
   height:27px;
-  flex:0 0 auto;
+  flex-shrink:0;
 }
 
 .switch input{
@@ -464,7 +482,7 @@ tr:last-child td{
 .slider{
   position:absolute;
   inset:0;
-  background:#ccd6d0;
+  background:#cbd5ce;
   border-radius:30px;
   transition:.2s;
 }
@@ -476,286 +494,481 @@ tr:last-child td{
   height:21px;
   left:3px;
   top:3px;
-  background:#fff;
   border-radius:50%;
+  background:#fff;
   transition:.2s;
-  box-shadow:0 2px 6px rgba(0,0,0,.18);
+  box-shadow:0 1px 4px rgba(0,0,0,.2);
 }
 
 .switch input:checked + .slider{
-  background:var(--green);
+  background:#087f36;
 }
 
 .switch input:checked + .slider:before{
   transform:translateX(21px);
 }
 
-.setting-row{
+/* =========================
+   FORMS
+========================= */
+
+.formGrid{
   display:grid;
-  grid-template-columns:1fr 130px;
-  align-items:center;
-  gap:10px;
-  padding:12px 0;
-  border-bottom:1px solid #edf2ef;
+  grid-template-columns:repeat(2,1fr);
+  gap:13px;
 }
 
-.setting-row:last-child{
+.formGroup{
+  margin-bottom:13px;
+}
+
+.formGroup.full{
+  grid-column:1/-1;
+}
+
+.formGroup label{
+  display:block;
+  color:#4c5c53;
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:6px;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea{
+  width:100%;
+  border:1px solid #dce5df;
+  background:#fff;
+  color:#18261e;
+  border-radius:11px;
+  padding:11px 12px;
+  outline:none;
+  font-size:13px;
+}
+
+.formGroup textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus{
+  border-color:#087f36;
+  box-shadow:0 0 0 3px rgba(8,127,54,.08);
+}
+
+.btn{
+  border:0;
+  border-radius:11px;
+  padding:10px 14px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.btnPrimary{
+  background:#087f36;
+  color:#fff;
+}
+
+.btnSecondary{
+  background:#eaf7ee;
+  color:#087f36;
+}
+
+.btnDanger{
+  background:#fdeceb;
+  color:#b42318;
+}
+
+.btnDark{
+  background:#17251d;
+  color:#fff;
+}
+
+.btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.actionRow{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:12px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.tableWrap{
+  overflow-x:auto;
+  width:100%;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:680px;
+}
+
+th{
+  text-align:left;
+  color:#78857d;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  padding:11px 9px;
+  border-bottom:1px solid #e6ece8;
+  white-space:nowrap;
+}
+
+td{
+  padding:12px 9px;
+  border-bottom:1px solid #edf1ee;
+  font-size:12px;
+  color:#324239;
+  vertical-align:top;
+}
+
+tr:last-child td{
   border-bottom:0;
 }
 
-.setting-row strong{
-  font-size:12px;
-}
-
-.setting-row small{
+.nameCell strong{
   display:block;
-  color:var(--muted);
-  margin-top:3px;
+  color:#17251d;
+}
+
+.nameCell span{
+  display:block;
+  color:#89958e;
   font-size:10px;
+  margin-top:3px;
 }
 
-.setting-row input,
-.setting-row select{
-  width:100%;
-  border:1px solid var(--border);
-  padding:9px;
-  border-radius:9px;
-  background:#fff;
+.badge{
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:30px;
+  font-size:10px;
+  font-weight:900;
+  background:#eef2ef;
+  color:#59675f;
 }
 
-.notice{
-  padding:11px 13px;
-  border-radius:11px;
-  background:#eff8f2;
-  border:1px solid #d6eedf;
-  color:#245c3c;
-  font-size:11px;
-  line-height:1.5;
+.badge.green{
+  background:#e5f7eb;
+  color:#087f36;
 }
 
-.notice.warning{
-  background:#fff7e2;
-  border-color:#f1dfab;
-  color:#755500;
+.badge.red{
+  background:#fdeceb;
+  color:#b42318;
 }
 
-.notice.danger{
-  background:#fff0f0;
-  border-color:#ffd0d0;
-  color:#8d2424;
+.badge.orange{
+  background:#fff3df;
+  color:#9a5b00;
 }
+
+.badge.blue{
+  background:#eaf3ff;
+  color:#1d5fa7;
+}
+
+/* =========================
+   SEARCH
+========================= */
 
 .toolbar{
   display:flex;
+  gap:9px;
   flex-wrap:wrap;
-  gap:8px;
-  margin-bottom:12px;
+  margin-bottom:14px;
 }
 
-.toolbar input,
-.toolbar select{
-  min-width:140px;
-  border:1px solid var(--border);
+.search{
+  flex:1;
+  min-width:180px;
+  border:1px solid #dce5df;
+  border-radius:11px;
+  padding:11px 12px;
   background:#fff;
-  padding:9px 10px;
-  border-radius:9px;
   outline:none;
 }
 
-.loading{
-  text-align:center;
-  padding:30px;
-  color:var(--muted);
-  font-size:12px;
-}
-
-.empty{
-  text-align:center;
-  padding:25px;
-  color:var(--muted);
-  font-size:12px;
-}
-
-.toast{
-  position:fixed;
-  z-index:1000;
-  right:14px;
-  bottom:18px;
-  max-width:340px;
-  background:#102019;
-  color:#fff;
-  padding:12px 14px;
+.toolbar select{
+  border:1px solid #dce5df;
   border-radius:11px;
-  box-shadow:0 10px 35px rgba(0,0,0,.25);
-  font-size:12px;
-  transform:translateY(130px);
+  padding:10px;
+  background:#fff;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+#toast{
+  position:fixed;
+  z-index:9999;
+  left:50%;
+  bottom:25px;
+  transform:translateX(-50%) translateY(100px);
   opacity:0;
   transition:.25s;
+  background:#17251d;
+  color:#fff;
+  border-radius:12px;
+  padding:12px 16px;
+  max-width:90%;
+  font-size:12px;
+  box-shadow:0 12px 35px rgba(0,0,0,.2);
 }
 
-.toast.show{
-  transform:translateY(0);
+#toast.show{
+  transform:translateX(-50%) translateY(0);
   opacity:1;
 }
 
-.modal-backdrop{
+#toast.success{
+  background:#087f36;
+}
+
+#toast.error{
+  background:#b42318;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
   position:fixed;
+  z-index:5000;
   inset:0;
-  background:rgba(0,0,0,.55);
-  z-index:900;
+  background:rgba(8,20,12,.6);
   display:none;
   align-items:center;
   justify-content:center;
-  padding:15px;
+  padding:18px;
 }
 
-.modal-backdrop.show{
+.modal.show{
   display:flex;
 }
 
-.modal{
-  width:min(700px,100%);
+.modalBox{
+  width:100%;
+  max-width:650px;
   max-height:90vh;
   overflow:auto;
   background:#fff;
-  border-radius:18px;
-  box-shadow:0 20px 70px rgba(0,0,0,.3);
+  border-radius:19px;
+  padding:20px;
 }
 
-.modal-head{
+.modalHead{
   display:flex;
   justify-content:space-between;
+  gap:10px;
   align-items:center;
-  padding:15px;
-  border-bottom:1px solid var(--border);
+  margin-bottom:15px;
 }
 
-.modal-head h3{
-  margin:0;
-  font-size:15px;
+.modalHead h2{
+  font-size:18px;
 }
 
-.modal-body{
-  padding:15px;
-}
-
-.close{
+.closeBtn{
   border:0;
-  background:#eef2ef;
-  width:32px;
-  height:32px;
-  border-radius:9px;
-  font-size:17px;
+  background:#f1f4f2;
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  font-size:18px;
 }
 
-.mobile-nav{
+.detail{
+  border:1px solid #e7ece9;
+  border-radius:11px;
+  padding:11px;
+  margin-bottom:8px;
+}
+
+.detail label{
+  display:block;
+  font-size:10px;
+  color:#849088;
+  text-transform:uppercase;
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.detail div{
+  font-size:13px;
+  word-break:break-word;
+}
+
+.proofImage{
+  width:100%;
+  max-height:360px;
+  object-fit:contain;
+  border-radius:12px;
+  background:#f2f4f3;
+  margin-top:10px;
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.empty{
+  text-align:center;
+  padding:35px 15px;
+  color:#829087;
+}
+
+.empty strong{
+  display:block;
+  color:#536159;
+  margin-bottom:5px;
+}
+
+/* =========================
+   MOBILE NAV
+========================= */
+
+.mobileNav{
   display:none;
 }
 
-.danger-zone{
-  border:1px solid #ffd0d0;
-  background:#fff7f7;
-}
-
-.security-box{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  padding:11px;
-  border-radius:11px;
-  background:#f5f8f6;
-  margin-top:9px;
-}
-
-.security-dot{
-  width:9px;
-  height:9px;
-  border-radius:50%;
-  background:var(--green);
-  margin-top:3px;
-  flex:0 0 auto;
-}
-
-@media(max-width:1000px){
-  .stats{
-    grid-template-columns:repeat(3,minmax(0,1fr));
-  }
-
-  .two{
-    grid-template-columns:1fr;
+@media(max-width:1050px){
+  .metrics{
+    grid-template-columns:repeat(3,1fr);
   }
 }
 
-@media(max-width:720px){
-  .layout{
-    display:block;
+@media(max-width:800px){
+  .topbar{
+    height:62px;
+    padding:0 12px;
+  }
+
+  .brandMark{
+    width:38px;
+    height:38px;
+  }
+
+  .brandText strong{
+    font-size:14px;
+  }
+
+  .brandText span{
+    display:none;
   }
 
   .sidebar{
     display:none;
   }
 
+  .layout{
+    min-height:calc(100vh - 62px);
+  }
+
   .main{
-    padding:12px;
-    padding-bottom:85px;
+    padding:15px;
+    padding-bottom:88px;
   }
 
-  .stats{
-    grid-template-columns:repeat(2,minmax(0,1fr));
+  .metrics{
+    grid-template-columns:repeat(2,1fr);
   }
 
-  .three{
+  .grid2,
+  .grid3{
     grid-template-columns:1fr;
   }
 
-  .form-grid{
+  .formGrid{
     grid-template-columns:1fr;
   }
 
-  .section-head{
-    flex-direction:column;
+  .formGroup.full{
+    grid-column:auto;
   }
 
-  .mobile-nav{
+  .statusGrid{
+    grid-template-columns:1fr;
+  }
+
+  .pageHead{
+    align-items:flex-start;
+  }
+
+  .pageHead h1{
+    font-size:21px;
+  }
+
+  .mobileNav{
     position:fixed;
     display:flex;
-    left:8px;
-    right:8px;
-    bottom:8px;
-    z-index:500;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index:2000;
+    height:68px;
     background:#fff;
-    border:1px solid var(--border);
-    border-radius:17px;
-    box-shadow:0 8px 35px rgba(0,0,0,.18);
-    padding:7px;
-    justify-content:space-around;
+    border-top:1px solid #dfe8e2;
+    box-shadow:0 -5px 20px rgba(0,0,0,.08);
+    overflow-x:auto;
   }
 
-  .mobile-nav button{
+  .mobileNav button{
+    flex:0 0 20%;
+    min-width:72px;
     border:0;
-    background:transparent;
-    color:#65726c;
+    background:#fff;
+    color:#748179;
     font-size:9px;
     font-weight:800;
-    padding:5px;
   }
 
-  .mobile-nav button.active{
-    color:var(--green);
+  .mobileNav button.active{
+    color:#087f36;
   }
 
-  .mobile-nav span{
+  .mobileNav span{
     display:block;
-    font-size:18px;
-    margin-bottom:2px;
+    font-size:19px;
+    margin-bottom:3px;
+  }
+}
+
+@media(max-width:450px){
+  .metrics{
+    gap:8px;
   }
 
-  .setting-row{
-    grid-template-columns:1fr 110px;
+  .metric{
+    padding:13px;
+    min-height:100px;
   }
 
-  .brand h1{
-    font-size:16px;
+  .metricValue{
+    font-size:21px;
+  }
+
+  .card{
+    padding:14px;
+    border-radius:14px;
+  }
+
+  .topActions .iconBtn{
+    width:35px;
+    height:35px;
   }
 }
 </style>
@@ -763,677 +976,640 @@ tr:last-child td{
 
 <body>
 
-<div class="app">
+<!-- =========================
+     BOOT
+========================= -->
+
+<div id="bootScreen">
+  <div class="bootBox">
+    <div class="bootLogo">NT</div>
+    <h1>NAIJA TASK</h1>
+    <p>Loading Admin Control Center...</p>
+    <div class="loader"></div>
+  </div>
+</div>
+
+<div id="errorBox">
+  <div class="errorCard">
+    <h2>Admin page could not load</h2>
+    <p>
+      The page encountered an error while starting. Your data has not been changed.
+    </p>
+    <div id="errorDetails"></div>
+    <button class="retryBtn" onclick="window.location.reload();">
+      Reload Admin
+    </button>
+  </div>
+</div>
+
+<!-- =========================
+     APP
+========================= -->
+
+<div id="app">
 
 <header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <div class="logo">NT</div>
-      <div>
-        <h1>NAIJA TASK</h1>
-        <small>Admin Control Center</small>
-      </div>
+  <div class="brand">
+    <div class="brandMark">NT</div>
+    <div class="brandText">
+      <strong>NAIJA TASK</strong>
+      <span>Admin Control Center</span>
     </div>
+  </div>
 
-    <div class="admin-chip" id="adminIdentity">
-      Checking admin...
-    </div>
+  <div class="topActions">
+    <button class="iconBtn" onclick="refreshCurrentPage()" title="Refresh">
+      ↻
+    </button>
+    <button class="iconBtn" onclick="signOut()" title="Sign out">
+      ⎋
+    </button>
   </div>
 </header>
 
 <div class="layout">
 
+<!-- =========================
+     SIDEBAR
+========================= -->
+
 <aside class="sidebar">
-  <div class="nav-title">Control Center</div>
 
-  <nav class="nav">
-    <button class="active" data-section="overview">
-      <span class="nav-icon">📊</span> Overview
-    </button>
+  <div class="navTitle">Control Center</div>
 
-    <button data-section="users">
-      <span class="nav-icon">👥</span> Users
-    </button>
+  <button class="navBtn active" data-page="overview">
+    📊 Overview
+  </button>
 
-    <button data-section="tasks">
-      <span class="nav-icon">🧩</span> Tasks
-    </button>
+  <button class="navBtn" data-page="users">
+    👥 Users
+  </button>
 
-    <button data-section="proofs">
-      <span class="nav-icon">🖼️</span> Proof Moderation
-    </button>
+  <button class="navBtn" data-page="tasks">
+    📋 Tasks
+  </button>
 
-    <button data-section="withdrawals">
-      <span class="nav-icon">💸</span> Withdrawals
-    </button>
+  <button class="navBtn" data-page="proofs">
+    🖼 Proof Moderation
+  </button>
 
-    <button data-section="ledger">
-      <span class="nav-icon">📒</span> Wallet Ledger
-    </button>
+  <button class="navBtn" data-page="withdrawals">
+    💳 Withdrawals
+  </button>
 
-    <button data-section="monetization">
-      <span class="nav-icon">💰</span> Monetization
-    </button>
+  <button class="navBtn" data-page="ledger">
+    💰 Wallet Ledger
+  </button>
 
-    <button data-section="referrals">
-      <span class="nav-icon">🔗</span> Referrals
-    </button>
+  <div class="navTitle">Business</div>
 
-    <button data-section="security">
-      <span class="nav-icon">🛡️</span> Security
-    </button>
+  <button class="navBtn" data-page="monetization">
+    💎 Monetization
+  </button>
 
-    <button data-section="settings">
-      <span class="nav-icon">⚙️</span> Platform Settings
-    </button>
+  <button class="navBtn" data-page="referrals">
+    🔗 Referrals
+  </button>
 
-    <button data-section="audit">
-      <span class="nav-icon">📝</span> Admin Activity
-    </button>
+  <button class="navBtn" data-page="security">
+    🛡 Security
+  </button>
 
-    <button id="logoutBtn">
-      <span class="nav-icon">🚪</span> Sign Out
-    </button>
-  </nav>
+  <div class="navTitle">Platform</div>
+
+  <button class="navBtn" data-page="settings">
+    ⚙ Platform Settings
+  </button>
+
+  <button class="navBtn" data-page="audit">
+    📝 Admin Activity
+  </button>
+
+  <button class="navBtn danger" onclick="signOut()">
+    🚪 Sign Out
+  </button>
+
 </aside>
+
+<!-- =========================
+     MAIN
+========================= -->
 
 <main class="main">
 
 <!-- OVERVIEW -->
-<section class="section active" id="section-overview">
 
-  <div class="section-head">
+<section id="page-overview" class="page active">
+
+  <div class="pageHead">
     <div>
-      <h2>Control Center</h2>
-      <p>Monitor NAIJA TASK without using fake or hard-coded platform figures.</p>
+      <h1>Admin Overview</h1>
+      <p>Monitor NAIJA TASK without inventing or displaying fake figures.</p>
     </div>
 
-    <div class="actions">
-      <button class="btn secondary" id="refreshAll">
-        ↻ Refresh
-      </button>
-    </div>
+    <button class="refreshBtn" onclick="loadOverview()">
+      ↻ Refresh
+    </button>
   </div>
 
-  <div class="grid stats">
+  <div class="metrics">
 
-    <div class="card">
-      <div class="stat-label">TOTAL USERS</div>
-      <div class="stat-value" id="statUsers">—</div>
-      <div class="stat-note">Registered profiles</div>
+    <div class="metric">
+      <div class="metricLabel">Total Users</div>
+      <div class="metricValue" id="metricUsers">—</div>
     </div>
 
-    <div class="card">
-      <div class="stat-label">ACTIVE TASKS</div>
-      <div class="stat-value" id="statTasks">—</div>
-      <div class="stat-note">Currently available</div>
+    <div class="metric">
+      <div class="metricLabel">Active Tasks</div>
+      <div class="metricValue" id="metricTasks">—</div>
     </div>
 
-    <div class="card">
-      <div class="stat-label">PENDING PROOFS</div>
-      <div class="stat-value" id="statProofs">—</div>
-      <div class="stat-note">Awaiting review</div>
+    <div class="metric">
+      <div class="metricLabel">Pending Proofs</div>
+      <div class="metricValue" id="metricProofs">—</div>
     </div>
 
-    <div class="card">
-      <div class="stat-label">PENDING WITHDRAWALS</div>
-      <div class="stat-value" id="statWithdrawals">—</div>
-      <div class="stat-note">Need admin action</div>
+    <div class="metric">
+      <div class="metricLabel">Pending Withdrawals</div>
+      <div class="metricValue" id="metricWithdrawals">—</div>
     </div>
 
-    <div class="card">
-      <div class="stat-label">PLATFORM BALANCE</div>
-      <div class="stat-value" id="statBalance">₦—</div>
-      <div class="stat-note">From wallet transaction records</div>
+    <div class="metric">
+      <div class="metricLabel">Platform Balance</div>
+      <div class="metricValue" id="metricPlatform">—</div>
+      <small>Calculated only when reliable ledger data is available.</small>
     </div>
 
   </div>
 
-  <div class="grid two">
+  <div class="grid2">
 
     <div class="card">
-      <h3>Operational Status</h3>
-      <div class="card-sub">Important platform controls at a glance.</div>
+      <h2>Platform Controls</h2>
+      <div class="cardSub">Live controls read from your settings table where available.</div>
 
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Account Activation</strong>
-          <span id="overviewActivationText">Loading...</span>
+      <div class="statusGrid">
+
+        <div class="statusBox">
+          <strong>Activation</strong>
+          <span id="overviewActivation" class="statusPill off">UNKNOWN</span>
         </div>
 
-        <label class="switch">
-          <input type="checkbox" id="overviewActivation">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>VIP Program</strong>
-          <span id="overviewVipText">Loading...</span>
+        <div class="statusBox">
+          <strong>VIP</strong>
+          <span id="overviewVip" class="statusPill off">UNKNOWN</span>
         </div>
 
-        <label class="switch">
-          <input type="checkbox" id="overviewVip">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
+        <div class="statusBox">
           <strong>Task Posting</strong>
-          <span>Allow approved posters to create jobs.</span>
+          <span id="overviewPosting" class="statusPill off">UNKNOWN</span>
         </div>
 
-        <label class="switch">
-          <input type="checkbox" id="overviewPosting" checked>
-          <span class="slider"></span>
-        </label>
       </div>
-
     </div>
 
     <div class="card">
-      <h3>Admin Safety</h3>
-      <div class="card-sub">Basic controls that should always remain visible.</div>
+      <h2>Admin Session</h2>
+      <div class="cardSub">Current administrator account.</div>
 
-      <div class="security-box">
-        <div class="security-dot"></div>
-        <div>
-          <strong style="font-size:12px">Server-side authorization required</strong>
-          <div style="font-size:10px;color:#68766f;margin-top:3px">
-            Supabase RLS should enforce admin permissions. UI hiding alone is not security.
-          </div>
-        </div>
+      <div class="detail">
+        <label>Email</label>
+        <div id="adminEmail">—</div>
       </div>
 
-      <div class="security-box">
-        <div class="security-dot"></div>
-        <div>
-          <strong style="font-size:12px">No service-role key in browser</strong>
-          <div style="font-size:10px;color:#68766f;margin-top:3px">
-            Never place a Supabase service_role key in this file.
-          </div>
-        </div>
+      <div class="detail">
+        <label>User ID</label>
+        <div id="adminUserId">—</div>
       </div>
 
+      <div class="detail">
+        <label>Authorization</label>
+        <div>
+          <span class="badge green">ADMIN SESSION ACTIVE</span>
+        </div>
+      </div>
     </div>
 
+  </div>
+
+  <div class="card">
+    <h2>Recent Admin Activity</h2>
+    <div class="cardSub">Latest recorded administrative actions.</div>
+    <div id="overviewActivity"></div>
   </div>
 
 </section>
-
 
 <!-- USERS -->
-<section class="section" id="section-users">
 
-  <div class="section-head">
+<section id="page-users" class="page">
+
+  <div class="pageHead">
     <div>
-      <h2>Users</h2>
-      <p>Review profiles, activation state and account balances.</p>
+      <h1>Users</h1>
+      <p>View registered user accounts and account status.</p>
     </div>
+
+    <button class="refreshBtn" onclick="loadUsers()">↻ Refresh</button>
   </div>
 
   <div class="card">
 
     <div class="toolbar">
-      <input id="userSearch" placeholder="Search name or phone">
-      <select id="userActivationFilter">
-        <option value="">All activation states</option>
-        <option value="true">Activated</option>
-        <option value="false">Not activated</option>
+      <input
+        id="userSearch"
+        class="search"
+        type="search"
+        placeholder="Search name, phone or user ID..."
+        oninput="filterUsers()"
+      >
+
+      <select id="userStatusFilter" onchange="loadUsers()">
+        <option value="">All users</option>
+        <option value="activated">Activated</option>
+        <option value="not_activated">Not activated</option>
       </select>
-      <button class="btn" id="loadUsers">Load Users</button>
     </div>
 
-    <div id="usersTable">
-      <div class="empty">Load users to begin.</div>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Phone</th>
+            <th>Balance</th>
+            <th>Activation</th>
+            <th>Joined</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="usersBody"></tbody>
+      </table>
     </div>
 
   </div>
 
 </section>
-
 
 <!-- TASKS -->
-<section class="section" id="section-tasks">
 
-  <div class="section-head">
+<section id="page-tasks" class="page">
+
+  <div class="pageHead">
     <div>
-      <h2>Task Manager</h2>
-      <p>Review task inventory and status.</p>
+      <h1>Tasks</h1>
+      <p>Monitor tasks, rewards, slots, expiry and task status.</p>
     </div>
 
-    <button class="btn" id="loadTasks">Refresh Tasks</button>
+    <button class="refreshBtn" onclick="loadTasks()">↻ Refresh</button>
   </div>
 
   <div class="card">
 
     <div class="toolbar">
-      <input id="taskSearch" placeholder="Search task title">
-      <select id="taskStatusFilter">
-        <option value="">All statuses</option>
+      <input
+        id="taskSearch"
+        class="search"
+        type="search"
+        placeholder="Search task title or type..."
+        oninput="filterTasks()"
+      >
+
+      <select id="taskStatusFilter" onchange="loadTasks()">
+        <option value="">All</option>
         <option value="active">Active</option>
         <option value="inactive">Inactive</option>
-        <option value="pending">Pending</option>
-        <option value="completed">Completed</option>
       </select>
     </div>
 
-    <div id="tasksTable">
-      <div class="empty">Load tasks to begin.</div>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Type</th>
+            <th>Reward</th>
+            <th>Slots</th>
+            <th>Expiry</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody id="tasksBody"></tbody>
+      </table>
     </div>
 
   </div>
 
 </section>
-
 
 <!-- PROOFS -->
-<section class="section" id="section-proofs">
 
-  <div class="section-head">
+<section id="page-proofs" class="page">
+
+  <div class="pageHead">
     <div>
-      <h2>Proof Moderation</h2>
-      <p>Review worker submissions before rewards are released.</p>
+      <h1>Proof Moderation</h1>
+      <p>Review submitted proof before approving task rewards.</p>
     </div>
 
-    <button class="btn" id="loadProofs">Refresh Proofs</button>
+    <button class="refreshBtn" onclick="loadProofs()">↻ Refresh</button>
   </div>
 
   <div class="card">
 
     <div class="toolbar">
-      <select id="proofStatusFilter">
+
+      <select id="proofFilter" onchange="loadProofs()">
         <option value="pending">Pending</option>
         <option value="approved">Approved</option>
         <option value="rejected">Rejected</option>
-        <option value="cancelled">Cancelled</option>
-        <option value="retry">Retry</option>
         <option value="">All</option>
       </select>
+
     </div>
 
-    <div id="proofsTable">
-      <div class="empty">Load submissions to begin.</div>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Submission</th>
+            <th>User</th>
+            <th>Task</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="proofsBody"></tbody>
+      </table>
     </div>
 
   </div>
 
 </section>
-
 
 <!-- WITHDRAWALS -->
-<section class="section" id="section-withdrawals">
 
-  <div class="section-head">
+<section id="page-withdrawals" class="page">
+
+  <div class="pageHead">
     <div>
-      <h2>Withdrawals</h2>
-      <p>Review withdrawal requests and payment status.</p>
+      <h1>Withdrawals</h1>
+      <p>Review withdrawal requests. Financial operations should remain protected by database policies/RPCs.</p>
     </div>
 
-    <button class="btn" id="loadWithdrawals">Refresh</button>
+    <button class="refreshBtn" onclick="loadWithdrawals()">↻ Refresh</button>
   </div>
 
   <div class="card">
 
     <div class="toolbar">
-      <select id="withdrawalStatusFilter">
+      <select id="withdrawalFilter" onchange="loadWithdrawals()">
         <option value="pending">Pending</option>
-        <option value="approved">Approved</option>
+        <option value="processing">Processing</option>
         <option value="paid">Paid</option>
         <option value="rejected">Rejected</option>
-        <option value="cancelled">Cancelled</option>
         <option value="">All</option>
       </select>
     </div>
 
-    <div id="withdrawalsTable">
-      <div class="empty">Load withdrawals to begin.</div>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Amount</th>
+            <th>Fee</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="withdrawalsBody"></tbody>
+      </table>
     </div>
 
   </div>
 
 </section>
 
-
 <!-- LEDGER -->
-<section class="section" id="section-ledger">
 
-  <div class="section-head">
+<section id="page-ledger" class="page">
+
+  <div class="pageHead">
     <div>
-      <h2>Wallet Ledger</h2>
-      <p>Transaction records used for financial auditing.</p>
+      <h1>Wallet Ledger</h1>
+      <p>Read-only financial transaction history.</p>
     </div>
 
-    <button class="btn" id="loadLedger">Refresh Ledger</button>
+    <button class="refreshBtn" onclick="loadLedger()">↻ Refresh</button>
   </div>
 
   <div class="card">
 
-    <div class="toolbar">
-      <input id="ledgerUser" placeholder="User ID">
-      <select id="ledgerType">
-        <option value="">All transaction types</option>
-        <option value="credit">Credit</option>
-        <option value="debit">Debit</option>
-        <option value="withdrawal">Withdrawal</option>
-        <option value="reward">Reward</option>
-        <option value="activation">Activation</option>
-        <option value="vip">VIP</option>
-        <option value="fee">Fee</option>
-      </select>
-    </div>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Reference</th>
+            <th>Description</th>
+            <th>Date</th>
+          </tr>
+        </thead>
 
-    <div id="ledgerTable">
-      <div class="empty">Load ledger to begin.</div>
+        <tbody id="ledgerBody"></tbody>
+      </table>
     </div>
 
   </div>
 
 </section>
-
 
 <!-- MONETIZATION -->
-<section class="section" id="section-monetization">
 
-  <div class="section-head">
+<section id="page-monetization" class="page">
+
+  <div class="pageHead">
     <div>
-      <h2>Monetization & VIP</h2>
-      <p>Admin-controlled pricing and monetization switches.</p>
+      <h1>Monetization</h1>
+      <p>Control Activation, VIP, withdrawals and poster charges independently.</p>
     </div>
 
-    <button class="btn" id="saveMonetization">
-      Save Monetization
-    </button>
+    <button class="refreshBtn" onclick="loadSettings()">↻ Refresh</button>
   </div>
 
-  <div class="notice">
-    Activation and VIP are independent. Turning one off does not automatically turn
-    the other on. Prices are configuration values; the actual payment/credit operation
-    must also be enforced by the backend/database.
-  </div>
-
-  <div class="grid two" style="margin-top:14px">
+  <div class="grid2">
 
     <div class="card">
-
-      <h3>Account Activation</h3>
-      <div class="card-sub">
-        Control whether new/non-activated users are required to activate.
+      <h2>Account Access</h2>
+      <div class="cardSub">
+        Activation and VIP are separate controls. Turning one on does not automatically turn on the other.
       </div>
 
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Enable Activation</strong>
-          <span>Users can be required to activate their account.</span>
+      <div class="switchRow">
+        <div class="switchInfo">
+          <strong>Require Account Activation</strong>
+          <span>Require activation before normal access.</span>
         </div>
 
         <label class="switch">
-          <input type="checkbox" id="activationEnabled">
+          <input id="setActivationEnabled" type="checkbox" onchange="saveSwitch('activation_enabled',this.checked)">
           <span class="slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
-        <div>
-          <strong>Activation Fee</strong>
-          <small>Amount charged for account activation.</small>
-        </div>
-
-        <input type="number"
-               id="activationFee"
-               min="0"
-               step="1"
-               value="1000">
-      </div>
-
-      <div class="setting-row">
-        <div>
-          <strong>Free Tasks Before Activation</strong>
-          <small>Set 0 to require activation before tasks.</small>
-        </div>
-
-        <input type="number"
-               id="freeTasksBeforeActivation"
-               min="0"
-               step="1"
-               value="0">
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>VIP Program</h3>
-      <div class="card-sub">
-        Optional VIP monetization controlled entirely by admin.
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
+      <div class="switchRow">
+        <div class="switchInfo">
           <strong>Enable VIP</strong>
-          <span>Allow VIP membership/features.</span>
+          <span>Enable the VIP membership system independently.</span>
         </div>
 
         <label class="switch">
-          <input type="checkbox" id="vipEnabled">
+          <input id="setVipEnabled" type="checkbox" onchange="saveSwitch('vip_enabled',this.checked)">
           <span class="slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
-        <div>
-          <strong>VIP Fee</strong>
-          <small>Membership amount.</small>
-        </div>
-
-        <input type="number"
-               id="vipFee"
-               min="0"
-               step="1"
-               value="3000">
-      </div>
-
-      <div class="setting-row">
-        <div>
-          <strong>VIP Withdrawal Fee</strong>
-          <small>Optional special withdrawal fee.</small>
-        </div>
-
-        <input type="number"
-               id="vipWithdrawalFee"
-               min="0"
-               step="1"
-               value="50">
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>Withdrawal Rules</h3>
-      <div class="card-sub">Limits and fees shown to users.</div>
-
-      <div class="setting-row">
-        <div>
-          <strong>Minimum Withdrawal</strong>
-          <small>Lowest amount a user can request.</small>
-        </div>
-
-        <input type="number"
-               id="minimumWithdrawal"
-               min="0"
-               step="1"
-               value="1500">
-      </div>
-
-      <div class="setting-row">
-        <div>
-          <strong>Normal Withdrawal Fee</strong>
-          <small>Fee applied to standard users.</small>
-        </div>
-
-        <input type="number"
-               id="withdrawalFee"
-               min="0"
-               step="1"
-               value="100">
-      </div>
-
-      <div class="setting-row">
-        <div>
-          <strong>Withdrawals Per Day</strong>
-          <small>Set 0 for unlimited.</small>
-        </div>
-
-        <input type="number"
-               id="withdrawalsPerDay"
-               min="0"
-               step="1"
-               value="1">
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>Poster Charges</h3>
-      <div class="card-sub">Charges for people creating jobs/tasks.</div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Charge Posters</strong>
-          <span>Require poster payment before task publication.</span>
+      <div class="switchRow">
+        <div class="switchInfo">
+          <strong>Allow Free Tasks Before Activation</strong>
+          <span>Lets non-activated users access selected free tasks.</span>
         </div>
 
         <label class="switch">
-          <input type="checkbox" id="posterChargesEnabled">
+          <input id="setFreeTasks" type="checkbox" onchange="saveSwitch('free_tasks_enabled',this.checked)">
           <span class="slider"></span>
         </label>
       </div>
 
-      <div class="setting-row">
-        <div>
-          <strong>Poster Base Fee</strong>
-          <small>Base charge for creating a task.</small>
-        </div>
-
-        <input type="number"
-               id="posterBaseFee"
-               min="0"
-               step="1"
-               value="0">
-      </div>
-
-      <div class="setting-row">
-        <div>
-          <strong>Charge Per Slot</strong>
-          <small>Optional additional charge per task slot.</small>
-        </div>
-
-        <input type="number"
-               id="posterSlotFee"
-               min="0"
-               step="1"
-               value="0">
-      </div>
-
     </div>
 
+    <div class="card">
+      <h2>Membership Prices</h2>
+      <div class="cardSub">Admin-editable amounts.</div>
+
+      <div class="formGroup">
+        <label>Activation Fee (₦)</label>
+        <input id="activationFee" type="number" min="0" step="1">
+      </div>
+
+      <div class="formGroup">
+        <label>VIP Fee (₦)</label>
+        <input id="vipFee" type="number" min="0" step="1">
+      </div>
+
+      <button class="btn btnPrimary" onclick="saveMoneySettings()">
+        Save Membership Prices
+      </button>
+    </div>
+
+  </div>
+
+  <div class="grid2">
 
     <div class="card">
+      <h2>Withdrawal Rules</h2>
+      <div class="cardSub">Configure limits and fees.</div>
 
-      <h3>Free Task Policy</h3>
-      <div class="card-sub">
-        Prevent unlimited free usage while keeping the system configurable.
+      <div class="formGroup">
+        <label>Minimum Withdrawal (₦)</label>
+        <input id="withdrawMin" type="number" min="0" step="1">
       </div>
 
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Enable Free Task Limit</strong>
-          <span>Apply a platform-wide free-task allowance.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="freeTaskLimitEnabled">
-          <span class="slider"></span>
-        </label>
+      <div class="formGroup">
+        <label>Normal Withdrawal Fee (₦)</label>
+        <input id="withdrawFee" type="number" min="0" step="1">
       </div>
 
-      <div class="setting-row">
-        <div>
-          <strong>Free Tasks Per Day</strong>
-          <small>Per-user daily free task allowance.</small>
-        </div>
-
-        <input type="number"
-               id="freeTasksPerDay"
-               min="0"
-               step="1"
-               value="5">
+      <div class="formGroup">
+        <label>VIP Withdrawal Fee (₦)</label>
+        <input id="vipWithdrawFee" type="number" min="0" step="1">
       </div>
 
+      <div class="formGroup">
+        <label>Maximum Withdrawals Per Day</label>
+        <input id="withdrawDailyLimit" type="number" min="1" step="1">
+      </div>
+
+      <button class="btn btnPrimary" onclick="saveWithdrawalSettings()">
+        Save Withdrawal Rules
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>Task Posting Charges</h2>
+      <div class="cardSub">Admin-editable poster monetization.</div>
+
+      <div class="formGroup">
+        <label>Base Posting Fee (₦)</label>
+        <input id="posterBaseFee" type="number" min="0" step="1">
+      </div>
+
+      <div class="formGroup">
+        <label>Fee Per Slot (₦)</label>
+        <input id="posterSlotFee" type="number" min="0" step="1">
+      </div>
+
+      <button class="btn btnPrimary" onclick="savePosterSettings()">
+        Save Poster Charges
+      </button>
     </div>
 
   </div>
 
 </section>
 
-
 <!-- REFERRALS -->
-<section class="section" id="section-referrals">
 
-  <div class="section-head">
+<section id="page-referrals" class="page">
+
+  <div class="pageHead">
     <div>
-      <h2>Referral System</h2>
-      <p>Control referral rewards without hard-coding the amount.</p>
+      <h1>Referral System</h1>
+      <p>Configure referral rewards and qualification rules.</p>
     </div>
 
-    <button class="btn" id="saveReferrals">
-      Save Referral Settings
-    </button>
+    <button class="refreshBtn" onclick="loadSettings()">↻ Refresh</button>
   </div>
 
-  <div class="grid two">
+  <div class="card">
 
-    <div class="card">
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Enable Referrals</strong>
-          <span>Allow users to invite other users.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="referralsEnabled" checked>
-          <span class="slider"></span>
-        </label>
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Enable Referrals</strong>
+        <span>Allow users to invite new users.</span>
       </div>
 
-      <div class="setting-row">
-        <div>
-          <strong>Referral Reward</strong>
-          <small>Reward for a qualified referral.</small>
-        </div>
+      <label class="switch">
+        <input id="referralEnabled" type="checkbox" onchange="saveSwitch('referral_enabled',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
 
-        <input type="number"
-               id="referralReward"
-               min="0"
-               step="1"
-               value="100">
+    <div class="formGrid">
+
+      <div class="formGroup">
+        <label>Referral Reward (₦)</label>
+        <input id="referralReward" type="number" min="0" step="1">
       </div>
 
-      <div class="setting-row">
-        <div>
-          <strong>Qualification Requirement</strong>
-          <small>Activation/VIP/task completion can be used as the trigger.</small>
-        </div>
+      <div class="formGroup">
+        <label>Maximum Referral Rewards Per User</label>
+        <input id="referralCap" type="number" min="0" step="1">
+      </div>
 
-        <select id="referralRequirement">
+      <div class="formGroup">
+        <label>Qualification</label>
+        <select id="referralQualification">
           <option value="signup">Signup</option>
           <option value="activation">Activation</option>
           <option value="vip">VIP</option>
@@ -1441,370 +1617,306 @@ tr:last-child td{
         </select>
       </div>
 
-      <div class="setting-row">
-        <div>
-          <strong>Maximum Referral Reward Per User</strong>
-          <small>0 means no configured cap.</small>
-        </div>
-
-        <input type="number"
-               id="referralCap"
-               min="0"
-               step="1"
-               value="0">
-      </div>
-
     </div>
 
-    <div class="card">
-
-      <h3>Anti-Abuse Rules</h3>
-      <div class="card-sub">Referral rewards should not be released blindly.</div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Block Self Referral</strong>
-          <span>Reject matching/reflexive referral attempts.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="blockSelfReferral" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Prevent Duplicate Reward</strong>
-          <span>One qualifying referral should not pay twice.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="preventDuplicateReferral" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- SECURITY -->
-<section class="section" id="section-security">
-
-  <div class="section-head">
-    <div>
-      <h2>Security & Anti-Abuse</h2>
-      <p>Controls for protecting task, proof, referral and financial workflows.</p>
-    </div>
-
-    <button class="btn" id="saveSecurity">
-      Save Security
+    <button class="btn btnPrimary" onclick="saveReferralSettings()">
+      Save Referral Settings
     </button>
-  </div>
 
-  <div class="grid two">
-
-    <div class="card">
-
-      <h3>Account Protection</h3>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>CAPTCHA</strong>
-          <span>Use CAPTCHA where your authentication/backend integration supports it.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="captchaEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Email Verification</strong>
-          <span>Require verified email where configured.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="emailVerification" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Block Duplicate Proof</strong>
-          <span>Flag repeated proof submissions.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="duplicateProof" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Prevent Repeat Task Reward</strong>
-          <span>Respect max completions per user.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="repeatTaskProtection" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>Financial Safety</h3>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Manual Withdrawal Review</strong>
-          <span>Do not automatically mark a withdrawal as paid.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="manualWithdrawal" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Require Proof Review</strong>
-          <span>Reward only after proof reaches approved state.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="proofReview" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Audit Financial Changes</strong>
-          <span>Record admin changes to platform settings.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="financialAudit" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-    </div>
-
-
-    <div class="card danger-zone">
-
-      <h3>High-Risk Operations</h3>
-      <div class="card-sub">
-        These should never be implemented as unrestricted client-side actions.
-      </div>
-
-      <div class="notice danger">
-        Never add a Supabase service-role key to this page. Balance adjustments,
-        withdrawal payments, activation payments and privileged user operations
-        should be protected with Supabase RLS or secure backend/Edge Functions.
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- SETTINGS -->
-<section class="section" id="section-settings">
-
-  <div class="section-head">
-    <div>
-      <h2>Platform Settings</h2>
-      <p>General platform configuration.</p>
-    </div>
-
-    <button class="btn" id="saveSettings">
-      Save Settings
-    </button>
-  </div>
-
-  <div class="grid two">
-
-    <div class="card">
-
-      <h3>Platform</h3>
-
-      <div class="field" style="margin-bottom:12px">
-        <label>Platform Name</label>
-        <input id="platformName" value="NAIJA TASK">
-      </div>
-
-      <div class="field" style="margin-bottom:12px">
-        <label>Support Email</label>
-        <input id="supportEmail"
-               type="email"
-               value="naijataskofficia@gmail.com">
-      </div>
-
-      <div class="field" style="margin-bottom:12px">
-        <label>Customer Care WhatsApp / Phone</label>
-        <input id="supportPhone">
-      </div>
-
-      <div class="field">
-        <label>Platform Announcement</label>
-        <textarea id="announcement"
-                  placeholder="Optional announcement shown to users"></textarea>
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>Platform Availability</h3>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Platform Open</strong>
-          <span>Allow normal user activity.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="platformOpen" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>New Registrations</strong>
-          <span>Allow new accounts to register.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="registrationsOpen" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Task Posting</strong>
-          <span>Allow approved posters to post jobs.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="taskPostingOpen" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Maintenance Mode</strong>
-          <span>Display maintenance state to normal users.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="maintenanceMode">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>Additional Modules</h3>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Marketplace</strong>
-          <span>Enable marketplace module.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="marketplaceEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Airtime/Data</strong>
-          <span>Enable module only when a legitimate API/provider is connected.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="airtimeEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>AI Customer Care</strong>
-          <span>Prepare the customer-care module.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="aiCareEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="switch-row">
-        <div class="switch-info">
-          <strong>Community / Group Chat</strong>
-          <span>Enable only when the chat backend is connected.</span>
-        </div>
-
-        <label class="switch">
-          <input type="checkbox" id="chatEnabled">
-          <span class="slider"></span>
-        </label>
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- AUDIT -->
-<section class="section" id="section-audit">
-
-  <div class="section-head">
-    <div>
-      <h2>Admin Activity</h2>
-      <p>Review recent administrative changes when an audit table is available.</p>
-    </div>
-
-    <button class="btn" id="loadAudit">Refresh</button>
   </div>
 
   <div class="card">
-    <div id="auditTable">
-      <div class="empty">
-        Audit records require an admin audit table. The page will use it automatically
-        if the table exists.
-      </div>
+    <h2>Referral Safety</h2>
+    <div class="cardSub">
+      These protections should also be enforced with database constraints/RLS/RPCs.
     </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Prevent Self Referral</strong>
+        <span>Do not reward a user for referring their own account.</span>
+      </div>
+
+      <label class="switch">
+        <input id="selfReferralBlock" type="checkbox" onchange="saveSwitch('prevent_self_referral',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Prevent Duplicate Referral Reward</strong>
+        <span>A referred account should only qualify once.</span>
+      </div>
+
+      <label class="switch">
+        <input id="duplicateReferralBlock" type="checkbox" onchange="saveSwitch('prevent_duplicate_referral',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+</section>
+
+<!-- SECURITY -->
+
+<section id="page-security" class="page">
+
+  <div class="pageHead">
+    <div>
+      <h1>Security</h1>
+      <p>Platform protection controls. Backend enforcement remains essential.</p>
+    </div>
+
+    <button class="refreshBtn" onclick="loadSettings()">↻ Refresh</button>
+  </div>
+
+  <div class="card">
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>CAPTCHA</strong>
+        <span>Require CAPTCHA where your frontend/backend integration supports it.</span>
+      </div>
+
+      <label class="switch">
+        <input id="captchaEnabled" type="checkbox" onchange="saveSwitch('captcha_enabled',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Email Verification</strong>
+        <span>Require verified email accounts.</span>
+      </div>
+
+      <label class="switch">
+        <input id="emailVerification" type="checkbox" onchange="saveSwitch('email_verification_required',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Duplicate Proof Protection</strong>
+        <span>Prevent repeated identical proof submissions.</span>
+      </div>
+
+      <label class="switch">
+        <input id="duplicateProof" type="checkbox" onchange="saveSwitch('duplicate_proof_protection',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Repeat Task Reward Protection</strong>
+        <span>Prevent one worker from receiving a task reward twice.</span>
+      </div>
+
+      <label class="switch">
+        <input id="repeatTask" type="checkbox" onchange="saveSwitch('repeat_task_protection',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Manual Withdrawal Review</strong>
+        <span>Keep withdrawals pending until reviewed.</span>
+      </div>
+
+      <label class="switch">
+        <input id="manualWithdrawal" type="checkbox" onchange="saveSwitch('manual_withdrawal_review',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- SETTINGS -->
+
+<section id="page-settings" class="page">
+
+  <div class="pageHead">
+    <div>
+      <h1>Platform Settings</h1>
+      <p>General NAIJA TASK platform controls.</p>
+    </div>
+
+    <button class="refreshBtn" onclick="loadSettings()">↻ Refresh</button>
+  </div>
+
+  <div class="card">
+
+    <div class="formGrid">
+
+      <div class="formGroup">
+        <label>Platform Name</label>
+        <input id="platformName" type="text">
+      </div>
+
+      <div class="formGroup">
+        <label>Support Email</label>
+        <input id="supportEmail" type="email">
+      </div>
+
+      <div class="formGroup">
+        <label>Support WhatsApp / Phone</label>
+        <input id="supportPhone" type="text">
+      </div>
+
+      <div class="formGroup full">
+        <label>Announcement</label>
+        <textarea id="announcement"></textarea>
+      </div>
+
+    </div>
+
+    <button class="btn btnPrimary" onclick="saveGeneralSettings()">
+      Save General Settings
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <h2>Platform Availability</h2>
+    <div class="cardSub">These controls affect platform behavior when connected pages read the same settings.</div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Platform Open</strong>
+        <span>Allow normal platform operation.</span>
+      </div>
+
+      <label class="switch">
+        <input id="platformOpen" type="checkbox" onchange="saveSwitch('platform_open',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>New Registrations</strong>
+        <span>Allow new users to register.</span>
+      </div>
+
+      <label class="switch">
+        <input id="registrationsOpen" type="checkbox" onchange="saveSwitch('registrations_open',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Task Posting</strong>
+        <span>Allow posters to create tasks.</span>
+      </div>
+
+      <label class="switch">
+        <input id="taskPosting" type="checkbox" onchange="saveSwitch('task_posting_enabled',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Maintenance Mode</strong>
+        <span>Temporarily restrict normal platform use.</span>
+      </div>
+
+      <label class="switch">
+        <input id="maintenanceMode" type="checkbox" onchange="saveSwitch('maintenance_mode',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Marketplace</strong>
+        <span>Enable marketplace features.</span>
+      </div>
+
+      <label class="switch">
+        <input id="marketplaceEnabled" type="checkbox" onchange="saveSwitch('marketplace_enabled',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Airtime & Data</strong>
+        <span>Enable airtime and data services.</span>
+      </div>
+
+      <label class="switch">
+        <input id="airtimeEnabled" type="checkbox" onchange="saveSwitch('airtime_data_enabled',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>Community / Group Chat</strong>
+        <span>Enable community features.</span>
+      </div>
+
+      <label class="switch">
+        <input id="chatEnabled" type="checkbox" onchange="saveSwitch('chat_enabled',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="switchRow">
+      <div class="switchInfo">
+        <strong>AI Care</strong>
+        <span>Enable AI support features where integrated.</span>
+      </div>
+
+      <label class="switch">
+        <input id="aiCareEnabled" type="checkbox" onchange="saveSwitch('ai_care_enabled',this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- AUDIT -->
+
+<section id="page-audit" class="page">
+
+  <div class="pageHead">
+    <div>
+      <h1>Admin Activity</h1>
+      <p>Review administrative actions recorded by the platform.</p>
+    </div>
+
+    <button class="refreshBtn" onclick="loadAudit()">↻ Refresh</button>
+  </div>
+
+  <div class="card">
+
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Admin</th>
+            <th>Details</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody id="auditBody"></tbody>
+      </table>
+    </div>
+
   </div>
 
 </section>
@@ -1812,2735 +1924,2321 @@ tr:last-child td{
 </main>
 </div>
 
+<!-- MOBILE NAV -->
 
-<div class="mobile-nav">
+<nav class="mobileNav">
 
-  <button class="active" data-section="overview">
-    <span>📊</span>Home
+  <button data-page="overview" class="active">
+    <span>📊</span>
+    Home
   </button>
 
-  <button data-section="users">
-    <span>👥</span>Users
+  <button data-page="users">
+    <span>👥</span>
+    Users
   </button>
 
-  <button data-section="tasks">
-    <span>🧩</span>Tasks
+  <button data-page="tasks">
+    <span>📋</span>
+    Tasks
   </button>
 
-  <button data-section="proofs">
-    <span>🖼️</span>Proofs
+  <button data-page="proofs">
+    <span>🖼</span>
+    Proofs
   </button>
 
-  <button data-section="withdrawals">
-    <span>💸</span>Money
+  <button data-page="withdrawals">
+    <span>💳</span>
+    Money
   </button>
 
-  <button data-section="monetization">
-    <span>💰</span>Control
-  </button>
+</nav>
 
 </div>
 
+<!-- =========================
+     MODAL
+========================= -->
 
-<div class="toast" id="toast"></div>
-
-
-<div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal">
-
-    <div class="modal-head">
-      <h3 id="modalTitle">Details</h3>
-      <button class="close" id="modalClose">×</button>
+<div id="modal" class="modal" onclick="closeModalOutside(event)">
+  <div class="modalBox">
+    <div class="modalHead">
+      <h2 id="modalTitle">Details</h2>
+      <button class="closeBtn" onclick="closeModal()">×</button>
     </div>
 
-    <div class="modal-body" id="modalBody"></div>
-
+    <div id="modalContent"></div>
   </div>
 </div>
 
+<div id="toast"></div>
 
 <script>
-/* =========================================================
-   NAIJA TASK — ADMIN CONTROL CENTER
-   ========================================================= */
+/* ==========================================================
+   NAIJA TASK ADMIN CONTROL CENTER
+   Android 8 / older browser friendly JavaScript
+========================================================== */
 
-const SUPABASE_URL =
-  "https://jwakveeiynpakunwjzkj.supabase.co";
+(function(){
 
-/*
-  IMPORTANT:
-  This MUST be the public anon key, not service_role.
-  Replace the placeholder below with your existing anon key.
-*/
-const SUPABASE_ANON_KEY =
-          "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+"use strict";
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+/* ==========================================================
+   CONFIG
+========================================================== */
 
+var SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
 
-/* ---------------------------------------------------------
-   STATE
---------------------------------------------------------- */
+var SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-let currentUser = null;
-let currentProfile = null;
+var supabaseClient = null;
 
-let platformSettings = {
-  activation_enabled:true,
-  activation_fee:1000,
-  free_tasks_before_activation:0,
+var currentUser = null;
+var currentPage = "overview";
 
-  vip_enabled:false,
-  vip_fee:3000,
-  vip_withdrawal_fee:50,
+var usersCache = [];
+var tasksCache = [];
+var proofsCache = [];
+var withdrawalsCache = [];
 
-  minimum_withdrawal:1500,
-  withdrawal_fee:100,
-  withdrawals_per_day:1,
+var settingsCache = {};
 
-  poster_charges_enabled:false,
-  poster_base_fee:0,
-  poster_slot_fee:0,
-
-  free_task_limit_enabled:true,
-  free_tasks_per_day:5,
-
-  referrals_enabled:true,
-  referral_reward:100,
-  referral_requirement:"signup",
-  referral_cap:0,
-
-  block_self_referral:true,
-  prevent_duplicate_referral:true,
-
-  captcha_enabled:false,
-  email_verification:true,
-  duplicate_proof:true,
-  repeat_task_protection:true,
-
-  manual_withdrawal:true,
-  proof_review:true,
-  financial_audit:true,
-
-  platform_name:"NAIJA TASK",
-  support_email:"naijataskofficia@gmail.com",
-  support_phone:"",
-  announcement:"",
-
-  platform_open:true,
-  registrations_open:true,
-  task_posting_open:true,
-  maintenance_mode:false,
-
-  marketplace_enabled:false,
-  airtime_enabled:false,
-  ai_care_enabled:false,
-  chat_enabled:false
-};
-
-
-/* ---------------------------------------------------------
-   HELPERS
---------------------------------------------------------- */
+/* ==========================================================
+   BASIC HELPERS
+========================================================== */
 
 function $(id){
   return document.getElementById(id);
 }
 
-function toast(message){
-  const el = $("toast");
-  el.textContent = message;
-  el.classList.add("show");
-
-  clearTimeout(window.__toastTimer);
-
-  window.__toastTimer =
-    setTimeout(()=>{
-      el.classList.remove("show");
-    },3200);
-}
-
-function money(value){
-  const n = Number(value || 0);
-
-  return "₦" + n.toLocaleString("en-NG",{
-    maximumFractionDigits:2
-  });
-}
-
-function safe(value){
-  if(value === null || value === undefined){
+function text(value){
+  if(value === null || typeof value === "undefined"){
     return "";
   }
 
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+  return String(value);
 }
 
-function badge(status){
-
-  const s = String(status || "unknown").toLowerCase();
-
-  if(
-    ["approved","active","paid","completed","success","activated"]
-      .includes(s)
-  ){
-    return `<span class="badge green">${safe(s)}</span>`;
-  }
-
-  if(
-    ["rejected","cancelled","failed","blocked","suspended"]
-      .includes(s)
-  ){
-    return `<span class="badge red">${safe(s)}</span>`;
-  }
-
-  if(
-    ["pending","review","processing","retry"]
-      .includes(s)
-  ){
-    return `<span class="badge yellow">${safe(s)}</span>`;
-  }
-
-  if(
-    ["inactive","disabled","draft"]
-      .includes(s)
-  ){
-    return `<span class="badge gray">${safe(s)}</span>`;
-  }
-
-  return `<span class="badge blue">${safe(s)}</span>`;
+function safe(value){
+  return text(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
-function date(value){
+function numberValue(value, fallback){
+  var n = Number(value);
 
-  if(!value) return "—";
+  if(isNaN(n)){
+    return typeof fallback === "number" ? fallback : 0;
+  }
+
+  return n;
+}
+
+function money(value){
+  if(value === null || typeof value === "undefined" || value === ""){
+    return "₦—";
+  }
+
+  var n = Number(value);
+
+  if(isNaN(n)){
+    return "₦—";
+  }
+
+  return "₦" + n.toLocaleString("en-NG");
+}
+
+function formatDate(value){
+  if(!value){
+    return "—";
+  }
 
   try{
-    return new Date(value).toLocaleString(
-      "en-NG",
-      {
-        dateStyle:"medium",
-        timeStyle:"short"
-      }
-    );
-  }catch{
+    var d = new Date(value);
+
+    if(isNaN(d.getTime())){
+      return safe(value);
+    }
+
+    return d.toLocaleString("en-NG");
+  }catch(e){
     return safe(value);
   }
 }
 
-function setLoading(id){
-  $(id).innerHTML =
-    `<div class="loading">Loading...</div>`;
-}
-
-
-/* ---------------------------------------------------------
-   NAVIGATION
---------------------------------------------------------- */
-
-document.querySelectorAll("[data-section]")
-.forEach(button=>{
-
-  button.addEventListener("click",()=>{
-
-    const section =
-      button.dataset.section;
-
-    document.querySelectorAll(".section")
-    .forEach(s=>{
-      s.classList.remove("active");
-    });
-
-    const target =
-      $("section-" + section);
-
-    if(target){
-      target.classList.add("active");
-    }
-
-    document.querySelectorAll("[data-section]")
-    .forEach(b=>{
-      b.classList.remove("active");
-    });
-
-    document
-      .querySelectorAll(
-        `[data-section="${section}"]`
-      )
-      .forEach(b=>{
-        b.classList.add("active");
-      });
-
-  });
-
-});
-
-
-/* ---------------------------------------------------------
-   AUTH
---------------------------------------------------------- */
-
-async function checkAdmin(){
-  try {
-    const { data: { session }, error } =
-      await supabaseClient.auth.getSession();
-
-    if (error || !session) {
-      showToast("Please log in as admin.");
-      location.href = "admin-login.html";
-      return false;
-    }
-
-    currentUser = session.user;
-
-    const { data, error: adminError } =
-      await supabaseClient.rpc("is_admin");
-
-    console.log("ADMIN CHECK:", data, adminError);
-
-    if (adminError) {
-      console.error(adminError);
-      showToast("Admin verification failed.");
-      return false;
-    }
-
-    if (data !== true) {
-      showToast("This account is not an admin.");
-      return false;
-    }
-
-    const { data: profile } =
-      await supabaseClient
-        .from("profiles")
-        .select("full_name")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-    currentProfile = profile || {};
-
-    const name =
-      currentProfile.full_name ||
-      currentUser.email ||
-      "Administrator";
-
-    const status = document.getElementById("adminStatus");
-
-    if (status) {
-      status.textContent = "ADMIN • " + name;
-    }
-
+function boolValue(value){
+  if(value === true){
     return true;
+  }
 
-  } catch (err) {
-    console.error("CHECK ADMIN ERROR:", err);
-    showToast("Unable to verify administrator.");
+  if(value === false){
     return false;
+  }
+
+  var v = String(value).toLowerCase();
+
+  return v === "true" ||
+         v === "1" ||
+         v === "yes" ||
+         v === "on" ||
+         v === "enabled";
+}
+
+function showToast(message,type){
+  var el = $("toast");
+
+  if(!el){
+    return;
+  }
+
+  el.className = "";
+
+  if(type === "success"){
+    el.className = "success";
+  }
+
+  if(type === "error"){
+    el.className = "error";
+  }
+
+  el.textContent = message;
+  el.className += " show";
+
+  window.setTimeout(function(){
+    el.className = el.className.replace(" show","");
+  },3200);
+}
+
+function showFatalError(error){
+  var details = error;
+
+  if(error && error.message){
+    details = error.message;
+  }
+
+  $("bootScreen").style.display = "none";
+  $("app").style.display = "none";
+  $("errorBox").style.display = "flex";
+  $("errorDetails").textContent = text(details);
+
+  try{
+    console.error(error);
+  }catch(e){}
+}
+
+function showApp(){
+  $("bootScreen").style.display = "none";
+  $("errorBox").style.display = "none";
+  $("app").style.display = "block";
+}
+
+/* ==========================================================
+   SUPABASE STARTUP
+========================================================== */
+
+function startSupabase(){
+
+  if(!window.supabase){
+    throw new Error(
+      "Supabase JavaScript library did not load. Check your internet connection or CDN access."
+    );
+  }
+
+  if(typeof window.supabase.createClient !== "function"){
+    throw new Error(
+      "Supabase createClient is unavailable. The Supabase library did not initialize correctly."
+    );
+  }
+
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  if(!supabaseClient){
+    throw new Error("Supabase client could not be created.");
   }
 }
-  if(
-    !SUPABASE_ANON_KEY ||
-    SUPABASE_ANON_KEY.includes("PASTE_YOUR")
-  ){
-    toast(
-      "Add your existing Supabase anon key before using this page."
-    );
 
-    $("adminIdentity").textContent =
-      "CONFIGURATION REQUIRED";
+/* ==========================================================
+   AUTH
+========================================================== */
 
-    return false;
-  }
+async function getSession(){
 
-  const {
-    data,
-    error
-  } = await supabaseClient.auth.getSession();
-
-  if(error){
-    toast(error.message);
-    return false;
-  }
-
-  currentUser =
-    data?.session?.user || null;
-
-  if(!currentUser){
-
-    $("adminIdentity").textContent =
-      "NOT SIGNED IN";
-
-    toast("Admin login required.");
-
-    setTimeout(()=>{
-      location.href = "admin-login.html";
-    },900);
-
-    return false;
-  }
-
-  /*
-    IMPORTANT:
-    Do not trust a client-side admin flag by itself.
-    Your profiles table/RLS must restrict access.
-  */
-
-  const result =
-    await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id",currentUser.id)
-      .maybeSingle();
+  var result = await supabaseClient.auth.getSession();
 
   if(result.error){
-
-    console.error(result.error);
-
-    $("adminIdentity").textContent =
-      "ADMIN CHECK FAILED";
-
-    toast(
-      "Unable to verify admin profile."
-    );
-
-    return false;
+    throw result.error;
   }
 
-  currentProfile =
-    result.data;
-
-  const role =
-    String(
-      currentProfile?.role ||
-      currentProfile?.user_role ||
-      currentProfile?.account_type ||
-      ""
-    ).toLowerCase();
-
-  const isAdmin =
-    role === "admin" ||
-    currentProfile?.is_admin === true ||
-    currentProfile?.admin === true;
-
-  if(!isAdmin){
-
-    $("adminIdentity").textContent =
-      "ACCESS DENIED";
-
-    toast(
-      "This account is not authorized as admin."
-    );
-
-    await supabaseClient.auth.signOut();
-
-    setTimeout(()=>{
-      location.href = "admin-login.html";
-    },1000);
-
-    return false;
+  if(!result.data || !result.data.session){
+    throw new Error("No active login session. Please sign in through admin-login.html.");
   }
 
-  $("adminIdentity").textContent =
-    "ADMIN • " +
-    (
-      currentProfile.full_name ||
-      currentUser.email ||
-      "Authorized"
-    );
+  currentUser = result.data.session.user;
 
-  return true;
+  if(!currentUser){
+    throw new Error("The current administrator account could not be identified.");
+  }
 }
 
+async function checkAdmin(){
 
-/* ---------------------------------------------------------
-   SETTINGS STORAGE
---------------------------------------------------------- */
+  var authorized = false;
 
-async function loadSettings(){
+  /* First try the secure RPC if it exists. */
+  try{
 
-  /*
-    Expected recommended table:
-    platform_settings
+    var rpc = await supabaseClient.rpc("is_admin");
 
-    Columns can be:
-    id, key, value, updated_at, updated_by
+    if(!rpc.error){
 
-    value should preferably be JSON/text.
+      if(rpc.data === true){
+        authorized = true;
+      }
 
-    The code also tolerates a settings table that stores
-    individual columns if you later adapt the query.
-  */
+      if(rpc.data && rpc.data.is_admin === true){
+        authorized = true;
+      }
+    }
+
+  }catch(e){
+    /* Continue to admin_users fallback. */
+  }
+
+  /* Check admin_users table. */
+  if(!authorized){
+
+    try{
+
+      var adminResult = await supabaseClient
+        .from("admin_users")
+        .select("user_id,role,active")
+        .eq("user_id",currentUser.id)
+        .maybeSingle();
+
+      if(!adminResult.error &&
+         adminResult.data &&
+         adminResult.data.role === "admin" &&
+         adminResult.data.active === true){
+
+        authorized = true;
+      }
+
+    }catch(e){
+      /* Continue to profile fallback. */
+    }
+  }
+
+  /* Profile role fallback. */
+  if(!authorized){
+
+    try{
+
+      var profileResult = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id",currentUser.id)
+        .maybeSingle();
+
+      if(!profileResult.error && profileResult.data){
+
+        var p = profileResult.data;
+
+        if(
+          p.role === "admin" ||
+          p.user_role === "admin" ||
+          p.account_role === "admin"
+        ){
+          authorized = true;
+        }
+      }
+
+    }catch(e){}
+  }
+
+  if(!authorized){
+    throw new Error(
+      "ACCESS DENIED. Your account is not authorized as an active NAIJA TASK administrator."
+    );
+  }
+}
+
+/* ==========================================================
+   NAVIGATION
+========================================================== */
+
+function setupNavigation(){
+
+  var buttons = document.querySelectorAll("[data-page]");
+
+  for(var i=0;i<buttons.length;i++){
+
+    buttons[i].addEventListener("click",function(){
+
+      var page = this.getAttribute("data-page");
+
+      if(page){
+        openPage(page);
+      }
+
+    });
+  }
+}
+
+function openPage(page){
+
+  currentPage = page;
+
+  var pages = document.querySelectorAll(".page");
+
+  for(var i=0;i<pages.length;i++){
+    pages[i].classList.remove("active");
+  }
+
+  var target = $("page-" + page);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+  var buttons = document.querySelectorAll("[data-page]");
+
+  for(var j=0;j<buttons.length;j++){
+
+    if(buttons[j].getAttribute("data-page") === page){
+      buttons[j].classList.add("active");
+    }else{
+      buttons[j].classList.remove("active");
+    }
+  }
+
+  if(page === "overview"){
+    loadOverview();
+  }
+
+  if(page === "users"){
+    loadUsers();
+  }
+
+  if(page === "tasks"){
+    loadTasks();
+  }
+
+  if(page === "proofs"){
+    loadProofs();
+  }
+
+  if(page === "withdrawals"){
+    loadWithdrawals();
+  }
+
+  if(page === "ledger"){
+    loadLedger();
+  }
+
+  if(page === "monetization"){
+    loadSettings();
+  }
+
+  if(page === "referrals"){
+    loadSettings();
+  }
+
+  if(page === "security"){
+    loadSettings();
+  }
+
+  if(page === "settings"){
+    loadSettings();
+  }
+
+  if(page === "audit"){
+    loadAudit();
+  }
+}
+
+window.openPage = openPage;
+
+/* ==========================================================
+   DATABASE HELPERS
+========================================================== */
+
+async function countRows(table){
 
   try{
 
-    const {
-      data,
-      error
-    } = await supabaseClient
+    var result = await supabaseClient
+      .from(table)
+      .select("*",{count:"exact",head:true});
+
+    if(result.error){
+      return null;
+    }
+
+    return result.count;
+
+  }catch(e){
+    return null;
+  }
+}
+
+async function getRows(table,limit){
+
+  var result = await supabaseClient
+    .from(table)
+    .select("*")
+    .limit(limit || 100);
+
+  if(result.error){
+    throw result.error;
+  }
+
+  return result.data || [];
+}
+
+function getSettingValue(key,defaultValue){
+
+  if(settingsCache[key] !== null &&
+     typeof settingsCache[key] !== "undefined"){
+
+    return settingsCache[key];
+  }
+
+  return defaultValue;
+}
+
+function setInput(id,value){
+
+  var el = $(id);
+
+  if(!el){
+    return;
+  }
+
+  if(el.type === "checkbox"){
+    el.checked = boolValue(value);
+  }else{
+    el.value = value === null || typeof value === "undefined"
+      ? ""
+      : value;
+  }
+}
+
+/* ==========================================================
+   SETTINGS
+========================================================== */
+
+async function loadSettings(){
+
+  try{
+
+    var result = await supabaseClient
       .from("platform_settings")
       .select("*")
       .limit(500);
 
-    if(error){
-
-      console.warn(
-        "platform_settings unavailable:",
-        error.message
-      );
-
-      applySettingsToUI();
-      return;
+    if(result.error){
+      throw result.error;
     }
 
-    if(Array.isArray(data)){
+    settingsCache = {};
 
-      data.forEach(row=>{
+    var rows = result.data || [];
 
-        const key =
-          row.key ||
-          row.setting_key ||
-          row.name;
+    for(var i=0;i<rows.length;i++){
 
-        if(!key) return;
+      var row = rows[i];
 
-        let value =
-          row.value ??
-          row.setting_value ??
-          row.data;
+      var key =
+        row.key ||
+        row.setting_key ||
+        row.name;
 
-        try{
-          value = JSON.parse(value);
-        }catch{}
+      if(!key){
+        continue;
+      }
 
-        platformSettings[key] =
-          value;
-      });
+      var value;
 
+      if(typeof row.value !== "undefined"){
+        value = row.value;
+      }else if(typeof row.setting_value !== "undefined"){
+        value = row.setting_value;
+      }else{
+        value = row.data;
+      }
+
+      settingsCache[key] = value;
     }
+
+    /* General */
+    setInput("platformName",getSettingValue("platform_name","NAIJA TASK"));
+    setInput("supportEmail",getSettingValue("support_email","naijataskofficia@gmail.com"));
+    setInput("supportPhone",getSettingValue("support_phone",""));
+    setInput("announcement",getSettingValue("announcement",""));
+
+    /* Membership */
+    setInput("setActivationEnabled",getSettingValue("activation_enabled",false));
+    setInput("setVipEnabled",getSettingValue("vip_enabled",false));
+    setInput("setFreeTasks",getSettingValue("free_tasks_enabled",false));
+
+    setInput("activationFee",getSettingValue("activation_fee",1000));
+    setInput("vipFee",getSettingValue("vip_fee",3000));
+
+    /* Withdrawal */
+    setInput("withdrawMin",getSettingValue("withdrawal_minimum",1500));
+    setInput("withdrawFee",getSettingValue("withdrawal_fee",100));
+    setInput("vipWithdrawFee",getSettingValue("vip_withdrawal_fee",50));
+    setInput("withdrawDailyLimit",getSettingValue("withdrawal_daily_limit",1));
+
+    /* Poster */
+    setInput("posterBaseFee",getSettingValue("poster_base_fee",0));
+    setInput("posterSlotFee",getSettingValue("poster_slot_fee",0));
+
+    /* Referral */
+    setInput("referralEnabled",getSettingValue("referral_enabled",true));
+    setInput("referralReward",getSettingValue("referral_reward",100));
+    setInput("referralCap",getSettingValue("referral_reward_cap",0));
+    setInput("referralQualification",getSettingValue("referral_qualification","activation"));
+
+    setInput("selfReferralBlock",getSettingValue("prevent_self_referral",true));
+    setInput("duplicateReferralBlock",getSettingValue("prevent_duplicate_referral",true));
+
+    /* Security */
+    setInput("captchaEnabled",getSettingValue("captcha_enabled",false));
+    setInput("emailVerification",getSettingValue("email_verification_required",true));
+    setInput("duplicateProof",getSettingValue("duplicate_proof_protection",true));
+    setInput("repeatTask",getSettingValue("repeat_task_protection",true));
+    setInput("manualWithdrawal",getSettingValue("manual_withdrawal_review",true));
+
+    /* Platform */
+    setInput("platformOpen",getSettingValue("platform_open",true));
+    setInput("registrationsOpen",getSettingValue("registrations_open",true));
+    setInput("taskPosting",getSettingValue("task_posting_enabled",true));
+    setInput("maintenanceMode",getSettingValue("maintenance_mode",false));
+    setInput("marketplaceEnabled",getSettingValue("marketplace_enabled",false));
+    setInput("airtimeEnabled",getSettingValue("airtime_data_enabled",false));
+    setInput("chatEnabled",getSettingValue("chat_enabled",false));
+    setInput("aiCareEnabled",getSettingValue("ai_care_enabled",false));
+
+    updateOverviewSwitches();
 
   }catch(error){
 
-    console.warn(error);
-
-  }
-
-  applySettingsToUI();
-}
-
-
-function setChecked(id,value){
-  if($(id)){
-    $(id).checked =
-      value === true ||
-      value === "true" ||
-      value === 1 ||
-      value === "1";
+    showToast(
+      "Settings could not be loaded: " + text(error.message || error),
+      "error"
+    );
   }
 }
 
+async function saveSetting(key,value){
 
-function setValue(id,value){
+  /*
+    This supports the common platform_settings structure:
+    id, key, value, updated_at, updated_by.
 
-  if($(id)){
-    $(id).value =
-      value ?? "";
-  }
+    If the table uses another structure, the error is shown
+    instead of pretending that the setting was saved.
+  */
 
-}
-
-
-function applySettingsToUI(){
-
-  setChecked(
-    "activationEnabled",
-    platformSettings.activation_enabled
-  );
-
-  setValue(
-    "activationFee",
-    platformSettings.activation_fee
-  );
-
-  setValue(
-    "freeTasksBeforeActivation",
-    platformSettings.free_tasks_before_activation
-  );
-
-  setChecked(
-    "vipEnabled",
-    platformSettings.vip_enabled
-  );
-
-  setValue(
-    "vipFee",
-    platformSettings.vip_fee
-  );
-
-  setValue(
-    "vipWithdrawalFee",
-    platformSettings.vip_withdrawal_fee
-  );
-
-  setValue(
-    "minimumWithdrawal",
-    platformSettings.minimum_withdrawal
-  );
-
-  setValue(
-    "withdrawalFee",
-    platformSettings.withdrawal_fee
-  );
-
-  setValue(
-    "withdrawalsPerDay",
-    platformSettings.withdrawals_per_day
-  );
-
-  setChecked(
-    "posterChargesEnabled",
-    platformSettings.poster_charges_enabled
-  );
-
-  setValue(
-    "posterBaseFee",
-    platformSettings.poster_base_fee
-  );
-
-  setValue(
-    "posterSlotFee",
-    platformSettings.poster_slot_fee
-  );
-
-  setChecked(
-    "freeTaskLimitEnabled",
-    platformSettings.free_task_limit_enabled
-  );
-
-  setValue(
-    "freeTasksPerDay",
-    platformSettings.free_tasks_per_day
-  );
-
-  setChecked(
-    "referralsEnabled",
-    platformSettings.referrals_enabled
-  );
-
-  setValue(
-    "referralReward",
-    platformSettings.referral_reward
-  );
-
-  setValue(
-    "referralRequirement",
-    platformSettings.referral_requirement
-  );
-
-  setValue(
-    "referralCap",
-    platformSettings.referral_cap
-  );
-
-  setChecked(
-    "blockSelfReferral",
-    platformSettings.block_self_referral
-  );
-
-  setChecked(
-    "preventDuplicateReferral",
-    platformSettings.prevent_duplicate_referral
-  );
-
-  setChecked(
-    "captchaEnabled",
-    platformSettings.captcha_enabled
-  );
-
-  setChecked(
-    "emailVerification",
-    platformSettings.email_verification
-  );
-
-  setChecked(
-    "duplicateProof",
-    platformSettings.duplicate_proof
-  );
-
-  setChecked(
-    "repeatTaskProtection",
-    platformSettings.repeat_task_protection
-  );
-
-  setChecked(
-    "manualWithdrawal",
-    platformSettings.manual_withdrawal
-  );
-
-  setChecked(
-    "proofReview",
-    platformSettings.proof_review
-  );
-
-  setChecked(
-    "financialAudit",
-    platformSettings.financial_audit
-  );
-
-  setValue(
-    "platformName",
-    platformSettings.platform_name
-  );
-
-  setValue(
-    "supportEmail",
-    platformSettings.support_email
-  );
-
-  setValue(
-    "supportPhone",
-    platformSettings.support_phone
-  );
-
-  setValue(
-    "announcement",
-    platformSettings.announcement
-  );
-
-  setChecked(
-    "platformOpen",
-    platformSettings.platform_open
-  );
-
-  setChecked(
-    "registrationsOpen",
-    platformSettings.registrations_open
-  );
-
-  setChecked(
-    "taskPostingOpen",
-    platformSettings.task_posting_open
-  );
-
-  setChecked(
-    "maintenanceMode",
-    platformSettings.maintenance_mode
-  );
-
-  setChecked(
-    "marketplaceEnabled",
-    platformSettings.marketplace_enabled
-  );
-
-  setChecked(
-    "airtimeEnabled",
-    platformSettings.airtime_enabled
-  );
-
-  setChecked(
-    "aiCareEnabled",
-    platformSettings.ai_care_enabled
-  );
-
-  setChecked(
-    "chatEnabled",
-    platformSettings.chat_enabled
-  );
-
-  syncOverviewSwitches();
-}
-
-
-/* ---------------------------------------------------------
-   READ SETTINGS FROM UI
---------------------------------------------------------- */
-
-function collectSettings(){
-
-  return {
-
-    activation_enabled:
-      $("activationEnabled").checked,
-
-    activation_fee:
-      Number($("activationFee").value || 0),
-
-    free_tasks_before_activation:
-      Number(
-        $("freeTasksBeforeActivation").value || 0
-      ),
-
-    vip_enabled:
-      $("vipEnabled").checked,
-
-    vip_fee:
-      Number($("vipFee").value || 0),
-
-    vip_withdrawal_fee:
-      Number(
-        $("vipWithdrawalFee").value || 0
-      ),
-
-    minimum_withdrawal:
-      Number(
-        $("minimumWithdrawal").value || 0
-      ),
-
-    withdrawal_fee:
-      Number(
-        $("withdrawalFee").value || 0
-      ),
-
-    withdrawals_per_day:
-      Number(
-        $("withdrawalsPerDay").value || 0
-      ),
-
-    poster_charges_enabled:
-      $("posterChargesEnabled").checked,
-
-    poster_base_fee:
-      Number(
-        $("posterBaseFee").value || 0
-      ),
-
-    poster_slot_fee:
-      Number(
-        $("posterSlotFee").value || 0
-      ),
-
-    free_task_limit_enabled:
-      $("freeTaskLimitEnabled").checked,
-
-    free_tasks_per_day:
-      Number(
-        $("freeTasksPerDay").value || 0
-      ),
-
-    referrals_enabled:
-      $("referralsEnabled").checked,
-
-    referral_reward:
-      Number(
-        $("referralReward").value || 0
-      ),
-
-    referral_requirement:
-      $("referralRequirement").value,
-
-    referral_cap:
-      Number(
-        $("referralCap").value || 0
-      ),
-
-    block_self_referral:
-      $("blockSelfReferral").checked,
-
-    prevent_duplicate_referral:
-      $("preventDuplicateReferral").checked,
-
-    captcha_enabled:
-      $("captchaEnabled").checked,
-
-    email_verification:
-      $("emailVerification").checked,
-
-    duplicate_proof:
-      $("duplicateProof").checked,
-
-    repeat_task_protection:
-      $("repeatTaskProtection").checked,
-
-    manual_withdrawal:
-      $("manualWithdrawal").checked,
-
-    proof_review:
-      $("proofReview").checked,
-
-    financial_audit:
-      $("financialAudit").checked,
-
-    platform_name:
-      $("platformName").value.trim(),
-
-    support_email:
-      $("supportEmail").value.trim(),
-
-    support_phone:
-      $("supportPhone").value.trim(),
-
-    announcement:
-      $("announcement").value.trim(),
-
-    platform_open:
-      $("platformOpen").checked,
-
-    registrations_open:
-      $("registrationsOpen").checked,
-
-    task_posting_open:
-      $("taskPostingOpen").checked,
-
-    maintenance_mode:
-      $("maintenanceMode").checked,
-
-    marketplace_enabled:
-      $("marketplaceEnabled").checked,
-
-    airtime_enabled:
-      $("airtimeEnabled").checked,
-
-    ai_care_enabled:
-      $("aiCareEnabled").checked,
-
-    chat_enabled:
-      $("chatEnabled").checked
-  };
-}
-
-
-/* ---------------------------------------------------------
-   SAVE SETTINGS
---------------------------------------------------------- */
-
-async function saveSettingsObject(changes){
-
-  if(!currentUser){
-    toast("Admin session expired.");
-    return false;
-  }
+  var existing = null;
 
   try{
 
-    /*
-      Recommended table:
-      platform_settings
-      key TEXT UNIQUE
-      value JSONB/TEXT
-      updated_at TIMESTAMPTZ
-      updated_by UUID
-    */
-
-    const rows =
-      Object.entries(changes)
-      .map(([key,value])=>({
-
-        key,
-
-        value:
-          typeof value === "string"
-            ? value
-            : JSON.stringify(value),
-
-        updated_at:
-          new Date().toISOString(),
-
-        updated_by:
-          currentUser.id
-
-      }));
-
-    const {
-      error
-    } = await supabaseClient
+    var lookup = await supabaseClient
       .from("platform_settings")
-      .upsert(
-        rows,
-        {
-          onConflict:"key"
-        }
-      );
+      .select("*")
+      .eq("key",key)
+      .maybeSingle();
 
-    if(error){
-
-      console.error(error);
-
-      toast(
-        "Settings could not be saved: " +
-        error.message
-      );
-
-      return false;
+    if(lookup.error){
+      throw lookup.error;
     }
 
-    Object.assign(
-      platformSettings,
-      changes
+    existing = lookup.data;
+
+    var payload = {
+      key:key,
+      value:String(value),
+      updated_at:new Date().toISOString(),
+      updated_by:currentUser.id
+    };
+
+    var result;
+
+    if(existing){
+
+      result = await supabaseClient
+        .from("platform_settings")
+        .update(payload)
+        .eq("id",existing.id);
+
+    }else{
+
+      result = await supabaseClient
+        .from("platform_settings")
+        .insert(payload);
+
+    }
+
+    if(result.error){
+      throw result.error;
+    }
+
+    settingsCache[key] = value;
+
+    await logActivity(
+      "setting_updated",
+      key + " = " + String(value)
     );
 
-    syncOverviewSwitches();
-
-    await writeAudit(
-      "settings_update",
-      changes
-    );
-
-    toast("Settings saved successfully.");
+    updateOverviewSwitches();
 
     return true;
 
   }catch(error){
 
-    console.error(error);
-
-    toast(
-      "Unable to save settings."
+    showToast(
+      "Could not save " + key + ": " + text(error.message || error),
+      "error"
     );
 
     return false;
   }
 }
 
+window.saveSwitch = async function(key,value){
 
-/* ---------------------------------------------------------
-   OVERVIEW SWITCHES
---------------------------------------------------------- */
+  var ok = await saveSetting(key,value);
 
-function syncOverviewSwitches(){
+  if(ok){
+    showToast("Setting saved.","success");
+  }
+};
 
-  setChecked(
+async function saveMoneySettings(){
+
+  var ok1 = await saveSetting(
+    "activation_fee",
+    numberValue($("activationFee").value,1000)
+  );
+
+  var ok2 = await saveSetting(
+    "vip_fee",
+    numberValue($("vipFee").value,3000)
+  );
+
+  if(ok1 && ok2){
+    showToast("Membership prices saved.","success");
+  }
+}
+
+window.saveMoneySettings = saveMoneySettings;
+
+async function saveWithdrawalSettings(){
+
+  var a = await saveSetting(
+    "withdrawal_minimum",
+    numberValue($("withdrawMin").value,1500)
+  );
+
+  var b = await saveSetting(
+    "withdrawal_fee",
+    numberValue($("withdrawFee").value,100)
+  );
+
+  var c = await saveSetting(
+    "vip_withdrawal_fee",
+    numberValue($("vipWithdrawFee").value,50)
+  );
+
+  var d = await saveSetting(
+    "withdrawal_daily_limit",
+    numberValue($("withdrawDailyLimit").value,1)
+  );
+
+  if(a && b && c && d){
+    showToast("Withdrawal rules saved.","success");
+  }
+}
+
+window.saveWithdrawalSettings = saveWithdrawalSettings;
+
+async function savePosterSettings(){
+
+  var a = await saveSetting(
+    "poster_base_fee",
+    numberValue($("posterBaseFee").value,0)
+  );
+
+  var b = await saveSetting(
+    "poster_slot_fee",
+    numberValue($("posterSlotFee").value,0)
+  );
+
+  if(a && b){
+    showToast("Poster charges saved.","success");
+  }
+}
+
+window.savePosterSettings = savePosterSettings;
+
+async function saveReferralSettings(){
+
+  var a = await saveSetting(
+    "referral_reward",
+    numberValue($("referralReward").value,100)
+  );
+
+  var b = await saveSetting(
+    "referral_reward_cap",
+    numberValue($("referralCap").value,0)
+  );
+
+  var c = await saveSetting(
+    "referral_qualification",
+    $("referralQualification").value
+  );
+
+  if(a && b && c){
+    showToast("Referral settings saved.","success");
+  }
+}
+
+window.saveReferralSettings = saveReferralSettings;
+
+async function saveGeneralSettings(){
+
+  var a = await saveSetting(
+    "platform_name",
+    $("platformName").value.trim()
+  );
+
+  var b = await saveSetting(
+    "support_email",
+    $("supportEmail").value.trim()
+  );
+
+  var c = await saveSetting(
+    "support_phone",
+    $("supportPhone").value.trim()
+  );
+
+  var d = await saveSetting(
+    "announcement",
+    $("announcement").value.trim()
+  );
+
+  if(a && b && c && d){
+    showToast("General settings saved.","success");
+  }
+}
+
+window.saveGeneralSettings = saveGeneralSettings;
+
+function updateOverviewSwitches(){
+
+  setStatus(
     "overviewActivation",
-    platformSettings.activation_enabled
+    boolValue(getSettingValue("activation_enabled",false))
   );
 
-  setChecked(
+  setStatus(
     "overviewVip",
-    platformSettings.vip_enabled
+    boolValue(getSettingValue("vip_enabled",false))
   );
 
-  $("overviewActivationText").textContent =
-    platformSettings.activation_enabled
-      ? "Activation is currently ON."
-      : "Activation is currently OFF.";
-
-  $("overviewVipText").textContent =
-    platformSettings.vip_enabled
-      ? "VIP is currently ON."
-      : "VIP is currently OFF.";
+  setStatus(
+    "overviewPosting",
+    boolValue(getSettingValue("task_posting_enabled",true))
+  );
 }
 
+function setStatus(id,value){
 
-$("overviewActivation")
-.addEventListener("change",async e=>{
+  var el = $(id);
 
-  const value =
-    e.target.checked;
-
-  const success =
-    await saveSettingsObject({
-      activation_enabled:value
-    });
-
-  if(!success){
-
-    e.target.checked =
-      !value;
-
+  if(!el){
     return;
   }
 
-  $("activationEnabled").checked =
-    value;
-});
-
-
-$("overviewVip")
-.addEventListener("change",async e=>{
-
-  const value =
-    e.target.checked;
-
-  const success =
-    await saveSettingsObject({
-      vip_enabled:value
-    });
-
-  if(!success){
-
-    e.target.checked =
-      !value;
-
-    return;
+  if(value){
+    el.textContent = "ON";
+    el.className = "statusPill on";
+  }else{
+    el.textContent = "OFF";
+    el.className = "statusPill off";
   }
-
-  $("vipEnabled").checked =
-    value;
-});
-
-
-$("overviewPosting")
-.addEventListener("change",async e=>{
-
-  const value =
-    e.target.checked;
-
-  const success =
-    await saveSettingsObject({
-      task_posting_open:value
-    });
-
-  if(!success){
-    e.target.checked =
-      !value;
-  }
-});
-
-
-/* ---------------------------------------------------------
-   MONETIZATION SAVE
---------------------------------------------------------- */
-
-$("saveMonetization")
-.addEventListener("click",async()=>{
-
-  const changes = {
-    activation_enabled:
-      $("activationEnabled").checked,
-
-    activation_fee:
-      Number($("activationFee").value || 0),
-
-    free_tasks_before_activation:
-      Number(
-        $("freeTasksBeforeActivation").value || 0
-      ),
-
-    vip_enabled:
-      $("vipEnabled").checked,
-
-    vip_fee:
-      Number($("vipFee").value || 0),
-
-    vip_withdrawal_fee:
-      Number(
-        $("vipWithdrawalFee").value || 0
-      ),
-
-    minimum_withdrawal:
-      Number(
-        $("minimumWithdrawal").value || 0
-      ),
-
-    withdrawal_fee:
-      Number(
-        $("withdrawalFee").value || 0
-      ),
-
-    withdrawals_per_day:
-      Number(
-        $("withdrawalsPerDay").value || 0
-      ),
-
-    poster_charges_enabled:
-      $("posterChargesEnabled").checked,
-
-    poster_base_fee:
-      Number(
-        $("posterBaseFee").value || 0
-      ),
-
-    poster_slot_fee:
-      Number(
-        $("posterSlotFee").value || 0
-      ),
-
-    free_task_limit_enabled:
-      $("freeTaskLimitEnabled").checked,
-
-    free_tasks_per_day:
-      Number(
-        $("freeTasksPerDay").value || 0
-      )
-  };
-
-  await saveSettingsObject(
-    changes
-  );
-
-});
-
-
-/* ---------------------------------------------------------
-   REFERRALS
---------------------------------------------------------- */
-
-$("saveReferrals")
-.addEventListener("click",async()=>{
-
-  await saveSettingsObject({
-
-    referrals_enabled:
-      $("referralsEnabled").checked,
-
-    referral_reward:
-      Number(
-        $("referralReward").value || 0
-      ),
-
-    referral_requirement:
-      $("referralRequirement").value,
-
-    referral_cap:
-      Number(
-        $("referralCap").value || 0
-      ),
-
-    block_self_referral:
-      $("blockSelfReferral").checked,
-
-    prevent_duplicate_referral:
-      $("preventDuplicateReferral").checked
-
-  });
-
-});
-
-
-/* ---------------------------------------------------------
-   SECURITY
---------------------------------------------------------- */
-
-$("saveSecurity")
-.addEventListener("click",async()=>{
-
-  await saveSettingsObject({
-
-    captcha_enabled:
-      $("captchaEnabled").checked,
-
-    email_verification:
-      $("emailVerification").checked,
-
-    duplicate_proof:
-      $("duplicateProof").checked,
-
-    repeat_task_protection:
-      $("repeatTaskProtection").checked,
-
-    manual_withdrawal:
-      $("manualWithdrawal").checked,
-
-    proof_review:
-      $("proofReview").checked,
-
-    financial_audit:
-      $("financialAudit").checked
-
-  });
-
-});
-
-
-/* ---------------------------------------------------------
-   PLATFORM SETTINGS
---------------------------------------------------------- */
-
-$("saveSettings")
-.addEventListener("click",async()=>{
-
-  await saveSettingsObject({
-
-    platform_name:
-      $("platformName").value.trim(),
-
-    support_email:
-      $("supportEmail").value.trim(),
-
-    support_phone:
-      $("supportPhone").value.trim(),
-
-    announcement:
-      $("announcement").value.trim(),
-
-    platform_open:
-      $("platformOpen").checked,
-
-    registrations_open:
-      $("registrationsOpen").checked,
-
-    task_posting_open:
-      $("taskPostingOpen").checked,
-
-    maintenance_mode:
-      $("maintenanceMode").checked,
-
-    marketplace_enabled:
-      $("marketplaceEnabled").checked,
-
-    airtime_enabled:
-      $("airtimeEnabled").checked,
-
-    ai_care_enabled:
-      $("aiCareEnabled").checked,
-
-    chat_enabled:
-      $("chatEnabled").checked
-
-  });
-
-});
-
-
-/* ---------------------------------------------------------
-   USERS
---------------------------------------------------------- */
-
-async function loadUsers(){
-
-  setLoading("usersTable");
-
-  let query =
-    supabaseClient
-      .from("profiles")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(200);
-
-  const activation =
-    $("userActivationFilter").value;
-
-  if(
-    activation === "true" ||
-    activation === "false"
-  ){
-    query =
-      query.eq(
-        "activated",
-        activation === "true"
-      );
-  }
-
-  const {
-    data,
-    error
-  } = await query;
-
-  if(error){
-
-    $("usersTable").innerHTML =
-      `<div class="notice danger">
-        ${safe(error.message)}
-      </div>`;
-
-    return;
-  }
-
-  const search =
-    $("userSearch").value
-      .trim()
-      .toLowerCase();
-
-  let rows =
-    data || [];
-
-  if(search){
-
-    rows =
-      rows.filter(user=>{
-
-        const name =
-          String(
-            user.full_name || ""
-          ).toLowerCase();
-
-        const phone =
-          String(
-            user.phone || ""
-          ).toLowerCase();
-
-        return (
-          name.includes(search) ||
-          phone.includes(search)
-        );
-      });
-  }
-
-  if(!rows.length){
-
-    $("usersTable").innerHTML =
-      `<div class="empty">No users found.</div>`;
-
-    return;
-  }
-
-  let html = `
-  <div class="table-wrap">
-  <table>
-  <thead>
-    <tr>
-      <th>User</th>
-      <th>Phone</th>
-      <th>Balance</th>
-      <th>Activation</th>
-      <th>Created</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-  `;
-
-  rows.forEach(user=>{
-
-    html += `
-      <tr>
-        <td>
-          <strong>${safe(
-            user.full_name || "Unnamed User"
-          )}</strong>
-          <div style="font-size:9px;color:#849089">
-            ${safe(user.id)}
-          </div>
-        </td>
-
-        <td>${safe(user.phone || "—")}</td>
-
-        <td>${money(user.balance)}</td>
-
-        <td>
-          ${
-            user.activated
-              ? badge("activated")
-              : badge("inactive")
-          }
-        </td>
-
-        <td>${date(user.created_at)}</td>
-
-        <td>
-          <button
-            class="btn small secondary"
-            onclick='viewUser(${JSON.stringify(user.id)})'>
-            View
-          </button>
-        </td>
-      </tr>
-    `;
-
-  });
-
-  html += `
-  </tbody>
-  </table>
-  </div>
-  `;
-
-  $("usersTable").innerHTML =
-    html;
 }
 
-
-window.viewUser = async function(id){
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id",id)
-    .maybeSingle();
-
-  if(error){
-
-    toast(error.message);
-    return;
-  }
-
-  if(!data){
-
-    toast("User not found.");
-    return;
-  }
-
-  openModal(
-    "User Profile",
-    `
-    <div class="form-grid">
-
-      <div class="field">
-        <label>Full Name</label>
-        <input value="${safe(data.full_name || "")}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Phone</label>
-        <input value="${safe(data.phone || "")}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Balance</label>
-        <input value="${safe(money(data.balance))}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Activation</label>
-        <input value="${
-          data.activated
-            ? "Activated"
-            : "Not Activated"
-        }" disabled>
-      </div>
-
-      <div class="field">
-        <label>Created</label>
-        <input value="${safe(date(data.created_at))}" disabled>
-      </div>
-
-      <div class="field">
-        <label>User ID</label>
-        <input value="${safe(data.id)}" disabled>
-      </div>
-
-    </div>
-
-    <div class="notice" style="margin-top:13px">
-      Financial balance changes should be performed through
-      secure server-side/admin-authorized operations, not arbitrary
-      client-side balance editing.
-    </div>
-    `
-  );
-};
-
-
-/* ---------------------------------------------------------
-   TASKS
---------------------------------------------------------- */
-
-async function loadTasks(){
-
-  setLoading("tasksTable");
-
-  let query =
-    supabaseClient
-      .from("tasks")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(200);
-
-  const status =
-    $("taskStatusFilter").value;
-
-  if(status){
-    query =
-      query.eq(
-        "status",
-        status
-      );
-  }
-
-  const {
-    data,
-    error
-  } = await query;
-
-  if(error){
-
-    $("tasksTable").innerHTML =
-      `<div class="notice danger">
-        ${safe(error.message)}
-      </div>`;
-
-    return;
-  }
-
-  let rows =
-    data || [];
-
-  const search =
-    $("taskSearch").value
-      .trim()
-      .toLowerCase();
-
-  if(search){
-
-    rows =
-      rows.filter(task=>
-        String(
-          task.title || ""
-        )
-        .toLowerCase()
-        .includes(search)
-      );
-  }
-
-  if(!rows.length){
-
-    $("tasksTable").innerHTML =
-      `<div class="empty">No tasks found.</div>`;
-
-    return;
-  }
-
-  let html = `
-  <div class="table-wrap">
-  <table>
-  <thead>
-    <tr>
-      <th>Task</th>
-      <th>Reward</th>
-      <th>Slots</th>
-      <th>Status</th>
-      <th>Expiry</th>
-      <th>Type</th>
-    </tr>
-  </thead>
-  <tbody>
-  `;
-
-  rows.forEach(task=>{
-
-    html += `
-      <tr>
-
-        <td>
-          <strong>${safe(task.title || "Untitled")}</strong>
-          <div style="font-size:9px;color:#849089">
-            ${safe(task.id)}
-          </div>
-        </td>
-
-        <td>${money(task.reward)}</td>
-
-        <td>${safe(task.slots ?? "—")}</td>
-
-        <td>${badge(task.status || (
-          task.active ? "active" : "inactive"
-        ))}</td>
-
-        <td>${date(task.expiry_date)}</td>
-
-        <td>${safe(task.task_type || "standard")}</td>
-
-      </tr>
-    `;
-
-  });
-
-  html += `
-  </tbody>
-  </table>
-  </div>
-  `;
-
-  $("tasksTable").innerHTML =
-    html;
-}
-
-
-/* ---------------------------------------------------------
-   PROOFS
---------------------------------------------------------- */
-
-async function loadProofs(){
-
-  setLoading("proofsTable");
-
-  let query =
-    supabaseClient
-      .from("task_submissions")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(200);
-
-  const status =
-    $("proofStatusFilter").value;
-
-  if(status){
-    query =
-      query.eq(
-        "status",
-        status
-      );
-  }
-
-  const {
-    data,
-    error
-  } = await query;
-
-  if(error){
-
-    $("proofsTable").innerHTML =
-      `<div class="notice danger">
-        ${safe(error.message)}
-      </div>`;
-
-    return;
-  }
-
-  const rows =
-    data || [];
-
-  if(!rows.length){
-
-    $("proofsTable").innerHTML =
-      `<div class="empty">
-        No submissions found.
-      </div>`;
-
-    return;
-  }
-
-  let html = `
-  <div class="table-wrap">
-  <table>
-  <thead>
-    <tr>
-      <th>Submission</th>
-      <th>User</th>
-      <th>Task</th>
-      <th>Status</th>
-      <th>Submitted</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-  `;
-
-  rows.forEach(row=>{
-
-    html += `
-      <tr>
-
-        <td>
-          ${safe(row.id)}
-        </td>
-
-        <td>
-          ${safe(row.user_id)}
-        </td>
-
-        <td>
-          ${safe(row.task_id)}
-        </td>
-
-        <td>
-          ${badge(row.status)}
-        </td>
-
-        <td>
-          ${date(row.created_at)}
-        </td>
-
-        <td>
-          <button
-            class="btn small secondary"
-            onclick='viewProof(${JSON.stringify(row)})'>
-            Review
-          </button>
-        </td>
-
-      </tr>
-    `;
-
-  });
-
-  html += `
-  </tbody>
-  </table>
-  </div>
-  `;
-
-  $("proofsTable").innerHTML =
-    html;
-}
-
-
-window.viewProof = function(row){
-
-  openModal(
-    "Proof Review",
-    `
-    <div class="field">
-      <label>Submission ID</label>
-      <input value="${safe(row.id)}" disabled>
-    </div>
-
-    <div class="field" style="margin-top:10px">
-      <label>User ID</label>
-      <input value="${safe(row.user_id)}" disabled>
-    </div>
-
-    <div class="field" style="margin-top:10px">
-      <label>Task ID</label>
-      <input value="${safe(row.task_id)}" disabled>
-    </div>
-
-    <div class="field" style="margin-top:10px">
-      <label>Current Status</label>
-      <input value="${safe(row.status || "")}" disabled>
-    </div>
-
-    <div class="field" style="margin-top:10px">
-      <label>Proof</label>
-      <textarea disabled>${safe(
-        typeof row.proof === "object"
-          ? JSON.stringify(row.proof,null,2)
-          : row.proof || ""
-      )}</textarea>
-    </div>
-
-    <div class="field" style="margin-top:10px">
-      <label>Rejection Reason</label>
-      <textarea id="reviewReason"
-        placeholder="Required if rejecting"></textarea>
-    </div>
-
-    <div class="actions" style="margin-top:14px">
-
-      <button
-        class="btn"
-        onclick='reviewSubmission("${safe(row.id)}","approved")'>
-        Approve
-      </button>
-
-      <button
-        class="btn danger"
-        onclick='reviewSubmission("${safe(row.id)}","rejected")'>
-        Reject
-      </button>
-
-      <button
-        class="btn warning"
-        onclick='reviewSubmission("${safe(row.id)}","retry")'>
-        Request Retry
-      </button>
-
-    </div>
-    `
-  );
-};
-
-
-window.reviewSubmission =
-async function(id,status){
-
-  const reason =
-    $("reviewReason")?.value?.trim() || null;
-
-  if(
-    status === "rejected" &&
-    !reason
-  ){
-    toast(
-      "Enter a rejection reason."
-    );
-    return;
-  }
-
-  /*
-    This update assumes your RLS allows an authorized admin
-    to update task_submissions.
-
-    Your backend should additionally:
-    - verify the admin role
-    - prevent double rewards
-    - reward only once
-    - record reviewed_by/reviewed_at
-    - prevent balance manipulation
-  */
-
-  const update = {
-    status,
-    rejection_reason:
-      status === "rejected"
-        ? reason
-        : null,
-    reviewed_by:
-      currentUser.id,
-    reviewed_at:
-      new Date().toISOString()
-  };
-
-  const {
-    error
-  } = await supabaseClient
-    .from("task_submissions")
-    .update(update)
-    .eq("id",id);
-
-  if(error){
-
-    toast(
-      "Review failed: " +
-      error.message
-    );
-
-    return;
-  }
-
-  await writeAudit(
-    "proof_review",
-    {
-      submission_id:id,
-      status
-    }
-  );
-
-  closeModal();
-
-  toast(
-    "Submission marked " +
-    status +
-    "."
-  );
-
-  loadProofs();
-};
-
-
-/* ---------------------------------------------------------
-   WITHDRAWALS
---------------------------------------------------------- */
-
-async function loadWithdrawals(){
-
-  setLoading("withdrawalsTable");
-
-  let query =
-    supabaseClient
-      .from("withdrawals")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(200);
-
-  const status =
-    $("withdrawalStatusFilter").value;
-
-  if(status){
-    query =
-      query.eq(
-        "status",
-        status
-      );
-  }
-
-  const {
-    data,
-    error
-  } = await query;
-
-  if(error){
-
-    $("withdrawalsTable").innerHTML =
-      `<div class="notice danger">
-        ${safe(error.message)}
-      </div>`;
-
-    return;
-  }
-
-  const rows =
-    data || [];
-
-  if(!rows.length){
-
-    $("withdrawalsTable").innerHTML =
-      `<div class="empty">
-        No withdrawals found.
-      </div>`;
-
-    return;
-  }
-
-  let html = `
-  <div class="table-wrap">
-  <table>
-  <thead>
-    <tr>
-      <th>User</th>
-      <th>Amount</th>
-      <th>Fee</th>
-      <th>Status</th>
-      <th>Reference</th>
-      <th>Date</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-  `;
-
-  rows.forEach(row=>{
-
-    html += `
-      <tr>
-
-        <td>
-          ${safe(row.user_id)}
-        </td>
-
-        <td>
-          ${money(row.amount)}
-        </td>
-
-        <td>
-          ${money(row.fee)}
-        </td>
-
-        <td>
-          ${badge(row.status)}
-        </td>
-
-        <td>
-          ${safe(row.reference || "—")}
-        </td>
-
-        <td>
-          ${date(row.created_at)}
-        </td>
-
-        <td>
-
-          <button
-            class="btn small secondary"
-            onclick='viewWithdrawal(${JSON.stringify(row)})'>
-            Review
-          </button>
-
-        </td>
-
-      </tr>
-    `;
-
-  });
-
-  html += `
-  </tbody>
-  </table>
-  </div>
-  `;
-
-  $("withdrawalsTable").innerHTML =
-    html;
-}
-
-
-window.viewWithdrawal =
-function(row){
-
-  openModal(
-    "Withdrawal Review",
-    `
-    <div class="form-grid">
-
-      <div class="field">
-        <label>User ID</label>
-        <input value="${safe(row.user_id)}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Amount</label>
-        <input value="${safe(money(row.amount))}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Fee</label>
-        <input value="${safe(money(row.fee))}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Status</label>
-        <input value="${safe(row.status)}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Reference</label>
-        <input value="${safe(row.reference || "")}" disabled>
-      </div>
-
-      <div class="field">
-        <label>Date</label>
-        <input value="${safe(date(row.created_at))}" disabled>
-      </div>
-
-    </div>
-
-    <div class="notice warning" style="margin-top:13px">
-      Approval here should not itself pretend that money has been sent.
-      A real payout provider/backend confirmation should be used before
-      marking a withdrawal as paid.
-    </div>
-
-    <div class="actions" style="margin-top:14px">
-
-      <button
-        class="btn"
-        onclick='setWithdrawalStatus("${safe(row.id)}","approved")'>
-        Approve
-      </button>
-
-      <button
-        class="btn blue"
-        onclick='setWithdrawalStatus("${safe(row.id)}","paid")'>
-        Mark Paid
-      </button>
-
-      <button
-        class="btn danger"
-        onclick='setWithdrawalStatus("${safe(row.id)}","rejected")'>
-        Reject
-      </button>
-
-    </div>
-    `
-  );
-};
-
-
-window.setWithdrawalStatus =
-async function(id,status){
-
-  if(
-    !confirm(
-      "Change withdrawal status to " +
-      status +
-      "?"
-    )
-  ){
-    return;
-  }
-
-  const {
-    error
-  } = await supabaseClient
-    .from("withdrawals")
-    .update({
-      status,
-      reviewed_by:
-        currentUser.id,
-      reviewed_at:
-        new Date().toISOString()
-    })
-    .eq("id",id);
-
-  if(error){
-
-    toast(
-      "Withdrawal update failed: " +
-      error.message
-    );
-
-    return;
-  }
-
-  await writeAudit(
-    "withdrawal_status",
-    {
-      withdrawal_id:id,
-      status
-    }
-  );
-
-  closeModal();
-
-  toast(
-    "Withdrawal updated."
-  );
-
-  loadWithdrawals();
-};
-
-
-/* ---------------------------------------------------------
-   LEDGER
---------------------------------------------------------- */
-
-async function loadLedger(){
-
-  setLoading("ledgerTable");
-
-  let query =
-    supabaseClient
-      .from("wallet_transactions")
-      .select("*")
-      .order("created_at",{ascending:false})
-      .limit(300);
-
-  const user =
-    $("ledgerUser").value.trim();
-
-  const type =
-    $("ledgerType").value;
-
-  if(user){
-    query =
-      query.eq(
-        "user_id",
-        user
-      );
-  }
-
-  if(type){
-    query =
-      query.eq(
-        "type",
-        type
-      );
-  }
-
-  const {
-    data,
-    error
-  } = await query;
-
-  if(error){
-
-    $("ledgerTable").innerHTML =
-      `<div class="notice danger">
-        ${safe(error.message)}
-      </div>`;
-
-    return;
-  }
-
-  const rows =
-    data || [];
-
-  if(!rows.length){
-
-    $("ledgerTable").innerHTML =
-      `<div class="empty">
-        No ledger records found.
-      </div>`;
-
-    return;
-  }
-
-  let html = `
-  <div class="table-wrap">
-  <table>
-  <thead>
-    <tr>
-      <th>User</th>
-      <th>Type</th>
-      <th>Amount</th>
-      <th>Description</th>
-      <th>Reference</th>
-      <th>Status</th>
-      <th>Date</th>
-    </tr>
-  </thead>
-  <tbody>
-  `;
-
-  rows.forEach(row=>{
-
-    html += `
-      <tr>
-
-        <td>${safe(row.user_id)}</td>
-
-        <td>${safe(row.type || "—")}</td>
-
-        <td>${money(row.amount)}</td>
-
-        <td>${safe(row.description || "—")}</td>
-
-        <td>${safe(row.reference || "—")}</td>
-
-        <td>${badge(row.status || "recorded")}</td>
-
-        <td>${date(row.created_at)}</td>
-
-      </tr>
-    `;
-
-  });
-
-  html += `
-  </tbody>
-  </table>
-  </div>
-  `;
-
-  $("ledgerTable").innerHTML =
-    html;
-}
-
-
-/* ---------------------------------------------------------
-   AUDIT
---------------------------------------------------------- */
-
-async function writeAudit(action,details){
+/* ==========================================================
+   OVERVIEW
+========================================================== */
+
+async function loadOverview(){
 
   try{
 
-    const {
-      error
-    } = await supabaseClient
-      .from("admin_activity")
-      .insert({
+    var usersCount = await countRows("profiles");
 
-        admin_id:
-          currentUser.id,
+    /*
+      The task table in your known schema uses "active",
+      not necessarily "status". We therefore fetch and count
+      locally instead of assuming a status column exists.
+    */
 
-        action,
+    var tasks = [];
 
-        details,
-
-        created_at:
-          new Date().toISOString()
-
-      });
-
-    if(error){
-      console.warn(
-        "Audit table unavailable:",
-        error.message
-      );
+    try{
+      tasks = await getRows("tasks",500);
+    }catch(e){
+      tasks = [];
     }
+
+    var activeTasks = 0;
+
+    for(var i=0;i<tasks.length;i++){
+
+      var t = tasks[i];
+
+      var active = true;
+
+      if(typeof t.active !== "undefined"){
+        active = boolValue(t.active);
+      }else if(typeof t.status !== "undefined"){
+        active = String(t.status).toLowerCase() === "active";
+      }
+
+      if(active){
+        activeTasks++;
+      }
+    }
+
+    var proofsCount = await countByStatus(
+      "task_submissions",
+      "status",
+      "pending"
+    );
+
+    var withdrawalsCount = await countByStatus(
+      "withdrawals",
+      "status",
+      "pending"
+    );
+
+    $("metricUsers").textContent =
+      usersCount === null ? "—" : usersCount;
+
+    $("metricTasks").textContent =
+      tasks.length ? activeTasks : "—";
+
+    $("metricProofs").textContent =
+      proofsCount === null ? "—" : proofsCount;
+
+    $("metricWithdrawals").textContent =
+      withdrawalsCount === null ? "—" : withdrawalsCount;
+
+    /*
+      Do not invent a platform balance.
+      If a ledger table is readable, calculate the net amount.
+    */
+
+    var platformBalance = await calculateLedgerBalance();
+
+    $("metricPlatform").textContent =
+      platformBalance === null ? "—" : money(platformBalance);
+
+    $("adminEmail").textContent =
+      currentUser.email || "—";
+
+    $("adminUserId").textContent =
+      currentUser.id || "—";
+
+    updateOverviewSwitches();
+
+    await loadSettings();
+    await loadOverviewActivity();
 
   }catch(error){
 
-    console.warn(error);
-
+    showToast(
+      "Overview could not fully load: " + text(error.message || error),
+      "error"
+    );
   }
 }
 
-
-async function loadAudit(){
-
-  setLoading("auditTable");
-
-  const {
-    data,
-    error
-  } = await supabaseClient
-    .from("admin_activity")
-    .select("*")
-    .order("created_at",{ascending:false})
-    .limit(200);
-
-  if(error){
-
-    $("auditTable").innerHTML =
-      `<div class="notice warning">
-        Audit table is not available or RLS does not permit access.
-      </div>`;
-
-    return;
-  }
-
-  if(!data?.length){
-
-    $("auditTable").innerHTML =
-      `<div class="empty">
-        No admin activity recorded.
-      </div>`;
-
-    return;
-  }
-
-  let html = `
-  <div class="table-wrap">
-  <table>
-  <thead>
-    <tr>
-      <th>Admin</th>
-      <th>Action</th>
-      <th>Details</th>
-      <th>Date</th>
-    </tr>
-  </thead>
-  <tbody>
-  `;
-
-  data.forEach(row=>{
-
-    html += `
-      <tr>
-
-        <td>
-          ${safe(row.admin_id)}
-        </td>
-
-        <td>
-          ${safe(row.action)}
-        </td>
-
-        <td>
-          <pre style="
-            white-space:pre-wrap;
-            font-size:9px;
-            margin:0;
-          ">${safe(
-            typeof row.details === "object"
-              ? JSON.stringify(row.details,null,2)
-              : row.details || ""
-          )}</pre>
-        </td>
-
-        <td>
-          ${date(row.created_at)}
-        </td>
-
-      </tr>
-    `;
-
-  });
-
-  html += `
-  </tbody>
-  </table>
-  </div>
-  `;
-
-  $("auditTable").innerHTML =
-    html;
-}
-
-
-/* ---------------------------------------------------------
-   OVERVIEW DATA
---------------------------------------------------------- */
-
-async function countRows(
-  table,
-  filterColumn=null,
-  filterValue=null
-){
+async function countByStatus(table,column,value){
 
   try{
 
-    let query =
-      supabaseClient
-        .from(table)
-        .select("*",{count:"exact",head:true});
+    var result = await supabaseClient
+      .from(table)
+      .select("*",{count:"exact",head:true})
+      .eq(column,value);
 
-    if(
-      filterColumn &&
-      filterValue !== null
-    ){
-      query =
-        query.eq(
-          filterColumn,
-          filterValue
-        );
-    }
-
-    const {
-      count,
-      error
-    } = await query;
-
-    if(error){
-      console.warn(
-        table,
-        error.message
-      );
-
+    if(result.error){
       return null;
     }
 
-    return count;
+    return result.count;
 
-  }catch{
+  }catch(e){
+    return null;
+  }
+}
+
+async function calculateLedgerBalance(){
+
+  try{
+
+    var result = await supabaseClient
+      .from("wallet_transactions")
+      .select("*")
+      .limit(1000);
+
+    if(result.error){
+      return null;
+    }
+
+    var rows = result.data || [];
+
+    if(!rows.length){
+      return 0;
+    }
+
+    var total = 0;
+
+    for(var i=0;i<rows.length;i++){
+
+      var r = rows[i];
+
+      var amount = numberValue(
+        r.amount ||
+        r.value ||
+        r.total,
+        0
+      );
+
+      var type = String(
+        r.type ||
+        r.transaction_type ||
+        ""
+      ).toLowerCase();
+
+      if(
+        type.indexOf("debit") >= 0 ||
+        type.indexOf("withdraw") >= 0 ||
+        type.indexOf("fee") >= 0
+      ){
+        total -= Math.abs(amount);
+      }else{
+        total += amount;
+      }
+    }
+
+    return total;
+
+  }catch(e){
 
     return null;
   }
 }
 
+async function loadOverviewActivity(){
 
-async function loadOverview(){
+  var box = $("overviewActivity");
 
-  const [
-    users,
-    tasks,
-    proofs,
-    withdrawals
-  ] =
-    await Promise.all([
+  try{
 
-      countRows(
-        "profiles"
-      ),
+    var result = await supabaseClient
+      .from("admin_activity")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(6);
 
-      countRows(
-        "tasks",
-        "status",
-        "active"
-      ),
-
-      countRows(
-        "task_submissions",
-        "status",
-        "pending"
-      ),
-
-      countRows(
-        "withdrawals",
-        "status",
-        "pending"
-      )
-
-    ]);
-
-  $("statUsers").textContent =
-    users ?? "—";
-
-  $("statTasks").textContent =
-    tasks ?? "—";
-
-  $("statProofs").textContent =
-    proofs ?? "—";
-
-  $("statWithdrawals").textContent =
-    withdrawals ?? "—";
-
-  /*
-    Do not invent a platform balance.
-    wallet_transactions is a ledger, not automatically a
-    trustworthy single balance field. Keep the overview honest
-    unless the backend supplies a reconciled platform balance.
-  */
-
-  $("statBalance").textContent =
-    "—";
-}
-
-
-/* ---------------------------------------------------------
-   MODAL
---------------------------------------------------------- */
-
-function openModal(title,body){
-
-  $("modalTitle").textContent =
-    title;
-
-  $("modalBody").innerHTML =
-    body;
-
-  $("modalBackdrop")
-    .classList
-    .add("show");
-}
-
-function closeModal(){
-
-  $("modalBackdrop")
-    .classList
-    .remove("show");
-}
-
-$("modalClose")
-.addEventListener(
-  "click",
-  closeModal
-);
-
-$("modalBackdrop")
-.addEventListener(
-  "click",
-  e=>{
-
-    if(
-      e.target ===
-      $("modalBackdrop")
-    ){
-      closeModal();
+    if(result.error){
+      box.innerHTML =
+        '<div class="empty"><strong>Activity unavailable</strong><span>' +
+        safe(result.error.message) +
+        '</span></div>';
+      return;
     }
 
+    renderActivity(result.data || [],box);
+
+  }catch(error){
+
+    box.innerHTML =
+      '<div class="empty"><strong>No activity available</strong></div>';
   }
-);
+}
 
+/* ==========================================================
+   USERS
+========================================================== */
 
-/* ---------------------------------------------------------
-   BUTTONS
---------------------------------------------------------- */
+async function loadUsers(){
 
-$("loadUsers")
-.addEventListener(
-  "click",
-  loadUsers
-);
+  var body = $("usersBody");
 
-$("loadTasks")
-.addEventListener(
-  "click",
-  loadTasks
-);
+  body.innerHTML =
+    '<tr><td colspan="6"><div class="empty">Loading users...</div></td></tr>';
 
-$("loadProofs")
-.addEventListener(
-  "click",
-  loadProofs
-);
+  try{
 
-$("loadWithdrawals")
-.addEventListener(
-  "click",
-  loadWithdrawals
-);
+    var result = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
 
-$("loadLedger")
-.addEventListener(
-  "click",
-  loadLedger
-);
+    if(result.error){
+      throw result.error;
+    }
 
-$("loadAudit")
-.addEventListener(
-  "click",
-  loadAudit
-);
+    usersCache = result.data || [];
 
-$("refreshAll")
-.addEventListener(
-  "click",
-  async()=>{
+    renderUsers(usersCache);
 
-    toast(
-      "Refreshing admin data..."
+  }catch(error){
+
+    body.innerHTML =
+      '<tr><td colspan="6"><div class="empty"><strong>Could not load users</strong><span>' +
+      safe(error.message || error) +
+      '</span></div></td></tr>';
+  }
+}
+
+function isActivated(profile){
+
+  if(typeof profile.activated !== "undefined"){
+    return boolValue(profile.activated);
+  }
+
+  if(typeof profile.is_activated !== "undefined"){
+    return boolValue(profile.is_activated);
+  }
+
+  return false;
+}
+
+function renderUsers(rows){
+
+  var body = $("usersBody");
+
+  if(!rows.length){
+
+    body.innerHTML =
+      '<tr><td colspan="6"><div class="empty"><strong>No users found</strong></div></td></tr>';
+
+    return;
+  }
+
+  var html = "";
+
+  for(var i=0;i<rows.length;i++){
+
+    var u = rows[i];
+
+    var name =
+      u.full_name ||
+      u.name ||
+      u.username ||
+      "Unnamed user";
+
+    var balance =
+      typeof u.balance !== "undefined"
+        ? money(u.balance)
+        : "₦—";
+
+    var active = isActivated(u);
+
+    html +=
+      "<tr>" +
+
+      "<td class='nameCell'>" +
+        "<strong>" + safe(name) + "</strong>" +
+        "<span>" + safe(u.id || "") + "</span>" +
+      "</td>" +
+
+      "<td>" + safe(u.phone || "—") + "</td>" +
+
+      "<td>" + balance + "</td>" +
+
+      "<td>" +
+        "<span class='badge " +
+        (active ? "green" : "orange") +
+        "'>" +
+        (active ? "Activated" : "Not Activated") +
+        "</span>" +
+      "</td>" +
+
+      "<td>" + formatDate(u.created_at) + "</td>" +
+
+      "<td>" +
+        "<button class='btn btnSecondary' onclick='viewUser(" +
+        i +
+        ")'>View</button>" +
+      "</td>" +
+
+      "</tr>";
+  }
+
+  body.innerHTML = html;
+}
+
+window.viewUser = function(index){
+
+  var u = usersCache[index];
+
+  if(!u){
+    return;
+  }
+
+  var name =
+    u.full_name ||
+    u.name ||
+    u.username ||
+    "Unnamed user";
+
+  var html =
+    detailHtml("Name",name) +
+    detailHtml("User ID",u.id) +
+    detailHtml("Phone",u.phone) +
+    detailHtml("Balance",money(u.balance)) +
+    detailHtml("Activation",isActivated(u) ? "Activated" : "Not Activated") +
+    detailHtml("Created",formatDate(u.created_at));
+
+  showModal("User Details",html);
+};
+
+function filterUsers(){
+
+  var q = $("userSearch").value.toLowerCase();
+
+  var result = [];
+
+  for(var i=0;i<usersCache.length;i++){
+
+    var u = usersCache[i];
+
+    var hay =
+      String(u.full_name || "") + " " +
+      String(u.name || "") + " " +
+      String(u.username || "") + " " +
+      String(u.phone || "") + " " +
+      String(u.id || "");
+
+    if(hay.toLowerCase().indexOf(q) >= 0){
+      result.push(u);
+    }
+  }
+
+  var status = $("userStatusFilter").value;
+
+  if(status){
+
+    var filtered = [];
+
+    for(var j=0;j<result.length;j++){
+
+      var active = isActivated(result[j]);
+
+      if(status === "activated" && active){
+        filtered.push(result[j]);
+      }
+
+      if(status === "not_activated" && !active){
+        filtered.push(result[j]);
+      }
+    }
+
+    result = filtered;
+  }
+
+  renderUsers(result);
+}
+
+window.filterUsers = filterUsers;
+
+/* ==========================================================
+   TASKS
+========================================================== */
+
+async function loadTasks(){
+
+  var body = $("tasksBody");
+
+  body.innerHTML =
+    '<tr><td colspan="6"><div class="empty">Loading tasks...</div></td></tr>';
+
+  try{
+
+    var result = await supabaseClient
+      .from("tasks")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(result.error){
+      throw result.error;
+    }
+
+    tasksCache = result.data || [];
+
+    renderTasks(tasksCache);
+
+  }catch(error){
+
+    body.innerHTML =
+      '<tr><td colspan="6"><div class="empty"><strong>Could not load tasks</strong><span>' +
+      safe(error.message || error) +
+      '</span></div></td></tr>';
+  }
+}
+
+function taskIsActive(t){
+
+  if(typeof t.active !== "undefined"){
+    return boolValue(t.active);
+  }
+
+  if(typeof t.status !== "undefined"){
+    return String(t.status).toLowerCase() === "active";
+  }
+
+  return true;
+}
+
+function renderTasks(rows){
+
+  var body = $("tasksBody");
+
+  if(!rows.length){
+
+    body.innerHTML =
+      '<tr><td colspan="6"><div class="empty"><strong>No tasks found</strong></div></td></tr>';
+
+    return;
+  }
+
+  var html = "";
+
+  for(var i=0;i<rows.length;i++){
+
+    var t = rows[i];
+
+    var title =
+      t.title ||
+      t.name ||
+      "Untitled task";
+
+    var type =
+      t.task_type ||
+      t.type ||
+      "—";
+
+    var reward =
+      typeof t.reward !== "undefined"
+        ? money(t.reward)
+        : "₦—";
+
+    var slots =
+      typeof t.slots !== "undefined"
+        ? t.slots
+        : "—";
+
+    var active = taskIsActive(t);
+
+    html +=
+      "<tr>" +
+
+      "<td class='nameCell'>" +
+        "<strong>" + safe(title) + "</strong>" +
+        "<span>" + safe(t.description || "") + "</span>" +
+      "</td>" +
+
+      "<td>" + safe(type) + "</td>" +
+
+      "<td>" + reward + "</td>" +
+
+      "<td>" + safe(slots) + "</td>" +
+
+      "<td>" + formatDate(t.expiry_date) + "</td>" +
+
+      "<td>" +
+        "<span class='badge " +
+        (active ? "green" : "red") +
+        "'>" +
+        (active ? "Active" : "Inactive") +
+        "</span>" +
+      "</td>" +
+
+      "</tr>";
+  }
+
+  body.innerHTML = html;
+}
+
+function filterTasks(){
+
+  var q = $("taskSearch").value.toLowerCase();
+  var status = $("taskStatusFilter").value;
+
+  var result = [];
+
+  for(var i=0;i<tasksCache.length;i++){
+
+    var t = tasksCache[i];
+
+    var hay =
+      String(t.title || "") + " " +
+      String(t.name || "") + " " +
+      String(t.task_type || "") + " " +
+      String(t.type || "");
+
+    if(hay.toLowerCase().indexOf(q) < 0){
+      continue;
+    }
+
+    var active = taskIsActive(t);
+
+    if(status === "active" && !active){
+      continue;
+    }
+
+    if(status === "inactive" && active){
+      continue;
+    }
+
+    result.push(t);
+  }
+
+  renderTasks(result);
+}
+
+window.filterTasks = filterTasks;
+
+/* ==========================================================
+   PROOFS
+========================================================== */
+
+async function loadProofs(){
+
+  var body = $("proofsBody");
+
+  body.innerHTML =
+    '<tr><td colspan="6"><div class="empty">Loading submissions...</div></td></tr>';
+
+  try{
+
+    var filter = $("proofFilter").value;
+
+    var query = supabaseClient
+      .from("task_submissions")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(filter){
+      query = query.eq("status",filter);
+    }
+
+    var result = await query;
+
+    if(result.error){
+      throw result.error;
+    }
+
+    proofsCache = result.data || [];
+
+    renderProofs(proofsCache);
+
+  }catch(error){
+
+    body.innerHTML =
+      '<tr><td colspan="6"><div class="empty"><strong>Could not load submissions</strong><span>' +
+      safe(error.message || error) +
+      '</span></div></td></tr>';
+  }
+}
+
+function renderProofs(rows){
+
+  var body = $("proofsBody");
+
+  if(!rows.length){
+
+    body.innerHTML =
+      '<tr><td colspan="6"><div class="empty"><strong>No submissions found</strong></div></td></tr>';
+
+    return;
+  }
+
+  var html = "";
+
+  for(var i=0;i<rows.length;i++){
+
+    var p = rows[i];
+
+    var status = String(p.status || "pending").toLowerCase();
+
+    var badge =
+      status === "approved"
+        ? "green"
+        : status === "rejected"
+        ? "red"
+        : "orange";
+
+    html +=
+      "<tr>" +
+
+      "<td class='nameCell'>" +
+        "<strong>" + safe(p.id || "—") + "</strong>" +
+        "<span>" + safe(p.user_id || p.worker_id || "") + "</span>" +
+      "</td>" +
+
+      "<td>" + safe(p.user_id || p.worker_id || "—") + "</td>" +
+
+      "<td>" + safe(p.task_id || "—") + "</td>" +
+
+      "<td><span class='badge " + badge + "'>" +
+        safe(status) +
+      "</span></td>" +
+
+      "<td>" + formatDate(p.created_at || p.submitted_at) + "</td>" +
+
+      "<td>" +
+        "<button class='btn btnSecondary' onclick='viewProof(" +
+        i +
+        ")'>Review</button>" +
+      "</td>" +
+
+      "</tr>";
+  }
+
+  body.innerHTML = html;
+}
+
+window.viewProof = function(index){
+
+  var p = proofsCache[index];
+
+  if(!p){
+    return;
+  }
+
+  var status = String(p.status || "pending").toLowerCase();
+
+  var html =
+    detailHtml("Submission ID",p.id) +
+    detailHtml("User ID",p.user_id || p.worker_id) +
+    detailHtml("Task ID",p.task_id) +
+    detailHtml("Status",status) +
+    detailHtml("Username",p.username) +
+    detailHtml("Text / Description",p.text || p.description) +
+    detailHtml("URL",p.url || p.link || p.post_link) +
+    detailHtml("Reference ID",p.reference_id) +
+    detailHtml("Submitted",formatDate(p.created_at || p.submitted_at));
+
+  var image =
+    p.proof_image ||
+    p.image_url ||
+    p.photo_url ||
+    p.proof_url ||
+    p.image;
+
+  if(image){
+    html +=
+      "<div class='detail'>" +
+      "<label>Photo Proof</label>" +
+      "<img class='proofImage' src='" +
+      safe(image) +
+      "' alt='Proof image'>" +
+      "</div>";
+  }
+
+  if(status === "pending"){
+
+    html +=
+      "<div class='actionRow'>" +
+
+      "<button class='btn btnPrimary' onclick='approveProof(" +
+      index +
+      ")'>Approve Proof</button>" +
+
+      "<button class='btn btnDanger' onclick='rejectProof(" +
+      index +
+      ")'>Reject Proof</button>" +
+
+      "</div>";
+  }
+
+  showModal("Proof Review",html);
+};
+
+/* ==========================================================
+   SECURE PROOF APPROVAL
+========================================================== */
+
+window.approveProof = async function(index){
+
+  var p = proofsCache[index];
+
+  if(!p){
+    return;
+  }
+
+  if(!confirm("Approve this proof and allow the secure reward process to run?")){
+    return;
+  }
+
+  try{
+
+    /*
+      Prefer the secure RPC.
+      This prevents the browser from directly crediting wallets.
+    */
+
+    var rpc = await supabaseClient.rpc(
+      "admin_approve_task_submission",
+      {
+        submission_id:p.id
+      }
     );
 
-    await loadOverview();
-    await loadSettings();
+    if(rpc.error){
 
-    toast(
-      "Admin data refreshed."
-    );
-
-  }
-);
-
-
-/* ---------------------------------------------------------
-   SEARCH / FILTER
---------------------------------------------------------- */
-
-$("userSearch")
-.addEventListener(
-  "input",
-  ()=>{
-    if(
-      $("usersTable").querySelector("table")
-    ){
-      loadUsers();
-    }
-  }
-);
-
-$("userActivationFilter")
-.addEventListener(
-  "change",
-  loadUsers
-);
-
-$("taskSearch")
-.addEventListener(
-  "input",
-  ()=>{
-    if(
-      $("tasksTable").querySelector("table")
-    ){
-      loadTasks();
-    }
-  }
-);
-
-$("taskStatusFilter")
-.addEventListener(
-  "change",
-  loadTasks
-);
-
-$("proofStatusFilter")
-.addEventListener(
-  "change",
-  loadProofs
-);
-
-$("withdrawalStatusFilter")
-.addEventListener(
-  "change",
-  loadWithdrawals
-);
-
-
-/* ---------------------------------------------------------
-   LOGOUT
---------------------------------------------------------- */
-
-$("logoutBtn")
-.addEventListener(
-  "click",
-  async()=>{
-
-    const confirmed =
-      confirm(
-        "Sign out of the admin panel?"
+      showToast(
+        "Secure approval RPC is unavailable or rejected the request. No reward was credited.",
+        "error"
       );
-
-    if(!confirmed) return;
-
-    await supabaseClient.auth.signOut();
-
-    location.href =
-      "admin-login.html";
-  }
-);
-
-
-/* ---------------------------------------------------------
-   AUTH STATE
---------------------------------------------------------- */
-
-supabaseClient.auth
-.onAuthStateChange(
-  async(event,session)=>{
-
-    if(event === "SIGNED_OUT"){
-
-      location.href =
-        "admin-login.html";
 
       return;
     }
 
-    if(
-      event === "TOKEN_REFRESHED" &&
-      session
-    ){
+    await logActivity(
+      "proof_approved",
+      "Submission " + p.id
+    );
 
-      currentUser =
-        session.user;
+    closeModal();
 
-    }
+    showToast(
+      "Proof approved successfully.",
+      "success"
+    );
 
+    loadProofs();
+    loadOverview();
+
+  }catch(error){
+
+    showToast(
+      "Approval failed: " + text(error.message || error),
+      "error"
+    );
   }
-);
+};
 
+window.rejectProof = async function(index){
 
-/* ---------------------------------------------------------
-   INITIALIZATION
---------------------------------------------------------- */
+  var p = proofsCache[index];
 
-async function init(){
-
-  const allowed =
-    await checkAdmin();
-
-  if(!allowed){
+  if(!p){
     return;
   }
 
-  await loadSettings();
-  await loadOverview();
+  var reason = prompt(
+    "Enter rejection reason:"
+  );
 
+  if(reason === null){
+    return;
+  }
+
+  reason = reason.trim();
+
+  if(!reason){
+    showToast("A rejection reason is required.","error");
+    return;
+  }
+
+  try{
+
+    var result = await supabaseClient
+      .from("task_submissions")
+      .update({
+        status:"rejected",
+        rejection_reason:reason
+      })
+      .eq("id",p.id)
+      .eq("status","pending");
+
+    if(result.error){
+      throw result.error;
+    }
+
+    await logActivity(
+      "proof_rejected",
+      "Submission " + p.id + ": " + reason
+    );
+
+    closeModal();
+
+    showToast(
+      "Proof rejected.",
+      "success"
+    );
+
+    loadProofs();
+
+  }catch(error){
+
+    showToast(
+      "Rejection failed: " + text(error.message || error),
+      "error"
+    );
+  }
+};
+
+/* ==========================================================
+   WITHDRAWALS
+========================================================== */
+
+async function loadWithdrawals(){
+
+  var body = $("withdrawalsBody");
+
+  body.innerHTML =
+    '<tr><td colspan="7"><div class="empty">Loading withdrawals...</div></td></tr>';
+
+  try{
+
+    var filter = $("withdrawalFilter").value;
+
+    var query = supabaseClient
+      .from("withdrawals")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(filter){
+      query = query.eq("status",filter);
+    }
+
+    var result = await query;
+
+    if(result.error){
+      throw result.error;
+    }
+
+    withdrawalsCache = result.data || [];
+
+    renderWithdrawals(withdrawalsCache);
+
+  }catch(error){
+
+    body.innerHTML =
+      '<tr><td colspan="7"><div class="empty"><strong>Could not load withdrawals</strong><span>' +
+      safe(error.message || error) +
+      '</span></div></td></tr>';
+  }
 }
 
-init();
+function renderWithdrawals(rows){
 
+  var body = $("withdrawalsBody");
+
+  if(!rows.length){
+
+    body.innerHTML =
+      '<tr><td colspan="7"><div class="empty"><strong>No withdrawals found</strong></div></td></tr>';
+
+    return;
+  }
+
+  var html = "";
+
+  for(var i=0;i<rows.length;i++){
+
+    var w = rows[i];
+
+    var status = String(w.status || "pending").toLowerCase();
+
+    var badge =
+      status === "paid"
+        ? "green"
+        : status === "rejected"
+        ? "red"
+        : "orange";
+
+    html +=
+      "<tr>" +
+
+      "<td class='nameCell'>" +
+        "<strong>" + safe(w.user_id || "—") + "</strong>" +
+        "<span>" + safe(w.id || "") + "</span>" +
+      "</td>" +
+
+      "<td>" + money(w.amount) + "</td>" +
+
+      "<td>" + money(w.fee || w.withdrawal_fee || 0) + "</td>" +
+
+      "<td>" +
+        safe(
+          w.method ||
+          w.payment_method ||
+          w.bank_name ||
+          "—"
+        ) +
+      "</td>" +
+
+      "<td><span class='badge " + badge + "'>" +
+        safe(status) +
+      "</span></td>" +
+
+      "<td>" + formatDate(w.created_at) + "</td>" +
+
+      "<td>" +
+        "<button class='btn btnSecondary' onclick='viewWithdrawal(" +
+        i +
+        ")'>Review</button>" +
+      "</td>" +
+
+      "</tr>";
+  }
+
+  body.innerHTML = html;
+}
+
+window.viewWithdrawal = function(index){
+
+  var w = withdrawalsCache[index];
+
+  if(!w){
+    return;
+  }
+
+  var status = String(w.status || "pending").toLowerCase();
+
+  var html =
+    detailHtml("Withdrawal ID",w.id) +
+    detailHtml("User ID",w.user_id) +
+    detailHtml("Amount",money(w.amount)) +
+    detailHtml("Fee",money(w.fee || w.withdrawal_fee || 0)) +
+    detailHtml("Method",w.method || w.payment_method) +
+    detailHtml("Bank",w.bank_name) +
+    detailHtml("Account Name",w.account_name) +
+    detailHtml("Account Number",w.account_number) +
+    detailHtml("Status",status) +
+    detailHtml("Created",formatDate(w.created_at));
+
+  if(status === "pending"){
+
+    html +=
+      "<div class='actionRow'>" +
+
+      "<button class='btn btnPrimary' onclick='processWithdrawal(" +
+      index +
+      ",\"paid\")'>Mark Paid</button>" +
+
+      "<button class='btn btnDanger' onclick='processWithdrawal(" +
+      index +
+      ",\"rejected\")'>Reject</button>" +
+
+      "</div>";
+  }
+
+  showModal("Withdrawal Review",html);
+};
+
+/* ==========================================================
+   SECURE WITHDRAWAL PROCESSING
+========================================================== */
+
+window.processWithdrawal = async function(index,newStatus){
+
+  var w = withdrawalsCache[index];
+
+  if(!w){
+    return;
+  }
+
+  if(!confirm(
+    "Change this withdrawal to " +
+    newStatus +
+    "?"
+  )){
+    return;
+  }
+
+  try{
+
+    /*
+      Prefer a secure RPC.
+      We intentionally do NOT directly edit balances from this browser.
+    */
+
+    var rpcName = "admin_process_withdrawal";
+
+    var rpc = await supabaseClient.rpc(
+      rpcName,
+      {
+        withdrawal_id:w.id,
+        new_status:newStatus
+      }
+    );
+
+    if(rpc.error){
+
+      showToast(
+        "Secure withdrawal RPC is unavailable or rejected the request. The withdrawal was not changed.",
+        "error"
+      );
+
+      return;
+    }
+
+    await logActivity(
+      "withdrawal_" + newStatus,
+      "Withdrawal " + w.id
+    );
+
+    closeModal();
+
+    showToast(
+      "Withdrawal updated successfully.",
+      "success"
+    );
+
+    loadWithdrawals();
+    loadOverview();
+
+  }catch(error){
+
+    showToast(
+      "Withdrawal operation failed: " +
+      text(error.message || error),
+      "error"
+    );
+  }
+};
+
+/* ==========================================================
+   LEDGER
+========================================================== */
+
+async function loadLedger(){
+
+  var body = $("ledgerBody");
+
+  body.innerHTML =
+    '<tr><td colspan="6"><div class="empty">Loading ledger...</div></td></tr>';
+
+  try{
+
+    var result = await supabaseClient
+      .from("wallet_transactions")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(500);
+
+    if(result.error){
+      throw result.error;
+    }
+
+    var rows = result.data || [];
+
+    if(!rows.length){
+
+      body.innerHTML =
+        '<tr><td colspan="6"><div class="empty"><strong>No wallet transactions found</strong></div></td></tr>';
+
+      return;
+    }
+
+    var html = "";
+
+    for(var i=0;i<rows.length;i++){
+
+      var r = rows[i];
+
+      var type =
+        r.type ||
+        r.transaction_type ||
+        "—";
+
+      var amount =
+        typeof r.amount !== "undefined"
+          ? money(r.amount)
+          : "₦—";
+
+      html +=
+        "<tr>" +
+
+        "<td>" +
+          safe(r.user_id || r.profile_id || "—") +
+        "</td>" +
+
+        "<td>" +
+          safe(type) +
+        "</td>" +
+
+        "<td>" +
+          amount +
+        "</td>" +
+
+        "<td>" +
+          safe(r.reference || r.reference_id || "—") +
+        "</td>" +
+
+        "<td>" +
+          safe(r.description || "—") +
+        "</td>" +
+
+        "<td>" +
+          formatDate(r.created_at) +
+        "</td>" +
+
+        "</tr>";
+    }
+
+    body.innerHTML = html;
+
+  }catch(error){
+
+    body.innerHTML =
+      '<tr><td colspan="6"><div class="empty"><strong>Could not load ledger</strong><span>' +
+      safe(error.message || error) +
+      '</span></div></td></tr>';
+  }
+}
+
+/* ==========================================================
+   AUDIT
+========================================================== */
+
+async function logActivity(action,details){
+
+  try{
+
+    await supabaseClient
+      .from("admin_activity")
+      .insert({
+        admin_id:currentUser.id,
+        action:action,
+        details:details,
+        created_at:new Date().toISOString()
+      });
+
+  }catch(e){
+    /*
+      Audit failure must not falsely report that the main operation
+      failed. It is intentionally non-blocking.
+    */
+  }
+}
+
+async function loadAudit(){
+
+  var body = $("auditBody");
+
+  body.innerHTML =
+    '<tr><td colspan="4"><div class="empty">Loading activity...</div></td></tr>';
+
+  try{
+
+    var result = await supabaseClient
+      .from("admin_activity")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(300);
+
+    if(result.error){
+      throw result.error;
+    }
+
+    renderActivityTable(result.data || [],body);
+
+  }catch(error){
+
+    body.innerHTML =
+      '<tr><td colspan="4"><div class="empty"><strong>Could not load activity</strong><span>' +
+      safe(error.message || error) +
+      '</span></div></td></tr>';
+  }
+}
+
+function renderActivity(rows,container){
+
+  if(!rows.length){
+
+    container.innerHTML =
+      '<div class="empty"><strong>No recent activity</strong></div>';
+
+    return;
+  }
+
+  var html =
+    '<div class="tableWrap"><table>' +
+    '<thead><tr>' +
+    '<th>Action</th>' +
+    '<th>Details</th>' +
+    '<th>Date</th>' +
+    '</tr></thead><tbody>';
+
+  for(var i=0;i<rows.length;i++){
+
+    var r = rows[i];
+
+    html +=
+      "<tr>" +
+      "<td><span class='badge blue'>" +
+      safe(r.action || "—") +
+      "</span></td>" +
+      "<td>" +
+      safe(r.details || "—") +
+      "</td>" +
+      "<td>" +
+      formatDate(r.created_at) +
+      "</td>" +
+      "</tr>";
+  }
+
+  html += "</tbody></table></div>";
+
+  container.innerHTML = html;
+}
+
+function renderActivityTable(rows,body){
+
+  if(!rows.length){
+
+    body.innerHTML =
+      '<tr><td colspan="4"><div class="empty"><strong>No activity recorded</strong></div></td></tr>';
+
+    return;
+  }
+
+  var html = "";
+
+  for(var i=0;i<rows.length;i++){
+
+    var r = rows[i];
+
+    html +=
+      "<tr>" +
+
+      "<td>" +
+      safe(r.action || "—") +
+      "</td>" +
+
+      "<td>" +
+      safe(r.admin_id || "—") +
+      "</td>" +
+
+      "<td>" +
+      safe(r.details || "—") +
+      "</td>" +
+
+      "<td>" +
+      formatDate(r.created_at) +
+      "</td>" +
+
+      "</tr>";
+  }
+
+  body.innerHTML = html;
+}
+
+async function loadOverviewActivity(){
+  var box = $("overviewActivity");
+
+  try{
+
+    var result = await supabaseClient
+      .from("admin_activity")
+      .select("*")
+      .order("created_at",{ascending:false})
+      .limit(6);
+
+    if(result.error){
+      throw result.error;
+    }
+
+    renderActivity(result.data || [],box);
+
+  }catch(error){
+
+    box.innerHTML =
+      '<div class="empty"><strong>Activity unavailable</strong><span>' +
+      safe(error.message || error) +
+      '</span></div>';
+  }
+}
+
+/* ==========================================================
+   MODAL
+========================================================== */
+
+function detailHtml(label,value){
+
+  if(value === null || typeof value === "undefined" || value === ""){
+    value = "—";
+  }
+
+  return (
+    "<div class='detail'>" +
+      "<label>" + safe(label) + "</label>" +
+      "<div>" + safe(value) + "</div>" +
+    "</div>"
+  );
+}
+
+function showModal(title,content){
+
+  $("modalTitle").textContent = title;
+  $("modalContent").innerHTML = content;
+  $("modal").classList.add("show");
+}
+
+function closeModal(){
+
+  $("modal").classList.remove("show");
+}
+
+window.closeModal = closeModal;
+
+function closeModalOutside(event){
+
+  if(event.target === $("modal")){
+    closeModal();
+  }
+}
+
+window.closeModalOutside = closeModalOutside;
+
+/* ==========================================================
+   REFRESH
+========================================================== */
+
+window.refreshCurrentPage = function(){
+
+  if(currentPage === "overview"){
+    loadOverview();
+  }else if(currentPage === "users"){
+    loadUsers();
+  }else if(currentPage === "tasks"){
+    loadTasks();
+  }else if(currentPage === "proofs"){
+    loadProofs();
+  }else if(currentPage === "withdrawals"){
+    loadWithdrawals();
+  }else if(currentPage === "ledger"){
+    loadLedger();
+  }else if(
+    currentPage === "monetization" ||
+    currentPage === "referrals" ||
+    currentPage === "security" ||
+    currentPage === "settings"
+  ){
+    loadSettings();
+  }else if(currentPage === "audit"){
+    loadAudit();
+  }
+};
+
+/* ==========================================================
+   SIGN OUT
+========================================================== */
+
+window.signOut = async function(){
+
+  try{
+
+    await supabaseClient.auth.signOut();
+
+  }catch(e){}
+
+  window.location.href = "admin-login.html";
+};
+
+/* ==========================================================
+   START
+========================================================== */
+
+async function init(){
+
+  try{
+
+    /*
+      Important for older Android browsers:
+      Everything is inside try/catch so a database/CDN problem
+      produces a visible error instead of a blank page.
+    */
+
+    startSupabase();
+
+    setupNavigation();
+
+    await getSession();
+
+    await checkAdmin();
+
+    $("adminEmail").textContent =
+      currentUser.email || "—";
+
+    $("adminUserId").textContent =
+      currentUser.id || "—";
+
+    showApp();
+
+    await loadSettings();
+
+    await loadOverview();
+
+  }catch(error){
+
+    showFatalError(error);
+  }
+}
+
+window.addEventListener("error",function(event){
+
+  if(event && event.error){
+    showFatalError(event.error);
+  }
+});
+
+window.addEventListener("unhandledrejection",function(event){
+
+  if(event && event.reason){
+    showFatalError(event.reason);
+  }
+});
+
+if(document.readyState === "loading"){
+
+  document.addEventListener("DOMContentLoaded",function(){
+    init();
+  });
+
+}else{
+
+  init();
+}
+
+})();
 </script>
 
 </body>
