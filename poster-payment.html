@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#064d25">
 
-<title>Payment — NAIJA TASK</title>
+<title>Poster Payment — NAIJA TASK</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -15,93 +16,254 @@
   padding:0;
 }
 
+:root{
+  --green:#087f36;
+  --green2:#0b9b45;
+  --green3:#064d25;
+  --lime:#b7ef43;
+  --dark:#10251a;
+  --muted:#68776e;
+  --bg:#f3f8f5;
+  --white:#fff;
+  --line:#dce9e1;
+  --gold:#f0b429;
+  --danger:#c62828;
+  --success:#087a36;
+  --shadow:0 10px 30px rgba(5,55,25,.08);
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
 body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f5fff7;
-  color:#17231b;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(183,239,67,.12),
+      transparent 28%
+    ),
+    var(--bg);
+  color:var(--dark);
+  min-height:100vh;
+}
+
+button,
+input{
+  font:inherit;
+}
+
+button{
+  -webkit-tap-highlight-color:transparent;
 }
 
 header{
-  background:#0b8f3c;
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(
+      135deg,
+      var(--green3),
+      var(--green),
+      var(--green2)
+    );
   color:#fff;
-  padding:18px 16px;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    16px
+    20px;
+  box-shadow:0 5px 22px rgba(0,0,0,.13);
+}
+
+header::after{
+  content:"";
+  position:absolute;
+  width:180px;
+  height:180px;
+  right:-65px;
+  top:-95px;
+  border-radius:50%;
+  background:rgba(183,239,67,.15);
 }
 
 .header-inner{
-  max-width:700px;
+  position:relative;
+  z-index:1;
+  max-width:760px;
   margin:auto;
 }
 
+.brand-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
 .brand{
-  font-size:21px;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.2px;
+}
+
+.secure-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:11px;
   font-weight:800;
 }
 
 .subtitle{
-  margin-top:4px;
+  margin-top:6px;
   font-size:13px;
-  opacity:.9;
+  opacity:.88;
 }
 
 .container{
   width:100%;
-  max-width:700px;
+  max-width:760px;
   margin:auto;
-  padding:18px 15px 45px;
+  padding:18px 14px 50px;
 }
 
 .back{
-  display:inline-block;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
   margin-bottom:15px;
-  color:#0b8f3c;
-  font-weight:700;
+  color:var(--green);
+  font-weight:800;
   text-decoration:none;
+  font-size:14px;
 }
 
 .card{
-  background:#fff;
-  border:1px solid #dcefe2;
-  border-radius:16px;
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:20px;
   padding:18px;
   margin-bottom:15px;
-  box-shadow:0 5px 18px rgba(0,0,0,.04);
+  box-shadow:var(--shadow);
 }
 
-h1{
+.card h1{
   font-size:23px;
+  line-height:1.2;
   margin-bottom:8px;
 }
 
-h2{
+.card h2{
   font-size:17px;
   margin-bottom:12px;
 }
 
 .muted{
-  color:#647268;
+  color:var(--muted);
   font-size:14px;
-  line-height:1.5;
+  line-height:1.55;
 }
 
+/* HERO PAYMENT */
+
 .amount-box{
-  background:#edf9f1;
-  border:1px solid #ccebd5;
-  border-radius:14px;
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(
+      135deg,
+      #edf9f1,
+      #f7fff3
+    );
+  border:1px solid #cbe8d4;
+  border-radius:17px;
   padding:18px;
-  margin-top:15px;
+  margin-top:16px;
+}
+
+.amount-box::after{
+  content:"₦";
+  position:absolute;
+  right:18px;
+  top:4px;
+  font-size:80px;
+  line-height:1;
+  font-weight:900;
+  color:rgba(8,127,54,.06);
 }
 
 .amount-label{
-  font-size:13px;
+  position:relative;
+  z-index:1;
+  font-size:12px;
+  font-weight:700;
   color:#617066;
+  text-transform:uppercase;
+  letter-spacing:.5px;
 }
 
 .amount{
-  color:#087d35;
-  font-size:31px;
-  font-weight:800;
+  position:relative;
+  z-index:1;
+  color:var(--green);
+  font-size:34px;
+  font-weight:900;
   margin-top:5px;
 }
+
+.amount-note{
+  position:relative;
+  z-index:1;
+  margin-top:5px;
+  font-size:12px;
+  color:#66756c;
+}
+
+.breakdown{
+  position:relative;
+  z-index:1;
+  margin-top:15px;
+  border-top:1px dashed #c8dfcf;
+  padding-top:10px;
+}
+
+.breakdown-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:6px 0;
+  font-size:13px;
+}
+
+.breakdown-row span:first-child{
+  color:#66756c;
+}
+
+.breakdown-row strong{
+  color:#183622;
+}
+
+.breakdown-row.total{
+  margin-top:5px;
+  padding-top:10px;
+  border-top:1px solid #d9e9df;
+  font-size:14px;
+}
+
+.breakdown-row.total strong{
+  color:var(--green);
+  font-size:16px;
+}
+
+/* JOB DETAILS */
 
 .row{
   padding:13px 0;
@@ -114,38 +276,100 @@ h2{
 
 .label{
   display:block;
-  font-size:12px;
+  font-size:11px;
+  font-weight:700;
   color:#718077;
   margin-bottom:5px;
+  text-transform:uppercase;
+  letter-spacing:.35px;
 }
 
 .value{
   font-size:16px;
-  font-weight:700;
+  font-weight:800;
   word-break:break-word;
 }
 
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#fff3cf;
+  color:#765800;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.2px;
+}
+
+.slot-warning{
+  display:none;
+  margin-top:12px;
+  background:#fff3f3;
+  border:1px solid #efc4c4;
+  color:#a32222;
+  border-radius:12px;
+  padding:12px;
+  font-size:13px;
+  line-height:1.45;
+}
+
+/* PAYMENT ACCOUNT */
+
+.account-card{
+  border:1px solid #d3eadb;
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #f5fcf7
+    );
+}
+
 .account-number{
-  font-size:22px;
+  font-size:23px;
   letter-spacing:1px;
-  color:#0b8f3c;
+  color:var(--green);
+}
+
+.copy-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.copy-row .value{
+  flex:1;
+}
+
+.copy-btn{
+  width:auto;
+  min-width:72px;
+  padding:9px 11px;
+  border-radius:9px;
+  background:#e7f5eb;
+  color:var(--green3);
+  border:1px solid #cfe6d7;
+  font-size:12px;
 }
 
 .warning{
   background:#fff8e6;
   border:1px solid #f0d58a;
   color:#624b08;
-  border-radius:12px;
+  border-radius:13px;
   padding:13px;
   font-size:13px;
   line-height:1.5;
   margin-top:14px;
 }
 
+/* FORM */
+
 label{
   display:block;
-  font-size:14px;
-  font-weight:700;
+  font-size:13px;
+  font-weight:800;
   margin-bottom:7px;
 }
 
@@ -154,47 +378,78 @@ input[type="file"]{
   width:100%;
   padding:13px;
   border:1px solid #cfdcd3;
-  border-radius:10px;
+  border-radius:11px;
   background:#fff;
+  color:var(--dark);
   font-size:14px;
+}
+
+input[type="file"]{
+  padding:10px;
 }
 
 input:focus{
   outline:none;
-  border-color:#0b8f3c;
+  border-color:var(--green2);
+  box-shadow:0 0 0 3px rgba(11,155,69,.08);
+}
+
+input:disabled{
+  background:#f2f5f3;
+  color:#768179;
 }
 
 .field{
   margin-bottom:17px;
 }
 
-button{
+.submit{
   width:100%;
   border:none;
-  border-radius:11px;
-  padding:14px;
+  border-radius:12px;
+  padding:15px;
   font-size:15px;
-  font-weight:800;
+  font-weight:900;
   cursor:pointer;
+  background:
+    linear-gradient(
+      135deg,
+      var(--green3),
+      var(--green2)
+    );
+  color:#fff;
+  box-shadow:0 8px 18px rgba(8,127,54,.18);
 }
 
-.submit{
-  background:#0b8f3c;
-  color:#fff;
+.submit:active{
+  transform:translateY(1px);
 }
 
 .submit:disabled{
   background:#9bbba7;
+  box-shadow:none;
   cursor:not-allowed;
+}
+
+.secondary{
+  width:100%;
+  border:none;
+  border-radius:10px;
+  padding:11px;
+  background:#e8f5ec;
+  color:#08752f;
+  font-size:13px;
+  font-weight:800;
+  margin-top:10px;
 }
 
 .status{
   display:none;
   margin-top:14px;
-  padding:12px;
-  border-radius:10px;
-  font-size:14px;
-  line-height:1.45;
+  padding:13px;
+  border-radius:11px;
+  font-size:13px;
+  line-height:1.5;
 }
 
 .status.success{
@@ -213,8 +468,25 @@ button{
 
 .loading{
   text-align:center;
-  padding:35px 10px;
+  padding:45px 10px;
   color:#66736b;
+  font-size:14px;
+}
+
+.loading-spinner{
+  width:34px;
+  height:34px;
+  border:3px solid #dcebe2;
+  border-top-color:var(--green);
+  border-radius:50%;
+  margin:0 auto 12px;
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
 }
 
 .hidden{
@@ -225,7 +497,7 @@ button{
   font-size:12px;
   color:#758078;
   margin-top:7px;
-  line-height:1.4;
+  line-height:1.45;
 }
 
 /* IMAGE PREVIEW */
@@ -241,13 +513,13 @@ button{
 
 .preview-title{
   font-size:13px;
-  font-weight:700;
+  font-weight:800;
   margin-bottom:8px;
 }
 
 .preview-box{
   background:#111;
-  border-radius:14px;
+  border-radius:15px;
   overflow:hidden;
   padding:8px;
 }
@@ -277,19 +549,13 @@ button{
 
 .crop-controls input[type="range"]{
   width:100%;
-  accent-color:#0b8f3c;
+  accent-color:var(--green2);
 }
 
 .crop-row{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
-}
-
-.secondary{
-  background:#e8f5ec;
-  color:#08752f;
-  margin-top:10px;
 }
 
 .file-info{
@@ -299,27 +565,74 @@ button{
   word-break:break-word;
 }
 
-.badge{
-  display:inline-block;
-  padding:5px 9px;
-  border-radius:999px;
-  background:#fff3cf;
-  color:#765800;
+/* SECURITY NOTE */
+
+.security-note{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  background:#f0f8f3;
+  border:1px solid #d5eade;
+  border-radius:13px;
+  padding:12px;
+  margin-top:13px;
+}
+
+.security-icon{
+  width:30px;
+  height:30px;
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:var(--green);
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+}
+
+.security-note strong{
+  display:block;
   font-size:12px;
-  font-weight:800;
+  margin-bottom:3px;
+}
+
+.security-note span{
+  font-size:11px;
+  color:#68776e;
+  line-height:1.45;
 }
 
 @media(max-width:480px){
+
   .container{
-    padding:15px 12px 35px;
+    padding:15px 12px 38px;
   }
 
   .card{
     padding:15px;
+    border-radius:17px;
   }
 
-  h1{
+  .card h1{
     font-size:21px;
+  }
+
+  .amount{
+    font-size:31px;
+  }
+
+  .account-number{
+    font-size:20px;
+  }
+
+  .brand{
+    font-size:20px;
+  }
+
+  .secure-pill{
+    font-size:10px;
   }
 }
 </style>
@@ -329,109 +642,320 @@ button{
 
 <header>
   <div class="header-inner">
-    <div class="brand">NAIJA TASK</div>
-    <div class="subtitle">Secure Job Payment</div>
+
+    <div class="brand-row">
+
+      <div class="brand">
+        NAIJA TASK
+      </div>
+
+      <div class="secure-pill">
+        🔒 Secure Payment
+      </div>
+
+    </div>
+
+    <div class="subtitle">
+      Poster Job Funding & Payment
+    </div>
+
   </div>
 </header>
+
 
 <main class="container">
 
 <a class="back" href="poster-dashboard.html">
-← Back to Poster Dashboard
+  ← Back to Poster Dashboard
 </a>
 
+
 <div id="loading" class="loading">
-Loading payment details...
+
+  <div class="loading-spinner"></div>
+
+  Loading payment details...
+
 </div>
+
 
 <div id="page" class="hidden">
 
+
+  <!-- PAYMENT SUMMARY -->
+
   <div class="card">
 
-    <h1>Fund Your Job</h1>
+    <h1>
+      Fund Your Job
+    </h1>
 
     <p class="muted">
-      Complete payment for this job before it can be reviewed and published.
+      Complete payment for your job before NAIJA TASK Admin can review
+      and publish it.
     </p>
 
+
     <div class="amount-box">
+
       <div class="amount-label">
-        Total amount required
+        Total Amount Required
       </div>
 
       <div id="totalAmount" class="amount">
         ₦0
       </div>
 
-      <div id="calculation" class="small"></div>
+      <div class="amount-note">
+        Task funding + poster posting fee
+      </div>
+
+
+      <div class="breakdown">
+
+        <div class="breakdown-row">
+
+          <span>
+            Tasker rewards
+          </span>
+
+          <strong id="taskFunding">
+            ₦0
+          </strong>
+
+        </div>
+
+
+        <div class="breakdown-row">
+
+          <span>
+            Poster posting fee
+          </span>
+
+          <strong id="posterFee">
+            ₦0
+          </strong>
+
+        </div>
+
+
+        <div class="breakdown-row total">
+
+          <span>
+            Total to transfer
+          </span>
+
+          <strong id="totalBreakdown">
+            ₦0
+          </strong>
+
+        </div>
+
+      </div>
+
     </div>
 
   </div>
 
 
+  <!-- JOB DETAILS -->
+
   <div class="card">
 
-    <h2>Job Details</h2>
+    <h2>
+      Job Details
+    </h2>
+
 
     <div class="row">
-      <span class="label">Job Title</span>
-      <div id="jobTitle" class="value">—</div>
+
+      <span class="label">
+        Job Title
+      </span>
+
+      <div id="jobTitle" class="value">
+        —
+      </div>
+
     </div>
 
-    <div class="row">
-      <span class="label">Reward per Tasker</span>
-      <div id="reward" class="value">—</div>
-    </div>
 
     <div class="row">
-      <span class="label">Available Slots</span>
-      <div id="slots" class="value">—</div>
+
+      <span class="label">
+        Reward Per Tasker
+      </span>
+
+      <div id="reward" class="value">
+        —
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Available Slots
+      </span>
+
+      <div id="slots" class="value">
+        —
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <span class="label">
+        Minimum Required Slots
+      </span>
+
+      <div id="minimumSlots" class="value">
+        —
+      </div>
+
+    </div>
+
+
+    <div id="slotWarning" class="slot-warning">
+      This job does not meet the current minimum poster task quantity.
+      Please return to the poster dashboard and update the number of slots.
     </div>
 
   </div>
 
 
-  <div class="card">
+  <!-- PAYMENT ACCOUNT -->
 
-    <h2>Payment Account</h2>
+  <div class="card account-card">
+
+    <h2>
+      Payment Account
+    </h2>
 
     <p class="muted">
-      Transfer the exact amount shown above to the account below.
+      Transfer the exact total amount shown above to the account below.
     </p>
 
-    <div class="row">
-      <span class="label">Bank</span>
-      <div id="bankName" class="value">—</div>
-    </div>
 
     <div class="row">
-      <span class="label">Account Name</span>
-      <div id="accountName" class="value">—</div>
+
+      <span class="label">
+        Bank
+      </span>
+
+      <div id="bankName" class="value">
+        —
+      </div>
+
     </div>
+
 
     <div class="row">
-      <span class="label">Account Number</span>
-      <div id="accountNumber" class="value account-number">—</div>
+
+      <span class="label">
+        Account Name
+      </span>
+
+      <div id="accountName" class="value">
+        —
+      </div>
+
     </div>
 
-    <div id="instructionsRow" class="row hidden">
-      <span class="label">Payment Instructions</span>
-      <div id="instructions" class="value"></div>
+
+    <div class="row">
+
+      <span class="label">
+        Account Number
+      </span>
+
+      <div class="copy-row">
+
+        <div
+          id="accountNumber"
+          class="value account-number"
+        >
+          —
+        </div>
+
+        <button
+          type="button"
+          class="copy-btn"
+          id="copyAccount"
+        >
+          Copy
+        </button>
+
+      </div>
+
     </div>
+
+
+    <div
+      id="instructionsRow"
+      class="row hidden"
+    >
+
+      <span class="label">
+        Payment Instructions
+      </span>
+
+      <div
+        id="instructions"
+        class="value"
+      ></div>
+
+    </div>
+
 
     <div class="warning">
-      Your job will remain unavailable to Taskers until Admin confirms
-      the payment.
+
+      ⚠️ <strong>Important:</strong>
+      Transfer the exact amount shown above and keep your transaction
+      reference. Your job will remain unavailable to Taskers until
+      Admin confirms the payment.
+
+    </div>
+
+
+    <div class="security-note">
+
+      <div class="security-icon">
+        ✓
+      </div>
+
+      <div>
+
+        <strong>
+          Admin verification required
+        </strong>
+
+        <span>
+          Payment is not treated as approved simply because proof was
+          submitted. An authorised NAIJA TASK Admin must review it.
+        </span>
+
+      </div>
+
     </div>
 
   </div>
 
 
+  <!-- PAYMENT PROOF -->
+
   <div class="card">
 
-    <h2>Submit Payment Proof</h2>
+    <h2>
+      Submit Payment Proof
+    </h2>
+
 
     <div id="currentStatus" class="small"></div>
+
 
     <div class="field">
 
@@ -444,7 +968,12 @@ Loading payment details...
         type="text"
         placeholder="Enter your bank transaction reference"
         maxlength="150"
+        autocomplete="off"
       >
+
+      <div class="small">
+        Use the reference shown by your bank or payment provider.
+      </div>
 
     </div>
 
@@ -458,29 +987,42 @@ Loading payment details...
       <input
         id="proof"
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/*"
       >
 
       <div class="small">
-        Upload a clear screenshot of the successful transfer.
+        Upload a clear screenshot showing the successful transfer.
+        Maximum original image size: 10 MB.
       </div>
 
-      <div id="fileInfo" class="file-info"></div>
+      <div
+        id="fileInfo"
+        class="file-info"
+      ></div>
 
     </div>
 
 
-    <div id="previewWrap" class="preview-wrap">
+    <!-- PREVIEW -->
+
+    <div
+      id="previewWrap"
+      class="preview-wrap"
+    >
 
       <div class="preview-title">
         Screenshot Preview
       </div>
 
+
       <div class="preview-box">
 
-        <canvas id="previewCanvas"></canvas>
+        <canvas
+          id="previewCanvas"
+        ></canvas>
 
       </div>
+
 
       <div class="crop-controls">
 
@@ -497,6 +1039,7 @@ Loading payment details...
           value="1"
         >
 
+
         <div class="crop-row">
 
           <button
@@ -506,6 +1049,7 @@ Loading payment details...
           >
             ↶ Rotate
           </button>
+
 
           <button
             type="button"
@@ -517,8 +1061,10 @@ Loading payment details...
 
         </div>
 
+
         <div class="small">
-          Adjust the screenshot before submitting. NAIJA TASK stores the prepared image securely.
+          Adjust the screenshot before submitting. The prepared image is
+          converted to JPEG before upload.
         </div>
 
       </div>
@@ -534,7 +1080,11 @@ Loading payment details...
       Submit Payment for Review
     </button>
 
-    <div id="status" class="status"></div>
+
+    <div
+      id="status"
+      class="status"
+    ></div>
 
   </div>
 
@@ -553,7 +1103,7 @@ const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
 const SUPABASE_KEY =
-     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
 const db =
   window.supabase.createClient(
@@ -598,6 +1148,14 @@ let imageObject = null;
 let zoomValue = 1;
 let rotation = 0;
 
+let platformSettings = null;
+
+let minimumPosterTaskSlots = 10;
+let posterTaskFee = 500;
+
+let taskFundingAmount = 0;
+let totalPaymentAmount = 0;
+
 
 /* =========================================
    ELEMENTS
@@ -633,6 +1191,12 @@ const zoomInput =
 const fileInfo =
   document.getElementById("fileInfo");
 
+const referenceInput =
+  document.getElementById("reference");
+
+const slotWarning =
+  document.getElementById("slotWarning");
+
 
 /* =========================================
    HELPERS
@@ -642,7 +1206,13 @@ function naira(value){
 
   return "₦" +
     Number(value || 0)
-      .toLocaleString("en-NG");
+      .toLocaleString(
+        "en-NG",
+        {
+          minimumFractionDigits:0,
+          maximumFractionDigits:2
+        }
+      );
 
 }
 
@@ -678,8 +1248,78 @@ function escapeText(value){
 }
 
 
+function setLoading(message){
+
+  loading.innerHTML =
+    '<div class="loading-spinner"></div>' +
+    escapeText(message);
+
+}
+
+
+function normaliseStatus(value){
+
+  return String(
+    value || ""
+  )
+    .trim()
+    .toUpperCase();
+
+}
+
+
 /* =========================================
-   IMAGE CROP / PREVIEW
+   COPY ACCOUNT NUMBER
+========================================= */
+
+document
+  .getElementById("copyAccount")
+  .addEventListener(
+    "click",
+    async function(){
+
+      const value =
+        document
+          .getElementById("accountNumber")
+          .textContent
+          .trim();
+
+      if(!value || value === "—"){
+        return;
+      }
+
+      try{
+
+        await navigator.clipboard.writeText(
+          value
+        );
+
+        this.textContent =
+          "Copied!";
+
+        setTimeout(
+          () => {
+            this.textContent =
+              "Copy";
+          },
+          1500
+        );
+
+      }catch(error){
+
+        showStatus(
+          "Could not copy the account number. Please copy it manually.",
+          "error"
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================
+   IMAGE PREVIEW
 ========================================= */
 
 function drawPreview(){
@@ -688,20 +1328,21 @@ function drawPreview(){
     return;
   }
 
-  const maxWidth = 900;
-  const maxHeight = 900;
 
-  let sourceWidth =
+  const sourceWidth =
     imageObject.naturalWidth;
 
-  let sourceHeight =
+  const sourceHeight =
     imageObject.naturalHeight;
 
-  /*
-    Center crop.
-    Zoom lets the user enlarge the image
-    inside the crop area.
-  */
+
+  if(
+    !sourceWidth ||
+    !sourceHeight
+  ){
+    return;
+  }
+
 
   const baseSize =
     Math.min(
@@ -709,8 +1350,10 @@ function drawPreview(){
       sourceHeight
     );
 
+
   const cropSize =
     baseSize / zoomValue;
+
 
   const sx =
     (sourceWidth - cropSize) / 2;
@@ -718,18 +1361,26 @@ function drawPreview(){
   const sy =
     (sourceHeight - cropSize) / 2;
 
-  let outputSize =
+
+  const outputSize =
     Math.min(
       cropSize,
-      maxWidth,
-      maxHeight
+      900
     );
 
+
   canvas.width =
-    outputSize;
+    Math.max(
+      1,
+      Math.round(outputSize)
+    );
 
   canvas.height =
-    outputSize;
+    Math.max(
+      1,
+      Math.round(outputSize)
+    );
+
 
   ctx.clearRect(
     0,
@@ -738,20 +1389,22 @@ function drawPreview(){
     canvas.height
   );
 
+
   ctx.save();
+
 
   ctx.translate(
     canvas.width / 2,
     canvas.height / 2
   );
 
+
   ctx.rotate(
-    rotation * Math.PI / 180
+    rotation *
+    Math.PI /
+    180
   );
 
-  /*
-    Draw cropped square.
-  */
 
   ctx.drawImage(
     imageObject,
@@ -765,6 +1418,7 @@ function drawPreview(){
     outputSize
   );
 
+
   ctx.restore();
 
 }
@@ -775,18 +1429,37 @@ function canvasToFile(){
   return new Promise(
     function(resolve,reject){
 
+      if(
+        !canvas.width ||
+        !canvas.height
+      ){
+
+        reject(
+          new Error(
+            "Please select a payment screenshot first."
+          )
+        );
+
+        return;
+
+      }
+
+
       canvas.toBlob(
         function(blob){
 
           if(!blob){
+
             reject(
               new Error(
-                "Could not prepare the image."
+                "Could not prepare the payment screenshot."
               )
             );
 
             return;
+
           }
+
 
           const file =
             new File(
@@ -799,6 +1472,7 @@ function canvasToFile(){
                 lastModified:Date.now()
               }
             );
+
 
           resolve(file);
 
@@ -819,29 +1493,41 @@ proofInput.addEventListener(
 
     hideStatus();
 
+
     const file =
+      this.files &&
       this.files[0];
+
 
     if(!file){
       return;
     }
 
-    if(!file.type.startsWith("image/")){
+
+    if(
+      !file.type ||
+      !file.type.startsWith("image/")
+    ){
 
       showStatus(
-        "Please select an image.",
+        "Please select a valid image.",
         "error"
       );
 
       this.value = "";
+
+      selectedFile =
+        null;
+
       return;
+
     }
 
-    /*
-      Keep source reasonably sized.
-    */
 
-    if(file.size > 10 * 1024 * 1024){
+    if(
+      file.size >
+      10 * 1024 * 1024
+    ){
 
       showStatus(
         "Please choose an image smaller than 10 MB.",
@@ -849,20 +1535,33 @@ proofInput.addEventListener(
       );
 
       this.value = "";
+
+      selectedFile =
+        null;
+
       return;
+
     }
 
-    selectedFile = file;
+
+    selectedFile =
+      file;
+
 
     fileInfo.textContent =
       file.name +
       " • " +
-      (file.size / 1024 / 1024)
-        .toFixed(2) +
+      (
+        file.size /
+        1024 /
+        1024
+      ).toFixed(2) +
       " MB";
+
 
     const reader =
       new FileReader();
+
 
     reader.onload =
       function(event){
@@ -870,24 +1569,61 @@ proofInput.addEventListener(
         imageObject =
           new Image();
 
+
         imageObject.onload =
           function(){
 
-            zoomValue = 1;
-            rotation = 0;
+            zoomValue =
+              1;
 
-            zoomInput.value = "1";
+            rotation =
+              0;
+
+            zoomInput.value =
+              "1";
 
             drawPreview();
 
-            previewWrap.classList.add("show");
+            previewWrap
+              .classList
+              .add("show");
 
           };
+
+
+        imageObject.onerror =
+          function(){
+
+            showStatus(
+              "The selected image could not be read. Please choose another image.",
+              "error"
+            );
+
+            selectedFile =
+              null;
+
+          };
+
 
         imageObject.src =
           event.target.result;
 
       };
+
+
+    reader.onerror =
+      function(){
+
+        showStatus(
+          "Could not read the selected image.",
+          "error"
+        );
+
+        selectedFile =
+          null;
+
+      };
+
 
     reader.readAsDataURL(file);
 
@@ -928,15 +1664,264 @@ document
     "click",
     function(){
 
-      zoomValue = 1;
-      rotation = 0;
+      zoomValue =
+        1;
 
-      zoomInput.value = "1";
+      rotation =
+        0;
+
+      zoomInput.value =
+        "1";
 
       drawPreview();
 
     }
   );
+
+
+/* =========================================
+   LOAD PLATFORM SETTINGS
+========================================= */
+
+async function loadPlatformSettings(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("platform_settings")
+      .select(
+        "poster_registration_enabled,job_posting_enabled,minimum_poster_task_slots,poster_task_fee"
+      )
+      .limit(1)
+      .maybeSingle();
+
+
+  if(error){
+    throw error;
+  }
+
+
+  if(!data){
+
+    throw new Error(
+      "Platform settings are not configured."
+    );
+
+  }
+
+
+  platformSettings =
+    data;
+
+
+  const configuredMinimum =
+    Number(
+      data.minimum_poster_task_slots
+    );
+
+
+  minimumPosterTaskSlots =
+    Number.isFinite(
+      configuredMinimum
+    ) &&
+    configuredMinimum >= 1
+      ? Math.floor(configuredMinimum)
+      : 10;
+
+
+  const configuredFee =
+    Number(
+      data.poster_task_fee
+    );
+
+
+  posterTaskFee =
+    Number.isFinite(
+      configuredFee
+    ) &&
+    configuredFee >= 0
+      ? configuredFee
+      : 500;
+
+}
+
+
+/* =========================================
+   LOAD PAYMENT ACCOUNT
+========================================= */
+
+async function loadPaymentSettings(){
+
+  const {
+    data,
+    error
+  } =
+    await db
+      .from("payment_settings")
+      .select("*")
+      .eq("active",true)
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      )
+      .limit(1)
+      .maybeSingle();
+
+
+  if(error){
+    throw error;
+  }
+
+
+  if(!data){
+
+    throw new Error(
+      "Payment account details have not been configured yet."
+    );
+
+  }
+
+
+  document
+    .getElementById("bankName")
+    .textContent =
+      escapeText(
+        data.bank_name
+      ) ||
+      "Not configured";
+
+
+  document
+    .getElementById("accountName")
+    .textContent =
+      escapeText(
+        data.account_name
+      ) ||
+      "Not configured";
+
+
+  document
+    .getElementById("accountNumber")
+    .textContent =
+      escapeText(
+        data.account_number
+      ) ||
+      "Not configured";
+
+
+  if(data.instructions){
+
+    document
+      .getElementById("instructions")
+      .textContent =
+        data.instructions;
+
+    document
+      .getElementById("instructionsRow")
+      .classList
+      .remove("hidden");
+
+  }
+
+}
+
+
+/* =========================================
+   CALCULATE PAYMENT
+========================================= */
+
+function calculatePayment(){
+
+  const reward =
+    Number(
+      currentTask.reward
+    );
+
+  const slots =
+    Number(
+      currentTask.slots
+    );
+
+
+  if(
+    !Number.isFinite(reward) ||
+    reward <= 0
+  ){
+
+    throw new Error(
+      "This job has an invalid tasker reward."
+    );
+
+  }
+
+
+  if(
+    !Number.isFinite(slots) ||
+    slots < 1
+  ){
+
+    throw new Error(
+      "This job has an invalid task quantity."
+    );
+
+  }
+
+
+  taskFundingAmount =
+    reward *
+    slots;
+
+
+  totalPaymentAmount =
+    taskFundingAmount +
+    posterTaskFee;
+
+
+  if(
+    !Number.isFinite(totalPaymentAmount) ||
+    totalPaymentAmount <= 0
+  ){
+
+    throw new Error(
+      "The calculated payment amount is invalid."
+    );
+
+  }
+
+
+  document
+    .getElementById("taskFunding")
+    .textContent =
+      naira(taskFundingAmount);
+
+
+  document
+    .getElementById("posterFee")
+    .textContent =
+      naira(posterTaskFee);
+
+
+  document
+    .getElementById("totalAmount")
+    .textContent =
+      naira(totalPaymentAmount);
+
+
+  document
+    .getElementById("totalBreakdown")
+    .textContent =
+      naira(totalPaymentAmount);
+
+
+  document
+    .getElementById("calculation")
+    ?.remove();
+
+}
 
 
 /* =========================================
@@ -950,20 +1935,30 @@ async function loadPage(){
     if(!taskId){
 
       throw new Error(
-        "No job was selected."
+        "No job was selected. Please return to your poster dashboard and select a job."
       );
 
     }
 
 
+    setLoading(
+      "Checking your account..."
+    );
+
+
     const {
-      data:{user},
+      data:{
+        user
+      },
       error:authError
     } =
       await db.auth.getUser();
 
 
-    if(authError || !user){
+    if(
+      authError ||
+      !user
+    ){
 
       window.location.href =
         "poster-login.html";
@@ -977,7 +1972,18 @@ async function loadPage(){
       user;
 
 
-    /* LOAD TASK */
+    setLoading(
+      "Loading poster settings..."
+    );
+
+
+    await loadPlatformSettings();
+
+
+    setLoading(
+      "Loading job details..."
+    );
+
 
     const {
       data:task,
@@ -991,10 +1997,13 @@ async function loadPage(){
         .single();
 
 
-    if(taskError || !task){
+    if(
+      taskError ||
+      !task
+    ){
 
       throw new Error(
-        "This job could not be found."
+        "This job could not be found or you do not have access to it."
       );
 
     }
@@ -1004,52 +2013,41 @@ async function loadPage(){
       task;
 
 
-    /*
-      The task stays PAYMENT_REQUIRED
-      until Admin approves payment.
-    */
+    const taskStatus =
+      normaliseStatus(
+        task.status
+      );
+
 
     if(
-      task.status !==
-        "PAYMENT_REQUIRED"
+      taskStatus === "LIVE"
     ){
 
-      if(
-        task.status === "LIVE"
-      ){
-
-        throw new Error(
-          "This job has already been approved and published."
-        );
-
-      }
-
-      if(
-        task.status === "REJECTED"
-      ){
-
-        /*
-          Allow payment resubmission.
-        */
-
-      }
-      else if(
-        task.status !==
-          "PAYMENT_REQUIRED"
-      ){
-
-        throw new Error(
-          "This job is not currently awaiting payment."
-        );
-
-      }
+      throw new Error(
+        "This job has already been approved and published."
+      );
 
     }
 
 
-    const total =
-      Number(task.reward || 0) *
-      Number(task.slots || 0);
+    if(
+      taskStatus !==
+        "PAYMENT_REQUIRED" &&
+      taskStatus !==
+        "REJECTED"
+    ){
+
+      throw new Error(
+        "This job is not currently awaiting payment."
+      );
+
+    }
+
+
+    const slots =
+      Number(
+        task.slots
+      );
 
 
     document
@@ -1070,27 +2068,43 @@ async function loadPage(){
     document
       .getElementById("slots")
       .textContent =
-        Number(task.slots || 0)
+        Number.isFinite(slots)
+          ? slots.toLocaleString()
+          : "Invalid";
+
+
+    document
+      .getElementById("minimumSlots")
+      .textContent =
+        minimumPosterTaskSlots
           .toLocaleString();
 
 
-    document
-      .getElementById("totalAmount")
-      .textContent =
-        naira(total);
+    if(
+      !Number.isFinite(slots) ||
+      slots <
+        minimumPosterTaskSlots
+    ){
+
+      slotWarning.style.display =
+        "block";
+
+      submitBtn.disabled =
+        true;
+
+      submitBtn.textContent =
+        "Minimum Task Quantity Not Met";
+
+    }
 
 
-    document
-      .getElementById("calculation")
-      .textContent =
-        naira(task.reward) +
-        " × " +
-        Number(task.slots || 0)
-          .toLocaleString() +
-        " slots";
+    calculatePayment();
 
 
-    /* LOAD PAYMENT */
+    setLoading(
+      "Checking previous payment..."
+    );
+
 
     const {
       data:payment,
@@ -1112,7 +2126,9 @@ async function loadPage(){
 
 
     if(paymentError){
+
       throw paymentError;
+
     }
 
 
@@ -1120,97 +2136,30 @@ async function loadPage(){
       payment;
 
 
-    /* PAYMENT SETTINGS */
-
-    const {
-      data:settings,
-      error:settingsError
-    } =
-      await db
-        .from("payment_settings")
-        .select("*")
-        .eq("active",true)
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        )
-        .limit(1)
-        .maybeSingle();
+    setLoading(
+      "Loading payment account..."
+    );
 
 
-    if(settingsError){
-      throw settingsError;
-    }
-
-
-    if(!settings){
-
-      throw new Error(
-        "Payment account details have not been configured yet."
-      );
-
-    }
-
-
-    document
-      .getElementById("bankName")
-      .textContent =
-        escapeText(
-          settings.bank_name
-        );
-
-
-    document
-      .getElementById("accountName")
-      .textContent =
-        escapeText(
-          settings.account_name
-        );
-
-
-    document
-      .getElementById("accountNumber")
-      .textContent =
-        escapeText(
-          settings.account_number
-        );
-
-
-    if(settings.instructions){
-
-      document
-        .getElementById("instructions")
-        .textContent =
-          settings.instructions;
-
-      document
-        .getElementById("instructionsRow")
-        .classList.remove("hidden");
-
-    }
+    await loadPaymentSettings();
 
 
     /* EXISTING PAYMENT */
 
     if(payment){
 
+      const paymentStatus =
+        normaliseStatus(
+          payment.status
+        );
+
+
       if(payment.payment_reference){
 
-        document
-          .getElementById("reference")
-          .value =
-            payment.payment_reference;
+        referenceInput.value =
+          payment.payment_reference;
 
       }
-
-
-      const status =
-        String(
-          payment.status ||
-          ""
-        ).toUpperCase();
 
 
       document
@@ -1218,19 +2167,20 @@ async function loadPage(){
         .innerHTML =
           "Current payment status: " +
           "<span class='badge'>" +
-          escapeText(status) +
+          escapeText(
+            paymentStatus ||
+            "UNKNOWN"
+          ) +
           "</span>";
 
 
-      /*
-        PENDING means Admin has not decided yet.
-      */
+      if(
+        paymentStatus ===
+        "PENDING"
+      ){
 
-      if(status === "PENDING"){
-
-        document
-          .getElementById("reference")
-          .disabled = true;
+        referenceInput.disabled =
+          true;
 
         proofInput.disabled =
           true;
@@ -1249,15 +2199,13 @@ async function loadPage(){
       }
 
 
-      /*
-        APPROVED
-      */
+      if(
+        paymentStatus ===
+        "APPROVED"
+      ){
 
-      if(status === "APPROVED"){
-
-        document
-          .getElementById("reference")
-          .disabled = true;
+        referenceInput.disabled =
+          true;
 
         proofInput.disabled =
           true;
@@ -1269,22 +2217,20 @@ async function loadPage(){
           "Payment Approved";
 
         showStatus(
-          "Payment approved. Your job can now be published.",
+          "Payment approved. Your job can now be published by the authorised system.",
           "success"
         );
 
       }
 
 
-      /*
-        REJECTED
-        Allow the poster to submit a new proof.
-      */
-
-      if(status === "REJECTED"){
+      if(
+        paymentStatus ===
+        "REJECTED"
+      ){
 
         showStatus(
-          "Your previous payment proof was rejected. You can submit a new screenshot and reference.",
+          "Your previous payment proof was rejected. You can submit a new screenshot and transaction reference.",
           "error"
         );
 
@@ -1296,21 +2242,31 @@ async function loadPage(){
     }
 
 
-    loading.classList.add("hidden");
+    loading.classList.add(
+      "hidden"
+    );
 
-    page.classList.remove("hidden");
+    page.classList.remove(
+      "hidden"
+    );
 
 
   }catch(error){
 
     console.error(
-      "PAYMENT PAGE ERROR:",
+      "POSTER PAYMENT PAGE ERROR:",
       error
     );
 
-    loading.textContent =
-      error.message ||
-      "Unable to load payment details.";
+
+    loading.innerHTML =
+      "<strong>Unable to load payment details.</strong>" +
+      "<br><br>" +
+      escapeText(
+        error.message ||
+        "Please try again."
+      );
+
 
     loading.style.color =
       "#a32222";
@@ -1344,9 +2300,25 @@ async function submitPayment(){
   }
 
 
+  if(
+    Number(currentTask.slots) <
+    minimumPosterTaskSlots
+  ){
+
+    showStatus(
+      "This job must contain at least " +
+      minimumPosterTaskSlots +
+      " task slots.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
   const reference =
-    document
-      .getElementById("reference")
+    referenceInput
       .value
       .trim();
 
@@ -1357,6 +2329,25 @@ async function submitPayment(){
       "Enter your transaction reference.",
       "error"
     );
+
+    referenceInput.focus();
+
+    return;
+
+  }
+
+
+  if(
+    reference.length <
+    3
+  ){
+
+    showStatus(
+      "Please enter a valid transaction reference.",
+      "error"
+    );
+
+    referenceInput.focus();
 
     return;
 
@@ -1370,47 +2361,59 @@ async function submitPayment(){
       "error"
     );
 
-    return;
-
-  }
-
-
-  const total =
-    Number(
-      currentTask.reward || 0
-    ) *
-    Number(
-      currentTask.slots || 0
-    );
-
-
-  if(total <= 0){
-
-    showStatus(
-      "The job has an invalid payment amount.",
-      "error"
-    );
+    proofInput.focus();
 
     return;
 
   }
-
-
-  submitBtn.disabled =
-    true;
-
-  submitBtn.textContent =
-    "Preparing Screenshot...";
 
 
   try{
 
     /*
-      Create the cropped JPEG.
+      Recalculate from the currently loaded
+      database values immediately before submission.
+    */
+
+    calculatePayment();
+
+
+    if(
+      totalPaymentAmount <= 0
+    ){
+
+      throw new Error(
+        "The payment amount is invalid."
+      );
+
+    }
+
+
+    submitBtn.disabled =
+      true;
+
+    submitBtn.textContent =
+      "Preparing Screenshot...";
+
+
+    /*
+      Create prepared JPEG.
     */
 
     const croppedFile =
       await canvasToFile();
+
+
+    if(
+      croppedFile.size >
+      5 * 1024 * 1024
+    ){
+
+      throw new Error(
+        "The prepared screenshot is still too large. Please choose a smaller image."
+      );
+
+    }
 
 
     submitBtn.textContent =
@@ -1423,6 +2426,10 @@ async function submitPayment(){
       currentTask.id +
       "/" +
       Date.now() +
+      "-" +
+      Math.random()
+        .toString(36)
+        .slice(2,8) +
       ".jpg";
 
 
@@ -1457,22 +2464,21 @@ async function submitPayment(){
       "Submitting Payment...";
 
 
+    let paymentError =
+      null;
+
+
     /*
-      IMPORTANT:
-      Status is PENDING.
-
-      Admin's existing secure RPC can then
-      approve/reject it.
+      Existing rejected payment can be
+      submitted again.
     */
-
-    let paymentError = null;
-
 
     if(
       existingPayment &&
-      String(
-        existingPayment.status || ""
-      ).toUpperCase() === "REJECTED"
+      normaliseStatus(
+        existingPayment.status
+      ) ===
+      "REJECTED"
     ){
 
       const result =
@@ -1480,7 +2486,8 @@ async function submitPayment(){
           .from("poster_payments")
           .update({
 
-            amount:total,
+            amount:
+              totalPaymentAmount,
 
             payment_method:
               "BANK_TRANSFER",
@@ -1492,7 +2499,13 @@ async function submitPayment(){
               filePath,
 
             status:
-              "PENDING"
+              "PENDING",
+
+            confirmed_by:
+              null,
+
+            confirmed_at:
+              null
 
           })
           .eq(
@@ -1509,6 +2522,12 @@ async function submitPayment(){
         result.error;
 
     }
+
+
+    /*
+      Existing non-final payment record.
+    */
+
     else if(existingPayment){
 
       const result =
@@ -1516,7 +2535,8 @@ async function submitPayment(){
           .from("poster_payments")
           .update({
 
-            amount:total,
+            amount:
+              totalPaymentAmount,
 
             payment_method:
               "BANK_TRANSFER",
@@ -1528,7 +2548,13 @@ async function submitPayment(){
               filePath,
 
             status:
-              "PENDING"
+              "PENDING",
+
+            confirmed_by:
+              null,
+
+            confirmed_at:
+              null
 
           })
           .eq(
@@ -1545,6 +2571,12 @@ async function submitPayment(){
         result.error;
 
     }
+
+
+    /*
+      First payment.
+    */
+
     else{
 
       const result =
@@ -1559,7 +2591,7 @@ async function submitPayment(){
               currentTask.id,
 
             amount:
-              total,
+              totalPaymentAmount,
 
             payment_method:
               "BANK_TRANSFER",
@@ -1585,13 +2617,26 @@ async function submitPayment(){
     if(paymentError){
 
       /*
-        Remove uploaded screenshot if
-        database update fails.
+        Remove uploaded proof if database
+        operation failed.
       */
 
-      await db.storage
-        .from(PAYMENT_BUCKET)
-        .remove([filePath]);
+      try{
+
+        await db.storage
+          .from(PAYMENT_BUCKET)
+          .remove([
+            filePath
+          ]);
+
+      }catch(cleanupError){
+
+        console.error(
+          "Proof cleanup error:",
+          cleanupError
+        );
+
+      }
 
 
       throw paymentError;
@@ -1600,11 +2645,8 @@ async function submitPayment(){
 
 
     /*
-      DO NOT change task to UNDER_REVIEW.
-
-      It remains PAYMENT_REQUIRED until
-      Admin's secure approval function
-      changes it to LIVE.
+      Keep the task unavailable until Admin
+      approves the payment.
     */
 
     const {
@@ -1617,7 +2659,8 @@ async function submitPayment(){
           status:
             "PAYMENT_REQUIRED",
 
-          active:false
+          active:
+            false
 
         })
         .eq(
@@ -1632,37 +2675,42 @@ async function submitPayment(){
 
     if(taskError){
 
-      console.error(
-        "Task status warning:",
+      console.warn(
+        "Task status update warning:",
         taskError
       );
-
-      /*
-        Payment itself has already been
-        recorded. Do not tell the poster
-        that the payment failed.
-      */
 
     }
 
 
     existingPayment = {
-      status:"PENDING"
+      id:
+        existingPayment?.id ||
+        null,
+
+      status:
+        "PENDING",
+
+      amount:
+        totalPaymentAmount,
+
+      payment_reference:
+        reference,
+
+      proof_url:
+        filePath
+
     };
 
 
-    document
-      .getElementById("reference")
-      .disabled = true;
-
+    referenceInput.disabled =
+      true;
 
     proofInput.disabled =
       true;
 
-
     submitBtn.disabled =
       true;
-
 
     submitBtn.textContent =
       "Payment Under Review";
@@ -1676,7 +2724,7 @@ async function submitPayment(){
 
 
     showStatus(
-      "Payment submitted successfully. Admin will review your payment before the job becomes LIVE.",
+      "Payment submitted successfully. Admin will verify the transfer before the job becomes LIVE.",
       "success"
     );
 
@@ -1684,14 +2732,14 @@ async function submitPayment(){
   }catch(error){
 
     console.error(
-      "PAYMENT SUBMISSION ERROR:",
+      "POSTER PAYMENT SUBMISSION ERROR:",
       error
     );
 
 
     showStatus(
       error.message ||
-      "Payment submission failed.",
+      "Payment submission failed. Please try again.",
       "error"
     );
 
@@ -1726,4 +2774,4 @@ loadPage();
 </script>
 
 </body>
-  </html>
+  </htm
