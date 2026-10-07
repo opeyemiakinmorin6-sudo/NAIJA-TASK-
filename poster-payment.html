@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<meta name="theme-color" content="#064d25">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#087f36">
 
 <title>Poster Payment — NAIJA TASK</title>
 
@@ -12,8 +13,7 @@
 <style>
 *{
   box-sizing:border-box;
-  margin:0;
-  padding:0;
+  -webkit-tap-highlight-color:transparent;
 }
 
 :root{
@@ -21,350 +21,269 @@
   --green2:#0b9b45;
   --green3:#064d25;
   --lime:#b7ef43;
-  --dark:#10251a;
-  --muted:#68776e;
   --bg:#f3f8f5;
-  --white:#fff;
-  --line:#dce9e1;
-  --gold:#f0b429;
+  --card:#ffffff;
+  --text:#13251b;
+  --muted:#64746b;
+  --border:#dce9e1;
   --danger:#c62828;
-  --success:#087a36;
-  --shadow:0 10px 30px rgba(5,55,25,.08);
-}
-
-html{
-  scroll-behavior:smooth;
+  --warning:#a15c00;
+  --shadow:0 12px 30px rgba(0,50,25,.09);
 }
 
 body{
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
   background:
-    radial-gradient(
-      circle at top right,
-      rgba(183,239,67,.12),
-      transparent 28%
-    ),
+    radial-gradient(circle at top right,rgba(183,239,67,.20),transparent 28%),
     var(--bg);
-  color:var(--dark);
-  min-height:100vh;
+  color:var(--text);
 }
 
 button,
-input{
+input,
+select{
   font:inherit;
 }
 
 button{
-  -webkit-tap-highlight-color:transparent;
+  cursor:pointer;
 }
 
-header{
-  position:relative;
-  overflow:hidden;
-  background:
-    linear-gradient(
-      135deg,
-      var(--green3),
-      var(--green),
-      var(--green2)
-    );
+.topbar{
+  background:linear-gradient(120deg,var(--green3),var(--green),var(--green2));
   color:#fff;
-  padding:
-    calc(18px + env(safe-area-inset-top))
-    16px
-    20px;
-  box-shadow:0 5px 22px rgba(0,0,0,.13);
+  padding:17px 16px 22px;
+  box-shadow:0 5px 20px rgba(0,50,25,.18);
 }
 
-header::after{
-  content:"";
-  position:absolute;
-  width:180px;
-  height:180px;
-  right:-65px;
-  top:-95px;
-  border-radius:50%;
-  background:rgba(183,239,67,.15);
-}
-
-.header-inner{
-  position:relative;
-  z-index:1;
-  max-width:760px;
+.top-inner{
+  max-width:900px;
   margin:auto;
 }
 
 .brand-row{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:12px;
 }
 
 .brand{
-  font-size:22px;
+  font-size:24px;
   font-weight:900;
-  letter-spacing:.2px;
+  letter-spacing:.4px;
 }
 
-.secure-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.2);
-  padding:6px 9px;
+.secure{
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.20);
+  padding:8px 11px;
   border-radius:999px;
-  font-size:11px;
+  font-size:12px;
   font-weight:800;
 }
 
 .subtitle{
-  margin-top:6px;
-  font-size:13px;
+  margin-top:7px;
   opacity:.88;
+  font-size:13px;
 }
 
 .container{
-  width:100%;
-  max-width:760px;
-  margin:auto;
-  padding:18px 14px 50px;
+  width:min(900px,calc(100% - 24px));
+  margin:18px auto 50px;
 }
 
 .back{
   display:inline-flex;
   align-items:center;
-  gap:5px;
-  margin-bottom:15px;
+  gap:7px;
   color:var(--green);
-  font-weight:800;
   text-decoration:none;
+  font-weight:800;
   font-size:14px;
+  margin-bottom:15px;
 }
 
 .card{
-  background:var(--white);
-  border:1px solid var(--line);
+  background:var(--card);
+  border:1px solid var(--border);
   border-radius:20px;
   padding:18px;
   margin-bottom:15px;
   box-shadow:var(--shadow);
 }
 
-.card h1{
-  font-size:23px;
-  line-height:1.2;
-  margin-bottom:8px;
+.card h2,
+.card h3{
+  margin:0 0 12px;
 }
 
 .card h2{
-  font-size:17px;
-  margin-bottom:12px;
+  font-size:20px;
 }
 
-.muted{
+.card h3{
+  font-size:16px;
+}
+
+.task-title{
+  font-size:21px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+
+.task-description{
   color:var(--muted);
   font-size:14px;
   line-height:1.55;
 }
 
-/* HERO PAYMENT */
-
-.amount-box{
-  position:relative;
-  overflow:hidden;
-  background:
-    linear-gradient(
-      135deg,
-      #edf9f1,
-      #f7fff3
-    );
-  border:1px solid #cbe8d4;
-  border-radius:17px;
-  padding:18px;
-  margin-top:16px;
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:15px;
 }
 
-.amount-box::after{
-  content:"₦";
-  position:absolute;
-  right:18px;
-  top:4px;
-  font-size:80px;
-  line-height:1;
+.stat{
+  background:#f6faf7;
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:13px;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  margin-bottom:5px;
+}
+
+.stat-value{
+  font-size:17px;
   font-weight:900;
-  color:rgba(8,127,54,.06);
+  color:var(--green3);
+}
+
+.amount-box{
+  background:linear-gradient(135deg,#064d25,#087f36,#0b9b45);
+  color:#fff;
+  border-radius:18px;
+  padding:19px;
+  margin-top:15px;
 }
 
 .amount-label{
-  position:relative;
-  z-index:1;
   font-size:12px;
+  opacity:.85;
   font-weight:700;
-  color:#617066;
-  text-transform:uppercase;
-  letter-spacing:.5px;
 }
 
 .amount{
-  position:relative;
-  z-index:1;
-  color:var(--green);
-  font-size:34px;
+  font-size:32px;
   font-weight:900;
   margin-top:5px;
 }
 
-.amount-note{
-  position:relative;
-  z-index:1;
-  margin-top:5px;
-  font-size:12px;
-  color:#66756c;
+.amount-breakdown{
+  margin-top:13px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.2);
 }
 
-.breakdown{
-  position:relative;
-  z-index:1;
-  margin-top:15px;
-  border-top:1px dashed #c8dfcf;
-  padding-top:10px;
-}
-
-.breakdown-row{
+.break-row{
   display:flex;
   justify-content:space-between;
   gap:10px;
-  padding:6px 0;
+  padding:5px 0;
   font-size:13px;
 }
 
-.breakdown-row span:first-child{
-  color:#66756c;
-}
-
-.breakdown-row strong{
-  color:#183622;
-}
-
-.breakdown-row.total{
-  margin-top:5px;
-  padding-top:10px;
-  border-top:1px solid #d9e9df;
-  font-size:14px;
-}
-
-.breakdown-row.total strong{
-  color:var(--green);
-  font-size:16px;
-}
-
-/* JOB DETAILS */
-
-.row{
-  padding:13px 0;
-  border-bottom:1px solid #edf1ee;
-}
-
-.row:last-child{
-  border-bottom:none;
-}
-
-.label{
-  display:block;
-  font-size:11px;
-  font-weight:700;
-  color:#718077;
-  margin-bottom:5px;
-  text-transform:uppercase;
-  letter-spacing:.35px;
-}
-
-.value{
-  font-size:16px;
-  font-weight:800;
-  word-break:break-word;
-}
-
-.badge{
-  display:inline-flex;
-  align-items:center;
-  padding:6px 10px;
-  border-radius:999px;
-  background:#fff3cf;
-  color:#765800;
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.2px;
-}
-
-.slot-warning{
-  display:none;
-  margin-top:12px;
-  background:#fff3f3;
-  border:1px solid #efc4c4;
-  color:#a32222;
-  border-radius:12px;
+.info{
+  background:#edf8f1;
+  border:1px solid #cce9d5;
+  color:#185c32;
+  border-radius:13px;
   padding:12px;
   font-size:13px;
-  line-height:1.45;
-}
-
-/* PAYMENT ACCOUNT */
-
-.account-card{
-  border:1px solid #d3eadb;
-  background:
-    linear-gradient(
-      145deg,
-      #ffffff,
-      #f5fcf7
-    );
-}
-
-.account-number{
-  font-size:23px;
-  letter-spacing:1px;
-  color:var(--green);
-}
-
-.copy-row{
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-
-.copy-row .value{
-  flex:1;
-}
-
-.copy-btn{
-  width:auto;
-  min-width:72px;
-  padding:9px 11px;
-  border-radius:9px;
-  background:#e7f5eb;
-  color:var(--green3);
-  border:1px solid #cfe6d7;
-  font-size:12px;
+  line-height:1.5;
+  margin-top:13px;
 }
 
 .warning{
-  background:#fff8e6;
-  border:1px solid #f0d58a;
-  color:#624b08;
+  background:#fff6e8;
+  border:1px solid #f1d4a6;
+  color:#855000;
   border-radius:13px;
-  padding:13px;
+  padding:12px;
   font-size:13px;
   line-height:1.5;
-  margin-top:14px;
+  margin-top:13px;
 }
 
-/* FORM */
+.error{
+  background:#fff0f0;
+  border:1px solid #efcaca;
+  color:#9d2020;
+  border-radius:13px;
+  padding:12px;
+  font-size:13px;
+  line-height:1.5;
+  margin-top:13px;
+}
+
+.success{
+  background:#edf9f0;
+  border:1px solid #c6e8cf;
+  color:#17602f;
+  border-radius:13px;
+  padding:12px;
+  font-size:13px;
+  line-height:1.5;
+  margin-top:13px;
+}
+
+.bank{
+  background:#f8fbf9;
+  border:1px solid var(--border);
+  border-radius:15px;
+  overflow:hidden;
+}
+
+.bank-row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:13px;
+  border-bottom:1px solid var(--border);
+}
+
+.bank-row:last-child{
+  border-bottom:0;
+}
+
+.bank-label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:700;
+}
+
+.bank-value{
+  font-size:14px;
+  font-weight:900;
+  text-align:right;
+  word-break:break-word;
+}
+
+.instructions{
+  padding:13px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
+  white-space:pre-wrap;
+}
 
 label{
   display:block;
@@ -373,266 +292,156 @@ label{
   margin-bottom:7px;
 }
 
-input[type="text"],
-input[type="file"]{
-  width:100%;
-  padding:13px;
-  border:1px solid #cfdcd3;
-  border-radius:11px;
-  background:#fff;
-  color:var(--dark);
-  font-size:14px;
-}
-
-input[type="file"]{
-  padding:10px;
-}
-
-input:focus{
-  outline:none;
-  border-color:var(--green2);
-  box-shadow:0 0 0 3px rgba(11,155,69,.08);
-}
-
-input:disabled{
-  background:#f2f5f3;
-  color:#768179;
-}
-
 .field{
-  margin-bottom:17px;
+  margin-top:15px;
 }
 
-.submit{
+input,
+select{
   width:100%;
-  border:none;
-  border-radius:12px;
-  padding:15px;
-  font-size:15px;
-  font-weight:900;
-  cursor:pointer;
-  background:
-    linear-gradient(
-      135deg,
-      var(--green3),
-      var(--green2)
-    );
-  color:#fff;
-  box-shadow:0 8px 18px rgba(8,127,54,.18);
+  border:1px solid #ccdcd2;
+  background:#fff;
+  border-radius:13px;
+  padding:13px;
+  outline:none;
+  color:var(--text);
 }
 
-.submit:active{
-  transform:translateY(1px);
+input:focus,
+select:focus{
+  border-color:var(--green2);
+  box-shadow:0 0 0 3px rgba(11,155,69,.10);
 }
 
-.submit:disabled{
-  background:#9bbba7;
-  box-shadow:none;
-  cursor:not-allowed;
+.file-box{
+  border:2px dashed #b9d4c2;
+  background:#f8fcf9;
+  border-radius:15px;
+  padding:17px;
+  text-align:center;
 }
 
-.secondary{
+.file-box input{
+  border:0;
+  padding:0;
+  background:transparent;
+}
+
+.preview-wrap{
+  display:none;
+  margin-top:14px;
+  background:#101512;
+  border-radius:15px;
+  padding:10px;
+  overflow:hidden;
+}
+
+#previewCanvas{
   width:100%;
-  border:none;
+  max-height:420px;
+  object-fit:contain;
+  display:block;
   border-radius:10px;
-  padding:11px;
-  background:#e8f5ec;
-  color:#08752f;
-  font-size:13px;
-  font-weight:800;
+}
+
+.controls{
+  display:flex;
+  gap:8px;
   margin-top:10px;
 }
 
-.status{
-  display:none;
-  margin-top:14px;
-  padding:13px;
+.small-btn{
+  flex:1;
+  border:0;
   border-radius:11px;
+  padding:11px 8px;
+  background:#eaf5ee;
+  color:var(--green3);
+  font-weight:900;
+}
+
+.status{
+  border-radius:13px;
+  padding:12px;
   font-size:13px;
-  line-height:1.5;
+  line-height:1.45;
+  margin-bottom:14px;
 }
 
-.status.success{
-  display:block;
-  background:#e9f8ee;
-  color:#086c2f;
-  border:1px solid #bfe4ca;
+.status.pending{
+  background:#fff7e8;
+  border:1px solid #efd6a7;
+  color:#855000;
 }
 
-.status.error{
-  display:block;
+.status.approved{
+  background:#eaf8ef;
+  border:1px solid #c4e5cd;
+  color:#17602f;
+}
+
+.status.rejected{
   background:#fff0f0;
-  color:#a32222;
-  border:1px solid #efc4c4;
+  border:1px solid #efcaca;
+  color:#9d2020;
+}
+
+.primary{
+  width:100%;
+  border:0;
+  border-radius:14px;
+  padding:15px;
+  background:linear-gradient(120deg,var(--green3),var(--green2));
+  color:#fff;
+  font-weight:900;
+  font-size:15px;
+  box-shadow:0 8px 20px rgba(8,127,54,.22);
+}
+
+.primary:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  box-shadow:none;
 }
 
 .loading{
   text-align:center;
-  padding:45px 10px;
-  color:#66736b;
-  font-size:14px;
-}
-
-.loading-spinner{
-  width:34px;
-  height:34px;
-  border:3px solid #dcebe2;
-  border-top-color:var(--green);
-  border-radius:50%;
-  margin:0 auto 12px;
-  animation:spin .8s linear infinite;
-}
-
-@keyframes spin{
-  to{
-    transform:rotate(360deg);
-  }
+  padding:30px 10px;
+  color:var(--muted);
+  font-weight:700;
 }
 
 .hidden{
   display:none!important;
 }
 
-.small{
-  font-size:12px;
-  color:#758078;
-  margin-top:7px;
-  line-height:1.45;
-}
-
-/* IMAGE PREVIEW */
-
-.preview-wrap{
-  display:none;
-  margin-top:14px;
-}
-
-.preview-wrap.show{
-  display:block;
-}
-
-.preview-title{
-  font-size:13px;
-  font-weight:800;
-  margin-bottom:8px;
-}
-
-.preview-box{
-  background:#111;
-  border-radius:15px;
-  overflow:hidden;
-  padding:8px;
-}
-
-#previewCanvas{
-  display:block;
-  width:100%;
-  max-height:420px;
-  object-fit:contain;
-  margin:auto;
-  background:#111;
-  border-radius:9px;
-}
-
-.crop-controls{
+.notice{
   margin-top:12px;
-  background:#f5fff7;
-  border:1px solid #d9efdf;
-  border-radius:12px;
-  padding:12px;
-}
-
-.crop-controls label{
   font-size:12px;
-  margin-bottom:5px;
+  color:var(--muted);
+  line-height:1.5;
 }
 
-.crop-controls input[type="range"]{
-  width:100%;
-  accent-color:var(--green2);
-}
-
-.crop-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.file-info{
-  margin-top:8px;
-  font-size:12px;
-  color:#66736b;
-  word-break:break-word;
-}
-
-/* SECURITY NOTE */
-
-.security-note{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  background:#f0f8f3;
-  border:1px solid #d5eade;
-  border-radius:13px;
-  padding:12px;
-  margin-top:13px;
-}
-
-.security-icon{
-  width:30px;
-  height:30px;
-  flex:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:9px;
-  background:var(--green);
-  color:#fff;
-  font-size:14px;
-  font-weight:900;
-}
-
-.security-note strong{
-  display:block;
-  font-size:12px;
-  margin-bottom:3px;
-}
-
-.security-note span{
-  font-size:11px;
-  color:#68776e;
-  line-height:1.45;
-}
-
-@media(max-width:480px){
-
-  .container{
-    padding:15px 12px 38px;
+@media(max-width:600px){
+  .stats{
+    grid-template-columns:1fr 1fr;
   }
 
-  .card{
-    padding:15px;
-    border-radius:17px;
-  }
-
-  .card h1{
-    font-size:21px;
+  .stat:last-child{
+    grid-column:1/-1;
   }
 
   .amount{
-    font-size:31px;
+    font-size:28px;
   }
 
-  .account-number{
-    font-size:20px;
+  .bank-row{
+    flex-direction:column;
+    gap:4px;
   }
 
-  .brand{
-    font-size:20px;
-  }
-
-  .secure-pill{
-    font-size:10px;
+  .bank-value{
+    text-align:left;
   }
 }
 </style>
@@ -640,515 +449,189 @@ input:disabled{
 
 <body>
 
-<header>
-  <div class="header-inner">
-
+<header class="topbar">
+  <div class="top-inner">
     <div class="brand-row">
-
-      <div class="brand">
-        NAIJA TASK
-      </div>
-
-      <div class="secure-pill">
-        🔒 Secure Payment
-      </div>
-
+      <div class="brand">NAIJA TASK</div>
+      <div class="secure">🔒 Secure Payment</div>
     </div>
-
-    <div class="subtitle">
-      Poster Job Funding & Payment
-    </div>
-
+    <div class="subtitle">Poster Job Funding &amp; Payment</div>
   </div>
 </header>
 
-
 <main class="container">
 
-<a class="back" href="poster-dashboard.html">
-  ← Back to Poster Dashboard
-</a>
+  <a class="back" href="poster-dashboard.html">← Back to Poster Dashboard</a>
 
-
-<div id="loading" class="loading">
-
-  <div class="loading-spinner"></div>
-
-  Loading payment details...
-
-</div>
-
-
-<div id="page" class="hidden">
-
-
-  <!-- PAYMENT SUMMARY -->
-
-  <div class="card">
-
-    <h1>
-      Fund Your Job
-    </h1>
-
-    <p class="muted">
-      Complete payment for your job before NAIJA TASK Admin can review
-      and publish it.
-    </p>
-
-
-    <div class="amount-box">
-
-      <div class="amount-label">
-        Total Amount Required
-      </div>
-
-      <div id="totalAmount" class="amount">
-        ₦0
-      </div>
-
-      <div class="amount-note">
-        Task funding + poster posting fee
-      </div>
-
-
-      <div class="breakdown">
-
-        <div class="breakdown-row">
-
-          <span>
-            Tasker rewards
-          </span>
-
-          <strong id="taskFunding">
-            ₦0
-          </strong>
-
-        </div>
-
-
-        <div class="breakdown-row">
-
-          <span>
-            Poster posting fee
-          </span>
-
-          <strong id="posterFee">
-            ₦0
-          </strong>
-
-        </div>
-
-
-        <div class="breakdown-row total">
-
-          <span>
-            Total to transfer
-          </span>
-
-          <strong id="totalBreakdown">
-            ₦0
-          </strong>
-
-        </div>
-
-      </div>
-
-    </div>
-
+  <div id="loadingBox" class="card loading">
+    Loading payment details...
   </div>
 
+  <div id="errorBox" class="card error hidden"></div>
 
-  <!-- JOB DETAILS -->
+  <section id="pageContent" class="hidden">
 
-  <div class="card">
+    <div class="card">
+      <div class="task-title" id="taskTitle">Poster Task</div>
+      <div class="task-description" id="taskDescription"></div>
 
-    <h2>
-      Job Details
-    </h2>
-
-
-    <div class="row">
-
-      <span class="label">
-        Job Title
-      </span>
-
-      <div id="jobTitle" class="value">
-        —
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <span class="label">
-        Reward Per Tasker
-      </span>
-
-      <div id="reward" class="value">
-        —
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <span class="label">
-        Available Slots
-      </span>
-
-      <div id="slots" class="value">
-        —
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <span class="label">
-        Minimum Required Slots
-      </span>
-
-      <div id="minimumSlots" class="value">
-        —
-      </div>
-
-    </div>
-
-
-    <div id="slotWarning" class="slot-warning">
-      This job does not meet the current minimum poster task quantity.
-      Please return to the poster dashboard and update the number of slots.
-    </div>
-
-  </div>
-
-
-  <!-- PAYMENT ACCOUNT -->
-
-  <div class="card account-card">
-
-    <h2>
-      Payment Account
-    </h2>
-
-    <p class="muted">
-      Transfer the exact total amount shown above to the account below.
-    </p>
-
-
-    <div class="row">
-
-      <span class="label">
-        Bank
-      </span>
-
-      <div id="bankName" class="value">
-        —
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <span class="label">
-        Account Name
-      </span>
-
-      <div id="accountName" class="value">
-        —
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <span class="label">
-        Account Number
-      </span>
-
-      <div class="copy-row">
-
-        <div
-          id="accountNumber"
-          class="value account-number"
-        >
-          —
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Reward / Worker</div>
+          <div class="stat-value" id="rewardValue">₦0</div>
         </div>
 
-        <button
-          type="button"
-          class="copy-btn"
-          id="copyAccount"
-        >
-          Copy
-        </button>
+        <div class="stat">
+          <div class="stat-label">Task Quantity</div>
+          <div class="stat-value" id="slotsValue">0</div>
+        </div>
 
+        <div class="stat">
+          <div class="stat-label">Minimum Quantity</div>
+          <div class="stat-value" id="minimumSlotsValue">10</div>
+        </div>
       </div>
 
+      <div id="slotWarning" class="warning hidden"></div>
+
+      <div class="amount-box">
+        <div class="amount-label">TOTAL PAYMENT REQUIRED</div>
+        <div class="amount" id="totalAmount">₦0</div>
+
+        <div class="amount-breakdown">
+          <div class="break-row">
+            <span>Worker task funding</span>
+            <strong id="fundingAmount">₦0</strong>
+          </div>
+
+          <div class="break-row">
+            <span>Poster task fee</span>
+            <strong id="posterFee">₦0</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="info">
+        Your payment is reviewed by the NAIJA TASK admin team.
+        Your task becomes live only after the payment is approved.
+      </div>
     </div>
 
+    <div class="card">
+      <h2>Bank Payment Details</h2>
 
-    <div
-      id="instructionsRow"
-      class="row hidden"
-    >
-
-      <span class="label">
-        Payment Instructions
-      </span>
-
-      <div
-        id="instructions"
-        class="value"
-      ></div>
-
+      <div id="bankDetails" class="bank">
+        <div class="loading">Loading bank details...</div>
+      </div>
     </div>
 
+    <div class="card">
 
-    <div class="warning">
+      <h2>Submit Payment Proof</h2>
 
-      ⚠️ <strong>Important:</strong>
-      Transfer the exact amount shown above and keep your transaction
-      reference. Your job will remain unavailable to Taskers until
-      Admin confirms the payment.
+      <div id="paymentStatus"></div>
 
-    </div>
-
-
-    <div class="security-note">
-
-      <div class="security-icon">
-        ✓
+      <div class="field">
+        <label for="paymentMethod">Payment Method</label>
+        <select id="paymentMethod">
+          <option value="BANK_TRANSFER">Bank Transfer</option>
+          <option value="BANK_DEPOSIT">Bank Deposit</option>
+        </select>
       </div>
 
-      <div>
-
-        <strong>
-          Admin verification required
-        </strong>
-
-        <span>
-          Payment is not treated as approved simply because proof was
-          submitted. An authorised NAIJA TASK Admin must review it.
-        </span>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- PAYMENT PROOF -->
-
-  <div class="card">
-
-    <h2>
-      Submit Payment Proof
-    </h2>
-
-
-    <div id="currentStatus" class="small"></div>
-
-
-    <div class="field">
-
-      <label for="reference">
-        Transaction Reference
-      </label>
-
-      <input
-        id="reference"
-        type="text"
-        placeholder="Enter your bank transaction reference"
-        maxlength="150"
-        autocomplete="off"
-      >
-
-      <div class="small">
-        Use the reference shown by your bank or payment provider.
-      </div>
-
-    </div>
-
-
-    <div class="field">
-
-      <label for="proof">
-        Payment Screenshot
-      </label>
-
-      <input
-        id="proof"
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/*"
-      >
-
-      <div class="small">
-        Upload a clear screenshot showing the successful transfer.
-        Maximum original image size: 10 MB.
-      </div>
-
-      <div
-        id="fileInfo"
-        class="file-info"
-      ></div>
-
-    </div>
-
-
-    <!-- PREVIEW -->
-
-    <div
-      id="previewWrap"
-      class="preview-wrap"
-    >
-
-      <div class="preview-title">
-        Screenshot Preview
-      </div>
-
-
-      <div class="preview-box">
-
-        <canvas
-          id="previewCanvas"
-        ></canvas>
-
-      </div>
-
-
-      <div class="crop-controls">
-
-        <label for="zoom">
-          Crop / Zoom
-        </label>
-
+      <div class="field">
+        <label for="reference">Payment Reference / Transfer Reference</label>
         <input
-          id="zoom"
-          type="range"
-          min="1"
-          max="3"
-          step="0.05"
-          value="1"
-        >
+          id="reference"
+          type="text"
+          maxlength="150"
+          placeholder="Enter your transfer reference"
+          autocomplete="off">
+      </div>
 
+      <div class="field">
+        <label for="proofFile">Payment Screenshot</label>
 
-        <div class="crop-row">
-
-          <button
-            type="button"
-            class="secondary"
-            id="rotateLeft"
-          >
-            ↶ Rotate
-          </button>
-
-
-          <button
-            type="button"
-            class="secondary"
-            id="resetCrop"
-          >
-            Reset
-          </button>
-
+        <div class="file-box">
+          <input
+            id="proofFile"
+            type="file"
+            accept="image/*">
+          <div class="notice">
+            Upload a clear screenshot showing the payment details.
+            Maximum original file size: 10MB.
+          </div>
         </div>
 
+        <div id="previewWrap" class="preview-wrap">
+          <canvas id="previewCanvas"></canvas>
 
-        <div class="small">
-          Adjust the screenshot before submitting. The prepared image is
-          converted to JPEG before upload.
+          <div class="controls">
+            <button type="button" class="small-btn" id="zoomOutBtn">
+              − Zoom
+            </button>
+
+            <button type="button" class="small-btn" id="rotateBtn">
+              ↻ Rotate
+            </button>
+
+            <button type="button" class="small-btn" id="zoomInBtn">
+              + Zoom
+            </button>
+          </div>
         </div>
+      </div>
 
+      <div id="formMessage"></div>
+
+      <button
+        id="submitBtn"
+        class="primary"
+        type="button">
+        Submit Payment Proof
+      </button>
+
+      <div class="notice">
+        Payment amount is verified again by the NAIJA TASK server before
+        your proof is accepted.
       </div>
 
     </div>
 
-
-    <button
-      id="submitBtn"
-      class="submit"
-      type="button"
-    >
-      Submit Payment for Review
-    </button>
-
-
-    <div
-      id="status"
-      class="status"
-    ></div>
-
-  </div>
-
-</div>
+  </section>
 
 </main>
 
-
 <script>
-
-/* =========================================
-   SUPABASE
-========================================= */
+/* =========================================================
+   SUPABASE CONFIGURATION
+   ========================================================= */
 
 const SUPABASE_URL =
   "https://jwakveeiynpakunwjzkj.supabase.co";
 
+/*
+ IMPORTANT:
+ Keep the SAME Supabase publishable/anon key that is already
+ inside your current poster-payment.html here.
+*/
 const SUPABASE_KEY =
   "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-const db =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY,
-    {
-      auth:{
-        persistSession:true,
-        autoRefreshToken:true,
-        detectSessionInUrl:true
-      }
-    }
-  );
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 
-/* =========================================
-   CONSTANTS
-========================================= */
-
-const PAYMENT_BUCKET =
-  "payment proof";
-
-
-/* =========================================
-   STATE
-========================================= */
-
-const params =
-  new URLSearchParams(
-    window.location.search
-  );
-
-const taskId =
-  params.get("task_id");
+/* =========================================================
+   GLOBAL STATE
+   ========================================================= */
 
 let currentUser = null;
 let currentTask = null;
 let existingPayment = null;
-
-let selectedFile = null;
-let imageObject = null;
-let zoomValue = 1;
-let rotation = 0;
-
-let platformSettings = null;
 
 let minimumPosterTaskSlots = 10;
 let posterTaskFee = 500;
@@ -1156,231 +639,617 @@ let posterTaskFee = 500;
 let taskFundingAmount = 0;
 let totalPaymentAmount = 0;
 
-
-/* =========================================
-   ELEMENTS
-========================================= */
-
-const loading =
-  document.getElementById("loading");
-
-const page =
-  document.getElementById("page");
-
-const statusBox =
-  document.getElementById("status");
-
-const submitBtn =
-  document.getElementById("submitBtn");
-
-const proofInput =
-  document.getElementById("proof");
-
-const canvas =
-  document.getElementById("previewCanvas");
-
-const ctx =
-  canvas.getContext("2d");
-
-const previewWrap =
-  document.getElementById("previewWrap");
-
-const zoomInput =
-  document.getElementById("zoom");
-
-const fileInfo =
-  document.getElementById("fileInfo");
-
-const referenceInput =
-  document.getElementById("reference");
-
-const slotWarning =
-  document.getElementById("slotWarning");
+let selectedImage = null;
+let imageScale = 1;
+let imageRotation = 0;
 
 
-/* =========================================
-   HELPERS
-========================================= */
+/* =========================================================
+   DOM HELPERS
+   ========================================================= */
 
-function naira(value){
+const $ = (id) => document.getElementById(id);
 
-  return "₦" +
-    Number(value || 0)
-      .toLocaleString(
-        "en-NG",
-        {
-          minimumFractionDigits:0,
-          maximumFractionDigits:2
-        }
-      );
+function money(value){
+  const number = Number(value || 0);
 
+  return "₦" + number.toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function showError(message){
+  $("loadingBox").classList.add("hidden");
+  $("pageContent").classList.add("hidden");
+
+  $("errorBox").textContent = message;
+  $("errorBox").classList.remove("hidden");
+}
+
+function showFormMessage(message, type="info"){
+  const box = $("formMessage");
+
+  box.className = "";
+
+  if(type === "error"){
+    box.className = "error";
+  }else if(type === "success"){
+    box.className = "success";
+  }else{
+    box.className = "info";
+  }
+
+  box.textContent = message;
+}
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
 
-function showStatus(message,type){
+/* =========================================================
+   GET TASK ID
+   ========================================================= */
 
-  statusBox.className =
-    "status " + type;
-
-  statusBox.textContent =
-    message;
-
+function getTaskId(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("task_id");
 }
 
 
-function hideStatus(){
+/* =========================================================
+   AUTH
+   ========================================================= */
 
-  statusBox.className =
-    "status";
+async function requireUser(){
 
-  statusBox.textContent =
+  const {
+    data,
+    error
+  } = await db.auth.getUser();
+
+  if(error){
+    throw error;
+  }
+
+  if(!data || !data.user){
+    window.location.href = "poster-login.html";
+    return null;
+  }
+
+  currentUser = data.user;
+
+  return currentUser;
+}
+
+
+/* =========================================================
+   PLATFORM SETTINGS
+   ========================================================= */
+
+async function loadPlatformSettings(){
+
+  const {
+    data,
+    error
+  } = await db
+    .from("platform_settings")
+    .select(`
+      poster_registration_enabled,
+      job_posting_enabled,
+      minimum_poster_task_slots,
+      poster_task_fee
+    `)
+    .limit(1)
+    .maybeSingle();
+
+  if(error){
+    throw error;
+  }
+
+  if(data){
+
+    minimumPosterTaskSlots =
+      Number(data.minimum_poster_task_slots || 10);
+
+    if(!Number.isFinite(minimumPosterTaskSlots) ||
+       minimumPosterTaskSlots < 1){
+
+      minimumPosterTaskSlots = 10;
+    }
+
+    posterTaskFee =
+      Number(data.poster_task_fee ?? 500);
+
+    if(!Number.isFinite(posterTaskFee) ||
+       posterTaskFee < 0){
+
+      posterTaskFee = 500;
+    }
+  }
+}
+
+
+/* =========================================================
+   PAYMENT SETTINGS
+   ========================================================= */
+
+async function loadPaymentSettings(){
+
+  const {
+    data,
+    error
+  } = await db
+    .from("payment_settings")
+    .select("*")
+    .eq("active", true)
+    .order("created_at", {
+      ascending:false
+    })
+    .limit(1)
+    .maybeSingle();
+
+  if(error){
+    throw error;
+  }
+
+  const box = $("bankDetails");
+
+  if(!data){
+
+    box.innerHTML = `
+      <div class="error" style="margin:0">
+        Bank payment details are currently unavailable.
+        Please contact NAIJA TASK support.
+      </div>
+    `;
+
+    return;
+  }
+
+  const bankName =
+    data.bank_name ||
+    data.bank ||
+    "Not provided";
+
+  const accountName =
+    data.account_name ||
+    "Not provided";
+
+  const accountNumber =
+    data.account_number ||
+    "Not provided";
+
+  const instructions =
+    data.instructions ||
+    data.payment_instructions ||
     "";
 
+  box.innerHTML = `
+
+    <div class="bank-row">
+      <div class="bank-label">Bank Name</div>
+      <div class="bank-value">${escapeHtml(bankName)}</div>
+    </div>
+
+    <div class="bank-row">
+      <div class="bank-label">Account Name</div>
+      <div class="bank-value">${escapeHtml(accountName)}</div>
+    </div>
+
+    <div class="bank-row">
+      <div class="bank-label">Account Number</div>
+      <div class="bank-value">${escapeHtml(accountNumber)}</div>
+    </div>
+
+    ${
+      instructions
+      ? `
+        <div class="instructions">
+          ${escapeHtml(instructions)}
+        </div>
+      `
+      : ""
+    }
+
+  `;
 }
 
 
-function escapeText(value){
+/* =========================================================
+   LOAD TASK
+   ========================================================= */
 
-  return value == null
-    ? ""
-    : String(value);
+async function loadTask(taskId){
 
+  const {
+    data,
+    error
+  } = await db
+    .from("tasks")
+    .select("*")
+    .eq("id", taskId)
+    .eq("created_by", currentUser.id)
+    .maybeSingle();
+
+  if(error){
+    throw error;
+  }
+
+  if(!data){
+    throw new Error(
+      "Task not found or you do not have access to this task."
+    );
+  }
+
+  currentTask = data;
+
+  const status =
+    String(currentTask.status || "").toUpperCase();
+
+  if(status === "LIVE" || currentTask.active === true){
+
+    throw new Error(
+      "This task is already live and does not require payment again."
+    );
+  }
+
+  if(
+    status !== "PAYMENT_REQUIRED" &&
+    status !== "REJECTED"
+  ){
+
+    throw new Error(
+      "This task is not currently awaiting payment."
+    );
+  }
+
+  const slots =
+    Number(currentTask.slots || 0);
+
+  const reward =
+    Number(currentTask.reward || 0);
+
+  if(!Number.isFinite(slots) || slots < 1){
+    throw new Error("This task has an invalid quantity.");
+  }
+
+  if(!Number.isFinite(reward) || reward <= 0){
+    throw new Error("This task has an invalid reward.");
+  }
+
+  $("taskTitle").textContent =
+    currentTask.title || "Poster Task";
+
+  $("taskDescription").textContent =
+    currentTask.description ||
+    "No task description provided.";
+
+  $("rewardValue").textContent =
+    money(reward);
+
+  $("slotsValue").textContent =
+    slots.toLocaleString("en-NG");
+
+  $("minimumSlotsValue").textContent =
+    minimumPosterTaskSlots.toLocaleString("en-NG");
+
+  if(slots < minimumPosterTaskSlots){
+
+    $("slotWarning").textContent =
+      `This task has ${slots} slots, but poster tasks require at least ` +
+      `${minimumPosterTaskSlots} slots. Please increase the quantity ` +
+      `before submitting payment.`;
+
+    $("slotWarning").classList.remove("hidden");
+
+    $("submitBtn").disabled = true;
+
+  }else{
+
+    $("slotWarning").classList.add("hidden");
+
+    $("submitBtn").disabled = false;
+  }
 }
 
 
-function setLoading(message){
+/* =========================================================
+   SECURE PAYMENT AMOUNT
+   ========================================================= */
 
-  loading.innerHTML =
-    '<div class="loading-spinner"></div>' +
-    escapeText(message);
+async function getSecurePaymentAmount(){
 
-}
+  if(!currentTask){
+    throw new Error("Task information is not available.");
+  }
 
-
-function normaliseStatus(value){
-
-  return String(
-    value || ""
-  )
-    .trim()
-    .toUpperCase();
-
-}
-
-
-/* =========================================
-   COPY ACCOUNT NUMBER
-========================================= */
-
-document
-  .getElementById("copyAccount")
-  .addEventListener(
-    "click",
-    async function(){
-
-      const value =
-        document
-          .getElementById("accountNumber")
-          .textContent
-          .trim();
-
-      if(!value || value === "—"){
-        return;
-      }
-
-      try{
-
-        await navigator.clipboard.writeText(
-          value
-        );
-
-        this.textContent =
-          "Copied!";
-
-        setTimeout(
-          () => {
-            this.textContent =
-              "Copy";
-          },
-          1500
-        );
-
-      }catch(error){
-
-        showStatus(
-          "Could not copy the account number. Please copy it manually.",
-          "error"
-        );
-
-      }
-
+  const {
+    data,
+    error
+  } = await db.rpc(
+    "get_poster_task_payment_amount",
+    {
+      p_task_id: currentTask.id
     }
   );
 
+  if(error){
+    throw error;
+  }
 
-/* =========================================
+  const amount = Number(data);
+
+  if(!Number.isFinite(amount) || amount <= 0){
+
+    throw new Error(
+      "The secure payment amount returned by the server is invalid."
+    );
+  }
+
+  taskFundingAmount =
+    Number(currentTask.reward || 0) *
+    Number(currentTask.slots || 0);
+
+  totalPaymentAmount = amount;
+
+  /*
+    The server amount is authoritative.
+    This lets us show the actual fee currently configured
+    by the admin.
+  */
+  posterTaskFee =
+    Math.max(0, amount - taskFundingAmount);
+
+  $("fundingAmount").textContent =
+    money(taskFundingAmount);
+
+  $("posterFee").textContent =
+    money(posterTaskFee);
+
+  $("totalAmount").textContent =
+    money(totalPaymentAmount);
+
+  return amount;
+}
+
+
+/* =========================================================
+   LOAD EXISTING PAYMENT
+   ========================================================= */
+
+async function loadExistingPayment(){
+
+  const {
+    data,
+    error
+  } = await db
+    .from("poster_payments")
+    .select("*")
+    .eq("task_id", currentTask.id)
+    .eq("poster_id", currentUser.id)
+    .order("created_at", {
+      ascending:false
+    })
+    .limit(1)
+    .maybeSingle();
+
+  if(error){
+    throw error;
+  }
+
+  existingPayment = data || null;
+
+  renderPaymentStatus();
+}
+
+
+/* =========================================================
+   PAYMENT STATUS
+   ========================================================= */
+
+function renderPaymentStatus(){
+
+  const box = $("paymentStatus");
+  const submit = $("submitBtn");
+
+  box.innerHTML = "";
+
+  submit.disabled = false;
+
+  if(!existingPayment){
+    return;
+  }
+
+  const status =
+    String(existingPayment.status || "")
+      .toUpperCase();
+
+  if(status === "PENDING"){
+
+    box.innerHTML = `
+      <div class="status pending">
+        <strong>Payment Under Review</strong><br>
+        Your payment proof has been submitted successfully.
+        Please wait for admin verification.
+      </div>
+    `;
+
+    submit.disabled = true;
+
+    return;
+  }
+
+  if(status === "UNDER_REVIEW"){
+
+    box.innerHTML = `
+      <div class="status pending">
+        <strong>Payment Under Review</strong><br>
+        Your payment proof is currently being reviewed by
+        the NAIJA TASK admin team.
+      </div>
+    `;
+
+    submit.disabled = true;
+
+    return;
+  }
+
+  if(status === "APPROVED"){
+
+    box.innerHTML = `
+      <div class="status approved">
+        <strong>Payment Approved</strong><br>
+        Your payment has been approved. Your task can now
+        proceed according to the NAIJA TASK poster workflow.
+      </div>
+    `;
+
+    submit.disabled = true;
+
+    return;
+  }
+
+  if(status === "REJECTED"){
+
+    box.innerHTML = `
+      <div class="status rejected">
+        <strong>Payment Rejected</strong><br>
+        Your previous payment proof was rejected.
+        You may submit a corrected payment proof below.
+      </div>
+    `;
+
+    submit.disabled = false;
+
+    return;
+  }
+
+  box.innerHTML = `
+    <div class="status pending">
+      <strong>Payment Status:</strong>
+      ${escapeHtml(status || "UNKNOWN")}
+    </div>
+  `;
+}
+
+
+/* =========================================================
    IMAGE PREVIEW
-========================================= */
+   ========================================================= */
+
+$("proofFile").addEventListener("change", function(){
+
+  const file = this.files && this.files[0];
+
+  if(!file){
+    selectedImage = null;
+    $("previewWrap").style.display = "none";
+    return;
+  }
+
+  if(!file.type.startsWith("image/")){
+
+    showFormMessage(
+      "Please select an image file.",
+      "error"
+    );
+
+    this.value = "";
+    return;
+  }
+
+  if(file.size > 10 * 1024 * 1024){
+
+    showFormMessage(
+      "The screenshot is larger than 10MB. Please choose a smaller image.",
+      "error"
+    );
+
+    this.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(event){
+
+    const img = new Image();
+
+    img.onload = function(){
+
+      selectedImage = img;
+      imageScale = 1;
+      imageRotation = 0;
+
+      $("previewWrap").style.display = "block";
+
+      drawPreview();
+    };
+
+    img.onerror = function(){
+
+      selectedImage = null;
+
+      $("previewWrap").style.display = "none";
+
+      showFormMessage(
+        "The selected image could not be read.",
+        "error"
+      );
+    };
+
+    img.src = event.target.result;
+  };
+
+  reader.readAsDataURL(file);
+});
+
+
+/* =========================================================
+   DRAW IMAGE
+   ========================================================= */
 
 function drawPreview(){
 
-  if(!imageObject){
+  if(!selectedImage){
     return;
   }
 
+  const canvas = $("previewCanvas");
+  const ctx = canvas.getContext("2d");
 
-  const sourceWidth =
-    imageObject.naturalWidth;
+  const angle =
+    ((imageRotation % 360) + 360) % 360;
 
-  const sourceHeight =
-    imageObject.naturalHeight;
+  const baseWidth =
+    selectedImage.naturalWidth ||
+    selectedImage.width;
 
+  const baseHeight =
+    selectedImage.naturalHeight ||
+    selectedImage.height;
 
-  if(
-    !sourceWidth ||
-    !sourceHeight
-  ){
-    return;
-  }
+  let width =
+    baseWidth * imageScale;
 
+  let height =
+    baseHeight * imageScale;
 
-  const baseSize =
-    Math.min(
-      sourceWidth,
-      sourceHeight
-    );
-
-
-  const cropSize =
-    baseSize / zoomValue;
-
-
-  const sx =
-    (sourceWidth - cropSize) / 2;
-
-  const sy =
-    (sourceHeight - cropSize) / 2;
-
-
-  const outputSize =
-    Math.min(
-      cropSize,
-      900
-    );
-
+  const rotated =
+    angle === 90 || angle === 270;
 
   canvas.width =
-    Math.max(
-      1,
-      Math.round(outputSize)
-    );
+    Math.max(1, Math.round(rotated ? height : width));
 
   canvas.height =
-    Math.max(
-      1,
-      Math.round(outputSize)
-    );
-
+    Math.max(1, Math.round(rotated ? width : height));
 
   ctx.clearRect(
     0,
@@ -1389,1389 +1258,497 @@ function drawPreview(){
     canvas.height
   );
 
-
   ctx.save();
-
 
   ctx.translate(
     canvas.width / 2,
     canvas.height / 2
   );
 
-
-  ctx.rotate(
-    rotation *
-    Math.PI /
-    180
-  );
-
+  ctx.rotate(angle * Math.PI / 180);
 
   ctx.drawImage(
-    imageObject,
-    sx,
-    sy,
-    cropSize,
-    cropSize,
-    -outputSize / 2,
-    -outputSize / 2,
-    outputSize,
-    outputSize
+    selectedImage,
+    -width / 2,
+    -height / 2,
+    width,
+    height
   );
-
 
   ctx.restore();
-
 }
 
 
-function canvasToFile(){
+/* =========================================================
+   IMAGE CONTROLS
+   ========================================================= */
 
-  return new Promise(
-    function(resolve,reject){
+$("zoomInBtn").addEventListener("click", function(){
 
-      if(
-        !canvas.width ||
-        !canvas.height
-      ){
+  if(!selectedImage) return;
 
-        reject(
-          new Error(
-            "Please select a payment screenshot first."
-          )
-        );
+  imageScale =
+    Math.min(2.5, imageScale + 0.1);
 
-        return;
+  drawPreview();
+});
 
-      }
 
+$("zoomOutBtn").addEventListener("click", function(){
 
-      canvas.toBlob(
-        function(blob){
+  if(!selectedImage) return;
 
-          if(!blob){
+  imageScale =
+    Math.max(0.4, imageScale - 0.1);
 
-            reject(
-              new Error(
-                "Could not prepare the payment screenshot."
-              )
-            );
+  drawPreview();
+});
 
-            return;
 
-          }
+$("rotateBtn").addEventListener("click", function(){
 
+  if(!selectedImage) return;
 
-          const file =
-            new File(
-              [blob],
-              "payment-proof-" +
-              Date.now() +
-              ".jpg",
-              {
-                type:"image/jpeg",
-                lastModified:Date.now()
-              }
-            );
+  imageRotation =
+    (imageRotation + 90) % 360;
 
+  drawPreview();
+});
 
-          resolve(file);
 
-        },
-        "image/jpeg",
-        0.88
-      );
+/* =========================================================
+   CANVAS TO FILE
+   ========================================================= */
 
-    }
-  );
+async function canvasToFile(){
 
-}
-
-
-proofInput.addEventListener(
-  "change",
-  function(){
-
-    hideStatus();
-
-
-    const file =
-      this.files &&
-      this.files[0];
-
-
-    if(!file){
-      return;
-    }
-
-
-    if(
-      !file.type ||
-      !file.type.startsWith("image/")
-    ){
-
-      showStatus(
-        "Please select a valid image.",
-        "error"
-      );
-
-      this.value = "";
-
-      selectedFile =
-        null;
-
-      return;
-
-    }
-
-
-    if(
-      file.size >
-      10 * 1024 * 1024
-    ){
-
-      showStatus(
-        "Please choose an image smaller than 10 MB.",
-        "error"
-      );
-
-      this.value = "";
-
-      selectedFile =
-        null;
-
-      return;
-
-    }
-
-
-    selectedFile =
-      file;
-
-
-    fileInfo.textContent =
-      file.name +
-      " • " +
-      (
-        file.size /
-        1024 /
-        1024
-      ).toFixed(2) +
-      " MB";
-
-
-    const reader =
-      new FileReader();
-
-
-    reader.onload =
-      function(event){
-
-        imageObject =
-          new Image();
-
-
-        imageObject.onload =
-          function(){
-
-            zoomValue =
-              1;
-
-            rotation =
-              0;
-
-            zoomInput.value =
-              "1";
-
-            drawPreview();
-
-            previewWrap
-              .classList
-              .add("show");
-
-          };
-
-
-        imageObject.onerror =
-          function(){
-
-            showStatus(
-              "The selected image could not be read. Please choose another image.",
-              "error"
-            );
-
-            selectedFile =
-              null;
-
-          };
-
-
-        imageObject.src =
-          event.target.result;
-
-      };
-
-
-    reader.onerror =
-      function(){
-
-        showStatus(
-          "Could not read the selected image.",
-          "error"
-        );
-
-        selectedFile =
-          null;
-
-      };
-
-
-    reader.readAsDataURL(file);
-
-  }
-);
-
-
-zoomInput.addEventListener(
-  "input",
-  function(){
-
-    zoomValue =
-      Number(this.value);
-
-    drawPreview();
-
-  }
-);
-
-
-document
-  .getElementById("rotateLeft")
-  .addEventListener(
-    "click",
-    function(){
-
-      rotation -= 90;
-
-      drawPreview();
-
-    }
-  );
-
-
-document
-  .getElementById("resetCrop")
-  .addEventListener(
-    "click",
-    function(){
-
-      zoomValue =
-        1;
-
-      rotation =
-        0;
-
-      zoomInput.value =
-        "1";
-
-      drawPreview();
-
-    }
-  );
-
-
-/* =========================================
-   LOAD PLATFORM SETTINGS
-========================================= */
-
-async function loadPlatformSettings(){
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from("platform_settings")
-      .select(
-        "poster_registration_enabled,job_posting_enabled,minimum_poster_task_slots,poster_task_fee"
-      )
-      .limit(1)
-      .maybeSingle();
-
-
-  if(error){
-    throw error;
+  if(!selectedImage){
+    throw new Error("Please select a payment screenshot.");
   }
 
+  drawPreview();
 
-  if(!data){
+  const canvas = $("previewCanvas");
 
-    throw new Error(
-      "Platform settings are not configured."
-    );
+  return new Promise((resolve,reject)=>{
 
-  }
+    canvas.toBlob(
+      function(blob){
 
-
-  platformSettings =
-    data;
-
-
-  const configuredMinimum =
-    Number(
-      data.minimum_poster_task_slots
-    );
-
-
-  minimumPosterTaskSlots =
-    Number.isFinite(
-      configuredMinimum
-    ) &&
-    configuredMinimum >= 1
-      ? Math.floor(configuredMinimum)
-      : 10;
-
-
-  const configuredFee =
-    Number(
-      data.poster_task_fee
-    );
-
-
-  posterTaskFee =
-    Number.isFinite(
-      configuredFee
-    ) &&
-    configuredFee >= 0
-      ? configuredFee
-      : 500;
-
-}
-
-
-/* =========================================
-   LOAD PAYMENT ACCOUNT
-========================================= */
-
-async function loadPaymentSettings(){
-
-  const {
-    data,
-    error
-  } =
-    await db
-      .from("payment_settings")
-      .select("*")
-      .eq("active",true)
-      .order(
-        "created_at",
-        {
-          ascending:false
+        if(!blob){
+          reject(
+            new Error(
+              "Could not prepare the payment screenshot."
+            )
+          );
+          return;
         }
-      )
-      .limit(1)
-      .maybeSingle();
 
+        const file =
+          new File(
+            [blob],
+            "payment-proof.jpg",
+            {
+              type:"image/jpeg",
+              lastModified:Date.now()
+            }
+          );
+
+        resolve(file);
+      },
+      "image/jpeg",
+      0.88
+    );
+
+  });
+}
+
+
+/* =========================================================
+   UPLOAD PAYMENT PROOF
+   ========================================================= */
+
+async function uploadPaymentProof(file){
+
+  const safeUser =
+    String(currentUser.id);
+
+  const safeTask =
+    String(currentTask.id);
+
+  const randomPart =
+    Math.random()
+      .toString(36)
+      .slice(2,10);
+
+  const filePath =
+    `${safeUser}/${safeTask}/${Date.now()}-${randomPart}.jpg`;
+
+  const {
+    error
+  } = await db.storage
+    .from("payment proof")
+    .upload(
+      filePath,
+      file,
+      {
+        contentType:"image/jpeg",
+        upsert:false
+      }
+    );
 
   if(error){
     throw error;
   }
 
-
-  if(!data){
-
-    throw new Error(
-      "Payment account details have not been configured yet."
-    );
-
-  }
-
-
-  document
-    .getElementById("bankName")
-    .textContent =
-      escapeText(
-        data.bank_name
-      ) ||
-      "Not configured";
-
-
-  document
-    .getElementById("accountName")
-    .textContent =
-      escapeText(
-        data.account_name
-      ) ||
-      "Not configured";
-
-
-  document
-    .getElementById("accountNumber")
-    .textContent =
-      escapeText(
-        data.account_number
-      ) ||
-      "Not configured";
-
-
-  if(data.instructions){
-
-    document
-      .getElementById("instructions")
-      .textContent =
-        data.instructions;
-
-    document
-      .getElementById("instructionsRow")
-      .classList
-      .remove("hidden");
-
-  }
-
+  return filePath;
 }
 
 
-/* =========================================
-   CALCULATE PAYMENT
-========================================= */
+/* =========================================================
+   DELETE UPLOADED PROOF IF RPC FAILS
+   ========================================================= */
 
-function calculatePayment(){
+async function removeUploadedProof(filePath){
 
-  const reward =
-    Number(
-      currentTask.reward
-    );
-
-  const slots =
-    Number(
-      currentTask.slots
-    );
-
-
-  if(
-    !Number.isFinite(reward) ||
-    reward <= 0
-  ){
-
-    throw new Error(
-      "This job has an invalid tasker reward."
-    );
-
+  if(!filePath){
+    return;
   }
-
-
-  if(
-    !Number.isFinite(slots) ||
-    slots < 1
-  ){
-
-    throw new Error(
-      "This job has an invalid task quantity."
-    );
-
-  }
-
-
-  taskFundingAmount =
-    reward *
-    slots;
-
-
-  totalPaymentAmount =
-    taskFundingAmount +
-    posterTaskFee;
-
-
-  if(
-    !Number.isFinite(totalPaymentAmount) ||
-    totalPaymentAmount <= 0
-  ){
-
-    throw new Error(
-      "The calculated payment amount is invalid."
-    );
-
-  }
-
-
-  document
-    .getElementById("taskFunding")
-    .textContent =
-      naira(taskFundingAmount);
-
-
-  document
-    .getElementById("posterFee")
-    .textContent =
-      naira(posterTaskFee);
-
-
-  document
-    .getElementById("totalAmount")
-    .textContent =
-      naira(totalPaymentAmount);
-
-
-  document
-    .getElementById("totalBreakdown")
-    .textContent =
-      naira(totalPaymentAmount);
-
-
-  document
-    .getElementById("calculation")
-    ?.remove();
-
-}
-
-
-/* =========================================
-   LOAD PAGE
-========================================= */
-
-async function loadPage(){
 
   try{
 
-    if(!taskId){
-
-      throw new Error(
-        "No job was selected. Please return to your poster dashboard and select a job."
-      );
-
-    }
-
-
-    setLoading(
-      "Checking your account..."
-    );
-
-
-    const {
-      data:{
-        user
-      },
-      error:authError
-    } =
-      await db.auth.getUser();
-
-
-    if(
-      authError ||
-      !user
-    ){
-
-      window.location.href =
-        "poster-login.html";
-
-      return;
-
-    }
-
-
-    currentUser =
-      user;
-
-
-    setLoading(
-      "Loading poster settings..."
-    );
-
-
-    await loadPlatformSettings();
-
-
-    setLoading(
-      "Loading job details..."
-    );
-
-
-    const {
-      data:task,
-      error:taskError
-    } =
-      await db
-        .from("tasks")
-        .select("*")
-        .eq("id",taskId)
-        .eq("created_by",user.id)
-        .single();
-
-
-    if(
-      taskError ||
-      !task
-    ){
-
-      throw new Error(
-        "This job could not be found or you do not have access to it."
-      );
-
-    }
-
-
-    currentTask =
-      task;
-
-
-    const taskStatus =
-      normaliseStatus(
-        task.status
-      );
-
-
-    if(
-      taskStatus === "LIVE"
-    ){
-
-      throw new Error(
-        "This job has already been approved and published."
-      );
-
-    }
-
-
-    if(
-      taskStatus !==
-        "PAYMENT_REQUIRED" &&
-      taskStatus !==
-        "REJECTED"
-    ){
-
-      throw new Error(
-        "This job is not currently awaiting payment."
-      );
-
-    }
-
-
-    const slots =
-      Number(
-        task.slots
-      );
-
-
-    document
-      .getElementById("jobTitle")
-      .textContent =
-        escapeText(
-          task.title ||
-          "Untitled Job"
-        );
-
-
-    document
-      .getElementById("reward")
-      .textContent =
-        naira(task.reward);
-
-
-    document
-      .getElementById("slots")
-      .textContent =
-        Number.isFinite(slots)
-          ? slots.toLocaleString()
-          : "Invalid";
-
-
-    document
-      .getElementById("minimumSlots")
-      .textContent =
-        minimumPosterTaskSlots
-          .toLocaleString();
-
-
-    if(
-      !Number.isFinite(slots) ||
-      slots <
-        minimumPosterTaskSlots
-    ){
-
-      slotWarning.style.display =
-        "block";
-
-      submitBtn.disabled =
-        true;
-
-      submitBtn.textContent =
-        "Minimum Task Quantity Not Met";
-
-    }
-
-
-    calculatePayment();
-
-
-    setLoading(
-      "Checking previous payment..."
-    );
-
-
-    const {
-      data:payment,
-      error:paymentError
-    } =
-      await db
-        .from("poster_payments")
-        .select("*")
-        .eq("task_id",task.id)
-        .eq("poster_id",user.id)
-        .order(
-          "created_at",
-          {
-            ascending:false
-          }
-        )
-        .limit(1)
-        .maybeSingle();
-
-
-    if(paymentError){
-
-      throw paymentError;
-
-    }
-
-
-    existingPayment =
-      payment;
-
-
-    setLoading(
-      "Loading payment account..."
-    );
-
-
-    await loadPaymentSettings();
-
-
-    /* EXISTING PAYMENT */
-
-    if(payment){
-
-      const paymentStatus =
-        normaliseStatus(
-          payment.status
-        );
-
-
-      if(payment.payment_reference){
-
-        referenceInput.value =
-          payment.payment_reference;
-
-      }
-
-
-      document
-        .getElementById("currentStatus")
-        .innerHTML =
-          "Current payment status: " +
-          "<span class='badge'>" +
-          escapeText(
-            paymentStatus ||
-            "UNKNOWN"
-          ) +
-          "</span>";
-
-
-      if(
-        paymentStatus ===
-        "PENDING"
-      ){
-
-        referenceInput.disabled =
-          true;
-
-        proofInput.disabled =
-          true;
-
-        submitBtn.disabled =
-          true;
-
-        submitBtn.textContent =
-          "Payment Under Review";
-
-        showStatus(
-          "Your payment proof has already been submitted. Please wait for Admin review.",
-          "success"
-        );
-
-      }
-
-
-      if(
-        paymentStatus ===
-        "APPROVED"
-      ){
-
-        referenceInput.disabled =
-          true;
-
-        proofInput.disabled =
-          true;
-
-        submitBtn.disabled =
-          true;
-
-        submitBtn.textContent =
-          "Payment Approved";
-
-        showStatus(
-          "Payment approved. Your job can now be published by the authorised system.",
-          "success"
-        );
-
-      }
-
-
-      if(
-        paymentStatus ===
-        "REJECTED"
-      ){
-
-        showStatus(
-          "Your previous payment proof was rejected. You can submit a new screenshot and transaction reference.",
-          "error"
-        );
-
-        submitBtn.textContent =
-          "Resubmit Payment Proof";
-
-      }
-
-    }
-
-
-    loading.classList.add(
-      "hidden"
-    );
-
-    page.classList.remove(
-      "hidden"
-    );
-
+    await db.storage
+      .from("payment proof")
+      .remove([filePath]);
 
   }catch(error){
 
-    console.error(
-      "POSTER PAYMENT PAGE ERROR:",
+    console.warn(
+      "Could not remove unused payment proof:",
       error
     );
-
-
-    loading.innerHTML =
-      "<strong>Unable to load payment details.</strong>" +
-      "<br><br>" +
-      escapeText(
-        error.message ||
-        "Please try again."
-      );
-
-
-    loading.style.color =
-      "#a32222";
-
   }
-
 }
 
 
-/* =========================================
+/* =========================================================
    SUBMIT PAYMENT
-========================================= */
+   ========================================================= */
 
 async function submitPayment(){
 
-  hideStatus();
+  if(!currentUser){
+    window.location.href = "poster-login.html";
+    return;
+  }
 
+  if(!currentTask){
+    showFormMessage(
+      "Task information is not available.",
+      "error"
+    );
+    return;
+  }
 
-  if(
-    !currentUser ||
-    !currentTask
-  ){
+  const slots =
+    Number(currentTask.slots || 0);
 
-    showStatus(
-      "Payment information is not ready yet.",
+  if(slots < minimumPosterTaskSlots){
+
+    showFormMessage(
+      `This task requires at least ${minimumPosterTaskSlots} slots.`,
       "error"
     );
 
     return;
-
   }
-
-
-  if(
-    Number(currentTask.slots) <
-    minimumPosterTaskSlots
-  ){
-
-    showStatus(
-      "This job must contain at least " +
-      minimumPosterTaskSlots +
-      " task slots.",
-      "error"
-    );
-
-    return;
-
-  }
-
 
   const reference =
-    referenceInput
-      .value
-      .trim();
+    $("reference").value.trim();
 
+  if(reference.length < 3){
 
-  if(!reference){
-
-    showStatus(
-      "Enter your transaction reference.",
+    showFormMessage(
+      "Please enter a valid payment reference.",
       "error"
     );
 
-    referenceInput.focus();
+    $("reference").focus();
 
     return;
-
   }
 
+  if(!selectedImage){
+
+    showFormMessage(
+      "Please upload your payment screenshot.",
+      "error"
+    );
+
+    return;
+  }
+
+  const status =
+    String(existingPayment?.status || "")
+      .toUpperCase();
 
   if(
-    reference.length <
-    3
+    status === "PENDING" ||
+    status === "UNDER_REVIEW" ||
+    status === "APPROVED"
   ){
 
-    showStatus(
-      "Please enter a valid transaction reference.",
+    showFormMessage(
+      "This payment is already being processed.",
       "error"
     );
 
-    referenceInput.focus();
-
     return;
-
   }
 
+  const button =
+    $("submitBtn");
 
-  if(!selectedFile){
+  button.disabled = true;
+  button.textContent = "Submitting...";
 
-    showStatus(
-      "Upload your payment screenshot.",
-      "error"
-    );
+  showFormMessage(
+    "Verifying payment amount...",
+    "info"
+  );
 
-    proofInput.focus();
-
-    return;
-
-  }
-
+  let uploadedPath = null;
 
   try{
 
     /*
-      Recalculate from the currently loaded
-      database values immediately before submission.
+      FIRST:
+      Get the authoritative amount from Supabase.
     */
+    const secureAmount =
+      await getSecurePaymentAmount();
 
-    calculatePayment();
+    showFormMessage(
+      "Preparing your payment screenshot...",
+      "info"
+    );
 
-
-    if(
-      totalPaymentAmount <= 0
-    ){
-
-      throw new Error(
-        "The payment amount is invalid."
-      );
-
-    }
-
-
-    submitBtn.disabled =
-      true;
-
-    submitBtn.textContent =
-      "Preparing Screenshot...";
-
-
-    /*
-      Create prepared JPEG.
-    */
-
-    const croppedFile =
+    const file =
       await canvasToFile();
 
+    showFormMessage(
+      "Uploading payment proof...",
+      "info"
+    );
 
-    if(
-      croppedFile.size >
-      5 * 1024 * 1024
-    ){
+    uploadedPath =
+      await uploadPaymentProof(file);
 
-      throw new Error(
-        "The prepared screenshot is still too large. Please choose a smaller image."
-      );
+    showFormMessage(
+      "Submitting payment for admin review...",
+      "info"
+    );
 
-    }
+    /*
+      IMPORTANT:
+      No direct INSERT/UPDATE is performed here.
 
+      The secure Supabase function:
+      submit_poster_payment()
 
-    submitBtn.textContent =
-      "Uploading Screenshot...";
-
-
-    const filePath =
-      currentUser.id +
-      "/" +
-      currentTask.id +
-      "/" +
-      Date.now() +
-      "-" +
-      Math.random()
-        .toString(36)
-        .slice(2,8) +
-      ".jpg";
-
+      validates:
+      - authenticated user
+      - task ownership
+      - task status
+      - reward
+      - quantity
+      - server-side fee
+      - exact payment amount
+      - payment reference
+      - proof
+      - existing payment
+    */
 
     const {
-      error:uploadError
-    } =
-      await db.storage
-        .from(PAYMENT_BUCKET)
-        .upload(
-          filePath,
-          croppedFile,
-          {
-            contentType:
-              "image/jpeg",
+      data,
+      error
+    } = await db.rpc(
+      "submit_poster_payment",
+      {
+        p_task_id:
+          currentTask.id,
 
-            upsert:false
-          }
-        );
+        p_amount:
+          secureAmount,
 
+        p_payment_method:
+          $("paymentMethod").value,
 
-    if(uploadError){
+        p_payment_reference:
+          reference,
 
-      throw new Error(
-        "Payment screenshot upload failed: " +
-        uploadError.message
-      );
-
-    }
-
-
-    submitBtn.textContent =
-      "Submitting Payment...";
-
-
-    let paymentError =
-      null;
-
-
-    /*
-      Existing rejected payment can be
-      submitted again.
-    */
-
-    if(
-      existingPayment &&
-      normaliseStatus(
-        existingPayment.status
-      ) ===
-      "REJECTED"
-    ){
-
-      const result =
-        await db
-          .from("poster_payments")
-          .update({
-
-            amount:
-              totalPaymentAmount,
-
-            payment_method:
-              "BANK_TRANSFER",
-
-            payment_reference:
-              reference,
-
-            proof_url:
-              filePath,
-
-            status:
-              "PENDING",
-
-            confirmed_by:
-              null,
-
-            confirmed_at:
-              null
-
-          })
-          .eq(
-            "id",
-            existingPayment.id
-          )
-          .eq(
-            "poster_id",
-            currentUser.id
-          );
-
-
-      paymentError =
-        result.error;
-
-    }
-
-
-    /*
-      Existing non-final payment record.
-    */
-
-    else if(existingPayment){
-
-      const result =
-        await db
-          .from("poster_payments")
-          .update({
-
-            amount:
-              totalPaymentAmount,
-
-            payment_method:
-              "BANK_TRANSFER",
-
-            payment_reference:
-              reference,
-
-            proof_url:
-              filePath,
-
-            status:
-              "PENDING",
-
-            confirmed_by:
-              null,
-
-            confirmed_at:
-              null
-
-          })
-          .eq(
-            "id",
-            existingPayment.id
-          )
-          .eq(
-            "poster_id",
-            currentUser.id
-          );
-
-
-      paymentError =
-        result.error;
-
-    }
-
-
-    /*
-      First payment.
-    */
-
-    else{
-
-      const result =
-        await db
-          .from("poster_payments")
-          .insert({
-
-            poster_id:
-              currentUser.id,
-
-            task_id:
-              currentTask.id,
-
-            amount:
-              totalPaymentAmount,
-
-            payment_method:
-              "BANK_TRANSFER",
-
-            payment_reference:
-              reference,
-
-            proof_url:
-              filePath,
-
-            status:
-              "PENDING"
-
-          });
-
-
-      paymentError =
-        result.error;
-
-    }
-
-
-    if(paymentError){
-
-      /*
-        Remove uploaded proof if database
-        operation failed.
-      */
-
-      try{
-
-        await db.storage
-          .from(PAYMENT_BUCKET)
-          .remove([
-            filePath
-          ]);
-
-      }catch(cleanupError){
-
-        console.error(
-          "Proof cleanup error:",
-          cleanupError
-        );
-
+        p_proof_url:
+          uploadedPath
       }
+    );
 
-
-      throw paymentError;
-
+    if(error){
+      throw error;
     }
 
+    if(!data || data.success !== true){
+
+      throw new Error(
+        "The server did not confirm the payment submission."
+      );
+    }
 
     /*
-      Keep the task unavailable until Admin
-      approves the payment.
+      The secure RPC has now handled:
+      poster_payments
+      + task status
+      + payment state.
     */
-
-    const {
-      error:taskError
-    } =
-      await db
-        .from("tasks")
-        .update({
-
-          status:
-            "PAYMENT_REQUIRED",
-
-          active:
-            false
-
-        })
-        .eq(
-          "id",
-          currentTask.id
-        )
-        .eq(
-          "created_by",
-          currentUser.id
-        );
-
-
-    if(taskError){
-
-      console.warn(
-        "Task status update warning:",
-        taskError
-      );
-
-    }
-
 
     existingPayment = {
-      id:
-        existingPayment?.id ||
-        null,
-
-      status:
-        "PENDING",
-
-      amount:
-        totalPaymentAmount,
-
+      id: data.payment_id,
+      task_id: currentTask.id,
+      poster_id: currentUser.id,
+      amount: Number(data.amount || secureAmount),
+      payment_method:
+        $("paymentMethod").value,
       payment_reference:
         reference,
-
       proof_url:
-        filePath
-
+        uploadedPath,
+      status:
+        data.status || "PENDING"
     };
 
+    renderPaymentStatus();
 
-    referenceInput.disabled =
-      true;
-
-    proofInput.disabled =
-      true;
-
-    submitBtn.disabled =
-      true;
-
-    submitBtn.textContent =
-      "Payment Under Review";
-
-
-    document
-      .getElementById("currentStatus")
-      .innerHTML =
-        "Current payment status: " +
-        "<span class='badge'>PENDING</span>";
-
-
-    showStatus(
-      "Payment submitted successfully. Admin will verify the transfer before the job becomes LIVE.",
+    showFormMessage(
+      "Payment proof submitted successfully. " +
+      "Please wait for admin review.",
       "success"
     );
 
+    $("submitBtn").textContent =
+      "Payment Submitted";
+
+    $("reference").disabled = true;
+    $("paymentMethod").disabled = true;
+    $("proofFile").disabled = true;
 
   }catch(error){
 
     console.error(
-      "POSTER PAYMENT SUBMISSION ERROR:",
+      "Poster payment submission error:",
       error
     );
 
+    /*
+      If the secure RPC failed after the screenshot uploaded,
+      remove the unused screenshot.
+    */
+    if(uploadedPath){
+      await removeUploadedProof(uploadedPath);
+    }
 
-    showStatus(
-      error.message ||
-      "Payment submission failed. Please try again.",
+    let message =
+      error?.message ||
+      "Unable to submit payment proof.";
+
+    showFormMessage(
+      message,
       "error"
     );
 
-
-    submitBtn.disabled =
-      false;
-
-    submitBtn.textContent =
-      "Submit Payment for Review";
-
+    button.disabled = false;
+    button.textContent =
+      "Submit Payment Proof";
   }
-
 }
 
 
-/* =========================================
-   BUTTON
-========================================= */
+/* =========================================================
+   SUBMIT BUTTON
+   ========================================================= */
 
-submitBtn.addEventListener(
+$("submitBtn").addEventListener(
   "click",
   submitPayment
 );
 
 
-/* =========================================
+/* =========================================================
+   INITIAL PAGE LOAD
+   ========================================================= */
+
+async function loadPage(){
+
+  try{
+
+    const taskId =
+      getTaskId();
+
+    if(!taskId){
+
+      showError(
+        "No task ID was provided. Please return to the poster dashboard and try again."
+      );
+
+      return;
+    }
+
+    await requireUser();
+
+    if(!currentUser){
+      return;
+    }
+
+    await loadPlatformSettings();
+
+    await loadTask(taskId);
+
+    /*
+      Replace the client-only calculation with the
+      server-authoritative amount.
+    */
+    await getSecurePaymentAmount();
+
+    await loadPaymentSettings();
+
+    await loadExistingPayment();
+
+    $("loadingBox").classList.add("hidden");
+
+    $("errorBox").classList.add("hidden");
+
+    $("pageContent").classList.remove("hidden");
+
+  }catch(error){
+
+    console.error(
+      "Poster payment page error:",
+      error
+    );
+
+    showError(
+      error?.message ||
+      "Something went wrong while loading the payment page."
+    );
+  }
+}
+
+
+/* =========================================================
    START
-========================================= */
+   ========================================================= */
 
 loadPage();
 
 </script>
 
 </body>
-  </htm
+  </h
