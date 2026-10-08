@@ -2,19 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#087f36">
-<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b8f3c">
 
-<title>Admin Control Center — NAIJA TASK</title>
+<title>Admin Control Center — NAIJA TASK | Pre-Launch</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{
   box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
+  -webkit-tap-highlight-color:transparent
 }
 
 html,body{
@@ -22,564 +20,471 @@ html,body{
   padding:0;
   min-height:100%;
   font-family:Arial,Helvetica,sans-serif;
-  background:#f3f8f5;
-  color:#14251b;
-}
-
-body{
-  overflow-x:hidden;
+  background:#f5fff7;
+  color:#17251b
 }
 
 button,
 input,
 select,
 textarea{
-  font:inherit;
+  font:inherit
 }
 
 button{
-  cursor:pointer;
-}
-
-:root{
-  --green:#087f36;
-  --green2:#0b9b45;
-  --green3:#064d25;
-  --lime:#b7ef43;
-  --dark:#102218;
-  --muted:#68776e;
-  --bg:#f3f8f5;
-  --card:#ffffff;
-  --border:#dce9e0;
-  --danger:#d92828;
-  --warning:#d88900;
-  --blue:#1769aa;
-  --shadow:0 12px 30px rgba(4,43,21,.08);
-  --radius:18px;
+  cursor:pointer
 }
 
 .hidden{
-  display:none!important;
+  display:none!important
 }
 
-.app{
+#loading{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f5fff7
+}
+
+.loader{
+  width:42px;
+  height:42px;
+  border:4px solid #d7f1df;
+  border-top-color:#0b8f3c;
+  border-radius:50%;
+  animation:spin .8s linear infinite
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg)
+  }
+}
+
+.login-screen{
   min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px
 }
 
-/* TOP BAR */
+.login-card{
+  width:100%;
+  max-width:430px;
+  background:#fff;
+  border:1px solid #dceee1;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 12px 40px rgba(0,0,0,.07)
+}
+
+.logo{
+  width:58px;
+  height:58px;
+  border-radius:16px;
+  background:#0b8f3c;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:25px;
+  font-weight:900;
+  margin-bottom:15px
+}
+
+.login-card h1{
+  margin:0 0 7px;
+  font-size:24px
+}
+
+.login-card p{
+  color:#66736a;
+  margin:0 0 20px;
+  line-height:1.5
+}
+
+.field{
+  margin-bottom:14px
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:7px
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  border:1px solid #d7e7dc;
+  background:#fff;
+  border-radius:11px;
+  padding:12px;
+  outline:none
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:#0b8f3c;
+  box-shadow:0 0 0 3px rgba(11,143,60,.09)
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical
+}
+
+.primary,
+.success,
+.danger,
+.warning,
+.secondary{
+  border-radius:10px;
+  padding:10px 13px;
+  font-weight:800
+}
+
+.primary{
+  border:0;
+  background:#0b8f3c;
+  color:#fff
+}
+
+.primary:disabled{
+  opacity:.5;
+  cursor:not-allowed
+}
+
+.secondary{
+  border:1px solid #cfe2d4;
+  background:#fff;
+  color:#173b23
+}
+
+.danger{
+  border:0;
+  background:#c62828;
+  color:#fff
+}
+
+.warning{
+  border:0;
+  background:#e68a00;
+  color:#fff
+}
+
+.success{
+  border:0;
+  background:#087a33;
+  color:#fff
+}
+
+.login-links{
+  display:flex;
+  justify-content:space-between;
+  margin-top:14px
+}
+
+.login-links button{
+  border:0;
+  background:none;
+  color:#087a33;
+  font-weight:700
+}
+
+#app{
+  min-height:100vh
+}
+
 .topbar{
   position:fixed;
-  z-index:100;
   top:0;
   left:0;
   right:0;
-  height:70px;
+  height:64px;
+  z-index:1000;
+  background:#0b8f3c;
+  color:#fff;
   display:flex;
   align-items:center;
-  gap:15px;
-  padding:0 22px;
-  color:white;
-  background:
-    linear-gradient(110deg,
-      var(--green3) 0%,
-      var(--green) 48%,
-      var(--green2) 100%);
-  box-shadow:0 4px 20px rgba(0,0,0,.15);
+  justify-content:space-between;
+  padding:0 15px
 }
 
 .brand{
   display:flex;
   align-items:center;
-  gap:11px;
-  min-width:240px;
+  gap:10px;
+  font-weight:900
 }
 
-.brand-logo{
-  width:42px;
-  height:42px;
-  border-radius:12px;
-  display:grid;
-  place-items:center;
-  color:#102218;
-  background:var(--lime);
-  font-weight:900;
-  font-size:18px;
-}
-
-.brand-text strong{
-  display:block;
-  font-size:17px;
-  letter-spacing:.2px;
-}
-
-.brand-text span{
-  display:block;
-  opacity:.75;
-  font-size:11px;
-  margin-top:2px;
-}
-
-.top-actions{
-  margin-left:auto;
+.brand-mark{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  background:#fff;
+  color:#0b8f3c;
   display:flex;
   align-items:center;
-  gap:9px;
+  justify-content:center;
+  font-weight:900
 }
 
-.icon-btn{
-  border:1px solid rgba(255,255,255,.22);
-  color:white;
-  background:rgba(255,255,255,.1);
+.menu-btn{
+  border:0;
+  background:rgba(255,255,255,.13);
+  color:#fff;
   width:40px;
   height:40px;
-  border-radius:12px;
+  border-radius:10px;
+  font-size:20px
 }
 
-.icon-btn:hover{
-  background:rgba(255,255,255,.18);
+.layout{
+  display:flex;
+  padding-top:64px
 }
 
-.admin-pill{
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(255,255,255,.12);
-  font-size:12px;
-}
-
-/* SIDEBAR */
 .sidebar{
   position:fixed;
-  z-index:90;
-  top:70px;
-  left:0;
+  top:64px;
   bottom:0;
-  width:250px;
-  padding:18px 12px 24px;
+  left:0;
+  width:245px;
   background:#fff;
-  border-right:1px solid var(--border);
+  border-right:1px solid #dceee1;
   overflow-y:auto;
+  padding:12px;
+  z-index:900
 }
 
-.nav-label{
-  padding:12px 12px 7px;
-  color:#8a978e;
-  font-size:10px;
-  font-weight:800;
-  letter-spacing:1px;
-  text-transform:uppercase;
+.nav-title{
+  padding:12px 10px 6px;
+  color:#829088;
+  font-size:11px;
+  font-weight:900;
+  text-transform:uppercase
 }
 
 .nav-btn{
   width:100%;
-  display:flex;
-  align-items:center;
-  gap:11px;
-  padding:11px 12px;
-  margin-bottom:4px;
   border:0;
-  border-radius:12px;
-  color:#526158;
   background:transparent;
   text-align:left;
-  font-weight:600;
-  font-size:13px;
+  padding:11px;
+  border-radius:10px;
+  margin-bottom:3px;
+  color:#304237;
+  font-weight:700
 }
 
-.nav-btn:hover{
-  background:#eef8f1;
-  color:var(--green);
-}
-
+.nav-btn:hover,
 .nav-btn.active{
-  color:white;
-  background:linear-gradient(100deg,var(--green3),var(--green2));
-  box-shadow:0 7px 16px rgba(8,127,54,.2);
+  background:#eaf8ee;
+  color:#087a33
 }
 
-.nav-icon{
-  width:22px;
-  text-align:center;
-  font-size:15px;
-}
-
-/* MAIN */
 .main{
-  margin-left:250px;
-  padding:94px 24px 45px;
-  max-width:1600px;
+  width:calc(100% - 245px);
+  margin-left:245px;
+  padding:18px
 }
 
 .page{
-  display:none;
+  display:none
 }
 
 .page.active{
-  display:block;
+  display:block
 }
 
-.page-head{
+.page-header{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
-  gap:15px;
-  margin-bottom:22px;
+  gap:12px;
+  margin-bottom:17px
 }
 
-.page-head h1{
+.page-header h2{
   margin:0;
-  font-size:27px;
-  color:#102218;
+  font-size:23px
 }
 
-.page-head p{
-  margin:7px 0 0;
-  color:var(--muted);
-  font-size:13px;
+.page-header p{
+  margin:5px 0 0;
+  color:#728078
 }
 
-.head-actions{
+.actions{
   display:flex;
-  gap:8px;
   flex-wrap:wrap;
+  gap:8px
 }
 
-/* CARDS */
 .grid{
   display:grid;
-  gap:16px;
+  gap:14px
 }
 
 .grid-2{
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(2,minmax(0,1fr))
 }
 
 .grid-3{
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr))
 }
 
 .grid-4{
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr))
 }
 
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:19px;
+  background:#fff;
+  border:1px solid #dceee1;
+  border-radius:15px;
+  padding:16px;
+  box-shadow:0 4px 18px rgba(0,0,0,.025)
 }
 
-.metric{
-  position:relative;
-  overflow:hidden;
+.card h3{
+  margin:0 0 12px;
+  font-size:16px
 }
 
-.metric:after{
-  content:"";
-  position:absolute;
-  width:80px;
-  height:80px;
-  right:-28px;
-  top:-28px;
-  border-radius:50%;
-  background:rgba(183,239,67,.18);
-}
-
-.metric-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.metric-icon{
-  width:39px;
-  height:39px;
-  display:grid;
-  place-items:center;
-  border-radius:12px;
-  background:#ecf8ef;
-  color:var(--green);
-}
-
-.metric-title{
-  color:#758279;
+.stat-label{
+  color:#78857d;
   font-size:12px;
-  margin-top:12px;
+  font-weight:700
 }
 
-.metric-value{
-  margin-top:5px;
-  font-size:27px;
+.stat-value{
+  font-size:26px;
   font-weight:900;
-  color:#102218;
+  margin-top:7px
 }
 
-.section-title{
-  margin:0 0 14px;
-  font-size:17px;
-}
-
-.small{
-  font-size:12px;
-  color:var(--muted);
-}
-
-.muted{
-  color:var(--muted);
-}
-
-/* BUTTONS */
-.btn{
-  border:0;
-  border-radius:11px;
-  padding:10px 14px;
-  font-weight:700;
-  font-size:12px;
-  min-height:39px;
-}
-
-.btn-primary{
-  color:white;
-  background:var(--green);
-}
-
-.btn-primary:hover{
-  background:var(--green3);
-}
-
-.btn-secondary{
-  color:var(--green3);
-  background:#eaf7ee;
-}
-
-.btn-danger{
-  color:white;
-  background:var(--danger);
-}
-
-.btn-warning{
-  color:#5d3b00;
-  background:#ffe6a8;
-}
-
-.btn-blue{
-  color:white;
-  background:var(--blue);
-}
-
-.btn-dark{
-  color:white;
-  background:#17251d;
-}
-
-.btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-/* TABLE */
 .table-wrap{
   width:100%;
-  overflow-x:auto;
-  border:1px solid var(--border);
-  border-radius:14px;
+  overflow-x:auto
 }
 
 table{
   width:100%;
-  min-width:720px;
   border-collapse:collapse;
-  background:#fff;
+  min-width:720px
+}
+
+th,
+td{
+  padding:11px 9px;
+  border-bottom:1px solid #edf3ee;
+  text-align:left;
+  vertical-align:top;
+  font-size:13px
 }
 
 th{
-  background:#f4f8f5;
-  color:#647168;
-  text-align:left;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:.4px;
-  padding:12px;
-  white-space:nowrap;
-}
-
-td{
-  border-top:1px solid #edf2ee;
-  padding:12px;
+  background:#f7fbf8;
   font-size:12px;
-  vertical-align:middle;
+  color:#627068
 }
 
-tr:hover td{
-  background:#fbfdfb;
-}
-
-.empty{
-  text-align:center;
-  padding:30px!important;
-  color:#7b887f;
-}
-
-/* FORMS */
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:13px;
-}
-
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.field.full{
-  grid-column:1/-1;
-}
-
-.field label{
-  font-size:11px;
-  font-weight:800;
-  color:#506057;
-}
-
-.field input,
-.field select,
-.field textarea{
-  width:100%;
-  border:1px solid #d6e3da;
-  border-radius:11px;
-  background:#fff;
-  padding:11px 12px;
-  color:#17251d;
-  outline:none;
-}
-
-.field textarea{
-  min-height:95px;
-  resize:vertical;
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus{
-  border-color:var(--green);
-  box-shadow:0 0 0 3px rgba(8,127,54,.08);
-}
-
-/* BADGES */
 .badge{
   display:inline-flex;
-  align-items:center;
   padding:5px 8px;
   border-radius:999px;
-  font-size:10px;
-  font-weight:800;
-  white-space:nowrap;
-}
-
-.badge-green{
-  color:#087f36;
-  background:#e4f7ea;
-}
-
-.badge-red{
-  color:#a71f1f;
-  background:#fde7e7;
-}
-
-.badge-orange{
-  color:#8a5900;
-  background:#fff0c9;
-}
-
-.badge-blue{
-  color:#155a91;
-  background:#e5f2ff;
-}
-
-.badge-gray{
-  color:#59655d;
-  background:#edf1ee;
-}
-
-/* ALERT */
-.alert{
-  border-radius:13px;
-  padding:12px 14px;
-  font-size:12px;
-  margin-bottom:15px;
-}
-
-.alert-info{
-  color:#174f73;
-  background:#e9f5ff;
-  border:1px solid #cde8fb;
-}
-
-.alert-warning{
-  color:#654700;
-  background:#fff4d7;
-  border:1px solid #f1dfaa;
-}
-
-.alert-danger{
-  color:#8b2020;
-  background:#fdeaea;
-  border:1px solid #f4caca;
-}
-
-.alert-success{
-  color:#116431;
-  background:#e8f8ed;
-  border:1px solid #c8ead2;
-}
-
-/* SWITCH */
-.switch-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  padding:14px 0;
-  border-bottom:1px solid #edf2ee;
-}
-
-.switch-row:last-child{
-  border-bottom:0;
-}
-
-.switch-info strong{
-  display:block;
-  font-size:13px;
-}
-
-.switch-info span{
-  display:block;
-  margin-top:3px;
   font-size:11px;
-  color:var(--muted);
+  font-weight:900
+}
+
+.badge.green{
+  background:#e4f7ea;
+  color:#087a33
+}
+
+.badge.red{
+  background:#fde9e9;
+  color:#b52222
+}
+
+.badge.orange{
+  background:#fff1d9;
+  color:#a86000
+}
+
+.badge.gray{
+  background:#edf1ee;
+  color:#5c6860
+}
+
+.notice{
+  padding:12px;
+  border-radius:11px;
+  background:#eef9f1;
+  border:1px solid #cce8d4;
+  color:#245a34;
+  line-height:1.45;
+  margin-bottom:14px
+}
+
+.notice.danger-box{
+  background:#fff0f0;
+  border-color:#f0cccc;
+  color:#8b2020
+}
+
+.setting{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:12px 0;
+  border-bottom:1px solid #edf3ee
+}
+
+.setting:last-child{
+  border-bottom:0
+}
+
+.setting strong{
+  display:block;
+  font-size:14px
+}
+
+.setting small{
+  display:block;
+  color:#78857d;
+  margin-top:3px;
+  line-height:1.35
 }
 
 .switch{
   position:relative;
   width:48px;
   height:27px;
-  flex:0 0 auto;
+  flex:0 0 auto
 }
 
 .switch input{
   opacity:0;
   width:0;
-  height:0;
+  height:0
 }
 
 .slider{
   position:absolute;
   inset:0;
-  border-radius:999px;
-  background:#ccd6cf;
-  transition:.2s;
+  background:#cbd8ce;
+  border-radius:30px;
+  transition:.2s
 }
 
 .slider:before{
@@ -589,292 +494,233 @@ tr:hover td{
   height:21px;
   left:3px;
   top:3px;
+  background:#fff;
   border-radius:50%;
-  background:white;
-  box-shadow:0 2px 5px rgba(0,0,0,.2);
   transition:.2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2)
 }
 
-.switch input:checked + .slider{
-  background:var(--green);
+.switch input:checked+.slider{
+  background:#0b8f3c
 }
 
-.switch input:checked + .slider:before{
-  transform:translateX(21px);
+.switch input:checked+.slider:before{
+  transform:translateX(21px)
 }
 
-/* MODE */
-.mode-selector{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-}
-
-.mode-option{
-  border:2px solid #dbe7df;
-  border-radius:14px;
-  padding:15px;
-  cursor:pointer;
-  background:white;
-}
-
-.mode-option.active{
-  border-color:var(--green);
-  background:#effaf2;
-}
-
-.mode-option strong{
-  display:block;
-  font-size:14px;
-}
-
-.mode-option span{
-  display:block;
-  font-size:11px;
-  color:var(--muted);
-  margin-top:5px;
-}
-
-/* LOADING */
-.loading{
-  display:flex;
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:3000;
+  display:none;
   align-items:center;
   justify-content:center;
-  gap:8px;
-  padding:25px;
-  color:#718078;
-  font-size:12px;
+  padding:15px;
+  background:rgba(0,0,0,.48)
 }
 
-.spinner{
-  width:17px;
-  height:17px;
-  border:2px solid #dce8df;
-  border-top-color:var(--green);
-  border-radius:50%;
-  animation:spin .7s linear infinite;
+.modal.show{
+  display:flex
 }
 
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-
-/* LOGIN */
-#loginScreen{
-  min-height:100vh;
-  display:none;
-  place-items:center;
-  padding:20px;
-  background:
-    radial-gradient(circle at 10% 10%,rgba(183,239,67,.18),transparent 25%),
-    linear-gradient(135deg,#064d25,#087f36,#0b9b45);
-}
-
-.login-card{
-  width:min(440px,100%);
+.modal-box{
+  width:100%;
+  max-width:760px;
+  max-height:92vh;
+  overflow:auto;
   background:#fff;
-  border-radius:25px;
-  padding:28px;
-  box-shadow:0 30px 80px rgba(0,0,0,.2);
+  border-radius:18px;
+  padding:18px
 }
 
-.login-brand{
-  text-align:center;
-  margin-bottom:22px;
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:14px
 }
 
-.login-brand .brand-logo{
-  margin:0 auto 12px;
+.modal-head h3{
+  margin:0
 }
 
-.login-brand h1{
-  margin:0;
-  font-size:23px;
+.close{
+  border:0;
+  background:#eef3ef;
+  width:36px;
+  height:36px;
+  border-radius:9px;
+  font-size:20px
 }
 
-.login-brand p{
-  margin:6px 0 0;
-  color:var(--muted);
-  font-size:12px;
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px
 }
 
-.login-error{
-  margin-top:12px;
-  color:#a71f1f;
-  background:#fdeaea;
-  border-radius:10px;
-  padding:10px;
-  font-size:12px;
-  display:none;
+.full{
+  grid-column:1/-1
 }
 
-/* TOAST */
-#toast{
-  position:fixed;
-  z-index:9999;
-  right:20px;
-  bottom:20px;
-  max-width:350px;
-  padding:13px 16px;
-  color:white;
-  background:#17251d;
+.modal-footer{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:15px
+}
+
+.proof-image{
+  display:block;
+  max-width:100%;
+  max-height:450px;
+  object-fit:contain;
+  margin:auto;
   border-radius:12px;
-  box-shadow:0 12px 30px rgba(0,0,0,.22);
-  transform:translateY(120px);
+  background:#f2f4f2
+}
+
+.proof-frame{
+  background:#f7fbf8;
+  border:1px solid #dceee1;
+  border-radius:12px;
+  padding:10px
+}
+
+.empty{
+  text-align:center;
+  padding:25px;
+  color:#7a867e
+}
+
+.mobile-bottom{
+  display:none
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%) translateY(20px);
+  background:#18221b;
+  color:#fff;
+  padding:11px 15px;
+  border-radius:10px;
+  z-index:9999;
   opacity:0;
-  transition:.25s;
-  font-size:12px;
+  pointer-events:none;
+  transition:.2s;
+  max-width:90%;
+  text-align:center
 }
 
-#toast.show{
-  transform:translateY(0);
+.toast.show{
   opacity:1;
+  transform:translateX(-50%) translateY(0)
 }
 
-#toast.success{
-  background:#087f36;
+.small{
+  font-size:12px;
+  color:#728078
 }
 
-#toast.error{
-  background:#c82727;
+.mono{
+  font-family:monospace;
+  word-break:break-all
 }
 
-/* MOBILE */
-.mobile-nav{
-  display:none;
-}
+@media(max-width:900px){
 
-.mobile-overlay{
-  display:none;
-}
-
-@media(max-width:950px){
   .sidebar{
-    transform:translateX(-105%);
-    transition:.25s;
-    z-index:200;
+    transform:translateX(-100%);
+    transition:.2s
   }
 
   .sidebar.open{
-    transform:translateX(0);
-  }
-
-  .mobile-overlay.show{
-    display:block;
-    position:fixed;
-    z-index:190;
-    inset:0;
-    background:rgba(0,0,0,.35);
+    transform:translateX(0)
   }
 
   .main{
+    width:100%;
     margin-left:0;
-    padding-left:15px;
-    padding-right:15px;
+    padding:13px
   }
 
-  .brand{
-    min-width:0;
+  .grid-4,
+  .grid-3{
+    grid-template-columns:
+      repeat(2,minmax(0,1fr))
   }
 
-  .brand-text span{
-    display:none;
-  }
-
-  .admin-pill{
-    display:none;
-  }
-
-  .grid-4{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
-
-  .mobile-nav{
+  .mobile-bottom{
     display:flex;
     position:fixed;
-    z-index:150;
     bottom:0;
     left:0;
     right:0;
-    height:64px;
-    background:white;
-    border-top:1px solid var(--border);
-    justify-content:space-around;
-    padding:6px;
+    z-index:800;
+    background:#fff;
+    border-top:1px solid #dceee1;
+    padding:7px;
+    gap:5px
   }
 
-  .mobile-nav button{
+  .mobile-bottom button{
+    flex:1;
     border:0;
-    background:transparent;
-    color:#65736a;
+    background:none;
+    padding:7px 3px;
+    color:#637168;
     font-size:10px;
-    font-weight:700;
-    min-width:62px;
+    font-weight:800
   }
 
-  .mobile-nav button.active{
-    color:var(--green);
-  }
-
-  body{
-    padding-bottom:65px;
-  }
-}
-
-@media(max-width:650px){
-  .topbar{
-    padding:0 12px;
-    height:62px;
-  }
-
-  .sidebar{
-    top:62px;
+  .mobile-bottom button.active{
+    color:#087a33
   }
 
   .main{
-    padding-top:80px;
+    padding-bottom:75px
   }
+}
 
-  .brand-logo{
-    width:37px;
-    height:37px;
-  }
-
-  .brand-text strong{
-    font-size:15px;
-  }
-
-  .page-head{
-    flex-direction:column;
-  }
-
-  .page-head h1{
-    font-size:22px;
-  }
+@media(max-width:600px){
 
   .grid-2,
   .grid-3,
-  .grid-4,
-  .form-grid,
-  .mode-selector{
-    grid-template-columns:1fr;
+  .grid-4{
+    grid-template-columns:
+      1fr 1fr
   }
 
-  .metric-value{
-    font-size:23px;
+  .page-header{
+    flex-direction:column
+  }
+
+  .form-grid{
+    grid-template-columns:1fr
+  }
+
+  .full{
+    grid-column:auto
+  }
+
+  .stat-value{
+    font-size:21px
   }
 
   .card{
-    padding:15px;
-    border-radius:15px;
+    padding:13px
   }
+}
 
-  .head-actions{
-    width:100%;
-  }
+@media(max-width:400px){
 
-  .head-actions .btn{
-    flex:1;
+  .grid-2,
+  .grid-3,
+  .grid-4{
+    grid-template-columns:1fr
   }
 }
 </style>
@@ -882,4781 +728,3364 @@ tr:hover td{
 
 <body>
 
-<!-- LOGIN -->
-<section id="loginScreen">
+<div id="loading">
+  <div class="loader"></div>
+</div>
+
+<section id="loginScreen" class="login-screen hidden">
+
   <div class="login-card">
 
-    <div class="login-brand">
-      <div class="brand-logo">NT</div>
-      <h1>NAIJA TASK</h1>
-      <p>Administrator Control Center</p>
+    <div class="logo">
+      NT
     </div>
 
-    <form id="loginForm">
+    <h1>
+      NAIJA TASK
+    </h1>
 
-      <div class="field">
-        <label>Email</label>
-        <input
-          id="loginEmail"
-          type="email"
-          autocomplete="username"
-          placeholder="Admin email"
-          required>
-      </div>
+    <p>
+      Secure Admin Control Center
+    </p>
 
-      <div class="field" style="margin-top:12px">
-        <label>Password</label>
-        <input
-          id="loginPassword"
-          type="password"
-          autocomplete="current-password"
-          placeholder="Password"
-          required>
-      </div>
+    <div
+      id="loginMessage"
+      class="notice hidden">
+    </div>
 
-      <button
-        id="loginBtn"
-        class="btn btn-primary"
-        type="submit"
-        style="width:100%;margin-top:15px">
-        Sign In
+    <div class="field">
+
+      <label>
+        Admin Email
+      </label>
+
+      <input
+        id="loginEmail"
+        type="email"
+        autocomplete="username"
+        placeholder="admin email">
+
+    </div>
+
+    <div class="field">
+
+      <label>
+        Password
+      </label>
+
+      <input
+        id="loginPassword"
+        type="password"
+        autocomplete="current-password"
+        placeholder="password">
+
+    </div>
+
+    <button
+      id="loginButton"
+      class="primary"
+      style="width:100%"
+      onclick="login()">
+
+      Sign In
+
+    </button>
+
+    <div class="login-links">
+
+      <button onclick="resetPassword()">
+        Forgot password?
       </button>
 
-      <div id="loginError" class="login-error"></div>
-
-    </form>
+    </div>
 
   </div>
+
 </section>
 
 
-<!-- APP -->
-<div id="app" class="app hidden">
+<section id="app" class="hidden">
 
-  <!-- TOP BAR -->
-  <header class="topbar">
+<header class="topbar">
 
-    <div class="brand">
+  <div class="brand">
+
+    <button
+      class="menu-btn"
+      onclick="toggleSidebar()">
+      ☰
+    </button>
+
+    <div class="brand-mark">
+      NT
+    </div>
+
+    <span>
+      NAIJA TASK
+    </span>
+
+  </div>
+
+  <button
+    class="menu-btn"
+    onclick="logout()">
+    ↪
+  </button>
+
+</header>
+
+
+<div class="layout">
+
+<aside id="sidebar" class="sidebar">
+
+  <div class="nav-title">
+    Control Center
+  </div>
+
+  <button
+    class="nav-btn active"
+    data-page="overview"
+    onclick="navigate('overview')">
+    📊 Overview
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="users"
+    onclick="navigate('users')">
+    👥 Users
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="tasks"
+    onclick="navigate('tasks')">
+    📋 Tasks
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="submissions"
+    onclick="navigate('submissions')">
+    🧾 Submissions
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="withdrawals"
+    onclick="navigate('withdrawals')">
+    💸 Withdrawals
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="wallet"
+    onclick="navigate('wallet')">
+    💰 Wallet
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="referrals"
+    onclick="navigate('referrals')">
+    🔗 Referrals
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="posters"
+    onclick="navigate('posters')">
+    📢 Posters
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="monetization"
+    onclick="navigate('monetization')">
+    💳 Monetization
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="support"
+    onclick="navigate('support')">
+    🆘 Support
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="security"
+    onclick="navigate('security')">
+    🛡️ Security
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="settings"
+    onclick="navigate('settings')">
+    ⚙️ Settings
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="ads"
+    onclick="navigate('ads')">
+    📣 Ads
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="community"
+    onclick="navigate('community')">
+    💬 Community
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="ai"
+    onclick="navigate('ai')">
+    🤖 AI Care
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="appeals"
+    onclick="navigate('appeals')">
+    ⚖️ Appeals
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="marketplace"
+    onclick="navigate('marketplace')">
+    🛍️ Marketplace
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="airtime"
+    onclick="navigate('airtime')">
+    📱 Airtime & Data
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="integrity"
+    onclick="navigate('integrity')">
+    🔍 Integrity
+  </button>
+
+  <button
+    class="nav-btn"
+    data-page="activity"
+    onclick="navigate('activity')">
+    📝 Admin Activity
+  </button>
+
+</aside>
+
+
+<main class="main">
+
+
+<!-- =====================================================
+     OVERVIEW
+     ===================================================== -->
+
+<section
+  id="page-overview"
+  class="page active">
+
+  <div class="page-header">
+
+    <div>
+
+      <h2>
+        Admin Overview
+      </h2>
+
+      <p>
+        NAIJA TASK platform control center
+      </p>
+
+    </div>
+
+    <div class="actions">
 
       <button
-        id="menuBtn"
-        class="icon-btn"
-        type="button"
-        aria-label="Menu">
-        ☰
+        class="primary"
+        onclick="loadOverview()">
+        Refresh
       </button>
 
-      <div class="brand-logo">NT</div>
+    </div>
 
-      <div class="brand-text">
-        <strong>NAIJA TASK</strong>
-        <span>Admin Control Center</span>
+  </div>
+
+
+  <div
+    id="overviewNotice"
+    class="notice">
+    Loading platform information...
+  </div>
+
+
+  <div class="grid grid-4">
+
+    <div class="card">
+
+      <div class="stat-label">
+        Total Users
+      </div>
+
+      <div
+        id="totalUsers"
+        class="stat-value">
+        0
       </div>
 
     </div>
 
-    <div class="top-actions">
 
-      <span id="adminEmail" class="admin-pill">
-        Administrator
-      </span>
+    <div class="card">
+
+      <div class="stat-label">
+        Active Tasks
+      </div>
+
+      <div
+        id="activeTasks"
+        class="stat-value">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="stat-label">
+        Pending Proofs
+      </div>
+
+      <div
+        id="pendingProofs"
+        class="stat-value">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="stat-label">
+        Pending Withdrawals
+      </div>
+
+      <div
+        id="pendingWithdrawals"
+        class="stat-value">
+        0
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    class="grid grid-3"
+    style="margin-top:14px">
+
+    <div class="card">
+
+      <h3>
+        Platform Balance
+      </h3>
+
+      <div
+        id="platformBalance"
+        class="stat-value">
+        ₦0
+      </div>
+
+      <div class="small">
+        Internal platform balance estimate
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Activation
+      </h3>
+
+      <div
+        id="overviewActivation"
+        class="small">
+        Loading...
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        VIP
+      </h3>
+
+      <div
+        id="overviewVip"
+        class="small">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    class="card"
+    style="margin-top:14px">
+
+    <h3>
+      Quick Controls
+    </h3>
+
+    <div class="actions">
 
       <button
-        id="refreshBtn"
-        class="icon-btn"
-        type="button"
-        title="Refresh">
-        ↻
+        class="secondary"
+        onclick="navigate('users')">
+        Manage Users
       </button>
 
       <button
-        id="logoutBtn"
-        class="icon-btn"
-        type="button"
-        title="Logout">
-        ⎋
+        class="secondary"
+        onclick="navigate('tasks')">
+        Manage Tasks
+      </button>
+
+      <button
+        class="secondary"
+        onclick="navigate('submissions')">
+        Review Proofs
+      </button>
+
+      <button
+        class="secondary"
+        onclick="navigate('withdrawals')">
+        Withdrawals
+      </button>
+
+      <button
+        class="secondary"
+        onclick="navigate('monetization')">
+        Charges
+      </button>
+
+      <button
+        class="secondary"
+        onclick="navigate('security')">
+        Security
       </button>
 
     </div>
 
-  </header>
+  </div>
 
+</section>
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar" class="sidebar">
 
-    <div class="nav-label">Control Center</div>
+<!-- =====================================================
+     USERS
+     ===================================================== -->
 
-    <button class="nav-btn active" data-page="overview">
-      <span class="nav-icon">▦</span>
-      Overview
-    </button>
+<section
+  id="page-users"
+  class="page">
 
-    <button class="nav-btn" data-page="users">
-      <span class="nav-icon">👥</span>
-      Users
-    </button>
+  <div class="page-header">
 
-    <button class="nav-btn" data-page="tasks">
-      <span class="nav-icon">✓</span>
-      Tasks
-    </button>
+    <div>
 
-    <button class="nav-btn" data-page="proof">
-      <span class="nav-icon">▣</span>
-      Proof Moderation
-    </button>
+      <h2>
+        Users
+      </h2>
 
-    <button class="nav-btn" data-page="withdrawals">
-      <span class="nav-icon">₦</span>
-      Withdrawals
-    </button>
+      <p>
+        Manage registered NAIJA TASK users and account status.
+      </p>
 
-    <button class="nav-btn" data-page="ledger">
-      <span class="nav-icon">▤</span>
-      Wallet Ledger
-    </button>
-
-
-    <div class="nav-label">Revenue</div>
-
-    <button class="nav-btn" data-page="monetization">
-      <span class="nav-icon">◈</span>
-      Monetization
-    </button>
-
-    <button class="nav-btn" data-page="referrals">
-      <span class="nav-icon">↗</span>
-      Referrals
-    </button>
-
-    <button class="nav-btn" data-page="posters">
-      <span class="nav-icon">▰</span>
-      Posters
-    </button>
-
-    <button class="nav-btn" data-page="ads">
-      <span class="nav-icon">◆</span>
-      Ads
-    </button>
-
-
-    <div class="nav-label">Operations</div>
-
-    <button class="nav-btn" data-page="support">
-      <span class="nav-icon">?</span>
-      Support
-    </button>
-
-    <button class="nav-btn" data-page="appeals">
-      <span class="nav-icon">!</span>
-      Appeals
-    </button>
-
-    <button class="nav-btn" data-page="marketplace">
-      <span class="nav-icon">⌂</span>
-      Marketplace
-    </button>
-
-    <button class="nav-btn" data-page="airtime">
-      <span class="nav-icon">▯</span>
-      Airtime & Data
-    </button>
-
-
-    <div class="nav-label">Security</div>
-
-    <button class="nav-btn" data-page="security">
-      <span class="nav-icon">🔒</span>
-      Security
-    </button>
-
-    <button class="nav-btn" data-page="integrity">
-      <span class="nav-icon">✓</span>
-      Integrity Checks
-    </button>
-
-    <button class="nav-btn" data-page="audit">
-      <span class="nav-icon">◴</span>
-      Audit Log
-    </button>
-
-    <button class="nav-btn" data-page="settings">
-      <span class="nav-icon">⚙</span>
-      Platform Settings
-    </button>
-
-  </aside>
-
-  <div id="mobileOverlay" class="mobile-overlay"></div>
-
-
-  <!-- MAIN -->
-  <main class="main">
-
-
-    <!-- OVERVIEW -->
-    <section id="page-overview" class="page active">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Admin Overview</h1>
-          <p>Monitor NAIJA TASK activity and platform controls.</p>
-        </div>
-
-        <div class="head-actions">
-          <button class="btn btn-secondary" onclick="loadDashboard()">
-            Refresh Data
-          </button>
-        </div>
-
-      </div>
-
-
-      <div id="overviewAlert"></div>
-
-
-      <div class="grid grid-4">
-
-        <div class="card metric">
-          <div class="metric-top">
-            <div class="metric-icon">👥</div>
-          </div>
-          <div class="metric-title">Total Users</div>
-          <div id="metricUsers" class="metric-value">—</div>
-        </div>
-
-        <div class="card metric">
-          <div class="metric-top">
-            <div class="metric-icon">✓</div>
-          </div>
-          <div class="metric-title">Active Tasks</div>
-          <div id="metricTasks" class="metric-value">—</div>
-        </div>
-
-        <div class="card metric">
-          <div class="metric-top">
-            <div class="metric-icon">▣</div>
-          </div>
-          <div class="metric-title">Pending Proofs</div>
-          <div id="metricProofs" class="metric-value">—</div>
-        </div>
-
-        <div class="card metric">
-          <div class="metric-top">
-            <div class="metric-icon">₦</div>
-          </div>
-          <div class="metric-title">Pending Withdrawals</div>
-          <div id="metricWithdrawals" class="metric-value">—</div>
-        </div>
-
-      </div>
-
-
-      <div class="grid grid-2" style="margin-top:16px">
-
-        <div class="card">
-
-          <h2 class="section-title">Platform Mode</h2>
-
-          <div id="overviewMode">
-            <div class="loading">
-              <div class="spinner"></div>
-              Loading…
-            </div>
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">System Status</h2>
-
-          <div class="switch-row">
-            <div class="switch-info">
-              <strong>Supabase Connection</strong>
-              <span id="supabaseStatusText">Checking connection…</span>
-            </div>
-
-            <span id="supabaseStatus"
-                  class="badge badge-orange">
-              Checking
-            </span>
-          </div>
-
-          <div class="switch-row">
-            <div class="switch-info">
-              <strong>Admin Authorization</strong>
-              <span>Current account access</span>
-            </div>
-
-            <span id="adminStatus"
-                  class="badge badge-orange">
-              Checking
-            </span>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="card" style="margin-top:16px">
-
-        <h2 class="section-title">Recent Activity</h2>
-
-        <div id="recentActivity">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- USERS -->
-    <section id="page-users" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Users</h1>
-          <p>View and manage registered NAIJA TASK accounts.</p>
-        </div>
-
-        <div class="head-actions">
-          <button class="btn btn-secondary"
-                  onclick="loadUsers()">
-            Refresh
-          </button>
-        </div>
-
-      </div>
-
-      <div class="card">
-
-        <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px">
-
-          <input
-            id="userSearch"
-            placeholder="Search name, phone or user ID…"
-            style="flex:1;min-width:200px;border:1px solid #d6e3da;border-radius:11px;padding:10px 12px">
-
-          <button
-            class="btn btn-primary"
-            onclick="filterUsers()">
-            Search
-          </button>
-
-        </div>
-
-        <div id="usersTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading users…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- TASKS -->
-    <section id="page-tasks" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Tasks</h1>
-          <p>Monitor posted tasks and task activity.</p>
-        </div>
-
-        <div class="head-actions">
-          <button class="btn btn-secondary"
-                  onclick="loadTasks()">
-            Refresh
-          </button>
-        </div>
-
-      </div>
-
-      <div class="card">
-
-        <div id="tasksTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading tasks…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- PROOF -->
-    <section id="page-proof" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Proof Moderation</h1>
-          <p>Review submitted task proof before rewards are released.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadProofs()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="alert alert-warning">
-        Financial task approval should use the secure
-        <strong>admin_approve_task_submission</strong> RPC when available.
-        The browser must not directly manufacture wallet credits.
-      </div>
-
-      <div class="card">
-
-        <div id="proofTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading submissions…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- WITHDRAWALS -->
-    <section id="page-withdrawals" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Withdrawals</h1>
-          <p>Review pending withdrawal requests.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadWithdrawals()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="alert alert-info">
-        Withdrawal approval should be performed through a secure
-        server-side/RPC workflow rather than trusting client-side balances.
-      </div>
-
-      <div class="card">
-
-        <div id="withdrawalTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading withdrawals…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- LEDGER -->
-    <section id="page-ledger" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Wallet Ledger</h1>
-          <p>Financial movement and wallet history.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadLedger()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <div id="ledgerTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading ledger…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- MONETIZATION -->
-    <section id="page-monetization" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Monetization</h1>
-          <p>Control activation, VIP, withdrawal and poster revenue settings.</p>
-        </div>
-
-        <button class="btn btn-primary"
-                onclick="saveMonetization()">
-          Save Monetization
-        </button>
-
-      </div>
-
-
-      <div class="grid grid-2">
-
-        <div class="card">
-
-          <h2 class="section-title">Account Access Mode</h2>
-
-          <div class="mode-selector">
-
-            <div id="activationMode"
-                 class="mode-option"
-                 onclick="selectAccessMode('activation')">
-
-              <strong>Activation</strong>
-
-              <span>
-                Users activate their NAIJA TASK account
-                before access according to your settings.
-              </span>
-
-            </div>
-
-            <div id="vipMode"
-                 class="mode-option"
-                 onclick="selectAccessMode('vip')">
-
-              <strong>VIP</strong>
-
-              <span>
-                Use VIP membership as the platform monetization mode.
-              </span>
-
-            </div>
-
-          </div>
-
-          <input type="hidden"
-                 id="accessMode"
-                 value="activation">
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Activation / VIP Pricing</h2>
-
-          <div class="form-grid">
-
-            <div class="field">
-              <label>Activation Fee (₦)</label>
-              <input id="activationFee"
-                     type="number"
-                     min="0"
-                     step="1"
-                     value="1000">
-            </div>
-
-            <div class="field">
-              <label>VIP Fee (₦)</label>
-              <input id="vipFee"
-                     type="number"
-                     min="0"
-                     step="1"
-                     value="1000">
-            </div>
-
-            <div class="field">
-              <label>VIP Duration (days)</label>
-              <input id="vipDuration"
-                     type="number"
-                     min="1"
-                     step="1"
-                     value="30">
-            </div>
-
-            <div class="field">
-              <label>Activation Required</label>
-
-              <select id="activationRequired">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Withdrawal Charges</h2>
-
-          <div class="form-grid">
-
-            <div class="field">
-              <label>Minimum Withdrawal (₦)</label>
-              <input id="minimumWithdrawal"
-                     type="number"
-                     min="0"
-                     step="1"
-                     value="1500">
-            </div>
-
-            <div class="field">
-              <label>Normal Withdrawal Fee (₦)</label>
-              <input id="normalWithdrawalFee"
-                     type="number"
-                     min="0"
-                     step="1"
-                     value="100">
-            </div>
-
-            <div class="field">
-              <label>VIP Withdrawal Fee (₦)</label>
-              <input id="vipWithdrawalFee"
-                     type="number"
-                     min="0"
-                     step="1"
-                     value="50">
-            </div>
-
-            <div class="field">
-              <label>Withdrawals Per Day</label>
-              <input id="withdrawalsPerDay"
-                     type="number"
-                     min="1"
-                     step="1"
-                     value="1">
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Poster Charges</h2>
-
-          <div class="form-grid">
-
-            <div class="field">
-              <label>Basic Posting Fee (₦)</label>
-              <input id="posterBasicFee"
-                     type="number"
-                     min="0"
-                     value="0">
-            </div>
-
-            <div class="field">
-              <label>Featured Task Fee (₦)</label>
-              <input id="posterFeaturedFee"
-                     type="number"
-                     min="0"
-                     value="0">
-            </div>
-
-            <div class="field">
-              <label>Sponsored Task Fee (₦)</label>
-              <input id="posterSponsoredFee"
-                     type="number"
-                     min="0"
-                     value="0">
-            </div>
-
-            <div class="field">
-              <label>Allow Paid Posting</label>
-              <select id="posterPaidEnabled">
-                <option value="true">Enabled</option>
-                <option value="false">Disabled</option>
-              </select>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- REFERRALS -->
-    <section id="page-referrals" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Referrals</h1>
-          <p>Referral rewards and referral activity.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadReferrals()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="grid grid-2">
-
-        <div class="card">
-
-          <h2 class="section-title">Referral Settings</h2>
-
-          <div class="form-grid">
-
-            <div class="field">
-              <label>Referral Reward (₦)</label>
-              <input id="referralReward"
-                     type="number"
-                     min="0"
-                     value="100">
-            </div>
-
-            <div class="field">
-              <label>Enable Referrals</label>
-              <select id="referralEnabled">
-                <option value="true">Enabled</option>
-                <option value="false">Disabled</option>
-              </select>
-            </div>
-
-          </div>
-
-          <button class="btn btn-primary"
-                  style="margin-top:14px"
-                  onclick="saveReferralSettings()">
-            Save Referral Settings
-          </button>
-
-        </div>
-
-        <div class="card">
-
-          <h2 class="section-title">Recent Referrals</h2>
-
-          <div id="referralTable">
-            <div class="loading">
-              <div class="spinner"></div>
-              Loading referrals…
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- POSTERS -->
-    <section id="page-posters" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Posters</h1>
-          <p>Manage task poster activity and monetization.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadPosters()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <div id="postersTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading posters…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ADS -->
-    <section id="page-ads" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Ads & Campaigns</h1>
-          <p>Platform advertising and sponsored campaign controls.</p>
-        </div>
-
-        <button class="btn btn-primary"
-                onclick="saveAdSettings()">
-          Save Settings
-        </button>
-
-      </div>
-
-      <div class="grid grid-2">
-
-        <div class="card">
-
-          <h2 class="section-title">Advertising Controls</h2>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Platform Ads</strong>
-              <span>Allow advertising placements.</span>
-            </div>
-
-            <label class="switch">
-              <input id="adsEnabled" type="checkbox">
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Sponsored Tasks</strong>
-              <span>Allow sponsored/featured task placement.</span>
-            </div>
-
-            <label class="switch">
-              <input id="sponsoredTasksEnabled" type="checkbox">
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Direct Campaigns</strong>
-              <span>Enable advertising campaign management.</span>
-            </div>
-
-            <label class="switch">
-              <input id="campaignsEnabled" type="checkbox">
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Ad Revenue</h2>
-
-          <div class="form-grid">
-
-            <div class="field">
-              <label>Featured Placement Fee (₦)</label>
-              <input id="featuredPlacementFee"
-                     type="number"
-                     min="0"
-                     value="0">
-            </div>
-
-            <div class="field">
-              <label>Sponsored Placement Fee (₦)</label>
-              <input id="sponsoredPlacementFee"
-                     type="number"
-                     min="0"
-                     value="0">
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- SUPPORT -->
-    <section id="page-support" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Support</h1>
-          <p>Review user support requests.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadSupport()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <div id="supportTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading support requests…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- APPEALS -->
-    <section id="page-appeals" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Appeals</h1>
-          <p>Review rejected task and account appeals.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadAppeals()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <div id="appealsTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading appeals…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- MARKETPLACE -->
-    <section id="page-marketplace" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Marketplace</h1>
-          <p>Marketplace controls and activity.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadMarketplace()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="grid grid-2">
-
-        <div class="card">
-
-          <h2 class="section-title">Marketplace Controls</h2>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Marketplace</strong>
-              <span>Allow marketplace features.</span>
-            </div>
-
-            <label class="switch">
-              <input id="marketplaceEnabled"
-                     type="checkbox">
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-        </div>
-
-        <div class="card">
-
-          <h2 class="section-title">Recent Listings</h2>
-
-          <div id="marketplaceTable">
-            <div class="loading">
-              <div class="spinner"></div>
-              Loading marketplace…
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- AIRTIME -->
-    <section id="page-airtime" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Airtime & Data</h1>
-          <p>Airtime/data service controls and transaction activity.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadAirtime()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <div class="switch-row">
-
-          <div class="switch-info">
-            <strong>Airtime & Data Services</strong>
-            <span>Enable or disable the service.</span>
-          </div>
-
-          <label class="switch">
-            <input id="airtimeEnabled"
-                   type="checkbox">
-            <span class="slider"></span>
-          </label>
-
-        </div>
-
-        <div id="airtimeTable" style="margin-top:15px">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading transactions…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- SECURITY -->
-    <section id="page-security" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Security</h1>
-          <p>Platform protection and account-security controls.</p>
-        </div>
-
-        <button class="btn btn-primary"
-                onclick="saveSecuritySettings()">
-          Save Security
-        </button>
-
-      </div>
-
-      <div class="grid grid-2">
-
-        <div class="card">
-
-          <h2 class="section-title">Protection</h2>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>CAPTCHA Protection</strong>
-              <span>Enable CAPTCHA where integrated.</span>
-            </div>
-
-            <label class="switch">
-              <input id="captchaEnabled"
-                     type="checkbox">
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Login Protection</strong>
-              <span>Apply additional login protection.</span>
-            </div>
-
-            <label class="switch">
-              <input id="loginProtectionEnabled"
-                     type="checkbox">
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Duplicate Task Protection</strong>
-              <span>Prevent the same worker completing a task twice.</span>
-            </div>
-
-            <label class="switch">
-              <input id="duplicateProtectionEnabled"
-                     type="checkbox"
-                     checked>
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Moderation</h2>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Photo Proof Required</strong>
-              <span>Every task submission requires photo proof.</span>
-            </div>
-
-            <label class="switch">
-              <input id="photoProofRequired"
-                     type="checkbox"
-                     checked>
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Manual Proof Approval</strong>
-              <span>Require admin moderation before reward.</span>
-            </div>
-
-            <label class="switch">
-              <input id="manualProofEnabled"
-                     type="checkbox"
-                     checked>
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- INTEGRITY -->
-    <section id="page-integrity" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Integrity Checks</h1>
-          <p>Detect common database and wallet inconsistencies.</p>
-        </div>
-
-        <button class="btn btn-primary"
-                onclick="runIntegrityChecks()">
-          Run Checks
-        </button>
-
-      </div>
-
-      <div class="alert alert-info">
-        Checks are read-only. They do not automatically modify balances.
-      </div>
-
-      <div id="integrityResults" class="card">
-
-        <div class="loading">
-          <div class="spinner"></div>
-          Ready for integrity check.
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- AUDIT -->
-    <section id="page-audit" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Admin Activity</h1>
-          <p>Administrative actions recorded by the platform.</p>
-        </div>
-
-        <button class="btn btn-secondary"
-                onclick="loadAudit()">
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <div id="auditTable">
-          <div class="loading">
-            <div class="spinner"></div>
-            Loading audit log…
-          </div>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- SETTINGS -->
-    <section id="page-settings" class="page">
-
-      <div class="page-head">
-
-        <div>
-          <h1>Platform Settings</h1>
-          <p>Central controls for NAIJA TASK.</p>
-        </div>
-
-        <button class="btn btn-primary"
-                onclick="savePlatformSettings()">
-          Save Settings
-        </button>
-
-      </div>
-
-
-      <div class="grid grid-2">
-
-        <div class="card">
-
-          <h2 class="section-title">Platform</h2>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Task Posting</strong>
-              <span>Allow users/posters to create tasks.</span>
-            </div>
-
-            <label class="switch">
-              <input id="taskPostingEnabled"
-                     type="checkbox"
-                     checked>
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Withdrawals</strong>
-              <span>Allow eligible users to request withdrawals.</span>
-            </div>
-
-            <label class="switch">
-              <input id="withdrawalEnabled"
-                     type="checkbox"
-                     checked>
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-          <div class="switch-row">
-
-            <div class="switch-info">
-              <strong>Referrals</strong>
-              <span>Enable the referral programme.</span>
-            </div>
-
-            <label class="switch">
-              <input id="settingsReferralEnabled"
-                     type="checkbox"
-                     checked>
-              <span class="slider"></span>
-            </label>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Task Rules</h2>
-
-          <div class="form-grid">
-
-            <div class="field">
-              <label>Minimum Task Reward (₦)</label>
-              <input id="minimumTaskReward"
-                     type="number"
-                     min="0"
-                     value="1">
-            </div>
-
-            <div class="field">
-              <label>Maximum Task Reward (₦)</label>
-              <input id="maximumTaskReward"
-                     type="number"
-                     min="0"
-                     value="10000">
-            </div>
-
-            <div class="field">
-              <label>Default Task Slots</label>
-              <input id="defaultTaskSlots"
-                     type="number"
-                     min="1"
-                     value="1">
-            </div>
-
-            <div class="field">
-              <label>Proof Required</label>
-              <select id="settingsProofRequired">
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Platform Information</h2>
-
-          <div class="form-grid">
-
-            <div class="field">
-              <label>Platform Name</label>
-              <input id="platformName"
-                     value="NAIJA TASK">
-            </div>
-
-            <div class="field">
-              <label>Support Email</label>
-              <input id="supportEmail"
-                     type="email"
-                     value="naijataskofficia@gmail.com">
-            </div>
-
-            <div class="field full">
-              <label>Platform Description</label>
-              <textarea id="platformDescription">Earn by completing legitimate tasks on NAIJA TASK.</textarea>
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="card">
-
-          <h2 class="section-title">Save Behaviour</h2>
-
-          <div class="alert alert-warning">
-            Settings are written only when a corresponding database
-            setting is available. Unknown columns/tables are not
-            fabricated by this dashboard.
-          </div>
-
-          <button class="btn btn-primary"
-                  onclick="savePlatformSettings()">
-            Save Platform Settings
-          </button>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- MOBILE NAV -->
-  <nav class="mobile-nav">
-
-    <button data-page="overview" class="active">
-      <div>▦</div>
-      Home
-    </button>
-
-    <button data-page="users">
-      <div>👥</div>
-      Users
-    </button>
-
-    <button data-page="tasks">
-      <div>✓</div>
-      Tasks
-    </button>
-
-    <button data-page="proof">
-      <div>▣</div>
-      Proof
-    </button>
-
-    <button data-page="settings">
-      <div>⚙</div>
-      Settings
-    </button>
-
-  </nav>
-
-</div>
-
-
-<div id="toast"></div>
-
-
-<script>
-/* ============================================================
-   NAIJA TASK — ADMIN CONTROL CENTER
-   ============================================================
-
-   IMPORTANT:
-   1. Use the SAME Supabase URL as the other NAIJA TASK pages.
-   2. Use the SAME publishable/anon key as the other pages.
-   3. NEVER put a service_role key in this browser file.
-   4. Financial approval should use secure Supabase RPCs.
-   ============================================================ */
-
-
-/* =========================
-   SUPABASE CONFIGURATION
-   ========================= */
-
-const SUPABASE_URL =
-  "https://jwakveeiynpakunwjzkj.supabase.co";
-
-/*
-  PASTE THE SAME SUPABASE PUBLISHABLE/ANON KEY
-  USED BY YOUR OTHER NAIJA TASK PAGES.
-
-  Do NOT use the service_role key.
-*/
-const SUPABASE_ANON_KEY =
-       "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
-
-let supabaseClient = null;
-
-if(
-  window.supabase &&
-  SUPABASE_URL &&
-  SUPABASE_ANON_KEY &&
-  !SUPABASE_ANON_KEY.includes("PASTE_YOUR")
-){
-  supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY,
-      {
-        auth:{
-          persistSession:true,
-          autoRefreshToken:true,
-          detectSessionInUrl:true
-        }
-      }
-    );
-}
-
-
-/* =========================
-   GLOBAL STATE
-   ========================= */
-
-const state = {
-  session:null,
-  user:null,
-  admin:false,
-  adminRole:null,
-  accessMode:"activation",
-  users:[],
-  tasks:[],
-  proofs:[],
-  withdrawals:[],
-  ledger:[],
-  referrals:[],
-  posters:[],
-  settings:{}
-};
-
-
-/* =========================
-   DOM HELPERS
-   ========================= */
-
-const $ = id => document.getElementById(id);
-
-function esc(value){
-  if(value === null || value === undefined){
-    return "";
-  }
-
-  return String(value)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-function money(value){
-  const number = Number(value || 0);
-
-  return "₦" + number.toLocaleString(
-    "en-NG",
-    {
-      minimumFractionDigits:0,
-      maximumFractionDigits:2
-    }
-  );
-}
-
-function shortId(value){
-  if(!value) return "—";
-
-  const text = String(value);
-
-  if(text.length <= 12){
-    return text;
-  }
-
-  return text.slice(0,8) + "…" + text.slice(-4);
-}
-
-function dateValue(value){
-  if(!value) return "—";
-
-  try{
-    return new Date(value).toLocaleString(
-      "en-NG",
-      {
-        dateStyle:"medium",
-        timeStyle:"short"
-      }
-    );
-  }catch(e){
-    return String(value);
-  }
-}
-
-function statusBadge(status){
-
-  const s = String(status || "")
-    .toLowerCase();
-
-  if(
-    s === "approved" ||
-    s === "active" ||
-    s === "completed" ||
-    s === "success" ||
-    s === "paid" ||
-    s === "true"
-  ){
-    return `<span class="badge badge-green">${esc(status)}</span>`;
-  }
-
-  if(
-    s === "rejected" ||
-    s === "failed" ||
-    s === "blocked" ||
-    s === "disabled"
-  ){
-    return `<span class="badge badge-red">${esc(status)}</span>`;
-  }
-
-  if(
-    s === "pending" ||
-    s === "review"
-  ){
-    return `<span class="badge badge-orange">${esc(status)}</span>`;
-  }
-
-  if(s){
-    return `<span class="badge badge-gray">${esc(status)}</span>`;
-  }
-
-  return `<span class="badge badge-gray">—</span>`;
-}
-
-function showToast(message,type="success"){
-
-  const toast = $("toast");
-
-  toast.textContent = message;
-
-  toast.className = "";
-
-  toast.classList.add("show");
-
-  if(type === "error"){
-    toast.classList.add("error");
-  }else{
-    toast.classList.add("success");
-  }
-
-  clearTimeout(window.__toastTimer);
-
-  window.__toastTimer =
-    setTimeout(()=>{
-      toast.classList.remove("show");
-    },3500);
-}
-
-function showError(message){
-  showToast(message,"error");
-}
-
-function setLoading(elementId,text="Loading…"){
-
-  const element = $(elementId);
-
-  if(!element) return;
-
-  element.innerHTML = `
-    <div class="loading">
-      <div class="spinner"></div>
-      ${esc(text)}
     </div>
-  `;
-}
 
+    <button
+      class="primary"
+      onclick="loadUsers()">
+      Refresh
+    </button>
 
-/* =========================
-   SAFE SUPABASE HELPERS
-   ========================= */
+  </div>
 
-function databaseReady(){
 
-  if(!supabaseClient){
+  <div class="card">
 
-    showError(
-      "Supabase is not configured. Put your existing NAIJA TASK publishable key in admin.html."
-    );
+    <div class="actions"
+         style="margin-bottom:12px">
 
-    return false;
-  }
+      <input
+        id="userSearch"
+        type="search"
+        placeholder="Search name, phone or user ID..."
+        oninput="filterUsers()"
+        style="max-width:420px">
 
-  return true;
-}
-
-
-async function safeQuery(label,query){
-
-  try{
-
-    const result = await query;
-
-    if(result.error){
-
-      console.warn(
-        "[NAIJA TASK]",
-        label,
-        result.error
-      );
-
-      return {
-        data:null,
-        error:result.error
-      };
-    }
-
-    return {
-      data:result.data,
-      error:null
-    };
-
-  }catch(error){
-
-    console.error(
-      "[NAIJA TASK]",
-      label,
-      error
-    );
-
-    return {
-      data:null,
-      error
-    };
-  }
-}
-
-
-/* =========================
-   AUTH
-   ========================= */
-
-async function getCurrentSession(){
-
-  if(!databaseReady()) return null;
-
-  const result =
-    await safeQuery(
-      "get session",
-      supabaseClient.auth.getSession()
-    );
-
-  return result.data?.session || null;
-}
-
-
-async function signOut(){
-
-  if(supabaseClient){
-
-    try{
-      await supabaseClient.auth.signOut();
-    }catch(e){
-      console.warn(e);
-    }
-
-  }
-
-  state.session = null;
-  state.user = null;
-  state.admin = false;
-
-  $("app").classList.add("hidden");
-  $("loginScreen").style.display = "grid";
-}
-
-
-async function checkAdminAccess(){
-
-  if(!state.user){
-    return false;
-  }
-
-  /*
-    admin_users is the table previously established
-    for NAIJA TASK administrator authorization.
-  */
-
-  const result =
-    await safeQuery(
-      "admin authorization",
-      supabaseClient
-        .from("admin_users")
-        .select("user_id,role,active")
-        .eq("user_id",state.user.id)
-        .maybeSingle()
-    );
-
-  if(result.error){
-
-    $("adminStatus").textContent = "Unavailable";
-    $("adminStatus").className =
-      "badge badge-orange";
-
-    return false;
-  }
-
-  if(
-    !result.data ||
-    result.data.active !== true
-  ){
-
-    $("adminStatus").textContent = "Denied";
-    $("adminStatus").className =
-      "badge badge-red";
-
-    return false;
-  }
-
-  state.admin = true;
-  state.adminRole =
-    result.data.role || "admin";
-
-  $("adminStatus").textContent = "Authorized";
-  $("adminStatus").className =
-    "badge badge-green";
-
-  return true;
-}
-
-
-async function initializeAuth(){
-
-  if(!databaseReady()){
-
-    $("loginScreen").style.display = "grid";
-
-    return;
-  }
-
-  const session =
-    await getCurrentSession();
-
-  if(session){
-
-    state.session = session;
-    state.user = session.user;
-
-    const allowed =
-      await checkAdminAccess();
-
-    if(allowed){
-
-      openApp();
-
-    }else{
-
-      $("loginScreen").style.display = "grid";
-
-      showLoginError(
-        "This account is not authorized as an active NAIJA TASK administrator."
-      );
-
-    }
-
-  }else{
-
-    $("loginScreen").style.display = "grid";
-
-  }
-}
-
-
-function showLoginError(message){
-
-  const element = $("loginError");
-
-  element.textContent = message;
-
-  element.style.display = "block";
-}
-
-
-async function login(event){
-
-  event.preventDefault();
-
-  if(!databaseReady()) return;
-
-  const email =
-    $("loginEmail").value.trim();
-
-  const password =
-    $("loginPassword").value;
-
-  const button =
-    $("loginBtn");
-
-  const error =
-    $("loginError");
-
-  error.style.display = "none";
-
-  button.disabled = true;
-  button.textContent = "Signing in…";
-
-  try{
-
-    const result =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-    if(result.error){
-      throw result.error;
-    }
-
-    state.session = result.data.session;
-    state.user = result.data.user;
-
-    const allowed =
-      await checkAdminAccess();
-
-    if(!allowed){
-
-      await supabaseClient.auth.signOut();
-
-      throw new Error(
-        "Login succeeded, but this account is not an active administrator."
-      );
-    }
-
-    openApp();
-
-  }catch(error){
-
-    console.error(error);
-
-    showLoginError(
-      error?.message ||
-      "Unable to sign in."
-    );
-
-  }finally{
-
-    button.disabled = false;
-    button.textContent = "Sign In";
-
-  }
-}
-
-
-/* =========================
-   APP OPEN
-   ========================= */
-
-function openApp(){
-
-  $("loginScreen").style.display = "none";
-
-  $("app").classList.remove("hidden");
-
-  $("adminEmail").textContent =
-    state.user?.email ||
-    "Administrator";
-
-  loadDashboard();
-
-}
-
-
-/* =========================
-   NAVIGATION
-   ========================= */
-
-function showPage(page){
-
-  document
-    .querySelectorAll(".page")
-    .forEach(section=>{
-      section.classList.remove("active");
-    });
-
-  const target =
-    $("page-" + page);
-
-  if(target){
-    target.classList.add("active");
-  }
-
-  document
-    .querySelectorAll(".nav-btn")
-    .forEach(button=>{
-      button.classList.toggle(
-        "active",
-        button.dataset.page === page
-      );
-    });
-
-  document
-    .querySelectorAll(".mobile-nav button")
-    .forEach(button=>{
-      button.classList.toggle(
-        "active",
-        button.dataset.page === page
-      );
-    });
-
-  $("sidebar").classList.remove("open");
-  $("mobileOverlay").classList.remove("show");
-
-  switch(page){
-
-    case "overview":
-      loadDashboard();
-      break;
-
-    case "users":
-      loadUsers();
-      break;
-
-    case "tasks":
-      loadTasks();
-      break;
-
-    case "proof":
-      loadProofs();
-      break;
-
-    case "withdrawals":
-      loadWithdrawals();
-      break;
-
-    case "ledger":
-      loadLedger();
-      break;
-
-    case "referrals":
-      loadReferrals();
-      break;
-
-    case "posters":
-      loadPosters();
-      break;
-
-    case "support":
-      loadSupport();
-      break;
-
-    case "appeals":
-      loadAppeals();
-      break;
-
-    case "marketplace":
-      loadMarketplace();
-      break;
-
-    case "airtime":
-      loadAirtime();
-      break;
-
-    case "audit":
-      loadAudit();
-      break;
-
-    case "settings":
-      loadSettings();
-      break;
-
-  }
-}
-
-
-/* =========================
-   DASHBOARD
-   ========================= */
-
-async function loadDashboard(){
-
-  if(!databaseReady() || !state.admin) return;
-
-  setLoading(
-    "recentActivity",
-    "Loading dashboard…"
-  );
-
-  $("metricUsers").textContent = "…";
-  $("metricTasks").textContent = "…";
-  $("metricProofs").textContent = "…";
-  $("metricWithdrawals").textContent = "…";
-
-  const [
-    users,
-    tasks,
-    proofs,
-    withdrawals
-  ] = await Promise.all([
-
-    safeQuery(
-      "users count",
-      supabaseClient
-        .from("profiles")
-        .select("id",{count:"exact",head:true})
-    ),
-
-    safeQuery(
-      "tasks count",
-      supabaseClient
-        .from("tasks")
-        .select("id",{count:"exact",head:true})
-        .eq("active",true)
-    ),
-
-    safeQuery(
-      "proof count",
-      supabaseClient
-        .from("task_submissions")
-        .select("id",{count:"exact",head:true})
-        .eq("status","pending")
-    ),
-
-    safeQuery(
-      "withdrawal count",
-      supabaseClient
-        .from("withdrawals")
-        .select("id",{count:"exact",head:true})
-        .eq("status","pending")
-    )
-
-  ]);
-
-  $("metricUsers").textContent =
-    users.error ? "—" : (users.data?.length ?? 0);
-
-  /*
-    Supabase head-count responses are available on
-    result.count, but safeQuery returns data/error.
-    Therefore fetch small fallback values below.
-  */
-
-  const userCount =
-    await countTable("profiles");
-
-  const taskCount =
-    await countTable("tasks","active",true);
-
-  const proofCount =
-    await countTable(
-      "task_submissions",
-      "status",
-      "pending"
-    );
-
-  const withdrawalCount =
-    await countTable(
-      "withdrawals",
-      "status",
-      "pending"
-    );
-
-  $("metricUsers").textContent =
-    userCount === null ? "—" : userCount;
-
-  $("metricTasks").textContent =
-    taskCount === null ? "—" : taskCount;
-
-  $("metricProofs").textContent =
-    proofCount === null ? "—" : proofCount;
-
-  $("metricWithdrawals").textContent =
-    withdrawalCount === null ? "—" : withdrawalCount;
-
-
-  await loadModePreview();
-  await loadRecentActivity();
-
-  $("supabaseStatusText").textContent =
-    "Database query completed.";
-
-  $("supabaseStatus").textContent =
-    "Connected";
-
-  $("supabaseStatus").className =
-    "badge badge-green";
-}
-
-
-async function countTable(
-  table,
-  column=null,
-  value=null
-){
-
-  if(!supabaseClient) return null;
-
-  try{
-
-    let query =
-      supabaseClient
-        .from(table)
-        .select("id",{count:"exact",head:true});
-
-    if(column !== null){
-      query = query.eq(column,value);
-    }
-
-    const result =
-      await query;
-
-    if(result.error){
-      return null;
-    }
-
-    return result.count ?? 0;
-
-  }catch(e){
-
-    console.warn(table,e);
-
-    return null;
-  }
-}
-
-
-async function loadModePreview(){
-
-  const result =
-    await safeQuery(
-      "platform mode",
-      supabaseClient
-        .from("platform_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle()
-    );
-
-  if(result.error || !result.data){
-
-    $("overviewMode").innerHTML = `
-      <div class="alert alert-warning">
-        Platform settings could not be loaded.
-      </div>
-    `;
-
-    return;
-  }
-
-  state.settings =
-    result.data || {};
-
-  const mode =
-    result.data.access_mode ||
-    result.data.mode ||
-    (
-      result.data.vip_enabled === true
-        ? "vip"
-        : "activation"
-    );
-
-  state.accessMode = mode;
-
-  $("overviewMode").innerHTML = `
-    <div class="switch-row">
-      <div class="switch-info">
-        <strong>
-          ${mode === "vip" ? "VIP Mode" : "Activation Mode"}
-        </strong>
-        <span>
-          ${
-            mode === "vip"
-              ? "VIP monetization is currently selected."
-              : "Activation monetization is currently selected."
-          }
-        </span>
-      </div>
-
-      <span class="badge ${
-        mode === "vip"
-          ? "badge-blue"
-          : "badge-green"
-      }">
-        ${esc(mode)}
-      </span>
     </div>
-  `;
-}
 
 
-async function loadRecentActivity(){
-
-  const result =
-    await safeQuery(
-      "recent audit",
-      supabaseClient
-        .from("admin_activity")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(8)
-    );
-
-  if(result.error){
-
-    $("recentActivity").innerHTML = `
-      <div class="empty">
-        No recent admin activity available.
-      </div>
-    `;
-
-    return;
-  }
-
-  const rows =
-    result.data || [];
-
-  if(!rows.length){
-
-    $("recentActivity").innerHTML = `
-      <div class="empty">
-        No recorded activity yet.
-      </div>
-    `;
-
-    return;
-  }
-
-  $("recentActivity").innerHTML = `
     <div class="table-wrap">
+
       <table>
+
         <thead>
+
           <tr>
-            <th>Action</th>
-            <th>Admin</th>
-            <th>Time</th>
-          </tr>
-        </thead>
 
-        <tbody>
-          ${
-            rows.map(row=>`
-              <tr>
-                <td>${esc(
-                  row.action ||
-                  row.event ||
-                  row.description ||
-                  "Admin action"
-                )}</td>
-
-                <td>${esc(
-                  row.admin_email ||
-                  row.admin_id ||
-                  "—"
-                )}</td>
-
-                <td>${dateValue(
-                  row.created_at
-                )}</td>
-              </tr>
-            `).join("")
-          }
-        </tbody>
-      </table>
-    </div>
-  `;
-}
-
-
-/* =========================
-   USERS
-   ========================= */
-
-async function loadUsers(){
-
-  if(!databaseReady()) return;
-
-  setLoading(
-    "usersTable",
-    "Loading users…"
-  );
-
-  const result =
-    await safeQuery(
-      "users",
-      supabaseClient
-        .from("profiles")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(500)
-    );
-
-  if(result.error){
-
-    $("usersTable").innerHTML = `
-      <div class="alert alert-danger">
-        Unable to load users:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  state.users =
-    result.data || [];
-
-  renderUsers(state.users);
-}
-
-
-function renderUsers(rows){
-
-  if(!rows.length){
-
-    $("usersTable").innerHTML =
-      `<div class="empty">No users found.</div>`;
-
-    return;
-  }
-
-  $("usersTable").innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
             <th>User</th>
             <th>Phone</th>
             <th>Balance</th>
             <th>Activation</th>
-            <th>Created</th>
+            <th>Joined</th>
+            <th>Action</th>
+
           </tr>
+
         </thead>
 
-        <tbody>
-          ${
-            rows.map(row=>`
+        <tbody id="usersBody">
 
-              <tr>
+          <tr>
 
-                <td>
-                  <strong>
-                    ${esc(
-                      row.full_name ||
-                      row.username ||
-                      "Unnamed User"
-                    )}
-                  </strong>
+            <td
+              colspan="6"
+              class="empty">
 
-                  <div class="small">
-                    ${shortId(row.id)}
-                  </div>
-                </td>
+              Loading users...
 
-                <td>
-                  ${esc(row.phone || "—")}
-                </td>
+            </td>
 
-                <td>
-                  ${money(row.balance)}
-                </td>
+          </tr>
 
-                <td>
-                  ${
-                    row.is_activated === true ||
-                    row.activated === true
-                      ? statusBadge("active")
-                      : statusBadge("pending")
-                  }
-                </td>
-
-                <td>
-                  ${dateValue(row.created_at)}
-                </td>
-
-              </tr>
-
-            `).join("")
-          }
         </tbody>
 
       </table>
+
     </div>
-  `;
-}
+
+  </div>
+
+</section>
 
 
-function filterUsers(){
+<!-- =====================================================
+     TASKS
+     ===================================================== -->
 
-  const query =
-    $("userSearch").value
-      .trim()
-      .toLowerCase();
+<section
+  id="page-tasks"
+  class="page">
 
-  if(!query){
+  <div class="page-header">
 
-    renderUsers(state.users);
+    <div>
 
-    return;
-  }
+      <h2>
+        Task Manager
+      </h2>
 
-  const filtered =
-    state.users.filter(row=>{
+      <p>
+        Create, edit, moderate and control worker tasks.
+      </p>
 
-      const text = [
-        row.id,
-        row.full_name,
-        row.username,
-        row.phone,
-        row.email
-      ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
+    </div>
 
-      return text.includes(query);
-    });
+    <div class="actions">
 
-  renderUsers(filtered);
-}
+      <button
+        class="secondary"
+        onclick="loadTasks()">
+        Refresh
+      </button>
 
+      <button
+        class="primary"
+        onclick="openTaskModal()">
+        + Create Task
+      </button>
 
-/* =========================
-   TASKS
-   ========================= */
+    </div>
 
-async function loadTasks(){
-
-  setLoading(
-    "tasksTable",
-    "Loading tasks…"
-  );
-
-  const result =
-    await safeQuery(
-      "tasks",
-      supabaseClient
-        .from("tasks")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(500)
-    );
-
-  if(result.error){
-
-    $("tasksTable").innerHTML = `
-      <div class="alert alert-danger">
-        Unable to load tasks:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  state.tasks =
-    result.data || [];
-
-  renderTasks(state.tasks);
-}
+  </div>
 
 
-function renderTasks(rows){
+  <div class="notice">
 
-  if(!rows.length){
+    Every worker submission is intended to use photo proof.
+    Task rewards and completion limits must remain controlled
+    by the database transaction.
 
-    $("tasksTable").innerHTML =
-      `<div class="empty">No tasks found.</div>`;
+  </div>
 
-    return;
-  }
 
-  $("tasksTable").innerHTML = `
+  <div class="card">
+
     <div class="table-wrap">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>Task</th>
             <th>Type</th>
             <th>Reward</th>
             <th>Slots</th>
-            <th>Expiry</th>
             <th>Status</th>
+            <th>Expiry</th>
+            <th>Action</th>
+
           </tr>
+
         </thead>
 
-        <tbody>
+        <tbody id="tasksBody">
 
-          ${
-            rows.map(row=>`
+          <tr>
 
-              <tr>
+            <td
+              colspan="7"
+              class="empty">
 
-                <td>
-                  <strong>
-                    ${esc(
-                      row.title ||
-                      row.name ||
-                      row.task_type ||
-                      "Task"
-                    )}
-                  </strong>
+              Loading tasks...
 
-                  <div class="small">
-                    ${shortId(row.id)}
-                  </div>
-                </td>
+            </td>
 
-                <td>
-                  ${esc(
-                    row.task_type ||
-                    row.type ||
-                    "—"
-                  )}
-                </td>
-
-                <td>
-                  ${money(row.reward)}
-                </td>
-
-                <td>
-                  ${esc(row.slots ?? "—")}
-                </td>
-
-                <td>
-                  ${dateValue(row.expiry_date)}
-                </td>
-
-                <td>
-                  ${
-                    row.active === true
-                      ? statusBadge("active")
-                      : statusBadge("disabled")
-                  }
-                </td>
-
-              </tr>
-
-            `).join("")
-          }
+          </tr>
 
         </tbody>
 
       </table>
 
     </div>
-  `;
-}
+
+  </div>
+
+</section>
 
 
-/* =========================
-   PROOF MODERATION
-   ========================= */
+<!-- =====================================================
+     SUBMISSIONS / PROOF MODERATION
+     ===================================================== -->
 
-async function loadProofs(){
+<section
+  id="page-submissions"
+  class="page">
 
-  setLoading(
-    "proofTable",
-    "Loading pending proofs…"
-  );
+  <div class="page-header">
 
-  const result =
-    await safeQuery(
-      "proofs",
-      supabaseClient
-        .from("task_submissions")
-        .select("*")
-        .eq("status","pending")
-        .order("created_at",{ascending:true})
-        .limit(500)
-    );
+    <div>
 
-  if(result.error){
+      <h2>
+        Proof Moderation
+      </h2>
 
-    $("proofTable").innerHTML = `
-      <div class="alert alert-danger">
-        Unable to load proofs:
-        ${esc(result.error.message)}
+      <p>
+        Review submitted work before releasing rewards.
+      </p>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="loadSubmissions()">
+      Refresh
+    </button>
+
+  </div>
+
+
+  <div class="grid grid-4">
+
+    <div class="card">
+
+      <div class="stat-label">
+        Pending
       </div>
-    `;
 
-    return;
-  }
+      <div
+        id="submissionPending"
+        class="stat-value">
+        0
+      </div>
 
-  state.proofs =
-    result.data || [];
+    </div>
 
-  renderProofs(state.proofs);
-}
+    <div class="card">
+
+      <div class="stat-label">
+        Approved
+      </div>
+
+      <div
+        id="submissionApproved"
+        class="stat-value">
+        0
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="stat-label">
+        Rejected
+      </div>
+
+      <div
+        id="submissionRejected"
+        class="stat-value">
+        0
+      </div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="stat-label">
+        Total
+      </div>
+
+      <div
+        id="submissionTotal"
+        class="stat-value">
+        0
+      </div>
+
+    </div>
+
+  </div>
 
 
-function renderProofs(rows){
+  <div
+    class="card"
+    style="margin-top:14px">
 
-  if(!rows.length){
+    <div
+      class="actions"
+      style="margin-bottom:12px">
 
-    $("proofTable").innerHTML =
-      `<div class="empty">
-        No pending proof submissions.
-      </div>`;
+      <select
+        id="submissionStatusFilter"
+        onchange="loadSubmissions()"
+        style="max-width:220px">
 
-    return;
-  }
+        <option value="all">
+          All statuses
+        </option>
 
-  $("proofTable").innerHTML = `
+        <option value="pending">
+          Pending
+        </option>
+
+        <option value="approved">
+          Approved
+        </option>
+
+        <option value="rejected">
+          Rejected
+        </option>
+
+        <option value="cancelled">
+          Cancelled
+        </option>
+
+      </select>
+
+      <input
+        id="submissionSearch"
+        type="search"
+        placeholder="Search submission, worker or task..."
+        oninput="filterSubmissions()"
+        style="max-width:360px">
+
+    </div>
+
+
     <div class="table-wrap">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>Submission</th>
             <th>Worker</th>
             <th>Task</th>
             <th>Proof</th>
-            <th>Submitted</th>
+            <th>Status</th>
+            <th>Date</th>
             <th>Action</th>
+
           </tr>
+
         </thead>
 
-        <tbody>
+        <tbody id="submissionsBody">
 
-          ${
-            rows.map(row=>`
+          <tr>
 
-              <tr>
+            <td
+              colspan="7"
+              class="empty">
 
-                <td>
-                  ${shortId(row.id)}
-                </td>
+              Loading submissions...
 
-                <td>
-                  ${shortId(
-                    row.user_id ||
-                    row.worker_id
-                  )}
-                </td>
+            </td>
 
-                <td>
-                  ${shortId(row.task_id)}
-                </td>
-
-                <td>
-                  ${
-                    row.proof_url ||
-                    row.photo_url ||
-                    row.image_url
-                      ? `
-                        <a
-                          href="${esc(
-                            row.proof_url ||
-                            row.photo_url ||
-                            row.image_url
-                          )}"
-                          target="_blank"
-                          rel="noopener">
-                          View Proof
-                        </a>
-                      `
-                      : esc(
-                          row.proof_text ||
-                          row.proof ||
-                          "No proof URL"
-                        )
-                  }
-                </td>
-
-                <td>
-                  ${dateValue(row.created_at)}
-                </td>
-
-                <td>
-                  <div style="display:flex;gap:6px;flex-wrap:wrap">
-
-                    <button
-                      class="btn btn-primary"
-                      onclick="approveSubmission('${esc(row.id)}')">
-                      Approve
-                    </button>
-
-                    <button
-                      class="btn btn-danger"
-                      onclick="rejectSubmission('${esc(row.id)}')">
-                      Reject
-                    </button>
-
-                  </div>
-                </td>
-
-              </tr>
-
-            `).join("")
-          }
+          </tr>
 
         </tbody>
 
       </table>
 
     </div>
-  `;
-}
+
+  </div>
+
+</section>
 
 
-/* =========================
-   SECURE PROOF APPROVAL
-   ========================= */
+<!-- =====================================================
+     WITHDRAWALS
+     ===================================================== -->
 
-async function approveSubmission(id){
+<section
+  id="page-withdrawals"
+  class="page">
 
-  if(!id) return;
+  <div class="page-header">
 
-  const confirmed =
-    confirm(
-      "Approve this task submission? The secure server-side RPC should handle the reward and duplicate protection."
-    );
+    <div>
 
-  if(!confirmed) return;
+      <h2>
+        Withdrawals
+      </h2>
 
-  try{
+      <p>
+        Review withdrawal requests using secure server-side
+        wallet processing.
+      </p>
 
-    /*
-      IMPORTANT:
-      This is intentionally NOT a direct wallet update.
-      The established NAIJA TASK RPC is preferred.
-    */
+    </div>
 
-    const result =
-      await supabaseClient.rpc(
-        "admin_approve_task_submission",
-        {
-          submission_id:id
-        }
-      );
+    <button
+      class="primary"
+      onclick="loadWithdrawals()">
+      Refresh
+    </button>
 
-    if(result.error){
-
-      showError(
-        "Approval failed: " +
-        result.error.message
-      );
-
-      return;
-    }
-
-    showToast(
-      "Submission approved successfully."
-    );
-
-    await loadProofs();
-
-  }catch(error){
-
-    console.error(error);
-
-    showError(
-      "Approval failed."
-    );
-  }
-}
+  </div>
 
 
-async function rejectSubmission(id){
+  <div class="notice">
 
-  if(!id) return;
+    Approving a withdrawal uses the secure
+    <strong>admin_approve_withdrawal</strong> RPC.
+    The browser does not directly deduct wallet funds.
 
-  const reason =
-    prompt(
-      "Enter rejection reason:"
-    );
-
-  if(reason === null) return;
-
-  try{
-
-    /*
-      Direct status modification is only used if
-      the project's RLS policy permits the admin operation.
-      Reward crediting is never performed here.
-    */
-
-    const result =
-      await supabaseClient
-        .from("task_submissions")
-        .update({
-          status:"rejected",
-          rejection_reason:reason.trim() || "Rejected by admin"
-        })
-        .eq("id",id)
-        .eq("status","pending");
-
-    if(result.error){
-
-      showError(
-        "Rejection failed: " +
-        result.error.message
-      );
-
-      return;
-    }
-
-    showToast(
-      "Submission rejected."
-    );
-
-    await loadProofs();
-
-  }catch(error){
-
-    showError(
-      "Rejection failed."
-    );
-  }
-}
+  </div>
 
 
-/* =========================
-   WITHDRAWALS
-   ========================= */
+  <div class="card">
 
-async function loadWithdrawals(){
-
-  setLoading(
-    "withdrawalTable",
-    "Loading withdrawals…"
-  );
-
-  const result =
-    await safeQuery(
-      "withdrawals",
-      supabaseClient
-        .from("withdrawals")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(500)
-    );
-
-  if(result.error){
-
-    $("withdrawalTable").innerHTML = `
-      <div class="alert alert-danger">
-        Unable to load withdrawals:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  state.withdrawals =
-    result.data || [];
-
-  renderWithdrawals(state.withdrawals);
-}
-
-
-function renderWithdrawals(rows){
-
-  if(!rows.length){
-
-    $("withdrawalTable").innerHTML =
-      `<div class="empty">
-        No withdrawal requests found.
-      </div>`;
-
-    return;
-  }
-
-  $("withdrawalTable").innerHTML = `
     <div class="table-wrap">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>User</th>
             <th>Amount</th>
             <th>Fee</th>
+            <th>Method</th>
+            <th>Account</th>
             <th>Status</th>
-            <th>Created</th>
-            <th>Reference</th>
+            <th>Action</th>
+
           </tr>
+
         </thead>
 
-        <tbody>
+        <tbody id="withdrawalsBody">
 
-          ${
-            rows.map(row=>`
+          <tr>
 
-              <tr>
+            <td
+              colspan="7"
+              class="empty">
 
-                <td>
-                  ${shortId(
-                    row.user_id
-                  )}
-                </td>
+              Loading withdrawals...
 
-                <td>
-                  ${money(row.amount)}
-                </td>
+            </td>
 
-                <td>
-                  ${money(
-                    row.fee ||
-                    row.withdrawal_fee
-                  )}
-                </td>
-
-                <td>
-                  ${statusBadge(row.status)}
-                </td>
-
-                <td>
-                  ${dateValue(row.created_at)}
-                </td>
-
-                <td>
-                  ${esc(
-                    row.reference ||
-                    row.transaction_reference ||
-                    "—"
-                  )}
-                </td>
-
-              </tr>
-
-            `).join("")
-          }
+          </tr>
 
         </tbody>
 
       </table>
 
     </div>
-  `;
-}
+
+  </div>
+
+</section>
 
 
-/* =========================
-   LEDGER
-   ========================= */
+<!-- =====================================================
+     WALLET LEDGER
+     ===================================================== -->
 
-async function loadLedger(){
+<section
+  id="page-wallet"
+  class="page">
 
-  setLoading(
-    "ledgerTable",
-    "Loading wallet ledger…"
-  );
+  <div class="page-header">
 
-  const result =
-    await safeQuery(
-      "wallet ledger",
-      supabaseClient
-        .from("wallet_ledger")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(500)
-    );
+    <div>
 
-  if(result.error){
+      <h2>
+        Wallet Ledger
+      </h2>
 
-    $("ledgerTable").innerHTML = `
-      <div class="alert alert-warning">
-        Wallet ledger could not be loaded:
-        ${esc(result.error.message)}
-      </div>
-    `;
+      <p>
+        Internal wallet transaction records.
+      </p>
 
-    return;
-  }
+    </div>
 
-  state.ledger =
-    result.data || [];
+    <button
+      class="primary"
+      onclick="loadWalletLedger()">
+      Refresh
+    </button>
 
-  if(!state.ledger.length){
+  </div>
 
-    $("ledgerTable").innerHTML =
-      `<div class="empty">No ledger records found.</div>`;
 
-    return;
-  }
+  <div class="card">
 
-  $("ledgerTable").innerHTML = `
     <div class="table-wrap">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>User</th>
             <th>Type</th>
             <th>Amount</th>
             <th>Description</th>
             <th>Reference</th>
+            <th>Status</th>
             <th>Date</th>
+
           </tr>
+
         </thead>
 
-        <tbody>
+        <tbody id="walletBody">
 
-          ${
-            state.ledger.map(row=>`
+          <tr>
 
-              <tr>
+            <td
+              colspan="7"
+              class="empty">
 
-                <td>
-                  ${shortId(row.user_id)}
-                </td>
+              Loading wallet ledger...
 
-                <td>
-                  ${esc(row.type || "—")}
-                </td>
+            </td>
 
-                <td>
-                  ${money(row.amount)}
-                </td>
-
-                <td>
-                  ${esc(
-                    row.description ||
-                    row.reason ||
-                    "—"
-                  )}
-                </td>
-
-                <td>
-                  ${esc(
-                    row.reference ||
-                    "—"
-                  )}
-                </td>
-
-                <td>
-                  ${dateValue(row.created_at)}
-                </td>
-
-              </tr>
-
-            `).join("")
-          }
+          </tr>
 
         </tbody>
 
       </table>
 
     </div>
-  `;
-}
+
+  </div>
+
+</section>
 
 
-/* =========================
-   REFERRALS
-   ========================= */
+<!-- =====================================================
+     REFERRALS
+     ===================================================== -->
 
-async function loadReferrals(){
+<section
+  id="page-referrals"
+  class="page">
 
-  setLoading(
-    "referralTable",
-    "Loading referrals…"
-  );
+  <div class="page-header">
 
-  const result =
-    await safeQuery(
-      "referrals",
-      supabaseClient
-        .from("referrals")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(200)
-    );
+    <div>
 
-  if(result.error){
+      <h2>
+        Referrals
+      </h2>
 
-    $("referralTable").innerHTML = `
-      <div class="alert alert-warning">
-        Referrals table could not be loaded.
-        ${esc(result.error.message)}
+      <p>
+        Monitor referral activity and ₦100 reward settings.
+      </p>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="loadReferrals()">
+      Refresh
+    </button>
+
+  </div>
+
+
+  <div class="grid grid-3">
+
+    <div class="card">
+
+      <div class="stat-label">
+        Referral Reward
       </div>
-    `;
 
-    return;
-  }
+      <div
+        id="referralRewardOverview"
+        class="stat-value">
+        ₦0
+      </div>
 
-  state.referrals =
-    result.data || [];
+    </div>
 
-  if(!state.referrals.length){
+    <div class="card">
 
-    $("referralTable").innerHTML =
-      `<div class="empty">No referrals found.</div>`;
+      <div class="stat-label">
+        Total Referral Records
+      </div>
 
-    return;
-  }
+      <div
+        id="referralCount"
+        class="stat-value">
+        0
+      </div>
 
-  $("referralTable").innerHTML = `
+    </div>
+
+    <div class="card">
+
+      <div class="stat-label">
+        Referrals Enabled
+      </div>
+
+      <div
+        id="referralStatusOverview"
+        class="stat-value">
+        —
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    class="card"
+    style="margin-top:14px">
+
     <div class="table-wrap">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>Referrer</th>
-            <th>Referred</th>
+            <th>Referred User</th>
             <th>Reward</th>
             <th>Status</th>
             <th>Date</th>
+
           </tr>
+
         </thead>
 
-        <tbody>
+        <tbody id="referralsBody">
 
-          ${
-            state.referrals.map(row=>`
+          <tr>
 
-              <tr>
+            <td
+              colspan="5"
+              class="empty">
 
-                <td>
-                  ${shortId(
-                    row.referrer_id ||
-                    row.referrer_user_id
-                  )}
-                </td>
+              Loading referrals...
 
-                <td>
-                  ${shortId(
-                    row.referred_id ||
-                    row.referred_user_id
-                  )}
-                </td>
+            </td>
 
-                <td>
-                  ${money(row.reward)}
-                </td>
-
-                <td>
-                  ${statusBadge(
-                    row.status ||
-                    (row.rewarded ? "approved" : "pending")
-                  )}
-                </td>
-
-                <td>
-                  ${dateValue(row.created_at)}
-                </td>
-
-              </tr>
-
-            `).join("")
-          }
+          </tr>
 
         </tbody>
 
       </table>
 
     </div>
-  `;
-}
+
+  </div>
+
+</section>
 
 
-async function saveReferralSettings(){
+<!-- =====================================================
+     POSTERS
+     ===================================================== -->
 
-  const reward =
-    Number(
-      $("referralReward").value
-    );
+<section
+  id="page-posters"
+  class="page">
 
-  const enabled =
-    $("referralEnabled").value === "true";
+  <div class="page-header">
 
-  await saveSettingValue(
-    "referral_reward",
-    reward
-  );
+    <div>
 
-  await saveSettingValue(
-    "referral_enabled",
-    enabled
-);
+      <h2>
+        Job Posters
+      </h2>
 
-  showToast(
-    "Referral settings saved where supported."
-  );
-}
+      <p>
+        Manage poster tasks and payment verification.
+      </p>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="loadPosters()">
+      Refresh
+    </button>
+
+  </div>
 
 
-/* =========================
-   POSTERS
-   ========================= */
+  <div class="notice">
 
-async function loadPosters(){
+    Poster task creation is protected by the secure
+    <strong>create_poster_task</strong> function.
+    The current minimum poster quantity is controlled from
+    Platform Settings.
 
-  setLoading(
-    "postersTable",
-    "Loading poster activity…"
-  );
+  </div>
 
-  /*
-    Some projects may have a dedicated posters table.
-    If it does not exist, the dashboard reports it rather
-    than pretending that data exists.
-  */
 
-  const result =
-    await safeQuery(
-      "posters",
-      supabaseClient
-        .from("posters")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(300)
-    );
+  <div class="card">
 
-  if(result.error){
-
-    $("postersTable").innerHTML = `
-      <div class="alert alert-warning">
-        Poster data is not available from a
-        <strong>posters</strong> table:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  state.posters =
-    result.data || [];
-
-  if(!state.posters.length){
-
-    $("postersTable").innerHTML =
-      `<div class="empty">No poster records found.</div>`;
-
-    return;
-  }
-
-  $("postersTable").innerHTML = `
     <div class="table-wrap">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>Poster</th>
             <th>Task</th>
-            <th>Type</th>
             <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Reference</th>
             <th>Status</th>
-            <th>Date</th>
+            <th>Action</th>
+
           </tr>
+
         </thead>
 
-        <tbody>
+        <tbody id="postersBody">
 
-          ${
-            state.posters.map(row=>`
-
-              <tr>
-
-                <td>
-                  ${shortId(
-                    row.user_id ||
-                    row.poster_id
-                  )}
-                </td>
-
-                <td>
-                  ${shortId(row.task_id)}
-                </td>
-
-                <td>
-                  ${esc(
-                    row.type ||
-                    row.posting_type ||
-                    "—"
-                  )}
-                </td>
-
-                <td>
-                  ${money(
-                    row.amount ||
-                    row.fee
-                  )}
-                </td>
-
-                <td>
-                  ${statusBadge(row.status)}
-                </td>
-
-                <td>
-                  ${dateValue(row.created_at)}
-                </td>
-
-              </tr>
-
-            `).join("")
-          }
-
-        </tbody>
-
-      </table>
-
-    </div>
-  `;
-}
-
-
-/* =========================
-   SUPPORT
-   ========================= */
-
-async function loadSupport(){
-
-  setLoading(
-    "supportTable",
-    "Loading support requests…"
-  );
-
-  const result =
-    await safeQuery(
-      "support",
-      supabaseClient
-        .from("support")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(300)
-    );
-
-  if(result.error){
-
-    $("supportTable").innerHTML = `
-      <div class="alert alert-warning">
-        Support table could not be loaded:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  renderGenericTable(
-    "supportTable",
-    result.data || [],
-    [
-      ["User","user_id"],
-      ["Subject","subject"],
-      ["Status","status"],
-      ["Created","created_at"]
-    ]
-  );
-}
-
-
-/* =========================
-   APPEALS
-   ========================= */
-
-async function loadAppeals(){
-
-  setLoading(
-    "appealsTable",
-    "Loading appeals…"
-  );
-
-  const result =
-    await safeQuery(
-      "appeals",
-      supabaseClient
-        .from("appeals")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(300)
-    );
-
-  if(result.error){
-
-    $("appealsTable").innerHTML = `
-      <div class="alert alert-warning">
-        Appeals table could not be loaded:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  renderGenericTable(
-    "appealsTable",
-    result.data || [],
-    [
-      ["User","user_id"],
-      ["Submission","submission_id"],
-      ["Reason","reason"],
-      ["Status","status"],
-      ["Created","created_at"]
-    ]
-  );
-}
-
-
-/* =========================
-   MARKETPLACE
-   ========================= */
-
-async function loadMarketplace(){
-
-  setLoading(
-    "marketplaceTable",
-    "Loading marketplace…"
-  );
-
-  const result =
-    await safeQuery(
-      "marketplace",
-      supabaseClient
-        .from("marketplace")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(100)
-    );
-
-  if(result.error){
-
-    $("marketplaceTable").innerHTML = `
-      <div class="alert alert-warning">
-        Marketplace table could not be loaded:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  renderGenericTable(
-    "marketplaceTable",
-    result.data || [],
-    [
-      ["Seller","seller_id"],
-      ["Title","title"],
-      ["Price","price"],
-      ["Status","status"],
-      ["Created","created_at"]
-    ]
-  );
-}
-
-
-/* =========================
-   AIRTIME
-   ========================= */
-
-async function loadAirtime(){
-
-  setLoading(
-    "airtimeTable",
-    "Loading airtime/data transactions…"
-  );
-
-  const result =
-    await safeQuery(
-      "airtime",
-      supabaseClient
-        .from("airtime_transactions")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(200)
-    );
-
-  if(result.error){
-
-    $("airtimeTable").innerHTML = `
-      <div class="alert alert-warning">
-        Airtime/data transaction table could not be loaded.
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  renderGenericTable(
-    "airtimeTable",
-    result.data || [],
-    [
-      ["User","user_id"],
-      ["Network","network"],
-      ["Type","type"],
-      ["Amount","amount"],
-      ["Status","status"],
-      ["Created","created_at"]
-    ]
-  );
-}
-
-
-/* =========================
-   GENERIC TABLE
-   ========================= */
-
-function renderGenericTable(
-  elementId,
-  rows,
-  columns
-){
-
-  const element =
-    $(elementId);
-
-  if(!rows.length){
-
-    element.innerHTML =
-      `<div class="empty">No records found.</div>`;
-
-    return;
-  }
-
-  element.innerHTML = `
-    <div class="table-wrap">
-
-      <table>
-
-        <thead>
           <tr>
-            ${
-              columns.map(column=>`
-                <th>${esc(column[0])}</th>
-              `).join("")
-            }
+
+            <td
+              colspan="7"
+              class="empty">
+
+              Loading poster payments...
+
+            </td>
+
           </tr>
-        </thead>
-
-        <tbody>
-
-          ${
-            rows.map(row=>`
-
-              <tr>
-
-                ${
-                  columns.map(column=>{
-
-                    const key =
-                      column[1];
-
-                    const value =
-                      row[key];
-
-                    if(key === "created_at"){
-                      return `
-                        <td>
-                          ${dateValue(value)}
-                        </td>
-                      `;
-                    }
-
-                    if(
-                      key === "amount" ||
-                      key === "price"
-                    ){
-                      return `
-                        <td>
-                          ${money(value)}
-                        </td>
-                      `;
-                    }
-
-                    if(key === "status"){
-                      return `
-                        <td>
-                          ${statusBadge(value)}
-                        </td>
-                      `;
-                    }
-
-                    return `
-                      <td>
-                        ${esc(
-                          typeof value === "object"
-                            ? JSON.stringify(value)
-                            : value ?? "—"
-                        )}
-                      </td>
-                    `;
-                  }).join("")
-                }
-
-              </tr>
-
-            `).join("")
-          }
 
         </tbody>
 
       </table>
 
     </div>
-  `;
-}
 
+  </div>
 
-/* =========================
-   MONETIZATION
-   ========================= */
+</section>
 
-function selectAccessMode(mode){
 
-  state.accessMode =
-    mode === "vip"
-      ? "vip"
-      : "activation";
+<!-- =====================================================
+     MONETIZATION / ALL CHARGES
+     ===================================================== -->
 
-  $("accessMode").value =
-    state.accessMode;
+<section
+  id="page-monetization"
+  class="page">
 
-  $("activationMode")
-    .classList.toggle(
-      "active",
-      state.accessMode === "activation"
-    );
+  <div class="page-header">
 
-  $("vipMode")
-    .classList.toggle(
-      "active",
-      state.accessMode === "vip"
-    );
-}
+    <div>
 
+      <h2>
+        Monetization & Charges
+      </h2>
 
-async function loadSettings(){
+      <p>
+        Control platform fees, activation, VIP, withdrawals,
+        referrals, tasks and poster charges.
+      </p>
 
-  const result =
-    await safeQuery(
-      "platform settings",
-      supabaseClient
-        .from("platform_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle()
-    );
-
-  if(result.error){
-
-    showToast(
-      "Platform settings could not be loaded.",
-      "error"
-    );
-
-    return;
-  }
-
-  state.settings =
-    result.data || {};
-
-  const s =
-    state.settings;
-
-
-  /* ACCESS MODE */
-
-  const mode =
-    s.access_mode ||
-    s.mode ||
-    (
-      s.vip_enabled === true
-        ? "vip"
-        : "activation"
-    );
-
-  selectAccessMode(mode);
-
-
-  /* MONETIZATION */
-
-  setInput(
-    "activationFee",
-    s.activation_fee ??
-    s.activation_price ??
-    1000
-  );
-
-  setInput(
-    "vipFee",
-    s.vip_fee ??
-    s.vip_price ??
-    1000
-  );
-
-  setInput(
-    "vipDuration",
-    s.vip_duration_days ??
-    30
-  );
-
-  setInput(
-    "activationRequired",
-    String(
-      s.activation_required ??
-      true
-    )
-  );
-
-  setInput(
-    "minimumWithdrawal",
-    s.minimum_withdrawal ??
-    s.min_withdrawal ??
-    1500
-  );
-
-  setInput(
-    "normalWithdrawalFee",
-    s.withdrawal_fee ??
-    s.normal_withdrawal_fee ??
-    100
-  );
-
-  setInput(
-    "vipWithdrawalFee",
-    s.vip_withdrawal_fee ??
-    50
-  );
-
-  setInput(
-    "withdrawalsPerDay",
-    s.withdrawals_per_day ??
-    1
-  );
-
-  setInput(
-    "posterBasicFee",
-    s.poster_basic_fee ??
-    s.poster_fee ??
-    0
-  );
-
-  setInput(
-    "posterFeaturedFee",
-    s.poster_featured_fee ??
-    0
-  );
-
-  setInput(
-    "posterSponsoredFee",
-    s.poster_sponsored_fee ??
-    0
-  );
-
-  setInput(
-    "posterPaidEnabled",
-    String(
-      s.poster_paid_enabled ??
-      true
-    )
-  );
-
-
-  /* REFERRAL */
-
-  setInput(
-    "referralReward",
-    s.referral_reward ??
-    100
-  );
-
-  setInput(
-    "referralEnabled",
-    String(
-      s.referral_enabled ??
-      true
-    )
-  );
-
-
-  /* SECURITY */
-
-  setChecked(
-    "captchaEnabled",
-    s.captcha_enabled ??
-    false
-  );
-
-  setChecked(
-    "loginProtectionEnabled",
-    s.login_protection_enabled ??
-    true
-  );
-
-  setChecked(
-    "duplicateProtectionEnabled",
-    s.duplicate_protection_enabled ??
-    true
-  );
-
-  setChecked(
-    "photoProofRequired",
-    s.photo_proof_required ??
-    true
-  );
-
-  setChecked(
-    "manualProofEnabled",
-    s.manual_proof_enabled ??
-    true
-  );
-
-
-  /* ADS */
-
-  setChecked(
-    "adsEnabled",
-    s.ads_enabled ??
-    false
-  );
-
-  setChecked(
-    "sponsoredTasksEnabled",
-    s.sponsored_tasks_enabled ??
-    false
-  );
-
-  setChecked(
-    "campaignsEnabled",
-    s.campaigns_enabled ??
-    false
-  );
-
-  setInput(
-    "featuredPlacementFee",
-    s.featured_placement_fee ??
-    0
-  );
-
-  setInput(
-    "sponsoredPlacementFee",
-    s.sponsored_placement_fee ??
-    0
-  );
-
-
-  /* PLATFORM */
-
-  setChecked(
-    "taskPostingEnabled",
-    s.task_posting_enabled ??
-    true
-  );
-
-  setChecked(
-    "withdrawalEnabled",
-    s.withdrawal_enabled ??
-    true
-  );
-
-  setChecked(
-    "settingsReferralEnabled",
-    s.referral_enabled ??
-    true
-  );
-
-  setInput(
-    "minimumTaskReward",
-    s.minimum_task_reward ??
-    1
-  );
-
-  setInput(
-    "maximumTaskReward",
-    s.maximum_task_reward ??
-    10000
-  );
-
-  setInput(
-    "defaultTaskSlots",
-    s.default_task_slots ??
-    1
-  );
-
-  setInput(
-    "settingsProofRequired",
-    String(
-      s.photo_proof_required ??
-      true
-    )
-  );
-
-  setInput(
-    "platformName",
-    s.platform_name ??
-    "NAIJA TASK"
-  );
-
-  setInput(
-    "supportEmail",
-    s.support_email ??
-    "naijataskofficia@gmail.com"
-  );
-
-  setInput(
-    "platformDescription",
-    s.platform_description ??
-    "Earn by completing legitimate tasks on NAIJA TASK."
-  );
-
-
-  setChecked(
-    "marketplaceEnabled",
-    s.marketplace_enabled ??
-    false
-  );
-
-  setChecked(
-    "airtimeEnabled",
-    s.airtime_enabled ??
-    false
-  );
-}
-
-
-function setInput(id,value){
-
-  const element =
-    $(id);
-
-  if(element && value !== undefined){
-    element.value =
-      value;
-  }
-}
-
-
-function setChecked(id,value){
-
-  const element =
-    $(id);
-
-  if(element){
-    element.checked =
-      Boolean(value);
-  }
-}
-
-
-async function saveMonetization(){
-
-  const values = {
-
-    access_mode:
-      $("accessMode").value,
-
-    activation_fee:
-      Number(
-        $("activationFee").value
-      ),
-
-    vip_fee:
-      Number(
-        $("vipFee").value
-      ),
-
-    vip_duration_days:
-      Number(
-        $("vipDuration").value
-      ),
-
-    activation_required:
-      $("activationRequired").value === "true",
-
-    minimum_withdrawal:
-      Number(
-        $("minimumWithdrawal").value
-      ),
-
-    withdrawal_fee:
-      Number(
-        $("normalWithdrawalFee").value
-      ),
-
-    vip_withdrawal_fee:
-      Number(
-        $("vipWithdrawalFee").value
-      ),
-
-    withdrawals_per_day:
-      Number(
-        $("withdrawalsPerDay").value
-      ),
-
-    poster_basic_fee:
-      Number(
-        $("posterBasicFee").value
-      ),
-
-    poster_featured_fee:
-      Number(
-        $("posterFeaturedFee").value
-      ),
-
-    poster_sponsored_fee:
-      Number(
-        $("posterSponsoredFee").value
-      ),
-
-    poster_paid_enabled:
-      $("posterPaidEnabled").value === "true"
-
-  };
-
-  await saveSettingsObject(values);
-}
-
-
-async function saveAdSettings(){
-
-  const values = {
-
-    ads_enabled:
-      $("adsEnabled").checked,
-
-    sponsored_tasks_enabled:
-      $("sponsoredTasksEnabled").checked,
-
-    campaigns_enabled:
-      $("campaignsEnabled").checked,
-
-    featured_placement_fee:
-      Number(
-        $("featuredPlacementFee").value
-      ),
-
-    sponsored_placement_fee:
-      Number(
-        $("sponsoredPlacementFee").value
-      )
-
-  };
-
-  await saveSettingsObject(values);
-}
-
-
-async function saveSecuritySettings(){
-
-  const values = {
-
-    captcha_enabled:
-      $("captchaEnabled").checked,
-
-    login_protection_enabled:
-      $("loginProtectionEnabled").checked,
-
-    duplicate_protection_enabled:
-      $("duplicateProtectionEnabled").checked,
-
-    photo_proof_required:
-      $("photoProofRequired").checked,
-
-    manual_proof_enabled:
-      $("manualProofEnabled").checked
-
-  };
-
-  await saveSettingsObject(values);
-}
-
-
-async function savePlatformSettings(){
-
-  const values = {
-
-    task_posting_enabled:
-      $("taskPostingEnabled").checked,
-
-    withdrawal_enabled:
-      $("withdrawalEnabled").checked,
-
-    referral_enabled:
-      $("settingsReferralEnabled").checked,
-
-    minimum_task_reward:
-      Number(
-        $("minimumTaskReward").value
-      ),
-
-    maximum_task_reward:
-      Number(
-        $("maximumTaskReward").value
-      ),
-
-    default_task_slots:
-      Number(
-        $("defaultTaskSlots").value
-      ),
-
-    photo_proof_required:
-      $("settingsProofRequired").value === "true",
-
-    platform_name:
-      $("platformName").value.trim(),
-
-    support_email:
-      $("supportEmail").value.trim(),
-
-    platform_description:
-      $("platformDescription").value.trim()
-
-  };
-
-  await saveSettingsObject(values);
-}
-
-
-/* =========================
-   SETTINGS WRITER
-   ========================= */
-
-async function saveSettingsObject(values){
-
-  if(!databaseReady()) return;
-
-  try{
-
-    /*
-      The project has a platform_settings table.
-      We first attempt to find the existing settings row.
-    */
-
-    const current =
-      await supabaseClient
-        .from("platform_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
-
-    if(current.error){
-
-      showError(
-        "Could not read platform settings: " +
-        current.error.message
-      );
-
-      return;
-    }
-
-    let result;
-
-    if(current.data?.id){
-
-      result =
-        await supabaseClient
-          .from("platform_settings")
-          .update(values)
-          .eq("id",current.data.id);
-
-    }else{
-
-      result =
-        await supabaseClient
-          .from("platform_settings")
-          .insert(values);
-
-    }
-
-    if(result.error){
-
-      /*
-        If the project has different columns than the
-        optional controls, Supabase will return the exact
-        database error instead of silently pretending it saved.
-      */
-
-      showError(
-        "Settings were not saved: " +
-        result.error.message
-      );
-
-      return;
-    }
-
-    showToast(
-      "Platform settings saved."
-    );
-
-    await loadSettings();
-
-  }catch(error){
-
-    console.error(error);
-
-    showError(
-      "Unable to save platform settings."
-    );
-  }
-}
-
-
-async function saveSettingValue(
-  key,
-  value
-){
-
-  const values = {};
-
-  values[key] = value;
-
-  try{
-
-    const current =
-      await supabaseClient
-        .from("platform_settings")
-        .select("id")
-        .limit(1)
-        .maybeSingle();
-
-    if(current.error){
-
-      console.warn(current.error);
-
-      return;
-    }
-
-    if(current.data?.id){
-
-      const result =
-        await supabaseClient
-          .from("platform_settings")
-          .update(values)
-          .eq("id",current.data.id);
-
-      if(result.error){
-        console.warn(
-          "Setting not saved:",
-          key,
-          result.error
-        );
-      }
-
-    }else{
-
-      const result =
-        await supabaseClient
-          .from("platform_settings")
-          .insert(values);
-
-      if(result.error){
-        console.warn(
-          "Setting not inserted:",
-          key,
-          result.error
-        );
-      }
-
-    }
-
-  }catch(error){
-
-    console.warn(error);
-
-  }
-}
-
-
-/* =========================
-   AUDIT
-   ========================= */
-
-async function loadAudit(){
-
-  setLoading(
-    "auditTable",
-    "Loading audit log…"
-  );
-
-  const result =
-    await safeQuery(
-      "audit",
-      supabaseClient
-        .from("admin_activity")
-        .select("*")
-        .order("created_at",{ascending:false})
-        .limit(500)
-    );
-
-  if(result.error){
-
-    $("auditTable").innerHTML = `
-      <div class="alert alert-warning">
-        Admin activity table could not be loaded:
-        ${esc(result.error.message)}
-      </div>
-    `;
-
-    return;
-  }
-
-  renderGenericTable(
-    "auditTable",
-    result.data || [],
-    [
-      ["Action","action"],
-      ["Admin","admin_email"],
-      ["Target","target_id"],
-      ["Description","description"],
-      ["Date","created_at"]
-    ]
-  );
-}
-
-
-/* =========================
-   INTEGRITY CHECKS
-   ========================= */
-
-async function runIntegrityChecks(){
-
-  const output =
-    $("integrityResults");
-
-  output.innerHTML = `
-    <div class="loading">
-      <div class="spinner"></div>
-      Running integrity checks…
     </div>
-  `;
 
-  const checks = [];
+    <button
+      class="primary"
+      onclick="loadSettings()">
+      Refresh
+    </button>
 
-  /*
-    USERS / BALANCES
-  */
-
-  const users =
-    await safeQuery(
-      "integrity users",
-      supabaseClient
-        .from("profiles")
-        .select("id,balance")
-        .limit(1000)
-    );
-
-  if(users.error){
-
-    checks.push({
-      name:"Profiles",
-      status:"warning",
-      detail:users.error.message
-    });
-
-  }else{
-
-    const negative =
-      (users.data || [])
-        .filter(row =>
-          Number(row.balance || 0) < 0
-        );
-
-    checks.push({
-      name:"Negative balances",
-      status:
-        negative.length
-          ? "danger"
-          : "success",
-      detail:
-        negative.length
-          ? `${negative.length} negative balance record(s) found.`
-          : "No negative balances found in the checked records."
-    });
-  }
+  </div>
 
 
-  /*
-    TASKS
-  */
-
-  const tasks =
-    await safeQuery(
-      "integrity tasks",
-      supabaseClient
-        .from("tasks")
-        .select("id,reward,slots,expiry_date,active")
-        .limit(1000)
-    );
-
-  if(tasks.error){
-
-    checks.push({
-      name:"Tasks",
-      status:"warning",
-      detail:tasks.error.message
-    });
-
-  }else{
-
-    const invalid =
-      (tasks.data || [])
-        .filter(row => {
-
-          const reward =
-            Number(row.reward);
-
-          const slots =
-            Number(row.slots);
-
-          return (
-            !Number.isFinite(reward) ||
-            reward < 0 ||
-            !Number.isFinite(slots) ||
-            slots < 0
-          );
-        });
-
-    checks.push({
-      name:"Invalid task rewards / slots",
-      status:
-        invalid.length
-          ? "danger"
-          : "success",
-      detail:
-        invalid.length
-          ? `${invalid.length} invalid task record(s) found.`
-          : "Task reward and slot values look valid."
-    });
-  }
+  <div class="grid grid-2">
 
 
-  /*
-    PENDING WITHDRAWALS
-  */
+    <div class="card">
 
-  const pending =
-    await countTable(
-      "withdrawals",
-      "status",
-      "pending"
-    );
-
-  checks.push({
-    name:"Pending withdrawals",
-    status:"info",
-    detail:
-      pending === null
-        ? "Withdrawal table unavailable."
-        : `${pending} pending withdrawal request(s).`
-  });
+      <h3>
+        Activation & VIP
+      </h3>
 
 
-  /*
-    PENDING PROOFS
-  */
+      <div class="setting">
 
-  const proofs =
-    await countTable(
-      "task_submissions",
-      "status",
-      "pending"
-    );
+        <div>
 
-  checks.push({
-    name:"Pending proofs",
-    status:"info",
-    detail:
-      proofs === null
-        ? "Submission table unavailable."
-        : `${proofs} proof submission(s) awaiting review.`
-  });
+          <strong>
+            Activation Mode
+          </strong>
 
-
-  output.innerHTML = `
-    <h2 class="section-title">
-      Integrity Results
-    </h2>
-
-    ${
-      checks.map(check=>`
-
-        <div class="switch-row">
-
-          <div class="switch-info">
-            <strong>
-              ${esc(check.name)}
-            </strong>
-
-            <span>
-              ${esc(check.detail)}
-            </span>
-          </div>
-
-          <span class="badge ${
-            check.status === "danger"
-              ? "badge-red"
-              : check.status === "success"
-                ? "badge-green"
-                : check.status === "info"
-                  ? "badge-blue"
-                  : "badge-orange"
-          }">
-            ${
-              check.status === "danger"
-                ? "Issue"
-                : check.status === "success"
-                  ? "OK"
-                  : check.status === "info"
-                    ? "Info"
-                    : "Check"
-            }
-          </span>
+          <small>
+            Enable account activation.
+          </small>
 
         </div>
 
-      `).join("")
-    }
-  `;
-}
+        <label class="switch">
+
+          <input
+            id="activationEnabled"
+            type="checkbox">
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
 
 
-/* =========================
-   EVENT LISTENERS
-   ========================= */
+      <div class="field">
 
-document.addEventListener(
-  "DOMContentLoaded",
-  ()=>{
+        <label>
+          Activation Fee (₦)
+        </label>
 
-    $("loginForm")
-      .addEventListener(
-        "submit",
-        login
-      );
+        <input
+          id="activationFee"
+          type="number"
+          min="0"
+          step="1"
+          value="1000">
 
-    $("logoutBtn")
-      .addEventListener(
-        "click",
-        signOut
-      );
-
-    $("refreshBtn")
-      .addEventListener(
-        "click",
-        ()=>{
-          const active =
-            document
-              .querySelector(".page.active");
-
-          if(active){
-
-            const page =
-              active.id.replace(
-                "page-",
-                ""
-              );
-
-            showPage(page);
-
-          }else{
-
-            loadDashboard();
-
-          }
-        }
-      );
+      </div>
 
 
-    $("menuBtn")
-      .addEventListener(
-        "click",
-        ()=>{
-          $("sidebar")
-            .classList.toggle("open");
+      <div class="setting">
 
-          $("mobileOverlay")
-            .classList.toggle("show");
-        }
-      );
+        <div>
 
+          <strong>
+            VIP Mode
+          </strong>
 
-    $("mobileOverlay")
-      .addEventListener(
-        "click",
-        ()=>{
-          $("sidebar")
-            .classList.remove("open");
+          <small>
+            Enable VIP instead of forcing activation.
+          </small>
 
-          $("mobileOverlay")
-            .classList.remove("show");
-        }
-      );
+        </div>
 
+        <label class="switch">
 
-    document
-      .querySelectorAll(
-        ".nav-btn,.mobile-nav button"
-      )
-      .forEach(button=>{
+          <input
+            id="vipEnabled"
+            type="checkbox">
 
-        button.addEventListener(
-          "click",
-          ()=>{
-            showPage(
-              button.dataset.page
-            );
-          }
-        );
+          <span class="slider"></span>
 
-      });
+        </label>
+
+      </div>
 
 
-    initializeAuth();
+      <div class="field">
 
-  }
-);
+        <label>
+          VIP Price (₦)
+        </label>
+
+        <input
+          id="vipPrice"
+          type="number"
+          min="0"
+          step="1"
+          value="0">
+
+      </div>
+
+    </div>
 
 
-/* =========================
-   AUTH STATE LISTENER
-   ========================= */
+    <div class="card">
 
-if(window.supabase){
+      <h3>
+        Withdrawal Charges
+      </h3>
 
-  /*
-    The listener is attached only when the client exists.
-  */
 
-  setTimeout(()=>{
+      <div class="field">
 
-    if(!supabaseClient) return;
+        <label>
+          Minimum Withdrawal (₦)
+        </label>
 
-    supabaseClient.auth.onAuthStateChange(
-      async (event,session)=>{
+        <input
+          id="minimumWithdrawal"
+          type="number"
+          min="0"
+          step="1"
+          value="1500">
 
-        if(event === "SIGNED_OUT"){
+      </div>
 
-          state.session = null;
-          state.user = null;
-          state.admin = false;
 
-          $("app")
-            .classList.add("hidden");
+      <div class="field">
 
-          $("loginScreen")
-            .style.display = "grid";
+        <label>
+          Normal Withdrawal Fee (₦)
+        </label>
 
-          return;
-        }
+        <input
+          id="freeWithdrawalFee"
+          type="number"
+          min="0"
+          step="1"
+          value="100">
 
-        if(
-          session &&
-          !state.admin
-        ){
+      </div>
 
-          state.session = session;
-          state.user = session.user;
 
-          const allowed =
-            await checkAdminAccess();
+      <div class="field">
 
-          if(allowed){
-            openApp();
-          }
+        <label>
+          VIP Withdrawal Fee (₦)
+        </label>
 
-        }
+        <input
+          id="vipWithdrawalFee"
+          type="number"
+          min="0"
+          step="1"
+          value="50">
 
-      }
-    );
+      </div>
 
-  },100);
 
-}
-</script>
+      <div class="field">
 
-</body>
-  </html
+        <label>
+          Withdrawals Per Day
+        </label>
+
+        <input
+          id="withdrawalsPerDay"
+          type="number"
+          min="1"
+          step="1"
+          value="1">
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Referral Charges
+      </h3>
+
+
+      <div class="setting">
+
+        <div>
+
+          <strong>
+            Referrals Enabled
+          </strong>
+
+          <small>
+            Allow referral rewards.
+          </small>
+
+        </div>
+
+        <label class="switch">
+
+          <input
+            id="referralsEnabled"
+            type="checkbox">
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Referral Reward (₦)
+        </label>
+
+        <input
+          id="referralReward"
+          type="number"
+          min="0"
+          step="1"
+          value="100">
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Poster Charges
+      </h3>
+
+
+      <div class="setting">
+
+        <div>
+
+          <strong>
+            Poster Registration
+          </strong>
+
+          <small>
+            Allow users to register as job posters.
+          </small>
+
+        </div>
+
+        <label class="switch">
+
+          <input
+            id="posterRegistrationEnabled"
+            type="checkbox">
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+
+          <strong>
+            Job Posting
+          </strong>
+
+          <small>
+            Allow poster task creation.
+          </small>
+
+        </div>
+
+        <label class="switch">
+
+          <input
+            id="jobPostingEnabled"
+            type="checkbox">
+
+          <span class="slider"></span>
+
+        </label>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Poster Task Fee (₦)
+        </label>
+
+        <input
+          id="posterTaskFee"
+          type="number"
+          min="0"
+          step="1"
+          value="500">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Minimum Poster Task Slots
+        </label>
+
+        <input
+          id="minimumPosterTaskSlots"
+          type="number"
+          min="1"
+          step="1"
+          value="10">
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Task Reward Limits
+      </h3>
+
+
+      <div class="grid grid-2">
+
+        <div class="field">
+
+          <label>
+            Normal Minimum Reward
+          </label>
+
+          <input
+            id="normalMinTaskReward"
+            type="number"
+            min="0"
+            step="0.01">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Normal Maximum Reward
+          </label>
+
+          <input
+            id="normalMaxTaskReward"
+            type="number"
+            min="0"
+            step="0.01">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            VIP Minimum Reward
+          </label>
+
+          <input
+            id="vipMinTaskReward"
+            type="number"
+            min="0"
+            step="0.01">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            VIP Maximum Reward
+          </label>
+
+          <input
+            id="vipMaxTaskReward"
+            type="number"
+            min="0"
+            step="0.01">
+
+        </div>
+
+      </div>
+
+
+      <div class="grid grid-2">
+
+        <div class="field">
+
+          <label>
+            Free Daily Task Limit
+          </label>
+
+          <input
+            id="freeDailyTaskLimit"
+            type="number"
+            min="0"
+            step="1">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            VIP Daily Task Limit
+          </label>
+
+          <input
+            id="vipDailyTaskLimit"
+            type="number"
+            min="0"
+            step="1">
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        General Task Limits
+      </h3>
+
+
+      <div class="grid grid-2">
+
+        <div class="field">
+
+          <label>
+            Minimum Task Reward
+          </label>
+
+          <input
+            id="minimumTaskReward"
+            type="number"
+            min="0"
+            step="0.01">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Maximum Task Reward
+          </label>
+
+          <input
+            id="maximumTaskReward"
+            type="number"
+            min="0"
+            step="0.01">
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div
+    class="actions"
+    style="margin-top:14px">
+
+    <button
+      class="primary"
+      onclick="saveSettings()">
+
+      Save All Charges & Monetization
+
+    </button>
+
+  </div>
+
+      </section>
+      <!-- =====================================================
+     PART 2 — REMAINING ADMIN PAGES
+     Continue directly after Part 1
+     ===================================================== -->
+
+
+<!-- =====================================================
+     SUPPORT
+     ===================================================== -->
+
+<section id="page-support" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Support Center</h2>
+      <p>Review and manage user support requests.</p>
+    </div>
+
+    <button class="primary" onclick="loadSupport()">
+      Refresh
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <div class="actions" style="margin-bottom:12px">
+
+      <select
+        id="supportStatusFilter"
+        onchange="loadSupport()"
+        style="max-width:220px">
+
+        <option value="all">All statuses</option>
+        <option value="open">Open</option>
+        <option value="pending">Pending</option>
+        <option value="resolved">Resolved</option>
+        <option value="closed">Closed</option>
+
+      </select>
+
+      <input
+        id="supportSearch"
+        type="search"
+        placeholder="Search support requests..."
+        oninput="filterSupport()"
+        style="max-width:360px">
+
+    </div>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>User</th>
+            <th>Subject</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="supportBody">
+
+          <tr>
+            <td colspan="6" class="empty">
+              Loading support requests...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     SECURITY
+     ===================================================== -->
+
+<section id="page-security" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Security & Risk Control</h2>
+      <p>Manage anti-abuse and account protection controls.</p>
+    </div>
+
+    <button class="primary" onclick="loadSettings()">
+      Refresh
+    </button>
+
+  </div>
+
+
+  <div class="grid grid-2">
+
+    <div class="card">
+
+      <h3>Bot Protection</h3>
+
+      <div class="setting">
+
+        <div>
+          <strong>CAPTCHA</strong>
+          <small>Enable CAPTCHA protection.</small>
+        </div>
+
+        <label class="switch">
+          <input id="captchaEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>CAPTCHA on Signup</strong>
+          <small>Require CAPTCHA during registration.</small>
+        </div>
+
+        <label class="switch">
+          <input id="captchaSignupRequired" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>CAPTCHA on Withdrawal</strong>
+          <small>Require CAPTCHA before withdrawal.</small>
+        </div>
+
+        <label class="switch">
+          <input id="captchaWithdrawalRequired" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Bot Detection</strong>
+          <small>Monitor suspicious automated activity.</small>
+        </div>
+
+        <label class="switch">
+          <input id="botDetectionEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Device & IP Detection</h3>
+
+      <div class="setting">
+
+        <div>
+          <strong>Device Detection</strong>
+          <small>Detect unusual device activity.</small>
+        </div>
+
+        <label class="switch">
+          <input id="deviceDetectionEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>IP Detection</strong>
+          <small>Monitor suspicious IP behaviour.</small>
+        </div>
+
+        <label class="switch">
+          <input id="ipDetectionEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Suspicious Activity Detection</strong>
+          <small>Flag potentially abusive behaviour.</small>
+        </div>
+
+        <label class="switch">
+          <input id="suspiciousActivityDetection" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Automatic Restriction</strong>
+          <small>Restrict accounts when risk rules are triggered.</small>
+        </div>
+
+        <label class="switch">
+          <input id="automaticRestrictionEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Account Protection</h3>
+
+      <div class="setting">
+
+        <div>
+          <strong>Security Warnings</strong>
+          <small>Show security warnings to users.</small>
+        </div>
+
+        <label class="switch">
+          <input id="securityWarningsEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>User 2FA</strong>
+          <small>Allow two-factor authentication.</small>
+        </div>
+
+        <label class="switch">
+          <input id="user2faEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Withdrawal Security Check</strong>
+          <small>Perform additional withdrawal checks.</small>
+        </div>
+
+        <label class="switch">
+          <input id="withdrawalSecurityCheck" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Automatic Ban</strong>
+          <small>Automatically restrict severe repeat abuse.</small>
+        </div>
+
+        <label class="switch">
+          <input id="automaticBanEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Risk Thresholds</h3>
+
+      <div class="field">
+
+        <label>
+          Maximum Task Submissions Per Minute
+        </label>
+
+        <input
+          id="maxTaskSubmissionsPerMinute"
+          type="number"
+          min="1"
+          step="1">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Suspicious Risk Score
+        </label>
+
+        <input
+          id="suspiciousRiskScore"
+          type="number"
+          min="0"
+          step="1">
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div style="margin-top:14px">
+
+    <button
+      class="primary"
+      onclick="saveSettings()">
+
+      Save Security Settings
+
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     PLATFORM SETTINGS
+     ===================================================== -->
+
+<section id="page-settings" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Platform Settings</h2>
+      <p>Control the main behaviour of NAIJA TASK.</p>
+    </div>
+
+    <button class="primary" onclick="loadSettings()">
+      Reload Settings
+    </button>
+
+  </div>
+
+
+  <div class="grid grid-2">
+
+    <div class="card">
+
+      <h3>Platform</h3>
+
+      <div class="field">
+
+        <label>
+          Site Name
+        </label>
+
+        <input
+          id="siteName"
+          type="text"
+          value="NAIJA TASK">
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Maintenance Mode</strong>
+          <small>Temporarily restrict normal platform use.</small>
+        </div>
+
+        <label class="switch">
+          <input id="maintenanceMode" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Withdrawals Enabled</strong>
+          <small>Allow eligible users to request withdrawals.</small>
+        </div>
+
+        <label class="switch">
+          <input id="withdrawalsEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Task Approval Required</strong>
+          <small>Require moderation before task publication.</small>
+        </div>
+
+        <label class="switch">
+          <input id="taskApprovalRequired" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Photo Proof Required</strong>
+          <small>Worker task submissions require photo proof.</small>
+        </div>
+
+        <label class="switch">
+          <input id="photoProofEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Communication</h3>
+
+      <div class="field">
+
+        <label>
+          Support Email
+        </label>
+
+        <input
+          id="supportEmail"
+          type="email"
+          value="naijataskofficia@gmail.com">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Support WhatsApp / Contact
+        </label>
+
+        <input
+          id="supportWhatsapp"
+          type="text">
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Private Chat</strong>
+          <small>Allow supported private communication.</small>
+        </div>
+
+        <label class="switch">
+          <input id="privateChatEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>Community Chat</strong>
+          <small>Enable the community chat feature.</small>
+        </div>
+
+        <label class="switch">
+          <input id="communityChatEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>AI Care</strong>
+          <small>Enable AI support controls where configured.</small>
+        </div>
+
+        <label class="switch">
+          <input id="aiCareEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Normal & VIP Tasks</h3>
+
+      <div class="field">
+
+        <label>
+          Normal Minimum Reward
+        </label>
+
+        <input
+          id="settingsNormalMinReward"
+          type="number"
+          min="0"
+          step="0.01">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Normal Maximum Reward
+        </label>
+
+        <input
+          id="settingsNormalMaxReward"
+          type="number"
+          min="0"
+          step="0.01">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          VIP Minimum Reward
+        </label>
+
+        <input
+          id="settingsVipMinReward"
+          type="number"
+          min="0"
+          step="0.01">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          VIP Maximum Reward
+        </label>
+
+        <input
+          id="settingsVipMaxReward"
+          type="number"
+          min="0"
+          step="0.01">
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Daily Limits</h3>
+
+      <div class="field">
+
+        <label>
+          Free Daily Task Limit
+        </label>
+
+        <input
+          id="settingsFreeDailyLimit"
+          type="number"
+          min="0"
+          step="1">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          VIP Daily Task Limit
+        </label>
+
+        <input
+          id="settingsVipDailyLimit"
+          type="number"
+          min="0"
+          step="1">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Minimum Task Reward
+        </label>
+
+        <input
+          id="settingsMinimumTaskReward"
+          type="number"
+          min="0"
+          step="0.01">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Maximum Task Reward
+        </label>
+
+        <input
+          id="settingsMaximumTaskReward"
+          type="number"
+          min="0"
+          step="0.01">
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div style="margin-top:14px">
+
+    <button
+      class="primary"
+      onclick="saveSettings()">
+
+      Save Platform Settings
+
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ADS
+     ===================================================== -->
+
+<section id="page-ads" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Ads Manager</h2>
+      <p>Monitor platform advertising controls.</p>
+    </div>
+
+    <button class="primary" onclick="loadAds()">
+      Refresh
+    </button>
+
+  </div>
+
+
+  <div class="grid grid-2">
+
+    <div class="card">
+
+      <h3>Ad Behaviour</h3>
+
+      <div class="setting">
+
+        <div>
+          <strong>Normal User Ads</strong>
+          <small>Allow ads for normal users.</small>
+        </div>
+
+        <label class="switch">
+          <input id="normalAdsEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="setting">
+
+        <div>
+          <strong>VIP User Ads</strong>
+          <small>Control whether VIP users receive ads.</small>
+        </div>
+
+        <label class="switch">
+          <input id="vipAdsEnabled" type="checkbox">
+          <span class="slider"></span>
+        </label>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Ad Frequency
+        </label>
+
+        <input
+          id="adFrequency"
+          type="number"
+          min="0"
+          step="1">
+
+      </div>
+
+
+      <button
+        class="primary"
+        onclick="saveSettings()">
+
+        Save Ad Settings
+
+      </button>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>Advertising Activity</h3>
+
+      <div
+        id="adsStatus"
+        class="notice">
+
+        Advertising statistics will be displayed when
+        the corresponding ad tables are available.
+
+      </div>
+
+      <div id="adsBody">
+
+        <div class="empty">
+          No ad activity loaded.
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     COMMUNITY
+     ===================================================== -->
+
+<section id="page-community" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Community</h2>
+      <p>Community communication controls.</p>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="notice">
+
+      Community controls are connected to the platform
+      settings. The admin can enable or disable community
+      chat without inventing a separate database system.
+
+    </div>
+
+
+    <div class="setting">
+
+      <div>
+        <strong>Community Chat</strong>
+        <small>
+          Current platform community-chat setting.
+        </small>
+      </div>
+
+      <span
+        id="communityStatus"
+        class="badge gray">
+        Loading...
+      </span>
+
+    </div>
+
+
+    <div class="setting">
+
+      <div>
+        <strong>Private Chat</strong>
+        <small>
+          Current private-chat setting.
+        </small>
+      </div>
+
+      <span
+        id="privateChatStatus"
+        class="badge gray">
+        Loading...
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     AI CARE
+     ===================================================== -->
+
+<section id="page-ai" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>AI Care</h2>
+      <p>AI support and assistance controls.</p>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="notice">
+
+      AI Care is controlled from the platform settings.
+      This Admin panel does not pretend to provide an AI
+      provider that has not been connected.
+
+    </div>
+
+
+    <div class="setting">
+
+      <div>
+        <strong>AI Care Enabled</strong>
+        <small>
+          Enable or disable the configured AI support feature.
+        </small>
+      </div>
+
+      <label class="switch">
+
+        <input
+          id="aiCarePageToggle"
+          type="checkbox"
+          onchange="syncAiCareSetting()">
+
+        <span class="slider"></span>
+
+      </label>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     APPEALS
+     ===================================================== -->
+
+<section id="page-appeals" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Appeals & Disputes</h2>
+      <p>Review disputed task or account decisions.</p>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="notice">
+
+      Appeals require a dedicated database structure before
+      they can safely become a live moderation workflow.
+      This panel deliberately does not invent an appeals table
+      or fake records.
+
+    </div>
+
+
+    <div class="empty">
+
+      Appeals database workflow is not configured yet.
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     MARKETPLACE
+     ===================================================== -->
+
+<section id="page-marketplace" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Marketplace</h2>
+      <p>Marketplace administration.</p>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="notice">
+
+      Marketplace controls are reserved for the existing
+      marketplace schema. No fake products, balances or
+      transactions are generated by the Admin panel.
+
+    </div>
+
+
+    <div class="empty">
+
+      Marketplace transaction workflow requires the configured
+      marketplace database records.
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     AIRTIME & DATA
+     ===================================================== -->
+
+<section id="page-airtime" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Airtime & Data</h2>
+      <p>Monitor airtime and data services.</p>
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="notice danger-box">
+
+      Airtime/Data purchasing must not deduct a user's wallet
+      until an actual VTU/provider confirms the transaction.
+
+      No provider API is being fabricated here.
+
+    </div>
+
+
+    <div class="setting">
+
+      <div>
+        <strong>Provider Integration</strong>
+        <small>
+          Live provider integration is required before
+          real airtime or data purchases can be processed.
+        </small>
+      </div>
+
+      <span class="badge orange">
+        Not Connected
+      </span>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     INTEGRITY
+     ===================================================== -->
+
+<section id="page-integrity" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Integrity & Audit Checks</h2>
+      <p>Look for common platform data inconsistencies.</p>
+    </div>
+
+    <button
+      class="primary"
+      onclick="runIntegrityChecks()">
+
+      Run Checks
+
+    </button>
+
+  </div>
+
+
+  <div
+    id="integrityResults"
+    class="card">
+
+    <div class="empty">
+      Run the integrity checker to begin.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ADMIN ACTIVITY
+     ===================================================== -->
+
+<section id="page-activity" class="page">
+
+  <div class="page-header">
+
+    <div>
+      <h2>Admin Activity</h2>
+      <p>Review administrator actions and audit records.</p>
+    </div>
+
+    <button
+      class="primary"
+      onclick="loadAdminActivity()">
+
+      Refresh
+
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Admin</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>Details</th>
+            <th>Date</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="activityBody">
+
+          <tr>
+            <td colspan="5" class="empty">
+              Loading admin activity...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+</main>
+
+</div>
+
+
+<!-- =====================================================
+     MOBILE NAVIGATION
+     ===================================================== -->
+
+<nav class="mobile-bottom">
+
+  <button
+    data-mobile-page="overview"
+    class="active"
+    onclick="navigate('overview')">
+
+    📊<br>
+    Home
+
+  </button>
+
+
+  <button
+    data-mobile-page="users"
+    onclick="navigate('users')">
+
+    👥<br>
+    Users
+
+  </button>
+
+
+  <button
+    data-mobile-page="tasks"
+    onclick="navigate('tasks')">
+
+    📋<br>
+    Tasks
+
+  </button>
+
+
+  <button
+    data-mobile-page="submissions"
+    onclick="navigate('submissions')">
+
+    🧾<br>
+    Proofs
+
+  </button>
+
+
+  <button
+    data-mobile-page="settings"
+    onclick="navigate('settings')">
+
+    ⚙️<br>
+    Settings
+
+  </button>
+
+</nav>
+
+
+<!-- =====================================================
+     TASK MODAL
+     ===================================================== -->
+
+<div
+  id="taskModal"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <h3 id="taskModalTitle">
+        Create Task
+      </h3>
+
+      <button
+        class="close"
+        onclick="closeTaskModal()">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <input
+      id="taskId"
+      type="hidden">
+
+
+    <div class="form-grid">
+
+      <div class="field">
+
+        <label>
+          Task Title
+        </label>
+
+        <input
+          id="taskTitle"
+          type="text"
+          placeholder="Task title">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Task Type
+        </label>
+
+        <select id="taskType">
+
+          <option value="social">
+            Social
+          </option>
+
+          <option value="website">
+            Website
+          </option>
+
+          <option value="app">
+            App Download
+          </option>
+
+          <option value="youtube">
+            YouTube Watch
+          </option>
+
+          <option value="survey">
+            Survey
+          </option>
+
+          <option value="other">
+            Other
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Reward (₦)
+        </label>
+
+        <input
+          id="taskReward"
+          type="number"
+          min="0"
+          step="0.01">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Slots
+        </label>
+
+        <input
+          id="taskSlots"
+          type="number"
+          min="1"
+          step="1">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Task Link
+        </label>
+
+        <input
+          id="taskLink"
+          type="url"
+          placeholder="https://...">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Expiry Date
+        </label>
+
+        <input
+          id="taskExpiry"
+          type="datetime-local">
+
+      </div>
+
+
+      <div class="field full">
+
+        <label>
+          Description
+        </label>
+
+        <textarea
+          id="taskDescription"
+          placeholder="Explain exactly what the worker must do."></textarea>
+
+      </div>
+
+
+      <div class="field full">
+
+        <label>
+          Copy Text
+        </label>
+
+        <textarea
+          id="taskCopyText"
+          placeholder="Text the worker may need to copy."></textarea>
+
+      </div>
+
+
+      <div class="field full">
+
+        <label>
+          Requirements
+        </label>
+
+        <textarea
+          id="taskRequirements"
+          placeholder="Enter task requirements, one per line."></textarea>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Username Required
+        </label>
+
+        <select id="taskUsernameRequired">
+
+          <option value="false">
+            No
+          </option>
+
+          <option value="true">
+            Yes
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          URL / Link Required
+        </label>
+
+        <select id="taskUrlRequired">
+
+          <option value="false">
+            No
+          </option>
+
+          <option value="true">
+            Yes
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Text / Description Required
+        </label>
+
+        <select id="taskTextRequired">
+
+          <option value="false">
+            No
+          </option>
+
+          <option value="true">
+            Yes
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Reference Required
+        </label>
+
+        <select id="taskReferenceRequired">
+
+          <option value="false">
+            No
+          </option>
+
+          <option value="true">
+            Yes
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Watch Timer (seconds)
+        </label>
+
+        <input
+          id="taskWatchTimer"
+          type="number"
+          min="0"
+          step="1"
+          value="0">
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Active
+        </label>
+
+        <select id="taskActive">
+
+          <option value="true">
+            Active
+          </option>
+
+          <option value="false">
+            Disabled
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="modal-footer">
+
+      <button
+        class="secondary"
+        onclick="closeTaskModal()">
+
+        Cancel
+
+      </button>
+
+      <button
+        class="primary"
+        onclick="saveTask()">
+
+        Save Task
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     PROOF MODAL
+     ===================================================== -->
+
+<div
+  id="proofModal"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <h3>
+        Proof Review
+      </h3>
+
+      <button
+        class="close"
+        onclick="closeProofModal()">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <div
+      id="proofModalContent">
+
+      Loading proof...
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     USER MODAL
+     ===================================================== -->
+
+<div
+  id="userModal"
+  class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <h3>
+        User Details
+      </h3>
+
+      <button
+        class="close"
+        onclick="closeUserModal()">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <div
+      id="userModalContent">
+
+      Loading user...
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div
+  id="toast"
+  class="toast">
+                </div>
+                
