@@ -8093,4 +8093,1915 @@ async function loadSettings() {
     );
   }
 }
-                
+     /* =========================================================
+   SETTINGS SAVE
+   ========================================================= */
+
+function collectSettingsFromUI() {
+  return {
+    site_name:
+      $("siteName")?.value.trim() ||
+      platformSettings?.site_name ||
+      "NAIJA TASK",
+
+    activation_enabled:
+      $("activationEnabled")?.checked || false,
+
+    activation_fee:
+      numberValue(
+        $("activationFee")?.value,
+        1000
+      ),
+
+    vip_enabled:
+      $("vipEnabled")?.checked || false,
+
+    vip_price:
+      numberValue(
+        $("vipPrice")?.value,
+        0
+      ),
+
+    withdrawals_enabled:
+      $("withdrawalsEnabled")?.checked !== false,
+
+    minimum_withdrawal:
+      numberValue(
+        $("minimumWithdrawal")?.value,
+        1500
+      ),
+
+    free_withdrawal_fee:
+      numberValue(
+        $("freeWithdrawalFee")?.value,
+        100
+      ),
+
+    vip_withdrawal_fee:
+      numberValue(
+        $("vipWithdrawalFee")?.value,
+        50
+      ),
+
+    withdrawals_per_day:
+      Math.max(
+        1,
+        Math.floor(
+          numberValue(
+            $("withdrawalsPerDay")?.value,
+            1
+          )
+        )
+      ),
+
+    referrals_enabled:
+      $("referralsEnabled")?.checked || false,
+
+    referral_reward:
+      numberValue(
+        $("referralReward")?.value,
+        100
+      ),
+
+    poster_registration_enabled:
+      $("posterRegistrationEnabled")?.checked !== false,
+
+    job_posting_enabled:
+      $("jobPostingEnabled")?.checked !== false,
+
+    task_approval_required:
+      $("taskApprovalRequired")?.checked !== false,
+
+    photo_proof_enabled:
+      $("photoProofEnabled")?.checked !== false,
+
+    maintenance_mode:
+      $("maintenanceMode")?.checked || false,
+
+    free_daily_task_limit:
+      Math.max(
+        0,
+        Math.floor(
+          numberValue(
+            $("freeDailyTaskLimit")?.value,
+            10
+          )
+        )
+      ),
+
+    vip_daily_task_limit:
+      Math.max(
+        0,
+        Math.floor(
+          numberValue(
+            $("vipDailyTaskLimit")?.value,
+            50
+          )
+        )
+      ),
+
+    minimum_task_reward:
+      numberValue(
+        $("minimumTaskReward")?.value,
+        3
+      ),
+
+    maximum_task_reward:
+      numberValue(
+        $("maximumTaskReward")?.value,
+        150
+      ),
+
+    ai_care_enabled:
+      $("aiCareEnabled")?.checked || false,
+
+    private_chat_enabled:
+      $("privateChatEnabled")?.checked || false,
+
+    community_chat_enabled:
+      $("communityChatEnabled")?.checked || false,
+
+    support_whatsapp:
+      $("supportWhatsapp")?.value.trim() || "",
+
+    support_email:
+      $("supportEmail")?.value.trim() ||
+      "naijataskofficia@gmail.com",
+
+    normal_min_task_reward:
+      numberValue(
+        $("normalMinTaskReward")?.value ??
+        $("settingsNormalMinReward")?.value,
+        3
+      ),
+
+    normal_max_task_reward:
+      numberValue(
+        $("normalMaxTaskReward")?.value ??
+        $("settingsNormalMaxReward")?.value,
+        15
+      ),
+
+    vip_min_task_reward:
+      numberValue(
+        $("vipMinTaskReward")?.value ??
+        $("settingsVipMinReward")?.value,
+        5
+      ),
+
+    vip_max_task_reward:
+      numberValue(
+        $("vipMaxTaskReward")?.value ??
+        $("settingsVipMaxReward")?.value,
+        25
+      ),
+
+    captcha_enabled:
+      $("captchaEnabled")?.checked || false,
+
+    captcha_signup_required:
+      $("captchaSignupRequired")?.checked || false,
+
+    captcha_withdrawal_required:
+      $("captchaWithdrawalRequired")?.checked || false,
+
+    bot_detection_enabled:
+      $("botDetectionEnabled")?.checked || false,
+
+    device_detection_enabled:
+      $("deviceDetectionEnabled")?.checked || false,
+
+    ip_detection_enabled:
+      $("ipDetectionEnabled")?.checked || false,
+
+    suspicious_activity_detection:
+      $("suspiciousActivityDetection")?.checked || false,
+
+    automatic_restriction_enabled:
+      $("automaticRestrictionEnabled")?.checked || false,
+
+    security_warnings_enabled:
+      $("securityWarningsEnabled")?.checked || false,
+
+    user_2fa_enabled:
+      $("user2faEnabled")?.checked || false,
+
+    withdrawal_security_check:
+      $("withdrawalSecurityCheck")?.checked || false,
+
+    max_task_submissions_per_minute:
+      Math.max(
+        1,
+        Math.floor(
+          numberValue(
+            $("maxTaskSubmissionsPerMinute")?.value,
+            10
+          )
+        )
+      ),
+
+    suspicious_risk_score:
+      numberValue(
+        $("suspiciousRiskScore")?.value,
+        70
+      ),
+
+    automatic_ban_enabled:
+      $("automaticBanEnabled")?.checked || false,
+
+    normal_ads_enabled:
+      $("normalAdsEnabled")?.checked || false,
+
+    vip_ads_enabled:
+      $("vipAdsEnabled")?.checked || false,
+
+    ad_frequency:
+      Math.max(
+        0,
+        Math.floor(
+          numberValue(
+            $("adFrequency")?.value,
+            5
+          )
+        )
+      ),
+
+    minimum_poster_task_slots:
+      Math.max(
+        1,
+        Math.floor(
+          numberValue(
+            $("minimumPosterTaskSlots")?.value,
+            10
+          )
+        )
+      ),
+
+    poster_task_fee:
+      numberValue(
+        $("posterTaskFee")?.value,
+        500
+      )
+  };
+}
+
+
+function validateSettings(settings) {
+  const errors = [];
+
+  if (
+    settings.activation_fee < 0
+  ) {
+    errors.push(
+      "Activation fee cannot be negative."
+    );
+  }
+
+  if (
+    settings.vip_price < 0
+  ) {
+    errors.push(
+      "VIP price cannot be negative."
+    );
+  }
+
+  if (
+    settings.minimum_withdrawal < 0
+  ) {
+    errors.push(
+      "Minimum withdrawal cannot be negative."
+    );
+  }
+
+  if (
+    settings.free_withdrawal_fee < 0 ||
+    settings.vip_withdrawal_fee < 0
+  ) {
+    errors.push(
+      "Withdrawal fees cannot be negative."
+    );
+  }
+
+  if (
+    settings.normal_min_task_reward < 0 ||
+    settings.normal_max_task_reward < 0 ||
+    settings.vip_min_task_reward < 0 ||
+    settings.vip_max_task_reward < 0
+  ) {
+    errors.push(
+      "Task reward limits cannot be negative."
+    );
+  }
+
+  if (
+    settings.normal_min_task_reward >
+    settings.normal_max_task_reward
+  ) {
+    errors.push(
+      "Normal minimum reward cannot exceed maximum reward."
+    );
+  }
+
+  if (
+    settings.vip_min_task_reward >
+    settings.vip_max_task_reward
+  ) {
+    errors.push(
+      "VIP minimum reward cannot exceed maximum reward."
+    );
+  }
+
+  if (
+    settings.minimum_poster_task_slots < 1
+  ) {
+    errors.push(
+      "Minimum poster task quantity must be at least 1."
+    );
+  }
+
+  if (
+    settings.poster_task_fee < 0
+  ) {
+    errors.push(
+      "Poster task fee cannot be negative."
+    );
+  }
+
+  if (
+    settings.withdrawals_per_day < 1
+  ) {
+    errors.push(
+      "Withdrawals per day must be at least 1."
+    );
+  }
+
+  return errors;
+}
+
+
+async function saveSettings() {
+  try {
+
+    if (!currentUser) {
+      toast(
+        "Administrator session expired.",
+        "danger"
+      );
+      return;
+    }
+
+    const settings =
+      collectSettingsFromUI();
+
+    const errors =
+      validateSettings(settings);
+
+    if (errors.length) {
+      toast(
+        errors[0],
+        "warning"
+      );
+      return;
+    }
+
+    setLoading(
+      true,
+      "Saving platform settings..."
+    );
+
+    /*
+      Only verified platform_settings columns
+      are sent to Supabase.
+    */
+
+    const payload = {
+      site_name:
+        settings.site_name,
+
+      activation_enabled:
+        settings.activation_enabled,
+
+      activation_fee:
+        settings.activation_fee,
+
+      vip_enabled:
+        settings.vip_enabled,
+
+      vip_price:
+        settings.vip_price,
+
+      withdrawals_enabled:
+        settings.withdrawals_enabled,
+
+      minimum_withdrawal:
+        settings.minimum_withdrawal,
+
+      free_withdrawal_fee:
+        settings.free_withdrawal_fee,
+
+      vip_withdrawal_fee:
+        settings.vip_withdrawal_fee,
+
+      withdrawals_per_day:
+        settings.withdrawals_per_day,
+
+      referrals_enabled:
+        settings.referrals_enabled,
+
+      referral_reward:
+        settings.referral_reward,
+
+      poster_registration_enabled:
+        settings.poster_registration_enabled,
+
+      job_posting_enabled:
+        settings.job_posting_enabled,
+
+      task_approval_required:
+        settings.task_approval_required,
+
+      photo_proof_enabled:
+        settings.photo_proof_enabled,
+
+      maintenance_mode:
+        settings.maintenance_mode,
+
+      free_daily_task_limit:
+        settings.free_daily_task_limit,
+
+      vip_daily_task_limit:
+        settings.vip_daily_task_limit,
+
+      minimum_task_reward:
+        settings.minimum_task_reward,
+
+      maximum_task_reward:
+        settings.maximum_task_reward,
+
+      ai_care_enabled:
+        settings.ai_care_enabled,
+
+      private_chat_enabled:
+        settings.private_chat_enabled,
+
+      community_chat_enabled:
+        settings.community_chat_enabled,
+
+      support_whatsapp:
+        settings.support_whatsapp,
+
+      support_email:
+        settings.support_email,
+
+      normal_min_task_reward:
+        settings.normal_min_task_reward,
+
+      normal_max_task_reward:
+        settings.normal_max_task_reward,
+
+      vip_min_task_reward:
+        settings.vip_min_task_reward,
+
+      vip_max_task_reward:
+        settings.vip_max_task_reward,
+
+      captcha_enabled:
+        settings.captcha_enabled,
+
+      captcha_signup_required:
+        settings.captcha_signup_required,
+
+      captcha_withdrawal_required:
+        settings.captcha_withdrawal_required,
+
+      bot_detection_enabled:
+        settings.bot_detection_enabled,
+
+      device_detection_enabled:
+        settings.device_detection_enabled,
+
+      ip_detection_enabled:
+        settings.ip_detection_enabled,
+
+      suspicious_activity_detection:
+        settings.suspicious_activity_detection,
+
+      automatic_restriction_enabled:
+        settings.automatic_restriction_enabled,
+
+      security_warnings_enabled:
+        settings.security_warnings_enabled,
+
+      user_2fa_enabled:
+        settings.user_2fa_enabled,
+
+      withdrawal_security_check:
+        settings.withdrawal_security_check,
+
+      max_task_submissions_per_minute:
+        settings.max_task_submissions_per_minute,
+
+      suspicious_risk_score:
+        settings.suspicious_risk_score,
+
+      automatic_ban_enabled:
+        settings.automatic_ban_enabled,
+
+      normal_ads_enabled:
+        settings.normal_ads_enabled,
+
+      vip_ads_enabled:
+        settings.vip_ads_enabled,
+
+      ad_frequency:
+        settings.ad_frequency,
+
+      minimum_poster_task_slots:
+        settings.minimum_poster_task_slots,
+
+      poster_task_fee:
+        settings.poster_task_fee
+    };
+
+
+    let result;
+
+    /*
+      First locate the existing settings row.
+      This prevents accidentally creating duplicate
+      platform_settings records.
+    */
+
+    const existing =
+      await supabaseClient
+        .from("platform_settings")
+        .select("id")
+        .limit(1)
+        .maybeSingle();
+
+    if (existing.error) {
+      throw existing.error;
+    }
+
+
+    if (existing.data?.id) {
+
+      result =
+        await supabaseClient
+          .from("platform_settings")
+          .update(payload)
+          .eq(
+            "id",
+            existing.data.id
+          );
+
+    } else {
+
+      result =
+        await supabaseClient
+          .from("platform_settings")
+          .insert(payload);
+    }
+
+
+    if (result.error) {
+      throw result.error;
+    }
+
+
+    await writeAudit(
+      "platform_settings_updated",
+      existing.data?.id || null,
+      {
+        activation_enabled:
+          settings.activation_enabled,
+
+        vip_enabled:
+          settings.vip_enabled,
+
+        withdrawals_enabled:
+          settings.withdrawals_enabled,
+
+        poster_task_fee:
+          settings.poster_task_fee,
+
+        minimum_poster_task_slots:
+          settings.minimum_poster_task_slots
+      }
+    );
+
+
+    platformSettings =
+      await getPlatformSettings();
+
+    applySettingsToUI(
+      platformSettings
+    );
+
+    toast(
+      "Platform settings saved successfully.",
+      "success"
+    );
+
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "saveSettings",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to save platform settings."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+/* =========================================================
+   SECURITY PAGE
+   ========================================================= */
+
+async function loadSecurity() {
+  try {
+
+    if (!platformSettings) {
+      await loadSettings();
+    } else {
+      applySettingsToUI(
+        platformSettings
+      );
+    }
+
+    const status =
+      $("securityStatus");
+
+    if (status) {
+
+      const securityEnabled =
+        boolValue(
+          platformSettings?.captcha_enabled
+        ) ||
+        boolValue(
+          platformSettings?.bot_detection_enabled
+        ) ||
+        boolValue(
+          platformSettings?.suspicious_activity_detection
+        ) ||
+        boolValue(
+          platformSettings?.withdrawal_security_check
+        );
+
+      status.innerHTML =
+        securityEnabled
+          ? badge("Security controls active")
+          : badge("Security controls mostly disabled");
+    }
+
+  } catch (error) {
+    reportError(
+      "loadSecurity",
+      error
+    );
+  }
+}
+
+
+/* =========================================================
+   ADS
+   ========================================================= */
+
+async function loadAds() {
+  try {
+
+    if (!platformSettings) {
+      await loadSettings();
+    }
+
+    applySettingsToUI(
+      platformSettings
+    );
+
+    const body =
+      $("adsBody");
+
+    if (!body) return;
+
+    /*
+      Do not invent advertisement records or
+      campaign payments when those schemas
+      have not been verified.
+    */
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="6" class="empty-row">
+          <strong>Advertisement controls are active.</strong>
+          <br>
+          Normal-user ads:
+          ${boolValue(
+            platformSettings?.normal_ads_enabled
+          ) ? "ON" : "OFF"}
+          ·
+          VIP ads:
+          ${boolValue(
+            platformSettings?.vip_ads_enabled
+          ) ? "ON" : "OFF"}
+          ·
+          Frequency:
+          ${escapeHTML(
+            platformSettings?.ad_frequency ?? "—"
+          )}
+        </td>
+      </tr>
+    `;
+
+  } catch (error) {
+    reportError(
+      "loadAds",
+      error
+    );
+
+    const body =
+      $("adsBody");
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty-row">
+            Advertisement settings could not be loaded.
+          </td>
+        </tr>
+      `;
+    }
+  }
+}
+
+
+/* =========================================================
+   COMMUNITY
+   ========================================================= */
+
+async function loadCommunity() {
+  try {
+
+    if (!platformSettings) {
+      await loadSettings();
+    }
+
+    setText(
+      "communityStatus",
+      boolValue(
+        platformSettings?.community_chat_enabled
+      )
+        ? "Community chat enabled"
+        : "Community chat disabled"
+    );
+
+    setText(
+      "privateChatStatus",
+      boolValue(
+        platformSettings?.private_chat_enabled
+      )
+        ? "Private chat enabled"
+        : "Private chat disabled"
+    );
+
+  } catch (error) {
+    reportError(
+      "loadCommunity",
+      error
+    );
+  }
+}
+
+
+/* =========================================================
+   AI CARE
+   ========================================================= */
+
+async function loadAICare() {
+  try {
+
+    if (!platformSettings) {
+      await loadSettings();
+    }
+
+    setChecked(
+      "aiCarePageToggle",
+      platformSettings?.ai_care_enabled
+    );
+
+  } catch (error) {
+    reportError(
+      "loadAICare",
+      error
+    );
+  }
+}
+
+
+async function saveAICareSetting() {
+  const enabled =
+    $("aiCarePageToggle")?.checked || false;
+
+  if ($("aiCareEnabled")) {
+    $("aiCareEnabled").checked =
+      enabled;
+  }
+
+  await saveSettings();
+}
+
+
+/* =========================================================
+   SUPPORT
+   ========================================================= */
+
+async function loadSupport() {
+  const body =
+    $("supportBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="loading-row">
+          Loading support requests...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("support")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allSupport =
+      safeArray(data);
+
+    renderSupport(
+      allSupport
+    );
+
+  } catch (error) {
+    reportError(
+      "loadSupport",
+      error
+    );
+
+    allSupport = [];
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty-row">
+            Unable to load support records.
+          </td>
+        </tr>
+      `;
+    }
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load support records."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+function renderSupport(rows) {
+  const body =
+    $("supportBody");
+
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-row">
+          No support requests found.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+
+    const subject =
+      row.subject ||
+      row.title ||
+      row.message ||
+      "Support request";
+
+    const message =
+      row.message ||
+      row.description ||
+      "";
+
+    const user =
+      row.user_id ||
+      row.email ||
+      "—";
+
+    const status =
+      row.status ||
+      "open";
+
+    return `
+      <tr>
+
+        <td>
+          ${escapeHTML(user)}
+        </td>
+
+        <td>
+          <strong>
+            ${escapeHTML(subject)}
+          </strong>
+        </td>
+
+        <td>
+          ${escapeHTML(
+            String(message).slice(0, 120)
+          )}
+        </td>
+
+        <td>
+          ${badge(status)}
+        </td>
+
+        <td>
+          ${formatDate(
+            row.created_at
+          )}
+        </td>
+
+        <td>
+          ${
+            row.status
+              ? `
+                <button
+                  class="small-btn"
+                  onclick="resolveSupport('${escapeHTML(
+                    row.id
+                  )}')">
+                  ${
+                    String(status).toLowerCase() ===
+                    "resolved"
+                      ? "Reopen"
+                      : "Resolve"
+                  }
+                </button>
+              `
+              : "—"
+          }
+        </td>
+
+      </tr>
+    `;
+  }).join("");
+}
+
+
+function filterSupport() {
+  const query =
+    $("supportSearch")?.value
+      .trim()
+      .toLowerCase() || "";
+
+  if (!query) {
+    renderSupport(
+      allSupport
+    );
+    return;
+  }
+
+  const filtered =
+    allSupport.filter(row => {
+
+      const searchable = [
+        row.id,
+        row.user_id,
+        row.subject,
+        row.title,
+        row.message,
+        row.description,
+        row.status,
+        row.email
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+
+  renderSupport(filtered);
+}
+
+
+async function resolveSupport(id) {
+  const row =
+    allSupport.find(
+      item =>
+        String(item.id) === String(id)
+    );
+
+  if (!row) {
+    toast(
+      "Support record not found.",
+      "warning"
+    );
+    return;
+  }
+
+  if (!row.status) {
+    toast(
+      "This support table does not expose a status field.",
+      "warning"
+    );
+    return;
+  }
+
+  const newStatus =
+    String(row.status).toLowerCase() ===
+    "resolved"
+      ? "open"
+      : "resolved";
+
+  try {
+
+    const {
+      error
+    } = await supabaseClient
+      .from("support")
+      .update({
+        status: newStatus
+      })
+      .eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+
+    await writeAudit(
+      "support_status_changed",
+      id,
+      {
+        status:
+          newStatus
+      }
+    );
+
+    toast(
+      "Support status updated.",
+      "success"
+    );
+
+    await loadSupport();
+
+  } catch (error) {
+    reportError(
+      "resolveSupport",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to update support status."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+/* =========================================================
+   APPEALS
+   ========================================================= */
+
+async function loadAppeals() {
+  const body =
+    $("appealsBody");
+
+  if (!body) return;
+
+  body.innerHTML = `
+    <tr>
+      <td colspan="7" class="empty-row">
+        Appeals management is reserved for the verified
+        appeals schema. No database table is assumed here.
+      </td>
+    </tr>
+  `;
+}
+
+
+/* =========================================================
+   MARKETPLACE
+   ========================================================= */
+
+async function loadMarketplace() {
+  const body =
+    $("marketplaceBody");
+
+  if (!body) return;
+
+  /*
+    The marketplace table exists in the project,
+    but no complete production workflow/schema has
+    been assumed here.
+  */
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("marketplace")
+      .select("*")
+      .limit(100);
+
+    if (error) {
+      throw error;
+    }
+
+    const rows =
+      safeArray(data);
+
+    if (!rows.length) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty-row">
+            No marketplace records found.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    body.innerHTML =
+      rows.map(row => `
+        <tr>
+          <td>
+            ${escapeHTML(
+              row.id || "—"
+            )}
+          </td>
+
+          <td>
+            ${escapeHTML(
+              row.title ||
+              row.name ||
+              "Marketplace item"
+            )}
+          </td>
+
+          <td>
+            ${escapeHTML(
+              row.user_id ||
+              row.seller_id ||
+              "—"
+            )}
+          </td>
+
+          <td>
+            ${
+              row.price === undefined
+                ? "—"
+                : money(row.price)
+            }
+          </td>
+
+          <td>
+            ${badge(
+              row.status || "—"
+            )}
+          </td>
+
+          <td>
+            ${formatDate(
+              row.created_at
+            )}
+          </td>
+        </tr>
+      `).join("");
+
+  } catch (error) {
+
+    reportError(
+      "loadMarketplace",
+      error
+    );
+
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-row">
+          Marketplace workflow is not connected
+          to a verified production schema.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+
+/* =========================================================
+   AIRTIME / DATA
+   ========================================================= */
+
+async function loadAirtime() {
+  const body =
+    $("airtimeBody");
+
+  if (!body) return;
+
+  /*
+    No airtime provider is connected in the verified
+    platform settings schema.
+
+    This page therefore does NOT pretend to sell airtime
+    or data until a real provider integration is added.
+  */
+
+  body.innerHTML = `
+    <tr>
+      <td colspan="7" class="empty-row">
+        <strong>Airtime & Data provider not connected.</strong>
+        <br>
+        No fake provider, balance or transaction data is shown.
+      </td>
+    </tr>
+  `;
+}
+
+
+/* =========================================================
+   INTEGRITY CHECKS
+   ========================================================= */
+
+async function runIntegrityChecks() {
+  const output =
+    $("integrityResults");
+
+  if (!output) return;
+
+  output.innerHTML = `
+    <div class="integrity-loading">
+      Running safe integrity checks...
+    </div>
+  `;
+
+  try {
+
+    const [
+      profilesResult,
+      tasksResult,
+      submissionsResult,
+      completionsResult,
+      withdrawalsResult
+    ] = await Promise.all([
+
+      supabaseClient
+        .from("profiles")
+        .select("id,balance"),
+
+      supabaseClient
+        .from("tasks")
+        .select(
+          "id,reward,slots,created_at,expiry_date"
+        ),
+
+      supabaseClient
+        .from("task_submissions")
+        .select(
+          "id,task_id,user_id,status,proof,created_at"
+        ),
+
+      supabaseClient
+        .from("task_completions")
+        .select(
+          "id,task_id,user_id"
+        ),
+
+      supabaseClient
+        .from("withdrawals")
+        .select(
+          "id,status"
+        )
+    ]);
+
+
+    const errors = [
+      profilesResult.error,
+      tasksResult.error,
+      submissionsResult.error,
+      completionsResult.error,
+      withdrawalsResult.error
+    ].filter(Boolean);
+
+    if (errors.length) {
+      throw errors[0];
+    }
+
+
+    const profiles =
+      safeArray(
+        profilesResult.data
+      );
+
+    const tasks =
+      safeArray(
+        tasksResult.data
+      );
+
+    const submissions =
+      safeArray(
+        submissionsResult.data
+      );
+
+    const completions =
+      safeArray(
+        completionsResult.data
+      );
+
+    const withdrawals =
+      safeArray(
+        withdrawalsResult.data
+      );
+
+
+    const taskIds =
+      new Set(
+        tasks.map(
+          task => String(task.id)
+        )
+      );
+
+
+    const orphanSubmissions =
+      submissions.filter(
+        submission =>
+          submission.task_id &&
+          !taskIds.has(
+            String(submission.task_id)
+          )
+      );
+
+
+    const completionKeys =
+      new Set();
+
+    const duplicateCompletions = [];
+
+    completions.forEach(completion => {
+
+      const key =
+        String(
+          completion.user_id || ""
+        ) +
+        "::" +
+        String(
+          completion.task_id || ""
+        );
+
+      if (
+        completionKeys.has(key)
+      ) {
+        duplicateCompletions.push(
+          completion
+        );
+      } else {
+        completionKeys.add(key);
+      }
+    });
+
+
+    const missingProof =
+      submissions.filter(
+        submission => {
+
+          const status =
+            String(
+              submission.status || ""
+            ).toLowerCase();
+
+          if (
+            status !== "pending"
+          ) {
+            return false;
+          }
+
+          const proof =
+            submission.proof;
+
+          return (
+            proof === null ||
+            proof === undefined ||
+            String(proof).trim() === ""
+          );
+        }
+      );
+
+
+    const invalidTasks =
+      tasks.filter(task =>
+        numberValue(task.reward) <= 0 ||
+        numberValue(task.slots) < 1
+      );
+
+
+    const negativeBalances =
+      profiles.filter(
+        profile =>
+          numberValue(
+            profile.balance
+          ) < 0
+      );
+
+
+    const pendingWithdrawals =
+      withdrawals.filter(
+        withdrawal =>
+          String(
+            withdrawal.status || ""
+          ).toLowerCase() === "pending"
+      );
+
+
+    const invalidDates =
+      tasks.filter(task => {
+
+        if (
+          !task.created_at ||
+          !task.expiry_date
+        ) {
+          return false;
+        }
+
+        const created =
+          new Date(
+            task.created_at
+          ).getTime();
+
+        const expiry =
+          new Date(
+            task.expiry_date
+          ).getTime();
+
+        if (
+          Number.isNaN(created) ||
+          Number.isNaN(expiry)
+        ) {
+          return true;
+        }
+
+        return expiry < created;
+      });
+
+
+    const checks = [
+
+      {
+        title:
+          "Orphan submissions",
+        count:
+          orphanSubmissions.length,
+        ok:
+          orphanSubmissions.length === 0,
+        description:
+          "Submissions pointing to tasks that no longer exist."
+      },
+
+      {
+        title:
+          "Duplicate task completions",
+        count:
+          duplicateCompletions.length,
+        ok:
+          duplicateCompletions.length === 0,
+        description:
+          "Repeated user/task completion combinations."
+      },
+
+      {
+        title:
+          "Pending submissions without proof",
+        count:
+          missingProof.length,
+        ok:
+          missingProof.length === 0,
+        description:
+          "Pending submissions with no stored proof."
+      },
+
+      {
+        title:
+          "Invalid task rewards or slots",
+        count:
+          invalidTasks.length,
+        ok:
+          invalidTasks.length === 0,
+        description:
+          "Tasks with zero/negative rewards or invalid quantities."
+      },
+
+      {
+        title:
+          "Negative wallet balances",
+        count:
+          negativeBalances.length,
+        ok:
+          negativeBalances.length === 0,
+        description:
+          "Profiles whose wallet balance is below zero."
+      },
+
+      {
+        title:
+          "Pending withdrawals",
+        count:
+          pendingWithdrawals.length,
+        ok:
+          true,
+        description:
+          "Pending withdrawals requiring normal admin processing."
+      },
+
+      {
+        title:
+          "Invalid task dates",
+        count:
+          invalidDates.length,
+        ok:
+          invalidDates.length === 0,
+        description:
+          "Tasks whose expiry date is earlier than creation."
+      }
+    ];
+
+
+    output.innerHTML =
+      checks.map(check => `
+        <div class="integrity-card ${
+          check.ok
+            ? "integrity-ok"
+            : "integrity-warning"
+        }">
+
+          <div class="integrity-icon">
+            ${check.ok ? "✓" : "!"}
+          </div>
+
+          <div class="integrity-content">
+
+            <strong>
+              ${escapeHTML(
+                check.title
+              )}
+            </strong>
+
+            <span>
+              ${check.count}
+            </span>
+
+            <p>
+              ${escapeHTML(
+                check.description
+              )}
+            </p>
+
+          </div>
+
+        </div>
+      `).join("");
+
+    setText(
+      "integrityLastRun",
+      formatDate(
+        new Date().toISOString()
+      )
+    );
+
+  } catch (error) {
+
+    reportError(
+      "runIntegrityChecks",
+      error
+    );
+
+    output.innerHTML = `
+      <div class="integrity-card integrity-warning">
+        <div class="integrity-icon">!</div>
+        <div class="integrity-content">
+          <strong>Integrity check could not complete</strong>
+          <p>
+            ${escapeHTML(
+              errorMessage(
+                error,
+                "Database check failed."
+              )
+            )}
+          </p>
+        </div>
+      </div>
+    `;
+  }
+}
+
+
+/* =========================================================
+   ADMIN ACTIVITY
+   ========================================================= */
+
+async function loadAdminActivity() {
+  const body =
+    $("activityBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="loading-row">
+          Loading admin activity...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("admin_activity")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allActivity =
+      safeArray(data);
+
+    renderAdminActivity(
+      allActivity
+    );
+
+  } catch (error) {
+
+    reportError(
+      "loadAdminActivity",
+      error
+    );
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty-row">
+            Unable to load admin activity.
+          </td>
+        </tr>
+      `;
+    }
+  }
+}
+
+
+function renderAdminActivity(rows) {
+  const body =
+    $("activityBody");
+
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-row">
+          No administrator activity found.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+
+    let details = "";
+
+    try {
+
+      details =
+        typeof row.details === "object"
+          ? JSON.stringify(
+              row.details
+            )
+          : String(
+              row.details || ""
+            );
+
+    } catch (_) {
+
+      details =
+        String(
+          row.details || ""
+        );
+    }
+
+    return `
+      <tr>
+
+        <td>
+          ${escapeHTML(
+            row.admin_id ||
+            row.user_id ||
+            "—"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.action || "—"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.target_id || "—"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            details
+          )}
+        </td>
+
+        <td>
+          ${formatDate(
+            row.created_at
+          )}
+        </td>
+
+      </tr>
+    `;
+  }).join("");
+}
+
+
+function filterActivity() {
+  const query =
+    $("activitySearch")?.value
+      .trim()
+      .toLowerCase() || "";
+
+  if (!query) {
+    renderAdminActivity(
+      allActivity
+    );
+    return;
+  }
+
+  const filtered =
+    allActivity.filter(row => {
+
+      let details = "";
+
+      try {
+        details =
+          typeof row.details === "object"
+            ? JSON.stringify(
+                row.details
+              )
+            : String(
+                row.details || ""
+              );
+      } catch (_) {
+        details = "";
+      }
+
+      const searchable = [
+        row.admin_id,
+        row.user_id,
+        row.action,
+        row.target_id,
+        details
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+
+  renderAdminActivity(
+    filtered
+  );
+}
+
+
+/* =========================================================
+   GENERAL SEARCH HELPERS
+   ========================================================= */
+
+function refreshCurrentPage() {
+  const active =
+    document.querySelector(
+      ".page.active"
+    );
+
+  if (!active) {
+    navigate("overview");
+    return;
+  }
+
+  const page =
+    active.id.replace(
+      "page-",
+      ""
+    );
+
+  navigate(page);
+}
+
+
+/* =========================================================
+   CLOSE MODALS WHEN CLICKING OUTSIDE
+   ========================================================= */
+
+document.addEventListener(
+  "click",
+  event => {
+
+    if (
+      event.target.classList &&
+      event.target.classList.contains("modal")
+    ) {
+      event.target.classList.remove("open");
+      event.target.classList.remove("show");
+    }
+  }
+);
+
+
+/* =========================================================
+   ESC KEY
+   ========================================================= */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key === "Escape"
+    ) {
+      closeAllModals();
+      closeSidebar();
+    }
+  }
+);
+
+
+/* =========================================================
+   DOM READY
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  init
+);
+
+
+/* =========================================================
+   END OF NAIJA TASK ADMIN JAVASCRIPT
+   ======================================          
