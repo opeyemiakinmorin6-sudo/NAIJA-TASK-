@@ -10005,3 +10005,108 @@ document.addEventListener(
 /* =========================================================
    END OF NAIJA TASK ADMIN JAVASCRIPT
    ======================================          
+/* =========================================================
+   FINAL EVENT WIRING
+   ========================================================= */
+
+/* Allow Enter key to submit the admin login form */
+document.addEventListener("keydown", function(e){
+  if(
+    e.key === "Enter" &&
+    document.activeElement &&
+    document.activeElement.id === "loginPassword"
+  ){
+    e.preventDefault();
+    login();
+  }
+});
+
+/* Keep duplicate reward-setting fields synchronized */
+(function syncDuplicateSettingsFields(){
+
+  const pairs = [
+    ["normalMinTaskReward", "settingsNormalMinReward"],
+    ["normalMaxTaskReward", "settingsNormalMaxReward"],
+    ["vipMinTaskReward", "settingsVipMinReward"],
+    ["vipMaxTaskReward", "settingsVipMaxReward"],
+    ["freeDailyTaskLimit", "settingsFreeDailyLimit"],
+    ["vipDailyTaskLimit", "settingsVipDailyLimit"],
+    ["minimumTaskReward", "settingsMinimumTaskReward"],
+    ["maximumTaskReward", "settingsMaximumTaskReward"]
+  ];
+
+  pairs.forEach(function(pair){
+
+    const first = $(pair[0]);
+    const second = $(pair[1]);
+
+    if(!first || !second) return;
+
+    first.addEventListener("input", function(){
+      if(document.activeElement === first){
+        second.value = first.value;
+      }
+    });
+
+    second.addEventListener("input", function(){
+      if(document.activeElement === second){
+        first.value = second.value;
+      }
+    });
+
+  });
+
+})();
+
+/* Prevent accidental form submission/reload where buttons are used */
+document.addEventListener("submit", function(e){
+  e.preventDefault();
+});
+
+/* Make the application available for inline HTML buttons */
+window.NAIJA_TASK_ADMIN = {
+  login,
+  logout,
+  resetPassword,
+  navigate,
+  toggleSidebar,
+  loadOverview,
+  loadUsers,
+  loadTasks,
+  loadSubmissions,
+  loadWithdrawals,
+  loadWalletLedger,
+  loadReferrals,
+  loadPosters,
+  loadSettings,
+  saveSettings,
+  loadSecurity,
+  loadAds,
+  loadCommunity,
+  loadAICare,
+  loadSupport,
+  loadAppeals,
+  loadMarketplace,
+  loadAirtime,
+  runIntegrityChecks,
+  loadAdminActivity,
+  openTaskModal,
+  closeTaskModal,
+  saveTask,
+  toggleTask,
+  openProofModal,
+  closeProofModal,
+  approveCurrentProof,
+  rejectCurrentProof,
+  approveWithdrawal,
+  rejectWithdrawal,
+  approvePosterPayment,
+  rejectPosterPayment,
+  openUserModal,
+  closeUserModal
+};
+
+</script>
+
+</body>
+</html>
