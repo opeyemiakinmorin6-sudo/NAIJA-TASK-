@@ -4088,4 +4088,4009 @@ th{
   id="toast"
   class="toast">
                 </div>
+              <script>
+/* =========================================================
+   NAIJA TASK — ADMIN CONTROL CENTER
+   PART 3 — CORE JAVASCRIPT
+   ========================================================= */
+
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+
+/*
+  IMPORTANT:
+  Keep the SAME Supabase publishable/anon key already used
+  by your NAIJA TASK project.
+*/
+const SUPABASE_PUBLISHABLE_KEY =
+  "PASTE_YOUR_EXISTING_SUPABASE_PUBLISHABLE_KEY_HERE";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+/* =========================================================
+   GLOBAL STATE
+   ========================================================= */
+
+let currentUser = null;
+
+let allUsers = [];
+let allTasks = [];
+let allSubmissions = [];
+let allWithdrawals = [];
+let allWalletRows = [];
+let allReferrals = [];
+let allPosterPayments = [];
+let allSupport = [];
+let allActivity = [];
+
+let currentTask = null;
+let currentProof = null;
+let currentUserRow = null;
+let currentWithdrawal = null;
+let currentPosterPayment = null;
+
+let platformSettings = null;
+
+
+/* =========================================================
+   BASIC HELPERS
+   ========================================================= */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function safeArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function escapeHTML(value) {
+  if (value === null || value === undefined) return "";
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function money(value) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return "₦0";
+  }
+
+  return "₦" + number.toLocaleString("en-NG", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+}
+
+function numberValue(value, fallback = 0) {
+  const n = Number(value);
+
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function boolValue(value, fallback = false) {
+  if (value === true || value === false) {
+    return value;
+  }
+
+  if (
+    value === "true" ||
+    value === "1" ||
+    value === 1 ||
+    value === "on"
+  ) {
+    return true;
+  }
+
+  if (
+    value === "false" ||
+    value === "0" ||
+    value === 0 ||
+    value === "off"
+  ) {
+    return false;
+  }
+
+  return fallback;
+}
+
+function formatDate(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return escapeHTML(value);
+  }
+
+  return date.toLocaleString("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
+function shortDate(value) {
+  if (!value) return "—";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleDateString("en-NG", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function statusClass(value) {
+  const status = String(value || "")
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
+
+  if (
+    status.includes("approved") ||
+    status.includes("active") ||
+    status.includes("live") ||
+    status.includes("completed") ||
+    status.includes("success") ||
+    status.includes("verified")
+  ) {
+    return "success";
+  }
+
+  if (
+    status.includes("pending") ||
+    status.includes("review") ||
+    status.includes("waiting") ||
+    status.includes("payment")
+  ) {
+    return "warning";
+  }
+
+  if (
+    status.includes("reject") ||
+    status.includes("disable") ||
+    status.includes("failed") ||
+    status.includes("cancel") ||
+    status.includes("error")
+  ) {
+    return "danger";
+  }
+
+  return "neutral";
+}
+
+function badge(value) {
+  const text = value === null || value === undefined || value === ""
+    ? "—"
+    : String(value);
+
+  return `
+    <span class="badge ${statusClass(text)}">
+      ${escapeHTML(text)}
+    </span>
+  `;
+}
+
+function setText(id, value) {
+  const element = $(id);
+
+  if (element) {
+    element.textContent =
+      value === null || value === undefined ? "—" : String(value);
+  }
+}
+
+function setValue(id, value) {
+  const element = $(id);
+
+  if (element) {
+    element.value =
+      value === null || value === undefined ? "" : String(value);
+  }
+}
+
+function setChecked(id, value) {
+  const element = $(id);
+
+  if (element) {
+    element.checked = boolValue(value);
+  }
+}
+
+function setDisabled(id, disabled) {
+  const element = $(id);
+
+  if (element) {
+    element.disabled = !!disabled;
+  }
+}
+
+
+/* =========================================================
+   TOAST / LOADING
+   ========================================================= */
+
+let toastTimer = null;
+
+function toast(message, type = "info") {
+  const element = $("toast");
+
+  if (!element) {
+    alert(message);
+    return;
+  }
+
+  element.className = "toast " + type;
+  element.textContent = message;
+  element.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(() => {
+    element.classList.remove("show");
+  }, 3500);
+}
+
+function setLoading(show, text = "Loading...") {
+  const screen = $("loadingScreen");
+
+  if (!screen) return;
+
+  if (show) {
+    screen.classList.remove("hidden");
+
+    const textElement =
+      screen.querySelector(".loading-text") ||
+      screen.querySelector("p");
+
+    if (textElement) {
+      textElement.textContent = text;
+    }
+  } else {
+    screen.classList.add("hidden");
+  }
+}
+
+
+/* =========================================================
+   SAFE ERROR HANDLING
+   ========================================================= */
+
+function errorMessage(error, fallback = "Something went wrong.") {
+  if (!error) return fallback;
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  if (error.message) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
+function reportError(context, error) {
+  console.error("[NAIJA TASK ADMIN]", context, error);
+}
+
+
+/* =========================================================
+   AUDIT LOG
+   ========================================================= */
+
+async function writeAudit(action, targetId = null, details = {}) {
+  try {
+    if (!currentUser) return;
+
+    /*
+      Best-effort direct activity logging.
+      If the table has a different RLS restriction, the main
+      admin operation is NOT blocked by audit failure.
+    */
+
+    const payload = {
+      admin_id: currentUser.id,
+      action: String(action || "admin_action"),
+      target_id: targetId ? String(targetId) : null,
+      details: details || {}
+    };
+
+    const result = await supabaseClient
+      .from("admin_activity")
+      .insert(payload);
+
+    if (result.error) {
+      console.warn(
+        "Admin activity log was not written:",
+        result.error.message
+      );
+    }
+  } catch (error) {
+    console.warn("Audit logging failed:", error);
+  }
+}
+
+
+/* =========================================================
+   LOGIN / AUTHENTICATION
+   ========================================================= */
+
+async function init() {
+  try {
+    setLoading(true, "Checking administrator session...");
+
+    const {
+      data: sessionData,
+      error: sessionError
+    } = await supabaseClient.auth.getSession();
+
+    if (sessionError) {
+      throw sessionError;
+    }
+
+    if (!sessionData || !sessionData.session) {
+      showLogin();
+      return;
+    }
+
+    currentUser = sessionData.session.user;
+
+    const adminCheck = await verifyAdmin(currentUser.id);
+
+    if (!adminCheck) {
+      currentUser = null;
+
+      await supabaseClient.auth.signOut();
+
+      showLogin(
+        "This account does not have active administrator access."
+      );
+
+      return;
+    }
+
+    showAdminApp();
+
+  } catch (error) {
+    reportError("init", error);
+
+    showLogin(
+      errorMessage(
+        error,
+        "Unable to verify administrator access."
+      )
+    );
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function verifyAdmin(userId) {
+  if (!userId) return false;
+
+  try {
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("admin_users")
+      .select("user_id, role, active")
+      .eq("user_id", userId)
+      .eq("active", true)
+      .maybeSingle();
+
+    if (error) {
+      reportError("verifyAdmin", error);
+      return false;
+    }
+
+    return !!data;
+  } catch (error) {
+    reportError("verifyAdmin", error);
+    return false;
+  }
+}
+
+
+function showLogin(message = "") {
+  const loginScreen = $("loginScreen");
+  const app = $("adminApp");
+
+  if (loginScreen) {
+    loginScreen.classList.remove("hidden");
+  }
+
+  if (app) {
+    app.classList.add("hidden");
+  }
+
+  if (message) {
+    const errorElement =
+      $("loginError") ||
+      $("loginMessage");
+
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.style.display = "block";
+    } else {
+      setTimeout(() => toast(message, "danger"), 100);
+    }
+  }
+}
+
+
+function showAdminApp() {
+  const loginScreen = $("loginScreen");
+  const app = $("adminApp");
+
+  if (loginScreen) {
+    loginScreen.classList.add("hidden");
+  }
+
+  if (app) {
+    app.classList.remove("hidden");
+  }
+
+  const adminEmail =
+    $("adminEmail") ||
+    $("currentAdminEmail");
+
+  if (adminEmail && currentUser) {
+    adminEmail.textContent = currentUser.email || "Administrator";
+  }
+
+  navigate("overview");
+}
+
+
+async function login() {
+  const email =
+    $("loginEmail")?.value.trim() || "";
+
+  const password =
+    $("loginPassword")?.value || "";
+
+  if (!email || !password) {
+    toast("Enter your admin email and password.", "warning");
+    return;
+  }
+
+  try {
+    setLoading(true, "Signing in...");
+
+    const {
+      data,
+      error
+    } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data.user) {
+      throw new Error("Login did not return a user.");
+    }
+
+    currentUser = data.user;
+
+    const isAdmin = await verifyAdmin(currentUser.id);
+
+    if (!isAdmin) {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+
+      throw new Error(
+        "Login successful, but this account is not an active administrator."
+      );
+    }
+
+    await writeAudit(
+      "admin_login",
+      currentUser.id,
+      {
+        email: currentUser.email || null
+      }
+    );
+
+    showAdminApp();
+
+    toast("Administrator login successful.", "success");
+
+  } catch (error) {
+    reportError("login", error);
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to sign in."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function resetPassword() {
+  const email =
+    $("loginEmail")?.value.trim() || "";
+
+  if (!email) {
+    toast(
+      "Enter your administrator email first.",
+      "warning"
+    );
+    return;
+  }
+
+  try {
+    setLoading(true, "Sending password reset...");
+
+    const redirectTo =
+      window.location.origin +
+      window.location.pathname;
+
+    const {
+      error
+    } = await supabaseClient.auth.resetPasswordForEmail(
+      email,
+      {
+        redirectTo
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    toast(
+      "Password reset instructions have been sent if the email is registered.",
+      "success"
+    );
+
+  } catch (error) {
+    reportError("resetPassword", error);
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to send password reset."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function logout() {
+  try {
+    await writeAudit(
+      "admin_logout",
+      currentUser?.id || null,
+      {}
+    );
+
+    await supabaseClient.auth.signOut();
+
+  } catch (error) {
+    reportError("logout", error);
+  }
+
+  currentUser = null;
+
+  showLogin();
+
+  toast(
+    "You have been signed out.",
+    "success"
+  );
+}
+
+
+/* =========================================================
+   AUTH STATE
+   ========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+  async (event, session) => {
+
+    if (event === "SIGNED_OUT") {
+      currentUser = null;
+      showLogin();
+      return;
+    }
+
+    if (
+      event === "SIGNED_IN" &&
+      session &&
+      session.user
+    ) {
+      currentUser = session.user;
+
+      const isAdmin =
+        await verifyAdmin(currentUser.id);
+
+      if (isAdmin) {
+        showAdminApp();
+      } else {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        showLogin(
+          "This account does not have administrator access."
+        );
+      }
+    }
+  }
+);
+
+
+/* =========================================================
+   SIDEBAR / NAVIGATION
+   ========================================================= */
+
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+
+  if (sidebar) {
+    sidebar.classList.toggle("open");
+  }
+}
+
+
+function closeSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+
+  if (sidebar) {
+    sidebar.classList.remove("open");
+  }
+}
+
+
+function navigate(page) {
+  if (!page) {
+    page = "overview";
+  }
+
+  document
+    .querySelectorAll(".page")
+    .forEach(element => {
+      element.classList.remove("active");
+    });
+
+  const target =
+    $("page-" + page);
+
+  if (target) {
+    target.classList.add("active");
+  }
+
+  document
+    .querySelectorAll(
+      "[data-page], .nav-item"
+    )
+    .forEach(element => {
+
+      const elementPage =
+        element.dataset.page ||
+        element.getAttribute("data-page");
+
+      if (elementPage === page) {
+        element.classList.add("active");
+      } else {
+        element.classList.remove("active");
+      }
+    });
+
+  document
+    .querySelectorAll(".bottom-nav button")
+    .forEach(button => {
+
+      if (
+        button.dataset.page === page
+      ) {
+        button.classList.add("active");
+      } else {
+        button.classList.remove("active");
+      }
+    });
+
+  closeSidebar();
+
+  try {
+    switch (page) {
+
+      case "overview":
+        loadOverview();
+        break;
+
+      case "users":
+        loadUsers();
+        break;
+
+      case "tasks":
+        loadTasks();
+        break;
+
+      case "submissions":
+        loadSubmissions();
+        break;
+
+      case "withdrawals":
+        loadWithdrawals();
+        break;
+
+      case "wallet":
+        loadWalletLedger();
+        break;
+
+      case "referrals":
+        loadReferrals();
+        break;
+
+      case "posters":
+        loadPosters();
+        break;
+
+      case "monetization":
+        loadSettings();
+        break;
+
+      case "support":
+        loadSupport();
+        break;
+
+      case "security":
+        loadSecurity();
+        break;
+
+      case "settings":
+        loadSettings();
+        break;
+
+      case "ads":
+        loadAds();
+        break;
+
+      case "community":
+        loadCommunity();
+        break;
+
+      case "ai":
+      case "ai-care":
+        loadAICare();
+        break;
+
+      case "appeals":
+        loadAppeals();
+        break;
+
+      case "marketplace":
+        loadMarketplace();
+        break;
+
+      case "airtime":
+      case "airtime-data":
+        loadAirtime();
+        break;
+
+      case "integrity":
+        runIntegrityChecks();
+        break;
+
+      case "activity":
+      case "admin-activity":
+        loadAdminActivity();
+        break;
+    }
+
+  } catch (error) {
+    reportError(
+      "navigate:" + page,
+      error
+    );
+  }
+}
+
+
+/* =========================================================
+   OVERVIEW
+   ========================================================= */
+
+async function loadOverview() {
+  try {
+
+    const [
+      usersResult,
+      tasksResult,
+      submissionsResult,
+      withdrawalsResult,
+      settingsResult
+    ] = await Promise.all([
+
+      supabaseClient
+        .from("profiles")
+        .select("id", { count: "exact", head: true }),
+
+      supabaseClient
+        .from("tasks")
+        .select("id", { count: "exact", head: true })
+        .eq("active", true),
+
+      supabaseClient
+        .from("task_submissions")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
+
+      supabaseClient
+        .from("withdrawals")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending"),
+
+      supabaseClient
+        .from("platform_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle()
+    ]);
+
+
+    if (!usersResult.error) {
+      setText(
+        "metricUsers",
+        usersResult.count ?? 0
+      );
+    }
+
+    if (!tasksResult.error) {
+      setText(
+        "metricTasks",
+        tasksResult.count ?? 0
+      );
+    }
+
+    if (!submissionsResult.error) {
+      setText(
+        "metricSubmissions",
+        submissionsResult.count ?? 0
+      );
+    }
+
+    if (!withdrawalsResult.error) {
+      setText(
+        "metricWithdrawals",
+        withdrawalsResult.count ?? 0
+      );
+    }
+
+    if (
+      settingsResult &&
+      !settingsResult.error
+    ) {
+      platformSettings =
+        settingsResult.data || null;
+
+      updateModeIndicators(
+        platformSettings
+      );
+    }
+
+    /*
+      Do not manufacture a platform balance.
+      The admin can still see real user balances on
+      the Wallet page.
+    */
+    setText("metricBalance", "—");
+
+  } catch (error) {
+    reportError(
+      "loadOverview",
+      error
+    );
+
+    toast(
+      "Overview could not be fully loaded.",
+      "warning"
+    );
+  }
+}
+
+
+function updateModeIndicators(settings) {
+  if (!settings) return;
+
+  const activation =
+    boolValue(settings.activation_enabled);
+
+  const vip =
+    boolValue(settings.vip_enabled);
+
+  setText(
+    "overviewMode",
+    activation
+      ? "Activation"
+      : vip
+        ? "VIP"
+        : "Standard"
+  );
+
+  setText(
+    "activationModeStatus",
+    activation
+      ? "ON"
+      : "OFF"
+  );
+
+  setText(
+    "vipModeStatus",
+    vip
+      ? "ON"
+      : "OFF"
+  );
+}
+
+
+/* =========================================================
+   USERS
+   ========================================================= */
+
+async function loadUsers() {
+  const body = $("usersBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="loading-row">
+          Loading users...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allUsers = safeArray(data);
+
+    renderUsers(allUsers);
+
+  } catch (error) {
+    reportError(
+      "loadUsers",
+      error
+    );
+
+    allUsers = [];
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty-row">
+            Unable to load users.
+          </td>
+        </tr>
+      `;
+    }
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load users."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+function filterUsers() {
+  const query =
+    $("userSearch")?.value
+      .trim()
+      .toLowerCase() || "";
+
+  if (!query) {
+    renderUsers(allUsers);
+    return;
+  }
+
+  const filtered =
+    allUsers.filter(user => {
+
+      const searchable = [
+        user.id,
+        user.full_name,
+        user.phone,
+        user.email
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+
+  renderUsers(filtered);
+}
+
+
+function getActivationStatus(user) {
+  if (
+    Object.prototype.hasOwnProperty.call(
+      user,
+      "activated"
+    )
+  ) {
+    return boolValue(user.activated);
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(
+      user,
+      "is_activated"
+    )
+  ) {
+    return boolValue(user.is_activated);
+  }
+
+  return false;
+}
+
+
+function renderUsers(users) {
+  const body = $("usersBody");
+
+  if (!body) return;
+
+  if (!users.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-row">
+          No users found.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  body.innerHTML = users.map(user => {
+
+    const activated =
+      getActivationStatus(user);
+
+    return `
+      <tr>
+        <td>
+          <strong>
+            ${escapeHTML(
+              user.full_name || "Unnamed user"
+            )}
+          </strong>
+          <small>
+            ${escapeHTML(
+              String(user.id || "").slice(0, 12)
+            )}
+          </small>
+        </td>
+
+        <td>
+          ${escapeHTML(
+            user.phone || "—"
+          )}
+        </td>
+
+        <td>
+          ${money(user.balance)}
+        </td>
+
+        <td>
+          ${badge(
+            activated
+              ? "Activated"
+              : "Not activated"
+          )}
+        </td>
+
+        <td>
+          ${shortDate(user.created_at)}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            user.email || "—"
+          )}
+        </td>
+
+        <td>
+          ${badge(
+            activated
+              ? "Active"
+              : "Standard"
+          )}
+        </td>
+
+        <td>
+          <button
+            class="small-btn"
+            onclick="openUserModal('${escapeHTML(
+              user.id
+            )}')">
+            View
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+
+function openUserModal(userId) {
+  const user =
+    allUsers.find(
+      item => String(item.id) === String(userId)
+    );
+
+  if (!user) {
+    toast(
+      "User record could not be found.",
+      "warning"
+    );
+    return;
+  }
+
+  currentUserRow = user;
+
+  const content = $("userModalContent");
+
+  if (!content) return;
+
+  const activated =
+    getActivationStatus(user);
+
+  content.innerHTML = `
+    <div class="detail-grid">
+
+      <div>
+        <span>User ID</span>
+        <strong>${escapeHTML(user.id)}</strong>
+      </div>
+
+      <div>
+        <span>Full name</span>
+        <strong>${escapeHTML(
+          user.full_name || "—"
+        )}</strong>
+      </div>
+
+      <div>
+        <span>Phone</span>
+        <strong>${escapeHTML(
+          user.phone || "—"
+        )}</strong>
+      </div>
+
+      <div>
+        <span>Email</span>
+        <strong>${escapeHTML(
+          user.email || "Not stored in profile"
+        )}</strong>
+      </div>
+
+      <div>
+        <span>Wallet balance</span>
+        <strong>${money(user.balance)}</strong>
+      </div>
+
+      <div>
+        <span>Activation</span>
+        <strong>
+          ${badge(
+            activated
+              ? "Activated"
+              : "Not activated"
+          )}
+        </strong>
+      </div>
+
+      <div>
+        <span>Created</span>
+        <strong>${formatDate(
+          user.created_at
+        )}</strong>
+      </div>
+
+    </div>
+  `;
+
+  openModal("userModal");
+}
+
+
+/* =========================================================
+   MODAL HELPERS
+   ========================================================= */
+
+function openModal(id) {
+  const modal = $(id);
+
+  if (!modal) return;
+
+  modal.classList.add("open");
+  modal.classList.add("show");
+}
+
+
+function closeModal(id) {
+  const modal = $(id);
+
+  if (!modal) return;
+
+  modal.classList.remove("open");
+  modal.classList.remove("show");
+}
+
+
+function closeAllModals() {
+  document
+    .querySelectorAll(".modal")
+    .forEach(modal => {
+      modal.classList.remove("open");
+      modal.classList.remove("show");
+    });
+}
+
+
+/* =========================================================
+   TASKS
+   ========================================================= */
+
+async function loadTasks() {
+  const body = $("tasksBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="loading-row">
+          Loading tasks...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("tasks")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allTasks = safeArray(data);
+
+    renderTasks(allTasks);
+
+  } catch (error) {
+    reportError(
+      "loadTasks",
+      error
+    );
+
+    allTasks = [];
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="9" class="empty-row">
+            Unable to load tasks.
+          </td>
+        </tr>
+      `;
+    }
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load tasks."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+function renderTasks(tasks) {
+  const body = $("tasksBody");
+
+  if (!body) return;
+
+  if (!tasks.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="empty-row">
+          No tasks found.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  body.innerHTML = tasks.map(task => {
+
+    const active =
+      boolValue(task.active);
+
+    return `
+      <tr>
+
+        <td>
+          <strong>
+            ${escapeHTML(
+              task.title || "Untitled task"
+            )}
+          </strong>
+
+          <small>
+            ${escapeHTML(
+              String(task.id || "").slice(0, 12)
+            )}
+          </small>
+        </td>
+
+        <td>
+          ${escapeHTML(
+            task.task_type || "—"
+          )}
+        </td>
+
+        <td>
+          ${money(task.reward)}
+        </td>
+
+        <td>
+          ${numberValue(task.slots)}
+        </td>
+
+        <td>
+          ${badge(
+            task.status || (
+              active
+                ? "LIVE"
+                : "DISABLED"
+            )
+          )}
+        </td>
+
+        <td>
+          ${active
+            ? badge("Active")
+            : badge("Inactive")}
+        </td>
+
+        <td>
+          ${shortDate(
+            task.expiry_date
+          )}
+        </td>
+
+        <td>
+          ${shortDate(
+            task.created_at
+          )}
+        </td>
+
+        <td>
+          <div class="row-actions">
+
+            <button
+              class="small-btn"
+              onclick="openTaskModal('${escapeHTML(
+                task.id
+              )}')">
+              Edit
+            </button>
+
+            <button
+              class="small-btn"
+              onclick="toggleTask('${escapeHTML(
+                task.id
+              )}')">
+              ${active
+                ? "Disable"
+                : "Enable"}
+            </button>
+
+          </div>
+        </td>
+
+      </tr>
+    `;
+  }).join("");
+}
+
+
+function filterTasks() {
+  const query =
+    $("taskSearch")?.value
+      .trim()
+      .toLowerCase() || "";
+
+  if (!query) {
+    renderTasks(allTasks);
+    return;
+  }
+
+  const filtered =
+    allTasks.filter(task => {
+
+      const searchable = [
+        task.title,
+        task.description,
+        task.task_type,
+        task.status,
+        task.id
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+
+  renderTasks(filtered);
+}
+
+
+function openTaskModal(taskId = null) {
+  currentTask = null;
+
+  if (taskId) {
+    currentTask =
+      allTasks.find(
+        task =>
+          String(task.id) === String(taskId)
+      ) || null;
+  }
+
+  setValue(
+    "taskId",
+    currentTask?.id || ""
+  );
+
+  setValue(
+    "taskTitle",
+    currentTask?.title || ""
+  );
+
+  setValue(
+    "taskType",
+    currentTask?.task_type || "social"
+  );
+
+  setValue(
+    "taskReward",
+    currentTask?.reward ?? ""
+  );
+
+  setValue(
+    "taskSlots",
+    currentTask?.slots ?? ""
+  );
+
+  setValue(
+    "taskLink",
+    currentTask?.task_link || ""
+  );
+
+  setValue(
+    "taskExpiry",
+    currentTask?.expiry_date
+      ? String(currentTask.expiry_date).slice(0, 16)
+      : ""
+  );
+
+  setValue(
+    "taskDescription",
+    currentTask?.description || ""
+  );
+
+  setValue(
+    "taskCopyText",
+    currentTask?.copy_text || ""
+  );
+
+  let requirements = [];
+
+  if (
+    Array.isArray(
+      currentTask?.requirements
+    )
+  ) {
+    requirements =
+      currentTask.requirements;
+  }
+
+  setValue(
+    "taskRequirements",
+    requirements.join("\n")
+  );
+
+  setChecked(
+    "taskUsernameRequired",
+    requirements.includes("username")
+  );
+
+  setChecked(
+    "taskUrlRequired",
+    requirements.includes("url")
+  );
+
+  setChecked(
+    "taskTextRequired",
+    requirements.includes("text")
+  );
+
+  setChecked(
+    "taskReferenceRequired",
+    requirements.includes("reference")
+  );
+
+  setValue(
+    "taskWatchTimer",
+    currentTask?.watch_timer ?? ""
+  );
+
+  setChecked(
+    "taskActive",
+    currentTask
+      ? boolValue(currentTask.active)
+      : false
+  );
+
+  const title =
+    $("taskModalTitle");
+
+  if (title) {
+    title.textContent =
+      currentTask
+        ? "Edit Task"
+        : "Create Task";
+  }
+
+  openModal("taskModal");
+}
+
+
+function collectTaskRequirements() {
+  const values = [];
+
+  if ($("taskUsernameRequired")?.checked) {
+    values.push("username");
+  }
+
+  if ($("taskUrlRequired")?.checked) {
+    values.push("url");
+  }
+
+  if ($("taskTextRequired")?.checked) {
+    values.push("text");
+  }
+
+  if ($("taskReferenceRequired")?.checked) {
+    values.push("reference");
+  }
+
+  const textarea =
+    $("taskRequirements");
+
+  if (textarea) {
+
+    const extra =
+      textarea.value
+        .split(/\r?\n/)
+        .map(item => item.trim())
+        .filter(Boolean);
+
+    extra.forEach(item => {
+
+      if (!values.includes(item)) {
+        values.push(item);
+      }
+    });
+  }
+
+  return values;
+}
+
+
+async function saveTask() {
+  try {
+
+    const id =
+      $("taskId")?.value.trim() || "";
+
+    const title =
+      $("taskTitle")?.value.trim() || "";
+
+    const taskType =
+      $("taskType")?.value.trim() || "social";
+
+    const reward =
+      Number($("taskReward")?.value);
+
+    const slots =
+      Number($("taskSlots")?.value);
+
+    const taskLink =
+      $("taskLink")?.value.trim() || "";
+
+    const description =
+      $("taskDescription")?.value.trim() || "";
+
+    const copyText =
+      $("taskCopyText")?.value.trim() || "";
+
+    const expiry =
+      $("taskExpiry")?.value || null;
+
+    const active =
+      $("taskActive")?.checked || false;
+
+    const requirements =
+      collectTaskRequirements();
+
+    if (!title) {
+      toast(
+        "Task title is required.",
+        "warning"
+      );
+      return;
+    }
+
+    if (!Number.isFinite(reward) || reward <= 0) {
+      toast(
+        "Enter a valid task reward.",
+        "warning"
+      );
+      return;
+    }
+
+    if (!Number.isInteger(slots) || slots < 1) {
+      toast(
+        "Enter a valid task quantity.",
+        "warning"
+      );
+      return;
+    }
+
+    const payload = {
+      title,
+      description,
+      reward,
+      slots,
+      task_type: taskType,
+      task_link: taskLink || null,
+      copy_text: copyText || null,
+      requirements,
+      active
+    };
+
+    if (expiry) {
+      payload.expiry_date =
+        new Date(expiry).toISOString();
+    }
+
+    let result;
+
+    if (id) {
+
+      result = await supabaseClient
+        .from("tasks")
+        .update(payload)
+        .eq("id", id);
+
+    } else {
+
+      /*
+        Admin-created tasks are created directly.
+        We only use verified task columns.
+      */
+
+      payload.status =
+        active
+          ? "LIVE"
+          : "PENDING";
+
+      payload.created_by =
+        currentUser.id;
+
+      result = await supabaseClient
+        .from("tasks")
+        .insert(payload)
+        .select("*")
+        .single();
+    }
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    await writeAudit(
+      id
+        ? "task_updated"
+        : "task_created",
+      id || result.data?.id || null,
+      {
+        title,
+        reward,
+        slots,
+        task_type: taskType
+      }
+    );
+
+    closeModal("taskModal");
+
+    toast(
+      id
+        ? "Task updated successfully."
+        : "Task created successfully.",
+      "success"
+    );
+
+    await loadTasks();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "saveTask",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to save task."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+async function toggleTask(taskId) {
+  const task =
+    allTasks.find(
+      item =>
+        String(item.id) === String(taskId)
+    );
+
+  if (!task) {
+    toast(
+      "Task not found.",
+      "warning"
+    );
+    return;
+  }
+
+  const newActive =
+    !boolValue(task.active);
+
+  try {
+
+    const {
+      error
+    } = await supabaseClient
+      .from("tasks")
+      .update({
+        active: newActive
+      })
+      .eq("id", task.id);
+
+    if (error) {
+      throw error;
+    }
+
+    await writeAudit(
+      newActive
+        ? "task_enabled"
+        : "task_disabled",
+      task.id,
+      {
+        title: task.title
+      }
+    );
+
+    toast(
+      newActive
+        ? "Task enabled."
+        : "Task disabled.",
+      "success"
+    );
+
+    await loadTasks();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "toggleTask",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to change task status."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+/* =========================================================
+   SUBMISSIONS / PROOF MODERATION
+   ========================================================= */
+
+async function loadSubmissions() {
+  const body = $("submissionsBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="loading-row">
+          Loading submissions...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("task_submissions")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allSubmissions =
+      safeArray(data);
+
+    renderSubmissions(
+      allSubmissions
+    );
+
+    updateSubmissionStats(
+      allSubmissions
+    );
+
+  } catch (error) {
+    reportError(
+      "loadSubmissions",
+      error
+    );
+
+    allSubmissions = [];
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="9" class="empty-row">
+            Unable to load submissions.
+          </td>
+        </tr>
+      `;
+    }
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load submissions."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+function updateSubmissionStats(rows) {
+  const pending =
+    rows.filter(
+      row =>
+        String(row.status || "")
+          .toLowerCase() === "pending"
+    ).length;
+
+  const approved =
+    rows.filter(
+      row =>
+        String(row.status || "")
+          .toLowerCase() === "approved"
+    ).length;
+
+  const rejected =
+    rows.filter(
+      row =>
+        String(row.status || "")
+          .toLowerCase() === "rejected"
+    ).length;
+
+  setText(
+    "pendingProofCount",
+    pending
+  );
+
+  setText(
+    "approvedProofCount",
+    approved
+  );
+
+  setText(
+    "rejectedProofCount",
+    rejected
+  );
+}
+
+
+function renderSubmissions(rows) {
+  const body =
+    $("submissionsBody");
+
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="empty-row">
+          No task submissions found.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+
+    const task =
+      allTasks.find(
+        task =>
+          String(task.id) ===
+          String(row.task_id)
+      );
+
+    return `
+      <tr>
+
+        <td>
+          <strong>
+            ${escapeHTML(
+              task?.title ||
+              row.task_id ||
+              "Unknown task"
+            )}
+          </strong>
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.user_id || "—"
+          )}
+        </td>
+
+        <td>
+          ${badge(
+            row.status || "pending"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.submitted_username ||
+            row.username ||
+            "—"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.reference_id ||
+            row.reference ||
+            "—"
+          )}
+        </td>
+
+        <td>
+          ${shortDate(
+            row.created_at
+          )}
+        </td>
+
+        <td>
+          <button
+            class="small-btn"
+            onclick="openProofModal('${escapeHTML(
+              row.id
+            )}')">
+            Review
+          </button>
+        </td>
+
+      </tr>
+    `;
+  }).join("");
+}
+
+
+function filterSubmissions() {
+  const query =
+    $("submissionSearch")?.value
+      .trim()
+      .toLowerCase() || "";
+
+  if (!query) {
+    renderSubmissions(
+      allSubmissions
+    );
+    return;
+  }
+
+  const filtered =
+    allSubmissions.filter(row => {
+
+      const searchable = [
+        row.id,
+        row.user_id,
+        row.task_id,
+        row.status,
+        row.username,
+        row.submitted_username,
+        row.text,
+        row.submitted_text,
+        row.link,
+        row.url,
+        row.reference,
+        row.reference_id
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+
+  renderSubmissions(filtered);
+}
+
+
+function openProofModal(submissionId) {
+  currentProof =
+    allSubmissions.find(
+      row =>
+        String(row.id) ===
+        String(submissionId)
+    ) || null;
+
+  if (!currentProof) {
+    toast(
+      "Submission not found.",
+      "warning"
+    );
+    return;
+  }
+
+  const content =
+    $("proofModalContent");
+
+  if (!content) return;
+
+  const proof =
+    currentProof.proof ||
+    currentProof.proof_url ||
+    currentProof.photo_url ||
+    currentProof.image_url ||
+    currentProof.screenshot_url ||
+    "";
+
+  const username =
+    currentProof.submitted_username ||
+    currentProof.username ||
+    "";
+
+  const text =
+    currentProof.submitted_text ||
+    currentProof.text ||
+    currentProof.description ||
+    "";
+
+  const link =
+    currentProof.link ||
+    currentProof.url ||
+    "";
+
+  const reference =
+    currentProof.reference_id ||
+    currentProof.reference ||
+    "";
+
+  let proofHTML =
+    `<div class="proof-empty">
+      No uploaded proof found.
+    </div>`;
+
+  if (proof) {
+
+    const proofString =
+      String(proof);
+
+    if (
+      proofString.startsWith("http") &&
+      /\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(
+        proofString
+      )
+    ) {
+
+      proofHTML = `
+        <a
+          href="${escapeHTML(proofString)}"
+          target="_blank"
+          rel="noopener">
+          <img
+            src="${escapeHTML(proofString)}"
+            alt="Task proof"
+            class="proof-image">
+        </a>
+      `;
+
+    } else if (
+      proofString.startsWith("http")
+    ) {
+
+      proofHTML = `
+        <a
+          href="${escapeHTML(proofString)}"
+          target="_blank"
+          rel="noopener"
+          class="proof-link">
+          Open uploaded proof
+        </a>
+      `;
+
+    } else {
+
+      proofHTML = `
+        <div class="proof-text">
+          ${escapeHTML(proofString)}
+        </div>
+      `;
+    }
+  }
+
+  content.innerHTML = `
+
+    <div class="proof-header">
+      <div>
+        <strong>Submission</strong>
+        <span>${escapeHTML(
+          currentProof.id
+        )}</span>
+      </div>
+
+      <div>
+        ${badge(
+          currentProof.status || "pending"
+        )}
+      </div>
+    </div>
+
+    <div class="proof-preview">
+      ${proofHTML}
+    </div>
+
+    <div class="detail-grid">
+
+      <div>
+        <span>User ID</span>
+        <strong>${escapeHTML(
+          currentProof.user_id || "—"
+        )}</strong>
+      </div>
+
+      <div>
+        <span>Task ID</span>
+        <strong>${escapeHTML(
+          currentProof.task_id || "—"
+        )}</strong>
+      </div>
+
+      <div>
+        <span>Username</span>
+        <strong>${escapeHTML(
+          username || "—"
+        )}</strong>
+      </div>
+
+      <div>
+        <span>Reference</span>
+        <strong>${escapeHTML(
+          reference || "—"
+        )}</strong>
+      </div>
+
+      <div>
+        <span>Link / URL</span>
+        <strong>
+          ${
+            link
+              ? `<a
+                  href="${escapeHTML(link)}"
+                  target="_blank"
+                  rel="noopener">
+                  Open link
+                </a>`
+              : "—"
+          }
+        </strong>
+      </div>
+
+      <div>
+        <span>Submitted</span>
+        <strong>${formatDate(
+          currentProof.created_at
+        )}</strong>
+      </div>
+
+    </div>
+
+    ${
+      text
+        ? `
+          <div class="proof-text-box">
+            <strong>Submitted text</strong>
+            <p>
+              ${escapeHTML(text)}
+            </p>
+          </div>
+        `
+        : ""
+    }
+
+    ${
+      currentProof.rejection_reason
+        ? `
+          <div class="proof-text-box danger-box">
+            <strong>Rejection reason</strong>
+            <p>
+              ${escapeHTML(
+                currentProof.rejection_reason
+              )}
+            </p>
+          </div>
+        `
+        : ""
+    }
+  `;
+
+  openModal("proofModal");
+}
+
+
+async function approveCurrentProof() {
+  if (!currentProof) {
+    toast(
+      "No submission is selected.",
+      "warning"
+    );
+    return;
+  }
+
+  if (!currentUser) {
+    toast(
+      "Administrator session expired.",
+      "danger"
+    );
+    return;
+  }
+
+  try {
+
+    setLoading(
+      true,
+      "Approving proof securely..."
+    );
+
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "approve_task_submission",
+      {
+        p_submission_id:
+          currentProof.id,
+
+        p_admin_id:
+          currentUser.id
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    /*
+      IMPORTANT:
+      Wallet crediting must be handled by the
+      secure Supabase RPC.
+      Do NOT credit the user's wallet here.
+    */
+
+    await writeAudit(
+      "task_submission_approved",
+      currentProof.id,
+      {
+        user_id:
+          currentProof.user_id,
+
+        task_id:
+          currentProof.task_id,
+
+        rpc_result:
+          data || null
+      }
+    );
+
+    closeModal("proofModal");
+
+    toast(
+      "Proof approved and processed.",
+      "success"
+    );
+
+    await loadSubmissions();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "approveCurrentProof",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Proof approval failed."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function rejectCurrentProof() {
+  if (
+    !currentProof ||
+    !currentProof.id
+  ) {
+    toast(
+      "No submission is selected.",
+      "warning"
+    );
+    return;
+  }
+
+  const reason =
+    prompt(
+      "Enter the rejection reason:"
+    );
+
+  if (reason === null) {
+    return;
+  }
+
+  const cleanReason =
+    reason.trim();
+
+  if (!cleanReason) {
+    toast(
+      "A rejection reason is required.",
+      "warning"
+    );
+    return;
+  }
+
+  try {
+
+    setLoading(
+      true,
+      "Rejecting submission..."
+    );
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("task_submissions")
+      .update({
+        status: "rejected",
+        rejection_reason:
+          cleanReason
+      })
+      .eq("id", currentProof.id)
+      .eq("status", "pending")
+      .select("*");
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data.length) {
+      throw new Error(
+        "The submission may already have been processed."
+      );
+    }
+
+    await writeAudit(
+      "task_submission_rejected",
+      currentProof.id,
+      {
+        user_id:
+          currentProof.user_id,
+
+        task_id:
+          currentProof.task_id,
+
+        reason:
+          cleanReason
+      }
+    );
+
+    closeModal("proofModal");
+
+    toast(
+      "Submission rejected.",
+      "success"
+    );
+
+    await loadSubmissions();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "rejectCurrentProof",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to reject submission."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+/* =========================================================
+   WITHDRAWALS
+   ========================================================= */
+
+async function loadWithdrawals() {
+  const body =
+    $("withdrawalsBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="loading-row">
+          Loading withdrawals...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("withdrawals")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allWithdrawals =
+      safeArray(data);
+
+    renderWithdrawals(
+      allWithdrawals
+    );
+
+  } catch (error) {
+    reportError(
+      "loadWithdrawals",
+      error
+    );
+
+    allWithdrawals = [];
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="9" class="empty-row">
+            Unable to load withdrawals.
+          </td>
+        </tr>
+      `;
+    }
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load withdrawals."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+function renderWithdrawals(rows) {
+  const body =
+    $("withdrawalsBody");
+
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="empty-row">
+          No withdrawal requests found.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+
+    const method =
+      row.method ||
+      row.payment_method ||
+      "—";
+
+    const account =
+      row.account_number ||
+      row.account_details ||
+      row.bank_name ||
+      "—";
+
+    const status =
+      row.status ||
+      "pending";
+
+    return `
+      <tr>
+
+        <td>
+          ${escapeHTML(
+            row.user_id || "—"
+          )}
+        </td>
+
+        <td>
+          ${money(row.amount)}
+        </td>
+
+        <td>
+          ${money(row.fee)}
+        </td>
+
+        <td>
+          ${money(
+            numberValue(row.amount) +
+            numberValue(row.fee)
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(method)}
+        </td>
+
+        <td>
+          ${escapeHTML(account)}
+        </td>
+
+        <td>
+          ${badge(status)}
+        </td>
+
+        <td>
+          ${shortDate(
+            row.created_at
+          )}
+        </td>
+
+        <td>
+          ${
+            String(status).toLowerCase() ===
+            "pending"
+              ? `
+                <div class="row-actions">
+
+                  <button
+                    class="small-btn success-btn"
+                    onclick="approveWithdrawal('${escapeHTML(
+                      row.id
+                    )}')">
+                    Approve
+                  </button>
+
+                  <button
+                    class="small-btn danger-btn"
+                    onclick="rejectWithdrawal('${escapeHTML(
+                      row.id
+                    )}')">
+                    Reject
+                  </button>
+
+                </div>
+              `
+              : "—"
+          }
+        </td>
+
+      </tr>
+    `;
+  }).join("");
+}
+
+
+function filterWithdrawals() {
+  const query =
+    $("withdrawalSearch")?.value
+      .trim()
+      .toLowerCase() || "";
+
+  if (!query) {
+    renderWithdrawals(
+      allWithdrawals
+    );
+    return;
+  }
+
+  const filtered =
+    allWithdrawals.filter(row => {
+
+      const searchable = [
+        row.id,
+        row.user_id,
+        row.status,
+        row.method,
+        row.payment_method,
+        row.account_number,
+        row.bank_name,
+        row.reference
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+
+  renderWithdrawals(filtered);
+}
+
+
+async function approveWithdrawal(id) {
+  if (!id) return;
+
+  const confirmed =
+    confirm(
+      "Approve this withdrawal?\n\n" +
+      "The secure server-side withdrawal function " +
+      "will deduct the amount and fee from the user's wallet."
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+
+    setLoading(
+      true,
+      "Processing withdrawal securely..."
+    );
+
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_approve_withdrawal",
+      {
+        p_withdrawal_id: id
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    await writeAudit(
+      "withdrawal_approved",
+      id,
+      {
+        result:
+          data || null
+      }
+    );
+
+    toast(
+      "Withdrawal approved successfully.",
+      "success"
+    );
+
+    await loadWithdrawals();
+    await loadWalletLedger();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "approveWithdrawal",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Withdrawal approval failed."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function rejectWithdrawal(id) {
+  if (!id) return;
+
+  const reason =
+    prompt(
+      "Enter the withdrawal rejection reason:"
+    );
+
+  if (reason === null) {
+    return;
+  }
+
+  const cleanReason =
+    reason.trim();
+
+  if (!cleanReason) {
+    toast(
+      "A rejection reason is required.",
+      "warning"
+    );
+    return;
+  }
+
+  try {
+
+    setLoading(
+      true,
+      "Rejecting withdrawal..."
+    );
+
+    /*
+      Rejection does not deduct the user's wallet.
+      We only change a pending request to rejected.
+    */
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("withdrawals")
+      .update({
+        status: "rejected",
+        rejection_reason:
+          cleanReason
+      })
+      .eq("id", id)
+      .eq("status", "pending")
+      .select("*");
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data.length) {
+      throw new Error(
+        "Withdrawal is no longer pending."
+      );
+    }
+
+    await writeAudit(
+      "withdrawal_rejected",
+      id,
+      {
+        reason:
+          cleanReason
+      }
+    );
+
+    toast(
+      "Withdrawal rejected.",
+      "success"
+    );
+
+    await loadWithdrawals();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "rejectWithdrawal",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to reject withdrawal."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+/* =========================================================
+   WALLET LEDGER
+   ========================================================= */
+
+async function loadWalletLedger() {
+  const body =
+    $("walletBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="loading-row">
+          Loading wallet ledger...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("wallet_transactions")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allWalletRows =
+      safeArray(data);
+
+    renderWalletLedger(
+      allWalletRows
+    );
+
+  } catch (error) {
+    reportError(
+      "loadWalletLedger",
+      error
+    );
+
+    allWalletRows = [];
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty-row">
+            Unable to load wallet transactions.
+          </td>
+        </tr>
+      `;
+    }
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load wallet ledger."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+function renderWalletLedger(rows) {
+  const body =
+    $("walletBody");
+
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-row">
+          No wallet transactions found.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+
+    const amount =
+      numberValue(row.amount);
+
+    return `
+      <tr>
+
+        <td>
+          ${escapeHTML(
+            row.user_id || "—"
+          )}
+        </td>
+
+        <td>
+          ${badge(
+            row.type || "transaction"
+          )}
+        </td>
+
+        <td class="${
+          amount < 0
+            ? "negative"
+            : "positive"
+        }">
+          ${money(amount)}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.description || "—"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.reference || "—"
+          )}
+        </td>
+
+        <td>
+          ${badge(
+            row.status || "—"
+          )}
+        </td>
+
+        <td>
+          ${formatDate(
+            row.created_at
+          )}
+        </td>
+
+      </tr>
+    `;
+  }).join("");
+}
+
+
+function filterWallet() {
+  const query =
+    $("walletSearch")?.value
+      .trim()
+      .toLowerCase() || "";
+
+  if (!query) {
+    renderWalletLedger(
+      allWalletRows
+    );
+    return;
+  }
+
+  const filtered =
+    allWalletRows.filter(row => {
+
+      const searchable = [
+        row.id,
+        row.user_id,
+        row.type,
+        row.description,
+        row.reference,
+        row.status
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchable.includes(query);
+    });
+
+  renderWalletLedger(filtered);
+}
+
+
+/* =========================================================
+   REFERRALS
+   ========================================================= */
+
+async function loadReferrals() {
+  const body =
+    $("referralsBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="loading-row">
+          Loading referrals...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data: settings,
+      error: settingsError
+    } = await supabaseClient
+      .from("platform_settings")
+      .select(
+        "referrals_enabled, referral_reward"
+      )
+      .limit(1)
+      .maybeSingle();
+
+    if (!settingsError && settings) {
+
+      setText(
+        "referralEnabledStatus",
+        boolValue(
+          settings.referrals_enabled
+        )
+          ? "Enabled"
+          : "Disabled"
+      );
+
+      setText(
+        "referralRewardStatus",
+        money(
+          settings.referral_reward
+        )
+      );
+    }
+
+    /*
+      The exact referral table structure has not been
+      assumed. We attempt to read it safely.
+    */
+
+    const result =
+      await supabaseClient
+        .from("referrals")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        })
+        .limit(500);
+
+    if (result.error) {
+
+      if (body) {
+        body.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-row">
+              Referral settings are available.
+              Detailed referral records are not
+              available from the current database schema.
+            </td>
+          </tr>
+        `;
+      }
+
+      return;
+    }
+
+    allReferrals =
+      safeArray(result.data);
+
+    renderReferrals(
+      allReferrals
+    );
+
+  } catch (error) {
+    reportError(
+      "loadReferrals",
+      error
+    );
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="7" class="empty-row">
+            Referral settings could not be loaded.
+          </td>
+        </tr>
+      `;
+    }
+  }
+}
+
+
+function renderReferrals(rows) {
+  const body =
+    $("referralsBody");
+
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-row">
+          No referral records found.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+
+    const referrer =
+      row.referrer_id ||
+      row.referrer ||
+      row.user_id ||
+      "—";
+
+    const referred =
+      row.referred_id ||
+      row.referred_user_id ||
+      row.referred ||
+      "—";
+
+    const reward =
+      row.reward ??
+      row.amount ??
+      null;
+
+    return `
+      <tr>
+        <td>
+          ${escapeHTML(referrer)}
+        </td>
+
+        <td>
+          ${escapeHTML(referred)}
+        </td>
+
+        <td>
+          ${reward === null
+            ? "—"
+            : money(reward)}
+        </td>
+
+        <td>
+          ${badge(
+            row.status || "—"
+          )}
+        </td>
+
+        <td>
+          ${formatDate(
+            row.created_at
+          )}
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+
+/* =========================================================
+   POSTER PAYMENTS
+   ========================================================= */
+
+async function loadPosters() {
+  const body =
+    $("postersBody");
+
+  if (body) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="loading-row">
+          Loading poster payments...
+        </td>
+      </tr>
+    `;
+  }
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("poster_payments")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    allPosterPayments =
+      safeArray(data);
+
+    renderPosters(
+      allPosterPayments
+    );
+
+  } catch (error) {
+    reportError(
+      "loadPosters",
+      error
+    );
+
+    allPosterPayments = [];
+
+    if (body) {
+      body.innerHTML = `
+        <tr>
+          <td colspan="9" class="empty-row">
+            Unable to load poster payments.
+          </td>
+        </tr>
+      `;
+    }
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load poster payments."
+      ),
+      "danger"
+    );
+  }
+}
+
+
+function renderPosters(rows) {
+  const body =
+    $("postersBody");
+
+  if (!body) return;
+
+  if (!rows.length) {
+    body.innerHTML = `
+      <tr>
+        <td colspan="9" class="empty-row">
+          No poster payments found.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  body.innerHTML = rows.map(row => {
+
+    const status =
+      row.status || "—";
+
+    return `
+      <tr>
+
+        <td>
+          ${escapeHTML(
+            row.poster_id || "—"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.task_id || "—"
+          )}
+        </td>
+
+        <td>
+          ${money(row.amount)}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.payment_method || "—"
+          )}
+        </td>
+
+        <td>
+          ${escapeHTML(
+            row.payment_reference || "—"
+          )}
+        </td>
+
+        <td>
+          ${badge(status)}
+        </td>
+
+        <td>
+          ${shortDate(
+            row.created_at
+          )}
+        </td>
+
+        <td>
+          ${
+            row.proof_url
+              ? `
+                <a
+                  href="${escapeHTML(
+                    row.proof_url
+                  )}"
+                  target="_blank"
+                  rel="noopener"
+                  class="small-btn">
+                  Proof
+                </a>
+              `
+              : "—"
+          }
+        </td>
+
+        <td>
+          ${
+            String(status).toUpperCase() ===
+            "UNDER_REVIEW"
+              ? `
+                <div class="row-actions">
+
+                  <button
+                    class="small-btn success-btn"
+                    onclick="approvePosterPayment(${Number(
+                      row.id
+                    )})">
+                    Approve
+                  </button>
+
+                  <button
+                    class="small-btn danger-btn"
+                    onclick="rejectPosterPayment(${Number(
+                      row.id
+                    )})">
+                    Reject
+                  </button>
+
+                </div>
+              `
+              : "—"
+          }
+        </td>
+
+      </tr>
+    `;
+  }).join("");
+}
+
+
+async function approvePosterPayment(paymentId) {
+  if (!paymentId) return;
+
+  if (
+    !confirm(
+      "Approve this poster payment?\n\n" +
+      "The secure Supabase function will approve the payment and activate the related task."
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    setLoading(
+      true,
+      "Approving poster payment..."
+    );
+
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_approve_poster_payment",
+      {
+        p_payment_id:
+          Number(paymentId)
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    await writeAudit(
+      "poster_payment_approved",
+      paymentId,
+      {
+        result:
+          data || null
+      }
+    );
+
+    toast(
+      "Poster payment approved.",
+      "success"
+    );
+
+    await loadPosters();
+    await loadTasks();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "approvePosterPayment",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to approve poster payment."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function rejectPosterPayment(paymentId) {
+  if (!paymentId) return;
+
+  const reason =
+    prompt(
+      "Enter the poster payment rejection reason:"
+    );
+
+  if (reason === null) {
+    return;
+  }
+
+  const cleanReason =
+    reason.trim();
+
+  if (!cleanReason) {
+    toast(
+      "A rejection reason is required.",
+      "warning"
+    );
+    return;
+  }
+
+  try {
+
+    setLoading(
+      true,
+      "Rejecting poster payment..."
+    );
+
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "admin_review_poster_payment",
+      {
+        p_payment_id:
+          Number(paymentId),
+
+        p_decision:
+          "REJECTED"
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    await writeAudit(
+      "poster_payment_rejected",
+      paymentId,
+      {
+        reason:
+          cleanReason,
+
+        result:
+          data || null
+      }
+    );
+
+    toast(
+      "Poster payment rejected.",
+      "success"
+    );
+
+    await loadPosters();
+    await loadTasks();
+    await loadOverview();
+
+  } catch (error) {
+    reportError(
+      "rejectPosterPayment",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to reject poster payment."
+      ),
+      "danger"
+    );
+
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+/* =========================================================
+   SETTINGS LOADER
+   ========================================================= */
+
+async function getPlatformSettings() {
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("platform_settings")
+    .select("*")
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  platformSettings =
+    data || null;
+
+  return platformSettings;
+}
+
+
+function applySettingsToUI(settings) {
+  if (!settings) return;
+
+  /* Monetization */
+
+  setChecked(
+    "activationEnabled",
+    settings.activation_enabled
+  );
+
+  setValue(
+    "activationFee",
+    settings.activation_fee
+  );
+
+  setChecked(
+    "vipEnabled",
+    settings.vip_enabled
+  );
+
+  setValue(
+    "vipPrice",
+    settings.vip_price
+  );
+
+  setValue(
+    "minimumWithdrawal",
+    settings.minimum_withdrawal
+  );
+
+  setValue(
+    "freeWithdrawalFee",
+    settings.free_withdrawal_fee
+  );
+
+  setValue(
+    "vipWithdrawalFee",
+    settings.vip_withdrawal_fee
+  );
+
+  setValue(
+    "withdrawalsPerDay",
+    settings.withdrawals_per_day
+  );
+
+  setChecked(
+    "referralsEnabled",
+    settings.referrals_enabled
+  );
+
+  setValue(
+    "referralReward",
+    settings.referral_reward
+  );
+
+  setChecked(
+    "posterRegistrationEnabled",
+    settings.poster_registration_enabled
+  );
+
+  setChecked(
+    "jobPostingEnabled",
+    settings.job_posting_enabled
+  );
+
+  setValue(
+    "posterTaskFee",
+    settings.poster_task_fee
+  );
+
+  setValue(
+    "minimumPosterTaskSlots",
+    settings.minimum_poster_task_slots
+  );
+
+
+  /* Task reward limits */
+
+  setValue(
+    "normalMinTaskReward",
+    settings.normal_min_task_reward
+  );
+
+  setValue(
+    "normalMaxTaskReward",
+    settings.normal_max_task_reward
+  );
+
+  setValue(
+    "vipMinTaskReward",
+    settings.vip_min_task_reward
+  );
+
+  setValue(
+    "vipMaxTaskReward",
+    settings.vip_max_task_reward
+  );
+
+  setValue(
+    "freeDailyTaskLimit",
+    settings.free_daily_task_limit
+  );
+
+  setValue(
+    "vipDailyTaskLimit",
+    settings.vip_daily_task_limit
+  );
+
+  setValue(
+    "minimumTaskReward",
+    settings.minimum_task_reward
+  );
+
+  setValue(
+    "maximumTaskReward",
+    settings.maximum_task_reward
+  );
+
+
+  /* Duplicate fields in Platform Settings page */
+
+  setValue(
+    "settingsNormalMinReward",
+    settings.normal_min_task_reward
+  );
+
+  setValue(
+    "settingsNormalMaxReward",
+    settings.normal_max_task_reward
+  );
+
+  setValue(
+    "settingsVipMinReward",
+    settings.vip_min_task_reward
+  );
+
+  setValue(
+    "settingsVipMaxReward",
+    settings.vip_max_task_reward
+  );
+
+  setValue(
+    "settingsFreeDailyLimit",
+    settings.free_daily_task_limit
+  );
+
+  setValue(
+    "settingsVipDailyLimit",
+    settings.vip_daily_task_limit
+  );
+
+  setValue(
+    "settingsMinimumTaskReward",
+    settings.minimum_task_reward
+  );
+
+  setValue(
+    "settingsMaximumTaskReward",
+    settings.maximum_task_reward
+  );
+
+
+  /* General */
+
+  setValue(
+    "siteName",
+    settings.site_name
+  );
+
+  setChecked(
+    "maintenanceMode",
+    settings.maintenance_mode
+  );
+
+  setChecked(
+    "withdrawalsEnabled",
+    settings.withdrawals_enabled
+  );
+
+  setChecked(
+    "taskApprovalRequired",
+    settings.task_approval_required
+  );
+
+  setChecked(
+    "photoProofEnabled",
+    settings.photo_proof_enabled
+  );
+
+  setValue(
+    "supportEmail",
+    settings.support_email
+  );
+
+  setValue(
+    "supportWhatsapp",
+    settings.support_whatsapp
+  );
+
+  setChecked(
+    "privateChatEnabled",
+    settings.private_chat_enabled
+  );
+
+  setChecked(
+    "communityChatEnabled",
+    settings.community_chat_enabled
+  );
+
+  setChecked(
+    "aiCareEnabled",
+    settings.ai_care_enabled
+  );
+
+
+  /* Security */
+
+  setChecked(
+    "captchaEnabled",
+    settings.captcha_enabled
+  );
+
+  setChecked(
+    "captchaSignupRequired",
+    settings.captcha_signup_required
+  );
+
+  setChecked(
+    "captchaWithdrawalRequired",
+    settings.captcha_withdrawal_required
+  );
+
+  setChecked(
+    "botDetectionEnabled",
+    settings.bot_detection_enabled
+  );
+
+  setChecked(
+    "deviceDetectionEnabled",
+    settings.device_detection_enabled
+  );
+
+  setChecked(
+    "ipDetectionEnabled",
+    settings.ip_detection_enabled
+  );
+
+  setChecked(
+    "suspiciousActivityDetection",
+    settings.suspicious_activity_detection
+  );
+
+  setChecked(
+    "automaticRestrictionEnabled",
+    settings.automatic_restriction_enabled
+  );
+
+  setChecked(
+    "securityWarningsEnabled",
+    settings.security_warnings_enabled
+  );
+
+  setChecked(
+    "user2faEnabled",
+    settings.user_2fa_enabled
+  );
+
+  setChecked(
+    "withdrawalSecurityCheck",
+    settings.withdrawal_security_check
+  );
+
+  setChecked(
+    "automaticBanEnabled",
+    settings.automatic_ban_enabled
+  );
+
+  setValue(
+    "maxTaskSubmissionsPerMinute",
+    settings.max_task_submissions_per_minute
+  );
+
+  setValue(
+    "suspiciousRiskScore",
+    settings.suspicious_risk_score
+  );
+
+
+  /* Ads */
+
+  setChecked(
+    "normalAdsEnabled",
+    settings.normal_ads_enabled
+  );
+
+  setChecked(
+    "vipAdsEnabled",
+    settings.vip_ads_enabled
+  );
+
+  setValue(
+    "adFrequency",
+    settings.ad_frequency
+  );
+
+  updateModeIndicators(settings);
+}
+
+
+/* =========================================================
+   SETTINGS LOADER
+   ========================================================= */
+
+async function loadSettings() {
+  try {
+
+    const settings =
+      await getPlatformSettings();
+
+    if (!settings) {
+      toast(
+        "No platform settings row was found.",
+        "warning"
+      );
+      return;
+    }
+
+    applySettingsToUI(settings);
+
+  } catch (error) {
+    reportError(
+      "loadSettings",
+      error
+    );
+
+    toast(
+      errorMessage(
+        error,
+        "Unable to load platform settings."
+      ),
+      "danger"
+    );
+  }
+}
                 
