@@ -943,13 +943,6 @@ th{
 
   <button
     class="nav-btn"
-    data-page="chat"
-    onclick="navigate('chat')">
-    💬 Chat Management
-  </button>
-
-  <button
-    class="nav-btn"
     data-page="ai"
     onclick="navigate('ai')">
     🤖 AI Care
@@ -3342,60 +3335,6 @@ th{
 
 
 <!-- =====================================================
-     CHAT MANAGEMENT
-     ===================================================== -->
-
-<section id="page-chat" class="page">
-
-  <div class="page-header">
-    <div>
-      <h2>Chat Management</h2>
-      <p>Control community, private and AI-supported communication.</p>
-    </div>
-    <button class="secondary" onclick="loadChatManagement()">Refresh</button>
-  </div>
-
-  <div class="grid grid-2">
-
-    <div class="card">
-      <h3>Communication Controls</h3>
-
-      <div class="setting">
-        <div><strong>Community Chat</strong><small>Allow users to participate in the community chat.</small></div>
-        <label class="switch"><input id="chatCommunityToggle" type="checkbox"><span class="slider"></span></label>
-      </div>
-
-      <div class="setting">
-        <div><strong>Private Chat</strong><small>Allow supported one-to-one messaging.</small></div>
-        <label class="switch"><input id="chatPrivateToggle" type="checkbox"><span class="slider"></span></label>
-      </div>
-
-      <div class="setting">
-        <div><strong>AI Care</strong><small>Allow the configured AI support feature.</small></div>
-        <label class="switch"><input id="chatAiToggle" type="checkbox"><span class="slider"></span></label>
-      </div>
-
-      <button class="primary" onclick="saveChatManagement()">Save Chat Controls</button>
-    </div>
-
-    <div class="card">
-      <h3>Moderation & Safety</h3>
-      <div class="notice">
-        Chat controls above use the existing platform settings. Message moderation,
-        reporting, mute/restrict and ban actions require the corresponding chat
-        message/report tables and backend enforcement before they can safely be
-        presented as live actions. This panel will not invent chat records.
-      </div>
-      <div class="setting"><div><strong>Support escalation</strong><small>Users can still use the existing support workflow.</small></div><span class="badge green">Available</span></div>
-      <div class="setting"><div><strong>Database-backed moderation</strong><small>Enabled automatically when the required schema exists.</small></div><span id="chatModerationStatus" class="badge gray">Checking…</span></div>
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =====================================================
      AI CARE
      ===================================================== -->
 
@@ -3537,7 +3476,7 @@ th{
 
     <div>
       <h2>Airtime & Data</h2>
-      <p>Monitor and prepare the Airtime & Data service for a verified Nigerian VTU provider.</p>
+      <p>Monitor airtime and data services.</p>
     </div>
 
   </div>
@@ -3556,31 +3495,19 @@ th{
 
 
     <div class="setting">
+
       <div>
         <strong>Provider Integration</strong>
         <small>
-          Live provider integration is required before real airtime or data purchases can be processed.
+          Live provider integration is required before
+          real airtime or data purchases can be processed.
         </small>
       </div>
-      <span class="badge orange">Not Connected</span>
-    </div>
 
-    <div class="grid grid-2" style="margin-top:16px">
-      <div class="card">
-        <h3>Required Before Launch</h3>
-        <ul>
-          <li>Verified Nigerian VTU/API provider</li>
-          <li>Server-side secret storage — never expose provider secrets in this HTML</li>
-          <li>Provider transaction reference and status callbacks</li>
-          <li>Wallet debit/refund protection against duplicate transactions</li>
-          <li>Admin transaction history and failure/reversal handling</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Safety Status</h3>
-        <div class="setting"><div><strong>Real-money purchases</strong><small>Blocked until a verified provider is connected.</small></div><span class="badge orange">Blocked</span></div>
-        <div class="setting"><div><strong>Fake transactions</strong><small>No fabricated airtime/data transactions are displayed.</small></div><span class="badge green">Protected</span></div>
-      </div>
+      <span class="badge orange">
+        Not Connected
+      </span>
+
     </div>
 
   </div>
@@ -4218,6 +4145,21 @@ function $(id) {
 
 function safeArray(value) {
   return Array.isArray(value) ? value : [];
+}
+
+/*
+  Prevent network/database requests from leaving the admin UI
+  spinning forever. This does not change any database data.
+*/
+function withTimeout(promise, timeoutMs = 15000, label = "Request") {
+  let timer;
+  const timeout = new Promise((resolve, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(label + " timed out. Check your connection and Supabase access, then retry."));
+    }, timeoutMs);
+  });
+  return Promise.race([Promise.resolve(promise), timeout])
+    .finally(() => clearTimeout(timer));
 }
 
 function escapeHTML(value) {
@@ -4951,10 +4893,6 @@ function navigate(page) {
         loadCommunity();
         break;
 
-      case "chat":
-        loadChatManagement();
-        break;
-
       case "ai":
       case "ai-care":
         loadAICare();
@@ -4997,103 +4935,59 @@ function navigate(page) {
    ========================================================= */
 
 async function loadOverview() {
+  const notice = $("overviewNotice");
+  if (notice) {
+    notice.textContent = "Loading platform information...";
+    notice.className = "notice";
+  }
+
   try {
+    const results = await withTimeout(Promise.all([
+      supabaseClient.from("profiles").select("id", { count: "exact", head: true }),
+      supabaseClient.from("tasks").select("id", { count: "exact", head: true }).eq("active", true),
+      supabaseClient.from("task_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseClient.from("withdrawals").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseClient.from("platform_settings").select("*").limit(1).maybeSingle()
+    ]), 15000, "Dashboard data request");
 
-    const [
-      usersResult,
-      tasksResult,
-      submissionsResult,
-      withdrawalsResult,
-      settingsResult
-    ] = await Promise.all([
+    const [usersResult, tasksResult, submissionsResult, withdrawalsResult, settingsResult] = results;
+    setText("totalUsers", usersResult.error ? "—" : (usersResult.count ?? 0));
+    setText("activeTasks", tasksResult.error ? "—" : (tasksResult.count ?? 0));
+    setText("pendingProofs", submissionsResult.error ? "—" : (submissionsResult.count ?? 0));
+    setText("pendingWithdrawals", withdrawalsResult.error ? "—" : (withdrawalsResult.count ?? 0));
+    setText("platformBalance", "—");
 
-      supabaseClient
-        .from("profiles")
-        .select("id", { count: "exact", head: true }),
+    const errors = [usersResult, tasksResult, submissionsResult, withdrawalsResult, settingsResult]
+      .filter(result => result && result.error);
 
-      supabaseClient
-        .from("tasks")
-        .select("id", { count: "exact", head: true })
-        .eq("active", true),
-
-      supabaseClient
-        .from("task_submissions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending"),
-
-      supabaseClient
-        .from("withdrawals")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending"),
-
-      supabaseClient
-        .from("platform_settings")
-        .select("*")
-        .limit(1)
-        .maybeSingle()
-    ]);
-
-
-    if (!usersResult.error) {
-      setText(
-        "metricUsers",
-        usersResult.count ?? 0
-      );
+    if (settingsResult && !settingsResult.error) {
+      platformSettings = settingsResult.data || null;
+      if (platformSettings) updateModeIndicators(platformSettings);
     }
 
-    if (!tasksResult.error) {
-      setText(
-        "metricTasks",
-        tasksResult.count ?? 0
-      );
+    if (notice) {
+      if (errors.length) {
+        notice.textContent = "Some dashboard information could not be loaded. Check the affected table permissions and table names.";
+        notice.className = "notice warning";
+      } else {
+        notice.textContent = "Platform information loaded.";
+        notice.className = "notice success";
+      }
     }
-
-    if (!submissionsResult.error) {
-      setText(
-        "metricSubmissions",
-        submissionsResult.count ?? 0
-      );
+    if (errors.length) {
+      errors.forEach((result, index) => reportError("loadOverview query " + (index + 1), result.error));
     }
-
-    if (!withdrawalsResult.error) {
-      setText(
-        "metricWithdrawals",
-        withdrawalsResult.count ?? 0
-      );
-    }
-
-    if (
-      settingsResult &&
-      !settingsResult.error
-    ) {
-      platformSettings =
-        settingsResult.data || null;
-
-      updateModeIndicators(
-        platformSettings
-      );
-    }
-
-    /*
-      Do not manufacture a platform balance.
-      The admin can still see real user balances on
-      the Wallet page.
-    */
-    setText("metricBalance", "—");
-
   } catch (error) {
-    reportError(
-      "loadOverview",
-      error
-    );
-
-    toast(
-      "Overview could not be fully loaded.",
-      "warning"
-    );
+    reportError("loadOverview", error);
+    ["totalUsers", "activeTasks", "pendingProofs", "pendingWithdrawals", "platformBalance"]
+      .forEach(id => setText(id, "—"));
+    if (notice) {
+      notice.textContent = errorMessage(error, "Overview could not be loaded. Please refresh and try again.");
+      notice.className = "notice warning";
+    }
+    toast(errorMessage(error, "Overview could not be fully loaded."), "warning");
   }
 }
-
 
 function updateModeIndicators(settings) {
   if (!settings) return;
@@ -5139,7 +5033,7 @@ async function loadUsers() {
   if (body) {
     body.innerHTML = `
       <tr>
-        <td colspan="8" class="loading-row">
+        <td colspan="6" class="loading-row">
           Loading users...
         </td>
       </tr>
@@ -5151,13 +5045,17 @@ async function loadUsers() {
     const {
       data,
       error
-    } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      })
-      .limit(500);
+    } = await withTimeout(
+      supabaseClient
+        .from("profiles")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        })
+        .limit(500),
+      15000,
+      "Profile information request"
+    );
 
     if (error) {
       throw error;
@@ -5178,7 +5076,7 @@ async function loadUsers() {
     if (body) {
       body.innerHTML = `
         <tr>
-          <td colspan="8" class="empty-row">
+          <td colspan="6" class="empty-row">
             Unable to load users.
           </td>
         </tr>
@@ -7832,11 +7730,15 @@ async function getPlatformSettings() {
   const {
     data,
     error
-  } = await supabaseClient
-    .from("platform_settings")
-    .select("*")
-    .limit(1)
-    .maybeSingle();
+  } = await withTimeout(
+    supabaseClient
+      .from("platform_settings")
+      .select("*")
+      .limit(1)
+      .maybeSingle(),
+    15000,
+    "Platform settings request"
+  );
 
   if (error) {
     throw error;
@@ -8979,45 +8881,6 @@ async function loadCommunity() {
       "loadCommunity",
       error
     );
-  }
-}
-
-
-/* =========================================================
-   CHAT MANAGEMENT
-   ========================================================= */
-
-async function loadChatManagement(){
-  try{
-    if(!platformSettings){
-      await loadSettings();
-    }
-
-    setChecked("chatCommunityToggle", platformSettings?.community_chat_enabled);
-    setChecked("chatPrivateToggle", platformSettings?.private_chat_enabled);
-    setChecked("chatAiToggle", platformSettings?.ai_care_enabled);
-
-    const status=$("chatModerationStatus");
-    if(status){
-      status.textContent="Schema-dependent";
-      status.className="badge gray";
-    }
-  }catch(error){
-    reportError("loadChatManagement",error);
-    toast(errorMessage(error,"Unable to load chat controls."),"danger");
-  }
-}
-
-async function saveChatManagement(){
-  try{
-    setChecked("communityChatEnabled", $("chatCommunityToggle")?.checked || false);
-    setChecked("privateChatEnabled", $("chatPrivateToggle")?.checked || false);
-    setChecked("aiCareEnabled", $("chatAiToggle")?.checked || false);
-    await saveSettings();
-    await loadChatManagement();
-  }catch(error){
-    reportError("saveChatManagement",error);
-    toast(errorMessage(error,"Unable to save chat controls."),"danger");
   }
 }
 
