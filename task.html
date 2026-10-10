@@ -2,274 +2,96 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#087f36">
-
 <title>Available Tasks — NAIJA TASK</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --green:#087f36;
-  --green2:#0b9b45;
-  --dark:#064d25;
-  --lime:#b7ef43;
-  --bg:#f3f8f5;
-  --text:#17231b;
-  --muted:#647067;
-  --border:#dce8df;
-  --red:#c62828;
-  --orange:#a65f00;
-  --blue:#1267a8;
+ --green:#087f36;--green2:#0b9b45;--dark:#064d25;--lime:#b7ef43;
+ --bg:#f3f8f5;--text:#17231b;--muted:#647067;--border:#dce8df;
+ --red:#b42318;--orange:#9a5800;--blue:#1267a8;
+ --shadow:0 8px 24px #123d2410
 }
-
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-}
-
-button,input,textarea{font:inherit}
-button{cursor:pointer;-webkit-tap-highlight-color:transparent}
-
-header{
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:linear-gradient(120deg,var(--dark),var(--green2));
-  color:#fff;
-  box-shadow:0 3px 14px #0002;
-}
-
-.header-inner{
-  max-width:760px;
-  margin:auto;
-  padding:14px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-
-.brand{font-size:21px;font-weight:900;letter-spacing:.3px}
-.subtitle{font-size:12px;margin-top:4px;opacity:.9}
-
-.back-btn{
-  border:1px solid #ffffff55;
-  background:#ffffff18;
-  color:#fff;
-  border-radius:10px;
-  padding:10px 13px;
-  font-weight:800;
-}
-
-.container{
-  max-width:760px;
-  margin:auto;
-  padding:15px 12px 45px;
-}
-
-.hero{
-  background:linear-gradient(135deg,#fff,#eff9f1);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:19px;
-  margin-bottom:16px;
-  box-shadow:0 5px 18px #164d2510;
-}
-
-.hero h1{font-size:23px;font-weight:900}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+header{position:sticky;top:0;z-index:20;color:#fff;background:linear-gradient(120deg,#064d25,#0b9b45);box-shadow:0 3px 14px #0002}
+.header-inner{max-width:820px;margin:auto;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:20px;font-weight:950;letter-spacing:.4px}
+.subtitle{font-size:12px;opacity:.9;margin-top:3px}
+.back-btn{border:1px solid #ffffff55;background:#ffffff18;color:#fff;border-radius:11px;padding:10px 13px;font-weight:850}
+.container{max-width:820px;margin:auto;padding:15px 12px 55px}
+.hero{background:linear-gradient(135deg,#fff,#eff9f1);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:15px;box-shadow:var(--shadow)}
+.hero h1{font-size:24px;font-weight:950}
 .hero p{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.6}
-
-.notice{
-  margin-top:13px;
-  padding:11px;
-  border-radius:11px;
-  background:#e5f6e9;
-  color:var(--dark);
-  font-size:12px;
-  font-weight:800;
-  line-height:1.5;
-}
-
-.loading,.empty,.error{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:16px;
-  padding:27px 15px;
-  text-align:center;
-  line-height:1.6;
-}
-
-.error{color:var(--red)}
-
-.task-card{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:18px;
-  overflow:hidden;
-  margin-bottom:16px;
-  box-shadow:0 5px 18px #164d2510;
-}
-
-.task-head{padding:15px;border-bottom:1px solid #edf2ee}
-
+.notice{margin-top:13px;padding:11px 12px;border-radius:12px;background:#e5f6e9;color:var(--dark);font-size:12px;font-weight:800;line-height:1.55}
+.toolbar{display:flex;gap:9px;align-items:center;margin-bottom:14px}
+.search{min-width:0;flex:1;padding:12px 13px;border:1px solid #cbd9cf;border-radius:12px;background:#fff;outline:none}
+.search:focus,input:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px #0b8f3c14}
+.refresh-btn{border:0;border-radius:12px;background:#e4f4e8;color:var(--dark);padding:12px;font-weight:900}
+.loading,.empty,.error{background:#fff;border:1px solid var(--border);border-radius:16px;padding:25px 15px;text-align:center;line-height:1.6;overflow-wrap:anywhere}
+.error{color:var(--red);background:#fff5f4;border-color:#f2d2cf}
+.task-card{background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:15px;box-shadow:var(--shadow)}
+.task-head{padding:15px;border-bottom:1px solid #edf2ee;background:linear-gradient(180deg,#fff,#fcfefc)}
 .platform-row{display:flex;align-items:center;gap:11px}
-
-.platform-icon,.platform-fallback{
-  width:44px;height:44px;flex:0 0 44px;
-  border-radius:12px;
-}
-
-.platform-icon{
-  object-fit:contain;
-  padding:7px;
-  background:#f1f6f2;
-}
-
-.platform-fallback{
-  display:flex;align-items:center;justify-content:center;
-  background:var(--green);color:#fff;font-weight:900;
-}
-
-.platform-name{
-  color:var(--muted);font-size:11px;font-weight:800;
-  text-transform:uppercase;letter-spacing:.4px;
-}
-
-.task-title{margin-top:4px;font-size:18px;font-weight:900;line-height:1.35}
-
-.task-meta{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-top:14px;
-}
-
-.meta-box{background:#f6faf7;border-radius:10px;padding:10px}
-.meta-label{color:#758079;font-size:10px;font-weight:800;text-transform:uppercase}
-.meta-value{margin-top:4px;font-size:14px;font-weight:900}
-.reward,.remaining{color:var(--dark)}
-.remaining.low{color:var(--orange)}
-.remaining.none{color:var(--red)}
-
+.platform-icon,.platform-fallback{width:44px;height:44px;flex:0 0 44px;border-radius:13px}
+.platform-icon{object-fit:contain;padding:7px;background:#f1f6f2}
+.platform-fallback{display:flex;align-items:center;justify-content:center;background:var(--green);color:#fff;font-weight:950}
+.platform-name{color:var(--muted);font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.45px}
+.task-title{margin-top:4px;font-size:18px;font-weight:950;line-height:1.35;overflow-wrap:anywhere}
+.task-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
+.meta-box{background:#f6faf7;border:1px solid #edf4ef;border-radius:11px;padding:10px;min-width:0}
+.meta-label{color:#758079;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.3px}
+.meta-value{margin-top:4px;font-size:14px;font-weight:950;overflow-wrap:anywhere}
+.reward{color:var(--dark)}.remaining.low{color:var(--orange)}.remaining.none{color:var(--red)}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;background:#e8f7ec;color:var(--dark)}
 .task-body{padding:15px}
-.section{margin-bottom:17px}
-.section:last-child{margin-bottom:0}
-.section-title{margin-bottom:8px;font-size:14px;font-weight:900}
-
-.description{
-  color:#4e5b53;font-size:14px;line-height:1.65;
-  white-space:pre-wrap;overflow-wrap:anywhere;
-}
-
-.owner{
-  display:inline-block;background:#e8f7ec;color:var(--dark);
-  border-radius:9px;padding:7px 10px;font-size:13px;font-weight:800;
-}
-
-.link-box,.copy-box{
-  background:#f7faf8;border:1px solid #dfeae2;
-  border-radius:12px;padding:12px;
-}
-
-.task-link{
-  display:block;color:var(--blue);font-size:13px;
-  line-height:1.5;overflow-wrap:anywhere;margin-bottom:10px;
-}
-
-.copy-text{
-  color:#35433a;font-size:13px;line-height:1.6;
-  white-space:pre-wrap;overflow-wrap:anywhere;
-}
-
+.section{margin-bottom:17px}.section:last-child{margin-bottom:0}
+.section-title{margin-bottom:8px;font-size:14px;font-weight:950}
+.description{color:#435148;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.owner{display:inline-block;background:#e8f7ec;color:var(--dark);border-radius:9px;padding:7px 10px;font-size:13px;font-weight:850}
+.link-box,.copy-box{background:#f7faf8;border:1px solid #dfeae2;border-radius:12px;padding:12px}
+.task-link{display:block;color:var(--blue);font-size:13px;line-height:1.5;overflow-wrap:anywhere;margin-bottom:10px}
+.copy-text{color:#35433a;font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
 .action-row{display:flex;flex-wrap:wrap;gap:8px}
-
-.action-btn{
-  border:0;border-radius:9px;padding:10px 12px;
-  font-size:13px;font-weight:900;
-}
-
-.open-btn{background:var(--blue);color:#fff}
-.copy-btn{background:#e8f6ec;color:var(--dark)}
+.action-btn{border:0;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:900}
+.open-btn{background:var(--blue);color:#fff}.copy-btn{background:#e8f6ec;color:var(--dark)}
 .copy-btn.copied{background:var(--green);color:#fff}
-
-.start-btn,.submit-btn{
-  width:100%;border:0;border-radius:12px;padding:14px;
-  background:var(--green);color:#fff;font-size:15px;font-weight:900;
-}
-
+.start-btn,.submit-btn{width:100%;border:0;border-radius:12px;padding:14px;background:linear-gradient(110deg,var(--green),var(--green2));color:#fff;font-size:15px;font-weight:950;box-shadow:0 4px 10px #087f361c}
 .start-btn:active,.submit-btn:active{transform:scale(.99)}
-.submit-btn:disabled{opacity:.65;cursor:wait}
-
-.status-box{
-  border-radius:12px;padding:12px;
-  font-size:13px;line-height:1.5;font-weight:800;
-}
+.start-btn:disabled,.submit-btn:disabled{opacity:.65;cursor:wait}
+.status-box{border-radius:12px;padding:12px;font-size:13px;line-height:1.55;font-weight:800}
 .status-success{background:#eaf8ee;color:var(--dark)}
 .status-warning{background:#fff7e8;color:var(--orange)}
 .status-error{background:#fff0ef;color:var(--red)}
-
 .field{margin-bottom:14px}
 .field-label{display:block;margin-bottom:6px;font-size:13px;font-weight:900}
-
-input[type=text],input[type=url],textarea{
-  width:100%;border:1px solid #cbd9cf;border-radius:10px;
-  padding:12px;outline:none;background:#fff;color:var(--text);
-}
-
+.field input[type=text],.field input[type=url],.field textarea{width:100%;border:1px solid #cbd9cf;border-radius:11px;padding:12px;outline:none;background:#fff;color:var(--text)}
 textarea{min-height:95px;resize:vertical}
-
-input:focus,textarea:focus{
-  border-color:var(--green);
-  box-shadow:0 0 0 3px #0b8f3c14;
-}
-
-.photo-upload{
-  position:relative;min-height:145px;border:2px dashed var(--green);
-  border-radius:15px;background:#effbf2;display:flex;
-  align-items:center;justify-content:center;text-align:center;overflow:hidden;
-}
-
-.photo-upload input{
-  position:absolute;inset:0;width:100%;height:100%;
-  opacity:0;z-index:5;cursor:pointer;
-}
-
+.photo-upload{position:relative;min-height:145px;border:2px dashed var(--green);border-radius:15px;background:#effbf2;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+.photo-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer}
 .upload-content{padding:17px;pointer-events:none}
-.upload-icon{font-size:36px}
-.upload-title{margin-top:7px;color:var(--dark);font-size:15px;font-weight:900}
+.upload-icon{font-size:35px}
+.upload-title{margin-top:7px;color:var(--dark);font-size:14px;font-weight:950}
 .upload-subtitle{margin-top:5px;color:#65736b;font-size:11px;line-height:1.5}
-
-.photo-preview{
-  display:none;width:100%;max-height:300px;object-fit:contain;
-  margin-top:10px;border-radius:12px;background:#f2f2f2;
-}
-
-.photo-selected{border-style:solid}
-.photo-selected .upload-content{display:none}
-
-.message{
-  display:none;margin-top:10px;padding:11px;border-radius:10px;
-  font-size:13px;line-height:1.5;
-}
+.photo-preview{display:none;width:100%;max-height:300px;object-fit:contain;margin-top:10px;border-radius:12px;background:#f2f2f2}
+.photo-selected{border-style:solid}.photo-selected .upload-content{display:none}
+.message{display:none;margin-top:10px;padding:11px;border-radius:10px;font-size:13px;line-height:1.5}
 .message.success{display:block;background:#eaf8ee;color:var(--dark)}
 .message.error{display:block;background:#fff0ef;color:var(--red)}
-
 .hidden{display:none!important}
-
-@media(max-width:430px){
-  .task-meta{grid-template-columns:1fr 1fr}
-  .task-title{font-size:17px}
-}
-
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important}
-}
+.small-note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:8px}
+.timer-box{padding:12px;margin-bottom:12px;border-radius:11px;background:#eef5ff;color:#164c82;font-size:13px;font-weight:800}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fff;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 3px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -5px 18px #00000008}
+.bottom-nav a{flex:1;text-align:center;text-decoration:none;color:#647067;font-size:10px;font-weight:800;padding:4px 2px}
+.bottom-nav a span{display:block;font-size:19px;margin-bottom:2px}
+.bottom-nav a.active{color:var(--green)}
+@media(max-width:430px){.hero h1{font-size:22px}.task-title{font-size:17px}.container{padding-left:10px;padding-right:10px}.task-head,.task-body{padding:13px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 
@@ -280,39 +102,55 @@ input:focus,textarea:focus{
       <div class="brand">NAIJA TASK</div>
       <div class="subtitle">Complete Tasks. Earn Naira.</div>
     </div>
-    <button class="back-btn" type="button" onclick="goBack()">Back</button>
+    <button class="back-btn" type="button" onclick="goBack()">← Back</button>
   </div>
 </header>
 
 <main class="container">
   <section class="hero">
     <h1>Available Tasks</h1>
-    <p>Choose a task, follow the poster's instructions, and submit clear evidence for review.</p>
+    <p>Choose a task, follow the poster’s instructions, and submit clear evidence for review.</p>
     <div class="notice">📷 Photo proof is required for every task. Rewards are subject to review and approval.</div>
   </section>
 
-  <div id="tasksArea" class="loading" role="status" aria-live="polite">
-    Loading available tasks...
+  <div class="toolbar">
+    <input class="search" id="taskSearch" type="search" placeholder="Search tasks by title or platform…" aria-label="Search tasks">
+    <button class="refresh-btn" id="refreshBtn" type="button">↻ Refresh</button>
   </div>
+
+  <div id="tasksArea" class="loading" role="status" aria-live="polite">Loading available tasks…</div>
 </main>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+  <a href="dashboard.html"><span>🏠</span>Home</a>
+  <a href="task.html" class="active"><span>📋</span>Jobs</a>
+  <a href="wallet.html"><span>💰</span>Wallet</a>
+  <a href="proofs.html"><span>📸</span>Proofs</a>
+  <a href="profile.html"><span>👤</span>Profile</a>
+</nav>
 
 <script>
 "use strict";
 
-/* Keep your existing Supabase project URL and use its current publishable key. */
+/* Keep the Supabase URL and replace only the key placeholder
+   with your EXISTING browser-safe publishable key. */
 const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
+const SUPABASE_KEY = "PASTE_YOUR_EXISTING_SUPABASE_PUBLISHABLE_KEY_HERE";
 const TASK_PROOF_BUCKET = "task-proofs";
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
+
 const tasksArea = document.getElementById("tasksArea");
-
 let currentUser = null;
+let profile = {};
 let loadedTasks = [];
 let completionCounts = {};
 let userTaskStates = {};
 let settings = {};
+let refreshTimer = null;
 
 const platformIcons = {
   TikTok:"https://cdn.simpleicons.org/tiktok",
@@ -336,8 +174,8 @@ function goBack(){
   else location.href = "dashboard.html";
 }
 
-function escapeHTML(value){
-  return String(value ?? "")
+function esc(v){
+  return String(v ?? "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
@@ -345,636 +183,735 @@ function escapeHTML(value){
     .replace(/'/g,"&#039;");
 }
 
-function normalizeUrl(value){
-  if(!value) return "";
-  let url = String(value).trim();
-  if(!url) return "";
+function upper(v){return String(v ?? "").trim().toUpperCase()}
 
-  if(!/^https?:\/\//i.test(url)) url = "https://" + url;
+function boolFalse(v){
+  return v === false || v === 0 || String(v).toLowerCase() === "false";
+}
 
+function normalUrl(v){
+  if(!v) return "";
+  let s = String(v).trim();
+  if(!s) return "";
+  if(!/^https?:\/\//i.test(s)) s = "https://" + s;
   try{
-    const parsed = new URL(url);
-    if(!["http:","https:"].includes(parsed.protocol)) return "";
-    return parsed.href;
-  }catch(e){
-    return "";
+    const u = new URL(s);
+    return ["https:","http:"].includes(u.protocol) ? u.href : "";
+  }catch(e){return ""}
+}
+
+function safeDate(v){
+  if(!v) return null;
+  const d = new Date(v);
+  return Number.isFinite(d.getTime()) ? d : null;
+}
+
+function expired(t){
+  const d = safeDate(t.expiry_date);
+  return !!d && d.getTime() <= Date.now();
+}
+
+function notStarted(t){
+  const d = safeDate(t.start_date);
+  return !!d && d.getTime() > Date.now();
+}
+
+function slots(t){
+  for(const k of ["max_total_completions","max_completions","slots"]){
+    const v = t[k];
+    if(v !== null && v !== undefined && v !== ""){
+      const n = Number(v);
+      if(Number.isFinite(n) && n >= 0) return n;
+    }
   }
+  return null;
 }
 
-function expired(task){
-  if(!task.expiry_date) return false;
-  const time = new Date(task.expiry_date).getTime();
-  return Number.isFinite(time) && time <= Date.now();
+function remaining(t){
+  const total = slots(t);
+  if(total === null) return null;
+  return Math.max(0,total - Number(completionCounts[t.id] || 0));
 }
 
-function capacity(task){
-  const value = task.max_total_completions ?? task.max_completions ?? task.slots ?? 0;
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? n : 0;
-}
+function userState(t){return userTaskStates[t.id] || ""}
 
-function remaining(task){
-  const limit = capacity(task);
-  if(!limit) return 0;
-  return Math.max(0, limit - Number(completionCounts[task.id] || 0));
-}
-
-function userState(task){
-  return userTaskStates[task.id] || "";
+function formatNaira(v){
+  const n = Number(v ?? 0);
+  return "₦" + (Number.isFinite(n) ? n : 0).toLocaleString("en-NG");
 }
 
 function platformHTML(type){
-  const name = type || "Task";
-  const icon = platformIcons[name];
-
-  if(!icon) return `<div class="platform-fallback">NT</div>`;
-
-  return `
-    <img class="platform-icon"
-      src="${icon}" alt="${escapeHTML(name)}"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-    <div class="platform-fallback" style="display:none">NT</div>
-  `;
+  const n = String(type || "General Task");
+  const icon = platformIcons[n];
+  if(!icon) return '<div class="platform-fallback">NT</div>';
+  return `<img class="platform-icon" src="${icon}" alt="${esc(n)}"
+    onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="platform-fallback" style="display:none">NT</div>`;
 }
 
-/*
-  Requirements may be stored as text or JSON.
-  Unknown formats fall back to the existing username/comment fields,
-  avoiding accidental removal of evidence the admin may expect.
-*/
-function getRequirements(task){
-  const raw = task.requirements ?? task.required_proof ?? "";
-  let parsed = raw;
+/* Supports text instructions, JSON requirements and common flag names. */
+function requirementFlags(t){
+  const raw = t.requirements ?? t.required_proof ?? {};
+  let p = raw;
 
   if(typeof raw === "string"){
-    try{ parsed = JSON.parse(raw); }
-    catch(e){ parsed = raw; }
+    try{p = JSON.parse(raw)}catch(e){p = raw}
   }
 
-  let text = "";
+  const obj = p && typeof p === "object" && !Array.isArray(p) ? p : {};
+  const source = Array.isArray(p) ? p.join(" ") :
+    typeof p === "object" && p ? JSON.stringify(p) : String(p || "");
+  const s = source.toLowerCase();
 
-  if(typeof parsed === "string") text = parsed;
-  else if(Array.isArray(parsed)) text = parsed.join(" ");
-  else if(parsed && typeof parsed === "object") text = JSON.stringify(parsed);
+  function flag(keys,pattern){
+    for(const k of keys){
+      if(typeof obj[k] === "boolean") return obj[k];
+    }
+    return pattern.test(s);
+  }
 
-  const lower = text.toLowerCase();
-
-  const explicitObject = parsed && typeof parsed === "object" && !Array.isArray(parsed)
-    ? parsed : {};
-
-  const hasUsernameFlag =
-    typeof explicitObject.username_required === "boolean" ||
-    typeof explicitObject.require_username === "boolean";
-
-  const hasCommentFlag =
-    typeof explicitObject.comment_required === "boolean" ||
-    typeof explicitObject.require_comment === "boolean";
-
-  const usernameRequired = hasUsernameFlag
-    ? Boolean(explicitObject.username_required ?? explicitObject.require_username)
-    : (!text || /username|account name|profile name/.test(lower));
-
-  const commentRequired = hasCommentFlag
-    ? Boolean(explicitObject.comment_required ?? explicitObject.require_comment)
-    : (!text || /comment|report|explain|description of work/.test(lower));
-
+  const proofType = upper(t.proof_type);
   return {
-    usernameRequired,
-    commentRequired
+    username: flag(
+      ["username_required","require_username","upload_username"],
+      /username|account name|profile name/
+    ),
+    url: flag(
+      ["url_required","require_url","proof_link_required"],
+      /\burl required\b|proof link required/
+    ),
+    text: flag(
+      ["text_required","require_text","comment_required","require_comment"],
+      /\btext required\b|comment required|report required|explain your work/
+    ),
+    reference: flag(
+      ["reference_required","require_reference"],
+      /reference required|reference id/
+    ),
+    usernameDefault: /username/i.test(proofType),
+    textDefault: /text|comment/i.test(proofType),
+    raw: source
   };
 }
 
-function linkHTML(task,index){
-  const url = normalizeUrl(task.task_link || task.post_link || "");
+function isPublishable(t){
+  /* Accept LIVE and ACTIVE, case-insensitively.
+     Also accept the common approved/published equivalents. */
+  if(boolFalse(t.active)) return false;
 
-  if(!url){
-    return `<div class="link-box"><div class="description">No external task link was provided.</div></div>`;
-  }
+  const s = upper(t.status);
+  if(s && !["LIVE","ACTIVE","PUBLISHED","APPROVED","OPEN"].includes(s)) return false;
 
-  return `
-    <div class="link-box">
-      <a class="task-link" href="${escapeHTML(url)}"
-        target="_blank" rel="noopener noreferrer">${escapeHTML(url)}</a>
-      <div class="action-row">
-        <button class="action-btn open-btn" type="button" onclick="openTask(${index})">Open Task</button>
-        <button class="action-btn copy-btn" id="copy-link-${index}" type="button" onclick="copyLink(${index})">Copy Link</button>
-      </div>
-    </div>
-  `;
-}
+  const moderation = upper(t.moderation_status);
+  if(["PENDING","REJECTED","DECLINED","BLOCKED"].includes(moderation)) return false;
 
-function copyTextHTML(task,index){
-  if(!task.copy_text) return "";
-
-  return `
-    <div class="section">
-      <div class="section-title">Text to Copy</div>
-      <div class="copy-box">
-        <div class="copy-text">${escapeHTML(task.copy_text)}</div>
-        <div class="action-row" style="margin-top:9px">
-          <button class="action-btn copy-btn" id="copy-text-${index}" type="button" onclick="copyTaskText(${index})">Copy Text</button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function statusHTML(task,index){
-  const state = userState(task);
-  const left = remaining(task);
-
-  if(expired(task)){
-    return `<div class="status-box status-error">This task has expired.</div>`;
-  }
-
-  if(left <= 0){
-    return `<div class="status-box status-warning">This task is full or has no configured slots.</div>`;
-  }
-
-  if(state === "APPROVED"){
-    return `<div class="status-box status-success">✓ Your task completion has been recorded.</div>`;
-  }
-
-  if(state === "PENDING"){
-    return `<div class="status-box status-warning">⏳ Your proof is already under review. Please do not submit it again.</div>`;
-  }
-
-  if(state === "REJECTED"){
-    return `
-      <div class="status-box status-error">Your previous proof was rejected. Check the poster's instructions and submit corrected proof.</div>
-      <button class="start-btn" style="margin-top:10px" type="button" onclick="showProof(${index})">Submit Corrected Proof</button>
-      ${proofForm(task,index)}
-    `;
-  }
-
-  return `
-    <button class="start-btn" type="button" onclick="showProof(${index})">Start Task &amp; Submit Proof</button>
-    ${proofForm(task,index)}
-  `;
-}
-
-function proofForm(task,index){
-  const req = getRequirements(task);
-
-  return `
-    <div id="proof-${index}" class="hidden" style="margin-top:14px">
-      <div class="section-title">Submit Your Proof</div>
-      <div class="description" style="margin-bottom:13px">
-        Complete the task first. Upload a clear photo or screenshot showing your work.
-      </div>
-
-      <form onsubmit="submitProof(event,${index})">
-        ${req.usernameRequired ? `
-          <div class="field">
-            <label class="field-label" for="username-${index}">Username / Account Used *</label>
-            <input type="text" id="username-${index}" maxlength="120"
-              placeholder="Enter the account you used" required>
-          </div>` : ""}
-
-        ${req.commentRequired ? `
-          <div class="field">
-            <label class="field-label" for="comment-${index}">Comment / Report *</label>
-            <textarea id="comment-${index}" maxlength="3000"
-              placeholder="Explain what you completed..." required></textarea>
-          </div>` : ""}
-
-        <div class="field">
-          <label class="field-label" for="proof-link-${index}">Extra Proof Link (optional)</label>
-          <input type="url" id="proof-link-${index}" maxlength="1000"
-            placeholder="https://...">
-        </div>
-
-        <div class="field">
-          <label class="field-label" for="photo-${index}">Photo Proof *</label>
-          <div class="photo-upload" id="upload-${index}">
-            <input type="file" id="photo-${index}"
-              accept="image/jpeg,image/png,image/webp"
-              required onchange="selectPhoto(event,${index})">
-            <div class="upload-content">
-              <div class="upload-icon">📷</div>
-              <div class="upload-title">TAP TO UPLOAD PHOTO</div>
-              <div class="upload-subtitle">JPG, PNG or WEBP · Maximum 5MB</div>
-            </div>
-          </div>
-          <img id="preview-${index}" class="photo-preview" alt="Selected proof preview">
-        </div>
-
-        <button class="submit-btn" id="submit-${index}" type="submit">Submit Proof</button>
-        <div id="message-${index}" class="message" role="status" aria-live="polite"></div>
-      </form>
-    </div>
-  `;
-}
-
-function taskCard(task,index){
-  const left = remaining(task);
-  const state = userState(task);
-  const taskName = task.task_type || "General Task";
-
-  const status = expired(task) ? "EXPIRED"
-    : left <= 0 ? "FULL"
-    : state === "APPROVED" ? "COMPLETED"
-    : state === "PENDING" ? "UNDER REVIEW"
-    : "LIVE";
-
-  return `
-    <article class="task-card">
-      <div class="task-head">
-        <div class="platform-row">
-          ${platformHTML(taskName)}
-          <div>
-            <div class="platform-name">${escapeHTML(taskName)}</div>
-            <div class="task-title">${escapeHTML(task.title || "Untitled Task")}</div>
-          </div>
-        </div>
-
-        <div class="task-meta">
-          <div class="meta-box">
-            <div class="meta-label">Advertised Reward</div>
-            <div class="meta-value reward">₦${Number(task.reward || 0).toLocaleString("en-NG")}</div>
-          </div>
-          <div class="meta-box">
-            <div class="meta-label">Remaining Slots</div>
-            <div class="meta-value remaining ${left <= 0 ? "none" : left <= 5 ? "low" : ""}">${left.toLocaleString("en-NG")}</div>
-          </div>
-          <div class="meta-box">
-            <div class="meta-label">Total Slots</div>
-            <div class="meta-value">${capacity(task).toLocaleString("en-NG")}</div>
-          </div>
-          <div class="meta-box">
-            <div class="meta-label">Status</div>
-            <div class="meta-value">${status}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="task-body">
-        <div class="section">
-          <div class="section-title">Task Instructions</div>
-          <div class="description">${escapeHTML(task.description || "Follow any additional instructions provided by the poster.")}</div>
-        </div>
-
-        <div class="section">
-          <div class="section-title">Task Poster</div>
-          <span class="owner">${escapeHTML(task.uploader_username || "NAIJA TASK Poster")}</span>
-        </div>
-
-        <div class="section">
-          <div class="section-title">Task Link</div>
-          ${linkHTML(task,index)}
-        </div>
-
-        ${copyTextHTML(task,index)}
-        <div class="section">${statusHTML(task,index)}</div>
-      </div>
-    </article>
-  `;
-}
-
-async function loadSettings(){
-  const {data,error} = await db
-    .from("platform_settings")
-    .select("maintenance_mode,job_posting_enabled,task_approval_required,photo_proof_enabled")
-    .limit(1)
-    .maybeSingle();
-
-  if(error){
-    console.warn("Platform settings could not be read:",error.message);
-    return;
-  }
-
-  settings = data || {};
-
-  if(settings.maintenance_mode === true){
-    tasksArea.className = "status-box status-warning";
-    tasksArea.textContent = "NAIJA TASK is temporarily under maintenance. Please try again later.";
-    return false;
-  }
-
-  if(settings.job_posting_enabled === false){
-    tasksArea.className = "empty";
-    tasksArea.textContent = "Task availability is temporarily disabled by the platform administrator.";
-    return false;
-  }
-
-  if(settings.photo_proof_enabled === false){
-    tasksArea.className = "status-box status-warning";
-    tasksArea.textContent = "Task submissions are temporarily unavailable because proof uploads are disabled.";
-    return false;
-  }
+  const payment = upper(t.payment_status);
+  if(["UNPAID","FAILED","CANCELLED","CANCELED","REFUNDED"].includes(payment)) return false;
 
   return true;
 }
 
+function taskUrl(t){
+  return normalUrl(t.task_link || t.post_link || t.url || "");
+}
+
+function linkHTML(t,i){
+  const u = taskUrl(t);
+  if(!u){
+    return '<div class="link-box"><div class="description">No external link was provided. Follow the task instructions carefully.</div></div>';
+  }
+  return `<div class="link-box">
+    <a class="task-link" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(u)}</a>
+    <div class="action-row">
+      <button class="action-btn open-btn" type="button" onclick="openTask(${i})">Open Task</button>
+      <button class="action-btn copy-btn" id="copy-link-${i}" type="button" onclick="copyLink(${i})">Copy Link</button>
+    </div>
+  </div>`;
+}
+
+function copyTextHTML(t,i){
+  if(!t.copy_text) return "";
+  return `<div class="section">
+    <div class="section-title">Text to Copy</div>
+    <div class="copy-box">
+      <div class="copy-text">${esc(t.copy_text)}</div>
+      <div class="action-row" style="margin-top:9px">
+        <button class="action-btn copy-btn" id="copy-text-${i}" type="button" onclick="copyTaskText(${i})">Copy Text</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function proofForm(t,i){
+  const r = requirementFlags(t);
+  const requireUsername = r.username || r.usernameDefault;
+  const requireText = r.text || r.textDefault;
+  const timer = getTimerSeconds(t);
+
+  return `<div id="proof-${i}" class="hidden" style="margin-top:14px">
+    <div class="section-title">Submit Your Proof</div>
+    <div class="description" style="margin-bottom:13px">
+      Complete the task first, then upload a clear screenshot or photo that shows your work.
+    </div>
+
+    ${timer ? `<div id="timer-${i}" class="timer-box">
+      This task requires a ${timer}-second viewing period.
+      <div id="timer-count-${i}" style="margin-top:5px">Timer not started.</div>
+      <button type="button" class="action-btn open-btn" style="margin-top:8px" onclick="startWatchTimer(${i})">Start Viewing Timer</button>
+    </div>` : ""}
+
+    <form onsubmit="submitProof(event,${i})">
+      ${requireUsername ? `<div class="field">
+        <label class="field-label" for="username-${i}">Username / Account Used *</label>
+        <input type="text" id="username-${i}" maxlength="120" placeholder="Enter the account you used" required>
+      </div>` : ""}
+
+      ${r.reference ? `<div class="field">
+        <label class="field-label" for="reference-${i}">Reference ID *</label>
+        <input type="text" id="reference-${i}" maxlength="160" placeholder="Enter the required reference ID" required>
+      </div>` : ""}
+
+      ${requireText ? `<div class="field">
+        <label class="field-label" for="comment-${i}">Required Text / Comment *</label>
+        <textarea id="comment-${i}" maxlength="3000" placeholder="Enter the required text or explain what you completed…" required></textarea>
+      </div>` : ""}
+
+      ${r.url ? `<div class="field">
+        <label class="field-label" for="proof-link-${i}">Proof URL *</label>
+        <input type="url" id="proof-link-${i}" maxlength="1000" placeholder="https://…" required>
+      </div>` : `<div class="field">
+        <label class="field-label" for="proof-link-${i}">Extra Proof Link (optional)</label>
+        <input type="url" id="proof-link-${i}" maxlength="1000" placeholder="https://…">
+      </div>`}
+
+      <div class="field">
+        <label class="field-label" for="photo-${i}">Photo Proof *</label>
+        <div class="photo-upload" id="upload-${i}">
+          <input type="file" id="photo-${i}" accept="image/jpeg,image/png,image/webp" required onchange="selectPhoto(event,${i})">
+          <div class="upload-content">
+            <div class="upload-icon">📷</div>
+            <div class="upload-title">TAP TO CHOOSE A PHOTO</div>
+            <div class="upload-subtitle">JPG, PNG or WEBP · Maximum 5MB</div>
+          </div>
+        </div>
+        <img id="preview-${i}" class="photo-preview" alt="Selected proof preview">
+      </div>
+
+      <button class="submit-btn" id="submit-${i}" type="submit">Submit Proof</button>
+      <div id="message-${i}" class="message" role="status" aria-live="polite"></div>
+      <div class="small-note">Never include passwords, PINs, bank details, or private security codes in your proof.</div>
+    </form>
+  </div>`;
+}
+
+function statusHTML(t,i){
+  const s = userState(t);
+  const left = remaining(t);
+
+  if(expired(t)) return '<div class="status-box status-error">This task has expired.</div>';
+  if(notStarted(t)) return '<div class="status-box status-warning">This task has not started yet.</div>';
+  if(s === "APPROVED") return '<div class="status-box status-success">✓ Your completion has been approved. Check your wallet for the recorded reward.</div>';
+  if(s === "PENDING") return '<div class="status-box status-warning">⏳ Your proof is under review. Please do not submit it again.</div>';
+  if(left !== null && left <= 0) return '<div class="status-box status-warning">This task has reached its available slot limit.</div>';
+
+  if(profile && (profile.is_activated === false || profile.is_activated === 0)){
+    return `<div class="status-box status-warning">
+      Your account needs activation before you can submit tasks.
+      Please check your dashboard or profile for the activation status.
+      <div style="margin-top:9px"><a href="dashboard.html" style="color:inherit;font-weight:950">Open Dashboard →</a></div>
+    </div>`;
+  }
+
+  return `<button class="start-btn" type="button" onclick="showProof(${i})">
+    ${s === "REJECTED" ? "Submit Corrected Proof" : "Start Task & Submit Proof"}
+  </button>
+  ${s === "REJECTED" ? '<div class="status-box status-error" style="margin-top:8px">Your previous proof was rejected. Review the instructions and submit corrected proof.</div>' : ""}
+  ${proofForm(t,i)}`;
+}
+
+function taskCard(t,i){
+  const left = remaining(t);
+  const s = userState(t);
+  const type = t.task_type || t.category || "General Task";
+
+  let state = "AVAILABLE";
+  if(expired(t)) state = "EXPIRED";
+  else if(notStarted(t)) state = "UPCOMING";
+  else if(s === "APPROVED") state = "COMPLETED";
+  else if(s === "PENDING") state = "UNDER REVIEW";
+  else if(left !== null && left <= 0) state = "FULL";
+  else if(s === "REJECTED") state = "PROOF REJECTED";
+
+  const totalText = slots(t) === null ? "Not set" : slots(t).toLocaleString("en-NG");
+  const leftText = left === null ? "Not limited" : left.toLocaleString("en-NG");
+  const deadline = safeDate(t.expiry_date);
+  const reward = t.reward ?? t.reward_per_worker ?? 0;
+
+  return `<article class="task-card">
+    <div class="task-head">
+      <div class="platform-row">
+        ${platformHTML(type)}
+        <div style="min-width:0">
+          <div class="platform-name">${esc(type)}</div>
+          <div class="task-title">${esc(t.title || "Untitled Task")}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px"><span class="pill">● ${esc(state)}</span></div>
+
+      <div class="task-meta">
+        <div class="meta-box">
+          <div class="meta-label">Reward per worker</div>
+          <div class="meta-value reward">${formatNaira(reward)}</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">Remaining slots</div>
+          <div class="meta-value remaining ${left !== null && left <= 0 ? "none" : left !== null && left <= 5 ? "low" : ""}">${esc(leftText)}</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">Total slots</div>
+          <div class="meta-value">${esc(totalText)}</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">Deadline</div>
+          <div class="meta-value">${deadline ? esc(deadline.toLocaleDateString("en-NG")) : "No deadline"}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task-body">
+      <div class="section">
+        <div class="section-title">Task Instructions</div>
+        <div class="description">${esc(t.description || "Follow any additional instructions provided by the poster.")}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Task Poster</div>
+        <span class="owner">${esc(t.uploader_username || "NAIJA TASK Poster")}</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Task Link</div>
+        ${linkHTML(t,i)}
+      </div>
+
+      ${copyTextHTML(t,i)}
+      <div class="section">${statusHTML(t,i)}</div>
+    </div>
+  </article>`;
+}
+
+/* Optional timer is enabled only if the task record contains a
+   positive YouTube timer value. It is not used for other platforms. */
+function getTimerSeconds(t){
+  const type = String(t.task_type || t.category || "").toLowerCase();
+  const link = String(t.task_link || t.post_link || "").toLowerCase();
+  const youtube = type.includes("youtube") || link.includes("youtube.com") || link.includes("youtu.be");
+  if(!youtube) return 0;
+
+  for(const k of ["watch_duration_seconds","watch_timer_seconds","required_watch_seconds"]){
+    const n = Number(t[k]);
+    if(Number.isFinite(n) && n > 0) return Math.min(3600,Math.floor(n));
+  }
+  return 0;
+}
+
+const timerState = {};
+
+function startWatchTimer(i){
+  const t = loadedTasks[i];
+  const seconds = t ? getTimerSeconds(t) : 0;
+  if(!seconds) return;
+
+  if(timerState[i]?.interval) clearInterval(timerState[i].interval);
+  const end = Date.now() + seconds * 1000;
+  const label = document.getElementById(`timer-count-${i}`);
+  const button = document.querySelector(`#timer-${i} button`);
+
+  if(button){button.disabled=true;button.textContent="Timer running…"}
+  function tick(){
+    const left = Math.max(0,Math.ceil((end-Date.now())/1000));
+    if(label) label.textContent = left ? `Time remaining: ${left} seconds` : "Viewing timer completed.";
+    if(left <= 0){
+      clearInterval(timerState[i]?.interval);
+      timerState[i] = {complete:true};
+      if(button){button.disabled=false;button.textContent="Timer completed ✓"}
+    }
+  }
+  timerState[i] = {interval:setInterval(tick,1000),complete:false};
+  tick();
+}
+
+async function loadSettings(){
+  try{
+    const {data,error} = await db.from("platform_settings").select("*").limit(1).maybeSingle();
+    if(error){
+      console.warn("Platform settings unavailable:",error.message);
+      settings = {};
+      return true;
+    }
+
+    settings = data || {};
+
+    if(settings.maintenance_mode === true){
+      showNotice("NAIJA TASK is temporarily under maintenance. Please try again later.");
+      return false;
+    }
+
+    return true;
+  }catch(e){
+    console.warn("Settings read failed:",e);
+    settings = {};
+    return true;
+  }
+}
+
+function showNotice(text){
+  tasksArea.className = "status-box status-warning";
+  tasksArea.textContent = text;
+}
+
+async function loadProfile(){
+  try{
+    const {data,error} = await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
+    if(error){
+      console.warn("Profile status unavailable:",error.message);
+      profile = {};
+      return;
+    }
+    profile = data || {};
+  }catch(e){
+    console.warn("Profile read failed:",e);
+    profile = {};
+  }
+}
+
 async function loadTasks(){
   tasksArea.className = "loading";
-  tasksArea.textContent = "Loading available tasks...";
-
+  tasksArea.textContent = "Loading available tasks…";
   completionCounts = {};
   userTaskStates = {};
 
-  const allowed = await loadSettings();
-  if(allowed === false) return;
+  try{
+    const allowed = await loadSettings();
+    if(!allowed) return;
 
-  const {data,error} = await db
-    .from("tasks")
-    .select(`
-      id,title,description,reward,slots,
-      max_total_completions,max_completions,
-      max_completions_per_user,expiry_date,
-      requirements,required_proof,proof_type,proof_required,
-      active,status,task_type,task_link,uploader_username,
-      copy_text,post_link,upload_required,created_at
-    `)
-    .eq("active",true)
-    .eq("status","LIVE")
-    .order("created_at",{ascending:false});
+    await loadProfile();
 
-  if(error){
-    console.error("Task query failed:",error);
-    tasksArea.className = "error";
-    tasksArea.textContent = "Unable to load tasks. Database response: " + error.message;
-    return;
-  }
+    /* Select all available columns to avoid a failure caused by
+       an optional column missing in a particular deployment. */
+    const {data,error} = await db.from("tasks").select("*").order("created_at",{ascending:false});
+    if(error) throw new Error("Could not read tasks: " + error.message);
 
-  loadedTasks = (data || []).filter(task => !expired(task));
+    const now = Date.now();
 
-  if(!loadedTasks.length){
-    tasksArea.className = "empty";
-    tasksArea.textContent = "No live tasks are available right now. Please check again later.";
-    return;
-  }
+    loadedTasks = (data || []).filter(t =>
+      isPublishable(t) &&
+      !expired(t) &&
+      !notStarted(t)
+    );
 
-  const ids = loadedTasks.map(task => task.id);
+    if(!loadedTasks.length){
+      tasksArea.className = "empty";
+      tasksArea.textContent = "No published tasks are available right now. If a task was just activated in Admin, tap Refresh in a moment.";
+      return;
+    }
 
-  /*
-    Read completion records. If the table stores statuses, count approved
-    completions only. If no status column exists, report the query error
-    rather than silently displaying incorrect slot counts.
-  */
-  const {data:completions,error:completionError} = await db
-    .from("task_completions")
-    .select("task_id,user_id,status")
-    .in("task_id",ids);
+    const ids = loadedTasks.map(t => t.id).filter(Boolean);
 
-  if(completionError){
-    console.error("Completion query failed:",completionError);
-    tasksArea.className = "error";
-    tasksArea.textContent = "Could not verify task slots. Please try again later.";
-    return;
-  }
+    /* Completion counts are best-effort. An unavailable optional
+       table must not prevent the task list from loading. */
+    let completionRows = [];
+    const c = await db.from("task_completions")
+      .select("task_id,user_id,status")
+      .in("task_id",ids);
 
-  const completedUsers = new Set();
+    if(!c.error){
+      completionRows = c.data || [];
+    }else{
+      console.warn("task_completions unavailable; trying submissions:",c.error.message);
+      const fallback = await db.from("task_submissions")
+        .select("task_id,user_id,status")
+        .in("task_id",ids);
 
-  (completions || []).forEach(row => {
-    const status = String(row.status || "").toUpperCase();
-    const isCompleted = !status || ["APPROVED","COMPLETED","SUCCESS"].includes(status);
+      if(!fallback.error){
+        completionRows = (fallback.data || []).filter(r =>
+          ["APPROVED","COMPLETED","SUCCESS"].includes(upper(r.status))
+        );
+      }
+    }
 
-    if(isCompleted){
-      const key = `${row.task_id}:${row.user_id}`;
-      if(!completedUsers.has(key)){
-        completedUsers.add(key);
+    const counted = new Set();
+
+    for(const row of completionRows){
+      const status = upper(row.status);
+      if(status && !["APPROVED","COMPLETED","SUCCESS"].includes(status)) continue;
+
+      const key = `${row.task_id}:${row.user_id || ""}`;
+      if(!counted.has(key)){
+        counted.add(key);
         completionCounts[row.task_id] = (completionCounts[row.task_id] || 0) + 1;
       }
 
-      if(row.user_id === currentUser.id){
-        userTaskStates[row.task_id] = "APPROVED";
+      if(row.user_id === currentUser.id) userTaskStates[row.task_id] = "APPROVED";
+    }
+
+    const {data:subs,error:subErr} = await db.from("task_submissions")
+      .select("id,task_id,user_id,status,created_at,proof")
+      .eq("user_id",currentUser.id)
+      .in("task_id",ids)
+      .order("created_at",{ascending:false});
+
+    if(subErr){
+      console.warn("Could not load submission states:",subErr.message);
+    }else{
+      for(const row of subs || []){
+        const taskId = row.task_id;
+        const s = upper(row.status);
+
+        if(userTaskStates[taskId] === "APPROVED") continue;
+
+        if(s === "APPROVED" || s === "COMPLETED" || s === "SUCCESS"){
+          userTaskStates[taskId] = "APPROVED";
+        }else if(s === "PENDING"){
+          if(!userTaskStates[taskId]) userTaskStates[taskId] = "PENDING";
+        }else if(s === "REJECTED"){
+          if(!userTaskStates[taskId]) userTaskStates[taskId] = "REJECTED";
+        }
+      }
+
+      /* Pending submissions reserve one slot in the display, but
+         approved completions already counted above are not counted twice. */
+      for(const row of subs || []){
+        if(upper(row.status) !== "PENDING") continue;
+        const key = `${row.task_id}:${currentUser.id}`;
+        if(!counted.has(key)){
+          completionCounts[row.task_id] = (completionCounts[row.task_id] || 0) + 1;
+          counted.add(key);
+        }
       }
     }
-  });
 
-  const {data:subs,error:subError} = await db
-    .from("task_submissions")
-    .select("task_id,status,created_at")
-    .eq("user_id",currentUser.id)
-    .in("task_id",ids)
-    .order("created_at",{ascending:false});
-
-  if(subError){
-    console.error("Submission query failed:",subError);
+    renderTasks();
+  }catch(e){
+    console.error("Task loading failed:",e);
     tasksArea.className = "error";
-    tasksArea.textContent = "Could not verify your previous submissions. Please try again later.";
-    return;
+    tasksArea.textContent = "Could not load tasks from Supabase. " +
+      (e.message || "Check your connection and database permissions, then refresh.");
   }
+}
 
-  /*
-    Preserve approved states. A newer pending submission takes precedence
-    over an older rejected submission.
-  */
-  (subs || []).forEach(row => {
-    if(userTaskStates[row.task_id] === "APPROVED") return;
+function renderTasks(){
+  const term = (document.getElementById("taskSearch").value || "").trim().toLowerCase();
 
-    const status = String(row.status || "").toUpperCase();
-
-    if(status === "PENDING"){
-      userTaskStates[row.task_id] = "PENDING";
-    }else if(status === "REJECTED" && !userTaskStates[row.task_id]){
-      userTaskStates[row.task_id] = "REJECTED";
-    }else if(status === "APPROVED"){
-      userTaskStates[row.task_id] = "APPROVED";
-    }
-  });
-
-  /*
-    Pending proofs reserve a slot in this page's display. This is a
-    display safeguard, not a replacement for database-side slot locking.
-  */
-  const pendingTaskIds = new Set(
-    (subs || [])
-      .filter(row => String(row.status || "").toUpperCase() === "PENDING")
-      .map(row => row.task_id)
+  const filtered = loadedTasks.filter(t =>
+    !term || [
+      t.title,t.description,t.task_type,t.category,t.uploader_username,t.copy_text
+    ].some(v => String(v || "").toLowerCase().includes(term))
   );
 
-  pendingTaskIds.forEach(id => {
-    if(!completedUsers.has(`${id}:${currentUser.id}`)){
-      completionCounts[id] = (completionCounts[id] || 0) + 1;
-    }
-  });
+  if(!filtered.length){
+    tasksArea.className = "empty";
+    tasksArea.textContent = term
+      ? "No tasks match that search. Try another word."
+      : "No published tasks are available right now.";
+    return;
+  }
 
   tasksArea.className = "";
-  tasksArea.innerHTML = loadedTasks.map((task,index) => taskCard(task,index)).join("");
+  tasksArea.innerHTML = filtered.map(t => taskCard(t,loadedTasks.indexOf(t))).join("");
 }
 
-function showProof(index){
-  const task = loadedTasks[index];
-  if(!task) return;
+function showProof(i){
+  const t = loadedTasks[i];
+  if(!t) return;
 
-  if(expired(task)){
-    alert("This task has expired.");
+  if(expired(t)){alert("This task has expired.");return}
+  if(notStarted(t)){alert("This task has not started yet.");return}
+
+  const left = remaining(t);
+  if(left !== null && left <= 0){alert("This task has reached its slot limit.");return}
+
+  if(["APPROVED","PENDING"].includes(userState(t))) return;
+
+  if(profile && (profile.is_activated === false || profile.is_activated === 0)){
+    alert("Your account needs activation before you can submit tasks. Please check your dashboard.");
     return;
   }
 
-  if(remaining(task) <= 0){
-    alert("This task is full or has no available slots.");
-    return;
+  const box = document.getElementById(`proof-${i}`);
+  if(box){
+    box.classList.remove("hidden");
+    box.scrollIntoView({behavior:"smooth",block:"start"});
+    trackStart(t);
   }
-
-  const state = userState(task);
-  if(state === "APPROVED" || state === "PENDING") return;
-
-  const box = document.getElementById(`proof-${index}`);
-  if(!box) return;
-
-  box.classList.remove("hidden");
-  box.scrollIntoView({behavior:"smooth",block:"start"});
-
-  trackStart(task);
 }
 
-async function trackStart(task){
+async function trackStart(t){
   try{
     const {error} = await db.from("task_activity").insert({
-      task_id:task.id,
+      task_id:t.id,
       user_id:currentUser.id,
       activity_type:"STARTED"
     });
-
     if(error) console.warn("Task activity was not recorded:",error.message);
-  }catch(error){
-    console.warn("Task activity tracking failed:",error);
+  }catch(e){
+    console.warn("Task activity unavailable:",e);
   }
 }
 
-function selectPhoto(event,index){
-  const file = event.target.files && event.target.files[0];
+function selectPhoto(e,i){
+  const file = e.target.files && e.target.files[0];
   if(!file) return;
 
-  const allowedTypes = ["image/jpeg","image/png","image/webp"];
-
-  if(!allowedTypes.includes(file.type)){
-    event.target.value = "";
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+    e.target.value = "";
     alert("Choose a JPG, PNG or WEBP image.");
     return;
   }
 
-  if(file.size > 5 * 1024 * 1024){
-    event.target.value = "";
+  if(file.size > MAX_PHOTO_SIZE){
+    e.target.value = "";
     alert("Your photo must be 5MB or smaller.");
     return;
   }
 
-  const preview = document.getElementById(`preview-${index}`);
-  const box = document.getElementById(`upload-${index}`);
+  const preview = document.getElementById(`preview-${i}`);
+  const box = document.getElementById(`upload-${i}`);
 
-  if(preview.dataset.objectUrl){
-    URL.revokeObjectURL(preview.dataset.objectUrl);
-  }
+  if(preview.dataset.objectUrl) URL.revokeObjectURL(preview.dataset.objectUrl);
 
-  const objectUrl = URL.createObjectURL(file);
-  preview.dataset.objectUrl = objectUrl;
-  preview.src = objectUrl;
+  const url = URL.createObjectURL(file);
+  preview.dataset.objectUrl = url;
+  preview.src = url;
   preview.style.display = "block";
   box.classList.add("photo-selected");
 }
 
-function showMessage(index,type,message){
-  const box = document.getElementById(`message-${index}`);
-  if(!box) return;
-
-  box.className = `message ${type}`;
-  box.textContent = message;
+function showMessage(i,type,message){
+  const el = document.getElementById(`message-${i}`);
+  if(!el) return;
+  el.className = `message ${type}`;
+  el.textContent = message;
 }
 
-async function submitProof(event,index){
+async function submitProof(event,i){
   event.preventDefault();
 
-  const task = loadedTasks[index];
+  const task = loadedTasks[i];
   if(!task || !currentUser) return;
 
-  const button = document.getElementById(`submit-${index}`);
-  if(button.disabled) return;
+  const button = document.getElementById(`submit-${i}`);
+  if(!button || button.disabled) return;
 
-  if(expired(task)){
-    showMessage(index,"error","This task has expired.");
+  if(expired(task) || notStarted(task)){
+    showMessage(i,"error","This task is expired or has not started yet.");
     return;
   }
 
-  if(userState(task) === "APPROVED" || userState(task) === "PENDING"){
-    showMessage(index,"error","You already completed this task or have a submission under review.");
+  const left = remaining(task);
+  if(left !== null && left <= 0){
+    showMessage(i,"error","This task has reached its slot limit.");
     return;
   }
 
-  const req = getRequirements(task);
-  const usernameEl = document.getElementById(`username-${index}`);
-  const commentEl = document.getElementById(`comment-${index}`);
-  const linkEl = document.getElementById(`proof-link-${index}`);
-  const fileInput = document.getElementById(`photo-${index}`);
+  if(["APPROVED","PENDING"].includes(userState(task))){
+    showMessage(i,"error","You already have an approved or pending submission for this task.");
+    return;
+  }
+
+  if(profile && (profile.is_activated === false || profile.is_activated === 0)){
+    showMessage(i,"error","Your account needs activation before you can submit tasks. Please check your dashboard.");
+    return;
+  }
+
+  const flags = requirementFlags(task);
+  const needUsername = flags.username || flags.usernameDefault;
+  const needText = flags.text || flags.textDefault;
+
+  const usernameEl = document.getElementById(`username-${i}`);
+  const referenceEl = document.getElementById(`reference-${i}`);
+  const commentEl = document.getElementById(`comment-${i}`);
+  const linkEl = document.getElementById(`proof-link-${i}`);
+  const photoEl = document.getElementById(`photo-${i}`);
 
   const username = usernameEl ? usernameEl.value.trim() : "";
+  const reference = referenceEl ? referenceEl.value.trim() : "";
   const comment = commentEl ? commentEl.value.trim() : "";
-  const proofLink = linkEl ? linkEl.value.trim() : "";
-  const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+  const proofLinkRaw = linkEl ? linkEl.value.trim() : "";
+  const proofLink = proofLinkRaw ? normalUrl(proofLinkRaw) : "";
+  const file = photoEl && photoEl.files ? photoEl.files[0] : null;
 
-  if(req.usernameRequired && !username){
-    showMessage(index,"error","Enter the username or account used.");
+  if(needUsername && !username){
+    showMessage(i,"error","Enter the username or account used.");
     return;
   }
 
-  if(req.commentRequired && !comment){
-    showMessage(index,"error","Enter your task report.");
+  if(flags.reference && !reference){
+    showMessage(i,"error","Enter the required reference ID.");
     return;
   }
 
-  if(proofLink && !normalizeUrl(proofLink)){
-    showMessage(index,"error","Enter a valid HTTP or HTTPS proof link.");
+  if(needText && !comment){
+    showMessage(i,"error","Enter the required text or task report.");
+    return;
+  }
+
+  if(flags.url && !proofLink){
+    showMessage(i,"error","Enter a valid HTTP or HTTPS proof URL.");
+    return;
+  }
+
+  if(proofLinkRaw && !proofLink){
+    showMessage(i,"error","Enter a valid HTTP or HTTPS proof link.");
     return;
   }
 
   if(!file){
-    showMessage(index,"error","Photo proof is required.");
+    showMessage(i,"error","Photo proof is required.");
     return;
   }
 
-  if(!["image/jpeg","image/png","image/webp"].includes(file.type) ||
-     file.size > 5 * 1024 * 1024){
-    showMessage(index,"error","Choose a JPG, PNG or WEBP image up to 5MB.");
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type) || file.size > MAX_PHOTO_SIZE){
+    showMessage(i,"error","Choose a JPG, PNG or WEBP image up to 5MB.");
+    return;
+  }
+
+  const timerSeconds = getTimerSeconds(task);
+  if(timerSeconds && !timerState[i]?.complete){
+    showMessage(i,"error","Complete the required viewing timer before submitting proof.");
     return;
   }
 
   button.disabled = true;
-  button.textContent = "Checking submission...";
+  button.textContent = "Checking submission…";
 
   let uploadedPath = null;
 
   try{
-    /*
-      These checks improve the user experience, but they cannot prevent
-      simultaneous requests from multiple devices. Enforce uniqueness and
-      slot limits in the database/RPC as well.
-    */
-    const {data:existingCompletions,error:checkCompletionError} = await db
-      .from("task_completions")
-      .select("id")
-      .eq("task_id",task.id)
-      .eq("user_id",currentUser.id)
-      .limit(1);
-
-    if(checkCompletionError) throw checkCompletionError;
-
-    if(existingCompletions && existingCompletions.length){
-      throw new Error("You have already completed this task.");
-    }
-
-    const {data:existingSubs,error:checkSubError} = await db
-      .from("task_submissions")
+    /* Check for existing submissions using common status values. */
+    const {data:existing,error:checkError} = await db.from("task_submissions")
       .select("id,status")
       .eq("task_id",task.id)
       .eq("user_id",currentUser.id)
-      .in("status",["PENDING","APPROVED"])
-      .limit(1);
+      .in("status",["PENDING","APPROVED","COMPLETED","SUCCESS"]);
 
-    if(checkSubError) throw checkSubError;
+    if(checkError) throw new Error("Could not check previous submissions: " + checkError.message);
 
-    if(existingSubs && existingSubs.length){
+    if((existing || []).length){
       throw new Error("You already have a pending or approved submission for this task.");
     }
 
-    button.textContent = "Uploading photo...";
+    button.textContent = "Uploading photo…";
 
-    const extension = file.type === "image/png" ? "png"
-      : file.type === "image/webp" ? "webp" : "jpg";
+    const extension = file.type === "image/png" ? "png" :
+      file.type === "image/webp" ? "webp" : "jpg";
 
-    uploadedPath = `${currentUser.id}/${task.id}/${crypto.randomUUID()}.${extension}`;
+    const randomId = window.crypto && typeof window.crypto.randomUUID === "function"
+      ? window.crypto.randomUUID()
+      : Date.now() + "-" + Math.random().toString(16).slice(2);
+
+    uploadedPath = `${currentUser.id}/${task.id}/${randomId}.${extension}`;
 
     const {error:uploadError} = await db.storage
       .from(TASK_PROOF_BUCKET)
@@ -983,14 +920,14 @@ async function submitProof(event,index){
         upsert:false
       });
 
-    if(uploadError) throw uploadError;
+    if(uploadError){
+      throw new Error("Photo upload failed: " + uploadError.message +
+        ". Check the task-proofs Storage bucket and its upload policies.");
+    }
 
-    button.textContent = "Saving submission...";
+    button.textContent = "Saving proof…";
 
-    /*
-      Keep the existing proof object structure so the admin can continue
-      reading photo.bucket, photo.path, worker_username and worker_comment.
-    */
+    /* Keep this JSON structure compatible with the admin review flow. */
     const proof = {
       photo:{
         bucket:TASK_PROOF_BUCKET,
@@ -1000,68 +937,52 @@ async function submitProof(event,index){
         size:file.size
       },
       worker_username:username || null,
+      worker_reference:reference || null,
       worker_comment:comment || null,
-      worker_link:proofLink ? normalizeUrl(proofLink) : null,
+      worker_text:comment || null,
+      worker_link:proofLink || null,
       submitted_at:new Date().toISOString()
     };
 
-    const {error:insertError} = await db
-      .from("task_submissions")
-      .insert({
-        user_id:currentUser.id,
-        task_id:task.id,
-        proof:JSON.stringify(proof),
-        status:"PENDING"
-      });
-
-    if(insertError) throw insertError;
-
-    userTaskStates[task.id] = "PENDING";
-
-    showMessage(index,"success","Proof submitted successfully. Your submission is now awaiting admin review.");
-
-    button.textContent = "Proof Submitted ✓";
-
-    event.target.querySelectorAll("input,textarea,button").forEach(el => {
-      el.disabled = true;
+    const {error:insertError} = await db.from("task_submissions").insert({
+      user_id:currentUser.id,
+      task_id:task.id,
+      proof:JSON.stringify(proof),
+      status:"PENDING"
     });
 
-    /*
-      Refresh list state after a successful insert.
-      Do not remove uploaded proof after the submission has been saved.
-    */
-    uploadedPath = null;
-    await loadTasks();
+    if(insertError){
+      throw new Error("Proof could not be saved: " + insertError.message);
+    }
 
+    uploadedPath = null;
+    userTaskStates[task.id] = "PENDING";
+
+    showMessage(i,"success","Your proof has been submitted successfully and is awaiting review.");
+    button.textContent = "Proof Submitted";
+
+    await loadTasks();
   }catch(error){
     console.error("Proof submission failed:",error);
 
     if(uploadedPath){
       try{
-        const {error:cleanupError} = await db.storage
-          .from(TASK_PROOF_BUCKET)
-          .remove([uploadedPath]);
-
-        if(cleanupError) console.warn("Uploaded file cleanup failed:",cleanupError.message);
+        await db.storage.from(TASK_PROOF_BUCKET).remove([uploadedPath]);
       }catch(cleanupError){
-        console.warn("Uploaded file cleanup failed:",cleanupError);
+        console.warn("Temporary photo cleanup failed:",cleanupError);
       }
     }
 
     button.disabled = false;
     button.textContent = "Submit Proof";
-
-    showMessage(index,"error",error && error.message
-      ? error.message
-      : "Could not submit proof. Please try again.");
+    showMessage(i,"error",error.message || "Could not submit proof. Please try again.");
   }
 }
 
-function openTask(index){
-  const task = loadedTasks[index];
-  if(!task) return;
+function openTask(i){
+  const task = loadedTasks[i];
+  const url = task && taskUrl(task);
 
-  const url = normalizeUrl(task.task_link || task.post_link || "");
   if(!url){
     alert("This task has no valid external link.");
     return;
@@ -1070,84 +991,71 @@ function openTask(index){
   window.open(url,"_blank","noopener,noreferrer");
 }
 
-async function copyReliable(text){
+async function copyReliable(value){
   try{
     if(navigator.clipboard && window.isSecureContext){
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(value);
       return true;
     }
   }catch(e){}
 
   try{
     const area = document.createElement("textarea");
-    area.value = text;
+    area.value = value;
     area.setAttribute("readonly","");
     area.style.position = "fixed";
     area.style.left = "-9999px";
     document.body.appendChild(area);
     area.select();
-
-    const result = document.execCommand("copy");
+    const ok = document.execCommand("copy");
     area.remove();
-    return result;
+    return ok;
   }catch(e){
     return false;
   }
 }
 
-async function copyLink(index){
-  const task = loadedTasks[index];
-  const url = normalizeUrl(task && (task.task_link || task.post_link));
+async function copyLink(i){
+  const task = loadedTasks[i];
+  const url = task && taskUrl(task);
   if(!url) return;
 
   const ok = await copyReliable(url);
-  const btn = document.getElementById(`copy-link-${index}`);
+  const button = document.getElementById(`copy-link-${i}`);
 
-  if(ok && btn){
-    btn.textContent = "Copied ✓";
-    btn.classList.add("copied");
-    setTimeout(() => {
-      if(btn.isConnected){
-        btn.textContent = "Copy Link";
-        btn.classList.remove("copied");
-      }
-    },1500);
+  if(ok && button){
+    button.textContent = "Copied ✓";
+    button.classList.add("copied");
   }else{
     alert("Copy was blocked. Long-press the link to copy it.");
   }
 }
 
-async function copyTaskText(index){
-  const task = loadedTasks[index];
+async function copyTaskText(i){
+  const task = loadedTasks[i];
   if(!task || !task.copy_text) return;
 
   const ok = await copyReliable(task.copy_text);
-  const btn = document.getElementById(`copy-text-${index}`);
+  const button = document.getElementById(`copy-text-${i}`);
 
-  if(ok && btn){
-    btn.textContent = "Copied ✓";
-    btn.classList.add("copied");
-    setTimeout(() => {
-      if(btn.isConnected){
-        btn.textContent = "Copy Text";
-        btn.classList.remove("copied");
-      }
-    },1500);
+  if(ok && button){
+    button.textContent = "Copied ✓";
+    button.classList.add("copied");
   }else{
     alert("Copy was blocked. Select the text manually.");
   }
 }
 
 async function startPage(){
-  if(!window.supabase){
+  if(!db){
     tasksArea.className = "error";
-    tasksArea.textContent = "The Supabase library could not load. Check your internet connection and refresh.";
+    tasksArea.textContent = "Supabase could not load. Check your internet connection and refresh.";
     return;
   }
 
-  if(!SUPABASE_KEY || SUPABASE_KEY === "YOUR_EXISTING_SUPABASE_PUBLISHABLE_KEY"){
+  if(SUPABASE_KEY === "PASTE_YOUR_EXISTING_SUPABASE_PUBLISHABLE_KEY_HERE"){
     tasksArea.className = "error";
-    tasksArea.textContent = "Add your existing Supabase publishable key to the SUPABASE_KEY setting before using this page.";
+    tasksArea.textContent = "Your Supabase publishable key has not been added to task.html yet.";
     return;
   }
 
@@ -1161,13 +1069,15 @@ async function startPage(){
 
     currentUser = data.user;
     await loadTasks();
-
   }catch(error){
-    console.error("Page startup failed:",error);
+    console.error("Task page startup failed:",error);
     tasksArea.className = "error";
-    tasksArea.textContent = "Could not start the task page. Please refresh and try again.";
+    tasksArea.textContent = "Could not start the task page. Refresh and try again.";
   }
 }
+
+document.getElementById("refreshBtn").addEventListener("click",loadTasks);
+document.getElementById("taskSearch").addEventListener("input",renderTasks);
 
 startPage();
 </script>
