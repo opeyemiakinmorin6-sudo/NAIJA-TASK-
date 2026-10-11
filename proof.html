@@ -1,1 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#087f36">
+<title>Proof & Reviews — NAIJA TASK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<style>
+:root{
+  --green:#087f36;--green2:#0b9b45;--dark:#064d25;--lime:#b7ef43;
+  --bg:#f3f8f5;--white:#fff;--text:#173324;--muted:#718078;
+  --border:#e2ebe5;--red:#b42323;--orange:#8b5900;--blue:#145da0;
+  --shadow:0 8px 25px rgba(10,70,35,.07);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:14px}
+button,input,textarea,select{font:inherit}
+button,a{touch-action:manipulation}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer}
+.topbar{
+  background:linear-gradient(135deg,var(--dark),var(--green2));color:white;
+  padding:17px 16px;padding-top:max(17px,env(safe-area-inset-top));
+  position:sticky;top:0;z-index:10;box-shadow:0 3px 14px #064d2520;
+}
+.toprow{max-width:900px;margin:auto;display:flex;align-items:center;gap:12px}
+.back{width:40px;height:40px;border:1px solid #ffffff40;background:#ffffff15;color:white;border-radius:13px;font-size:22px}
+.brand{font-size:18px;font-weight:900;letter-spacing:.3px}
+.brand small{display:block;font-size:11px;font-weight:500;opacity:.8;margin-top:4px}
+.wrap{max-width:900px;margin:auto;padding:18px 14px 100px}
+.hero{
+  background:linear-gradient(135deg,#064d25,#0b9b45);color:white;padding:23px 20px;
+  border-radius:22px;position:relative;overflow:hidden;box-shadow:var(--shadow)
+}
+.hero:after{content:"";position:absolute;width:150px;height:150px;right:-45px;bottom:-65px;background:#b7ef4325;border-radius:50%}
+.hero h1{font-size:23px;margin:0 0 9px;position:relative;z-index:1}
+.hero p{font-size:13px;line-height:1.6;margin:0;max-width:600px;color:#e5f7eb;position:relative;z-index:1}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}
+.stat{background:white;border:1px solid var(--border);padding:14px 10px;border-radius:16px;box-shadow:var(--shadow);min-width:0}
+.stat strong{display:block;font-size:23px;color:var(--green);margin-bottom:6px}
+.stat span{font-size:11px;color:var(--muted);line-height:1.35;display:block}
+.panel{background:white;border:1px solid var(--border);border-radius:19px;padding:16px;margin-top:14px;box-shadow:var(--shadow)}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:13px}
+.panel h2{font-size:17px;margin:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+select,input,textarea{width:100%;border:1px solid #d9e5dc;background:#fbfdfb;color:var(--text);border-radius:11px;padding:12px;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--green)}
+.filters select{width:auto;max-width:100%;padding:10px;font-size:12px}
+.submission{border:1px solid var(--border);border-radius:16px;padding:15px;margin:11px 0;background:#fff}
+.subtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.tasktitle{font-size:15px;font-weight:800;line-height:1.4;overflow-wrap:anywhere}
+.meta{font-size:12px;color:var(--muted);line-height:1.6;margin-top:7px}
+.badge{display:inline-flex;align-items:center;border-radius:30px;padding:6px 9px;font-size:10px;font-weight:800;text-transform:uppercase;line-height:1.3;text-align:center;white-space:normal}
+.pending{background:#fff3d8;color:#8b5900}
+.approved,.completed,.success{background:#e2f7e8;color:#087f36}
+.rejected{background:#ffebeb;color:#b42323}
+.review-requested,.under-review{background:#e5f1ff;color:#145da0}
+.unknown{background:#edf1ee;color:#536158}
+.reason{background:#fff4f2;border:1px solid #ffd7d1;border-radius:12px;padding:12px;margin-top:12px;line-height:1.6;overflow-wrap:anywhere}
+.reason strong{color:#a32020;display:block;margin-bottom:4px}
+.feedback{background:#eff8f1;border:1px solid #d6eddb;border-radius:12px;padding:12px;margin-top:10px;line-height:1.6;overflow-wrap:anywhere}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.btn{border:0;border-radius:11px;padding:11px 13px;font-weight:800;font-size:12px;display:inline-flex;justify-content:center;align-items:center;text-align:center;gap:6px}
+.primary{background:var(--green);color:white}
+.secondary{background:#e8f5eb;color:var(--green)}
+.outline{background:white;color:var(--green);border:1px solid #b9d9c1}
+.notice{border-radius:13px;padding:12px;line-height:1.6;font-size:12px;margin-top:12px}
+.notice.info{background:#eaf4ff;color:#174e80}
+.notice.warning{background:#fff6df;color:#805400}
+.notice.error{background:#fff0ef;color:#a32020}
+.notice.success{background:#e8f8ec;color:#087f36}
+.empty{text-align:center;padding:28px 12px;color:var(--muted);line-height:1.7}
+.empty .emoji{font-size:34px;margin-bottom:8px}
+#message{display:none;margin-top:12px}
+label{display:block;font-size:12px;font-weight:800;margin:12px 0 7px}
+small.hint{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:6px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:9px 10px calc(9px + env(safe-area-inset-bottom));display:flex;justify-content:center;z-index:20}
+.nav{width:100%;max-width:650px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.nav a{text-align:center;padding:7px 2px;border-radius:10px;font-size:10px;color:#647168;font-weight:700}
+.nav a span{display:block;font-size:19px;margin-bottom:3px}
+.nav a.active{background:#e6f6e9;color:var(--green)}
+@media(min-width:600px){.wrap{padding-top:24px}.hero{padding:28px}.hero h1{font-size:27px}.submission{padding:18px}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="toprow">
+    <button class="back" onclick="goBack()" aria-label="Go back">‹</button>
+    <div class="brand">NAIJA TASK<small>Complete Tasks. Earn Naira.</small></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Proof & Review Centre</h1>
+    <p>Track your submissions, understand rejection feedback, request a review, and return to tasks when you need to correct your proof.</p>
+  </section>
+
+  <section class="stats">
+    <div class="stat"><strong id="totalCount">—</strong><span>Total submissions</span></div>
+    <div class="stat"><strong id="pendingCount">—</strong><span>Awaiting decision</span></div>
+    <div class="stat"><strong id="rejectedCount">—</strong><span>Rejected submissions</span></div>
+  </section>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>My submissions</h2>
+      <div class="filters">
+        <select id="statusFilter" aria-label="Filter by status">
+          <option value="ALL">All statuses</option>
+          <option value="PENDING">Pending</option>
+          <option value="UNDER_REVIEW">Under review</option>
+          <option value="REVIEW_REQUESTED">Review requested</option>
+          <option value="APPROVED">Approved</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+    </div>
+    <div id="message" class="notice info"></div>
+    <div id="submissionList"><div class="empty"><div class="emoji">⏳</div>Loading your submissions…</div></div>
+  </section>
+
+  <section class="panel">
+    <h2>Understand your options</h2>
+    <div class="notice info"><strong>Pending:</strong> Your proof is waiting for a decision. Avoid submitting the same task repeatedly while it is under review.</div>
+    <div class="notice warning"><strong>Rejected:</strong> Read the rejection reason. If retries are allowed and the task remains available, open it again and submit corrected proof.</div>
+    <div class="notice info"><strong>Request review:</strong> Use this if you believe a rejection was unfair. Explain why your original proof meets the task requirements.</div>
+    <div class="notice success"><strong>Approved:</strong> Your submission was accepted. Your actual wallet balance depends on the platform's secure reward-processing system.</div>
+  </section>
+</main>
+
+<nav class="bottom">
+  <div class="nav">
+    <a href="dashboard.html"><span>⌂</span>Home</a>
+    <a href="task.html"><span>▣</span>Find Tasks</a>
+    <a href="proof.html" class="active"><span>✓</span>My Proof</a>
+    <a href="wallet.html"><span>₦</span>Wallet</a>
+  </div>
+</nav>
+
+<script>
+"use strict";
+
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let submissions = [];
+const $ = id => document.getElementById(id);
+
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g,ch=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[ch]));
+}
+function showMessage(text,type="info"){
+  const el=$("message");
+  el.className="notice "+type;
+  el.textContent=text;
+  el.style.display="block";
+}
+function hideMessage(){$("message").style.display="none";}
+function normalStatus(value){
+  return String(value||"UNKNOWN").trim().toUpperCase().replace(/[\s-]+/g,"_");
+}
+function statusClass(status){
+  if(["APPROVED","COMPLETED","SUCCESS"].includes(status))return "approved";
+  if(status==="REJECTED")return "rejected";
+  if(status==="PENDING")return "pending";
+  if(status==="REVIEW_REQUESTED")return "review-requested";
+  if(status==="UNDER_REVIEW")return "under-review";
+  return "unknown";
+}
+function statusLabel(status){
+  return ({
+    PENDING:"Pending review",UNDER_REVIEW:"Under review",
+    REVIEW_REQUESTED:"Review requested",APPROVED:"Approved",
+    COMPLETED:"Completed",SUCCESS:"Approved",REJECTED:"Rejected"
+  })[status]||status.replace(/_/g," ");
+}
+function dateText(value){
+  if(!value)return "Date unavailable";
+  const d=new Date(value);
+  return Number.isNaN(d.getTime())?"Date unavailable":d.toLocaleString();
+}
+function proofObject(row){
+  if(!row.proof)return {};
+  if(typeof row.proof==="object")return row.proof;
+  try{return JSON.parse(row.proof);}catch(_){return {};}
+}
+function taskTitle(row){
+  const p=proofObject(row);
+  return row.task_title||p.task_title||("Task #"+String(row.task_id||"").slice(0,8));
+}
+function rejectionReason(row){
+  const p=proofObject(row);
+  return row.rejection_reason||p.rejection_reason||p.rejectionReason||"";
+}
+function reviewFeedback(row){
+  const p=proofObject(row);
+  return row.post_review||p.post_review||p.review_feedback||"";
+}
+function updateStats(){
+  $("totalCount").textContent=submissions.length;
+  $("pendingCount").textContent=submissions.filter(r=>
+    ["PENDING","UNDER_REVIEW","REVIEW_REQUESTED"].includes(normalStatus(r.status))
+  ).length;
+  $("rejectedCount").textContent=submissions.filter(r=>normalStatus(r.status)==="REJECTED").length;
+}
+function renderSubmissions(){
+  const filter=$("statusFilter").value;
+  const rows=submissions.filter(r=>filter==="ALL"||normalStatus(r.status)===filter);
+  const list=$("submissionList");
+
+  if(!rows.length){
+    list.innerHTML='<div class="empty"><div class="emoji">📋</div><strong>No submissions found</strong><br>Your submissions will appear here after you submit proof for a task.</div>';
+    return;
+  }
+
+  list.innerHTML=rows.map(row=>{
+    const status=normalStatus(row.status);
+    const reason=rejectionReason(row);
+    const feedback=reviewFeedback(row);
+    const id=String(row.id);
+    const canRequestReview=status==="REJECTED"&&!feedback;
+
+    return `
+      <article class="submission">
+        <div class="subtop">
+          <div>
+            <div class="tasktitle">${esc(taskTitle(row))}</div>
+            <div class="meta">Submitted: ${esc(dateText(row.created_at))}<br>Submission ID: #${esc(id.slice(0,10))}</div>
+          </div>
+          <span class="badge ${statusClass(status)}">${esc(statusLabel(status))}</span>
+        </div>
+
+        ${reason?`<div class="reason"><strong>Reason for rejection</strong>${esc(reason)}</div>`:
+          status==="REJECTED"?'<div class="notice warning">No rejection reason was returned. Contact support if you need clarification.</div>':""}
+
+        ${feedback?`<div class="feedback"><strong>Review information</strong><br>${esc(feedback)}</div>`:""}
+
+        ${["PENDING","UNDER_REVIEW"].includes(status)?'<div class="notice info">Your submission is awaiting a decision. Please wait for the reviewer.</div>':""}
+        ${status==="REVIEW_REQUESTED"?'<div class="notice info">Your review request is recorded on this submission, if permitted by your database policies. Check back for a decision.</div>':""}
+
+        <div class="actions">
+          ${status==="REJECTED"?`<a class="btn primary" href="task.html?task_id=${encodeURIComponent(row.task_id||"")}">↻ Open task to correct proof</a>`:""}
+          ${canRequestReview?`<button class="btn secondary" type="button" onclick="openReviewForm('${esc(id)}')">Request a review</button>`:""}
+        </div>
+
+        ${canRequestReview?`
+          <form id="review-form-${esc(id)}" style="display:none;margin-top:13px;padding:13px;background:#f8fbf9;border:1px solid #e2ebe5;border-radius:13px" onsubmit="submitReview(event,'${esc(id)}')">
+            <label for="review-reason-${esc(id)}">Why should this submission be reviewed?</label>
+            <textarea id="review-reason-${esc(id)}" rows="4" maxlength="1500" required placeholder="Explain why your proof meets the task requirements."></textarea>
+            <small class="hint">Do not include passwords, bank details, or other sensitive information.</small>
+            <div class="actions">
+              <button class="btn primary" type="submit">Send review request</button>
+              <button class="btn outline" type="button" onclick="closeReviewForm('${esc(id)}')">Cancel</button>
+            </div>
+          </form>`:""}
+      </article>`;
+  }).join("");
+}
+function openReviewForm(id){
+  const form=$("review-form-"+id);
+  if(form)form.style.display="block";
+}
+function closeReviewForm(id){
+  const form=$("review-form-"+id);
+  if(form)form.style.display="none";
+}
+
+async function submitReview(event,id){
+  event.preventDefault();
+  hideMessage();
+
+  const row=submissions.find(r=>String(r.id)===String(id));
+  if(!row||String(row.user_id)!==String(currentUser.id)){
+    showMessage("We could not verify that this submission belongs to your account. Refresh and try again.","error");
+    return;
+  }
+  if(normalStatus(row.status)!=="REJECTED"){
+    showMessage("Only rejected submissions can request a review here.","warning");
+    return;
+  }
+
+  const field=$("review-reason-"+id);
+  const reason=field?field.value.trim():"";
+  if(reason.length<10){
+    showMessage("Please explain your reason in at least 10 characters.","warning");
+    return;
+  }
+
+  const form=$("review-form-"+id);
+  const button=form.querySelector('button[type="submit"]');
+  button.disabled=true;
+  button.textContent="Sending…";
+
+  /*
+    This direct update is attempted only for the logged-in owner's row.
+    Supabase RLS must permit it. For reliable review history and admin
+    notification, use a validated server-side RPC and a dedicated review table.
+  */
+  try{
+    const requestText="REVIEW REQUESTED "+new Date().toISOString()+"\n"+reason;
+    const {data,error}=await db.from("task_submissions")
+      .update({status:"REVIEW_REQUESTED",post_review:requestText})
+      .eq("id",row.id)
+      .eq("user_id",currentUser.id)
+      .eq("status","REJECTED")
+      .select("id,status,post_review")
+      .maybeSingle();
+
+    if(error)throw error;
+    if(!data)throw new Error("No row updated. Database permissions or submission status may have changed.");
+
+    showMessage("The review request was saved. The administrator's review queue must also be configured to display it.","success");
+    await loadSubmissions();
+  }catch(error){
+    console.error("Review request failed:",error);
+    showMessage("The review request could not be saved. Your database may not allow taskers to update review fields directly. No reward or approval was changed.","error");
+  }finally{
+    button.disabled=false;
+    button.textContent="Send review request";
+  }
+}
+
+async function loadSubmissions(){
+  hideMessage();
+  $("submissionList").innerHTML='<div class="empty"><div class="emoji">⏳</div>Loading your submissions…</div>';
+
+  try{
+    let result=await db.from("task_submissions")
+      .select("id,task_id,user_id,status,created_at,proof,rejection_reason,post_review")
+      .eq("user_id",currentUser.id)
+      .order("created_at",{ascending:false})
+      .limit(200);
+
+    if(result.error&&/post_review|column/i.test(result.error.message||"")){
+      result=await db.from("task_submissions")
+        .select("id,task_id,user_id,status,created_at,proof,rejection_reason")
+        .eq("user_id",currentUser.id)
+        .order("created_at",{ascending:false})
+        .limit(200);
+    }
+    if(result.error)throw result.error;
+
+    submissions=result.data||[];
+
+    const ids=[...new Set(submissions.map(r=>r.task_id).filter(Boolean))];
+    if(ids.length){
+      const titles=await db.from("tasks").select("id,title").in("id",ids);
+      if(!titles.error){
+        const map=new Map((titles.data||[]).map(t=>[String(t.id),t.title]));
+        submissions=submissions.map(r=>({...r,task_title:map.get(String(r.task_id))||""}));
+      }
+    }
+
+    updateStats();
+    renderSubmissions();
+
+    if(!submissions.length)showMessage("You have no task submissions yet. Open Find Tasks to get started.","info");
+  }catch(error){
+    console.error("Submission history failed:",error);
+    $("submissionList").innerHTML='<div class="empty"><div class="emoji">⚠️</div><strong>We could not load your submissions.</strong><br>Check your connection. If the problem continues, the task_submissions table or its access policies may need attention.</div>';
+    showMessage("Unable to load submission history. No records have been changed.","error");
+  }
+}
+
+function goBack(){
+  if(history.length>1)history.back();
+  else location.href="dashboard.html";
+}
+$("statusFilter").addEventListener("change",renderSubmissions);
+
+async function startPage(){
+  try{
+    const {data,error}=await db.auth.getSession();
+    if(error)throw error;
+    currentUser=data.session&&data.session.user;
+    if(!currentUser){
+      location.href="login.html";
+      return;
+    }
+    await loadSubmissions();
+  }catch(error){
+    console.error("Page startup failed:",error);
+    showMessage("Unable to verify your login. Refresh the page or sign in again.","error");
+  }
+}
+startPage();
+</script>
+</body>
+</html>
