@@ -1,1 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#087f36">
+<title>My Jobs — NAIJA TASK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<style>
+:root{
+  --green:#087f36;
+  --green2:#0b9b45;
+  --dark:#064d25;
+  --lime:#b7ef43;
+  --bg:#f3f8f5;
+  --white:#fff;
+  --text:#173324;
+  --muted:#718078;
+  --border:#e2ebe5;
+  --red:#b42323;
+  --orange:#8b5900;
+  --blue:#145da0;
+  --shadow:0 8px 25px rgba(10,70,35,.07);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;font-size:14px;
+}
+button,input,select,textarea{font:inherit}
+button,a{touch-action:manipulation}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer}
+.topbar{
+  color:white;background:linear-gradient(135deg,var(--dark),var(--green2));
+  padding:16px;padding-top:max(16px,env(safe-area-inset-top));
+  position:sticky;top:0;z-index:10;
+  box-shadow:0 3px 14px #064d2520;
+}
+.toprow{max-width:1000px;margin:auto;display:flex;align-items:center;gap:12px}
+.back{
+  width:40px;height:40px;border:1px solid #ffffff40;
+  background:#ffffff15;color:white;border-radius:13px;font-size:22px;
+}
+.brand{font-size:18px;font-weight:900}
+.brand small{display:block;font-size:11px;font-weight:500;opacity:.8;margin-top:4px}
+.wrap{max-width:1000px;margin:auto;padding:18px 14px 100px}
+.hero{
+  background:linear-gradient(135deg,#064d25,#0b9b45);
+  color:white;border-radius:22px;padding:22px 19px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.hero:after{
+  content:"";position:absolute;width:160px;height:160px;
+  right:-45px;bottom:-75px;background:#b7ef4325;border-radius:50%;
+}
+.hero h1{font-size:24px;margin:0 0 9px;position:relative;z-index:1}
+.hero p{line-height:1.6;color:#e5f7eb;margin:0;max-width:700px;position:relative;z-index:1}
+.heroactions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:0;border-radius:11px;padding:11px 13px;font-size:12px;font-weight:800;
+  text-align:center;
+}
+.btn-white{background:white;color:var(--green)}
+.btn-primary{background:var(--green);color:white}
+.btn-secondary{background:#e7f5eb;color:var(--green)}
+.btn-outline{background:white;border:1px solid #cfe0d3;color:var(--green)}
+.btn-disabled{background:#edf1ee;color:#68746c;cursor:not-allowed}
+.stats{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;margin:15px 0;
+}
+.stat{
+  background:white;border:1px solid var(--border);border-radius:16px;
+  padding:15px 13px;box-shadow:var(--shadow);min-width:0;
+}
+.stat strong{font-size:23px;color:var(--green);display:block;margin-bottom:5px}
+.stat span{font-size:11px;color:var(--muted);line-height:1.4}
+.panel{
+  background:white;border:1px solid var(--border);border-radius:19px;
+  padding:15px;margin-top:14px;box-shadow:var(--shadow);
+}
+.panelhead{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;flex-wrap:wrap;margin-bottom:13px;
+}
+.panel h2{font-size:17px;margin:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+input,select,textarea{
+  width:100%;border:1px solid #d9e5dc;background:#fbfdfb;color:var(--text);
+  border-radius:11px;padding:11px;outline:none;min-width:0;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+.filters input{flex:1;min-width:130px}
+.filters select{flex:1;min-width:125px}
+.job{
+  border:1px solid var(--border);border-radius:16px;
+  padding:14px;margin:11px 0;background:#fff;
+}
+.job:last-child{margin-bottom:0}
+.jobtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.jobtitle{font-weight:800;font-size:15px;line-height:1.45;overflow-wrap:anywhere}
+.badge{
+  display:inline-flex;justify-content:center;align-items:center;
+  border-radius:30px;padding:6px 9px;font-size:10px;font-weight:800;
+  text-transform:uppercase;line-height:1.3;text-align:center;overflow-wrap:anywhere;
+}
+.good{background:#e2f7e8;color:#087f36}
+.wait{background:#fff3d8;color:#8b5900}
+.bad{background:#ffebeb;color:#b42323}
+.info-badge{background:#e5f1ff;color:#145da0}
+.neutral{background:#edf1ee;color:#536158}
+.jobmeta{color:var(--muted);font-size:12px;line-height:1.7;margin-top:8px}
+.jobmetrics{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;margin-top:13px;
+}
+.metric{padding:10px;background:#f5faf6;border:1px solid #e5eee7;border-radius:12px;min-width:0}
+.metric strong{display:block;font-size:15px;color:var(--dark);overflow-wrap:anywhere}
+.metric span{display:block;color:var(--muted);font-size:10px;margin-top:4px;line-height:1.4}
+.progress{height:7px;background:#e8eee9;border-radius:20px;overflow:hidden;margin-top:7px}
+.progress span{height:100%;display:block;background:var(--green2);border-radius:20px;width:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.notice{
+  border-radius:12px;padding:12px;margin-top:10px;font-size:12px;line-height:1.6;
+}
+.notice.info{background:#eaf4ff;color:#174e80}
+.notice.warning{background:#fff6df;color:#805400}
+.notice.error{background:#fff0ef;color:#a32020}
+.notice.success{background:#e8f8ec;color:#087f36}
+.empty{text-align:center;padding:28px 10px;color:var(--muted);line-height:1.7}
+.empty .emoji{font-size:34px;margin-bottom:8px}
+#message{display:none}
+.submission{
+  border:1px solid var(--border);border-radius:13px;
+  padding:12px;margin-top:10px;background:#fbfdfb;
+}
+.submissiontop{display:flex;justify-content:space-between;gap:9px;align-items:flex-start}
+.submissiontitle{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.submissionmeta{font-size:11px;color:var(--muted);line-height:1.7;margin-top:5px}
+.detailgrid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.detailbox{padding:11px;border-radius:11px;background:#f5f8f5;overflow-wrap:anywhere;line-height:1.5}
+.detailbox strong{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+.proofimage{display:block;max-width:100%;max-height:320px;border-radius:12px;margin-top:9px;border:1px solid var(--border)}
+dialog{
+  width:min(650px,calc(100% - 24px));max-height:85vh;overflow:auto;
+  border:0;border-radius:19px;padding:17px;color:var(--text);
+  box-shadow:0 20px 60px #0003;
+}
+dialog::backdrop{background:#09201299}
+.dialoghead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.dialoghead h2{margin:0;font-size:18px}
+.close{border:0;background:#edf2ee;border-radius:10px;padding:8px 12px}
+.bottom{
+  position:fixed;bottom:0;left:0;right:0;background:#ffffffed;
+  backdrop-filter:blur(12px);border-top:1px solid var(--border);
+  padding:9px 10px calc(9px + env(safe-area-inset-bottom));z-index:20;
+  display:flex;justify-content:center;
+}
+.nav{width:100%;max-width:700px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.nav a{text-align:center;padding:7px 2px;border-radius:10px;font-size:10px;color:#647168;font-weight:700}
+.nav a span{display:block;font-size:19px;margin-bottom:3px}
+.nav a.active{background:#e6f6e9;color:var(--green)}
+@media(min-width:600px){
+  .wrap{padding-top:24px}
+  .hero{padding:28px}
+  .hero h1{font-size:28px}
+  .stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .filters{width:auto}
+  .filters input{width:200px;flex:initial}
+  .filters select{width:160px;flex:initial}
+  .jobmetrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .detailgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="toprow">
+    <button class="back" onclick="goBack()" aria-label="Go back">‹</button>
+    <div class="brand">NAIJA TASK<small>Poster Job Management</small></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>My Jobs & Submissions</h1>
+    <p>Manage the jobs you created, monitor payment and approval status, follow task completion, and review submitted proof where access is permitted.</p>
+    <div class="heroactions">
+      <a class="btn btn-white" href="post-job.html">＋ Create a job</a>
+      <a class="btn btn-white" href="poster-payment.html">₦ Payment centre</a>
+      <button class="btn btn-white" type="button" onclick="loadAll()">↻ Refresh</button>
+    </div>
+  </section>
+
+  <div id="message" class="notice info"></div>
+
+  <section class="stats">
+    <div class="stat"><strong id="totalJobs">—</strong><span>Total jobs created</span></div>
+    <div class="stat"><strong id="liveJobs">—</strong><span>Live jobs</span></div>
+    <div class="stat"><strong id="waitingJobs">—</strong><span>Awaiting payment or approval</span></div>
+    <div class="stat"><strong id="submissionCount">—</strong><span>Submissions received</span></div>
+  </section>
+
+  <section class="panel">
+    <div class="panelhead">
+      <h2>Your jobs</h2>
+      <div class="filters">
+        <input id="searchInput" type="search" placeholder="Search your jobs…" aria-label="Search jobs">
+        <select id="jobFilter" aria-label="Filter jobs">
+          <option value="ALL">All job statuses</option>
+          <option value="LIVE">Live</option>
+          <option value="PAYMENT">Payment needed / under review</option>
+          <option value="APPROVAL">Awaiting approval</option>
+          <option value="PAUSED">Paused</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+    </div>
+    <div id="jobsList"><div class="empty"><div class="emoji">⏳</div>Loading your jobs…</div></div>
+  </section>
+
+  <section class="panel">
+    <h2>Important information</h2>
+    <div class="notice info">A payment screenshot is not proof that a transfer has been verified. Your job may need payment verification and administrator approval before it can go live.</div>
+    <div class="notice warning">For fairness and fraud prevention, posters cannot approve their own payments, approve tasker submissions, or change tasker wallet balances from this page.</div>
+    <div class="notice info">If you cannot open proof images or see a payment status, your Supabase storage policies or database permissions may need to be configured.</div>
+  </section>
+</main>
+
+<dialog id="submissionsDialog">
+  <div class="dialoghead">
+    <h2 id="dialogTitle">Job submissions</h2>
+    <button class="close" type="button" onclick="closeSubmissions()">Close ✕</button>
+  </div>
+  <div id="dialogContent"><div class="empty">Select a job to view submissions.</div></div>
+</dialog>
+
+<nav class="bottom">
+  <div class="nav">
+    <a href="poster-dashboard.html"><span>⌂</span>Dashboard</a>
+    <a href="post-job.html"><span>＋</span>Create Job</a>
+    <a href="poster-jobs.html" class="active"><span>▣</span>My Jobs</a>
+    <a href="poster-payment.html"><span>₦</span>Payments</a>
+  </div>
+</nav>
+
+<script>
+"use strict";
+
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let jobs = [];
+let payments = [];
+let allSubmissions = [];
+let tasksSubmissionCounts = {};
+let selectedJob = null;
+
+const $ = id => document.getElementById(id);
+
+function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g,ch=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[ch]));
+}
+function money(value){
+  const n=Number(value);
+  if(!Number.isFinite(n)) return "₦0";
+  return "₦"+n.toLocaleString("en-NG",{maximumFractionDigits:2});
+}
+function dateText(value){
+  if(!value)return "Not available";
+  const d=new Date(value);
+  return Number.isNaN(d.getTime())?"Not available":d.toLocaleDateString();
+}
+function normalized(value){
+  return String(value||"UNKNOWN").trim().toUpperCase().replace(/[\s-]+/g,"_");
+}
+function displayStatus(value){
+  const s=normalized(value);
+  const map={
+    LIVE:"Live",
+    ACTIVE:"Active",
+    PUBLISHED:"Published",
+    APPROVED:"Approved",
+    APPROVED_BY_ADMIN:"Approved",
+    PAYMENT_REQUIRED:"Payment required",
+    PAYMENT_PENDING:"Payment pending",
+    PENDING:"Pending review",
+    UNDER_REVIEW:"Under review",
+    PAYMENT_UNDER_REVIEW:"Payment under review",
+    AWAITING_ADMIN_APPROVAL:"Awaiting admin approval",
+    REJECTED:"Rejected",
+    PAYMENT_REJECTED:"Payment rejected",
+    PAUSED:"Paused",
+    INACTIVE:"Inactive",
+    COMPLETED:"Completed",
+    OPEN:"Open",
+    CANCELLED:"Cancelled",
+    CLOSED:"Closed"
+  };
+  return map[s]||s.replace(/_/g," ");
+}
+function badgeClass(value){
+  const s=normalized(value);
+  if(["LIVE","ACTIVE","PUBLISHED","APPROVED","APPROVED_BY_ADMIN","COMPLETED","OPEN"].includes(s))return "good";
+  if(["REJECTED","PAYMENT_REJECTED","CANCELLED"].includes(s))return "bad";
+  if(["PAYMENT_REQUIRED","PAYMENT_PENDING","PAYMENT_UNDER_REVIEW","PENDING","UNDER_REVIEW","AWAITING_ADMIN_APPROVAL"].includes(s))return "wait";
+  if(["PAUSED","INACTIVE","CLOSED"].includes(s))return "neutral";
+  return "info-badge";
+}
+function showMessage(text,type="info"){
+  const el=$("message");
+  el.className="notice "+type;
+  el.textContent=text;
+  el.style.display="block";
+}
+function hideMessage(){$("message").style.display="none";}
+function goBack(){
+  if(history.length>1)history.back();
+  else location.href="poster-dashboard.html";
+}
+function isLive(job){
+  const status=normalized(job.status);
+  return job.active===true || ["LIVE","ACTIVE","PUBLISHED","APPROVED","APPROVED_BY_ADMIN","OPEN"].includes(status);
+}
+function jobGroup(job){
+  const s=normalized(job.status);
+  const payment=paymentFor(job.id);
+  const ps=payment?normalized(payment.status):"";
+  if(["REJECTED","JOB_REJECTED","PAYMENT_REJECTED"].includes(s)||ps==="REJECTED")return "REJECTED";
+  if(["COMPLETED","CLOSED"].includes(s))return "COMPLETED";
+  if(["PAUSED","INACTIVE"].includes(s)||job.active===false&&["PAUSED"].includes(s))return "PAUSED";
+  if(isLive(job))return "LIVE";
+  if(["AWAITING_ADMIN_APPROVAL","PENDING_APPROVAL","UNDER_REVIEW"].includes(s))return "APPROVAL";
+  if(["PAYMENT_REQUIRED","PAYMENT_PENDING","PAYMENT_UNDER_REVIEW"].includes(s)||["PENDING","UNDER_REVIEW","PAYMENT_REQUIRED","PAYMENT_UNDER_REVIEW"].includes(ps))return "PAYMENT";
+  if(["APPROVED","APPROVED_BY_ADMIN"].includes(ps))return "APPROVAL";
+  return "APPROVAL";
+}
+function paymentFor(taskId){
+  return payments.find(p=>String(p.task_id)===String(taskId))||null;
+}
+function slotsFor(job){
+  const n=Number(job.slots ?? job.max_total_completions ?? job.max_completions ?? 0);
+  return Number.isFinite(n)&&n>0?n:0;
+}
+function countFor(job){
+  return Number(tasksSubmissionCounts[String(job.id)]||0);
+}
+function progressFor(job){
+  const slots=slotsFor(job);
+  if(!slots)return 0;
+  return Math.max(0,Math.min(100,Math.round(countFor(job)/slots*100)));
+}
+function jobAmount(job){
+  const p=paymentFor(job.id);
+  if(p&&Number.isFinite(Number(p.amount))&&Number(p.amount)>0)return Number(p.amount);
+  return Math.max(0,Number(job.reward)||0)*slotsFor(job);
+}
+function waitingJob(job){
+  return ["PAYMENT","APPROVAL"].includes(jobGroup(job));
+}
+function updateStats(){
+  $("totalJobs").textContent=jobs.length;
+  $("liveJobs").textContent=jobs.filter(isLive).length;
+  $("waitingJobs").textContent=jobs.filter(waitingJob).length;
+  $("submissionCount").textContent=Object.values(tasksSubmissionCounts).reduce((a,b)=>a+Number(b||0),0);
+}
+function renderJobs(){
+  const term=$("searchInput").value.trim().toLowerCase();
+  const filter=$("jobFilter").value;
+  const visible=jobs.filter(job=>{
+    const matchesTerm=String(job.title||"").toLowerCase().includes(term);
+    const group=jobGroup(job);
+    let matchesFilter=filter==="ALL";
+    if(filter==="LIVE")matchesFilter=group==="LIVE";
+    if(filter==="PAYMENT")matchesFilter=group==="PAYMENT";
+    if(filter==="APPROVAL")matchesFilter=group==="APPROVAL";
+    if(filter==="PAUSED")matchesFilter=group==="PAUSED";
+    if(filter==="COMPLETED")matchesFilter=group==="COMPLETED";
+    if(filter==="REJECTED")matchesFilter=group==="REJECTED";
+    return matchesTerm&&matchesFilter;
+  });
+
+  if(!visible.length){
+    $("jobsList").innerHTML='<div class="empty"><div class="emoji">📋</div><strong>No jobs match this filter.</strong><br>Create a job or choose another filter.</div>';
+    return;
+  }
+
+  $("jobsList").innerHTML=visible.map(job=>{
+    const status=job.status||"UNKNOWN";
+    const group=jobGroup(job);
+    const pay=paymentFor(job.id);
+    const payStatus=pay?displayStatus(pay.status):"No payment record found";
+    const count=countFor(job);
+    const slots=slotsFor(job);
+    const remaining=slots?Math.max(0,slots-count):"—";
+    const progress=progressFor(job);
+    const amount=jobAmount(job);
+    const payBadge=pay?badgeClass(pay.status):"neutral";
+    const paymentHint=pay?
+      (normalized(pay.status)==="APPROVED"?"Payment record is marked approved; check the job status for publication.":
+       normalized(pay.status)==="REJECTED"?"Payment was rejected. Review the payment centre for next steps.":
+       "Payment is not confirmed as approved in the current payment record.")
+      :"No matching payment record was returned. Check the payment centre or contact support.";
+
+    return `
+      <article class="job">
+        <div class="jobtop">
+          <div>
+            <div class="jobtitle">${esc(job.title||"Untitled job")}</div>
+            <div class="jobmeta">Created: ${esc(dateText(job.created_at))}<br>Job ID: ${esc(String(job.id||"").slice(0,12))}</div>
+          </div>
+          <span class="badge ${badgeClass(status)}">${esc(displayStatus(status))}</span>
+        </div>
+
+        <div class="jobmetrics">
+          <div class="metric"><strong>${money(job.reward)}</strong><span>Reward per tasker</span></div>
+          <div class="metric"><strong>${slots||"—"}</strong><span>Planned slots</span></div>
+          <div class="metric"><strong>${count}</strong><span>Submissions received</span></div>
+          <div class="metric"><strong>${remaining}</strong><span>Estimated slots remaining</span></div>
+        </div>
+
+        <div class="detailgrid">
+          <div class="detailbox">
+            <strong>Payment status</strong>
+            <span class="badge ${payBadge}">${esc(payStatus)}</span>
+            <div class="jobmeta">${esc(paymentHint)}</div>
+          </div>
+          <div class="detailbox">
+            <strong>Job funding / payment amount</strong>
+            <div style="font-weight:800;font-size:17px">${money(amount)}</div>
+            <div class="jobmeta">This is the recorded payment amount when available; otherwise it is an estimate of reward × planned slots. It is not proof that funds were received.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:13px;font-size:11px;color:var(--muted)">Submission progress: ${count}${slots?" of "+slots:""} received</div>
+        <div class="progress"><span style="width:${progress}%"></span></div>
+
+        ${group==="PAYMENT"?'<div class="notice warning">This job appears to need payment or payment review. It should not be considered live until the platform confirms payment and publication.</div>':""}
+        ${group==="APPROVAL"?'<div class="notice info">This job appears to be waiting for an approval or publication step.</div>':""}
+        ${group==="REJECTED"?'<div class="notice error">This job or its payment has a rejected status. Review the payment centre or contact support for the recorded reason.</div>':""}
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" onclick="viewSubmissions('${esc(String(job.id))}')">View submissions (${count})</button>
+          ${group==="PAYMENT"||group==="REJECTED"?`<a class="btn btn-secondary" href="poster-payment.html?task_id=${encodeURIComponent(job.id)}">Open payment centre</a>`:""}
+          ${group==="LIVE"?'<span class="btn btn-disabled">Job status: live/active</span>':""}
+        </div>
+      </article>`;
+  }).join("");
+}
+
+async function loadJobs(){
+  const result=await db.from("tasks")
+    .select("id,title,description,reward,slots,status,active,created_at,expiry_date,created_by,task_type")
+    .eq("created_by",currentUser.id)
+    .order("created_at",{ascending:false})
+    .limit(300);
+
+  if(result.error)throw result.error;
+  jobs=result.data||[];
+}
+
+async function loadPayments(){
+  if(!jobs.length){payments=[];return;}
+  const ids=jobs.map(j=>j.id);
+  const result=await db.from("poster_payments")
+    .select("*")
+    .eq("poster_id",currentUser.id)
+    .in("task_id",ids)
+    .limit(500);
+
+  if(result.error){
+    console.warn("Could not load poster payments:",result.error.message);
+    payments=[];
+    return;
+  }
+
+  const rows=result.data||[];
+  const latest=new Map();
+  rows.forEach(p=>{
+    const key=String(p.task_id);
+    const previous=latest.get(key);
+    const pTime=new Date(p.created_at||0).getTime();
+    const prevTime=previous?new Date(previous.created_at||0).getTime():-1;
+    if(!previous||pTime>=prevTime)latest.set(key,p);
+  });
+  payments=[...latest.values()];
+}
+
+async function loadSubmissionCounts(){
+  tasksSubmissionCounts={};
+  if(!jobs.length)return;
+  const ids=jobs.map(j=>j.id);
+
+  const result=await db.from("task_submissions")
+    .select("id,task_id,status")
+    .in("task_id",ids)
+    .limit(5000);
+
+  if(result.error){
+    console.warn("Could not load submission counts:",result.error.message);
+    return;
+  }
+
+  /*
+    Count all returned attempts as submissions received. This is not a count
+    of approved completions. The table is capped to avoid huge mobile queries.
+  */
+  (result.data||[]).forEach(row=>{
+    const key=String(row.task_id);
+    tasksSubmissionCounts[key]=(tasksSubmissionCounts[key]||0)+1;
+  });
+}
+
+async function loadAll(){
+  if(!currentUser)return;
+  hideMessage();
+  $("jobsList").innerHTML='<div class="empty"><div class="emoji">⏳</div>Refreshing jobs and payment information…</div>';
+
+  try{
+    await loadJobs();
+    await loadPayments();
+    await loadSubmissionCounts();
+    updateStats();
+    renderJobs();
+
+    if(!jobs.length){
+      showMessage("No jobs were found for this account. If you created jobs with another login, sign in with that poster account.", "info");
+    }
+  }catch(error){
+    console.error("Could not load poster jobs:",error);
+    $("jobsList").innerHTML='<div class="empty"><div class="emoji">⚠️</div><strong>We could not load your jobs.</strong><br>Refresh the page. If the problem continues, check the tasks table columns and your Supabase access policies.</div>';
+    showMessage("The jobs query failed. No job or payment records were changed.", "error");
+  }
+}
+
+function parseProof(row){
+  const raw=row.proof;
+  if(!raw)return {};
+  if(typeof raw==="object")return raw;
+  try{return JSON.parse(raw);}catch(_){return {text:String(raw)};}
+}
+
+function findProofText(proof,keyList){
+  for(const key of keyList){
+    const value=proof&&proof[key];
+    if(typeof value==="string"&&value.trim())return value;
+    if(value&&typeof value==="object"){
+      if(value.path)return value.path;
+      if(value.url)return value.url;
+    }
+  }
+  return "";
+}
+
+async function createProofImageUrl(proof){
+  const screenshot=proof.screenshot||proof.photo||proof.image||proof.screenshot_url;
+  if(!screenshot)return "";
+
+  if(typeof screenshot==="string"&&/^https?:\/\//i.test(screenshot))return screenshot;
+
+  let bucket="task-proofs";
+  let path="";
+
+  if(typeof screenshot==="object"){
+    bucket=screenshot.bucket||bucket;
+    path=screenshot.path||screenshot.name||"";
+  }else{
+    path=String(screenshot);
+  }
+
+  if(!path)return "";
+
+  const {data,error}=await db.storage.from(bucket).createSignedUrl(path,300);
+  if(error){
+    console.warn("Unable to create proof URL:",error.message);
+    return "";
+  }
+  return data&&data.signedUrl||"";
+}
+
+async function viewSubmissions(jobId){
+  const job=jobs.find(j=>String(j.id)===String(jobId));
+  if(!job)return;
+
+  selectedJob=job;
+  $("dialogTitle").textContent="Submissions — "+(job.title||"Job");
+  $("dialogContent").innerHTML='<div class="empty"><div class="emoji">⏳</div>Loading submissions…</div>';
+  $("submissionsDialog").showModal();
+
+  try{
+    /*
+      Query only this poster's job IDs. RLS on task_submissions must still
+      enforce whether this poster is permitted to read proof for this job.
+    */
+    const result=await db.from("task_submissions")
+      .select("id,task_id,user_id,status,created_at,proof,rejection_reason,post_review,reviewed_at")
+      .eq("task_id",job.id)
+      .order("created_at",{ascending:false})
+      .limit(300);
+
+    if(result.error)throw result.error;
+
+    const rows=result.data||[];
+    if(!rows.length){
+      $("dialogContent").innerHTML='<div class="empty"><div class="emoji">📭</div>No submissions were returned for this job yet.</div>';
+      return;
+    }
+
+    $("dialogContent").innerHTML=rows.map(row=>{
+      const proof=parseProof(row);
+      const status=normalized(row.status);
+      const username=findProofText(proof,["username","poster_username","social_username"]);
+      const comment=findProofText(proof,["comment","text","proof_text","answer"]);
+      const reference=findProofText(proof,["reference_id","reference","order_id"]);
+      const postUrl=findProofText(proof,["post_url","url","link"]);
+      const reason=row.rejection_reason||proof.rejection_reason||"";
+      const feedback=row.post_review||proof.post_review||proof.review_feedback||"";
+
+      return `
+        <article class="submission" id="submission-${esc(row.id)}">
+          <div class="submissiontop">
+            <div>
+              <div class="submissiontitle">Submission #${esc(String(row.id).slice(0,12))}</div>
+              <div class="submissionmeta">
+                Submitted: ${esc(dateText(row.created_at))}<br>
+                Tasker reference: ${esc(String(row.user_id||"").slice(0,12))}
+              </div>
+            </div>
+            <span class="badge ${badgeClass(status)}">${esc(displayStatus(status))}</span>
+          </div>
+          <div class="detailgrid">
+            ${username?`<div class="detailbox"><strong>Submitted username</strong>${esc(username)}</div>`:""}
+            ${reference?`<div class="detailbox"><strong>Reference ID</strong>${esc(reference)}</div>`:""}
+            ${comment?`<div class="detailbox"><strong>Comment / proof text</strong>${esc(comment)}</div>`:""}
+            ${postUrl?`<div class="detailbox"><strong>Submitted link</strong><a href="${esc(postUrl)}" target="_blank" rel="noopener noreferrer">${esc(postUrl)}</a></div>`:""}
+          </div>
+          ${reason?`<div class="notice error"><strong>Rejection reason</strong><br>${esc(reason)}</div>`:""}
+          ${feedback?`<div class="notice info"><strong>Review feedback / note</strong><br>${esc(feedback)}</div>`:""}
+          <div class="proof-image-slot" data-submission-id="${esc(row.id)}"></div>
+          <div class="notice info">This page is for viewing proof and status only. Submission decisions and reward payments must be handled by the authorized review workflow.</div>
+        </article>`;
+    }).join("");
+
+    /*
+      Generate short-lived signed URLs only for images whose storage path
+      was returned. This requires the current poster to have storage read
+      permission for that proof. If permission is denied, no image is shown.
+    */
+    for(const row of rows){
+      const slot=document.querySelector('[data-submission-id="'+CSS.escape(String(row.id))+'"]');
+      if(!slot)continue;
+      const proof=parseProof(row);
+      try{
+        const url=await createProofImageUrl(proof);
+        if(url){
+          const img=document.createElement("img");
+          img.className="proofimage";
+          img.alt="Tasker submitted proof";
+          img.src=url;
+          img.loading="lazy";
+          slot.appendChild(img);
+        }else{
+          const note=document.createElement("div");
+          note.className="notice warning";
+          note.textContent="Proof image is not available to this account. Storage access may need to be configured by the administrator.";
+          slot.appendChild(note);
+        }
+      }catch(error){
+        console.warn("Proof image processing failed:",error);
+      }
+    }
+  }catch(error){
+    console.error("Could not load submissions:",error);
+    $("dialogContent").innerHTML='<div class="empty"><div class="emoji">🔒</div><strong>Submissions could not be accessed.</strong><br>Your database may restrict posters from reading tasker proof. Do not weaken security policies to fix this; configure an authorized server-side access policy instead.</div>';
+  }
+}
+
+function closeSubmissions(){
+  if($("submissionsDialog").open)$("submissionsDialog").close();
+}
+
+$("searchInput").addEventListener("input",renderJobs);
+$("jobFilter").addEventListener("change",renderJobs);
+
+async function startPage(){
+  try{
+    const {data,error}=await db.auth.getSession();
+    if(error)throw error;
+    currentUser=data.session&&data.session.user;
+
+    if(!currentUser){
+      location.href="login.html";
+      return;
+    }
+
+    await loadAll();
+  }catch(error){
+    console.error("Poster jobs startup error:",error);
+    showMessage("Unable to verify your login or load poster jobs. Please sign in again.", "error");
+    $("jobsList").innerHTML='<div class="empty">Sign in to the poster account that created these jobs.</div>';
+  }
+}
+
+startPage();
+</script>
+</body>
+</html>
