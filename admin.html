@@ -5626,6 +5626,187 @@ async function deleteTask(taskId) {
 
 
 function filterTasks() {
+  // NAIJA TASK — Task approval, rejection and deletion
+
+async function approveTask(taskId) {
+  const task = allTasks.find(
+    item => String(item.id) === String(taskId)
+  );
+
+  if (!task) {
+    toast("Task not found.", "danger");
+    return;
+  }
+
+  if (!confirm("Approve and publish this task?")) return;
+
+  try {
+    setLoading(true, "Checking task payment...");
+
+    // Admin-created tasks may be free.
+    // Poster-created tasks require an approved payment.
+    if (String(task.created_by) !== String(currentUser?.id)) {
+      const { data: payments, error: paymentError } =
+        await supabaseClient
+          .from("poster_payments")
+          .select("id,status")
+          .eq("task_id", taskId);
+
+      if (paymentError) throw paymentError;
+
+      const paid = Array.isArray(payments) &&
+        payments.some(p =>
+          String(p.status || "").toUpperCase() === "APPROVED"
+        );
+
+      if (
+        !paid ||
+        String(task.payment_status || "").toUpperCase() !== "PAID" ||
+        Number(task.funded_amount || 0) <
+          Number(task.total_funding_required || 0)
+      ) {
+        throw new Error(
+          "This poster task cannot be published until its payment is approved and funding is confirmed."
+        );
+      }
+    }
+
+    const { data, error } = await supabaseClient
+      .from("tasks")
+      .update({
+        active: true,
+        status: "LIVE",
+        moderation_status: "APPROVED"
+      })
+      .eq("id", taskId)
+      .select("id");
+
+    if (error) throw error;
+    if (!data || !data.length) {
+      throw new Error("Task was not updated. Check admin database permissions.");
+    }
+
+    toast("Task approved.", "success");
+    await loadTasks();
+
+  } catch (error) {
+    console.error("approveTask:", error);
+    toast(error.message || "Unable to approve task.", "danger");
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function rejectTask(taskId) {
+  const task = allTasks.find(
+    item => String(item.id) === String(taskId)
+  );
+
+  if (!task) {
+    toast("Task not found.", "danger");
+    return;
+  }
+
+  const reason = prompt("Why are you rejecting this task?");
+  if (reason === null) return;
+
+  if (!reason.trim()) {
+    toast("Please enter a rejection reason.", "warning");
+    return;
+  }
+
+  try {
+    setLoading(true, "Rejecting task...");
+
+    const { data, error } = await supabaseClient
+      .from("tasks")
+      .update({
+        active: false,
+        status: "REJECTED",
+        moderation_status: "REJECTED"
+      })
+      .eq("id", taskId)
+      .select("id");
+
+    if (error) throw error;
+    if (!data || !data.length) {
+      throw new Error("Task was not updated. Check admin database permissions.");
+    }
+
+    await writeAudit("task_rejected", taskId, {
+      title: task.title,
+      reason: reason.trim()
+    });
+
+    toast("Task rejected.", "success");
+    await loadTasks();
+
+  } catch (error) {
+    console.error("rejectTask:", error);
+    toast(error.message || "Unable to reject task.", "danger");
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function deleteTask(taskId) {
+  const task = allTasks.find(
+    item => String(item.id) === String(taskId)
+  );
+
+  if (!task) {
+    toast("Task not found.", "danger");
+    return;
+  }
+
+  if (!confirm(
+    "PERMANENTLY DELETE this task?\n\n" +
+    "Task: " + (task.title || taskId) +
+    "\n\nThis cannot be undone."
+  )) return;
+
+  if (!confirm(
+    "Final confirmation: permanently delete this task?"
+  )) return;
+
+  try {
+    setLoading(true, "Deleting task...");
+
+    const { data, error } = await supabaseClient
+      .from("tasks")
+      .delete()
+      .eq("id", taskId)
+      .select("id");
+
+    if (error) throw error;
+
+    if (!data || !data.length) {
+      throw new Error(
+        "No task was deleted. Check admin permissions or related database records."
+      );
+    }
+
+    await writeAudit("task_deleted", taskId, {
+      title: task.title
+    });
+
+    toast("Task permanently deleted.", "success");
+    await loadTasks();
+    await loadOverview();
+
+  } catch (error) {
+    console.error("deleteTask:", error);
+    toast(
+      error.message ||
+      "Delete failed. Related records or database permissions may prevent deletion.",
+      "danger"
+    );
+  } finally {
+    setLoading(false);
+  }
+                },
   const query =
     $("taskSearch")?.value
       .trim()
