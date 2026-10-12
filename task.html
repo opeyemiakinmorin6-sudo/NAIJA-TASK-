@@ -1360,10 +1360,8 @@ async function loadTasks() {
   $("taskList").innerHTML = `<div class="empty"><strong>Loading tasks…</strong>Please wait.</div>`;
 
   try {
-    const { data, error } = await db
-      .from("tasks")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const {data,error}=await db.rpc("get_available_tasks");
+      
 
     if (error) throw error;
 
