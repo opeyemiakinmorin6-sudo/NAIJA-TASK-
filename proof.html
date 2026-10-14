@@ -2,200 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#087f36">
 <title>My Proofs | NAIJA TASK</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--green:#087f36;--dark:#064d25;--lime:#b7ef43;--bg:#f3f8f5;--white:#fff;--text:#17251c;--muted:#718077;--border:#e1ebe4}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;padding-bottom:85px}
-button,select{font:inherit}
-header{background:linear-gradient(135deg,var(--dark),var(--green));color:#fff;padding:23px 17px 27px;border-radius:0 0 24px 24px}
-.brand{font-size:21px;font-weight:900}.brand span{color:var(--lime)}
-header h1{font-size:25px;margin:24px 0 8px}
-header p{font-size:13px;line-height:1.6;color:#e2f4e7;margin:0}
-main{max-width:760px;margin:auto;padding:15px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:0 0 22px}
-.stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 9px}
-.stat strong{display:block;color:var(--green);font-size:22px}
-.stat small{display:block;color:var(--muted);font-size:11px;margin-top:5px}
-.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 12px}
-.sectionhead h2{font-size:18px;margin:0}
-select,button{border-radius:10px;padding:10px 12px}
-select{border:1px solid var(--border);background:#fff;max-width:160px}
-button{border:0;background:var(--green);color:#fff;font-weight:800}
-.message{display:none;padding:13px;border-radius:12px;font-size:13px;line-height:1.6;margin:12px 0;overflow-wrap:anywhere}
-.message.show{display:block}.message.error{background:#fff0f0;color:#9f1e1e}.message.info{background:#e9f5ed;color:#155c2c}
-.list{display:grid;gap:12px}
-.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 3px 12px #173f2208}
-.cardtop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.card h3{font-size:16px;line-height:1.4;margin:0 0 7px;overflow-wrap:anywhere}
-.date{font-size:11px;color:var(--muted);line-height:1.5}
-.status{display:inline-block;border-radius:25px;padding:6px 9px;font-size:10px;font-weight:900;text-transform:capitalize;white-space:nowrap;background:#eef2ef;color:#536157}
-.status.pending,.status.under_review,.status.review_requested{background:#fff2ce;color:#795700}
-.status.approved,.status.completed,.status.paid{background:#e1f6e5;color:#17672e}
-.status.rejected,.status.failed{background:#ffe8e8;color:#a42121}
-.proofbox{background:#f5f8f5;border-radius:11px;padding:12px;margin-top:12px;font-size:12px;line-height:1.7;overflow-wrap:anywhere;white-space:pre-wrap}
-.proofbox a{color:var(--green);font-weight:800}
-.reason{background:#fff0f0;color:#942020;padding:11px;border-radius:10px;font-size:12px;line-height:1.6;margin-top:10px;overflow-wrap:anywhere}
-.empty{background:#fff;border:1px dashed #cbdacf;border-radius:16px;text-align:center;padding:30px 17px;color:var(--muted);line-height:1.7}
-.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:7px}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.actions a{display:inline-block;text-decoration:none;background:#e8f4eb;color:var(--dark);font-size:12px;font-weight:800;padding:10px 12px;border-radius:10px}
-.note{background:#e9f5ed;color:#285638;border-radius:13px;padding:13px;font-size:12px;line-height:1.7;margin-top:18px}
-.bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#fff;border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:9px 4px calc(9px + env(safe-area-inset-bottom))}
-.bottomnav a{flex:1;text-decoration:none;text-align:center;color:#758078;font-size:10px;padding:5px 1px}
-.bottomnav a b{display:block;font-size:20px;margin-bottom:4px}
-.bottomnav a.active{color:var(--green);font-weight:800}
-@media(min-width:600px){.list{grid-template-columns:1fr 1fr}}
+body{font-family:Arial,sans-serif;background:#f3f8f5;color:#17251c;display:grid;place-items:center;min-height:100vh;margin:0;padding:20px;text-align:center}
+main{background:#fff;padding:28px 22px;border-radius:18px;max-width:360px;width:100%;box-sizing:border-box}
+h1{color:#087f36;font-size:23px}
+p{font-size:14px;line-height:1.7;color:#65736a}
+a{display:inline-block;background:#087f36;color:#fff;padding:13px 20px;border-radius:10px;text-decoration:none;font-weight:bold}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">NAIJA <span>TASK</span></div>
-  <h1>My Proofs & Submissions</h1>
-  <p>Track submitted tasks and check whether each proof is pending, approved or rejected.</p>
-</header>
 <main>
-  <div id="notice" class="message"></div>
-  <div class="stats">
-    <div class="stat"><strong id="totalCount">—</strong><small>Total submissions</small></div>
-    <div class="stat"><strong id="pendingCount">—</strong><small>Awaiting review</small></div>
-    <div class="stat"><strong id="approvedCount">—</strong><small>Approved</small></div>
-  </div>
-  <div class="sectionhead">
-    <h2>Submission history</h2>
-    <button id="refreshBtn" type="button">↻ Refresh</button>
-  </div>
-  <div class="sectionhead" style="margin-top:0">
-    <span style="font-size:12px;color:#718077">Filter by review status</span>
-    <select id="statusFilter">
-      <option value="all">All statuses</option>
-      <option value="pending">Pending</option>
-      <option value="under_review">Under review</option>
-      <option value="approved">Approved</option>
-      <option value="rejected">Rejected</option>
-      <option value="review_requested">Review requested</option>
-    </select>
-  </div>
-  <div id="submissionList" class="list">
-    <div class="empty"><strong>Loading your submissions…</strong>Please wait.</div>
-  </div>
-  <div class="note">Only the platform's recorded review status is displayed here. An approved submission does not guarantee that a wallet balance has changed unless the platform's approval workflow successfully processes the reward.</div>
+<h1>NAIJA TASK</h1>
+<p>Opening your submission history…</p>
+<a href="proofs.html">Open My Proofs</a>
 </main>
-<nav class="bottomnav">
-  <a href="dashboard.html"><b>⌂</b>Home</a>
-  <a href="task.html"><b>▤</b>Tasks</a>
-  <a class="active" href="proofs.html"><b>▣</b>My Proofs</a>
-  <a href="wallet.html"><b>◉</b>Wallet</a>
-  <a href="profile.html"><b>♙</b>Profile</a>
-</nav>
 <script>
-(() => {
-"use strict";
-const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const $=id=>document.getElementById(id);
-let submissions=[];
-let taskTitles={};
-
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function norm(v){return String(v??"").trim().toLowerCase().replace(/[\s-]+/g,"_");}
-function showMessage(text,type="info"){const e=$("notice");e.textContent=text;e.className="message show "+type;}
-function hideMessage(){$("notice").textContent="";$("notice").className="message";}
-function statusOf(row){
-  const s=norm(row.status||"pending");
-  if(["approved","completed","paid"].includes(s))return "approved";
-  if(["rejected","declined","failed"].includes(s))return "rejected";
-  if(["review_requested","review_request"].includes(s))return "review_requested";
-  if(["reviewing","in_review","under_review","processing"].includes(s))return "under_review";
-  return "pending";
-}
-function label(s){return ({pending:"Pending",under_review:"Under review",review_requested:"Review requested",approved:"Approved",rejected:"Rejected"})[s]||s;}
-function dateText(v){
-  if(!v)return "Date not recorded";
-  const d=new Date(v);
-  return Number.isNaN(d.getTime())?String(v):d.toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"});
-}
-function parseProof(value){
-  if(!value)return {};
-  if(typeof value==="object")return value;
-  try{return JSON.parse(value);}catch{return {text:String(value)};}
-}
-function validWebURL(v){
-  try{const u=new URL(String(v||""));return ["https:","http:"].includes(u.protocol)?u.href:"";}catch{return "";}
-}
-function render(){
-  const filter=$("statusFilter").value;
-  const pending=submissions.filter(s=>["pending","under_review","review_requested"].includes(statusOf(s))).length;
-  const approved=submissions.filter(s=>statusOf(s)==="approved").length;
-  $("totalCount").textContent=String(submissions.length);
-  $("pendingCount").textContent=String(pending);
-  $("approvedCount").textContent=String(approved);
-  const list=submissions.filter(s=>filter==="all"||statusOf(s)===filter);
-  if(!list.length){
-    $("submissionList").innerHTML='<div class="empty"><strong>No submissions found</strong>When you submit proof for a task, its status will appear here.</div>';
-    return;
-  }
-  $("submissionList").innerHTML=list.map(row=>{
-    const st=statusOf(row);
-    const proof=parseProof(row.proof);
-    const title=taskTitles[String(row.task_id)]||("Task #"+row.task_id);
-    const proofText=typeof proof.text==="string"?proof.text:"";
-    const photo=validWebURL(proof.photo_url||proof.image_url||proof.screenshot_url||"");
-    const reason=String(row.rejection_reason||"").trim();
-    const taskLink="task.html?task_id="+encodeURIComponent(row.task_id);
-    let proofHTML="";
-    if(proofText)proofHTML+='<div><strong>Details:</strong><br>'+esc(proofText)+'</div>';
-    if(photo)proofHTML+='<div style="margin-top:8px"><a href="'+esc(photo)+'" target="_blank" rel="noopener noreferrer">View submitted photo ↗</a></div>';
-    if(!proofText&&!photo)proofHTML='<div>Proof details are not available in a readable format.</div>';
-    return '<article class="card">'+
-      '<div class="cardtop"><div><h3>'+esc(title)+'</h3><div class="date">Submitted: '+esc(dateText(row.created_at))+'</div></div>'+
-      '<span class="status '+esc(st)+'">'+esc(label(st))+'</span></div>'+
-      '<div class="proofbox">'+proofHTML+'</div>'+
-      (reason?'<div class="reason"><strong>Review reason:</strong><br>'+esc(reason)+'</div>':'')+
-      '<div class="actions"><a href="'+esc(taskLink)+'">Open task page</a></div>'+
-      '</article>';
-  }).join("");
-}
-async function load(){
-  $("refreshBtn").disabled=true;
-  $("submissionList").innerHTML='<div class="empty"><strong>Loading…</strong>Fetching your submission history.</div>';
-  try{
-    const {data:auth,error:authError}=await db.auth.getUser();
-    if(authError)throw authError;
-    if(!auth.user){location.href="login.html";return;}
-    let result=await db.from("task_submissions")
-      .select("id,task_id,user_id,proof,status,created_at,reviewed_by,reviewed_at,rejection_reason")
-      .eq("user_id",auth.user.id)
-      .order("created_at",{ascending:false})
-      .limit(300);
-    if(result.error)throw result.error;
-    submissions=result.data||[];
-    const ids=[...new Set(submissions.map(s=>s.task_id).filter(v=>v!==null&&v!==undefined))];
-    taskTitles={};
-    if(ids.length){
-      const tasks=await db.from("tasks").select("id,title").in("id",ids);
-      if(!tasks.error){
-        (tasks.data||[]).forEach(t=>taskTitles[String(t.id)]=t.title||("Task #"+t.id));
-      }else{
-        console.warn("Task titles could not be loaded:",tasks.error.message);
-      }
-    }
-    render();
-    hideMessage();
-  }catch(error){
-    console.error("Proof history loading error:",error);
-    $("submissionList").innerHTML='<div class="empty"><strong>Unable to load submissions</strong>Check your internet connection or sign in again. If the issue continues, check the task_submissions table permissions.</div>';
-    showMessage("Could not load your submissions: "+(error.message||"Unknown database error"),"error");
-  }finally{$("refreshBtn").disabled=false;}
-}
-$("refreshBtn").addEventListener("click",load);
-$("statusFilter").addEventListener("change",render);
-load();
-})();
+window.location.replace("proofs.html");
 </script>
 </body>
 </html>
