@@ -4444,6 +4444,123 @@ function setLoading(show, text = "Loading...") {
 
 
 /* =========================================================
+   IN-APP DIALOGS (replace the browser's native confirm/prompt boxes,
+   which show the website address). Text is inserted with textContent,
+   so task titles or reasons can never inject HTML.
+   ========================================================= */
+function uiDialog({ title, message, withInput, okText, cancelText, danger }) {
+  return new Promise(resolve => {
+    const overlay = document.createElement("div");
+    overlay.className = "modal show";
+    overlay.style.zIndex = "6000";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+
+    const box = document.createElement("div");
+    box.className = "modal-box";
+    box.style.maxWidth = "460px";
+
+    const head = document.createElement("h3");
+    head.textContent = title;
+    head.style.margin = "0 0 10px";
+    head.style.color = danger ? "#b42318" : "#0b6b32";
+
+    const text = document.createElement("div");
+    text.textContent = message;
+    text.style.cssText = "white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;margin-bottom:12px;color:#243b2c";
+
+    let input = null;
+    if (withInput) {
+      input = document.createElement("textarea");
+      input.rows = 3;
+      input.maxLength = 500;
+      input.style.cssText = "width:100%;box-sizing:border-box;padding:10px;border:1px solid #c9d8cd;border-radius:10px;font:inherit;margin-bottom:12px";
+    }
+
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap";
+
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = cancelText || "Cancel";
+    cancel.style.cssText = "padding:11px 18px;border-radius:10px;border:1px solid #c9d8cd;background:#fff;color:#243b2c;font-weight:600";
+
+    const ok = document.createElement("button");
+    ok.type = "button";
+    ok.textContent = okText || "Confirm";
+    ok.style.cssText = "padding:11px 18px;border-radius:10px;border:0;color:#fff;font-weight:700;background:" + (danger ? "#b42318" : "#0b8a3e");
+
+    const finish = value => {
+      document.removeEventListener("keydown", onKey, true);
+      overlay.remove();
+      resolve(value);
+    };
+    const onKey = event => { if (event.key === "Escape") finish(withInput ? null : false); };
+
+    cancel.onclick = () => finish(withInput ? null : false);
+    ok.onclick = () => finish(withInput ? input.value : true);
+    overlay.addEventListener("click", event => { if (event.target === overlay) finish(withInput ? null : false); });
+    document.addEventListener("keydown", onKey, true);
+
+    row.append(cancel, ok);
+    box.append(head, text);
+    if (input) box.append(input);
+    box.append(row);
+    overlay.append(box);
+    document.body.append(overlay);
+    (input || ok).focus();
+  });
+}
+
+function uiConfirm(message) {
+  const text = String(message || "");
+  const danger = /reject|delete|remove|suspend|ban/i.test(text);
+  const firstLine = text.split("\n")[0] || "Please confirm";
+  return uiDialog({
+    title: firstLine.length > 60 ? "Please confirm" : firstLine.replace(/\?$/, ""),
+    message: text.split("\n").slice(1).join("\n").trim() || text,
+    okText: danger ? "Yes, continue" : "Confirm",
+    danger
+  });
+}
+
+function uiPrompt(message) {
+  const text = String(message || "");
+  const danger = /reject|decline|delete/i.test(text);
+  return uiDialog({ title: "Reason required", message: text, withInput: true, okText: "Submit", danger });
+}
+
+/* =========================================================
+   PLATFORM LOGOS (real brand icons from the Simple Icons set, loaded as images)
+   ========================================================= */
+const SIMPLE_ICONS_BASE = "https://cdn.jsdelivr.net/npm/simple-icons@11.14.0/icons/";
+const PLATFORM_ICONS = [
+  { name: "YouTube", slug: "youtube", color: "#FF0000", re: /youtube|youtu\.be/i },
+  { name: "TikTok", slug: "tiktok", color: "#111111", re: /tiktok/i },
+  { name: "Instagram", slug: "instagram", color: "#E4405F", re: /instagram/i },
+  { name: "Facebook", slug: "facebook", color: "#0866FF", re: /facebook|fb\.com|fb\.me/i },
+  { name: "X", slug: "x", color: "#111111", re: /twitter|(^|[^a-z])x\.com|\bon x\b/i },
+  { name: "WhatsApp", slug: "whatsapp", color: "#25D366", re: /whatsapp|wa\.me/i },
+  { name: "Telegram", slug: "telegram", color: "#26A5E4", re: /telegram|t\.me/i },
+  { name: "Snapchat", slug: "snapchat", color: "#E0B400", re: /snapchat/i },
+  { name: "LinkedIn", slug: "linkedin", color: "#0A66C2", re: /linkedin/i },
+  { name: "Spotify", slug: "spotify", color: "#1DB954", re: /spotify/i },
+  { name: "Threads", slug: "threads", color: "#111111", re: /threads\.net|\bthreads\b/i }
+];
+
+function platformForTask(task) {
+  const text = [task && task.task_type, task && task.task_link, task && task.post_link, task && task.title].join(" ");
+  return PLATFORM_ICONS.find(item => item.re.test(text)) || null;
+}
+
+function platformLogoHtml(task) {
+  const platform = platformForTask(task);
+  if (!platform) return "";
+  const url = SIMPLE_ICONS_BASE + platform.slug + ".svg";
+  return `<span title="${escapeHTML(platform.name)}" aria-label="${escapeHTML(platform.name)}" style="display:inline-block;width:22px;height:22px;margin-right:8px;vertical-align:middle;background:${platform.color};-webkit-mask:url(${url}) center/contain no-repeat;mask:url(${url}) center/contain no-repeat"></span>`;
+}
+
+/* =========================================================
    SAFE ERROR HANDLING
    ========================================================= */
 
@@ -5553,7 +5670,7 @@ function renderTasks(tasks) {
     return `
       <tr>
         <td>
-          <strong>${escapeHTML(task.title || "Untitled task")}</strong>
+          ${platformLogoHtml(task)}<strong>${escapeHTML(task.title || "Untitled task")}</strong>
           <small>${escapeHTML(taskId.slice(0, 12))}</small>
           <small class="mono" style="display:block">Owner: ${escapeHTML(String(task.created_by || "—").slice(0, 8))}</small>
         </td>
@@ -5597,7 +5714,7 @@ async function approveTask(taskId) {
     toast("This task is already approved or live.", "warning");
     return;
   }
-  if (!confirm(`Approve and publish this task?\n\n${task.title || "Untitled task"}`)) return;
+  if (!await uiConfirm(`Approve and publish this task?\n\n${task.title || "Untitled task"}`)) return;
 
   try {
     setLoading(true, "Checking task funding and approving...");
@@ -5679,13 +5796,13 @@ async function rejectTask(taskId) {
     return;
   }
 
-  const reason = prompt("Enter the reason for rejecting this task:");
+  const reason = await uiPrompt("Enter the reason for rejecting this task:");
   if (reason === null) return;
   if (!reason.trim()) {
     toast("Please enter a rejection reason.", "warning");
     return;
   }
-  if (!confirm(`Reject this task?\n\n${task.title || "Untitled task"}\n\nReason: ${reason.trim()}`)) return;
+  if (!await uiConfirm(`Reject this task?\n\n${task.title || "Untitled task"}\n\nReason: ${reason.trim()}`)) return;
 
   try {
     setLoading(true, "Rejecting task...");
@@ -5716,7 +5833,7 @@ async function deleteTask(taskId) {
   const task = allTasks.find(row => String(row.id) === String(taskId));
   if (!task) { toast("Task not found. Refresh the task list and try again.", "warning"); return; }
   const title = task.title || "Untitled task";
-  if (!confirm(`PERMANENT DELETE\n\nDelete task "${title}" (ID: ${taskId})?\n\nThis cannot be undone. If the database protects this task because of linked records, deletion will fail and show the database error; linked history is not silently erased.`)) return;
+  if (!await uiConfirm(`PERMANENT DELETE\n\nDelete task "${title}" (ID: ${taskId})?\n\nThis cannot be undone. If the database protects this task because of linked records, deletion will fail and show the database error; linked history is not silently erased.`)) return;
   try {
     setLoading(true, "Deleting task...");
     const { data, error } = await supabaseClient.from("tasks").delete().eq("id", taskId).select("id");
@@ -6835,7 +6952,7 @@ async function rejectCurrentProof() {
   }
 
   const reason =
-    prompt(
+    await uiPrompt(
       "Enter the rejection reason:"
     );
 
@@ -7139,7 +7256,7 @@ async function approveWithdrawal(id) {
   if (!id) return;
 
   const confirmed =
-    confirm(
+    await uiConfirm(
       "Approve this withdrawal?\n\n" +
       "The secure server-side withdrawal function " +
       "will deduct the amount and fee from the user's wallet."
@@ -7212,7 +7329,7 @@ async function rejectWithdrawal(id) {
   if (!id) return;
 
   const reason =
-    prompt(
+    await uiPrompt(
       "Enter the withdrawal rejection reason:"
     );
 
@@ -7809,7 +7926,7 @@ async function approvePosterPayment(paymentId) {
     return;
   }
 
-  if (!confirm(
+  if (!await uiConfirm(
     "Approve this poster payment?\n\n" +
     "The database will re-check the payment reference, proof, and required amount. " +
     "Approval marks the task as paid. The task goes live only after it is approved in task moderation."
@@ -7859,7 +7976,7 @@ async function rejectPosterPayment(paymentId) {
     return;
   }
 
-  const reason = prompt("Enter the poster payment rejection reason:");
+  const reason = await uiPrompt("Enter the poster payment rejection reason:");
   if (reason === null) return;
 
   const cleanReason = reason.trim();
