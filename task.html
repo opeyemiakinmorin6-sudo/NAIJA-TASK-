@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#087f36">
 <title>NAIJA TASK — Available Tasks</title>
 
+<!-- IMPORTANT: Load Supabase before the application script -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{
   --green:#087f36;
@@ -262,7 +265,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <script>
 "use strict";
 
-/* CONFIGURATION */
+/* =========================
+   NAIJA TASK CONFIGURATION
+========================= */
 const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const PROOF_BUCKET = "task-proofs";
@@ -278,6 +283,7 @@ let selectedProofFile = null;
 let toastTimer = null;
 let previewURL = null;
 let initStarted = false;
+let authSubscription = null;
 
 const $ = id => document.getElementById(id);
 
@@ -287,7 +293,11 @@ function safeText(value) {
 
 function escapeHTML(value) {
   return safeText(value).replace(/[&<>"']/g, ch => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   })[ch]);
 }
 
@@ -304,31 +314,43 @@ function normalize(value) {
 
 function withTimeout(promise, label, ms = REQUEST_TIMEOUT_MS) {
   let timer;
+
   const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error(
-      label + " timed out after " + Math.round(ms / 1000) +
-      " seconds. Check your internet connection and Supabase."
-    )), ms);
+    timer = setTimeout(() => {
+      reject(new Error(
+        label + " timed out after " + Math.round(ms / 1000) +
+        " seconds. Check your internet connection and Supabase."
+      ));
+    }, ms);
   });
 
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+  return Promise.race([promise, timeout])
+    .finally(() => clearTimeout(timer));
 }
 
 function showToast(message) {
   $("toast").textContent = message;
   $("toast").classList.remove("hidden");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => $("toast").classList.add("hidden"), 4000);
+
+  toastTimer = setTimeout(() => {
+    $("toast").classList.add("hidden");
+  }, 4000);
 }
 
 function showGlobalMessage(message, isError = false) {
   const el = $("globalMessage");
   el.textContent = message;
   el.classList.remove("hidden");
+
   if (isError) {
     el.style.background = "#fff0ee";
     el.style.borderColor = "#ffd0cb";
     el.style.color = "#8b1a12";
+  } else {
+    el.style.background = "";
+    el.style.borderColor = "";
+    el.style.color = "";
   }
 }
 
@@ -336,11 +358,51 @@ function hideGlobalMessage() {
   $("globalMessage").classList.add("hidden");
 }
 
-/* PLATFORM DETECTION AND ICONS */
+function showTaskLoadError(message, canRetry = true) {
+  $("taskList").innerHTML =
+    '<div class="empty-state">' +
+      '<strong>We could not load your tasks</strong>' +
+      '<div class="error-text">' + escapeHTML(message) + '</div>' +
+      (canRetry
+        ? '<button id="retryTasksBtn" class="primary-btn" style="margin-top:12px">TRY AGAIN</button>'
+        : '<a href="login.html" class="link-btn" style="margin-top:12px">GO TO LOGIN</a>') +
+    '</div>';
+
+  $("taskCountPill").textContent = "Load error";
+  $("availableCount").textContent = "—";
+
+  const retry = $("retryTasksBtn");
+
+  if (retry) {
+    retry.addEventListener("click", async () => {
+      retry.disabled = true;
+      retry.textContent = "RETRYING…";
+      await loadTasks();
+    });
+  }
+}
+
+/* =========================
+   PLATFORM DETECTION
+========================= */
+function getTaskLink(task) {
+  return safeText(
+    task.task_link ||
+    task.post_link ||
+    task.task_url ||
+    task.url
+  );
+}
+
 function platformFor(task) {
   const text = [
-    task.platform,task.category,task.category_name,task.task_type,
-    task.title,task.description,task.task_link,task.post_link
+    task.platform,
+    task.category,
+    task.category_name,
+    task.task_type,
+    task.title,
+    task.description,
+    getTaskLink(task)
   ].map(safeText).join(" ").toLowerCase();
 
   if (text.includes("youtube") || text.includes("youtu.be")) return "youtube";
@@ -351,14 +413,21 @@ function platformFor(task) {
   if (text.includes("whatsapp") || text.includes("wa.me/")) return "whatsapp";
   if (/\b(x|twitter)\b/.test(text) || text.includes("x.com/") || text.includes("twitter.com/")) return "x";
   if (getTaskLink(task)) return "website";
+
   return "other";
 }
 
 function platformName(platform) {
   return ({
-    youtube:"YouTube",facebook:"Facebook",instagram:"Instagram",
-    tiktok:"TikTok",telegram:"Telegram",whatsapp:"WhatsApp",
-    x:"X",website:"Website / Other",other:"General Task"
+    youtube:"YouTube",
+    facebook:"Facebook",
+    instagram:"Instagram",
+    tiktok:"TikTok",
+    telegram:"Telegram",
+    whatsapp:"WhatsApp",
+    x:"X",
+    website:"Website / Other",
+    other:"General Task"
   })[platform] || "General Task";
 }
 
@@ -378,12 +447,10 @@ function platformSVG(platform) {
 }
 
 function platformIconHTML(platform) {
-  return '<div class="platform-icon platform-' + escapeHTML(platform) + '">' +
-    platformSVG(platform) + '</div>';
-}
-
-function getTaskLink(task) {
-  return safeText(task.task_link || task.post_link || task.task_url || task.url);
+  return '<div class="platform-icon platform-' +
+    escapeHTML(platform) + '">' +
+    platformSVG(platform) +
+    '</div>';
 }
 
 function validHttpURL(raw) {
@@ -395,10 +462,15 @@ function validHttpURL(raw) {
   }
 }
 
+/* =========================
+   TASK VISIBILITY
+========================= */
+
 /*
- * Do not silently hide tasks solely because a field is missing.
- * Explicit inactive/rejected/unfunded states are still excluded.
- */
+  This is a display filter, not a replacement for server-side security.
+  Do not hide tasks just because payment_status is UNFUNDED or
+  PAYMENT_REQUIRED. The server must enforce poster funding rules.
+*/
 function isActiveTask(task) {
   if (task.active === false) return false;
 
@@ -406,91 +478,162 @@ function isActiveTask(task) {
   const moderation = normalize(task.moderation_status);
   const payment = normalize(task.payment_status);
 
-  if (["inactive","disabled","deleted","rejected","cancelled","canceled","completed"].includes(status)) return false;
-  if (["pendingreview","rejected","blocked"].includes(moderation)) return false;
-  if (["unfunded","paymentrequired","unpaid","failed","refunded"].includes(payment)) return false;
+  if ([
+    "inactive","disabled","deleted","rejected",
+    "cancelled","canceled","completed"
+  ].includes(status)) {
+    return false;
+  }
+
+  if ([
+    "pendingreview","rejected","blocked"
+  ].includes(moderation)) {
+    return false;
+  }
+
+  // Failed/refunded tasks should not be shown.
+  // Unfunded tasks are not hidden here because admin tasks may be free.
+  if (["failed","refunded"].includes(payment)) {
+    return false;
+  }
 
   if (task.expiry_date) {
     const expiry = new Date(task.expiry_date);
-    if (!Number.isNaN(expiry.getTime()) && expiry.getTime() < Date.now()) return false;
+
+    if (!Number.isNaN(expiry.getTime()) && expiry.getTime() < Date.now()) {
+      return false;
+    }
   }
 
-  const total = Number(task.max_total_completions ?? task.slots ?? task.max_completions);
-  const completed = Number(task.completed_count ?? task.total_completions ?? 0);
+  const total = Number(
+    task.max_total_completions ??
+    task.slots ??
+    task.max_completions
+  );
 
-  if (Number.isFinite(total) && total > 0 && completed >= total) return false;
+  const completed = Number(
+    task.completed_count ??
+    task.total_completions ??
+    0
+  );
+
+  if (Number.isFinite(total) && total > 0 && completed >= total) {
+    return false;
+  }
+
   return true;
 }
 
-/* SESSION AND INITIALIZATION */
+/* =========================
+   SUPABASE INITIALIZATION
+========================= */
+function createDatabaseClient() {
+  if (db) return db;
+
+  if (!window.supabase ||
+      typeof window.supabase.createClient !== "function") {
+    throw new Error(
+      "The Supabase library did not load. Check your internet connection and reload the page."
+    );
+  }
+
+  db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    {
+      auth: {
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+      }
+    }
+  );
+
+  if (!db || typeof db.from !== "function") {
+    db = null;
+    throw new Error(
+      "Supabase could not initialize correctly. Please reload the page."
+    );
+  }
+
+  return db;
+}
+
 async function init() {
   if (initStarted) return;
   initStarted = true;
 
   try {
-    if (!window.supabase) {
-      throw new Error("Supabase library did not load. Check your connection and reload the page.");
-    }
+    createDatabaseClient();
 
-    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: {
-        persistSession:true,
-        autoRefreshToken:true,
-        detectSessionInUrl:true
-      },
-      global: {
-        fetch:(url, options = {}) => {
-          const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-          return fetch(url, {
-            ...options,
-            signal:controller.signal
-          }).finally(() => clearTimeout(timer));
-        }
-      }
-    });
+    $("taskCountPill").textContent = "Checking login…";
+    $("taskList").innerHTML =
+      '<div class="loading-state">Checking your NAIJA TASK account…</div>';
 
-    const result = await withTimeout(db.auth.getSession(), "Checking your login");
+    const result = await withTimeout(
+      db.auth.getSession(),
+      "Checking your login"
+    );
+
     if (result.error) throw result.error;
 
     currentUser = result.data?.session?.user || null;
 
     if (!currentUser) {
       $("accountStatus").textContent = "Login required";
-      showTaskLoadError("Please sign in to your NAIJA TASK account before viewing tasks.", false);
+
+      showTaskLoadError(
+        "Please sign in to your NAIJA TASK account before viewing tasks.",
+        false
+      );
+
       return;
     }
 
     $("accountStatus").textContent = "Signed in";
 
-    /*
-     * Profile loading is not allowed to block task loading.
-     */
-    await Promise.allSettled([
-      withTimeout(loadProfile(), "Loading profile", 10000),
-      loadTasks()
-    ]);
-
-    db.auth.onAuthStateChange((_event, session) => {
+    // Register the auth listener only after the client is initialized.
+    const authResult = db.auth.onAuthStateChange((_event, session) => {
       currentUser = session?.user || null;
 
       if (!currentUser) {
-        $("accountStatus").textContent = "Login required";
         allTasks = [];
+        $("accountStatus").textContent = "Login required";
         $("availableCount").textContent = "0";
         $("taskCountPill").textContent = "Signed out";
+
         $("taskList").innerHTML =
-          '<div class="empty-state"><strong>Session ended</strong>Please sign in again to view available tasks.</div>';
+          '<div class="empty-state">' +
+          '<strong>Session ended</strong>' +
+          'Please sign in again to view available tasks.' +
+          '</div>';
       }
     });
 
+    authSubscription = authResult?.data?.subscription || null;
+
+    // Profile problems should not prevent task loading.
+    await Promise.allSettled([
+      loadProfile(),
+      loadTasks()
+    ]);
+
   } catch (error) {
-    console.error("Initialization error:", error);
-    showTaskLoadError(error.message || "The page could not initialize. Please try again.");
+    console.error("NAIJA TASK initialization error:", error);
+
+    showTaskLoadError(
+      error?.message ||
+      "The page could not initialize. Please reload and try again."
+    );
   }
 }
 
+/* =========================
+   PROFILE
+========================= */
 async function loadProfile() {
+  if (!db || !currentUser) return;
+
   try {
     const result = await withTimeout(
       db.from("profiles")
@@ -507,33 +650,68 @@ async function loadProfile() {
 
     if (!currentProfile) {
       $("accountStatus").textContent = "Profile missing";
-      showGlobalMessage("Your account profile could not be found. Contact support if this continues.", true);
+
+      showGlobalMessage(
+        "Your account profile could not be found. Contact support if this continues.",
+        true
+      );
+
       return;
     }
 
     $("accountStatus").textContent =
-      currentProfile.is_activated === true ? "Activated" : "Not activated";
+      currentProfile.is_activated === true
+        ? "Activated"
+        : "Not activated";
 
     if (currentProfile.is_activated !== true) {
-      showGlobalMessage("Your account is not activated. Some tasks may be unavailable under your platform's activation rules.");
+      showGlobalMessage(
+        "Your account is not activated. Task access may depend on your platform's activation rules."
+      );
     } else {
       hideGlobalMessage();
     }
+
   } catch (error) {
-    console.warn("Profile load warning:", error);
+    console.warn("Profile loading warning:", error);
+
     $("accountStatus").textContent = "Profile unavailable";
-    showGlobalMessage("Your account information could not be loaded. Available tasks will still be checked.", true);
+
+    showGlobalMessage(
+      "Your account information could not be loaded. Tasks will still be checked.",
+      true
+    );
   }
 }
 
-/* TASK LOADING */
+/* =========================
+   LOAD AVAILABLE TASKS
+========================= */
 async function loadTasks() {
-  $("taskList").innerHTML = '<div class="loading-state">Finding available tasks…</div>';
+  if (!db || typeof db.from !== "function") {
+    showTaskLoadError(
+      "The database connection is not initialized. Reload the page and try again."
+    );
+    return;
+  }
+
+  if (!currentUser) {
+    showTaskLoadError(
+      "Your login session is missing. Please sign in again.",
+      false
+    );
+    return;
+  }
+
+  $("taskList").innerHTML =
+    '<div class="loading-state">Finding available tasks…</div>';
+
   $("taskCountPill").textContent = "Loading…";
 
   let tasks = null;
   let rpcError = null;
 
+  // First try the intended task function.
   try {
     const result = await withTimeout(
       db.rpc("get_available_tasks"),
@@ -543,74 +721,67 @@ async function loadTasks() {
     if (!result.error && Array.isArray(result.data)) {
       tasks = result.data;
     } else {
-      rpcError = result.error || new Error("Task function returned an unexpected response.");
+      rpcError = result.error ||
+        new Error("The task function returned an unexpected response.");
     }
+
   } catch (error) {
     rpcError = error;
-    console.warn("get_available_tasks warning:", error);
+    console.warn("get_available_tasks failed:", error);
   }
 
   /*
-   * Fallback is attempted if RPC fails.
-   * The table's SELECT policy still applies.
-   */
+    If the RPC fails, try the tasks table directly.
+    Supabase RLS still applies to this query.
+  */
   if (!Array.isArray(tasks)) {
     try {
       const result = await withTimeout(
         db.from("tasks")
           .select("*")
-          .order("created_at", { ascending:false })
+          .order("created_at", {ascending:false})
           .limit(300),
         "Loading tasks from the database"
       );
 
       if (result.error) throw result.error;
+
       tasks = Array.isArray(result.data) ? result.data : [];
+
     } catch (fallbackError) {
-      console.error("RPC error:", rpcError);
-      console.error("Fallback task query error:", fallbackError);
+      console.error("Task RPC error:", rpcError);
+      console.error("Task table error:", fallbackError);
 
       showTaskLoadError(
         "Tasks could not be loaded.\n\n" +
-        (fallbackError?.message || rpcError?.message || "Unknown database error") +
-        "\n\nCheck the get_available_tasks function, tasks table and authenticated SELECT policies."
+        (fallbackError?.message ||
+         rpcError?.message ||
+         "Unknown database error") +
+        "\n\nThis may be a database permission, table, or connection problem."
       );
+
       return;
     }
   }
 
-  allTasks = tasks.filter(task => task && task.id && isActiveTask(task));
+  // Exclude only tasks that are explicitly unavailable.
+  allTasks = tasks.filter(task =>
+    task && task.id !== undefined && task.id !== null &&
+    isActiveTask(task)
+  );
 
   $("availableCount").textContent = String(allTasks.length);
+
   $("taskCountPill").textContent =
-    allTasks.length + (allTasks.length === 1 ? " task" : " tasks");
+    allTasks.length +
+    (allTasks.length === 1 ? " task" : " tasks");
 
   renderTasks();
 }
 
-function showTaskLoadError(message, canRetry = true) {
-  $("taskList").innerHTML =
-    '<div class="empty-state"><strong>We could not load your tasks</strong>' +
-    '<div class="error-text">' + escapeHTML(message) + '</div>' +
-    (canRetry
-      ? '<button id="retryTasksBtn" class="primary-btn" style="margin-top:12px">TRY AGAIN</button>'
-      : '<a href="login.html" class="link-btn" style="margin-top:12px">GO TO LOGIN</a>') +
-    '</div>';
-
-  $("taskCountPill").textContent = "Load error";
-  $("availableCount").textContent = "—";
-
-  const retry = $("retryTasksBtn");
-  if (retry) {
-    retry.addEventListener("click", async () => {
-      retry.disabled = true;
-      retry.textContent = "RETRYING…";
-      await loadTasks();
-    });
-  }
-}
-
-/* TASK CARDS */
+/* =========================
+   TASK CARDS
+========================= */
 function renderTasks() {
   const query = safeText($("searchInput").value).toLowerCase();
 
@@ -618,14 +789,27 @@ function renderTasks() {
     const platform = platformFor(task);
 
     if (activeFilter === "other") {
-      if (["youtube","facebook","instagram","tiktok","telegram","whatsapp","x"].includes(platform)) return false;
-    } else if (activeFilter !== "all" && platform !== activeFilter) {
+      if ([
+        "youtube","facebook","instagram","tiktok",
+        "telegram","whatsapp","x"
+      ].includes(platform)) {
+        return false;
+      }
+    } else if (
+      activeFilter !== "all" &&
+      platform !== activeFilter
+    ) {
       return false;
     }
 
     const searchable = [
-      task.title,task.description,task.requirements,task.task_type,
-      task.category,task.category_name,platformName(platform)
+      task.title,
+      task.description,
+      task.requirements,
+      task.task_type,
+      task.category,
+      task.category_name,
+      platformName(platform)
     ].map(safeText).join(" ").toLowerCase();
 
     return !query || searchable.includes(query);
@@ -633,8 +817,11 @@ function renderTasks() {
 
   if (!filtered.length) {
     $("taskList").innerHTML =
-      '<div class="empty-state"><strong>No available tasks found</strong>' +
-      'Try another filter or search. If you expected tasks to appear, check their active, moderation and funding status in Supabase.</div>';
+      '<div class="empty-state">' +
+      '<strong>No available tasks found</strong>' +
+      'There are currently no tasks matching this filter. If you expected a task, check whether it is active, approved and visible to taskers.' +
+      '</div>';
+
     return;
   }
 
@@ -647,17 +834,34 @@ function renderTasks() {
       <article class="task-card">
         <div class="task-card-top">
           ${platformIconHTML(platform)}
+
           <div class="task-heading">
-            <div class="task-title">${escapeHTML(task.title || "Untitled task")}</div>
-            <div class="task-platform">${escapeHTML(platformName(platform))}</div>
+            <div class="task-title">
+              ${escapeHTML(task.title || "Untitled task")}
+            </div>
+            <div class="task-platform">
+              ${escapeHTML(platformName(platform))}
+            </div>
           </div>
-          <div class="reward-badge">${escapeHTML(money(reward))}</div>
+
+          <div class="reward-badge">
+            ${escapeHTML(money(reward))}
+          </div>
         </div>
-        <div class="task-description">${escapeHTML(task.description || "Open the task to read its full instructions.")}</div>
+
+        <div class="task-description">
+          ${escapeHTML(task.description || "Open the task to read its full instructions.")}
+        </div>
+
         <div class="task-meta">
-          <span class="meta-pill">Slots: ${escapeHTML(slots)}</span>
+          <span class="meta-pill">
+            Slots: ${escapeHTML(slots)}
+          </span>
         </div>
-        <button class="primary-btn" type="button" data-open-task="${escapeHTML(String(task.id))}">
+
+        <button class="primary-btn"
+          type="button"
+          data-open-task="${escapeHTML(String(task.id))}">
           VIEW TASK DETAILS
         </button>
       </article>
@@ -667,12 +871,19 @@ function renderTasks() {
 
 $("taskList").addEventListener("click", event => {
   const button = event.target.closest("[data-open-task]");
-  if (button) openTask(button.dataset.openTask);
+
+  if (button) {
+    openTask(button.dataset.openTask);
+  }
 });
 
-/* TASK DETAILS */
+/* =========================
+   TASK DETAILS
+========================= */
 function openTask(taskId) {
-  const task = allTasks.find(item => String(item.id) === String(taskId));
+  const task = allTasks.find(
+    item => String(item.id) === String(taskId)
+  );
 
   if (!task) {
     showToast("This task is no longer available. Refresh the page.");
@@ -688,16 +899,29 @@ function openTask(taskId) {
   const platform = platformFor(task);
   const reward = task.reward_per_worker ?? task.reward ?? 0;
 
-  $("detailPlatformIcon").className = "platform-icon platform-" + platform;
+  $("detailPlatformIcon").className =
+    "platform-icon platform-" + platform;
+
   $("detailPlatformIcon").innerHTML = platformSVG(platform);
   $("detailTitle").textContent = task.title || "Task details";
   $("detailPlatform").textContent = platformName(platform);
   $("detailReward").textContent = money(reward);
-  $("detailDescription").textContent =
-    safeText(task.description) || "Follow the task instructions carefully.";
 
-  const requirements = safeText(task.requirements || task.instructions || task.copy_text);
-  $("requirementsWrap").classList.toggle("hidden", !requirements);
+  $("detailDescription").textContent =
+    safeText(task.description) ||
+    "Follow the task instructions carefully.";
+
+  const requirements = safeText(
+    task.requirements ||
+    task.instructions ||
+    task.copy_text
+  );
+
+  $("requirementsWrap").classList.toggle(
+    "hidden",
+    !requirements
+  );
+
   $("detailRequirements").textContent = requirements;
 
   const link = getTaskLink(task);
@@ -713,10 +937,12 @@ function openTask(taskId) {
   }
 
   $("detailSlots").textContent =
-    "Slots: " + safeText(task.slots ?? task.max_total_completions ?? "—");
+    "Slots: " +
+    safeText(task.slots ?? task.max_total_completions ?? "—");
 
   resetProofForm(task);
-  window.scrollTo({ top:0, behavior:"smooth" });
+
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function resetProofForm(task) {
@@ -734,15 +960,27 @@ function resetProofForm(task) {
     previewURL = null;
   }
 
-  const type = normalize(task.proof_type || task.required_proof || "");
-  const needsText = ["username","text","comment","reference","both"].some(item => type.includes(item));
+  const type = normalize(
+    task.proof_type || task.required_proof || ""
+  );
+
+  const needsText = [
+    "username","text","comment","reference","both"
+  ].some(item => type.includes(item));
+
   const fields = [];
 
   if (needsText) {
     fields.push(`
       <div>
-        <label class="form-label" for="proofText">Proof details / username / comment</label>
-        <textarea class="form-control" id="proofText" rows="3" maxlength="2000"
+        <label class="form-label" for="proofText">
+          Proof details / username / comment
+        </label>
+
+        <textarea class="form-control"
+          id="proofText"
+          rows="3"
+          maxlength="2000"
           placeholder="Enter the requested proof details…"></textarea>
       </div>
     `);
@@ -751,7 +989,8 @@ function resetProofForm(task) {
   if (task.uploader_username) {
     fields.push(`
       <div class="notice">
-        <strong>Account / username:</strong> ${escapeHTML(task.uploader_username)}
+        <strong>Account / username:</strong>
+        ${escapeHTML(task.uploader_username)}
       </div>
     `);
   }
@@ -759,9 +998,12 @@ function resetProofForm(task) {
   $("proofFields").innerHTML = fields.join("");
 }
 
-/* PHOTO SELECTION */
+/* =========================
+   PHOTO SELECTION
+========================= */
 $("proofPhoto").addEventListener("change", event => {
   const file = event.target.files?.[0];
+
   selectedProofFile = file || null;
 
   if (!file) return;
@@ -780,33 +1022,56 @@ $("proofPhoto").addEventListener("change", event => {
     return;
   }
 
-  if (previewURL) URL.revokeObjectURL(previewURL);
+  if (previewURL) {
+    URL.revokeObjectURL(previewURL);
+  }
+
   previewURL = URL.createObjectURL(file);
 
   $("proofPreview").src = previewURL;
   $("proofPreview").classList.remove("hidden");
   $("proofPrompt").textContent = "PHOTO SELECTED ✓";
+
   showToast("Proof selected. Tap SUBMIT PROOF.");
 });
 
-/* SUBMISSION */
+/* =========================
+   PROOF SUBMISSION
+========================= */
 function setSubmitMessage(message, success) {
   const el = $("submitMessage");
+
   el.textContent = message;
-  el.className = "status-message " + (success ? "status-success" : "status-error");
+  el.className =
+    "status-message " +
+    (success ? "status-success" : "status-error");
 }
 
 function safeFileName(name) {
-  return safeText(name).replace(/[^a-zA-Z0-9._-]/g,"_").slice(-80) || "proof.jpg";
+  return safeText(name)
+    .replace(/[^a-zA-Z0-9._-]/g,"_")
+    .slice(-80) || "proof.jpg";
 }
 
 async function uploadProofImage(file) {
-  const originalExt = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const allowed = ["jpg","jpeg","png","webp","heic"];
-  const extension = allowed.includes(originalExt) ? originalExt : "jpg";
+  if (!db || !currentUser) {
+    throw new Error("Your database connection or login session is missing.");
+  }
 
-  const path = currentUser.id + "/" + String(selectedTask.id) + "/" +
-    Date.now() + "_" + safeFileName("proof." + extension);
+  const originalExt = (
+    file.name.split(".").pop() || "jpg"
+  ).toLowerCase();
+
+  const allowed = ["jpg","jpeg","png","webp","heic"];
+  const extension = allowed.includes(originalExt)
+    ? originalExt
+    : "jpg";
+
+  const path =
+    currentUser.id + "/" +
+    String(selectedTask.id) + "/" +
+    Date.now() + "_" +
+    safeFileName("proof." + extension);
 
   const result = await withTimeout(
     db.storage.from(PROOF_BUCKET).upload(path,file,{
@@ -818,36 +1083,59 @@ async function uploadProofImage(file) {
   );
 
   if (result.error) {
-    throw new Error("Photo upload failed: " + result.error.message +
-      ". Confirm that the task-proofs storage bucket exists and its policies permit uploads.");
+    throw new Error(
+      "Photo upload failed: " + result.error.message +
+      ". Check that the task-proofs storage bucket exists and its upload policies permit this account."
+    );
   }
 
   return result.data.path;
 }
 
 async function submitProof() {
+  if (!db || typeof db.from !== "function") {
+    setSubmitMessage(
+      "The database connection is missing. Reload the page and sign in again.",
+      false
+    );
+    return;
+  }
+
   if (!currentUser) {
-    setSubmitMessage("Please sign in again before submitting proof.",false);
+    setSubmitMessage(
+      "Please sign in again before submitting proof.",
+      false
+    );
     return;
   }
 
   if (!selectedTask) {
-    setSubmitMessage("Open a task first.",false);
+    setSubmitMessage("Open a task first.", false);
     return;
   }
 
   if (!selectedProofFile) {
-    setSubmitMessage("Tap the camera box and take a photo or select a screenshot first.",false);
-    $("proofDropzone").scrollIntoView({behavior:"smooth",block:"center"});
+    setSubmitMessage(
+      "Tap the camera box and take a photo or select a screenshot first.",
+      false
+    );
+
+    $("proofDropzone").scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+
     return;
   }
 
   const button = $("submitProofBtn");
+
   button.disabled = true;
   button.textContent = "SUBMITTING…";
   $("submitMessage").className = "hidden";
 
   try {
+    // Prevent duplicate pending or approved submissions.
     const existingResult = await withTimeout(
       db.from("task_submissions")
         .select("id,status")
@@ -858,21 +1146,35 @@ async function submitProof() {
     );
 
     if (existingResult.error) {
-      throw new Error("Could not check previous submissions: " + existingResult.error.message);
+      throw new Error(
+        "Could not check previous submissions: " +
+        existingResult.error.message
+      );
     }
 
     const existing = existingResult.data || [];
+
     const alreadySubmitted = existing.some(row =>
-      ["pending","approved","underreview","under_review"].includes(normalize(row.status))
+      [
+        "pending",
+        "approved",
+        "underreview",
+        "under_review"
+      ].includes(normalize(row.status))
     );
 
     if (alreadySubmitted) {
-      throw new Error("You have already submitted this task or it is awaiting review.");
+      throw new Error(
+        "You have already submitted this task or it is awaiting review."
+      );
     }
 
     const uploadedPath = await uploadProofImage(selectedProofFile);
+
     const textField = $("proofText");
-    const proofText = textField ? safeText(textField.value) : "";
+    const proofText = textField
+      ? safeText(textField.value)
+      : "";
 
     const proofPayload = JSON.stringify({
       photo_path:uploadedPath,
@@ -900,19 +1202,26 @@ async function submitProof() {
     }
 
     setSubmitMessage(
-      "Proof submitted successfully. Your task is awaiting review; approval and payment are not automatic.",
+      "Proof submitted successfully. Your task is awaiting review. Approval and payment are not automatic.",
       true
     );
 
     button.textContent = "PROOF SUBMITTED ✓";
     $("proofPrompt").textContent = "PROOF SUBMITTED ✓";
+
     selectedProofFile = null;
     $("proofPhoto").value = "";
+
     showToast("Proof submitted successfully.");
 
   } catch (error) {
     console.error("Submission error:",error);
-    setSubmitMessage(error.message || "Could not submit proof. Please try again.",false);
+
+    setSubmitMessage(
+      error?.message || "Could not submit proof. Please try again.",
+      false
+    );
+
     button.disabled = false;
     button.textContent = "TRY AGAIN";
   }
@@ -920,11 +1229,16 @@ async function submitProof() {
 
 $("submitProofBtn").addEventListener("click",submitProof);
 
+/* =========================
+   NAVIGATION AND FILTERS
+========================= */
 $("backToTasksBtn").addEventListener("click",() => {
   selectedTask = null;
   selectedProofFile = null;
+
   $("taskDetailSection").classList.add("hidden");
   $("taskListSection").classList.remove("hidden");
+
   window.scrollTo({top:0,behavior:"smooth"});
 });
 
@@ -932,17 +1246,26 @@ $("searchInput").addEventListener("input",renderTasks);
 
 $("filters").addEventListener("click",event => {
   const button = event.target.closest("[data-filter]");
+
   if (!button) return;
 
   activeFilter = button.dataset.filter;
+
   document.querySelectorAll(".filter-btn").forEach(item => {
     item.classList.toggle("active",item === button);
   });
+
   renderTasks();
 });
 
-/* START SAFELY */
-window.addEventListener("DOMContentLoaded",init);
+/* =========================
+   START APPLICATION
+========================= */
+if (document.readyState === "loading") {
+  window.addEventListener("DOMContentLoaded",init,{once:true});
+} else {
+  init();
+}
 </script>
 </body>
 </html>
