@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#087f36">
-<title>NAIJA TASK — Available Tasks</title>
+<title>Available Tasks | NAIJA TASK</title>
 
-<!-- IMPORTANT: Load Supabase before the application script -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -16,1256 +15,1020 @@
   --dark:#064d25;
   --lime:#b7ef43;
   --bg:#f3f8f4;
-  --white:#fff;
-  --text:#17251b;
-  --muted:#68766c;
-  --border:#dfe9e1;
-  --red:#b42318;
-  --shadow:0 3px 12px rgba(20,45,28,.055)
+  --white:#ffffff;
+  --text:#17251c;
+  --muted:#718078;
+  --border:#e4ece6;
+  --red:#d93434;
+  --shadow:0 5px 18px rgba(14,66,32,.07);
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,Helvetica,sans-serif}
-button,input,textarea{font:inherit}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  padding-bottom:100px;
+}
+button,input,textarea,select{font:inherit}
 button{cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.topbar{
+  background:linear-gradient(135deg,var(--dark),var(--green2));
+  color:white;
+  padding:20px 17px 24px;
+  border-radius:0 0 25px 25px;
+}
+.topbar-inner,.page{max-width:680px;margin:auto}
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-logo{
+  width:44px;height:44px;border-radius:14px;
+  background:var(--lime);color:var(--dark);
+  display:grid;place-items:center;font-size:19px;font-weight:900;
+}
+.brand-name{font-size:19px;font-weight:900;letter-spacing:.2px}
+.brand-sub{font-size:11px;opacity:.8;margin-top:4px}
+.wallet-pill{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.18);
+  border-radius:30px;padding:10px 12px;font-size:12px;font-weight:700;
+}
+.welcome{margin-top:25px}
+.welcome h1{margin:0 0 8px;font-size:25px;line-height:1.2}
+.welcome p{margin:0;color:#e1f5e7;font-size:14px;line-height:1.5}
+.page{padding:0 14px}
+.stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin-top:-1px;padding-top:16px;
+}
+.stat{
+  background:white;border:1px solid var(--border);
+  border-radius:17px;padding:15px;box-shadow:var(--shadow);
+}
+.stat-label{font-size:12px;color:var(--muted);margin-bottom:9px}
+.stat-value{font-size:21px;font-weight:900;color:var(--dark)}
+.stat-note{font-size:11px;color:var(--muted);margin-top:5px}
+.section-heading{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin:25px 1px 13px;
+}
+.section-heading h2{font-size:19px;margin:0}
+.count-badge{
+  background:#e3f5e8;color:var(--dark);
+  padding:7px 10px;border-radius:20px;font-size:12px;font-weight:800;
+}
+.search-box{
+  width:100%;height:49px;background:white;border:1px solid var(--border);
+  border-radius:14px;padding:0 15px;outline:none;font-size:14px;
+}
+.search-box:focus,.text-input:focus,.text-area:focus{
+  border-color:var(--green2);box-shadow:0 0 0 3px rgba(11,155,69,.1);
+}
+.filter-row{
+  display:flex;gap:9px;overflow-x:auto;padding:13px 0 4px;
+  scrollbar-width:none;
+}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-chip{
+  flex:0 0 auto;border:1px solid var(--border);background:white;color:#536259;
+  padding:10px 14px;border-radius:30px;font-size:12px;font-weight:800;
+}
+.filter-chip.active{background:var(--green);border-color:var(--green);color:white}
+.notice{
+  padding:13px 14px;border-radius:13px;background:#eaf7ed;
+  color:#245d35;font-size:12px;line-height:1.5;margin-top:14px;
+}
+.task-list{display:grid;gap:15px;margin-top:15px}
+.task-card{
+  background:white;border:1px solid var(--border);border-radius:20px;
+  padding:18px;box-shadow:var(--shadow);min-width:0;
+}
+.task-top{display:flex;align-items:flex-start;gap:13px}
+.platform-icon{
+  flex:0 0 48px;width:48px;height:48px;border-radius:15px;
+  display:grid;place-items:center;background:#edf7ef;
+  font-size:24px;font-weight:900;
+}
+.task-main{flex:1;min-width:0}
+.task-title{font-size:17px;font-weight:900;line-height:1.35;overflow-wrap:anywhere}
+.task-platform{font-size:12px;color:var(--muted);margin-top:6px}
+.reward-box{
+  flex:0 0 auto;text-align:right;background:#eff9e8;color:var(--dark);
+  border-radius:13px;padding:9px 10px;min-width:78px;
+}
+.reward-label{font-size:10px;color:#54734c}
+.reward-amount{font-size:18px;font-weight:900;margin-top:3px}
+.task-description{
+  font-size:13px;line-height:1.65;color:#58675d;
+  margin:16px 0 14px;overflow-wrap:anywhere;
+}
+.task-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.meta-tag{
+  background:#f4f7f4;border:1px solid #edf1ed;color:#5c6b61;
+  border-radius:9px;padding:7px 9px;font-size:11px;font-weight:700;
+}
+.task-actions{display:flex;gap:10px}
+.btn{
+  border:0;border-radius:12px;padding:13px 15px;font-weight:800;
+  font-size:13px;min-height:46px;
+}
+.btn-primary{background:var(--green);color:white}
+.btn-primary:hover{background:var(--dark)}
+.btn-light{background:#edf6ef;color:var(--dark)}
+.btn-full{width:100%}
+.task-actions .btn{flex:1}
+.empty-state,.loading-state,.error-state{
+  background:white;border:1px solid var(--border);border-radius:18px;
+  text-align:center;padding:30px 20px;margin-top:15px;
+}
+.empty-icon{font-size:35px;margin-bottom:12px}
+.empty-state h3,.loading-state h3,.error-state h3{margin:0 0 8px;font-size:17px}
+.empty-state p,.loading-state p,.error-state p{
+  color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 15px;
+}
 .hidden{display:none!important}
-button:disabled{opacity:.6;cursor:not-allowed}
-.topbar{background:linear-gradient(130deg,#064d25,#087f36);color:#fff;padding:16px 14px 19px;border-radius:0 0 16px 16px}
-.topbar-inner,.page{max-width:900px;margin:auto}
-.brand-row{display:flex;align-items:center;gap:10px}
-.brand-logo{width:39px;height:39px;display:grid;place-items:center;flex-shrink:0;background:var(--lime);color:var(--dark);border-radius:10px;font-size:17px;font-weight:1000}
-.brand-name{font-size:17px;font-weight:1000;letter-spacing:.4px}
-.brand-subtitle{margin-top:3px;color:#d9f1df;font-size:11px}
-.topbar h1{margin:17px 0 6px;font-size:23px;line-height:1.2;font-weight:1000}
-.topbar p{margin:0;color:#e4f4e8;font-size:12px;line-height:1.5}
-.page{padding:12px 11px 95px}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:15px}
-.stat{padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:10px}
-.stat-label{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.3px}
-.stat-value{margin-top:5px;font-size:18px;color:var(--green);font-weight:1000;overflow-wrap:anywhere}
-.section-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:17px 1px 9px}
-.section-heading h2{margin:0;font-size:16px;font-weight:1000}
-.count-pill{padding:5px 8px;border-radius:20px;background:#e4f4e8;color:var(--dark);font-size:10px;font-weight:900}
-.filters{display:flex;gap:6px;overflow-x:auto;padding:2px 0 9px;scrollbar-width:none}
-.filters::-webkit-scrollbar{display:none}
-.filter-btn{flex-shrink:0;white-space:nowrap;padding:8px 10px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--text);font-size:11px;font-weight:800}
-.filter-btn.active{background:var(--green);border-color:var(--green);color:#fff}
-.search-box{width:100%;padding:11px;margin-bottom:10px;background:#fff;border:1px solid var(--border);border-radius:9px;outline:none;font-size:12px}
-.search-box:focus,.form-control:focus{border-color:var(--green);box-shadow:0 0 0 2px rgba(8,127,54,.09)}
-.task-list{display:grid;grid-template-columns:1fr;gap:9px}
-.task-card{min-width:0;padding:11px;background:#fff;border:1px solid var(--border);border-radius:11px;box-shadow:var(--shadow)}
-.task-card-top{display:flex;align-items:center;gap:9px;min-width:0}
-.platform-icon{width:35px;height:35px;min-width:35px;display:grid;place-items:center;border-radius:9px;color:#fff;overflow:hidden}
-.platform-icon svg{width:20px;height:20px;display:block}
-.platform-youtube{background:#ff0033}
-.platform-facebook{background:#1877f2}
-.platform-instagram{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
-.platform-tiktok,.platform-x{background:#111}
-.platform-telegram{background:#229ed9}
-.platform-whatsapp{background:#128c4a}
-.platform-website{background:#087f36}
-.platform-other{background:#596a60}
-.task-heading{flex:1;min-width:0}
-.task-title{margin:0 0 4px;font-size:13px;line-height:1.35;font-weight:900;overflow-wrap:anywhere}
-.task-platform{color:var(--muted);font-size:10px;font-weight:700}
-.reward-badge{flex-shrink:0;padding:6px 7px;background:#e8f6eb;color:var(--dark);border-radius:7px;font-size:11px;font-weight:1000}
-.task-description{margin:9px 0;color:#536157;font-size:11px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap}
-.task-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
-.meta-pill{padding:5px 7px;border-radius:6px;background:#f1f5f2;color:#4d5c51;font-size:10px;font-weight:800}
-.primary-btn{width:100%;padding:10px;border:1px solid var(--green);border-radius:7px;background:var(--green);color:#fff;font-size:11px;font-weight:900}
-.primary-btn:active,.link-btn:active{background:var(--dark)}
-.secondary-btn{padding:10px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--dark);font-size:11px;font-weight:800}
-.empty-state,.loading-state{padding:22px 13px;border:1px dashed #c8d9cc;border-radius:11px;background:#fff;color:var(--muted);text-align:center;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
-.empty-state strong{display:block;margin-bottom:6px;color:var(--text);font-size:14px}
-.error-text{color:var(--red);font-weight:700;white-space:pre-wrap;overflow-wrap:anywhere}
-.notice{margin:10px 0;padding:10px;border:1px solid #efdfb3;border-radius:8px;background:#fff9e9;color:#725213;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
-.detail-panel{margin-top:10px;overflow:hidden;background:#fff;border:1px solid #d8e5da;border-radius:12px;box-shadow:var(--shadow)}
-.detail-header{padding:11px;background:#f0f9f2;border-bottom:1px solid var(--border)}
-.detail-header-row{display:flex;align-items:center;gap:9px;min-width:0}
-.detail-header h2{margin:0 0 4px;font-size:14px;line-height:1.35;font-weight:1000;overflow-wrap:anywhere}
-.detail-body{padding:11px}
-.detail-label{margin:12px 0 6px;color:var(--green);font-size:10px;font-weight:1000;text-transform:uppercase;letter-spacing:.4px}
-.detail-label:first-child{margin-top:0}
-.instruction-box{padding:10px;background:#f7f9f7;border:1px solid var(--border);border-radius:8px;font-size:12px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
-.task-link-box{padding:11px;background:#f4fbf5;border:1px solid #cfe3d3;border-radius:9px;overflow-wrap:anywhere}
-.task-link-box strong{font-size:12px}
-.task-link-address{display:block;margin:6px 0 10px;color:#526459;font-size:10px;line-height:1.5;overflow-wrap:anywhere;word-break:break-word}
-.link-btn{display:block;padding:11px;border:1px solid #087f36;border-radius:7px;background:#087f36;color:#fff;text-align:center;text-decoration:none;font-size:11px;font-weight:900;letter-spacing:.2px}
-.link-warning{margin-top:7px;color:var(--muted);font-size:10px;line-height:1.5}
-.detail-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
-.proof-section{margin-top:13px;overflow:hidden;border:1px solid var(--green);border-radius:11px;background:#fff}
-.proof-heading{padding:11px 12px;background:var(--green);color:#fff}
-.proof-heading h3{margin:0 0 4px;font-size:14px;font-weight:1000}
-.proof-heading p{margin:0;color:#e6f8eb;font-size:11px;line-height:1.5}
-.proof-body{padding:11px}
-.proof-dropzone{display:block;padding:15px 10px;border:1px dashed #7eb58a;border-radius:9px;background:#f5fff6;text-align:center;cursor:pointer}
-.proof-dropzone:active{background:#e5f7e8}
-.camera-icon{width:40px;height:40px;display:grid;place-items:center;margin:0 auto 8px;border-radius:10px;background:#e0f3e4;font-size:22px}
-.proof-dropzone strong{display:block;color:var(--dark);font-size:12px;font-weight:1000}
-.proof-dropzone small{display:block;margin-top:6px;color:var(--muted);font-size:10px;line-height:1.5}
-.proof-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
-.proof-preview{display:block;width:100%;max-height:220px;margin-top:10px;border-radius:8px;background:#edf2ee;object-fit:contain}
-.proof-fields{display:grid;gap:10px;margin-top:11px}
-.form-label{display:block;margin-bottom:6px;font-size:11px;font-weight:900}
-.form-control{display:block;width:100%;padding:10px;border:1px solid #cfded2;border-radius:8px;background:#fff;outline:none;font-size:12px}
-.submit-proof-btn{width:100%;margin-top:11px;padding:12px;border:0;border-radius:8px;background:var(--green);color:#fff;font-size:12px;font-weight:1000}
-.submit-proof-btn:disabled{background:#819889}
-.back-btn{width:100%;margin-top:8px}
-.status-message{margin-top:10px;padding:10px;border-radius:8px;font-size:11px;font-weight:800;line-height:1.5;overflow-wrap:anywhere}
-.status-success{color:#075c28;background:#e2f8e7;border:1px solid #b8e8c4}
-.status-error{color:#8b1a12;background:#fff0ee;border:1px solid #ffd0cb}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:20;display:flex;justify-content:space-around;gap:3px;padding:7px 4px calc(7px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--border);box-shadow:0 -3px 12px rgba(0,0,0,.035)}
-.nav-item{flex:1;min-width:0;padding:4px 2px;color:#637369;text-align:center;text-decoration:none;font-size:9px;font-weight:800}
-.nav-item span{display:block;margin-bottom:3px;font-size:17px}
-.nav-item.active{color:var(--green)}
-.toast{position:fixed;bottom:83px;left:10px;right:10px;z-index:50;max-width:600px;margin:auto;padding:11px;border-radius:9px;background:#18281e;color:#fff;box-shadow:var(--shadow);font-size:11px;line-height:1.5}
-@media(min-width:650px){.task-list{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.topbar h1{font-size:26px}}
-@media(max-width:370px){.topbar h1{font-size:21px}.task-title{font-size:12px}.reward-badge{padding:5px;font-size:10px}}
+.panel{
+  background:white;border:1px solid var(--border);border-radius:20px;
+  padding:19px;margin-top:18px;box-shadow:var(--shadow);
+}
+.panel-heading{font-size:20px;font-weight:900;margin:0 0 7px}
+.panel-subtitle{font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 18px}
+.detail-row{padding:14px 0;border-bottom:1px solid #edf1ed}
+.detail-row:last-child{border-bottom:0}
+.detail-label{font-size:11px;color:var(--muted);margin-bottom:7px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.detail-value{font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.task-url{
+  display:block;overflow-wrap:anywhere;color:var(--green);
+  background:#f0f8f1;border-radius:11px;padding:12px;
+  font-size:13px;margin-top:9px;
+}
+.proof-box{
+  background:#f8fbf8;border:2px dashed #a9cdb1;
+  border-radius:17px;padding:17px;margin:16px 0;
+}
+.proof-icon{
+  width:55px;height:55px;display:grid;place-items:center;
+  background:#e5f5e8;color:var(--green);font-size:27px;
+  border-radius:16px;margin-bottom:12px;
+}
+.proof-title{font-size:17px;font-weight:900;margin:0 0 7px}
+.proof-description{font-size:12px;color:var(--muted);line-height:1.6;margin:0 0 15px}
+.proof-buttons{display:grid;gap:10px}
+.proof-gallery{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:52px;background:var(--green);color:white;
+  border:0;border-radius:13px;font-weight:900;font-size:14px;padding:13px;
+}
+.proof-camera{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-height:47px;background:white;color:var(--dark);
+  border:1px solid #dce9df;border-radius:13px;font-weight:800;
+  font-size:13px;padding:12px;
+}
+.selected-file{
+  background:#eaf7ed;border-radius:11px;padding:12px;
+  margin-top:12px;color:var(--dark);font-size:12px;line-height:1.5;
+  overflow-wrap:anywhere;
+}
+.preview-image{
+  width:100%;max-height:260px;object-fit:contain;background:#e9eee9;
+  border-radius:12px;margin-top:12px;
+}
+.text-area{
+  width:100%;min-height:105px;border:1px solid #dfe8e1;border-radius:12px;
+  padding:13px;resize:vertical;outline:none;font-size:14px;line-height:1.5;
+}
+.text-input{
+  width:100%;height:47px;border:1px solid #dfe8e1;border-radius:12px;
+  padding:0 13px;outline:none;font-size:14px;
+}
+.field-label{display:block;font-size:13px;font-weight:800;margin:15px 0 8px}
+.submit-note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:12px}
+.message{
+  padding:13px;border-radius:12px;font-size:13px;line-height:1.5;margin:12px 0;
+}
+.message-error{background:#fff0f0;color:#a91e1e}
+.message-success{background:#e8f8eb;color:#17672f}
+.message-info{background:#eef5ff;color:#24539b}
+.back-btn{
+  background:transparent;border:0;color:var(--green);font-size:13px;
+  font-weight:900;padding:5px 0;margin-bottom:12px;
+}
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  background:rgba(255,255,255,.97);border-top:1px solid var(--border);
+  display:flex;justify-content:center;padding:9px 8px calc(9px + env(safe-area-inset-bottom));
+}
+.nav-inner{width:100%;max-width:680px;display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  text-decoration:none;color:#7b887f;font-size:10px;font-weight:800;
+  padding:6px 2px;border-radius:10px;
+}
+.nav-icon{font-size:20px;line-height:1.1}
+.nav-item.active{color:var(--green);background:#edf8ef}
+.footer-note{text-align:center;color:#8a968d;font-size:11px;padding:25px 10px}
+@media(min-width:520px){
+  .topbar{padding:24px 22px 29px}
+  .page{padding-left:20px;padding-right:20px}
+  .task-card{padding:21px}
+  .task-title{font-size:18px}
+  .reward-amount{font-size:20px}
+}
 </style>
 </head>
 
 <body>
+
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand-row">
-      <div class="brand-logo">NT</div>
-      <div>
-        <div class="brand-name">NAIJA TASK</div>
-        <div class="brand-subtitle">Complete Tasks. Earn Naira.</div>
+      <div class="brand">
+        <div class="brand-logo">NT</div>
+        <div>
+          <div class="brand-name">NAIJA TASK</div>
+          <div class="brand-sub">Complete Tasks. Earn Naira.</div>
+        </div>
       </div>
+      <div class="wallet-pill">🇳🇬 Nigeria</div>
     </div>
-    <h1>Find a Task. Complete It.</h1>
-    <p>Read the instructions, complete the task and submit genuine proof for review.</p>
+    <div class="welcome">
+      <h1>Find Your Next Task 👋</h1>
+      <p>Choose a task, follow its instructions, upload your screenshot proof, and submit for review.</p>
+    </div>
   </div>
 </header>
 
 <main class="page">
-  <div class="stats">
+  <section class="stats">
     <div class="stat">
-      <div class="stat-label">AVAILABLE TASKS</div>
+      <div class="stat-label">Available tasks</div>
       <div class="stat-value" id="availableCount">—</div>
+      <div class="stat-note">Tasks currently listed</div>
     </div>
     <div class="stat">
-      <div class="stat-label">YOUR ACCOUNT</div>
-      <div class="stat-value" id="accountStatus" style="font-size:14px">Checking…</div>
+      <div class="stat-label">Your task status</div>
+      <div class="stat-value" style="font-size:17px" id="userStatus">Checking…</div>
+      <div class="stat-note">Sign in to submit proof</div>
     </div>
-  </div>
+  </section>
 
-  <div id="globalMessage" class="notice hidden"></div>
-
-  <section id="taskListSection">
+  <section id="listSection">
     <div class="section-heading">
       <h2>Available Tasks</h2>
-      <span class="count-pill" id="taskCountPill">Connecting…</span>
-    </div>
-
-    <div class="filters" id="filters">
-      <button class="filter-btn active" data-filter="all">All Tasks</button>
-      <button class="filter-btn" data-filter="youtube">YouTube</button>
-      <button class="filter-btn" data-filter="facebook">Facebook</button>
-      <button class="filter-btn" data-filter="instagram">Instagram</button>
-      <button class="filter-btn" data-filter="tiktok">TikTok</button>
-      <button class="filter-btn" data-filter="telegram">Telegram</button>
-      <button class="filter-btn" data-filter="whatsapp">WhatsApp</button>
-      <button class="filter-btn" data-filter="x">X</button>
-      <button class="filter-btn" data-filter="other">Other</button>
+      <span class="count-badge" id="resultCount">Loading…</span>
     </div>
 
     <input id="searchInput" class="search-box" type="search"
-      placeholder="Search tasks by title or platform…" autocomplete="off">
+      placeholder="🔍 Search tasks or platforms…" autocomplete="off">
 
-    <div id="taskList" class="task-list" aria-live="polite">
-      <div class="loading-state">Connecting to NAIJA TASK…</div>
+    <div class="filter-row" id="filterRow">
+      <button class="filter-chip active" data-filter="all">All Tasks</button>
+      <button class="filter-chip" data-filter="YouTube">▶ YouTube</button>
+      <button class="filter-chip" data-filter="Facebook">f Facebook</button>
+      <button class="filter-chip" data-filter="Instagram">◎ Instagram</button>
+      <button class="filter-chip" data-filter="TikTok">♪ TikTok</button>
+      <button class="filter-chip" data-filter="Telegram">➤ Telegram</button>
+      <button class="filter-chip" data-filter="WhatsApp">☏ WhatsApp</button>
+      <button class="filter-chip" data-filter="X">𝕏 X</button>
+      <button class="filter-chip" data-filter="Other">Other</button>
     </div>
+
+    <div class="notice">
+      <strong>Important:</strong> Read each task's instructions before starting.
+      Upload genuine proof of the completed task. Submissions may need admin approval.
+    </div>
+
+    <div id="loadingState" class="loading-state">
+      <div class="empty-icon">⏳</div>
+      <h3>Loading available tasks</h3>
+      <p>Please wait while we check for tasks.</p>
+    </div>
+
+    <div id="errorState" class="error-state hidden">
+      <div class="empty-icon">⚠️</div>
+      <h3>Tasks could not be loaded</h3>
+      <p id="errorText">Please try again.</p>
+      <button class="btn btn-primary" id="retryButton">Try Again</button>
+    </div>
+
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">📋</div>
+      <h3 id="emptyTitle">No tasks found</h3>
+      <p id="emptyText">There are no tasks matching your search right now.</p>
+      <button class="btn btn-light" id="clearSearchButton">Show All Tasks</button>
+    </div>
+
+    <div id="taskList" class="task-list"></div>
   </section>
 
-  <section id="taskDetailSection" class="hidden">
-    <div class="section-heading">
-      <h2>Task Details</h2>
-      <span class="count-pill">Read before starting</span>
-    </div>
+  <section id="detailSection" class="hidden">
+    <button class="back-btn" id="backToTasks">← Back to available tasks</button>
 
-    <div class="detail-panel">
-      <div class="detail-header">
-        <div class="detail-header-row">
-          <div id="detailPlatformIcon" class="platform-icon platform-other">✓</div>
-          <div style="min-width:0;flex:1">
-            <h2 id="detailTitle">Task title</h2>
-            <div id="detailPlatform" class="task-platform">Platform</div>
-          </div>
-          <div id="detailReward" class="reward-badge">₦0</div>
+    <div class="panel">
+      <div class="task-top">
+        <div class="platform-icon" id="detailIcon">📋</div>
+        <div class="task-main">
+          <div class="task-title" id="detailTitle">Task details</div>
+          <div class="task-platform" id="detailPlatform">Platform</div>
+        </div>
+        <div class="reward-box">
+          <div class="reward-label">YOU EARN</div>
+          <div class="reward-amount" id="detailReward">₦0</div>
         </div>
       </div>
 
-      <div class="detail-body">
-        <div class="detail-label">What you must do</div>
-        <div id="detailDescription" class="instruction-box"></div>
-
-        <div id="requirementsWrap">
-          <div class="detail-label">Task instructions</div>
-          <div id="detailRequirements" class="instruction-box"></div>
-        </div>
-
-        <div id="taskLinkWrap" class="hidden">
-          <div class="detail-label">Task link</div>
-          <div class="task-link-box">
-            <strong>Open the task destination</strong>
-            <span id="taskLinkAddress" class="task-link-address"></span>
-            <a id="taskLinkButton" class="link-btn" href="#" target="_blank" rel="noopener noreferrer">
-              OPEN TASK DESTINATION ↗
-            </a>
-            <div class="link-warning">Complete the requested action, then return here to submit your proof.</div>
-          </div>
-        </div>
-
-        <div class="detail-meta">
-          <span id="detailSlots" class="meta-pill">Slots: —</span>
-          <span class="meta-pill">Proof: Photo / Screenshot</span>
-        </div>
-
-        <div class="notice">
-          Your submission must be genuine. Submitting proof does not mean your task has already been approved or paid.
-        </div>
-
-        <section class="proof-section">
-          <div class="proof-heading">
-            <h3>Submit Your Proof</h3>
-            <p>Tap below to take a photo or choose a screenshot, then submit it.</p>
-          </div>
-          <div class="proof-body">
-            <label for="proofPhoto" class="proof-dropzone" id="proofDropzone">
-              <div class="camera-icon">📷</div>
-              <strong id="proofPrompt">TAP HERE TO TAKE PHOTO</strong>
-              <small>Your phone may open its camera or image picker.<br>Choose a clear image showing your completed task.</small>
-            </label>
-
-            <input id="proofPhoto" class="proof-input" type="file" accept="image/*" capture="environment">
-            <img id="proofPreview" class="proof-preview hidden" alt="Proof preview">
-            <div class="proof-fields" id="proofFields"></div>
-
-            <button id="submitProofBtn" class="submit-proof-btn" type="button">SUBMIT PROOF</button>
-            <div id="submitMessage" class="hidden" role="status"></div>
-            <button id="backToTasksBtn" class="secondary-btn back-btn" type="button">← BACK TO TASKS</button>
-          </div>
-        </section>
+      <div class="detail-row">
+        <div class="detail-label">Instructions</div>
+        <div class="detail-value" id="detailDescription"></div>
       </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Requirements</div>
+        <div class="detail-value" id="detailRequirements">Follow the task instructions and submit genuine proof.</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Task website or app</div>
+        <div class="detail-value">Open the task link below to complete the task.</div>
+        <a class="task-url hidden" id="detailLink" href="#" target="_blank" rel="noopener noreferrer">
+          Open task link ↗
+        </a>
+        <button class="btn btn-primary btn-full" id="openTaskButton" style="margin-top:12px">
+          Open Task Website ↗
+        </button>
+      </div>
+
+      <div id="detailMessage"></div>
+    </div>
+
+    <div class="panel" id="submissionPanel">
+      <h2 class="panel-heading">Submit Your Proof</h2>
+      <p class="panel-subtitle">
+        Completed the task? Upload a screenshot showing your work. Your proof will be sent for review.
+      </p>
+
+      <div class="proof-box">
+        <div class="proof-icon">🖼️</div>
+        <h3 class="proof-title">Upload Screenshot Proof</h3>
+        <p class="proof-description">
+          Choose a screenshot already saved on your phone. If you need to, you can take a photo as an alternative.
+        </p>
+
+        <div class="proof-buttons">
+          <button type="button" class="proof-gallery" id="galleryButton">
+            🖼️ Choose Screenshot from Gallery
+          </button>
+          <button type="button" class="proof-camera" id="cameraButton">
+            📷 Take Photo with Camera (Optional)
+          </button>
+        </div>
+
+        <!-- Gallery input: deliberately NO capture attribute -->
+        <input type="file" id="galleryInput" accept="image/*" hidden>
+
+        <!-- Camera is a separate optional control -->
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+
+        <div id="fileInfo" class="selected-file hidden"></div>
+        <img id="proofPreview" class="preview-image hidden" alt="Selected proof preview">
+      </div>
+
+      <div id="proofTextField" class="hidden">
+        <label class="field-label" for="proofText">Required proof text</label>
+        <textarea id="proofText" class="text-area" placeholder="Enter the required username, comment, reference, or other proof…"></textarea>
+      </div>
+
+      <div id="usernameField" class="hidden">
+        <label class="field-label" for="proofUsername">Username used</label>
+        <input id="proofUsername" class="text-input" type="text" placeholder="Enter the username you used">
+      </div>
+
+      <div id="referenceField" class="hidden">
+        <label class="field-label" for="proofReference">Reference ID</label>
+        <input id="proofReference" class="text-input" type="text" placeholder="Enter the reference ID">
+      </div>
+
+      <div id="submitMessage"></div>
+
+      <button class="btn btn-primary btn-full" id="submitProofButton" style="margin-top:17px">
+        Submit Screenshot Proof
+      </button>
+      <p class="submit-note">
+        Only submit after completing the task. Submitting proof does not mean it has already been approved or paid.
+      </p>
     </div>
   </section>
+
+  <div class="footer-note">NAIJA TASK · Complete Tasks. Earn Naira.</div>
 </main>
 
 <nav class="bottom-nav">
-  <a class="nav-item" href="dashboard.html"><span>⌂</span>Home</a>
-  <a class="nav-item active" href="task.html"><span>▣</span>Tasks</a>
-  <a class="nav-item" href="wallet.html"><span>₦</span>Wallet</a>
-  <a class="nav-item" href="referrals.html"><span>♧</span>Referrals</a>
-  <a class="nav-item" href="profile.html"><span>●</span>Profile</a>
+  <div class="nav-inner">
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⌂</span><span>Home</span></a>
+    <a class="nav-item active" href="task.html"><span class="nav-icon">▤</span><span>Tasks</span></a>
+    <a class="nav-item" href="wallet.html"><span class="nav-icon">₦</span><span>Wallet</span></a>
+    <a class="nav-item" href="referrals.html"><span class="nav-icon">♧</span><span>Refer</span></a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">♙</span><span>Profile</span></a>
+  </div>
 </nav>
-
-<div id="toast" class="toast hidden" role="status"></div>
 
 <script>
 "use strict";
 
-/* =========================
-   NAIJA TASK CONFIGURATION
-========================= */
+/* NAIJA TASK Supabase connection */
 const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const SUPABASE_ANON_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const PROOF_BUCKET = "task-proofs";
-const REQUEST_TIMEOUT_MS = 15000;
 
 let db = null;
 let currentUser = null;
-let currentProfile = null;
 let allTasks = [];
-let selectedTask = null;
-let activeFilter = "all";
+let currentTask = null;
 let selectedProofFile = null;
-let toastTimer = null;
-let previewURL = null;
-let initStarted = false;
-let authSubscription = null;
+let activeFilter = "all";
+let submissionInProgress = false;
 
 const $ = id => document.getElementById(id);
 
-function safeText(value) {
-  return String(value ?? "").trim();
-}
-
 function escapeHTML(value) {
-  return safeText(value).replace(/[&<>"']/g, ch => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  })[ch]);
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[char]));
 }
 
 function money(value) {
-  const n = Number(value || 0);
+  const n = Number(value);
   return "₦" + (Number.isFinite(n) ? n : 0).toLocaleString("en-NG", {
     maximumFractionDigits:2
   });
 }
 
-function normalize(value) {
-  return safeText(value).toLowerCase().replace(/[\s_-]+/g,"");
+function platformName(task) {
+  const raw = [
+    task.platform, task.category, task.task_type, task.category_name,
+    task.social_platform, task.title, task.description
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  if (raw.includes("youtube")) return "YouTube";
+  if (raw.includes("facebook")) return "Facebook";
+  if (raw.includes("instagram")) return "Instagram";
+  if (raw.includes("tiktok") || raw.includes("tik tok")) return "TikTok";
+  if (raw.includes("telegram")) return "Telegram";
+  if (raw.includes("whatsapp")) return "WhatsApp";
+  if (/(^|[^a-z])twitter([^a-z]|$)/.test(raw) || raw.includes(" x.com") || raw.includes("twitter.com")) return "X";
+  return "Other";
 }
 
-function withTimeout(promise, label, ms = REQUEST_TIMEOUT_MS) {
-  let timer;
-
-  const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => {
-      reject(new Error(
-        label + " timed out after " + Math.round(ms / 1000) +
-        " seconds. Check your internet connection and Supabase."
-      ));
-    }, ms);
-  });
-
-  return Promise.race([promise, timeout])
-    .finally(() => clearTimeout(timer));
+function platformIcon(platform) {
+  return {
+    YouTube:"▶", Facebook:"f", Instagram:"◎", TikTok:"♪",
+    Telegram:"➤", WhatsApp:"☏", X:"𝕏", Other:"✓"
+  }[platform] || "✓";
 }
 
-function showToast(message) {
-  $("toast").textContent = message;
-  $("toast").classList.remove("hidden");
-  clearTimeout(toastTimer);
-
-  toastTimer = setTimeout(() => {
-    $("toast").classList.add("hidden");
-  }, 4000);
+function platformColor(platform) {
+  return {
+    YouTube:"#fff0ef",Facebook:"#edf3ff",Instagram:"#fff0f7",
+    TikTok:"#edfafa",Telegram:"#eaf5ff",WhatsApp:"#eaf8ed",
+    X:"#f0f0f0",Other:"#edf7ef"
+  }[platform] || "#edf7ef";
 }
 
-function showGlobalMessage(message, isError = false) {
-  const el = $("globalMessage");
-  el.textContent = message;
-  el.classList.remove("hidden");
-
-  if (isError) {
-    el.style.background = "#fff0ee";
-    el.style.borderColor = "#ffd0cb";
-    el.style.color = "#8b1a12";
-  } else {
-    el.style.background = "";
-    el.style.borderColor = "";
-    el.style.color = "";
-  }
+function taskReward(task) {
+  return task.reward_per_worker ?? task.reward ?? 0;
 }
 
-function hideGlobalMessage() {
-  $("globalMessage").classList.add("hidden");
+function isExpired(task) {
+  if (!task.expiry_date) return false;
+  const date = new Date(task.expiry_date);
+  return !Number.isNaN(date.getTime()) && date.getTime() < Date.now();
 }
 
-function showTaskLoadError(message, canRetry = true) {
-  $("taskList").innerHTML =
-    '<div class="empty-state">' +
-      '<strong>We could not load your tasks</strong>' +
-      '<div class="error-text">' + escapeHTML(message) + '</div>' +
-      (canRetry
-        ? '<button id="retryTasksBtn" class="primary-btn" style="margin-top:12px">TRY AGAIN</button>'
-        : '<a href="login.html" class="link-btn" style="margin-top:12px">GO TO LOGIN</a>') +
-    '</div>';
+function taskIsVisible(task) {
+  if (task.active === false || task.active === 0 || task.active === "false") return false;
 
-  $("taskCountPill").textContent = "Load error";
-  $("availableCount").textContent = "—";
+  const status = String(task.status || "").toUpperCase();
+  const moderation = String(task.moderation_status || "").toUpperCase();
+  const payment = String(task.payment_status || "").toUpperCase();
 
-  const retry = $("retryTasksBtn");
+  if (["INACTIVE","DISABLED","CANCELLED","CANCELED","DELETED","REJECTED","EXPIRED"].includes(status)) return false;
+  if (["PENDING_REVIEW","REJECTED","DECLINED"].includes(moderation)) return false;
+  if (["FAILED","REFUNDED","CANCELLED"].includes(payment)) return false;
+  if (isExpired(task)) return false;
 
-  if (retry) {
-    retry.addEventListener("click", async () => {
-      retry.disabled = true;
-      retry.textContent = "RETRYING…";
-      await loadTasks();
-    });
-  }
-}
-
-/* =========================
-   PLATFORM DETECTION
-========================= */
-function getTaskLink(task) {
-  return safeText(
-    task.task_link ||
-    task.post_link ||
-    task.task_url ||
-    task.url
-  );
-}
-
-function platformFor(task) {
-  const text = [
-    task.platform,
-    task.category,
-    task.category_name,
-    task.task_type,
-    task.title,
-    task.description,
-    getTaskLink(task)
-  ].map(safeText).join(" ").toLowerCase();
-
-  if (text.includes("youtube") || text.includes("youtu.be")) return "youtube";
-  if (text.includes("instagram") || text.includes("instagr.am")) return "instagram";
-  if (text.includes("facebook") || text.includes("fb.com") || text.includes("fb.watch")) return "facebook";
-  if (text.includes("tiktok")) return "tiktok";
-  if (text.includes("telegram") || text.includes("t.me/")) return "telegram";
-  if (text.includes("whatsapp") || text.includes("wa.me/")) return "whatsapp";
-  if (/\b(x|twitter)\b/.test(text) || text.includes("x.com/") || text.includes("twitter.com/")) return "x";
-  if (getTaskLink(task)) return "website";
-
-  return "other";
-}
-
-function platformName(platform) {
-  return ({
-    youtube:"YouTube",
-    facebook:"Facebook",
-    instagram:"Instagram",
-    tiktok:"TikTok",
-    telegram:"Telegram",
-    whatsapp:"WhatsApp",
-    x:"X",
-    website:"Website / Other",
-    other:"General Task"
-  })[platform] || "General Task";
-}
-
-function platformSVG(platform) {
-  const icons = {
-    youtube:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>',
-    facebook:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2.3H7.6v3.1h2.7v8h3.2Z"/></svg>',
-    instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.6" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>',
-    tiktok:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.6 7.2a6.4 6.4 0 0 1-4.1-1.5v8.1a6.1 6.1 0 1 1-5.3-6.1v3.3a2.8 2.8 0 1 0 2 2.7V2.5h3.3c.2 2.1 1.8 3.8 4.1 4.1v.6Z"/></svg>',
-    x:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3L12 13.8 4.8 22H1.6l7.3-8.4L1.1 2h6.5l4.4 7.5L18.9 2Zm-1.1 17.9h1.7L6.6 3.9H4.8l13 16Z"/></svg>',
-    telegram:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m21.8 3.4-3.3 16c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L6.9 12.9 2 11.4c-1.1-.4-1.1-1.1.2-1.6L20.8 2.6c.9-.3 1.6.2 1 0Z"/></svg>',
-    whatsapp:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a9.8 9.8 0 0 0-8.4 14.8L2.3 22l5.4-1.4A9.9 9.9 0 1 0 12 2Zm0 17.8a8 8 0 0 1-4.1-1.1l-.3-.2-3.2.8.9-3.1-.2-.3A8 8 0 1 1 12 19.8Z"/></svg>'
-  };
-
-  return icons[platform] ||
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>';
-}
-
-function platformIconHTML(platform) {
-  return '<div class="platform-icon platform-' +
-    escapeHTML(platform) + '">' +
-    platformSVG(platform) +
-    '</div>';
-}
-
-function validHttpURL(raw) {
-  try {
-    const url = new URL(raw);
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
-}
-
-/* =========================
-   TASK VISIBILITY
-========================= */
-
-/*
-  This is a display filter, not a replacement for server-side security.
-  Do not hide tasks just because payment_status is UNFUNDED or
-  PAYMENT_REQUIRED. The server must enforce poster funding rules.
-*/
-function isActiveTask(task) {
-  if (task.active === false) return false;
-
-  const status = normalize(task.status);
-  const moderation = normalize(task.moderation_status);
-  const payment = normalize(task.payment_status);
-
-  if ([
-    "inactive","disabled","deleted","rejected",
-    "cancelled","canceled","completed"
-  ].includes(status)) {
-    return false;
-  }
-
-  if ([
-    "pendingreview","rejected","blocked"
-  ].includes(moderation)) {
-    return false;
-  }
-
-  // Failed/refunded tasks should not be shown.
-  // Unfunded tasks are not hidden here because admin tasks may be free.
-  if (["failed","refunded"].includes(payment)) {
-    return false;
-  }
-
-  if (task.expiry_date) {
-    const expiry = new Date(task.expiry_date);
-
-    if (!Number.isNaN(expiry.getTime()) && expiry.getTime() < Date.now()) {
-      return false;
-    }
-  }
-
-  const total = Number(
-    task.max_total_completions ??
-    task.slots ??
-    task.max_completions
-  );
-
-  const completed = Number(
-    task.completed_count ??
-    task.total_completions ??
-    0
-  );
-
-  if (Number.isFinite(total) && total > 0 && completed >= total) {
-    return false;
-  }
+  const slots = Number(task.slots);
+  const completed = Number(task.completed_count ?? task.total_completions ?? 0);
+  const max = Number(task.max_total_completions ?? task.max_completions ?? 0);
+  if (Number.isFinite(slots) && slots > 0 && completed >= slots) return false;
+  if (max > 0 && completed >= max) return false;
 
   return true;
 }
 
-/* =========================
-   SUPABASE INITIALIZATION
-========================= */
+function getTaskDescription(task) {
+  return task.description || task.requirements || "Follow the task instructions carefully and submit genuine screenshot proof.";
+}
+
+function getTaskRequirements(task) {
+  const items = [];
+  if (task.requirements) items.push(task.requirements);
+  if (task.uploader_username) items.push("Required username: " + task.uploader_username);
+  if (task.copy_text) items.push("Required text: " + task.copy_text);
+  if (task.required_proof) items.push("Proof required: " + task.required_proof);
+  return items.length ? items.join("\n\n") : "Complete the requested action and upload a clear screenshot as proof.";
+}
+
+function showMessage(targetId, message, type) {
+  const target = $(targetId);
+  target.className = "message " + (
+    type === "error" ? "message-error" :
+    type === "success" ? "message-success" : "message-info"
+  );
+  target.textContent = message;
+}
+
+function clearMessage(targetId) {
+  const target = $(targetId);
+  target.className = "";
+  target.textContent = "";
+}
+
 function createDatabaseClient() {
-  if (db) return db;
-
-  if (!window.supabase ||
-      typeof window.supabase.createClient !== "function") {
-    throw new Error(
-      "The Supabase library did not load. Check your internet connection and reload the page."
-    );
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    throw new Error("Supabase library did not load. Check your internet connection and reload this page.");
   }
-
-  db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY,
-    {
-      auth: {
-        persistSession:true,
-        autoRefreshToken:true,
-        detectSessionInUrl:true
-      }
-    }
-  );
-
-  if (!db || typeof db.from !== "function") {
-    db = null;
-    throw new Error(
-      "Supabase could not initialize correctly. Please reload the page."
-    );
-  }
-
-  return db;
+  return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
-async function init() {
-  if (initStarted) return;
-  initStarted = true;
-
-  try {
-    createDatabaseClient();
-
-    $("taskCountPill").textContent = "Checking login…";
-    $("taskList").innerHTML =
-      '<div class="loading-state">Checking your NAIJA TASK account…</div>';
-
-    const result = await withTimeout(
-      db.auth.getSession(),
-      "Checking your login"
-    );
-
-    if (result.error) throw result.error;
-
-    currentUser = result.data?.session?.user || null;
-
-    if (!currentUser) {
-      $("accountStatus").textContent = "Login required";
-
-      showTaskLoadError(
-        "Please sign in to your NAIJA TASK account before viewing tasks.",
-        false
-      );
-
-      return;
-    }
-
-    $("accountStatus").textContent = "Signed in";
-
-    // Register the auth listener only after the client is initialized.
-    const authResult = db.auth.onAuthStateChange((_event, session) => {
-      currentUser = session?.user || null;
-
-      if (!currentUser) {
-        allTasks = [];
-        $("accountStatus").textContent = "Login required";
-        $("availableCount").textContent = "0";
-        $("taskCountPill").textContent = "Signed out";
-
-        $("taskList").innerHTML =
-          '<div class="empty-state">' +
-          '<strong>Session ended</strong>' +
-          'Please sign in again to view available tasks.' +
-          '</div>';
-      }
-    });
-
-    authSubscription = authResult?.data?.subscription || null;
-
-    // Profile problems should not prevent task loading.
-    await Promise.allSettled([
-      loadProfile(),
-      loadTasks()
-    ]);
-
-  } catch (error) {
-    console.error("NAIJA TASK initialization error:", error);
-
-    showTaskLoadError(
-      error?.message ||
-      "The page could not initialize. Please reload and try again."
-    );
-  }
+async function getSignedInUser() {
+  const { data, error } = await db.auth.getUser();
+  if (error) throw error;
+  return data?.user || null;
 }
 
-/* =========================
-   PROFILE
-========================= */
-async function loadProfile() {
-  if (!db || !currentUser) return;
+async function getProfile() {
+  if (!currentUser) return null;
+  const { data, error } = await db.from("profiles")
+    .select("id,full_name,is_activated")
+    .eq("id", currentUser.id)
+    .maybeSingle();
 
-  try {
-    const result = await withTimeout(
-      db.from("profiles")
-        .select("id,full_name,is_activated")
-        .eq("id", currentUser.id)
-        .maybeSingle(),
-      "Loading account information",
-      10000
-    );
-
-    if (result.error) throw result.error;
-
-    currentProfile = result.data || null;
-
-    if (!currentProfile) {
-      $("accountStatus").textContent = "Profile missing";
-
-      showGlobalMessage(
-        "Your account profile could not be found. Contact support if this continues.",
-        true
-      );
-
-      return;
-    }
-
-    $("accountStatus").textContent =
-      currentProfile.is_activated === true
-        ? "Activated"
-        : "Not activated";
-
-    if (currentProfile.is_activated !== true) {
-      showGlobalMessage(
-        "Your account is not activated. Task access may depend on your platform's activation rules."
-      );
-    } else {
-      hideGlobalMessage();
-    }
-
-  } catch (error) {
-    console.warn("Profile loading warning:", error);
-
-    $("accountStatus").textContent = "Profile unavailable";
-
-    showGlobalMessage(
-      "Your account information could not be loaded. Tasks will still be checked.",
-      true
-    );
+  if (error) {
+    console.warn("Profile lookup:", error.message);
+    return null;
   }
+  return data;
 }
 
-/* =========================
-   LOAD AVAILABLE TASKS
-========================= */
-async function loadTasks() {
-  if (!db || typeof db.from !== "function") {
-    showTaskLoadError(
-      "The database connection is not initialized. Reload the page and try again."
-    );
-    return;
-  }
-
+function updateUserStatus(profile) {
   if (!currentUser) {
-    showTaskLoadError(
-      "Your login session is missing. Please sign in again.",
-      false
-    );
+    $("userStatus").textContent = "Sign in";
+    return;
+  }
+  if (profile && profile.is_activated === false) {
+    $("userStatus").textContent = "Activation needed";
+  } else {
+    $("userStatus").textContent = "Ready";
+  }
+}
+
+async function loadTasks() {
+  $("loadingState").classList.remove("hidden");
+  $("errorState").classList.add("hidden");
+  $("emptyState").classList.add("hidden");
+  $("taskList").innerHTML = "";
+  $("resultCount").textContent = "Loading…";
+
+  if (!db) {
+    $("loadingState").classList.add("hidden");
+    $("errorState").classList.remove("hidden");
+    $("errorText").textContent = "The database client is not initialized. Reload the page and try again.";
     return;
   }
 
-  $("taskList").innerHTML =
-    '<div class="loading-state">Finding available tasks…</div>';
-
-  $("taskCountPill").textContent = "Loading…";
-
-  let tasks = null;
-  let rpcError = null;
-
-  // First try the intended task function.
   try {
-    const result = await withTimeout(
-      db.rpc("get_available_tasks"),
-      "Loading available tasks"
-    );
+    let tasks = null;
+    let rpcError = null;
 
-    if (!result.error && Array.isArray(result.data)) {
-      tasks = result.data;
+    const rpc = await db.rpc("get_available_tasks");
+    if (!rpc.error && Array.isArray(rpc.data)) {
+      tasks = rpc.data;
     } else {
-      rpcError = result.error ||
-        new Error("The task function returned an unexpected response.");
+      rpcError = rpc.error;
+      console.warn("get_available_tasks failed; trying direct query:", rpcError?.message);
     }
 
+    if (!tasks) {
+      const direct = await db.from("tasks").select("*").limit(200);
+      if (direct.error) {
+        throw new Error(
+          "Task query failed: " + direct.error.message +
+          (rpcError ? " | Available-tasks function: " + rpcError.message : "")
+        );
+      }
+      tasks = direct.data || [];
+    }
+
+    allTasks = (tasks || []).filter(taskIsVisible);
+
+    $("loadingState").classList.add("hidden");
+    $("availableCount").textContent = String(allTasks.length);
+    renderTasks();
+
+    if (allTasks.length === 0) {
+      $("emptyTitle").textContent = "No available tasks right now";
+      $("emptyText").textContent =
+        "No tasks passed the current visibility checks. If an active, approved task is missing, the database function or task settings may need checking.";
+      $("emptyState").classList.remove("hidden");
+    }
   } catch (error) {
-    rpcError = error;
-    console.warn("get_available_tasks failed:", error);
+    console.error("Task loading failed:", error);
+    $("loadingState").classList.add("hidden");
+    $("errorState").classList.remove("hidden");
+    $("errorText").textContent = error.message || "An unknown error occurred while loading tasks.";
+    $("resultCount").textContent = "Unavailable";
   }
-
-  /*
-    If the RPC fails, try the tasks table directly.
-    Supabase RLS still applies to this query.
-  */
-  if (!Array.isArray(tasks)) {
-    try {
-      const result = await withTimeout(
-        db.from("tasks")
-          .select("*")
-          .order("created_at", {ascending:false})
-          .limit(300),
-        "Loading tasks from the database"
-      );
-
-      if (result.error) throw result.error;
-
-      tasks = Array.isArray(result.data) ? result.data : [];
-
-    } catch (fallbackError) {
-      console.error("Task RPC error:", rpcError);
-      console.error("Task table error:", fallbackError);
-
-      showTaskLoadError(
-        "Tasks could not be loaded.\n\n" +
-        (fallbackError?.message ||
-         rpcError?.message ||
-         "Unknown database error") +
-        "\n\nThis may be a database permission, table, or connection problem."
-      );
-
-      return;
-    }
-  }
-
-  // Exclude only tasks that are explicitly unavailable.
-  allTasks = tasks.filter(task =>
-    task && task.id !== undefined && task.id !== null &&
-    isActiveTask(task)
-  );
-
-  $("availableCount").textContent = String(allTasks.length);
-
-  $("taskCountPill").textContent =
-    allTasks.length +
-    (allTasks.length === 1 ? " task" : " tasks");
-
-  renderTasks();
 }
 
-/* =========================
-   TASK CARDS
-========================= */
 function renderTasks() {
-  const query = safeText($("searchInput").value).toLowerCase();
+  const search = $("searchInput").value.trim().toLowerCase();
 
   const filtered = allTasks.filter(task => {
-    const platform = platformFor(task);
+    const platform = platformName(task);
+    const matchesFilter = activeFilter === "all" || platform === activeFilter;
+    const haystack = [
+      task.title, task.description, task.requirements,
+      task.task_type, task.category, platform, task.uploader_username
+    ].filter(Boolean).join(" ").toLowerCase();
 
-    if (activeFilter === "other") {
-      if ([
-        "youtube","facebook","instagram","tiktok",
-        "telegram","whatsapp","x"
-      ].includes(platform)) {
-        return false;
-      }
-    } else if (
-      activeFilter !== "all" &&
-      platform !== activeFilter
-    ) {
-      return false;
-    }
-
-    const searchable = [
-      task.title,
-      task.description,
-      task.requirements,
-      task.task_type,
-      task.category,
-      task.category_name,
-      platformName(platform)
-    ].map(safeText).join(" ").toLowerCase();
-
-    return !query || searchable.includes(query);
+    return matchesFilter && (!search || haystack.includes(search));
   });
 
-  if (!filtered.length) {
-    $("taskList").innerHTML =
-      '<div class="empty-state">' +
-      '<strong>No available tasks found</strong>' +
-      'There are currently no tasks matching this filter. If you expected a task, check whether it is active, approved and visible to taskers.' +
-      '</div>';
+  $("taskList").innerHTML = "";
+  $("resultCount").textContent = filtered.length + (filtered.length === 1 ? " task" : " tasks");
+  $("availableCount").textContent = String(allTasks.length);
 
+  if (!filtered.length) {
+    $("emptyTitle").textContent = "No matching tasks";
+    $("emptyText").textContent = "Try another platform filter or search term.";
+    $("emptyState").classList.remove("hidden");
     return;
   }
 
-  $("taskList").innerHTML = filtered.map(task => {
-    const platform = platformFor(task);
-    const reward = task.reward_per_worker ?? task.reward ?? 0;
-    const slots = task.slots ?? task.max_total_completions ?? "—";
+  $("emptyState").classList.add("hidden");
 
-    return `
-      <article class="task-card">
-        <div class="task-card-top">
-          ${platformIconHTML(platform)}
+  filtered.forEach(task => {
+    const platform = platformName(task);
+    const reward = money(taskReward(task));
+    const title = task.title || "Available task";
+    const description = getTaskDescription(task);
+    const slots = task.slots ? Number(task.slots) : null;
 
-          <div class="task-heading">
-            <div class="task-title">
-              ${escapeHTML(task.title || "Untitled task")}
-            </div>
-            <div class="task-platform">
-              ${escapeHTML(platformName(platform))}
-            </div>
-          </div>
-
-          <div class="reward-badge">
-            ${escapeHTML(money(reward))}
-          </div>
+    const card = document.createElement("article");
+    card.className = "task-card";
+    card.innerHTML = `
+      <div class="task-top">
+        <div class="platform-icon" style="background:${platformColor(platform)}">${platformIcon(platform)}</div>
+        <div class="task-main">
+          <div class="task-title">${escapeHTML(title)}</div>
+          <div class="task-platform">${escapeHTML(platform)} · NAIJA TASK</div>
         </div>
-
-        <div class="task-description">
-          ${escapeHTML(task.description || "Open the task to read its full instructions.")}
+        <div class="reward-box">
+          <div class="reward-label">REWARD</div>
+          <div class="reward-amount">${escapeHTML(reward)}</div>
         </div>
-
-        <div class="task-meta">
-          <span class="meta-pill">
-            Slots: ${escapeHTML(slots)}
-          </span>
-        </div>
-
-        <button class="primary-btn"
-          type="button"
-          data-open-task="${escapeHTML(String(task.id))}">
-          VIEW TASK DETAILS
-        </button>
-      </article>
+      </div>
+      <div class="task-description">${escapeHTML(description)}</div>
+      <div class="task-meta">
+        <span class="meta-tag">📸 Screenshot proof</span>
+        <span class="meta-tag">✓ Review required</span>
+        ${slots !== null && slots > 0 ? `<span class="meta-tag">👥 ${escapeHTML(slots)} slots</span>` : ""}
+      </div>
+      <div class="task-actions">
+        <button type="button" class="btn btn-primary view-task">View Task &amp; Earn</button>
+      </div>
     `;
-  }).join("");
+
+    card.querySelector(".view-task").addEventListener("click", () => openTaskDetails(task));
+    $("taskList").appendChild(card);
+  });
 }
 
-$("taskList").addEventListener("click", event => {
-  const button = event.target.closest("[data-open-task]");
-
-  if (button) {
-    openTask(button.dataset.openTask);
-  }
-});
-
-/* =========================
-   TASK DETAILS
-========================= */
-function openTask(taskId) {
-  const task = allTasks.find(
-    item => String(item.id) === String(taskId)
-  );
-
-  if (!task) {
-    showToast("This task is no longer available. Refresh the page.");
-    return;
-  }
-
-  selectedTask = task;
+function openTaskDetails(task) {
+  currentTask = task;
   selectedProofFile = null;
 
-  $("taskListSection").classList.add("hidden");
-  $("taskDetailSection").classList.remove("hidden");
+  $("listSection").classList.add("hidden");
+  $("detailSection").classList.remove("hidden");
 
-  const platform = platformFor(task);
-  const reward = task.reward_per_worker ?? task.reward ?? 0;
+  const platform = platformName(task);
+  $("detailIcon").textContent = platformIcon(platform);
+  $("detailIcon").style.background = platformColor(platform);
+  $("detailTitle").textContent = task.title || "Available task";
+  $("detailPlatform").textContent = platform + " · Task details";
+  $("detailReward").textContent = money(taskReward(task));
+  $("detailDescription").textContent = getTaskDescription(task);
+  $("detailRequirements").textContent = getTaskRequirements(task);
 
-  $("detailPlatformIcon").className =
-    "platform-icon platform-" + platform;
+  const link = task.task_link || task.post_link || task.url || task.link || "";
+  const detailLink = $("detailLink");
+  const openButton = $("openTaskButton");
 
-  $("detailPlatformIcon").innerHTML = platformSVG(platform);
-  $("detailTitle").textContent = task.title || "Task details";
-  $("detailPlatform").textContent = platformName(platform);
-  $("detailReward").textContent = money(reward);
-
-  $("detailDescription").textContent =
-    safeText(task.description) ||
-    "Follow the task instructions carefully.";
-
-  const requirements = safeText(
-    task.requirements ||
-    task.instructions ||
-    task.copy_text
-  );
-
-  $("requirementsWrap").classList.toggle(
-    "hidden",
-    !requirements
-  );
-
-  $("detailRequirements").textContent = requirements;
-
-  const link = getTaskLink(task);
-
-  if (link && validHttpURL(link)) {
-    $("taskLinkWrap").classList.remove("hidden");
-    $("taskLinkAddress").textContent = link;
-    $("taskLinkButton").href = link;
+  if (link && /^https?:\/\//i.test(link)) {
+    detailLink.href = link;
+    detailLink.classList.remove("hidden");
+    openButton.disabled = false;
+    openButton.textContent = "Open Task Website ↗";
+    openButton.onclick = () => window.open(link, "_blank", "noopener,noreferrer");
   } else {
-    $("taskLinkWrap").classList.add("hidden");
-    $("taskLinkAddress").textContent = "";
-    $("taskLinkButton").removeAttribute("href");
+    detailLink.classList.add("hidden");
+    openButton.disabled = true;
+    openButton.textContent = "Task link unavailable";
+    openButton.onclick = null;
   }
 
-  $("detailSlots").textContent =
-    "Slots: " +
-    safeText(task.slots ?? task.max_total_completions ?? "—");
+  $("galleryInput").value = "";
+  $("cameraInput").value = "";
+  $("proofText").value = "";
+  $("proofUsername").value = "";
+  $("proofReference").value = "";
+  $("proofPreview").src = "";
+  $("proofPreview").classList.add("hidden");
+  $("fileInfo").classList.add("hidden");
+  clearMessage("submitMessage");
+  clearMessage("detailMessage");
 
-  resetProofForm(task);
+  configureProofFields(task);
+  checkExistingSubmission(task);
 
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-function resetProofForm(task) {
-  $("proofPhoto").value = "";
-  $("proofPreview").removeAttribute("src");
-  $("proofPreview").classList.add("hidden");
-  $("proofPrompt").textContent = "TAP HERE TO TAKE PHOTO";
-  $("submitMessage").className = "hidden";
-  $("submitMessage").textContent = "";
-  $("submitProofBtn").disabled = false;
-  $("submitProofBtn").textContent = "SUBMIT PROOF";
+function configureProofFields(task) {
+  const type = String(task.proof_type || task.required_proof || "").toLowerCase();
+  const requirements = String(task.requirements || "").toLowerCase();
+  const copyText = String(task.copy_text || "");
 
-  if (previewURL) {
-    URL.revokeObjectURL(previewURL);
-    previewURL = null;
-  }
-
-  const type = normalize(
-    task.proof_type || task.required_proof || ""
+  const needsText = Boolean(
+    task.proof_required === true ||
+    task.copy_text ||
+    type.includes("text") ||
+    type.includes("comment") ||
+    type.includes("username") ||
+    type.includes("reference") ||
+    requirements.includes("comment") ||
+    requirements.includes("username") ||
+    requirements.includes("reference id")
   );
 
-  const needsText = [
-    "username","text","comment","reference","both"
-  ].some(item => type.includes(item));
+  const needsUsername = Boolean(
+    task.uploader_username ||
+    type.includes("username") ||
+    requirements.includes("username")
+  );
 
-  const fields = [];
+  const needsReference = Boolean(
+    type.includes("reference") ||
+    requirements.includes("reference id")
+  );
 
-  if (needsText) {
-    fields.push(`
-      <div>
-        <label class="form-label" for="proofText">
-          Proof details / username / comment
-        </label>
+  $("proofTextField").classList.toggle("hidden", !needsText);
+  $("usernameField").classList.toggle("hidden", !needsUsername);
+  $("referenceField").classList.toggle("hidden", !needsReference);
 
-        <textarea class="form-control"
-          id="proofText"
-          rows="3"
-          maxlength="2000"
-          placeholder="Enter the requested proof details…"></textarea>
-      </div>
-    `);
+  if (copyText && needsText) {
+    $("proofText").placeholder = "Required text: " + copyText;
+  } else {
+    $("proofText").placeholder = "Enter the required comment or other proof text…";
   }
 
   if (task.uploader_username) {
-    fields.push(`
-      <div class="notice">
-        <strong>Account / username:</strong>
-        ${escapeHTML(task.uploader_username)}
-      </div>
-    `);
+    $("proofUsername").placeholder = "Required username: " + task.uploader_username;
   }
-
-  $("proofFields").innerHTML = fields.join("");
 }
 
-/* =========================
-   PHOTO SELECTION
-========================= */
-$("proofPhoto").addEventListener("change", event => {
-  const file = event.target.files?.[0];
+async function checkExistingSubmission(task) {
+  if (!currentUser || !db) return;
 
-  selectedProofFile = file || null;
+  const { data, error } = await db.from("task_submissions")
+    .select("id,status,created_at")
+    .eq("user_id", currentUser.id)
+    .eq("task_id", task.id)
+    .limit(1);
 
+  if (error) {
+    console.warn("Could not check existing submission:", error.message);
+    return;
+  }
+
+  if (data && data.length) {
+    const row = data[0];
+    showMessage(
+      "detailMessage",
+      "You have already submitted this task. Current status: " + (row.status || "PENDING") + ". Duplicate submissions are not allowed.",
+      "info"
+    );
+    $("submitProofButton").disabled = true;
+    $("submitProofButton").textContent = "Already Submitted";
+  } else {
+    $("submitProofButton").disabled = false;
+    $("submitProofButton").textContent = "Submit Screenshot Proof";
+  }
+}
+
+function acceptProofFile(file) {
   if (!file) return;
 
   if (!file.type || !file.type.startsWith("image/")) {
-    selectedProofFile = null;
-    event.target.value = "";
-    showToast("Please take a photo or select an image.");
+    showMessage("submitMessage", "Please choose an image screenshot or photo.", "error");
     return;
   }
 
-  if (file.size > 8 * 1024 * 1024) {
-    selectedProofFile = null;
-    event.target.value = "";
-    showToast("The image must be smaller than 8 MB.");
+  const maxSize = 8 * 1024 * 1024;
+  if (file.size > maxSize) {
+    showMessage("submitMessage", "Your image is too large. Please choose an image under 8 MB.", "error");
     return;
   }
 
-  if (previewURL) {
-    URL.revokeObjectURL(previewURL);
-  }
+  selectedProofFile = file;
+  $("fileInfo").textContent = "Selected proof: " + file.name + " · " + (file.size / 1024).toFixed(0) + " KB";
+  $("fileInfo").classList.remove("hidden");
 
-  previewURL = URL.createObjectURL(file);
-
-  $("proofPreview").src = previewURL;
+  const previewUrl = URL.createObjectURL(file);
+  $("proofPreview").src = previewUrl;
   $("proofPreview").classList.remove("hidden");
-  $("proofPrompt").textContent = "PHOTO SELECTED ✓";
 
-  showToast("Proof selected. Tap SUBMIT PROOF.");
-});
-
-/* =========================
-   PROOF SUBMISSION
-========================= */
-function setSubmitMessage(message, success) {
-  const el = $("submitMessage");
-
-  el.textContent = message;
-  el.className =
-    "status-message " +
-    (success ? "status-success" : "status-error");
-}
-
-function safeFileName(name) {
-  return safeText(name)
-    .replace(/[^a-zA-Z0-9._-]/g,"_")
-    .slice(-80) || "proof.jpg";
-}
-
-async function uploadProofImage(file) {
-  if (!db || !currentUser) {
-    throw new Error("Your database connection or login session is missing.");
-  }
-
-  const originalExt = (
-    file.name.split(".").pop() || "jpg"
-  ).toLowerCase();
-
-  const allowed = ["jpg","jpeg","png","webp","heic"];
-  const extension = allowed.includes(originalExt)
-    ? originalExt
-    : "jpg";
-
-  const path =
-    currentUser.id + "/" +
-    String(selectedTask.id) + "/" +
-    Date.now() + "_" +
-    safeFileName("proof." + extension);
-
-  const result = await withTimeout(
-    db.storage.from(PROOF_BUCKET).upload(path,file,{
-      cacheControl:"3600",
-      upsert:false,
-      contentType:file.type || "image/jpeg"
-    }),
-    "Uploading proof photo"
-  );
-
-  if (result.error) {
-    throw new Error(
-      "Photo upload failed: " + result.error.message +
-      ". Check that the task-proofs storage bucket exists and its upload policies permit this account."
-    );
-  }
-
-  return result.data.path;
+  clearMessage("submitMessage");
 }
 
 async function submitProof() {
-  if (!db || typeof db.from !== "function") {
-    setSubmitMessage(
-      "The database connection is missing. Reload the page and sign in again.",
-      false
-    );
+  if (submissionInProgress) return;
+
+  if (!db) {
+    showMessage("submitMessage", "The database is not connected. Reload the page and try again.", "error");
     return;
   }
-
   if (!currentUser) {
-    setSubmitMessage(
-      "Please sign in again before submitting proof.",
-      false
-    );
+    showMessage("submitMessage", "Please sign in before submitting proof.", "error");
     return;
   }
-
-  if (!selectedTask) {
-    setSubmitMessage("Open a task first.", false);
+  if (!currentTask) {
+    showMessage("submitMessage", "Please open a task first.", "error");
     return;
   }
-
   if (!selectedProofFile) {
-    setSubmitMessage(
-      "Tap the camera box and take a photo or select a screenshot first.",
-      false
-    );
-
-    $("proofDropzone").scrollIntoView({
-      behavior:"smooth",
-      block:"center"
-    });
-
+    showMessage("submitMessage", "Please upload your screenshot proof from your gallery, or use the optional camera button.", "error");
     return;
   }
 
-  const button = $("submitProofBtn");
+  const proofText = $("proofText").value.trim();
+  const username = $("proofUsername").value.trim();
+  const reference = $("proofReference").value.trim();
 
+  if (!$("proofTextField").classList.contains("hidden") && !proofText) {
+    showMessage("submitMessage", "Please fill in the required proof text.", "error");
+    return;
+  }
+  if (!$("usernameField").classList.contains("hidden") && !username) {
+    showMessage("submitMessage", "Please enter the username you used.", "error");
+    return;
+  }
+  if (!$("referenceField").classList.contains("hidden") && !reference) {
+    showMessage("submitMessage", "Please enter the reference ID.", "error");
+    return;
+  }
+
+  submissionInProgress = true;
+  const button = $("submitProofButton");
   button.disabled = true;
-  button.textContent = "SUBMITTING…";
-  $("submitMessage").className = "hidden";
+  button.textContent = "Uploading proof…";
+  clearMessage("submitMessage");
+
+  let uploadedPath = null;
 
   try {
-    // Prevent duplicate pending or approved submissions.
-    const existingResult = await withTimeout(
-      db.from("task_submissions")
-        .select("id,status")
-        .eq("user_id",currentUser.id)
-        .eq("task_id",selectedTask.id)
-        .limit(50),
-      "Checking previous submissions"
-    );
+    const safeName = selectedProofFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = currentUser.id + "/" + currentTask.id + "/" + Date.now() + "_" + safeName;
 
-    if (existingResult.error) {
-      throw new Error(
-        "Could not check previous submissions: " +
-        existingResult.error.message
-      );
+    const { data: uploadData, error: uploadError } = await db.storage
+      .from(PROOF_BUCKET)
+      .upload(path, selectedProofFile, {
+        cacheControl:"3600",
+        upsert:false,
+        contentType:selectedProofFile.type
+      });
+
+    if (uploadError) {
+      throw new Error("Screenshot upload failed: " + uploadError.message);
     }
 
-    const existing = existingResult.data || [];
+    uploadedPath = uploadData.path;
 
-    const alreadySubmitted = existing.some(row =>
-      [
-        "pending",
-        "approved",
-        "underreview",
-        "under_review"
-      ].includes(normalize(row.status))
-    );
+    button.textContent = "Submitting proof…";
 
-    if (alreadySubmitted) {
-      throw new Error(
-        "You have already submitted this task or it is awaiting review."
-      );
-    }
+    const proofPayload = {
+      photo_path: uploadedPath,
+      proof_text: proofText || null,
+      username_used: username || null,
+      reference_id: reference || null,
+      original_file_name: selectedProofFile.name,
+      submitted_from: "NAIJA TASK task page",
+      submitted_at: new Date().toISOString()
+    };
 
-    const uploadedPath = await uploadProofImage(selectedProofFile);
-
-    const textField = $("proofText");
-    const proofText = textField
-      ? safeText(textField.value)
-      : "";
-
-    const proofPayload = JSON.stringify({
-      photo_path:uploadedPath,
-      proof_text:proofText,
-      submitted_from:"task.html",
-      submitted_at:new Date().toISOString()
+    const { error: submissionError } = await db.from("task_submissions").insert({
+      user_id: currentUser.id,
+      task_id: currentTask.id,
+      proof: proofPayload,
+      status: "PENDING"
     });
 
-    const insertResult = await withTimeout(
-      db.from("task_submissions").insert({
-        user_id:currentUser.id,
-        task_id:selectedTask.id,
-        proof:proofPayload,
-        status:"PENDING"
-      }),
-      "Saving task submission"
-    );
-
-    if (insertResult.error) {
-      throw new Error(
-        "Photo uploaded, but the submission was not saved: " +
-        insertResult.error.message +
-        ". Check the task_submissions columns and INSERT policy."
-      );
+    if (submissionError) {
+      throw new Error("Your screenshot uploaded, but the submission record failed: " + submissionError.message);
     }
 
-    setSubmitMessage(
-      "Proof submitted successfully. Your task is awaiting review. Approval and payment are not automatic.",
-      true
-    );
-
-    button.textContent = "PROOF SUBMITTED ✓";
-    $("proofPrompt").textContent = "PROOF SUBMITTED ✓";
-
-    selectedProofFile = null;
-    $("proofPhoto").value = "";
-
-    showToast("Proof submitted successfully.");
-
+    showMessage("submitMessage", "Proof submitted successfully! Your submission is now awaiting review.", "success");
+    button.textContent = "Submission Complete";
+    button.disabled = true;
+    $("galleryButton").disabled = true;
+    $("cameraButton").disabled = true;
   } catch (error) {
-    console.error("Submission error:",error);
+    console.error("Proof submission failed:", error);
 
-    setSubmitMessage(
-      error?.message || "Could not submit proof. Please try again.",
-      false
-    );
-
+    showMessage("submitMessage", error.message || "Could not submit your proof. Please try again.", "error");
     button.disabled = false;
-    button.textContent = "TRY AGAIN";
+    button.textContent = "Try Submitting Again";
+  } finally {
+    submissionInProgress = false;
   }
 }
 
-$("submitProofBtn").addEventListener("click",submitProof);
-
-/* =========================
-   NAVIGATION AND FILTERS
-========================= */
-$("backToTasksBtn").addEventListener("click",() => {
-  selectedTask = null;
+function returnToTasks() {
+  $("detailSection").classList.add("hidden");
+  $("listSection").classList.remove("hidden");
+  currentTask = null;
   selectedProofFile = null;
-
-  $("taskDetailSection").classList.add("hidden");
-  $("taskListSection").classList.remove("hidden");
-
   window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* Gallery is the primary screenshot upload action */
+$("galleryButton").addEventListener("click", () => $("galleryInput").click());
+$("cameraButton").addEventListener("click", () => $("cameraInput").click());
+
+$("galleryInput").addEventListener("change", event => {
+  acceptProofFile(event.target.files && event.target.files[0]);
+});
+$("cameraInput").addEventListener("change", event => {
+  acceptProofFile(event.target.files && event.target.files[0]);
 });
 
-$("searchInput").addEventListener("input",renderTasks);
+$("submitProofButton").addEventListener("click", submitProof);
+$("backToTasks").addEventListener("click", returnToTasks);
+$("retryButton").addEventListener("click", loadTasks);
 
-$("filters").addEventListener("click",event => {
+$("searchInput").addEventListener("input", renderTasks);
+
+$("filterRow").addEventListener("click", event => {
   const button = event.target.closest("[data-filter]");
-
   if (!button) return;
 
   activeFilter = button.dataset.filter;
-
-  document.querySelectorAll(".filter-btn").forEach(item => {
-    item.classList.toggle("active",item === button);
+  document.querySelectorAll(".filter-chip").forEach(chip => {
+    chip.classList.toggle("active", chip === button);
   });
-
   renderTasks();
 });
 
-/* =========================
-   START APPLICATION
-========================= */
-if (document.readyState === "loading") {
-  window.addEventListener("DOMContentLoaded",init,{once:true});
-} else {
-  init();
+$("clearSearchButton").addEventListener("click", () => {
+  $("searchInput").value = "";
+  activeFilter = "all";
+  document.querySelectorAll(".filter-chip").forEach(chip => {
+    chip.classList.toggle("active", chip.dataset.filter === "all");
+  });
+  renderTasks();
+});
+
+async function init() {
+  try {
+    db = createDatabaseClient();
+
+    currentUser = await getSignedInUser();
+    const profile = await getProfile();
+    updateUserStatus(profile);
+
+    await loadTasks();
+  } catch (error) {
+    console.error("Initialization failed:", error);
+    $("loadingState").classList.add("hidden");
+    $("errorState").classList.remove("hidden");
+    $("errorText").textContent = error.message || "Could not initialize the task page.";
+    $("resultCount").textContent = "Unavailable";
+  }
 }
+
+init();
 </script>
 </body>
 </html>
