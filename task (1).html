@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#087f36">
+<title>Tasks | NAIJA TASK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#087f36;--green-d:#064d25;--green-l:#0b9b45;--lime:#b7ef43;--bg:#f3f8f4;--card:#fff;--text:#16301f;--muted:#66786b;--line:#e1ebe3;--danger:#c62828;--sh:0 6px 20px rgba(15,70,35,.08)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;padding:0 0 92px;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+body.lock{overflow:hidden}
+button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+.hero{background:linear-gradient(160deg,var(--green-d),var(--green) 60%,var(--green-l));color:#fff;padding:18px 16px 54px;border-radius:0 0 26px 26px}
+.wrap{max-width:900px;margin:auto}
+.hero-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-size:20px;font-weight:800;letter-spacing:-.5px}.brand span{color:var(--lime)}
+.sub{font-size:12px;opacity:.85}
+.wallet{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:9px 12px;font-size:12px;font-weight:700}
+.hero h1{margin:20px 0 4px;font-size:24px;letter-spacing:-.5px}
+.hero p{margin:0;font-size:13px;opacity:.88;max-width:46ch}
+.container{max-width:900px;margin:-34px auto 0;padding:0 13px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);background:var(--card);border-radius:16px;box-shadow:var(--sh);padding:12px 6px;margin-bottom:14px}
+.stat{text-align:center;border-right:1px solid var(--line)}.stat:last-child{border:0}
+.stat b{display:block;font-size:17px;color:var(--green-d)}.stat span{font-size:11px;color:var(--muted)}
+.tools{display:flex;gap:8px;margin-bottom:10px}
+.search{flex:1;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:none}
+.sort{border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 10px;color:var(--text)}
+.search:focus,.form-control:focus,.sort:focus{border-color:var(--green-l);box-shadow:0 0 0 3px rgba(11,155,69,.12)}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:22px;background:#fff;color:#4b6352;padding:7px 13px 7px 8px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip svg{width:20px;height:20px;border-radius:6px}
+.chip.all{padding-left:13px}
+.chip.active{background:var(--green);border-color:var(--green);color:#fff}
+.count{display:flex;justify-content:space-between;align-items:center;margin:2px 0 12px;color:var(--muted);font-size:12px}
+.count strong{color:var(--green-d)}
+.btn{min-height:44px;display:inline-flex;justify-content:center;align-items:center;gap:6px;border:0;border-radius:12px;padding:10px 14px;font-weight:800;font-size:13px}
+.btn.p{background:var(--green);color:#fff;flex:1}.btn.s{background:#e8f4eb;color:var(--green-d)}
+.btn.sm{min-height:34px;padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.list{display:grid;gap:13px}
+.task{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;box-shadow:var(--sh);min-width:0}
+.task-top{display:flex;gap:12px;align-items:center}
+.logo{width:46px;height:46px;flex:0 0 46px;border-radius:13px;overflow:hidden;display:flex}
+.logo svg{width:100%;height:100%}
+.task-t{min-width:0;flex:1}
+.task-t h2{margin:0;font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.plat{font-size:11px;color:var(--muted)}
+.reward{background:var(--lime);color:#274a05;border-radius:11px;padding:7px 10px;font-weight:800;font-size:14px;white-space:nowrap}
+.desc{margin:12px 0;color:#4d6253;font-size:13px;line-height:1.55;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:13px}
+.pill{background:#f1f6f2;border-radius:8px;color:#566b5b;font-size:11px;padding:5px 8px}
+.pill.ok{background:#e1f5e7;color:#17682e;font-weight:700}
+.bar{height:5px;background:#e7efe8;border-radius:5px;overflow:hidden;margin:-4px 0 13px}.bar i{display:block;height:100%;background:var(--green-l)}
+.state{padding:28px 18px;background:#fff;border:1px solid var(--line);border-radius:18px;text-align:center;box-shadow:var(--sh)}
+.state .ico{font-size:30px}.state h3{margin:6px 0}.state p{margin:0 0 4px;color:var(--muted);font-size:13px}
+.skel{height:150px;border-radius:18px;background:linear-gradient(90deg,#e9f0ea 25%,#f6faf7 50%,#e9f0ea 75%);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+.notice{display:none;margin-bottom:12px;padding:12px;border-radius:12px;font-size:12px}
+.notice.show{display:block}.notice.success{background:#e5f7ea;color:#17682e}.notice.error{background:#fff0f0;color:#a21d1d}.notice.info{background:#edf5ff;color:#215d9a}
+/* sheet */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(10,30,18,.5);display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;border-radius:24px 24px 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.grab{width:42px;height:4px;border-radius:4px;background:#d5e0d7;margin:0 auto 14px}
+.sheet-head{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.sheet-head h2{margin:0;font-size:17px;line-height:1.3}
+.steps{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px}
+.steps li{display:flex;gap:10px;align-items:flex-start;background:#f5faf6;border-radius:12px;padding:10px 12px;font-size:12px}
+.steps em{flex:0 0 22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-style:normal;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center}
+.field{margin-bottom:14px}.lab{display:block;font-weight:700;font-size:12px;margin-bottom:6px}
+.box{background:#f5faf6;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere}
+.form-control{width:100%;border:1px solid #dce7de;border-radius:12px;padding:12px;outline:none;color:var(--text);min-height:84px;resize:vertical}
+.drop{display:flex;flex-direction:column;align-items:center;gap:4px;border:3px solid var(--green);border-radius:16px;background:linear-gradient(160deg,var(--green-d),var(--green));padding:24px 14px;text-align:center;cursor:pointer;color:#fff;box-shadow:0 6px 16px rgba(8,127,54,.3)}
+.drop .cam{font-size:34px;line-height:1}.drop b{font-size:17px;font-weight:800}.drop span{font-size:12px;opacity:.9}
+.drop:active{opacity:.9}.req-tag{display:inline-block;background:var(--lime);color:#274a05;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:800;margin-left:6px}
+.drop:focus-within{border-color:var(--green-l)}
+.file{position:absolute;width:1px;height:1px;opacity:0}
+.preview{display:none;width:100%;max-height:240px;object-fit:contain;margin-top:10px;border-radius:12px;border:1px solid var(--line);background:#f5f5f5}.preview.show{display:block}
+.row{display:flex;gap:9px;margin-top:6px}.row .btn{flex:1}
+.nav{position:fixed;z-index:100;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:flex;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+.nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:#7a8a7e;font-size:10px;font-weight:700}
+.nav a span:first-child{font-size:19px;line-height:1.1}.nav a.active{color:var(--green)}
+.foot{text-align:center;color:#87948a;font-size:10px;padding:20px 0 4px}
+@media(min-width:650px){.list{grid-template-columns:1fr 1fr}.overlay{align-items:center}.sheet{border-radius:24px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <div class="hero-row">
+    <div><div class="brand">NAIJA <span>TASK</span></div><div class="sub">Complete tasks. Earn naira.</div></div>
+    <a class="wallet" href="wallet.html">My Wallet</a>
+  </div>
+  <h1>Find a task, get paid</h1>
+  <p>Pick a task, follow the steps, then upload your proof. We review it and pay your wallet.</p>
+</div></header>
+
+<main class="container">
+  <div class="stats">
+    <div class="stat"><b id="stTasks">–</b><span>Open tasks</span></div>
+    <div class="stat"><b id="stDone">–</b><span>You submitted</span></div>
+  </div>
+
+  <div id="notice" class="notice" role="status"></div>
+
+  <div class="tools">
+    <input id="taskSearch" class="search" type="search" placeholder="Search tasks" autocomplete="off" aria-label="Search tasks">
+    <select id="sortBy" class="sort" aria-label="Sort tasks">
+      <option value="new">Newest</option>
+      <option value="pay">Highest pay</option>
+    </select>
+  </div>
+
+  <div class="filters" id="filters"></div>
+
+  <div class="count"><span id="taskCount">Loading tasks...</span><button class="btn s sm" type="button" id="refreshBtn">Refresh</button></div>
+
+  <section id="taskList" class="list" aria-live="polite"></section>
+
+  <div class="foot">NAIJA TASK · Submit genuine proof for every task you complete.</div>
+</main>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-label="Task details">
+  <div class="sheet">
+    <div class="grab"></div>
+    <div id="selectedTaskDetails"></div>
+    <div id="sheetNotice" class="notice" role="status"></div>
+
+    <div class="field">
+      <span class="lab" style="font-size:14px">Screenshot proof <span id="photoReq" class="req-tag"></span></span>
+      <label for="proofPhoto" class="drop"><span class="cam">📷</span><b>UPLOAD SCREENSHOT</b><span>Tap to take a photo or choose one from your phone</span></label>
+      <input id="proofPhoto" class="file" type="file" accept="image/*">
+      <img id="proofPreview" class="preview" alt="Selected proof preview">
+    </div>
+
+    <div class="field">
+      <label class="lab" for="proofText">Extra note (optional): username, link or comment</label>
+      <textarea id="proofText" class="form-control" placeholder="Only fill this if the task asks for it"></textarea>
+    </div>
+
+    <div class="row">
+      <button id="submitProofBtn" class="btn p" type="button">Submit proof</button>
+      <button id="closeDetailsBtn" class="btn s" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<nav class="nav" aria-label="Main navigation">
+  <a href="dashboard.html"><span>⌂</span><span>Home</span></a>
+  <a class="active" href="task.html"><span>▤</span><span>Tasks</span></a>
+  <a href="proofs.html"><span>✓</span><span>Proofs</span></a>
+  <a href="wallet.html"><span>₦</span><span>Wallet</span></a>
+  <a href="profile.html"><span>●</span><span>Profile</span></a>
+</nav>
+
+<script>
+"use strict";
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const PROOF_BUCKET = "task-proofs";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+
+let currentUser = null, allTasks = [], currentFilter = "all", selectedTask = null, isSubmitting = false;
+let currentSubmissionIds = new Set();
+
+/* Brand logos (inline SVG, no external images) */
+const LOGOS = {
+  youtube:'<svg viewBox="0 0 48 48"><rect width="48" height="48" fill="#ff0000"/><path d="M19 15l15 9-15 9z" fill="#fff"/></svg>',
+  facebook:'<svg viewBox="0 0 48 48"><rect width="48" height="48" fill="#1877f2"/><path d="M26 40V26h5l1-6h-6v-3c0-2 1-3 3-3h3V9h-5c-5 0-7 3-7 7v4h-4v6h4v14z" fill="#fff"/></svg>',
+  tiktok:'<svg viewBox="0 0 48 48"><rect width="48" height="48" fill="#111"/><path d="M27 10h4c0 4 3 7 7 7v4c-3 0-5-1-7-2v10a9 9 0 11-9-9v4a5 5 0 105 5z" fill="#25f4ee" transform="translate(-1.5 -1)"/><path d="M27 10h4c0 4 3 7 7 7v4c-3 0-5-1-7-2v10a9 9 0 11-9-9v4a5 5 0 105 5z" fill="#fe2c55" transform="translate(1.5 1)"/><path d="M27 10h4c0 4 3 7 7 7v4c-3 0-5-1-7-2v10a9 9 0 11-9-9v4a5 5 0 105 5z" fill="#fff"/></svg>',
+  instagram:'<svg viewBox="0 0 48 48"><defs><linearGradient id="ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#fd5949"/><stop offset=".5" stop-color="#d6249f"/><stop offset="1" stop-color="#285aeb"/></linearGradient></defs><rect width="48" height="48" fill="url(#ig)"/><rect x="12" y="12" width="24" height="24" rx="7" fill="none" stroke="#fff" stroke-width="3"/><circle cx="24" cy="24" r="6" fill="none" stroke="#fff" stroke-width="3"/><circle cx="31" cy="17" r="1.8" fill="#fff"/></svg>',
+  telegram:'<svg viewBox="0 0 48 48"><rect width="48" height="48" fill="#229ed9"/><path d="M11 23l25-10-4 22-8-6-4 4v-6l10-9-13 7z" fill="#fff"/></svg>',
+  other:'<svg viewBox="0 0 48 48"><rect width="48" height="48" fill="#087f36"/><path d="M14 25l7 7 14-15" fill="none" stroke="#b7ef43" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+const NAMES = {youtube:"YouTube",facebook:"Facebook",tiktok:"TikTok",instagram:"Instagram",telegram:"Telegram",other:"General task"};
+
+function buildFilters(){
+  const box = $("filters");
+  const present = ["youtube","facebook","tiktok","instagram","telegram","other"].filter(k => allTasks.some(t => getTaskCategory(t) === k));
+  if (currentFilter !== "all" && !present.includes(currentFilter)) currentFilter = "all";
+  if (present.length < 2){ box.innerHTML = ""; box.style.display = "none"; currentFilter = "all"; return; }
+  box.style.display = "";
+  box.innerHTML = '<button class="chip all" type="button" data-filter="all">All tasks</button>' +
+    present.map(k => `<button class="chip" type="button" data-filter="${k}">${LOGOS[k]}${k === "other" ? "Other" : NAMES[k]}</button>`).join("");
+  box.querySelectorAll("[data-filter]").forEach(b => {
+    b.classList.toggle("active", b.dataset.filter === currentFilter);
+    b.addEventListener("click", () => {
+      currentFilter = b.dataset.filter;
+      box.querySelectorAll(".chip").forEach(i => i.classList.toggle("active", i === b));
+      renderTasks();
+    });
+  });
+}
+
+function escapeHtml(v){return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);}
+
+function showNotice(message, type = "info"){
+  const sheetOpen = $("overlay").classList.contains("show");
+  const box = $(sheetOpen ? "sheetNotice" : "notice");
+  box.className = "notice show " + type;
+  box.textContent = message;
+  box.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function hideNotice(){
+  ["notice","sheetNotice"].forEach(id => { $(id).className = "notice"; $(id).textContent = ""; });
+}
+function normalize(v){return String(v ?? "").trim().toLowerCase().replace(/[\s_-]+/g, "");}
+function money(v){
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "₦0";
+  return "₦" + n.toLocaleString("en-NG", {maximumFractionDigits:2});
+}
+function getTaskReward(t){
+  const p = Number(t.reward_per_worker ?? t.reward ?? 0);
+  return Number.isFinite(p) && p >= 0 ? p : 0;
+}
+function getTaskCategory(t){
+  const s = [t.category,t.platform,t.task_type,t.title,t.description,t.requirements].filter(Boolean).join(" ").toLowerCase();
+  if (s.includes("youtube")) return "youtube";
+  if (s.includes("facebook")) return "facebook";
+  if (s.includes("tiktok") || s.includes("tik tok")) return "tiktok";
+  if (s.includes("instagram")) return "instagram";
+  if (s.includes("telegram")) return "telegram";
+  return "other";
+}
+const taskId = t => String(t.id ?? "");
+
+function needsPhotoProof(t){
+  const up = t.upload_required === true || String(t.upload_required).toLowerCase() === "true";
+  const a = normalize(t.proof_type), b = normalize(t.required_proof);
+  return up || /photo|image|screenshot/.test(a) || /photo|image|screenshot/.test(b);
+}
+function proofIsRequired(t){
+  return t.proof_required !== false && String(t.proof_required).toLowerCase() !== "false";
+}
+
+function isTaskAvailable(task){
+  const a = task.active;
+  if (a === false || a === 0 || String(a).toLowerCase() === "false") return false;
+  const status = normalize(task.status), moderation = normalize(task.moderation_status), payment = normalize(task.payment_status);
+  if (["inactive","disabled","deleted","cancelled","canceled","rejected","expired","paused","draft","completed"].includes(status)) return false;
+  if (["rejected","declined","blocked","suspended"].includes(moderation)) return false;
+  if (["unfunded","paymentrequired","unpaid","failed","refunded","cancelled","canceled"].includes(payment)) return false;
+  if (task.expiry_date){
+    const e = new Date(task.expiry_date);
+    if (!Number.isNaN(e.getTime()) && e < new Date()) return false;
+  }
+  const total = Number(task.max_total_completions ?? task.slots);
+  const done = Number(task.completed_count ?? task.total_completions ?? 0);
+  if (Number.isFinite(total) && total > 0 && done >= total) return false;
+  return true;
+}
+
+function getFilteredTasks(){
+  const q = $("taskSearch").value.trim().toLowerCase();
+  let list = allTasks.filter(t => {
+    if (currentFilter !== "all" && getTaskCategory(t) !== currentFilter) return false;
+    if (!q) return true;
+    return [t.title,t.description,t.requirements,t.task_type,t.category,t.platform,t.uploader_username].filter(Boolean).join(" ").toLowerCase().includes(q);
+  });
+  if ($("sortBy").value === "pay") list = list.slice().sort((x,y) => getTaskReward(y) - getTaskReward(x));
+  return list;
+}
+
+function updateStats(){
+  $("stTasks").textContent = allTasks.length;
+  $("stDone").textContent = currentUser ? currentSubmissionIds.size : "–";
+}
+
+function renderTasks(){
+  const list = $("taskList"), tasks = getFilteredTasks();
+  $("taskCount").innerHTML = "<strong>" + tasks.length + "</strong> task" + (tasks.length === 1 ? "" : "s") + " available";
+  updateStats();
+
+  if (!tasks.length){
+    list.innerHTML = '<div class="state"><div class="ico">🔎</div><h3>No tasks found</h3><p>Try another platform or search word. New tasks appear here as soon as they are approved.</p></div>';
+    return;
+  }
+
+  list.innerHTML = tasks.map(task => {
+    const cat = getTaskCategory(task);
+    const id = taskId(task);
+    const done = currentSubmissionIds.has(id);
+    const total = Number(task.max_total_completions ?? task.slots);
+    const taken = Number(task.completed_count ?? task.total_completions ?? 0);
+    const hasSlots = Number.isFinite(total) && total > 0;
+    const left = hasSlots ? Math.max(total - (Number.isFinite(taken) ? taken : 0), 0) : null;
+    const pct = hasSlots ? Math.min(100, Math.round(((total - left) / total) * 100)) : 0;
+
+    return `
+    <article class="task">
+      <div class="task-top">
+        <div class="logo" aria-hidden="true">${LOGOS[cat]}</div>
+        <div class="task-t"><h2>${escapeHtml(task.title || "Untitled task")}</h2><div class="plat">${NAMES[cat]}</div></div>
+        <div class="reward">${money(getTaskReward(task))}</div>
+      </div>
+      <p class="desc">${escapeHtml(task.description || "Follow the task steps and submit your proof.")}</p>
+      ${hasSlots ? `<div class="bar" title="${pct}% taken"><i style="width:${pct}%"></i></div>` : ""}
+      <div class="meta">
+        <span class="pill">${hasSlots ? left + " of " + total + " slots left" : "Limited slots"}</span>
+        <span class="pill">${needsPhotoProof(task) ? "Screenshot needed" : proofIsRequired(task) ? "Proof needed" : "Proof as instructed"}</span>
+        ${done ? '<span class="pill ok">✓ Submitted</span>' : ""}
+      </div>
+      <button class="btn p" style="width:100%" type="button" data-task-id="${escapeHtml(id)}">${done ? "View task" : "Start task"}</button>
+    </article>`;
+  }).join("");
+
+  list.querySelectorAll("[data-task-id]").forEach(b => b.addEventListener("click", () => {
+    const t = allTasks.find(i => taskId(i) === b.dataset.taskId);
+    if (t) openTask(t);
+  }));
+}
+
+function renderSkeleton(){
+  $("taskList").innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
+}
+
+function renderLoadError(message){
+  $("taskCount").textContent = "Tasks could not be loaded";
+  $("taskList").innerHTML = `<div class="state"><div class="ico">⚠️</div><h3>Unable to load tasks</h3><p>${escapeHtml(message)}</p><br><button class="btn p" type="button" id="retryLoadBtn">Try again</button></div>`;
+  $("retryLoadBtn").addEventListener("click", loadTasks);
+}
+
+async function getSignedInUser(){
+  const { data, error } = await db.auth.getUser();
+  if (error){ console.warn("Could not check signed-in user:", error.message); return null; }
+  return data?.user ?? null;
+}
+
+async function loadTasks(){
+  hideNotice();
+  $("taskCount").textContent = "Loading tasks...";
+  renderSkeleton();
+  try{
+    currentUser = await getSignedInUser();
+    let tasks = null, rpcError = null;
+    const rpc = await db.rpc("get_available_tasks");
+    if (!rpc.error && Array.isArray(rpc.data)) tasks = rpc.data; else rpcError = rpc.error;
+
+    if (!tasks){
+      const q = await db.from("tasks").select("*").order("created_at", {ascending:false}).limit(300);
+      if (q.error){
+        console.error("Task loading error:", q.error, "RPC error:", rpcError);
+        renderLoadError("Refresh and try again. If this continues, the task database permissions or the get_available_tasks function need repair.");
+        return;
+      }
+      tasks = q.data || [];
+    }
+    allTasks = tasks.filter(isTaskAvailable);
+    if (currentUser) await loadUserSubmissions(); else currentSubmissionIds = new Set();
+    buildFilters();
+    renderTasks();
+  }catch(e){
+    console.error("Unexpected task loading error:", e);
+    renderLoadError("A connection problem occurred. Check your internet and try again.");
+  }
+}
+
+async function loadUserSubmissions(){
+  currentSubmissionIds = new Set();
+  if (!currentUser) return;
+  try{
+    const { data, error } = await db.from("task_submissions").select("task_id").eq("user_id", currentUser.id).limit(1000);
+    if (error){ console.warn("Could not load previous submissions:", error.message); return; }
+    (data || []).forEach(r => { if (r.task_id !== null && r.task_id !== undefined) currentSubmissionIds.add(String(r.task_id)); });
+  }catch(e){ console.warn("Submission lookup failed:", e); }
+}
+
+function getSafeHttpUrl(v){
+  if (!v) return "";
+  try{
+    const u = new URL(String(v).trim());
+    return (u.protocol === "https:" || u.protocol === "http:") ? u.href : "";
+  }catch{ return ""; }
+}
+
+function resetProofForm(){
+  $("proofText").value = "";
+  $("proofPhoto").value = "";
+  $("proofPreview").removeAttribute("src");
+  $("proofPreview").classList.remove("show");
+}
+
+function openTask(task){
+  selectedTask = task;
+  hideNotice();
+  const cat = getTaskCategory(task);
+  const safeUrl = getSafeHttpUrl(task.task_link || task.post_link || task.url || "");
+  const submitted = currentSubmissionIds.has(taskId(task));
+  const photo = needsPhotoProof(task);
+
+  $("selectedTaskDetails").innerHTML = `
+    <div class="sheet-head">
+      <div class="logo" aria-hidden="true">${LOGOS[cat]}</div>
+      <div class="task-t"><h2>${escapeHtml(task.title || "Untitled task")}</h2><div class="plat">${NAMES[cat]} · Earn ${escapeHtml(money(getTaskReward(task)))}</div></div>
+    </div>
+
+    <ol class="steps">
+      <li><em>1</em><span>Open the task link and do exactly what the instructions say.</span></li>
+      <li><em>2</em><span>Take a clear screenshot that shows you finished.</span></li>
+      <li><em>3</em><span>Upload it below and tap Submit proof. We pay after review.</span></li>
+    </ol>
+
+    <div class="field"><div class="lab">Instructions</div>
+      <div class="box">${escapeHtml(task.description || "No extra instructions were added.")}</div></div>
+    ${task.uploader_username ? `<div class="field"><div class="lab">Username or account</div><div class="box">${escapeHtml(task.uploader_username)}</div></div>` : ""}
+    ${task.copy_text ? `<div class="field"><div class="lab">Text to use</div><div class="box">${escapeHtml(task.copy_text)}</div><button type="button" class="btn s sm" style="margin-top:8px" id="copyTaskTextBtn">Copy text</button></div>` : ""}
+    ${safeUrl ? `<div class="field"><a class="btn p" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">Open task link ↗</a></div>` : ""}
+    ${submitted ? '<div class="notice show info">You already submitted this task. It cannot be submitted again.</div>' : ""}`;
+
+  resetProofForm();
+  $("photoReq").textContent = photo ? "REQUIRED" : "OPTIONAL";
+  $("submitProofBtn").disabled = submitted;
+  $("submitProofBtn").textContent = submitted ? "Already submitted" : "Submit proof";
+  $("overlay").classList.add("show");
+  document.body.classList.add("lock");
+
+  const cb = $("copyTaskTextBtn");
+  if (cb) cb.addEventListener("click", async () => {
+    try{ await navigator.clipboard.writeText(String(task.copy_text || "")); showNotice("Text copied.", "success"); }
+    catch{ showNotice("Copy is not available here. Select the text and copy it by hand.", "info"); }
+  });
+}
+
+function closeTaskDetails(){
+  selectedTask = null;
+  hideNotice();
+  $("overlay").classList.remove("show");
+  document.body.classList.remove("lock");
+}
+
+$("closeDetailsBtn").addEventListener("click", closeTaskDetails);
+$("overlay").addEventListener("click", e => { if (e.target === $("overlay")) closeTaskDetails(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeTaskDetails(); });
+$("taskSearch").addEventListener("input", renderTasks);
+$("sortBy").addEventListener("change", renderTasks);
+$("refreshBtn").addEventListener("click", loadTasks);
+
+$("proofPhoto").addEventListener("change", () => {
+  const file = $("proofPhoto").files?.[0], pv = $("proofPreview");
+  pv.removeAttribute("src"); pv.classList.remove("show");
+  if (!file) return;
+  if (!file.type.startsWith("image/")){
+    $("proofPhoto").value = "";
+    showNotice("Please choose an image or screenshot.", "error");
+    return;
+  }
+  if (file.size > 8 * 1024 * 1024){
+    $("proofPhoto").value = "";
+    showNotice("That image is over 8 MB. Choose a smaller one.", "error");
+    return;
+  }
+  pv.src = URL.createObjectURL(file);
+  pv.classList.add("show");
+  showNotice("Screenshot added.", "success");
+});
+
+async function uploadProofImage(file, userId, task){
+  const ext0 = file.name.includes(".") ? file.name.split(".").pop().toLowerCase() : "";
+  const ext = ["jpg","jpeg","png","webp","gif"].includes(ext0) ? ext0 : "jpg";
+  const safeId = taskId(task).replace(/[^a-zA-Z0-9_-]/g, "");
+  const path = `${userId}/${safeId}/${Date.now()}.${ext}`;
+  const { data, error } = await db.storage.from(PROOF_BUCKET).upload(path, file, {cacheControl:"3600", upsert:false, contentType:file.type || "image/jpeg"});
+  if (error) throw new Error("Could not upload the screenshot. Check the task-proofs bucket permissions. " + error.message);
+  const { data: u } = db.storage.from(PROOF_BUCKET).getPublicUrl(data.path);
+  return { path: data.path, url: u?.publicUrl || null };
+}
+
+async function submitProof(){
+  if (isSubmitting) return;
+  if (!selectedTask){ showNotice("Select a task first.", "error"); return; }
+
+  currentUser = await getSignedInUser();
+  if (!currentUser){ showNotice("Sign in to your NAIJA TASK account before submitting proof.", "error"); return; }
+
+  const id = taskId(selectedTask);
+  if (!id){ showNotice("This task has no valid ID. Refresh and pick another task.", "error"); return; }
+
+  const button = $("submitProofBtn");
+  if (currentSubmissionIds.has(id)){
+    showNotice("You already submitted this task.", "error");
+    button.disabled = true; button.textContent = "Already submitted";
+    return;
+  }
+
+  const proofText = $("proofText").value.trim();
+  const proofFile = $("proofPhoto").files?.[0];
+
+  if (proofIsRequired(selectedTask) && !proofText && !proofFile){
+    showNotice("Add your written proof or upload a screenshot.", "error"); return;
+  }
+  if (needsPhotoProof(selectedTask) && !proofFile){
+    showNotice("This task needs a screenshot. Upload your proof image.", "error"); return;
+  }
+
+  isSubmitting = true;
+  button.disabled = true;
+  button.textContent = "Submitting...";
+  let uploaded = null;
+
+  try{
+    if (proofFile) uploaded = await uploadProofImage(proofFile, currentUser.id, selectedTask);
+
+    const { error } = await db.from("task_submissions").insert({
+      user_id: currentUser.id,
+      task_id: selectedTask.id,
+      proof: { text: proofText || null, photo_url: uploaded?.url || null, photo_path: uploaded?.path || null, submitted_from: "task.html" },
+      status: "PENDING"
+    }).select("id,task_id,status").single();
+
+    if (error){
+      if (uploaded?.path) console.warn("Submission failed after upload; image may need cleanup:", uploaded.path);
+      if (error.code === "23505" || /duplicate|unique/i.test(error.message || "")){
+        currentSubmissionIds.add(id);
+        button.textContent = "Already submitted";
+        showNotice("A submission for this task already exists on your account.", "error");
+        renderTasks();
+        return;
+      }
+      console.error("Proof submission error:", error);
+      throw new Error("Your proof could not be submitted. Check the task_submissions permissions and required fields. " + error.message);
+    }
+
+    currentSubmissionIds.add(id);
+    resetProofForm();
+    button.textContent = "Already submitted";
+    showNotice("Proof submitted. The NAIJA TASK team will review it and pay your wallet if approved.", "success");
+    renderTasks();
+  }catch(e){
+    console.error("Proof submission failed:", e);
+    showNotice(e.message || "Could not submit proof. Try again.", "error");
+    button.disabled = false;
+    button.textContent = "Submit proof";
+  }finally{
+    isSubmitting = false;
+    if (!currentSubmissionIds.has(id)){ button.disabled = false; button.textContent = "Submit proof"; }
+  }
+}
+$("submitProofBtn").addEventListener("click", submitProof);
+
+loadTasks();
+</script>
+</body>
+</html>
