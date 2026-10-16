@@ -1,1129 +1,1463 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#087431">
-<title>Dashboard — NAIJA TASK</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#087f36">
+  <title>Dashboard | NAIJA TASK</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
-:root{
-  --green:#0b8f3c;
-  --dark:#064d25;
-  --green-dark:#087431;
-  --green-light:#eaf8ef;
-  --bg:#f3f8f4;
-  --card:#fff;
-  --text:#101512;
-  --muted:#718078;
-  --border:#e3ebe5;
-  --red:#c62828;
-  --shadow:0 5px 20px rgba(16,24,18,.055);
-}
+  <style>
+    :root {
+      --green: #087f36;
+      --green-dark: #064d25;
+      --green-light: #0b9b45;
+      --lime: #b7ef43;
+      --bg: #f3f8f5;
+      --white: #ffffff;
+      --text: #173326;
+      --muted: #708176;
+      --border: #e0eae3;
+      --red: #c62828;
+      --shadow: 0 8px 25px rgba(6, 77, 37, 0.07);
+      --radius: 18px;
+    }
 
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-}
-a,button{font-family:inherit}
-a{color:inherit}
-button{cursor:pointer}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-header{
-  background:linear-gradient(145deg,var(--dark),var(--green-dark) 55%,#0b9b45);
-  color:white;padding:calc(15px + env(safe-area-inset-top)) 15px 17px;
-  position:sticky;top:0;z-index:50;box-shadow:0 4px 16px #0002;
-}
-.header-top{
-  display:flex;align-items:center;justify-content:space-between;
-  max-width:920px;margin:auto;
-}
-.brand-row{display:flex;align-items:center;gap:10px}
-.brand-mark{
-  width:42px;height:42px;border-radius:13px;display:grid;place-items:center;
-  background:#ffffff25;border:1px solid #ffffff35;font-size:21px;font-weight:950;
-}
-.logo{font-size:20px;font-weight:950;letter-spacing:-.4px}
-.header-sub{font-size:11px;opacity:.88;margin-top:3px}
-.profile-btn{
-  width:43px;height:43px;border-radius:50%;display:grid;place-items:center;
-  background:white;color:var(--green);text-decoration:none;font-size:20px;
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
 
-main{max-width:920px;margin:auto;padding:17px 13px 110px}
-.welcome{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:10px;margin:5px 0 17px;
-}
-.welcome h1{margin:0;font-size:24px;line-height:1.2;overflow-wrap:anywhere}
-.welcome p{margin:6px 0 0;color:var(--muted);font-size:12px}
-.live-pill{
-  flex-shrink:0;display:flex;align-items:center;gap:6px;
-  background:var(--green-light);color:var(--green-dark);
-  padding:7px 9px;border-radius:20px;font-size:10px;font-weight:900;
-}
-.live-dot{width:7px;height:7px;border-radius:50%;background:#16a34a}
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-.page-error{
-  display:none;background:#fff0f0;border:1px solid #efb6b6;color:#a40000;
-  border-radius:13px;padding:13px;margin-bottom:14px;font-size:12px;
-  line-height:1.5;overflow-wrap:anywhere;
-}
-.page-error.show{display:block}
-.page-error button{
-  border:0;background:#a40000;color:white;border-radius:9px;
-  padding:9px 12px;margin-top:8px;font-weight:800;
-}
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
 
-.activation-card{border-radius:17px;padding:16px;margin-bottom:14px}
-.activation-required{background:#fff9ea;border:1px solid #f0d28b}
-.activation-success{background:#eaf8ef;border:1px solid #b9dfc3}
-.activation-icon{font-size:26px;margin-bottom:6px}
-.activation-card h2{margin:0 0 6px;font-size:16px}
-.activation-card p{margin:5px 0;color:#5d665f;font-size:12px;line-height:1.55}
-.activation-button,.feature-link{
-  display:inline-block;margin-top:10px;padding:12px 15px;border-radius:10px;
-  background:var(--green);color:white;text-decoration:none;font-weight:900;font-size:12px;
-}
+    .hidden {
+      display: none !important;
+    }
 
-.wallet{
-  position:relative;overflow:hidden;color:white;
-  background:linear-gradient(145deg,var(--dark),var(--green) 60%,#13a94e);
-  border-radius:21px;padding:19px;margin-bottom:14px;
-  box-shadow:0 10px 26px #0b8f3c28;
-}
-.wallet:after{
-  content:"";position:absolute;width:160px;height:160px;border-radius:50%;
-  right:-70px;top:-80px;background:#ffffff12;
-}
-.wallet-top,.balance,.wallet-meta,.wallet-actions{position:relative;z-index:1}
-.wallet-top{display:flex;align-items:center;justify-content:space-between}
-.wallet-label{font-size:12px;opacity:.9;font-weight:800}
-.wallet-status{font-size:9px;font-weight:900;padding:6px 8px;border-radius:20px;background:#ffffff20}
-.balance{font-size:33px;font-weight:950;letter-spacing:-.7px;margin:9px 0 15px;overflow-wrap:anywhere}
-.wallet-meta{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}
-.wallet-mini{background:#ffffff13;border:1px solid #ffffff20;border-radius:12px;padding:10px}
-.wallet-mini-label{font-size:10px;opacity:.82}
-.wallet-mini-value{font-size:14px;font-weight:900;margin-top:4px}
-.wallet-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.wallet-actions a{
-  background:white;color:var(--green-dark);text-decoration:none;
-  padding:12px 8px;border-radius:10px;text-align:center;font-size:12px;font-weight:900;
-}
+    .topbar {
+      background: linear-gradient(120deg, var(--green-dark), var(--green-light));
+      color: white;
+      padding: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    }
 
-.section-title{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:8px;margin:22px 1px 11px;font-size:16px;font-weight:950;
-}
-.section-link{color:var(--green);text-decoration:none;font-size:11px;font-weight:900}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.stat{
-  min-width:0;background:white;border:1px solid var(--border);
-  border-radius:14px;padding:13px 8px;box-shadow:var(--shadow);
-}
-.stat-number{
-  color:var(--green-dark);font-size:20px;font-weight:950;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.stat-label{font-size:10px;color:var(--muted);margin-top:4px}
+    .topbar-inner {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
 
-.quick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.quick a{
-  min-width:0;background:white;border:1px solid var(--border);color:var(--text);
-  text-decoration:none;padding:12px 4px;border-radius:13px;text-align:center;
-  font-size:10px;font-weight:900;
-}
-.quick-icon{display:block;font-size:21px;margin-bottom:5px}
+    .brand {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
 
-.activity-card{
-  background:white;border:1px solid var(--border);
-  border-radius:16px;overflow:hidden;box-shadow:var(--shadow);
-}
-.activity-row{
-  display:flex;align-items:center;gap:10px;padding:12px;
-  border-bottom:1px solid #edf1ee;
-}
-.activity-row:last-child{border-bottom:0}
-.activity-icon{
-  width:37px;height:37px;flex:0 0 37px;border-radius:11px;
-  background:var(--green-light);display:grid;place-items:center;font-size:17px;
-}
-.activity-info{min-width:0;flex:1}
-.activity-title{font-size:12px;font-weight:900;overflow-wrap:anywhere}
-.activity-date{margin-top:3px;font-size:10px;color:var(--muted)}
-.activity-amount{font-size:12px;font-weight:950;color:var(--green-dark);white-space:nowrap}
-.empty-activity{padding:22px 13px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+    .brand span {
+      color: var(--lime);
+    }
 
-.menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.menu-card{
-  min-width:0;background:white;border:1px solid var(--border);
-  border-radius:16px;padding:14px 12px;text-decoration:none;
-  color:var(--text);box-shadow:var(--shadow);transition:transform .12s;
-}
-.menu-card:active{transform:scale(.98)}
-.icon{
-  width:41px;height:41px;border-radius:12px;background:var(--green-light);
-  display:grid;place-items:center;font-size:21px;margin-bottom:9px;
-}
-.menu-card h3{margin:0;font-size:13px}
-.menu-card p{margin:5px 0 0;font-size:11px;color:var(--muted);line-height:1.5}
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-.feature,.about{
-  background:white;border:1px solid var(--border);
-  border-radius:17px;padding:16px;margin-top:18px;
-}
-.feature.primary{background:linear-gradient(145deg,#f0fbf3,#fff);border-color:#cde8d4}
-.feature h2,.about h2{margin:0 0 8px;font-size:17px}
-.feature p,.about p,.about li{color:#68726c;font-size:12px;line-height:1.6}
-.about h3{margin:17px 0 6px;font-size:13px}
-.about ul{padding-left:18px;margin:7px 0 0}
-.support{background:#f3faf5;border-radius:12px;padding:12px;margin-top:13px}
-.support a{color:var(--green-dark);font-weight:900;text-decoration:none;overflow-wrap:anywhere}
-.logout-btn{
-  width:100%;border:1px solid #ffd0d0;background:#fff5f5;color:#c00000;
-  padding:13px;border-radius:11px;font-weight:900;font-size:13px;
-}
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.12);
+      color: white;
+      font-size: 18px;
+    }
 
-.bottom-nav{
-  position:fixed;bottom:0;left:0;right:0;min-height:66px;
-  padding:5px 0 env(safe-area-inset-bottom);background:#fffffffa;
-  backdrop-filter:blur(12px);border-top:1px solid #e1e6e2;
-  display:flex;justify-content:space-around;align-items:center;z-index:100;
-}
-.bottom-nav a{
-  min-width:48px;text-decoration:none;color:#78817b;text-align:center;
-  font-size:9px;font-weight:900;padding:5px 2px;
-}
-.bottom-nav span{display:block;font-size:19px;margin-bottom:3px}
-.bottom-nav a.active{color:var(--green)}
+    .page {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px 100px;
+    }
 
-.page-loader{
-  position:fixed;inset:0;background:var(--bg);z-index:200;
-  display:flex;align-items:center;justify-content:center;flex-direction:column;
-  padding:24px;text-align:center;
-}
-.loader-logo{color:var(--green);font-size:24px;font-weight:950}
-.loader-text{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.6}
-.spinner{
-  width:28px;height:28px;border:3px solid #d9e9dd;border-top-color:var(--green);
-  border-radius:50%;animation:spin .8s linear infinite;margin-bottom:14px;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.hidden{display:none!important}
+    .welcome {
+      margin-bottom: 20px;
+    }
 
-@media(min-width:650px){
-  .menu-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  main{padding-left:18px;padding-right:18px}
-}
-@media(max-width:360px){
-  .welcome h1{font-size:20px}
-  .balance{font-size:28px}
-  .quick{gap:5px}
-  .quick a{font-size:9px}
-}
-</style>
+    .welcome h1 {
+      font-size: clamp(23px, 5vw, 30px);
+      line-height: 1.2;
+      margin-bottom: 5px;
+      font-weight: 900;
+    }
+
+    .welcome p {
+      color: var(--muted);
+    }
+
+    .account-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 6px 10px;
+      border-radius: 30px;
+      background: #e5f6e9;
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .account-status.vip {
+      background: #f0e9ff;
+      color: #6238a5;
+    }
+
+    .balance-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #064d25, #0b9b45);
+      color: white;
+      border-radius: 23px;
+      padding: 24px 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .balance-card::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -55px;
+      top: -65px;
+      border: 25px solid rgba(255, 255, 255, 0.07);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .balance-label {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .balance-value {
+      font-size: clamp(30px, 7vw, 42px);
+      font-weight: 900;
+      margin: 8px 0 18px;
+      letter-spacing: -1px;
+      overflow-wrap: anywhere;
+    }
+
+    .balance-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .balance-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      background: white;
+      color: var(--green-dark);
+      border: 1px solid white;
+    }
+
+    .balance-button.secondary {
+      color: white;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .membership-card {
+      margin-bottom: 20px;
+      padding: 22px 18px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      background: white;
+      border: 1px solid var(--border);
+    }
+
+    .activation-required {
+      border-left: 5px solid var(--green);
+    }
+
+    .vip-offer {
+      background: linear-gradient(135deg, #ffffff, #f6f0ff);
+      border: 1px solid #e3d6ff;
+      border-left: 5px solid #8050cf;
+    }
+
+    .membership-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .membership-card h2 {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 7px;
+    }
+
+    .membership-card p {
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .membership-price {
+      color: var(--green-dark) !important;
+      font-weight: 900;
+      margin: 12px 0 !important;
+    }
+
+    .membership-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      margin-top: 10px;
+      padding: 11px 18px;
+      border: none;
+      border-radius: 12px;
+      background: var(--green);
+      color: white;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .vip-offer .membership-button {
+      background: #6b3cb5;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 25px 0 13px;
+    }
+
+    .section-heading h2 {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .section-link {
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .stat-icon {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 23px;
+      font-weight: 900;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 78px;
+      padding: 14px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease;
+    }
+
+    .quick-link:active {
+      transform: scale(0.98);
+    }
+
+    .quick-icon {
+      width: 43px;
+      height: 43px;
+      flex: 0 0 43px;
+      border-radius: 13px;
+      background: #e9f7ed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .quick-link strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .quick-link small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 17px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      min-width: 0;
+    }
+
+    .panel h2 {
+      font-size: 17px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .task-list,
+    .transaction-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .task-item,
+    .transaction-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 13px;
+      min-width: 0;
+    }
+
+    .task-info,
+    .transaction-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .task-info strong,
+    .transaction-info strong {
+      display: block;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .task-info small,
+    .transaction-info small {
+      display: block;
+      color: var(--muted);
+      margin-top: 3px;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .task-reward {
+      color: var(--green);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .transaction-amount {
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .positive {
+      color: var(--green);
+    }
+
+    .negative {
+      color: var(--red);
+    }
+
+    .empty-state {
+      padding: 20px 12px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 13px;
+    }
+
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .notice {
+      display: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .notice.show {
+      display: block;
+    }
+
+    .notice.error {
+      color: #8d1d1d;
+      background: #ffeded;
+      border: 1px solid #ffd0d0;
+    }
+
+    .notice.success {
+      color: #075a28;
+      background: #e6f8eb;
+      border: 1px solid #c5edcf;
+    }
+
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--bg);
+      color: var(--green-dark);
+      font-weight: 900;
+      transition: opacity 0.2s ease;
+    }
+
+    .page-loader.done {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 4px solid #d6e8da;
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .bottom-nav {
+      position: fixed;
+      z-index: 60;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      background: white;
+      border-top: 1px solid var(--border);
+      padding: 7px 4px calc(7px + env(safe-area-inset-bottom));
+    }
+
+    .bottom-nav a {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 5px 2px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .bottom-nav a span {
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .bottom-nav a.active {
+      color: var(--green);
+    }
+
+    .footer {
+      padding: 15px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (min-width: 700px) {
+      .page {
+        padding-top: 28px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .quick-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .dashboard-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .bottom-nav {
+        max-width: 650px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 17px 17px 0 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="page-loader" id="pageLoader">
+    <div class="spinner"></div>
+    <div>Loading NAIJA TASK...</div>
+  </div>
 
-<div class="page-loader" id="pageLoader" aria-live="polite">
-  <div class="spinner" id="loaderSpinner"></div>
-  <div class="loader-logo">NAIJA TASK</div>
-  <div class="loader-text" id="loaderText">Loading your account...</div>
-</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="dashboard.html">NAIJA <span>TASK</span></a>
 
-<header>
-  <div class="header-top">
-    <div class="brand-row">
-      <div class="brand-mark">₦</div>
-      <div>
-        <div class="logo">NAIJA TASK</div>
-        <div class="header-sub">Complete Tasks. Earn Naira.</div>
+      <div class="top-actions">
+        <a class="icon-button" href="notifications.html" aria-label="Notifications">🔔</a>
+        <a class="icon-button" href="profile.html" aria-label="Profile">👤</a>
+        <button class="icon-button" id="logoutButton" type="button" aria-label="Log out">↪</button>
       </div>
     </div>
-    <a href="profile.html" class="profile-btn" aria-label="Profile">👤</a>
-  </div>
-</header>
+  </header>
 
-<main>
-  <div class="page-error" id="pageError" role="alert">
-    <strong id="pageErrorTitle">Dashboard notice</strong>
-    <div id="pageErrorMessage"></div>
-    <button type="button" id="retryButton">Try Again</button>
-  </div>
+  <main class="page">
+    <div id="pageNotice" class="notice" role="status" aria-live="polite"></div>
 
-  <section class="welcome">
-    <div>
-      <h1>Welcome, <span id="userName">User</span> 👋</h1>
-      <p>Your tasks, earnings and activity in one place.</p>
-    </div>
-    <div class="live-pill"><span class="live-dot"></span> ACCOUNT</div>
-  </section>
+    <section class="welcome">
+      <h1>Hello, <span id="welcomeName">there</span> 👋</h1>
+      <p>Welcome back. Your next task is waiting for you.</p>
+      <div id="accountStatus" class="account-status hidden"></div>
+    </section>
 
-  <section class="activation-card activation-required" id="activationRequired">
-    <div class="activation-icon">🔒</div>
-    <h2>Account Activation Required</h2>
-    <p>Some earning features may require account activation.</p>
-    <p>Check the activation page for the current fee and payment instructions.</p>
-    <a href="activation.html" class="activation-button">View Activation</a>
-  </section>
+    <section class="balance-card">
+      <div class="balance-label">Your available wallet balance</div>
+      <div class="balance-value" id="walletBalance">₦0.00</div>
 
-  <section class="activation-card activation-success hidden" id="activationSuccess">
-    <div class="activation-icon">✅</div>
-    <h2>Account Activated</h2>
-    <p>Your account is marked as activated.</p>
-  </section>
-
-  <section class="wallet">
-    <div class="wallet-top">
-      <div class="wallet-label">AVAILABLE BALANCE</div>
-      <div class="wallet-status">ACCOUNT WALLET</div>
-    </div>
-    <div class="balance" id="balance">₦—</div>
-    <div class="wallet-meta">
-      <div class="wallet-mini">
-        <div class="wallet-mini-label">Approved Earnings</div>
-        <div class="wallet-mini-value" id="approvedEarnings">₦—</div>
+      <div class="balance-actions">
+        <a href="wallet.html" class="balance-button">My Wallet</a>
+        <a href="withdrawal.html" class="balance-button secondary">Withdraw</a>
       </div>
-      <div class="wallet-mini">
-        <div class="wallet-mini-label">Pending Rewards</div>
-        <div class="wallet-mini-value" id="pendingEarnings">₦—</div>
+    </section>
+
+    <!--
+      Both offers start hidden.
+      JavaScript reveals no more than one after verifying the account.
+    -->
+
+    <section
+      class="membership-card activation-required hidden"
+      id="activationRequired"
+      aria-labelledby="activationTitle"
+    >
+      <div class="membership-icon">🔒</div>
+      <h2 id="activationTitle">Activate Your Account</h2>
+      <p>Your account is not activated yet. Check the current activation fee and payment instructions before proceeding.</p>
+      <a href="activation.html" class="membership-button">View Activation</a>
+    </section>
+
+    <section
+      class="membership-card vip-offer hidden"
+      id="vipOffer"
+      aria-labelledby="vipTitle"
+    >
+      <div class="membership-icon">👑</div>
+      <h2 id="vipTitle">Upgrade to VIP</h2>
+      <p>Your account is activated. You can review VIP membership benefits and the current price.</p>
+      <p class="membership-price hidden" id="vipPriceText"></p>
+      <a href="vip.html" class="membership-button">View VIP Membership</a>
+    </section>
+
+    <div class="section-heading">
+      <h2>Your Activity</h2>
+      <a href="transactions.html" class="section-link">Transactions →</a>
+    </div>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-label">Available Tasks</div>
+        <div class="stat-value" id="availableTasks">—</div>
       </div>
-    </div>
-    <div class="wallet-actions">
-      <a href="wallet.html">View Wallet</a>
-      <a href="withdrawal.html">Withdraw</a>
-    </div>
-  </section>
 
-  <div class="section-title">
-    <span>Your Activity</span>
-    <a href="wallet.html" class="section-link">Wallet activity</a>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-number" id="taskCount">—</div>
-      <div class="stat-label">Available Tasks</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number" id="completedCount">—</div>
-      <div class="stat-label">Completed</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number" id="approvedCount">—</div>
-      <div class="stat-label">Approved</div>
-    </div>
-  </div>
-
-  <div class="section-title"><span>Quick Actions</span></div>
-  <div class="quick">
-    <a href="task.html"><span class="quick-icon">📋</span>Jobs</a>
-    <a href="task.html#submissions"><span class="quick-icon">📸</span>Submissions</a>
-    <a href="wallet.html"><span class="quick-icon">💰</span>Wallet</a>
-    <a href="referrals.html"><span class="quick-icon">🎁</span>Referrals</a>
-  </div>
-
-  <div class="section-title">
-    <span>Recent Earnings</span>
-    <a href="wallet.html" class="section-link">View wallet</a>
-  </div>
-  <section class="activity-card">
-    <div id="activityList" class="empty-activity">Loading earning activity...</div>
-  </section>
-
-  <div class="section-title"><span>Find Work</span></div>
-  <div class="menu-grid">
-    <a href="task.html" class="menu-card">
-      <div class="icon">📋</div>
-      <h3>Available Tasks</h3>
-      <p>Find eligible tasks and follow their instructions.</p>
-    </a>
-    <a href="task.html#submissions" class="menu-card">
-      <div class="icon">📸</div>
-      <h3>My Submissions</h3>
-      <p>Open the task area to check your submission options.</p>
-    </a>
-    <a href="marketplace.html" class="menu-card">
-      <div class="icon">🛒</div>
-      <h3>Marketplace</h3>
-      <p>Explore marketplace services and listings.</p>
-    </a>
-  </div>
-
-  <div class="section-title"><span>Your Money</span></div>
-  <div class="menu-grid">
-    <a href="wallet.html" class="menu-card">
-      <div class="icon">💰</div>
-      <h3>Wallet</h3>
-      <p>View your wallet balance and transactions.</p>
-    </a>
-    <a href="withdrawal.html" class="menu-card">
-      <div class="icon">🏦</div>
-      <h3>Withdrawals</h3>
-      <p>Request withdrawals and check their status.</p>
-    </a>
-    <a href="referrals.html" class="menu-card">
-      <div class="icon">🎁</div>
-      <h3>Referrals</h3>
-      <p>Invite users and view referral information.</p>
-    </a>
-    <a href="vip.html" class="menu-card">
-      <div class="icon">👑</div>
-      <h3>VIP Membership</h3>
-      <p>Check membership options and eligibility.</p>
-    </a>
-    <a href="wallet.html" class="menu-card">
-      <div class="icon">🧾</div>
-      <h3>Transactions</h3>
-      <p>Review recorded wallet activity.</p>
-    </a>
-  </div>
-
-  <div class="section-title"><span>Explore NAIJA TASK</span></div>
-  <div class="menu-grid">
-    <a href="ai-assistant.html" class="menu-card">
-      <div class="icon">🤖</div>
-      <h3>AI Assistant</h3>
-      <p>Open the platform's AI assistant.</p>
-    </a>
-    <a href="ai-care.html" class="menu-card">
-      <div class="icon">💚</div>
-      <h3>AI Care</h3>
-      <p>Access AI Care and available support tools.</p>
-    </a>
-    <a href="airtime-data.html" class="menu-card">
-      <div class="icon">📱</div>
-      <h3>Airtime & Data</h3>
-      <p>Access airtime and data services.</p>
-    </a>
-    <a href="community.html" class="menu-card">
-      <div class="icon">👥</div>
-      <h3>Community</h3>
-      <p>Access community features.</p>
-    </a>
-    <a href="notifications.html" class="menu-card">
-      <div class="icon">🔔</div>
-      <h3>Notifications</h3>
-      <p>Check account notifications and updates.</p>
-    </a>
-    <a href="announcements.html" class="menu-card">
-      <div class="icon">📢</div>
-      <h3>Announcements</h3>
-      <p>Read important platform announcements.</p>
-    </a>
-    <a href="security.html" class="menu-card">
-      <div class="icon">🛡️</div>
-      <h3>Security</h3>
-      <p>Manage available account security options.</p>
-    </a>
-    <a href="support.html" class="menu-card">
-      <div class="icon">🆘</div>
-      <h3>Help & Support</h3>
-      <p>Get help with your account and tasks.</p>
-    </a>
-    <a href="more.html" class="menu-card">
-      <div class="icon">⚙️</div>
-      <h3>More Features</h3>
-      <p>Find additional account options.</p>
-    </a>
-  </div>
-
-  <div class="section-title"><span>Account</span></div>
-  <div class="menu-grid">
-    <a href="profile.html" class="menu-card">
-      <div class="icon">👤</div>
-      <h3>My Profile</h3>
-      <p>View your account information.</p>
-    </a>
-    <a href="more.html" class="menu-card">
-      <div class="icon">⚙️</div>
-      <h3>Account Settings</h3>
-      <p>Open additional account options.</p>
-    </a>
-    <a href="activation.html" class="menu-card">
-      <div class="icon">🔓</div>
-      <h3>Activation</h3>
-      <p>View your activation status and instructions.</p>
-    </a>
-  </div>
-
-  <section class="feature primary">
-    <h2>📋 Find your next task</h2>
-    <p>Browse eligible tasks, follow the instructions, submit the required proof and wait for review.</p>
-    <a href="task.html" class="feature-link">Browse Available Tasks</a>
-  </section>
-
-  <section class="about">
-    <h2>About NAIJA TASK</h2>
-    <p>NAIJA TASK connects users with available tasks and digital opportunities. Rewards depend on task requirements and review outcomes.</p>
-    <h3>How it works</h3>
-    <ul>
-      <li>Sign in to your account.</li>
-      <li>Review your account activation status.</li>
-      <li>Browse tasks available to you.</li>
-      <li>Follow each task's instructions.</li>
-      <li>Submit the required proof.</li>
-      <li>Check your submission status.</li>
-      <li>Approved rewards are handled according to platform rules.</li>
-    </ul>
-    <div class="support">
-      <strong>Need help?</strong>
-      <p>
-        WhatsApp:
-        <a href="https://wa.me/2349020934579" target="_blank" rel="noopener noreferrer">09020934579</a>
-        <br>
-        Email:
-        <a href="mailto:naijataskofficia@gmail.com">naijataskofficia@gmail.com</a>
-      </p>
-    </div>
-  </section>
-
-  <section class="feature">
-    <h2>🔐 Account Session</h2>
-    <p>Sign out safely when you finish using your account.</p>
-    <button class="logout-btn" id="logoutButton" type="button">Log Out</button>
-  </section>
-</main>
-
-<nav class="bottom-nav" aria-label="Main navigation">
-  <a href="dashboard.html" class="active"><span>🏠</span>Home</a>
-  <a href="task.html"><span>📋</span>Jobs</a>
-  <a href="wallet.html"><span>💰</span>Wallet</a>
-  <a href="task.html#submissions"><span>📸</span>Proofs</a>
-  <a href="profile.html"><span>👤</span>Profile</a>
-</nav>
-
-<script>
-"use strict";
-
-/* =========================================================
-   NAIJA TASK — TASKER DASHBOARD
-   ========================================================= */
-
-/* FIXED: the Supabase key now has its closing quotation mark. */
-const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
-const $ = id => document.getElementById(id);
-
-let supabaseClient = null;
-let currentUser = null;
-let refreshTimer = null;
-let realtimeChannel = null;
-let refreshing = false;
-let firstLoadFinished = false;
-
-const REQUEST_TIMEOUT_MS = 12000;
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function normalizeStatus(value) {
-  return String(value || "").trim().toLowerCase();
-}
-
-function formatNaira(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return "₦0.00";
-
-  return "₦" + number.toLocaleString("en-NG", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-
-function formatDate(value) {
-  if (!value) return "Date unavailable";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Date unavailable";
-
-  return date.toLocaleString("en-NG", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit"
-  });
-}
-
-/*
-  A timed wrapper prevents a slow network from leaving a promise
-  pending forever. A timeout does not cancel the underlying request.
-*/
-function withTimeout(promise, label, timeout = REQUEST_TIMEOUT_MS) {
-  let timer;
-
-  const timeoutPromise = new Promise((_, reject) => {
-    timer = setTimeout(() => {
-      reject(new Error(label + " took too long. Check your connection and retry."));
-    }, timeout);
-  });
-
-  return Promise.race([promise, timeoutPromise]).finally(() => {
-    clearTimeout(timer);
-  });
-}
-
-function showError(title, message) {
-  $("pageErrorTitle").textContent = title || "Dashboard notice";
-  $("pageErrorMessage").textContent = message || "Something went wrong.";
-  $("pageError").classList.add("show");
-}
-
-function hideError() {
-  $("pageError").classList.remove("show");
-}
-
-function setLoading(loading, message) {
-  if (message) $("loaderText").textContent = message;
-  $("pageLoader").classList.toggle("hidden", !loading);
-}
-
-function setText(id, value) {
-  const element = $(id);
-  if (element) element.textContent = value;
-}
-
-/* AUTHENTICATION */
-
-async function getCurrentUser() {
-  const result = await withTimeout(
-    supabaseClient.auth.getUser(),
-    "Account verification"
-  );
-
-  if (result.error) throw result.error;
-  return result.data?.user || null;
-}
-
-/* PROFILE AND REAL BALANCE */
-
-async function loadProfile() {
-  const result = await withTimeout(
-    supabaseClient
-      .from("profiles")
-      .select("id, full_name, balance, is_activated")
-      .eq("id", currentUser.id)
-      .maybeSingle(),
-    "Profile loading"
-  );
-
-  if (result.error) throw new Error("Profile: " + result.error.message);
-  if (!result.data) {
-    throw new Error("Your profile was not found. Please contact support.");
-  }
-
-  const profile = result.data;
-
-  setText(
-    "userName",
-    profile.full_name || currentUser.email?.split("@")[0] || "User"
-  );
-
-  setText("balance", formatNaira(profile.balance));
-
-  const activated = profile.is_activated === true;
-  $("activationRequired").classList.toggle("hidden", activated);
-  $("activationSuccess").classList.toggle("hidden", !activated);
-
-  return profile;
-}
-
-/* AVAILABLE TASKS
-   The existing database function remains the source of task eligibility.
-*/
-
-async function loadAvailableTasks() {
-  setText("taskCount", "…");
-
-  const result = await withTimeout(
-    supabaseClient.rpc("get_available_tasks"),
-    "Available tasks"
-  );
-
-  if (result.error) {
-    throw new Error("Available tasks: " + result.error.message);
-  }
-
-  const rows = Array.isArray(result.data) ? result.data : [];
-  setText("taskCount", String(rows.length));
-  return rows;
-}
-
-/* SUBMISSIONS */
-
-async function loadSubmissionStats() {
-  const result = await withTimeout(
-    supabaseClient
-      .from("task_submissions")
-      .select("id, task_id, status, created_at")
-      .eq("user_id", currentUser.id)
-      .limit(2000),
-    "Submission statistics"
-  );
-
-  if (result.error) {
-    throw new Error("Submissions: " + result.error.message);
-  }
-
-  const rows = result.data || [];
-
-  const completed = rows.filter(row => {
-    const status = normalizeStatus(row.status);
-    return status === "approved" || status === "completed";
-  });
-
-  const approved = rows.filter(row =>
-    normalizeStatus(row.status) === "approved"
-  );
-
-  setText("completedCount", String(completed.length));
-  setText("approvedCount", String(approved.length));
-
-  return rows;
-}
-
-/* WALLET TRANSACTIONS */
-
-async function loadWalletTransactions() {
-  const result = await withTimeout(
-    supabaseClient
-      .from("wallet_transactions")
-      .select("id, type, amount, description, reference, status, created_at")
-      .eq("user_id", currentUser.id)
-      .order("created_at", { ascending: false })
-      .limit(200),
-    "Wallet transactions"
-  );
-
-  if (result.error) {
-    throw new Error("Wallet transactions: " + result.error.message);
-  }
-
-  return result.data || [];
-}
-
-function isSuccessfulTransaction(row) {
-  const status = normalizeStatus(row.status);
-
-  return [
-    "approved",
-    "completed",
-    "success",
-    "successful",
-    "paid"
-  ].includes(status);
-}
-
-function isEarningTransaction(row) {
-  const amount = Number(row.amount || 0);
-  if (!Number.isFinite(amount) || amount <= 0) return false;
-
-  const type = normalizeStatus(row.type);
-
-  return [
-    "earning",
-    "task",
-    "reward",
-    "completion"
-  ].some(term => type.includes(term));
-}
-
-/* PENDING REWARDS */
-
-async function calculatePendingRewards(submissions) {
-  const pending = submissions.filter(row =>
-    normalizeStatus(row.status) === "pending"
-  );
-
-  if (!pending.length) {
-    setText("pendingEarnings", formatNaira(0));
-    return;
-  }
-
-  const taskIds = [...new Set(
-    pending.map(row => row.task_id).filter(Boolean)
-  )];
-
-  if (!taskIds.length) {
-    setText("pendingEarnings", "—");
-    return;
-  }
-
-  const result = await withTimeout(
-    supabaseClient
-      .from("tasks")
-      .select("id, reward")
-      .in("id", taskIds),
-    "Pending reward calculation"
-  );
-
-  if (result.error) {
-    console.error("Pending reward lookup:", result.error);
-    setText("pendingEarnings", "—");
-    return;
-  }
-
-  const rewardMap = new Map(
-    (result.data || []).map(task => [
-      String(task.id),
-      Number(task.reward || 0)
-    ])
-  );
-
-  const total = pending.reduce(
-    (sum, submission) =>
-      sum + (rewardMap.get(String(submission.task_id)) || 0),
-    0
-  );
-
-  setText("pendingEarnings", formatNaira(total));
-}
-
-/* RECENT EARNINGS */
-
-function renderRecentEarnings(transactions) {
-  const rows = (transactions || [])
-    .filter(row =>
-      isEarningTransaction(row) && isSuccessfulTransaction(row)
-    )
-    .slice(0, 6);
-
-  if (!rows.length) {
-    $("activityList").innerHTML = `
-      <div class="empty-activity">
-        No approved earning transactions were found.<br>
-        Your activity will appear here when recorded in your wallet.
-      </div>`;
-    return;
-  }
-
-  $("activityList").innerHTML = rows.map(row => `
-    <div class="activity-row">
-      <div class="activity-icon">₦</div>
-      <div class="activity-info">
-        <div class="activity-title">${escapeHtml(row.description || "Wallet credit")}</div>
-        <div class="activity-date">${escapeHtml(formatDate(row.created_at))}</div>
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-label">Pending Reviews</div>
+        <div class="stat-value" id="pendingSubmissions">—</div>
       </div>
-      <div class="activity-amount">+${escapeHtml(formatNaira(row.amount))}</div>
+
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">Pending Rewards</div>
+        <div class="stat-value" id="pendingRewards">₦—</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🎉</div>
+        <div class="stat-label">Approved Earnings</div>
+        <div class="stat-value" id="approvedEarnings">₦—</div>
+      </div>
+    </section>
+
+    <div class="section-heading">
+      <h2>Quick Access</h2>
     </div>
-  `).join("");
-}
 
-/* DASHBOARD DATA */
+    <section class="quick-grid">
+      <a href="task.html" class="quick-link">
+        <div class="quick-icon">📝</div>
+        <div>
+          <strong>Find Tasks</strong>
+          <small>Browse available jobs</small>
+        </div>
+      </a>
 
-async function loadDashboardData() {
-  if (!currentUser) return;
+      <a href="wallet.html" class="quick-link">
+        <div class="quick-icon">👛</div>
+        <div>
+          <strong>My Wallet</strong>
+          <small>View your balance</small>
+        </div>
+      </a>
 
-  /*
-    Load sections independently. A failure in one table should not
-    prevent the other sections from updating.
-  */
-  const results = await Promise.allSettled([
-    loadProfile(),
-    loadAvailableTasks(),
-    loadSubmissionStats(),
-    loadWalletTransactions()
-  ]);
+      <a href="referrals.html" class="quick-link">
+        <div class="quick-icon">🤝</div>
+        <div>
+          <strong>Referrals</strong>
+          <small>Invite your friends</small>
+        </div>
+      </a>
 
-  const errors = [];
+      <a href="profile.html" class="quick-link">
+        <div class="quick-icon">👤</div>
+        <div>
+          <strong>My Profile</strong>
+          <small>Account information</small>
+        </div>
+      </a>
 
-  if (results[0].status === "rejected") {
-    errors.push(results[0].reason?.message || "Profile could not load.");
-    console.error("Profile loading:", results[0].reason);
-  }
+      <a href="marketplace.html" class="quick-link">
+        <div class="quick-icon">🛍️</div>
+        <div>
+          <strong>Marketplace</strong>
+          <small>Explore listings</small>
+        </div>
+      </a>
 
-  if (results[1].status === "rejected") {
-    setText("taskCount", "—");
-    errors.push(results[1].reason?.message || "Tasks could not load.");
-    console.error("Task loading:", results[1].reason);
-  }
+      <a href="applied-jobs.html" class="quick-link">
+        <div class="quick-icon">📌</div>
+        <div>
+          <strong>Applied Jobs</strong>
+          <small>Check your applications</small>
+        </div>
+      </a>
 
-  let submissions = [];
+      <a href="approved.html" class="quick-link">
+        <div class="quick-icon">✅</div>
+        <div>
+          <strong>Approved Tasks</strong>
+          <small>See approved work</small>
+        </div>
+      </a>
 
-  if (results[2].status === "fulfilled") {
-    submissions = results[2].value;
-  } else {
-    setText("completedCount", "—");
-    setText("approvedCount", "—");
-    setText("pendingEarnings", "—");
-    errors.push(results[2].reason?.message || "Submissions could not load.");
-    console.error("Submission loading:", results[2].reason);
-  }
+      <a href="more.html" class="quick-link">
+        <div class="quick-icon">☰</div>
+        <div>
+          <strong>More Features</strong>
+          <small>Support and services</small>
+        </div>
+      </a>
+    </section>
 
-  if (results[3].status === "fulfilled") {
-    const transactions = results[3].value;
+    <div class="dashboard-columns">
+      <section class="panel">
+        <h2>Available Tasks</h2>
+        <div id="taskList" class="task-list">
+          <div class="empty-state">
+            <strong>Loading tasks...</strong>
+            Please wait while we check available tasks.
+          </div>
+        </div>
+        <a href="task.html" class="membership-button">View All Tasks</a>
+      </section>
 
-    const earningRows = transactions.filter(row =>
-      isEarningTransaction(row) && isSuccessfulTransaction(row)
+      <section class="panel">
+        <h2>Recent Wallet Activity</h2>
+        <div id="transactionList" class="transaction-list">
+          <div class="empty-state">
+            <strong>Loading transactions...</strong>
+            Your recent wallet activity will appear here.
+          </div>
+        </div>
+        <a href="transactions.html" class="membership-button">View Transactions</a>
+      </section>
+    </div>
+
+    <div class="footer">
+      NAIJA TASK · Complete Tasks. Earn Naira.
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <a href="dashboard.html" class="active">
+      <span>🏠</span>Home
+    </a>
+    <a href="task.html">
+      <span>📋</span>Tasks
+    </a>
+    <a href="wallet.html">
+      <span>👛</span>Wallet
+    </a>
+    <a href="referrals.html">
+      <span>🤝</span>Refer
+    </a>
+    <a href="more.html">
+      <span>☰</span>More
+    </a>
+  </nav>
+
+  <script>
+    "use strict";
+
+    const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
     );
 
-    const approvedTotal = earningRows.reduce(
-      (total, row) => total + Number(row.amount || 0),
-      0
-    );
+    const $ = (id) => document.getElementById(id);
 
-    setText("approvedEarnings", formatNaira(approvedTotal));
-    renderRecentEarnings(transactions);
-  } else {
-    setText("approvedEarnings", "—");
-    $("activityList").innerHTML = `
-      <div class="empty-activity">
-        Wallet activity could not be loaded.<br>
-        Please try again later.
-      </div>`;
-    errors.push(results[3].reason?.message || "Wallet activity could not load.");
-    console.error("Wallet loading:", results[3].reason);
-  }
+    let currentUser = null;
+    let dashboardProfile = null;
+    let platformSettings = null;
+    let settingsVerified = false;
+    let profileVerified = false;
+    let refreshRunning = false;
+    let refreshAgain = false;
+    let realtimeChannel = null;
 
-  if (results[2].status === "fulfilled") {
-    try {
-      await calculatePendingRewards(submissions);
-    } catch (error) {
-      console.error("Pending rewards:", error);
-      setText("pendingEarnings", "—");
-    }
-  }
+    const money = (value) => {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return "₦0.00";
 
-  if (errors.length) {
-    showError(
-      "Some dashboard information could not load",
-      errors.join(" ")
-    );
-  } else {
-    hideError();
-  }
-}
+      return new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(number);
+    };
 
-/* REFRESH PROTECTION */
+    const escapeHTML = (value) => {
+      return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[character]);
+    };
 
-async function refreshDashboard() {
-  if (!currentUser || refreshing) return;
+    function showNotice(message, type = "error") {
+      const notice = $("pageNotice");
 
-  refreshing = true;
+      notice.textContent = message;
+      notice.className = `notice show ${type}`;
 
-  try {
-    await withTimeout(
-      loadDashboardData(),
-      "Dashboard refresh",
-      REQUEST_TIMEOUT_MS * 2
-    );
-  } catch (error) {
-    console.error("Dashboard refresh:", error);
-    showError(
-      "Unable to refresh dashboard",
-      error.message || "Please check your connection and retry."
-    );
-  } finally {
-    refreshing = false;
-    firstLoadFinished = true;
-    setLoading(false);
-  }
-}
-
-/* REALTIME UPDATES */
-
-function startRealtime() {
-  if (!currentUser || !supabaseClient) return;
-
-  try {
-    realtimeChannel = supabaseClient
-      .channel("tasker-dashboard-" + currentUser.id)
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "profiles",
-        filter: "id=eq." + currentUser.id
-      }, () => refreshDashboard())
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "wallet_transactions",
-        filter: "user_id=eq." + currentUser.id
-      }, () => refreshDashboard())
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "task_submissions",
-        filter: "user_id=eq." + currentUser.id
-      }, () => refreshDashboard())
-      .subscribe();
-  } catch (error) {
-    console.warn("Realtime is unavailable; periodic refresh remains active.", error);
-  }
-}
-
-async function stopRealtime() {
-  if (!realtimeChannel || !supabaseClient) return;
-
-  try {
-    await supabaseClient.removeChannel(realtimeChannel);
-  } catch (error) {
-    console.warn("Realtime cleanup:", error);
-  }
-
-  realtimeChannel = null;
-}
-
-/* LOGOUT */
-
-$("logoutButton").addEventListener("click", async () => {
-  if (!confirm("Are you sure you want to log out?")) return;
-
-  const button = $("logoutButton");
-  button.disabled = true;
-  button.textContent = "Logging out...";
-
-  try {
-    if (refreshTimer) clearInterval(refreshTimer);
-    await stopRealtime();
-
-    const result = await withTimeout(
-      supabaseClient.auth.signOut(),
-      "Sign out",
-      REQUEST_TIMEOUT_MS
-    );
-
-    if (result.error) throw result.error;
-
-    window.location.replace("index.html");
-  } catch (error) {
-    console.error("Logout:", error);
-    button.disabled = false;
-    button.textContent = "Log Out";
-    showError("Logout failed", error.message || "Please try again.");
-  }
-});
-
-/* RETRY */
-
-$("retryButton").addEventListener("click", async () => {
-  const button = $("retryButton");
-  button.disabled = true;
-  button.textContent = "Loading...";
-
-  try {
-    if (!currentUser) {
-      await startDashboard();
-    } else {
-      await refreshDashboard();
-    }
-  } finally {
-    button.disabled = false;
-    button.textContent = "Try Again";
-  }
-});
-
-/* REFRESH WHEN RETURNING TO THE PAGE */
-
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") refreshDashboard();
-});
-
-window.addEventListener("focus", () => refreshDashboard());
-
-/* AUTH STATE */
-
-function watchAuthState() {
-  if (!supabaseClient) return;
-
-  supabaseClient.auth.onAuthStateChange(event => {
-    if (event === "SIGNED_OUT") {
-      window.location.replace("index.html");
-    }
-  });
-}
-
-/* STARTUP */
-
-async function startDashboard() {
-  setLoading(true, "Loading your account...");
-
-  try {
-    if (!window.supabase) {
-      throw new Error(
-        "The Supabase library could not load. Check your internet connection and reload the page."
-      );
+      if (type === "success") {
+        window.setTimeout(() => {
+          notice.classList.remove("show");
+        }, 4000);
+      }
     }
 
-    if (!supabaseClient) {
-      supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY,
-        {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true
-          }
-        }
-      );
-
-      watchAuthState();
+    function hideNotice() {
+      $("pageNotice").className = "notice";
+      $("pageNotice").textContent = "";
     }
 
-    currentUser = await getCurrentUser();
-
-    if (!currentUser) {
-      window.location.replace("index.html");
-      return;
+    function hideMembershipOffers() {
+      $("activationRequired").classList.add("hidden");
+      $("vipOffer").classList.add("hidden");
+      $("vipPriceText").classList.add("hidden");
+      $("vipPriceText").textContent = "";
     }
 
     /*
-      Stop the initial loader even if a later dashboard section fails.
-      The data loader handles individual failures independently.
+      Fail-closed membership logic:
+      - Hide offers until the profile is verified.
+      - Never show activation and VIP offers together.
+      - Never infer activation from VIP status.
+      - Never show VIP if the VIP setting is unavailable or disabled.
     */
-    await refreshDashboard();
+    function renderMembershipOffers() {
+      hideMembershipOffers();
 
-    if (!refreshTimer) {
-      refreshTimer = window.setInterval(() => {
+      if (!profileVerified || !dashboardProfile) {
+        return;
+      }
+
+      const activated = dashboardProfile.is_activated;
+      const vip = dashboardProfile.is_vip;
+
+      if (typeof activated !== "boolean" || typeof vip !== "boolean") {
+        return;
+      }
+
+      if (activated === false) {
+        $("activationRequired").classList.remove("hidden");
+        return;
+      }
+
+      if (activated === true && vip === true) {
+        // Already activated and VIP: neither offer is displayed.
+        return;
+      }
+
+      if (activated === true && vip === false) {
+        // Only show VIP if admin settings were successfully verified.
+        if (!settingsVerified || !platformSettings) {
+          return;
+        }
+
+        if (platformSettings.vip_enabled !== true) {
+          return;
+        }
+
+        const price = Number(platformSettings.vip_price);
+
+        if (
+          platformSettings.vip_price !== null &&
+          platformSettings.vip_price !== undefined &&
+          Number.isFinite(price) &&
+          price >= 0
+        ) {
+          $("vipPriceText").textContent = "Current VIP price: " + money(price);
+          $("vipPriceText").classList.remove("hidden");
+        }
+
+        $("vipOffer").classList.remove("hidden");
+      }
+    }
+
+    function finishLoader() {
+      $("pageLoader").classList.add("done");
+
+      window.setTimeout(() => {
+        $("pageLoader").style.display = "none";
+      }, 250);
+    }
+
+    function withTimeout(promise, timeoutMs = 12000) {
+      let timeoutId;
+
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = window.setTimeout(() => {
+          reject(new Error("The request took too long. Check your internet connection and try again."));
+        }, timeoutMs);
+      });
+
+      return Promise.race([promise, timeoutPromise]).finally(() => {
+        window.clearTimeout(timeoutId);
+      });
+    }
+
+    async function requireAuthenticatedUser() {
+      const { data, error } = await withTimeout(
+        supabaseClient.auth.getUser()
+      );
+
+      if (error || !data || !data.user) {
+        window.location.replace("index.html");
+        return null;
+      }
+
+      currentUser = data.user;
+      return currentUser;
+    }
+
+    async function loadProfile() {
+      // Hide offers before refreshing account status.
+      profileVerified = false;
+      dashboardProfile = null;
+      renderMembershipOffers();
+
+      const { data, error } = await withTimeout(
+        supabaseClient
+          .from("profiles")
+          .select("id, full_name, balance, is_activated, is_vip")
+          .eq("id", currentUser.id)
+          .maybeSingle()
+      );
+
+      if (error) {
+        console.error("Profile loading error:", error);
+        throw new Error("We could not verify your account status. Please refresh the page.");
+      }
+
+      if (!data) {
+        throw new Error("Your account profile was not found. Please contact support.");
+      }
+
+      dashboardProfile = data;
+
+      // Require explicit boolean values; do not guess missing account states.
+      if (
+        typeof data.is_activated !== "boolean" ||
+        typeof data.is_vip !== "boolean"
+      ) {
+        profileVerified = false;
+        renderMembershipOffers();
+        throw new Error("Your membership status could not be verified. Please contact support.");
+      }
+
+      profileVerified = true;
+
+      const fullName = String(data.full_name || "").trim();
+      const firstName = fullName ? fullName.split(/\s+/)[0] : "there";
+
+      $("welcomeName").textContent = firstName;
+      $("walletBalance").textContent = money(data.balance);
+
+      const status = $("accountStatus");
+
+      if (data.is_activated === true && data.is_vip === true) {
+        status.textContent = "👑 VIP Membership Active";
+        status.className = "account-status vip";
+        status.classList.remove("hidden");
+      } else if (data.is_activated === true) {
+        status.textContent = "✅ Account Activated";
+        status.className = "account-status";
+        status.classList.remove("hidden");
+      } else {
+        status.classList.add("hidden");
+        status.textContent = "";
+      }
+
+      renderMembershipOffers();
+      return data;
+    }
+
+    async function loadPlatformSettings() {
+      settingsVerified = false;
+      platformSettings = null;
+      renderMembershipOffers();
+
+      try {
+        const { data, error } = await withTimeout(
+          supabaseClient
+            .from("platform_settings")
+            .select("vip_enabled, vip_price")
+            .limit(1)
+            .maybeSingle()
+        );
+
+        if (error) {
+          console.warn("VIP settings could not be verified:", error);
+          return null;
+        }
+
+        if (!data || typeof data.vip_enabled !== "boolean") {
+          console.warn("VIP settings row or vip_enabled value is missing.");
+          return null;
+        }
+
+        platformSettings = data;
+        settingsVerified = true;
+
+        renderMembershipOffers();
+        return data;
+      } catch (error) {
+        console.warn("VIP settings request failed:", error);
+        platformSettings = null;
+        settingsVerified = false;
+        renderMembershipOffers();
+        return null;
+      }
+    }
+
+    async function loadAvailableTasks() {
+      const container = $("taskList");
+
+      const { data, error } = await withTimeout(
+        supabaseClient.rpc("get_available_tasks")
+      );
+
+      if (error) {
+        console.error("Available tasks error:", error);
+
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>Tasks could not be loaded</strong>
+            Please try again shortly.
+          </div>
+        `;
+
+        $("availableTasks").textContent = "—";
+        return [];
+      }
+
+      const tasks = Array.isArray(data) ? data : [];
+
+      $("availableTasks").textContent = String(tasks.length);
+
+      if (!tasks.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>No available tasks right now</strong>
+            Please check again later.
+          </div>
+        `;
+
+        return [];
+      }
+
+      container.innerHTML = tasks.slice(0, 5).map((task) => {
+        const title = escapeHTML(task.title || "Untitled task");
+        const description = escapeHTML(
+          String(task.description || "Complete the task requirements.")
+            .replace(/\s+/g, " ")
+            .slice(0, 95)
+        );
+
+        const reward = money(task.reward ?? task.reward_per_worker ?? 0);
+
+        return `
+          <a class="task-item" href="task.html">
+            <div class="task-info">
+              <strong>${title}</strong>
+              <small>${description}</small>
+            </div>
+            <div class="task-reward">${escapeHTML(reward)}</div>
+          </a>
+        `;
+      }).join("");
+
+      return tasks;
+    }
+
+    async function loadSubmissionStats() {
+      const { data, error } = await withTimeout(
+        supabaseClient
+          .from("task_submissions")
+          .select("id, status, task_id")
+          .eq("user_id", currentUser.id)
+      );
+
+      if (error) {
+        console.warn("Submission statistics could not be loaded:", error);
+
+        $("pendingSubmissions").textContent = "—";
+        $("pendingRewards").textContent = "₦—";
+        $("approvedEarnings").textContent = "₦—";
+        return;
+      }
+
+      const submissions = Array.isArray(data) ? data : [];
+
+      const pending = submissions.filter((submission) => {
+        return String(submission.status || "").toUpperCase() === "PENDING";
+      });
+
+      $("pendingSubmissions").textContent = String(pending.length);
+
+      if (!submissions.length) {
+        $("pendingRewards").textContent = money(0);
+        $("approvedEarnings").textContent = money(0);
+        return;
+      }
+
+      const taskIds = [
+        ...new Set(
+          submissions
+            .map((submission) => submission.task_id)
+            .filter(Boolean)
+        )
+      ];
+
+      let taskRewards = {};
+
+      if (taskIds.length) {
+        const { data: taskRows, error: taskError } = await withTimeout(
+          supabaseClient
+            .from("tasks")
+            .select("id, reward, reward_per_worker")
+            .in("id", taskIds)
+        );
+
+        if (!taskError && Array.isArray(taskRows)) {
+          for (const task of taskRows) {
+            taskRewards[String(task.id)] = Number(
+              task.reward_per_worker ?? task.reward ?? 0
+            ) || 0;
+          }
+        } else if (taskError) {
+          console.warn("Task reward lookup failed:", taskError);
+        }
+      }
+
+      let pendingTotal = 0;
+      let approvedTotal = 0;
+
+      for (const submission of submissions) {
+        const status = String(submission.status || "").toUpperCase();
+        const reward = taskRewards[String(submission.task_id)] || 0;
+
+        if (status === "PENDING") {
+          pendingTotal += reward;
+        }
+
+        if (status === "APPROVED") {
+          approvedTotal += reward;
+        }
+      }
+
+      $("pendingRewards").textContent = money(pendingTotal);
+      $("approvedEarnings").textContent = money(approvedTotal);
+    }
+
+    async function loadWalletTransactions() {
+      const container = $("transactionList");
+
+      const { data, error } = await withTimeout(
+        supabaseClient
+          .from("wallet_transactions")
+          .select("id, type, amount, description, reference, status, created_at")
+          .eq("user_id", currentUser.id)
+          .order("created_at", { ascending: false })
+          .limit(5)
+      );
+
+      if (error) {
+        console.warn("Wallet transactions could not be loaded:", error);
+
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>Wallet activity unavailable</strong>
+            Your wallet balance is still loaded separately.
+          </div>
+        `;
+
+        return;
+      }
+
+      const transactions = Array.isArray(data) ? data : [];
+
+      if (!transactions.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <strong>No wallet activity yet</strong>
+            Your transactions will appear here when available.
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML = transactions.map((transaction) => {
+        const amount = Number(transaction.amount) || 0;
+        const type = String(transaction.type || "Transaction");
+        const status = String(transaction.status || "");
+        const description = String(
+          transaction.description || transaction.reference || status || "Wallet activity"
+        );
+
+        const isCredit = amount >= 0;
+        const amountClass = isCredit ? "positive" : "negative";
+        const sign = isCredit ? "+" : "−";
+        const date = transaction.created_at
+          ? new Date(transaction.created_at).toLocaleDateString("en-NG", {
+              day: "numeric",
+              month: "short",
+              year: "numeric"
+            })
+          : "Date unavailable";
+
+        return `
+          <div class="transaction-item">
+            <div class="transaction-info">
+              <strong>${escapeHTML(type)}</strong>
+              <small>${escapeHTML(description)} · ${escapeHTML(date)}</small>
+            </div>
+            <div class="transaction-amount ${amountClass}">
+              ${sign}${escapeHTML(money(Math.abs(amount)))}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function refreshDashboard() {
+      if (refreshRunning) {
+        refreshAgain = true;
+        return;
+      }
+
+      refreshRunning = true;
+
+      try {
+        await requireAuthenticatedUser();
+
+        if (!currentUser) {
+          return;
+        }
+
+        hideNotice();
+
+        const results = await Promise.allSettled([
+          loadProfile(),
+          loadPlatformSettings(),
+          loadAvailableTasks(),
+          loadSubmissionStats(),
+          loadWalletTransactions()
+        ]);
+
+        const profileResult = results[0];
+
+        if (profileResult.status === "rejected") {
+          console.error("Profile refresh failed:", profileResult.reason);
+
+          profileVerified = false;
+          dashboardProfile = null;
+          renderMembershipOffers();
+
+          showNotice(
+            profileResult.reason?.message ||
+            "Your account status could not be verified. Please refresh the page."
+          );
+        }
+
+        // VIP settings failures are intentionally fail-closed:
+        // they hide the VIP offer without blocking the rest of the dashboard.
+        const settingsResult = results[1];
+
+        if (settingsResult.status === "rejected") {
+          settingsVerified = false;
+          platformSettings = null;
+          renderMembershipOffers();
+        }
+      } catch (error) {
+        console.error("Dashboard refresh error:", error);
+
+        profileVerified = false;
+        dashboardProfile = null;
+        renderMembershipOffers();
+
+        showNotice(
+          error?.message ||
+          "The dashboard could not be loaded. Please try again."
+        );
+      } finally {
+        refreshRunning = false;
+        finishLoader();
+
+        if (refreshAgain) {
+          refreshAgain = false;
+          refreshDashboard();
+        }
+      }
+    }
+
+    async function logout() {
+      $("logoutButton").disabled = true;
+
+      try {
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+          throw error;
+        }
+
+        window.location.replace("index.html");
+      } catch (error) {
+        console.error("Logout failed:", error);
+
+        showNotice("We could not log you out. Please try again.");
+        $("logoutButton").disabled = false;
+      }
+    }
+
+    function subscribeToChanges() {
+      if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+      }
+
+      realtimeChannel = supabaseClient
+        .channel("naija-task-dashboard-" + currentUser.id)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "profiles",
+            filter: "id=eq." + currentUser.id
+          },
+          () => {
+            refreshDashboard();
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "platform_settings"
+          },
+          () => {
+            loadPlatformSettings();
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "tasks"
+          },
+          () => {
+            loadAvailableTasks();
+          }
+        )
+        .subscribe((status) => {
+          if (status === "CHANNEL_ERROR") {
+            console.warn("Dashboard live updates are unavailable.");
+          }
+        });
+    }
+
+    $("logoutButton").addEventListener("click", logout);
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && currentUser) {
         refreshDashboard();
-      }, 30000);
-    }
+      }
+    });
 
-    startRealtime();
+    window.addEventListener("focus", () => {
+      if (currentUser) {
+        refreshDashboard();
+      }
+    });
 
-  } catch (error) {
-    console.error("Dashboard startup:", error);
+    window.addEventListener("online", () => {
+      if (currentUser) {
+        refreshDashboard();
+      }
+    });
 
-    showError(
-      "Dashboard could not load",
-      error.message || "Please check your connection and try again."
-    );
+    (async function startDashboard() {
+      hideMembershipOffers();
 
-    setLoading(false);
-  } finally {
-    if (!firstLoadFinished) {
-      firstLoadFinished = true;
-      setLoading(false);
-    }
-  }
-}
+      try {
+        await requireAuthenticatedUser();
 
-/* A final safety net: the overlay cannot stay visible forever. */
-setTimeout(() => {
-  if (!$("pageLoader").classList.contains("hidden")) {
-    setLoading(false);
-    showError(
-      "Loading took too long",
-      "The dashboard stopped waiting so you can retry. Check your internet connection and Supabase settings."
-    );
-  }
-}, 15000);
+        if (!currentUser) {
+          return;
+        }
 
-startDashboard();
-</script>
+        subscribeToChanges();
+        await refreshDashboard();
+      } catch (error) {
+        console.error("Dashboard startup error:", error);
 
+        profileVerified = false;
+        dashboardProfile = null;
+        renderMembershipOffers();
+
+        showNotice(
+          error?.message ||
+          "Could not start the dashboard. Please refresh the page."
+        );
+
+        finishLoader();
+      }
+    })();
+  </script>
 </body>
 </html>
