@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#087f36">
+<title>Naija Star Life | NAIJA TASK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#087f36;--dark:#064d25;--light:#0b9b45;--lime:#b7ef43;--bg:#f3f8f5;--text:#173326;--muted:#708176;--line:#e0eae3;--red:#c62828}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Arial,Helvetica,sans-serif;padding-bottom:30px}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}
+.top{background:var(--dark);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.top b{font-size:17px}.top a{font-size:13px;font-weight:700;color:var(--lime)}
+.wrap{max-width:640px;margin:auto;padding:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;box-shadow:0 5px 18px rgba(6,77,37,.07)}
+h1{margin:0 0 6px;font-size:22px}h2{margin:0 0 10px;font-size:17px}p{margin:0 0 10px;color:var(--muted)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-weight:800;font-size:14px;background:var(--green);color:#fff;margin-top:10px}
+.btn.alt{background:#e8f4eb;color:var(--dark)}.btn:disabled{opacity:.55}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:13px;margin-top:9px;font-weight:700;color:var(--text)}
+.opt:active{border-color:var(--green);background:#eaf7ee}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stat{background:#f3f8f5;border-radius:12px;padding:10px 6px;text-align:center}
+.stat b{display:block;font-size:18px;color:var(--dark)}.stat span{font-size:11px;color:var(--muted)}
+.bar{height:8px;background:#e7efe8;border-radius:8px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--light)}
+.rank{display:inline-block;background:var(--lime);color:#274a05;border-radius:8px;padding:3px 9px;font-weight:800;font-size:12px}
+.msg{display:none;padding:12px;border-radius:12px;margin-bottom:12px;font-size:13px}
+.msg.show{display:block}.msg.err{background:#fff0f0;color:#a21d1d}
+.row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.up{color:#17682e;font-weight:800}.down{color:var(--red);font-weight:800}
+.hide{display:none}.small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="top"><b>🌟 NAIJA STAR LIFE</b><a href="dashboard.html">← Dashboard</a></div>
+<div class="wrap">
+  <div id="msg" class="msg" role="status"></div>
+
+  <div id="career" class="hide">
+    <div class="card">
+      <h1>Choose your path</h1>
+      <p>Start as an unknown and rise to fame. This is a story game with made-up characters. Game coins and fame are for fun and the leaderboard. They are not naira and cannot be withdrawn.</p>
+      <button class="opt" data-c="music">🎤 Music</button>
+      <button class="opt" data-c="nollywood">🎬 Nollywood</button>
+      <button class="opt" data-c="comedy">😂 Comedy</button>
+      <button class="opt" data-c="football">⚽ Football</button>
+      <button class="opt" data-c="creator">📱 Content Creator</button>
+    </div>
+  </div>
+
+  <div id="hub" class="hide">
+    <div class="card">
+      <span class="rank" id="rank"></span>
+      <h1 id="careerName"></h1>
+      <div class="stats">
+        <div class="stat"><b id="sFame">0</b><span>Fame</span></div>
+        <div class="stat"><b id="sCoins">0</b><span>Coins</span></div>
+        <div class="stat"><b id="sStreak">0</b><span>Day streak</span></div>
+      </div>
+      <p class="small" style="margin-top:12px">Energy <span id="sEnergy"></span>/100</p>
+      <div class="bar"><i id="eBar"></i></div>
+      <button id="playBtn" class="btn" type="button">Play today's event</button>
+      <p class="small" style="margin-top:10px">Energy refills every day, plus a small daily coin bonus.</p>
+    </div>
+    <div class="card"><h2>🏆 Top stars this week</h2><div id="board"><p>Loading...</p></div></div>
+  </div>
+
+  <div id="event" class="hide">
+    <div class="card">
+      <h2 id="eTitle"></h2>
+      <p id="eBody" style="color:var(--text)"></p>
+      <div id="eChoices"></div>
+    </div>
+  </div>
+
+  <div id="outcome" class="hide">
+    <div class="card">
+      <h2>What happened</h2>
+      <p id="oText" style="color:var(--text)"></p>
+      <div id="oDeltas"></div>
+      <button id="contBtn" class="btn" type="button">Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const db = window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co", "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+const NAMES = {music:"🎤 Music Star", nollywood:"🎬 Nollywood Star", comedy:"😂 Comedy Star", football:"⚽ Football Star", creator:"📱 Content Creator"};
+
+let state = null, currentEvent = null, busy = false;
+
+function show(id){ ["career","hub","event","outcome"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo(0,0); }
+function say(t){ const m = $("msg"); m.textContent = t; m.className = "msg show err"; }
+function clearMsg(){ $("msg").className = "msg"; $("msg").textContent = ""; }
+
+function rankTitle(f){
+  if (f < 100) return "Unknown";
+  if (f < 300) return "Rising Talent";
+  if (f < 700) return "Local Star";
+  if (f < 1500) return "National Star";
+  return "Super Star";
+}
+
+async function init(){
+  try{
+    const { data: u } = await db.auth.getUser();
+    if (!u?.user){ location.replace("login.html"); return; }
+    const { data: flag, error } = await db.from("platform_feature_flags").select("enabled").eq("key","starlife").maybeSingle();
+    if (error || !flag || flag.enabled !== true){ say("Naija Star Life is not open yet. Please check back soon."); return; }
+    await refresh();
+  }catch(e){ console.error(e); say("Could not open the game. Check your internet and refresh."); }
+}
+
+async function refresh(){
+  const { data, error } = await db.rpc("starlife_state");
+  if (error){ say(error.message); return; }
+  state = data;
+  if (!state.career){ show("career"); return; }
+  renderHub();
+  show("hub");
+  loadBoard();
+}
+
+function renderHub(){
+  $("rank").textContent = rankTitle(state.fame);
+  $("careerName").textContent = NAMES[state.career] || "Star";
+  $("sFame").textContent = state.fame;
+  $("sCoins").textContent = state.coins;
+  $("sStreak").textContent = state.streak;
+  $("sEnergy").textContent = state.energy;
+  $("eBar").style.width = Math.max(0, Math.min(100, state.energy)) + "%";
+  $("playBtn").disabled = state.energy < 10;
+  $("playBtn").textContent = state.energy < 10 ? "No energy left. Come back tomorrow" : "Play today's event";
+}
+
+async function loadBoard(){
+  const { data, error } = await db.rpc("starlife_leaderboard");
+  const box = $("board");
+  if (error){ box.innerHTML = "<p>Leaderboard unavailable right now.</p>"; return; }
+  if (!data || !data.length){ box.innerHTML = "<p>No stars yet. Be the first!</p>"; return; }
+  box.innerHTML = data.map(r => `<div class="row"><span>#${esc(r.rank)} ${esc(r.display_name)} <span class="small">${esc(rankTitle(r.fame))}</span></span><b>${esc(r.fame)} fame</b></div>`).join("");
+}
+
+document.querySelectorAll("#career [data-c]").forEach(b => b.addEventListener("click", async () => {
+  if (busy) return; busy = true; clearMsg();
+  try{
+    const { error } = await db.rpc("starlife_choose_career", { p_career: b.dataset.c });
+    if (error) throw error;
+    await refresh();
+  }catch(e){ say(e.message || "Could not save your choice."); }
+  finally{ busy = false; }
+}));
+
+$("playBtn").addEventListener("click", async () => {
+  if (busy) return; busy = true; clearMsg();
+  $("playBtn").disabled = true;
+  try{
+    const { data, error } = await db.rpc("starlife_next_event");
+    if (error) throw error;
+    currentEvent = data;
+    $("eTitle").textContent = data.title;
+    $("eBody").textContent = data.body;
+    $("eChoices").innerHTML = data.choices.map((c, i) => `<button class="opt" type="button" data-i="${i}">${esc(c)}</button>`).join("");
+    $("eChoices").querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => choose(Number(b.dataset.i))));
+    show("event");
+  }catch(e){ say(e.message || "Could not load today's event."); renderHub(); }
+  finally{ busy = false; }
+});
+
+async function choose(i){
+  if (busy || !currentEvent) return; busy = true;
+  document.querySelectorAll("#eChoices .opt").forEach(b => b.disabled = true);
+  try{
+    const { data, error } = await db.rpc("starlife_resolve", { p_event_id: currentEvent.id, p_choice: i });
+    if (error) throw error;
+    state = data.state;
+    $("oText").textContent = data.text;
+    const d = (label, n) => n === 0 ? "" : `<div class="row"><span>${label}</span><span class="${n > 0 ? "up" : "down"}">${n > 0 ? "+" : ""}${n}</span></div>`;
+    $("oDeltas").innerHTML = d("Fame", data.fame) + d("Coins", data.coins) + d("Energy", data.energy);
+    show("outcome");
+  }catch(e){ say(e.message || "Could not save your choice."); show("hub"); renderHub(); }
+  finally{ busy = false; }
+}
+
+$("contBtn").addEventListener("click", () => { clearMsg(); currentEvent = null; renderHub(); show("hub"); loadBoard(); });
+
+init();
+</script>
+</body>
+</html>
