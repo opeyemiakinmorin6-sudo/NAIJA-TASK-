@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#064d25">
+<title>Naija Star Life · Open World</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#087f36;--dark:#064d25;--light:#0b9b45;--lime:#b7ef43;--text:#173326;--muted:#708176;--line:#e0eae3;--red:#c62828}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#0b2a17;font-family:Arial,Helvetica,sans-serif;touch-action:none;overscroll-behavior:none}
+canvas{display:block;width:100vw;height:100vh;touch-action:none}
+#hud{position:fixed;top:0;left:0;right:0;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;display:flex;gap:8px;align-items:center;pointer-events:none;z-index:5}
+.chip{background:rgba(6,77,37,.88);color:#fff;border-radius:12px;padding:7px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip b{color:var(--lime)}
+#bar{flex:1;min-width:50px;max-width:120px;height:10px;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden}
+#bar i{display:block;height:100%;width:100%;background:var(--lime)}
+#back{pointer-events:auto;margin-left:auto;background:rgba(6,77,37,.88);color:#fff;border-radius:12px;padding:8px 11px;font-size:12px;font-weight:800;text-decoration:none}
+#place{position:fixed;top:calc(52px + env(safe-area-inset-top));left:10px;background:rgba(255,255,255,.92);color:var(--dark);border-radius:10px;padding:5px 10px;font-size:12px;font-weight:800;z-index:5;pointer-events:none}
+#joy{position:fixed;left:18px;bottom:calc(22px + env(safe-area-inset-bottom));width:124px;height:124px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.4);z-index:6;touch-action:none}
+#knob{position:absolute;left:34px;top:34px;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.65)}
+#act{position:fixed;right:20px;bottom:calc(34px + env(safe-area-inset-bottom));min-width:88px;height:88px;border-radius:44px;border:0;background:var(--lime);color:var(--dark);font-weight:900;font-size:13px;padding:0 14px;z-index:6;display:none;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+#toast{position:fixed;left:50%;bottom:calc(160px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;max-width:86vw;text-align:center;z-index:8;display:none}
+#modal{position:fixed;inset:0;background:rgba(5,25,14,.6);z-index:20;display:none;align-items:flex-end;justify-content:center}
+#modal.show{display:flex}
+#box{background:#fff;color:var(--text);width:100%;max-width:560px;max-height:86vh;overflow-y:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));user-select:text;-webkit-user-select:text;touch-action:pan-y}
+#box h2{margin:0 0 8px;font-size:19px}#box p{margin:0 0 10px;color:var(--muted);font-size:14px;line-height:1.5}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:800;font-size:14px;background:var(--green);color:#fff;margin-top:10px}
+.btn.alt{background:#e8f4eb;color:var(--dark)}.btn:disabled{opacity:.5}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:13px;margin-top:9px;font:inherit;font-weight:700;color:var(--text)}
+.opt small{display:block;font-weight:400;color:var(--muted);margin-top:3px}
+.up{color:#17682e;font-weight:800}.down{color:var(--red);font-weight:800}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
+#msgScreen{position:fixed;inset:0;background:#0b2a17;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:30;font-size:15px;line-height:1.6}
+#msgScreen a{color:var(--lime);font-weight:800}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud" style="display:none">
+  <span class="chip">⚡ <span id="eTxt">100</span></span>
+  <div id="bar"><i id="eBar"></i></div>
+  <span class="chip">🪙 <b id="cTxt">0</b></span>
+  <span class="chip">⭐ <b id="fTxt">0</b></span>
+  <a id="back" href="starlife.html">Menu</a>
+</div>
+<div id="place"></div>
+<div id="joy"><div id="knob"></div></div>
+<button id="act" type="button"></button>
+<div id="toast"></div>
+<div id="modal"><div id="box"></div></div>
+<div id="msgScreen">Loading Lagos...</div>
+
+<script>
+"use strict";
+const db = window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co", "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+
+/* ============================ WORLD DEFINITION ============================ */
+const T = 32;                 // tile size in pixels
+const DW = 24, DH = 18;       // district size in tiles
+const COLS = 3, ROWS = 3;     // districts across the world
+const WORLD_W = COLS * DW * T, WORLD_H = ROWS * DH * T;
+
+/* c,r = position in the 3x3 world grid. Lagoon water fills the bottom-left two cells. */
+const DISTRICTS = [
+  { id:"ikeja",    name:"Ikeja",           c:0, r:0, ground:"#d7ecc9", work:"Mall Shop" },
+  { id:"oshodi",   name:"Oshodi",          c:1, r:0, ground:"#e6e3c6", work:"Market" },
+  { id:"ikorodu",  name:"Ikorodu",         c:2, r:0, ground:"#cfe6c0", work:"Boat Dock" },
+  { id:"yaba",     name:"Yaba",            c:0, r:1, ground:"#d3e8d6", work:"Print Shop" },
+  { id:"surulere", name:"Surulere",        c:1, r:1, ground:"#d9ecc4", work:"Water Stand" },
+  { id:"vi",       name:"Victoria Island", c:2, r:1, ground:"#dfe9f0", work:"Office" },
+  { id:"lekki",    name:"Lekki",           c:2, r:2, ground:"#f2ead2", work:"Event Hall" }
+];
+const WATER = [{c:0,r:2},{c:1,r:2}];
+const NAMES = ["Tunde","Amaka","Chidi","Bisi","Emeka","Zainab","Kola","Ngozi","Ibrahim","Folake","Segun","Hauwa"];
+const SHIRTS = ["#e53935","#1e88e5","#8e24aa","#fb8c00","#00897b","#6d4c41","#d81b60","#3949ab"];
+
+function rng(seed){ let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+const solids = [];     // {x,y,w,h}
+const scenery = [];    // drawable things: {k,x,y,w,h,...}
+const spots = [];      // interactables: {kind,x,y,did}
+const npcs = [];
+
+function districtAt(px, py){
+  const c = Math.floor(px / (DW * T)), r = Math.floor(py / (DH * T));
+  return DISTRICTS.find(d => d.c === c && d.r === r) || null;
+}
+
+function buildWorld(){
+  // lagoon
+  WATER.forEach(w => {
+    const rect = { x:w.c*DW*T, y:w.r*DH*T, w:DW*T, h:DH*T };
+    solids.push(rect); scenery.push({ k:"water", ...rect });
+  });
+
+  DISTRICTS.forEach((d, idx) => {
+    const ox = d.c * DW * T, oy = d.r * DH * T;
+    const rand = rng(1000 + idx * 77);
+    const taken = [];     // tile rects used (x,y,w,h in tiles)
+    const free = (x, y, w, h) => !taken.some(t => x < t.x + t.w + 1 && x + w + 1 > t.x && y < t.y + t.h + 1 && y + h + 1 > t.y);
+
+    // reserved: road bands + building lots
+    taken.push({ x:0, y:7, w:DW, h:5 });         // horizontal road band (with margin)
+    taken.push({ x:10, y:0, w:5, h:DH });        // vertical road band (with margin)
+
+    // roads (scenery only)
+    scenery.push({ k:"road", x:ox, y:oy + 8*T, w:DW*T, h:3*T });
+    scenery.push({ k:"road", x:ox + 11*T, y:oy, w:3*T, h:DH*T });
+
+    // work building
+    const wb = { x:ox + 3*T, y:oy + 2*T, w:6*T, h:4*T };
+    solids.push(wb);
+    scenery.push({ k:"work", ...wb, label:d.work });
+    taken.push({ x:3, y:2, w:6, h:4 });
+    spots.push({ kind:"work", did:d.id, x:ox + 6*T, y:oy + 6.4*T, label:"💼 Work" });
+
+    // bus stop
+    scenery.push({ k:"bus", x:ox + 15*T, y:oy + 6*T, w:T, h:2*T });
+    spots.push({ kind:"bus", did:d.id, x:ox + 15.5*T, y:oy + 7.2*T, label:"🚌 Bus" });
+
+    // your home in Surulere
+    if (d.id === "surulere"){
+      const hb = { x:ox + 3*T, y:oy + 13*T, w:5*T, h:4*T };
+      solids.push(hb);
+      scenery.push({ k:"home", ...hb });
+      taken.push({ x:3, y:13, w:5, h:4 });
+      spots.push({ kind:"home", did:d.id, x:ox + 5.5*T, y:oy + 17.4*T, label:"🏠 Home" });
+    }
+
+    // houses
+    for (let n = 0, tries = 0; n < 4 && tries < 80; tries++){
+      const x = 1 + Math.floor(rand() * (DW - 5)), y = 1 + Math.floor(rand() * (DH - 5));
+      if (!free(x, y, 3, 3)) continue;
+      taken.push({ x, y, w:3, h:3 });
+      const r = { x:ox + x*T, y:oy + y*T, w:3*T, h:3*T };
+      solids.push(r);
+      scenery.push({ k:"house", ...r, tint:Math.floor(rand() * 4) });
+      n++;
+    }
+    // trees
+    for (let n = 0, tries = 0; n < 16 && tries < 120; tries++){
+      const x = Math.floor(rand() * DW), y = Math.floor(rand() * DH);
+      if (!free(x, y, 1, 1)) continue;
+      taken.push({ x, y, w:1, h:1 });
+      solids.push({ x:ox + x*T + 10, y:oy + y*T + 10, w:12, h:14 });
+      scenery.push({ k:"tree", x:ox + x*T, y:oy + y*T, w:T, h:T });
+      n++;
+    }
+    // people
+    for (let n = 0; n < 4; n++){
+      const onRoadX = rand() < 0.5;
+      const x = onRoadX ? ox + (11 + rand() * 3) * T : ox + (1 + rand() * (DW - 2)) * T;
+      const y = onRoadX ? oy + (1 + rand() * (DH - 2)) * T : oy + (8 + rand() * 3) * T;
+      npcs.push({ x, y, did:d.id, color:SHIRTS[Math.floor(rand() * SHIRTS.length)], name:NAMES[Math.floor(rand() * NAMES.length)],
+                  dx:0, dy:0, timer:rand() * 2, hs:7 });
+    }
+  });
+}
+
+/* ============================ GAME STATE ============================ */
+let state = null, places = [], homes = [], busy = false, modalOpen = false;
+const player = { x:0, y:0, hs:8, dir:1, step:0 };
+let curDistrict = null, lastSafe = { x:0, y:0 }, walkingCheck = false;
+let nearest = null;
+const keys = {};
+let joy = { x:0, y:0, active:false, id:null };
+
+const canvas = $("c"), ctx = canvas.getContext("2d");
+let VW = 0, VH = 0, SCALE = 1;
+function resize(){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  VW = window.innerWidth; VH = window.innerHeight;
+  canvas.width = Math.round(VW * dpr); canvas.height = Math.round(VH * dpr);
+  SCALE = Math.max(0.9, Math.min(1.6, VW / 400)) * dpr;
+}
+window.addEventListener("resize", resize);
+
+/* ============================ HELPERS ============================ */
+function toast(t, ms = 2400){
+  const el = $("toast"); el.textContent = t; el.style.display = "block";
+  clearTimeout(toast.t); toast.t = setTimeout(() => { el.style.display = "none"; }, ms);
+}
+function setHud(){
+  if (!state) return;
+  $("eTxt").textContent = state.energy;
+  $("eBar").style.width = Math.max(0, Math.min(100, state.energy)) + "%";
+  $("cTxt").textContent = state.coins;
+  $("fTxt").textContent = state.fame;
+  const d = DISTRICTS.find(x => x.id === state.location);
+  $("place").textContent = "📍 " + (d ? d.name : "Lagos");
+}
+function hits(x, y, hs){
+  if (x - hs < 0 || y - hs < 0 || x + hs > WORLD_W || y + hs > WORLD_H) return true;
+  for (let i = 0; i < solids.length; i++){
+    const s = solids[i];
+    if (x + hs > s.x && x - hs < s.x + s.w && y + hs > s.y && y - hs < s.y + s.h) return true;
+  }
+  return false;
+}
+function tryMove(e, dx, dy){
+  if (!hits(e.x + dx, e.y, e.hs)) e.x += dx;
+  if (!hits(e.x, e.y + dy, e.hs)) e.y += dy;
+}
+function spawnAt(did){
+  const d = DISTRICTS.find(x => x.id === did) || DISTRICTS.find(x => x.id === "surulere");
+  player.x = d.c * DW * T + 12.5 * T;
+  player.y = d.r * DH * T + 9.5 * T;
+  curDistrict = d.id;
+  lastSafe = { x:player.x, y:player.y };
+}
+
+/* ============================ MODAL ============================ */
+function openModal(html){ $("box").innerHTML = html; $("modal").classList.add("show"); modalOpen = true; joy.x = joy.y = 0; }
+function closeModal(){ $("modal").classList.remove("show"); modalOpen = false; }
+$("modal").addEventListener("pointerdown", e => { if (e.target === $("modal")) closeModal(); });
+
+function delta(label, n){ return n === 0 ? "" : `<div class="row"><span>${label}</span><span class="${n > 0 ? "up" : "down"}">${n > 0 ? "+" : ""}${n}</span></div>`; }
+
+/* ============================ SERVER ACTIONS ============================ */
+async function rpc(name, args){
+  const { data, error } = await db.rpc(name, args);
+  if (error) throw error;
+  return data;
+}
+async function loadPlaces(){
+  if (places.length) return;
+  try{ places = await rpc("starlife_locations_list") || []; }catch(e){ console.warn(e); }
+}
+
+async function openWork(){
+  try{
+    const jobs = await rpc("starlife_jobs_here");
+    const d = DISTRICTS.find(x => x.id === state.location);
+    openModal(`<h2>💼 Work in ${esc(d ? d.name : "Lagos")}</h2>
+      <p>Take a shift to earn coins. Up to 2 shifts a day, and each uses energy.</p>
+      ${(jobs && jobs.length) ? jobs.map(j => `<button class="opt" data-j="${esc(j.id)}">${esc(j.name)} · +${esc(j.pay)} coins · -${esc(j.energy_cost)} energy<small>${esc(j.blurb || "")}</small></button>`).join("") : "<p>No jobs here yet. Grow your fame or try another area.</p>"}
+      <button class="btn alt" id="mClose">Close</button>`);
+    $("mClose").onclick = closeModal;
+    $("box").querySelectorAll("[data-j]").forEach(b => b.onclick = () => doWork(b.dataset.j));
+  }catch(e){ toast(e.message || "Could not load jobs."); }
+}
+async function doWork(id){
+  if (busy) return; busy = true;
+  try{
+    const r = await rpc("starlife_work", { p_job_id:id });
+    state = r.state; setHud(); closeModal(); toast("Shift done. You earned " + r.earned + " coins.");
+  }catch(e){ toast(e.message || "Could not take the job."); }
+  finally{ busy = false; }
+}
+
+async function openHome(){
+  try{
+    if (!homes.length) homes = await rpc("starlife_homes_list") || [];
+    const cur = homes.find(h => h.id === state.home_id) || homes[0];
+    const ups = homes.filter(h => h.price > (cur ? cur.price : 0));
+    openModal(`<h2>🏠 ${esc(cur ? cur.name : "Home")}</h2>
+      <p>${esc(cur ? cur.blurb || "" : "")} Resting restores ${esc(cur ? cur.rest_energy : 10)} energy, once a day.</p>
+      <button class="btn" id="mRest" ${state.rested_today ? "disabled" : ""}>${state.rested_today ? "You already rested today" : "😴 Rest at home"}</button>
+      <h2 style="margin-top:18px">Upgrade your home</h2>
+      ${ups.length ? ups.map(h => `<button class="opt" data-h="${esc(h.id)}">${esc(h.name)} · ${esc(h.price)} coins<small>${esc(h.blurb || "")} Rest: ${esc(h.rest_energy)} energy.</small></button>`).join("") : "<p>You live in the best home available. Well done!</p>"}
+      <button class="btn alt" id="mClose">Close</button>`);
+    $("mClose").onclick = closeModal;
+    $("mRest").onclick = async () => {
+      if (busy) return; busy = true;
+      try{ state = await rpc("starlife_rest"); setHud(); closeModal(); toast("You rested and feel better."); }
+      catch(e){ toast(e.message || "Could not rest."); }
+      finally{ busy = false; }
+    };
+    $("box").querySelectorAll("[data-h]").forEach(b => b.onclick = async () => {
+      if (busy) return; busy = true;
+      try{ state = await rpc("starlife_buy_home", { p_home_id:b.dataset.h }); setHud(); closeModal(); toast("You moved into a better home!"); }
+      catch(e){ toast(e.message || "Could not upgrade."); }
+      finally{ busy = false; }
+    });
+  }catch(e){ toast(e.message || "Could not open your home."); }
+}
+
+async function openBus(){
+  try{
+    await loadPlaces();
+    openModal(`<h2>🚌 Bus stop</h2><p>Skip the walk. Each trip costs coins and a little energy.</p>
+      ${places.map(x => { const here = x.id === state.location;
+        return `<button class="opt" data-p="${esc(x.id)}" ${here ? "disabled" : ""}>${esc(x.name)} · ${here ? "you are here" : esc(x.travel_cost) + " coins"}<small>${esc(x.blurb || "")}</small></button>`; }).join("")}
+      <button class="btn alt" id="mClose">Close</button>`);
+    $("mClose").onclick = closeModal;
+    $("box").querySelectorAll("[data-p]").forEach(b => b.onclick = async () => {
+      if (busy) return; busy = true;
+      try{ state = await rpc("starlife_travel", { p_location:b.dataset.p }); spawnAt(state.location); setHud(); closeModal(); toast("You arrived."); }
+      catch(e){ toast(e.message || "Could not travel."); }
+      finally{ busy = false; }
+    });
+  }catch(e){ toast(e.message || "Could not open the bus stop."); }
+}
+
+async function talk(npc){
+  if (busy) return;
+  if (state.energy < 10){ toast("You are too tired to chat. Rest at home first."); return; }
+  busy = true;
+  try{
+    const ev = await rpc("starlife_next_event");
+    openModal(`<h2>${esc(ev.title)}</h2><p style="color:#173326">${esc(ev.body)}</p>
+      ${ev.choices.map((c, i) => `<button class="opt" data-i="${i}">${esc(c)}</button>`).join("")}`);
+    $("box").querySelectorAll("[data-i]").forEach(b => b.onclick = async () => {
+      $("box").querySelectorAll(".opt").forEach(x => x.disabled = true);
+      try{
+        const r = await rpc("starlife_resolve", { p_event_id:ev.id, p_choice:Number(b.dataset.i) });
+        state = r.state; setHud();
+        openModal(`<h2>What happened</h2><p style="color:#173326">${esc(r.text)}</p>${delta("Fame", r.fame)}${delta("Coins", r.coins)}${delta("Energy", r.energy)}<button class="btn" id="mClose">Continue</button>`);
+        $("mClose").onclick = closeModal;
+      }catch(e){ closeModal(); toast(e.message || "Could not save your choice."); }
+    });
+  }catch(e){ toast(e.message || "Nobody wants to talk right now."); }
+  finally{ busy = false; }
+}
+
+/* ============================ CROSSING DISTRICTS ============================ */
+async function checkDistrict(){
+  if (walkingCheck || !state) return;
+  const d = districtAt(player.x, player.y);
+  if (!d){ return; }
+  if (d.id === state.location){ lastSafe = { x:player.x, y:player.y }; curDistrict = d.id; return; }
+  walkingCheck = true;
+  try{
+    state = await rpc("starlife_walk", { p_location:d.id });
+    curDistrict = d.id; lastSafe = { x:player.x, y:player.y };
+    setHud(); toast("You walked into " + d.name + " (-5 energy).");
+  }catch(e){
+    player.x = lastSafe.x; player.y = lastSafe.y;
+    toast(e.message || "You cannot go there right now.");
+  }finally{ walkingCheck = false; }
+}
+
+/* ============================ INPUT ============================ */
+window.addEventListener("keydown", e => { keys[e.key.toLowerCase()] = true; if (e.key === "e" || e.key === "Enter") doAct(); });
+window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
+
+const joyEl = $("joy"), knob = $("knob");
+function joyMove(e){
+  const r = joyEl.getBoundingClientRect();
+  let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+  const m = Math.hypot(dx, dy), max = 46;
+  if (m > max){ dx = dx / m * max; dy = dy / m * max; }
+  knob.style.transform = `translate(${dx}px,${dy}px)`;
+  joy.x = dx / max; joy.y = dy / max;
+}
+joyEl.addEventListener("pointerdown", e => { joy.active = true; joy.id = e.pointerId; joyEl.setPointerCapture(e.pointerId); joyMove(e); e.preventDefault(); });
+joyEl.addEventListener("pointermove", e => { if (joy.active && e.pointerId === joy.id) joyMove(e); });
+const joyEnd = e => { if (e.pointerId !== joy.id) return; joy.active = false; joy.x = joy.y = 0; knob.style.transform = "translate(0,0)"; };
+joyEl.addEventListener("pointerup", joyEnd); joyEl.addEventListener("pointercancel", joyEnd);
+$("act").addEventListener("click", doAct);
+
+function doAct(){
+  if (modalOpen || !nearest || busy) return;
+  if (nearest.kind === "work") openWork();
+  else if (nearest.kind === "home") openHome();
+  else if (nearest.kind === "bus") openBus();
+  else if (nearest.kind === "npc") talk(nearest.ref);
+}
+
+/* ============================ UPDATE ============================ */
+function update(dt){
+  if (!state) return;
+  // player
+  if (!modalOpen){
+    let ix = (keys["arrowright"] || keys["d"] ? 1 : 0) - (keys["arrowleft"] || keys["a"] ? 1 : 0);
+    let iy = (keys["arrowdown"] || keys["s"] ? 1 : 0) - (keys["arrowup"] || keys["w"] ? 1 : 0);
+    if (joy.active){ ix = joy.x; iy = joy.y; }
+    const m = Math.hypot(ix, iy);
+    if (m > 0.12){
+      const k = Math.min(1, m);
+      const sp = 120 * dt * k;
+      tryMove(player, ix / m * sp, iy / m * sp);
+      player.step += dt * 9;
+      if (Math.abs(ix) > Math.abs(iy)) player.dir = ix > 0 ? 1 : 3; else player.dir = iy > 0 ? 0 : 2;
+      checkDistrict();
+    }
+  }
+  // npcs wander (only those near the player, to save battery)
+  npcs.forEach(n => {
+    if (Math.abs(n.x - player.x) > 700 || Math.abs(n.y - player.y) > 700) return;
+    n.timer -= dt;
+    if (n.timer <= 0){
+      n.timer = 1.2 + Math.random() * 2.5;
+      const a = Math.floor(Math.random() * 5);
+      n.dx = a === 0 ? 1 : a === 1 ? -1 : 0; n.dy = a === 2 ? 1 : a === 3 ? -1 : 0;
+    }
+    const nx = n.x + n.dx * 34 * dt, ny = n.y + n.dy * 34 * dt;
+    const d = DISTRICTS.find(x => x.id === n.did);
+    const inside = nx > d.c * DW * T + 8 && nx < (d.c + 1) * DW * T - 8 && ny > d.r * DH * T + 8 && ny < (d.r + 1) * DH * T - 8;
+    if (inside && !hits(nx, ny, n.hs)){ n.x = nx; n.y = ny; } else { n.timer = 0; }
+  });
+  // nearest interactable
+  let best = null, bd = 56;
+  spots.forEach(s => { const d = Math.hypot(s.x - player.x, s.y - player.y); if (d < bd){ bd = d; best = { kind:s.kind, label:s.label }; } });
+  npcs.forEach(n => { const d = Math.hypot(n.x - player.x, n.y - player.y); if (d < Math.min(bd, 44)){ bd = d; best = { kind:"npc", ref:n, label:"💬 Talk to " + n.name }; } });
+  nearest = modalOpen ? null : best;
+  const a = $("act");
+  if (nearest){ a.style.display = "block"; if (a.textContent !== nearest.label) a.textContent = nearest.label; } else a.style.display = "none";
+}
+
+/* ============================ DRAW ============================ */
+function rect(x, y, w, h, c){ ctx.fillStyle = c; ctx.fillRect(x, y, w, h); }
+
+function drawScenery(s){
+  switch (s.k){
+    case "road":
+      rect(s.x, s.y, s.w, s.h, "#5b6168");
+      ctx.fillStyle = "#e9e3a0";
+      if (s.w > s.h){ for (let x = s.x + 8; x < s.x + s.w; x += 40) ctx.fillRect(x, s.y + s.h/2 - 2, 20, 4); }
+      else { for (let y = s.y + 8; y < s.y + s.h; y += 40) ctx.fillRect(s.x + s.w/2 - 2, y, 4, 20); }
+      break;
+    case "water":
+      rect(s.x, s.y, s.w, s.h, "#3b8ed0");
+      ctx.fillStyle = "rgba(255,255,255,.25)";
+      for (let y = s.y + 16; y < s.y + s.h; y += 48) for (let x = s.x + ((y / 48) % 2 ? 20 : 50); x < s.x + s.w; x += 90) ctx.fillRect(x, y, 26, 3);
+      break;
+    case "work":
+      rect(s.x, s.y, s.w, s.h, "#f3e3b0"); rect(s.x, s.y, s.w, 18, "#b5651d");
+      rect(s.x + s.w/2 - 12, s.y + s.h - 26, 24, 26, "#5d4037");
+      ctx.fillStyle = "#064d25"; ctx.font = "bold 13px Arial"; ctx.textAlign = "center";
+      ctx.fillText(s.label, s.x + s.w/2, s.y + s.h/2 + 2);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 10px Arial"; ctx.fillText("WORK", s.x + s.w/2, s.y + 13);
+      break;
+    case "home":
+      rect(s.x, s.y, s.w, s.h, "#dce8ff"); rect(s.x - 4, s.y - 4, s.w + 8, 22, "#2563a8");
+      rect(s.x + s.w/2 - 11, s.y + s.h - 28, 22, 28, "#5d4037");
+      ctx.fillStyle = "#fff"; ctx.font = "bold 11px Arial"; ctx.textAlign = "center"; ctx.fillText("HOME", s.x + s.w/2, s.y + 12);
+      break;
+    case "house": {
+      const walls = ["#f4d9c6","#e6e6e6","#f7efc9","#d9ead3"][s.tint], roofs = ["#a8442c","#6b5b95","#2f6f4f","#b07a2e"][s.tint];
+      rect(s.x, s.y + 14, s.w, s.h - 14, walls); rect(s.x - 3, s.y, s.w + 6, 18, roofs);
+      rect(s.x + s.w/2 - 7, s.y + s.h - 22, 14, 22, "#5d4037");
+      rect(s.x + 10, s.y + 30, 14, 12, "#8ecae6"); rect(s.x + s.w - 24, s.y + 30, 14, 12, "#8ecae6");
+      break; }
+    case "tree":
+      rect(s.x + 13, s.y + 17, 6, 12, "#6d4c41");
+      ctx.fillStyle = "#2e7d32"; ctx.beginPath(); ctx.arc(s.x + 16, s.y + 13, 13, 0, 6.3); ctx.fill();
+      ctx.fillStyle = "#43a047"; ctx.beginPath(); ctx.arc(s.x + 12, s.y + 10, 7, 0, 6.3); ctx.fill();
+      break;
+    case "bus":
+      rect(s.x + 14, s.y + 4, 4, 54, "#555"); rect(s.x + 2, s.y, 28, 16, "#fbc02d");
+      ctx.fillStyle = "#222"; ctx.font = "bold 10px Arial"; ctx.textAlign = "center"; ctx.fillText("BUS", s.x + 16, s.y + 12);
+      break;
+  }
+}
+
+function drawPerson(x, y, color, step, isPlayer){
+  const bob = Math.sin(step) * 1.5;
+  ctx.fillStyle = "rgba(0,0,0,.2)"; ctx.beginPath(); ctx.ellipse(x, y + 9, 8, 3.5, 0, 0, 6.3); ctx.fill();
+  rect(x - 5, y - 6 + bob, 10, 13, color);
+  ctx.fillStyle = "#8d5a3b"; ctx.beginPath(); ctx.arc(x, y - 11 + bob, 5.5, 0, 6.3); ctx.fill();
+  ctx.fillStyle = "#222"; ctx.fillRect(x - 5.5, y - 16 + bob, 11, 3);
+  if (isPlayer){ ctx.strokeStyle = "#b7ef43"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y - 11 + bob, 7.5, 0, 6.3); ctx.stroke(); }
+}
+
+function draw(){
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = "#0b2a17"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const camX = Math.max(0, Math.min(WORLD_W - canvas.width / SCALE, player.x - canvas.width / SCALE / 2));
+  const camY = Math.max(0, Math.min(WORLD_H - canvas.height / SCALE, player.y - canvas.height / SCALE / 2));
+  ctx.setTransform(SCALE, 0, 0, SCALE, -camX * SCALE, -camY * SCALE);
+  const vx = camX - 40, vy = camY - 40, vw = canvas.width / SCALE + 80, vh = canvas.height / SCALE + 80;
+  const vis = o => o.x < vx + vw && o.x + (o.w || 0) > vx && o.y < vy + vh && o.y + (o.h || 0) > vy;
+
+  // ground
+  DISTRICTS.forEach(d => { const g = { x:d.c*DW*T, y:d.r*DH*T, w:DW*T, h:DH*T }; if (vis(g)) rect(g.x, g.y, g.w, g.h, d.ground); });
+
+  // flat things first, then upright things sorted by depth
+  scenery.forEach(s => { if ((s.k === "water" || s.k === "road") && vis(s)) drawScenery(s); });
+  const upright = scenery.filter(s => s.k !== "water" && s.k !== "road" && vis(s)).map(s => ({ y:s.y + s.h, f:() => drawScenery(s) }));
+  npcs.forEach(n => { if (vis({ x:n.x - 10, y:n.y - 20, w:20, h:30 })) upright.push({ y:n.y + 8, f:() => drawPerson(n.x, n.y, n.color, performance.now() / 160 + n.x, false) }); });
+  upright.push({ y:player.y + 8, f:() => drawPerson(player.x, player.y, "#1b8f3a", player.step, true) });
+  upright.sort((a, b) => a.y - b.y).forEach(o => o.f());
+
+  // name tags for nearby people
+  ctx.font = "bold 10px Arial"; ctx.textAlign = "center";
+  npcs.forEach(n => { if (Math.hypot(n.x - player.x, n.y - player.y) < 90){ ctx.fillStyle = "rgba(0,0,0,.6)"; ctx.fillRect(n.x - 22, n.y - 34, 44, 13); ctx.fillStyle = "#fff"; ctx.fillText(n.name, n.x, n.y - 24); } });
+
+  // day and night (uses the phone clock; visual only)
+  const h = new Date().getHours() + new Date().getMinutes() / 60;
+  let dark = 0;
+  if (h >= 19.5 || h < 5) dark = 0.38; else if (h >= 18) dark = (h - 18) / 1.5 * 0.38; else if (h >= 5 && h < 6.5) dark = (6.5 - h) / 1.5 * 0.38;
+  if (dark > 0){ ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = `rgba(8,20,60,${dark})`; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+}
+
+let last = performance.now();
+function loop(now){
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  update(dt); draw();
+  requestAnimationFrame(loop);
+}
+
+/* ============================ START ============================ */
+function screen(html){ const m = $("msgScreen"); m.innerHTML = html; m.style.display = "flex"; }
+
+async function init(){
+  try{
+    const { data: u } = await db.auth.getUser();
+    if (!u?.user){ location.replace("login.html"); return; }
+    const { data: flag, error } = await db.from("platform_feature_flags").select("enabled").eq("key", "starlife").maybeSingle();
+    if (error || !flag || flag.enabled !== true){ screen("Naija Star Life is not open yet.<br><a href='dashboard.html'>Back to dashboard</a>"); return; }
+    state = await rpc("starlife_state");
+    if (!state.career){ screen("Choose your career first.<br><br><a href='starlife.html'>Open Star Life</a>"); return; }
+    await loadPlaces();
+    buildWorld();
+    resize();
+    spawnAt(state.location);
+    setHud();
+    $("hud").style.display = "flex";
+    $("msgScreen").style.display = "none";
+    let seen = false; try{ seen = localStorage.getItem("slw_help") === "1"; }catch(e){}
+    if (!seen){
+      openModal(`<h2>Welcome to Lagos 🌆</h2>
+        <p>Use the joystick to walk. Go near a building, bus stop or person and tap the green button.</p>
+        <p>💼 Work buildings pay coins. 🏠 Your home is in Surulere and restores energy. 💬 Talking to people starts story events. Walking into a new area costs a little energy.</p>
+        <button class="btn" id="mClose">Start walking</button>`);
+      $("mClose").onclick = () => { try{ localStorage.setItem("slw_help", "1"); }catch(e){} closeModal(); };
+    }
+    requestAnimationFrame(loop);
+  }catch(e){
+    console.error(e);
+    screen("Could not open the world. Check your internet and refresh.<br><br><a href='starlife.html'>Back to Star Life</a>");
+  }
+}
+init();
+</script>
+</body>
+</html>
