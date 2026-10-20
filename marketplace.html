@@ -2,957 +2,541 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#087f36">
 <title>Marketplace | NAIJA TASK</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root {
-  --green: #087f36;
-  --green2: #0b9b45;
-  --dark: #064d25;
-  --lime: #b7ef43;
-  --bg: #f3f8f5;
-  --white: #fff;
-  --text: #17251b;
-  --muted: #718076;
-  --border: #e3ebe5;
-  --danger: #c62828;
-  --shadow: 0 5px 22px rgba(12, 65, 31, .07);
-  --radius: 16px;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-button, input, select, textarea { font: inherit; }
-button { cursor: pointer; }
-button:disabled { opacity: .55; cursor: not-allowed; }
-a { color: inherit; text-decoration: none; }
-.hidden { display: none !important; }
-.muted { color: var(--muted); }
-.small { font-size: 12px; }
-.wrap { max-width: 1250px; margin: auto; padding: 20px; }
-.topbar {
-  position: sticky; top: 0; z-index: 20;
-  background: rgba(255,255,255,.96);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-}
-.top-inner {
-  max-width: 1250px; margin: auto; padding: 12px 20px;
-  display: flex; align-items: center; gap: 18px;
-}
-.brand { display:flex; align-items:center; gap:10px; min-width:max-content; }
-.logo {
-  width: 42px; height: 42px; border-radius: 13px;
-  display:grid; place-items:center; background:var(--green); color:white;
-  font-size:15px; font-weight:900;
-}
-.brand strong { display:block; color:var(--dark); font-size:16px; }
-.brand small { display:block; color:var(--muted); font-size:11px; }
-.searchbar {
-  flex:1; display:flex; gap:8px; min-width:100px;
-}
-.searchbar input { width:100%; }
-input, select, textarea {
-  border:1px solid var(--border); background:white; color:var(--text);
-  border-radius:11px; padding:12px; outline:none; width:100%;
-}
-input:focus, select:focus, textarea:focus {
-  border-color:var(--green2); box-shadow:0 0 0 3px rgba(11,155,69,.09);
-}
-.btn {
-  border:0; border-radius:11px; padding:11px 15px;
-  background:var(--green); color:white; font-weight:750;
-}
-.btn:hover { background:var(--dark); }
-.btn.secondary { background:#e9f5ec; color:var(--dark); }
-.btn.outline { background:white; border:1px solid var(--border); color:var(--text); }
-.btn.danger { background:#fff0f0; color:var(--danger); }
-.btn.lime { background:var(--lime); color:var(--dark); }
-.icon-btn {
-  border:1px solid var(--border); background:white; border-radius:11px;
-  padding:10px 12px; color:var(--dark); font-weight:750;
-}
-.account { display:flex; gap:8px; align-items:center; }
-.hero {
-  background:linear-gradient(120deg,#064d25,#087f36 70%,#0b9b45);
-  color:white; padding:30px; border-radius:22px; display:flex;
-  align-items:center; justify-content:space-between; gap:20px;
-  overflow:hidden; position:relative;
-}
-.hero h1 { font-size:clamp(25px,4vw,39px); line-height:1.15; margin:0 0 12px; }
-.hero p { margin:0; max-width:580px; color:#e5f7e9; }
-.hero .badge {
-  display:inline-block; background:var(--lime); color:var(--dark);
-  border-radius:100px; padding:5px 11px; font-size:11px;
-  font-weight:900; margin-bottom:12px;
-}
-.hero-symbol { font-size:88px; opacity:.18; font-weight:900; }
-.section-head {
-  display:flex; align-items:center; justify-content:space-between;
-  gap:12px; margin:28px 0 14px;
-}
-.section-head h2 { font-size:20px; margin:0; }
-.chips { display:flex; flex-wrap:wrap; gap:9px; margin:20px 0; }
-.chip {
-  padding:9px 14px; border:1px solid var(--border); border-radius:100px;
-  background:white; color:var(--text); font-size:13px; font-weight:700;
-}
-.chip.active { background:var(--green); border-color:var(--green); color:white; }
-.layout { display:grid; grid-template-columns: 220px minmax(0,1fr); gap:24px; }
-.sidebar { align-self:start; position:sticky; top:85px; }
-.sidebox, .panel {
-  background:white; border:1px solid var(--border); border-radius:var(--radius);
-  padding:16px; box-shadow:var(--shadow);
-}
-.nav-list { display:grid; gap:5px; }
-.nav-item {
-  display:flex; align-items:center; gap:10px; padding:11px;
-  border-radius:10px; background:transparent; border:0; text-align:left;
-  color:#425247; font-weight:700;
-}
-.nav-item.active, .nav-item:hover { background:#eaf6ed; color:var(--green); }
-.sidebar h3 { margin:0 0 12px; font-size:13px; }
-.notice {
-  border-radius:12px; background:#f0f8f1; border:1px solid #dcefe0;
-  padding:13px; font-size:12px; color:#365a40; margin-top:14px;
-}
-.grid {
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px;
-}
-.product {
-  min-width:0; overflow:hidden; background:white; border:1px solid var(--border);
-  border-radius:15px; box-shadow:var(--shadow); display:flex; flex-direction:column;
-}
-.product-image {
-  width:100%; aspect-ratio:1.25; background:#edf4ef; display:grid;
-  place-items:center; overflow:hidden; color:var(--green); font-size:40px;
-}
-.product-image img { width:100%; height:100%; object-fit:cover; }
-.product-body { padding:13px; display:flex; flex-direction:column; gap:8px; flex:1; }
-.product-category { color:var(--green); font-size:11px; font-weight:850; text-transform:uppercase; }
-.product h3 { margin:0; font-size:15px; line-height:1.35; overflow-wrap:anywhere; }
-.product-desc {
-  font-size:12px; color:var(--muted); overflow:hidden;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-}
-.price { font-size:19px; color:var(--dark); font-weight:900; }
-.product-footer { margin-top:auto; display:flex; gap:7px; }
-.product-footer .btn { flex:1; padding:9px 7px; font-size:12px; }
-.tag {
-  width:max-content; border-radius:100px; padding:4px 8px;
-  background:#edf6ef; color:var(--green); font-size:10px; font-weight:800;
-}
-.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px; }
-.stat { padding:15px; border:1px solid var(--border); background:white; border-radius:13px; }
-.stat strong { display:block; font-size:22px; color:var(--dark); }
-.stat span { color:var(--muted); font-size:12px; }
-.empty {
-  padding:35px 15px; text-align:center; background:white;
-  border:1px dashed #cbd9ce; border-radius:15px; color:var(--muted);
-}
-.empty b { display:block; color:var(--text); font-size:17px; margin-bottom:6px; }
-.page { display:none; }
-.page.active { display:block; }
-.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.field { display:grid; gap:6px; }
-.field.full { grid-column:1/-1; }
-.field label { font-size:12px; font-weight:800; color:#4a5d4e; }
-textarea { resize:vertical; min-height:100px; }
-.form-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:16px; }
-.table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
-table { width:100%; border-collapse:collapse; min-width:650px; background:white; }
-th, td { padding:12px; border-bottom:1px solid var(--border); text-align:left; font-size:12px; }
-th { background:#f3f8f4; color:#506353; }
-.status { display:inline-block; border-radius:100px; padding:4px 8px; background:#eef5ef; color:#315b3b; font-weight:800; font-size:10px; }
-.status.pending { background:#fff5d9; color:#785700; }
-.status.rejected, .status.cancelled { background:#fff0f0; color:#9c2222; }
-.status.completed, .status.approved { background:#e7f7e9; color:#126b2b; }
-.modal {
-  position:fixed; inset:0; background:rgba(8,28,14,.6); z-index:100;
-  display:none; align-items:center; justify-content:center; padding:15px;
-}
-.modal.open { display:flex; }
-.modal-box {
-  background:white; width:min(620px,100%); max-height:90vh; overflow:auto;
-  border-radius:18px; padding:20px;
-}
-.modal-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:15px; }
-.modal-head h2 { margin:0; font-size:20px; }
-.toast {
-  position:fixed; left:50%; bottom:85px; transform:translateX(-50%);
-  background:#152b1c; color:white; padding:12px 18px; border-radius:12px;
-  z-index:300; box-shadow:var(--shadow); max-width:90%; font-size:13px;
-}
-.loading { text-align:center; padding:30px; color:var(--muted); }
-.mobile-nav { display:none; }
-footer { padding:25px 0 90px; text-align:center; color:var(--muted); font-size:12px; }
-@media(max-width:1050px) { .grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
-@media(max-width:800px) {
-  .wrap { padding:14px; }
-  .top-inner { padding:10px 14px; gap:10px; flex-wrap:wrap; }
-  .brand { flex:1; }
-  .searchbar { order:3; flex-basis:100%; }
-  .account .optional { display:none; }
-  .layout { grid-template-columns:1fr; }
-  .sidebar { display:none; }
-  .grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-  .hero { padding:23px 19px; }
-  .hero-symbol { display:none; }
-  .stats { gap:8px; }
-  .stat { padding:11px; }
-  .stat strong { font-size:18px; }
-  .mobile-nav {
-    display:flex; position:fixed; bottom:0; left:0; right:0; z-index:50;
-    background:white; border-top:1px solid var(--border);
-    justify-content:space-around; padding:8px 3px calc(8px + env(safe-area-inset-bottom));
-  }
-  .mobile-nav button {
-    background:none; border:0; color:#6c7c70; font-size:10px;
-    font-weight:800; display:grid; justify-items:center; gap:3px; padding:4px;
-  }
-  .mobile-nav button span { font-size:19px; }
-  .mobile-nav button.active { color:var(--green); }
-  footer { padding-bottom:100px; }
-}
-@media(max-width:420px) {
-  .brand strong { font-size:14px; }
-  .brand small { font-size:10px; }
-  .logo { width:37px; height:37px; }
-  .grid { gap:8px; }
-  .product-body { padding:10px; }
-  .product h3 { font-size:13px; }
-  .price { font-size:17px; }
-  .product-footer { flex-direction:column; }
-  .form-grid { grid-template-columns:1fr; }
-  .field.full { grid-column:auto; }
-  .hero h1 { font-size:25px; }
-}
+:root{--green:#087f36;--deep:#064d25;--light:#eaf7ee;--lime:#b7ef43;--bg:#f3f8f5;--text:#173323;--muted:#64766b;--border:#dce8df;--white:#fff;--red:#b42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+header{background:var(--green);color:white;padding:18px 16px}
+.top{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:900;font-size:21px}.brand small{display:block;font-size:11px;font-weight:500;margin-top:4px}
+.wrap{max-width:1100px;margin:auto;padding:16px}
+.hero{background:linear-gradient(135deg,#064d25,#0b9b45);color:white;border-radius:18px;padding:22px;margin-bottom:16px}
+.hero h1{margin:0 0 8px;font-size:25px}.hero p{margin:0;line-height:1.5;color:#e6f6e9}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.stat{background:#ffffff18;border:1px solid #ffffff35;border-radius:10px;padding:10px 13px}
+.nav{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}
+.nav button{white-space:nowrap;border:1px solid var(--border);background:white;color:var(--deep);padding:11px 14px;border-radius:10px;font-weight:700}
+.nav button.active{background:var(--green);color:white;border-color:var(--green)}
+.panel{background:white;border:1px solid var(--border);border-radius:15px;padding:16px;margin-bottom:16px}
+.panel h2{margin:0 0 14px;font-size:19px}
+.toolbar{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:10px;margin-bottom:15px}
+input,select,textarea{width:100%;border:1px solid #ccdacf;border-radius:9px;padding:12px;background:white;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+textarea{min-height:95px;resize:vertical}
+button.primary{background:var(--green);color:white;border:0;border-radius:9px;padding:12px 16px;font-weight:700}
+button.secondary{background:var(--light);color:var(--deep);border:1px solid #c8e6d0;border-radius:9px;padding:10px 13px;font-weight:700}
+button.danger{background:#fff0ef;color:var(--red);border:1px solid #ffd0cc;border-radius:9px;padding:10px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.card{border:1px solid var(--border);border-radius:13px;overflow:hidden;background:white;min-width:0}
+.product-image{height:145px;background:var(--light);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:42px;overflow:hidden}
+.product-image img{width:100%;height:100%;object-fit:cover}
+.cardbody{padding:13px}.card h3{margin:0 0 8px;font-size:16px;overflow-wrap:anywhere}
+.price{color:var(--green);font-size:19px;font-weight:900;margin:8px 0}
+.muted{color:var(--muted);font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.badge{display:inline-block;background:var(--light);color:var(--deep);border-radius:20px;padding:5px 9px;font-size:11px;font-weight:800}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions button{flex:1}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:700}
+.field.full{grid-column:1/-1}
+.notice{padding:12px;border-radius:10px;background:#f0f8ff;color:#17436b;line-height:1.5;margin:10px 0}
+.error{background:#fff0ef;color:#a52218;padding:12px;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}
+.success{background:#e9f8ed;color:#17662f;padding:12px;border-radius:10px;margin:10px 0}
+.empty{text-align:center;padding:28px 12px;color:var(--muted)}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border);padding:13px 0}
+.row:last-child{border-bottom:0}
+.row h3{margin:0 0 5px;font-size:15px}
+.hidden{display:none!important}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#173323;color:white;padding:12px 16px;border-radius:10px;max-width:90%;z-index:20;display:none}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:22px}.wrap{padding:12px}.panel{padding:13px}}
+@media(max-width:430px){.grid{grid-template-columns:1fr 1fr;gap:8px}.product-image{height:110px}.cardbody{padding:10px}.card h3{font-size:14px}.toolbar{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.brand{font-size:18px}}
 </style>
 </head>
-
 <body>
-
-<header class="topbar">
-  <div class="top-inner">
-    <a href="#" class="brand" onclick="showPage('home');return false">
-      <div class="logo">NT</div>
-      <div><strong>NAIJA TASK</strong><small>Marketplace</small></div>
-    </a>
-
-    <form class="searchbar" id="searchForm">
-      <input id="searchInput" type="search" placeholder="Search products, services..." aria-label="Search marketplace">
-      <button class="btn" type="submit">Search</button>
-    </form>
-
-    <div class="account">
-      <button class="icon-btn" onclick="showPage('orders')">Orders</button>
-      <button class="btn secondary" id="authButton" onclick="handleAuth()">Sign in</button>
-    </div>
-  </div>
+<header>
+ <div class="top">
+  <div class="brand">NAIJA TASK <small>Marketplace · Buy and sell</small></div>
+  <button class="secondary" id="refreshBtn">↻ Refresh</button>
+ </div>
 </header>
 
-<div class="wrap">
-  <div id="connectionNotice" class="notice" style="margin:0 0 15px">
-    Connecting to marketplace…
+<main class="wrap">
+ <section class="hero">
+  <h1>NAIJA TASK Marketplace</h1>
+  <p>Discover products, place orders and manage your listings in one place.</p>
+  <div class="stats">
+   <div class="stat">Products <strong id="productCount">0</strong></div>
+   <div class="stat">My orders <strong id="orderCount">0</strong></div>
   </div>
+ </section>
 
-  <section id="page-home" class="page active">
-    <div class="hero">
-      <div>
-        <span class="badge">BUY • SELL • GROW</span>
-        <h1>Discover something<br>worth buying.</h1>
-        <p>Shop digital products, useful items and services from marketplace sellers. Explore listings and manage your orders in one place.</p>
-        <div class="form-actions">
-          <button class="btn lime" onclick="document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">Explore products</button>
-          <button class="btn outline" onclick="showPage('sell')">Start selling</button>
-        </div>
-      </div>
-      <div class="hero-symbol">NT</div>
-    </div>
+ <div id="globalMessage"></div>
 
-    <div class="stats">
-      <div class="stat"><strong id="listingCount">—</strong><span>Available listings</span></div>
-      <div class="stat"><strong id="categoryCount">—</strong><span>Categories</span></div>
-      <div class="stat"><strong>₦</strong><span>Prices in Nigerian naira</span></div>
-    </div>
+ <nav class="nav">
+  <button class="active" data-page="shop">🛍️ Shop</button>
+  <button data-page="orders">📦 My Orders</button>
+  <button data-page="sell">＋ Sell Product</button>
+  <button data-page="listings">My Listings</button>
+  <button data-page="sellerOrders">Seller Orders</button>
+ </nav>
 
-    <div class="section-head"><h2>Browse categories</h2></div>
-    <div id="categories" class="chips">
-      <button class="chip active" data-category="all" onclick="chooseCategory('all',this)">All items</button>
-    </div>
-
-    <div id="catalogue">
-      <div class="section-head">
-        <h2 id="catalogueTitle">Marketplace listings</h2>
-        <select id="sortSelect" style="width:auto;max-width:170px" onchange="renderListings()">
-          <option value="newest">Newest first</option>
-          <option value="priceLow">Price: low to high</option>
-          <option value="priceHigh">Price: high to low</option>
-        </select>
-      </div>
-      <div id="productGrid" class="grid">
-        <div class="loading">Loading marketplace listings…</div>
-      </div>
-    </div>
-  </section>
-
-  <div class="layout" style="margin-top:20px">
-    <aside class="sidebar">
-      <div class="sidebox">
-        <h3>MARKETPLACE MENU</h3>
-        <nav class="nav-list">
-          <button class="nav-item active" data-page="home" onclick="showPage('home')">🏠 Marketplace home</button>
-          <button class="nav-item" data-page="orders" onclick="showPage('orders')">📦 My orders</button>
-          <button class="nav-item" data-page="sell" onclick="showPage('sell')">➕ Create listing</button>
-          <button class="nav-item" data-page="listings" onclick="showPage('listings')">🛍️ My listings</button>
-          <button class="nav-item" data-page="sales" onclick="showPage('sales')">💼 Seller orders</button>
-          <button class="nav-item" data-page="payments" onclick="showPage('payments')">💳 Payment instructions</button>
-          <button class="nav-item" data-page="profile" onclick="showPage('profile')">👤 My account</button>
-        </nav>
-        <div class="notice">Safety tip: uploading a payment receipt does not mean payment has been verified. Wait for official confirmation.</div>
-      </div>
-    </aside>
-
-    <main style="min-width:0">
-      <section id="page-orders" class="page">
-        <div class="section-head"><h2>My orders</h2><button class="btn secondary" onclick="loadOrders()">Refresh</button></div>
-        <div class="panel">
-          <p class="muted small">Orders placed by your signed-in account will appear here.</p>
-          <div id="ordersContent"><div class="empty"><b>No orders loaded</b>Sign in to view your orders.</div></div>
-        </div>
-      </section>
-
-      <section id="page-sell" class="page">
-        <div class="section-head"><h2>Create a marketplace listing</h2></div>
-        <div class="panel">
-          <p class="muted small">Provide accurate information. New listings should be reviewed before appearing publicly.</p>
-          <form id="listingForm">
-            <div class="form-grid">
-              <div class="field full"><label for="listingTitle">Product or service name *</label><input id="listingTitle" maxlength="120" required placeholder="e.g. Beginner Graphic Design E-book"></div>
-              <div class="field"><label for="listingCategory">Category *</label><select id="listingCategory" required></select></div>
-              <div class="field"><label for="listingType">Listing type *</label><select id="listingType" required><option value="digital">Digital product</option><option value="physical">Physical product</option><option value="service">Service</option></select></div>
-              <div class="field"><label for="listingPrice">Price (₦) *</label><input id="listingPrice" type="number" min="1" max="100000000" step="1" required placeholder="2000"></div>
-              <div class="field"><label for="listingStock">Quantity available</label><input id="listingStock" type="number" min="1" max="100000" step="1" value="1" required></div>
-              <div class="field full"><label for="listingDescription">Description *</label><textarea id="listingDescription" maxlength="5000" required placeholder="Describe exactly what the buyer receives, delivery time, requirements and any limitations."></textarea></div>
-              <div class="field full"><label for="listingImage">Image URL (optional)</label><input id="listingImage" type="url" maxlength="1000" placeholder="https://..."><small class="muted">Use an image URL you own or have permission to use. This starter version does not upload image files.</small></div>
-              <div class="field full"><label for="listingDelivery">Delivery information *</label><textarea id="listingDelivery" maxlength="2000" required placeholder="Explain how the product or service will be delivered. Do not put private passwords here."></textarea></div>
-            </div>
-            <div class="form-actions">
-              <button class="btn" type="submit" id="publishButton">Submit listing for review</button>
-              <button class="btn outline" type="reset">Clear form</button>
-            </div>
-          </form>
-          <div class="notice">Never list illegal goods, stolen items, misleading offers, or products you do not have the right to sell. Do not promise instant approval.</div>
-        </div>
-      </section>
-
-      <section id="page-listings" class="page">
-        <div class="section-head"><h2>My listings</h2><button class="btn secondary" onclick="loadMyListings()">Refresh</button></div>
-        <div class="panel"><div id="myListingsContent"><div class="empty"><b>Your listings</b>Sign in to manage your products and services.</div></div></div>
-      </section>
-
-      <section id="page-sales" class="page">
-        <div class="section-head"><h2>Seller orders</h2><button class="btn secondary" onclick="loadSellerOrders()">Refresh</button></div>
-        <div class="panel">
-          <p class="muted small">Orders for your listings. Confirm delivery only when the item or service has actually been provided.</p>
-          <div id="sellerOrdersContent"><div class="empty"><b>No seller orders loaded</b>Sign in to see orders for your listings.</div></div>
-        </div>
-      </section>
-
-      <section id="page-payments" class="page">
-        <div class="section-head"><h2>Offline payment instructions</h2></div>
-        <div class="panel">
-          <div class="notice" style="margin:0 0 16px">Payment details must be confirmed by the NAIJA TASK administrator. Never pay a personal account based on a message from a stranger.</div>
-          <h3>How payment works</h3>
-          <ol>
-            <li>Choose an available listing and place an order.</li>
-            <li>Read the payment instructions displayed for that order.</li>
-            <li>Pay only to the officially confirmed account or method.</li>
-            <li>Submit your payment reference and any required evidence through the approved payment process.</li>
-            <li>Wait until an authorized administrator verifies the payment.</li>
-            <li>The seller fulfils the order after the payment status is confirmed according to platform rules.</li>
-          </ol>
-          <p class="muted small">No bank account or transfer details are hardcoded into this page. Configure official payment instructions through your secure backend/admin settings.</p>
-          <button class="btn" onclick="showPage('orders')">View my orders</button>
-        </div>
-      </section>
-
-      <section id="page-profile" class="page">
-        <div class="section-head"><h2>My account</h2></div>
-        <div class="panel">
-          <div id="profileContent"><div class="empty"><b>Marketplace account</b>Sign in to see your account information.</div></div>
-          <div class="form-actions">
-            <button class="btn" onclick="handleAuth()">Sign in / refresh account</button>
-            <button class="btn danger" id="signOutButton" onclick="signOut()" disabled>Sign out</button>
-          </div>
-        </div>
-      </section>
-    </main>
+ <section id="page-shop" class="panel">
+  <h2>Explore Products</h2>
+  <div class="toolbar">
+   <input id="search" placeholder="Search products..." autocomplete="off">
+   <select id="categoryFilter"><option value="">All categories</option></select>
   </div>
+  <div id="productGrid" class="grid"><div class="empty">Loading products...</div></div>
+ </section>
 
-  <footer>NAIJA TASK Marketplace · Complete Tasks. Earn Naira.<br>Marketplace orders and task rewards are separate systems.</footer>
-</div>
+ <section id="page-orders" class="panel hidden">
+  <h2>My Orders</h2>
+  <div class="notice">Orders are recorded in your account. Follow the offline payment instructions provided by the platform. An order does not mean payment has been confirmed.</div>
+  <div id="myOrders"><div class="empty">Loading orders...</div></div>
+ </section>
 
-<nav class="mobile-nav" aria-label="Marketplace navigation">
-  <button data-page="home" class="active" onclick="showPage('home')"><span>⌂</span>Explore</button>
-  <button data-page="orders" onclick="showPage('orders')"><span>▤</span>Orders</button>
-  <button data-page="sell" onclick="showPage('sell')"><span>＋</span>Sell</button>
-  <button data-page="listings" onclick="showPage('listings')"><span>▣</span>Listings</button>
-  <button data-page="profile" onclick="showPage('profile')"><span>●</span>Account</button>
-</nav>
+ <section id="page-sell" class="panel hidden">
+  <h2>Create Product Listing</h2>
+  <div class="notice">Only list products you are authorized to sell. Your listing must be approved/activated according to the platform's existing rules before public buyers can see it.</div>
+  <form id="listingForm">
+   <div class="formgrid">
+    <div class="field full"><label for="productName">Product name *</label><input id="productName" maxlength="120" required placeholder="Enter product name"></div>
+    <div class="field"><label for="productCategory">Category *</label><input id="productCategory" maxlength="60" required placeholder="e.g. Phones"></div>
+    <div class="field"><label for="productPrice">Price (₦) *</label><input id="productPrice" type="number" min="1" step="0.01" required placeholder="Price in naira"></div>
+    <div class="field"><label for="productStock">Available stock *</label><input id="productStock" type="number" min="1" step="1" value="1" required></div>
+    <div class="field"><label for="productImage">Image URL (optional)</label><input id="productImage" type="url" placeholder="https://..."></div>
+    <div class="field full"><label for="productDescription">Description *</label><textarea id="productDescription" maxlength="3000" required placeholder="Describe the product accurately"></textarea></div>
+   </div>
+   <div class="actions"><button class="primary" id="publishBtn" type="submit">Submit Listing</button></div>
+   <div id="listingMessage"></div>
+  </form>
+ </section>
 
-<div id="productModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2 id="modalTitle">Product details</h2>
-      <button class="icon-btn" onclick="closeModal()" aria-label="Close">✕</button>
-    </div>
-    <div id="productModalContent"></div>
-  </div>
-</div>
+ <section id="page-listings" class="panel hidden">
+  <h2>My Listings</h2>
+  <div id="myListings"><div class="empty">Loading your listings...</div></div>
+ </section>
 
-<div id="toast" class="toast hidden" role="status"></div>
+ <section id="page-sellerOrders" class="panel hidden">
+  <h2>Orders for My Products</h2>
+  <div class="notice">Seller order details are shown only if the database's Row Level Security policies authorize you to read them. If orders are blocked, the database policy must be corrected securely.</div>
+  <div id="sellerOrders"><div class="empty">Loading seller orders...</div></div>
+ </section>
+
+ <section class="panel">
+  <h2>Offline Payment & Support</h2>
+  <p class="muted">Use only the official NAIJA TASK payment instructions supplied by the administrator. Keep your transaction receipt and order ID. Never share your password or OTP. Do not assume an order is paid until an authorized administrator confirms the payment.</p>
+  <p class="muted">Support: naijataskofficia@gmail.com</p>
+ </section>
+</main>
+
+<footer>NAIJA TASK · Complete Tasks. Earn Naira.</footer>
+<div id="toast"></div>
 
 <script>
-/* ==========================================================
-   NAIJA TASK MARKETPLACE FRONTEND
-   Configure SUPABASE_URL and SUPABASE_ANON_KEY below.
-   Never place a Supabase service-role key in browser code.
-   ========================================================== */
+(() => {
+'use strict';
 
-const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D"; 
+const SUPABASE_URL = 'https://jwakveeiynpakunwjzkj.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D';
 
-const TABLES = {
-  listings: "marketplace_listings",
-  categories: "marketplace_categories",
-  orders: "marketplace_orders"
-};
-
-let supabaseClient = null;
-let currentUser = null;
-let listings = [];
-let categories = [];
-let selectedCategory = "all";
-let searchTerm = "";
-let selectedProduct = null;
-let toastTimer = null;
-
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
-const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
-  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-}[ch]));
+const money = value => '₦' + Number(value || 0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+})[ch]);
 
-function safeImageURL(value) {
-  try {
-    const u = new URL(value);
-    return ["https:", "http:"].includes(u.protocol) ? u.href : "";
-  } catch { return ""; }
+let currentUser = null;
+let products = [];
+let myListingRows = [];
+let orderRows = [];
+let currentPage = 'shop';
+
+function toast(message) {
+ const el = $('toast');
+ el.textContent = message;
+ el.style.display = 'block';
+ clearTimeout(toast.timer);
+ toast.timer = setTimeout(() => el.style.display = 'none', 3500);
 }
 
-function formatNaira(value) {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return "Price unavailable";
-  return "₦" + n.toLocaleString("en-NG", {maximumFractionDigits: 2});
+function message(id, text, success = false) {
+ $(id).innerHTML = text ? `<div class="${success?'success':'error'}">${escapeHTML(text)}</div>` : '';
 }
 
-function showToast(message, duration=3200) {
-  $("toast").textContent = message;
-  $("toast").classList.remove("hidden");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => $("toast").classList.add("hidden"), duration);
+function errorText(error) {
+ return error?.message || error?.details || error?.hint || 'An unexpected database error occurred.';
 }
 
-function setConnection(message, isError=false) {
-  $("connectionNotice").textContent = message;
-  $("connectionNotice").style.background = isError ? "#fff0f0" : "#f0f8f1";
-  $("connectionNotice").style.color = isError ? "#9c2222" : "#365a40";
+function showPage(page) {
+ currentPage = page;
+ document.querySelectorAll('[data-page]').forEach(btn => btn.classList.toggle('active', btn.dataset.page === page));
+ document.querySelectorAll('[id^="page-"]').forEach(section => section.classList.add('hidden'));
+ $('page-' + page).classList.remove('hidden');
+
+ if (!currentUser && ['orders','sell','listings','sellerOrders'].includes(page)) {
+  toast('Please sign in to your NAIJA TASK account first.');
+ }
+ if (currentUser && page === 'orders') loadMyOrders();
+ if (currentUser && page === 'listings') loadMyListings();
+ if (currentUser && page === 'sellerOrders') loadSellerOrders();
 }
 
-function ready() {
-  if (!supabaseClient) {
-    showToast("Supabase is not configured. Add your anon key and database setup first.");
-    return false;
-  }
-  return true;
+document.querySelectorAll('[data-page]').forEach(btn => {
+ btn.addEventListener('click', () => showPage(btn.dataset.page));
+});
+
+async function getUser() {
+ const {data, error} = await db.auth.getUser();
+ if (error) console.warn('Authentication check:', error.message);
+ currentUser = data?.user || null;
+ return currentUser;
 }
 
-function showPage(name) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  const page = $("page-" + name);
-  if (page) page.classList.add("active");
-
-  document.querySelectorAll("[data-page]").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.page === name);
-  });
-
-  if (name === "orders") loadOrders();
-  if (name === "listings") loadMyListings();
-  if (name === "sales") loadSellerOrders();
-  if (name === "profile") loadProfile();
-
-  if (name !== "home") window.scrollTo({top:0,behavior:"smooth"});
+function normalizeProduct(row) {
+ return {
+  id: row.id,
+  title: row.title || '',
+  description: row.description || '',
+  category: row.category || 'Other',
+  price: Number(row.price || 0),
+  stock: Number(row.stock || 0),
+  image_url: row.image_url || '',
+  seller_id: row.seller_id,
+  status: row.status || ''
+ };
 }
 
-function categoryName(id) {
-  const c = categories.find(x => String(x.id) === String(id));
-  return c?.name || "General";
+function safeImage(url) {
+ try {
+  const parsed = new URL(url);
+  return ['https:','http:'].includes(parsed.protocol) ? parsed.href : '';
+ } catch { return ''; }
 }
 
-function listingIsPublic(item) {
-  return item && item.status === "approved" &&
-         item.is_active !== false &&
-         Number(item.price) > 0;
-}
-
-function normalizeListing(item) {
-  return {
-    ...item,
-    title: item.title || item.name || "Untitled listing",
-    description: item.description || "",
-    price: Number(item.price),
-    listing_type: item.listing_type || item.type || "digital",
-    category_id: item.category_id ?? null,
-    image_url: item.image_url || ""
-  };
+function productCard(p) {
+ const image = safeImage(p.image_url);
+ const own = currentUser && p.seller_id === currentUser.id;
+ return `<article class="card">
+  <div class="product-image">${image ? `<img src="${escapeHTML(image)}" alt="${escapeHTML(p.title)}" loading="lazy" onerror="this.remove()">` : '🛍️'}</div>
+  <div class="cardbody">
+   <span class="badge">${escapeHTML(p.category)}</span>
+   <h3>${escapeHTML(p.title)}</h3>
+   <div class="price">${money(p.price)}</div>
+   <div class="muted">${escapeHTML((p.description || '').slice(0,110))}${p.description?.length > 110 ? '…' : ''}</div>
+   <p class="muted">Available: ${p.stock}</p>
+   <div class="actions">
+    ${own ? '<span class="badge">Your product</span>' : `<button class="primary" ${p.stock < 1 ? 'disabled' : ''} onclick="window.placeOrder('${escapeHTML(p.id)}')">Order</button>`}
+   </div>
+  </div>
+ </article>`;
 }
 
 function renderCategories() {
-  const root = $("categories");
-  const current = selectedCategory;
-  root.innerHTML = `<button class="chip ${current === "all" ? "active" : ""}" data-category="all" onclick="chooseCategory('all',this)">All items</button>` +
-    categories.map(c => `<button class="chip ${String(current)===String(c.id)?"active":""}" data-category="${escapeHTML(c.id)}" onclick="chooseCategory('${escapeHTML(c.id)}',this)">${escapeHTML(c.name)}</button>`).join("");
-
-  $("categoryCount").textContent = categories.length ? categories.length : "—";
-
-  $("listingCategory").innerHTML = `<option value="">Choose category</option>` +
-    categories.map(c => `<option value="${escapeHTML(c.id)}">${escapeHTML(c.name)}</option>`).join("");
+ const select = $('categoryFilter');
+ const selected = select.value;
+ const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+ select.innerHTML = '<option value="">All categories</option>' + categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+ if (categories.includes(selected)) select.value = selected;
 }
 
-function chooseCategory(id, button) {
-  selectedCategory = id;
-  document.querySelectorAll("#categories .chip").forEach(chip => chip.classList.remove("active"));
-  if (button) button.classList.add("active");
-  else document.querySelectorAll("#categories .chip").forEach(chip => {
-    if (chip.dataset.category === String(id)) chip.classList.add("active");
-  });
-  renderListings();
-}
-
-function renderListings() {
-  const root = $("productGrid");
-  let data = listings.filter(listingIsPublic);
-
-  if (selectedCategory !== "all") {
-    data = data.filter(item => String(item.category_id) === String(selectedCategory));
-  }
-
-  if (searchTerm) {
-    const q = searchTerm.toLowerCase();
-    data = data.filter(item =>
-      `${item.title} ${item.description} ${categoryName(item.category_id)} ${item.listing_type}`
-        .toLowerCase().includes(q)
-    );
-  }
-
-  const sort = $("sortSelect").value;
-  if (sort === "priceLow") data.sort((a,b) => a.price-b.price);
-  else if (sort === "priceHigh") data.sort((a,b) => b.price-a.price);
-  else data.sort((a,b) => new Date(b.created_at || 0)-new Date(a.created_at || 0));
-
-  $("listingCount").textContent = data.length;
-
-  if (!data.length) {
-    root.innerHTML = `<div class="empty" style="grid-column:1/-1"><b>No listings found</b>Try another search or category. Approved listings from the database will appear here.</div>`;
-    return;
-  }
-
-  root.innerHTML = data.map(item => {
-    const img = safeImageURL(item.image_url);
-    const image = img
-      ? `<img src="${escapeHTML(img)}" alt="${escapeHTML(item.title)}" loading="lazy" onerror="this.parentElement.innerHTML='🛍️'">`
-      : "🛍️";
-
-    return `<article class="product">
-      <div class="product-image">${image}</div>
-      <div class="product-body">
-        <span class="product-category">${escapeHTML(categoryName(item.category_id))}</span>
-        <h3>${escapeHTML(item.title)}</h3>
-        <div class="product-desc">${escapeHTML(item.description)}</div>
-        <span class="tag">${escapeHTML(String(item.listing_type).replace(/_/g," "))}</span>
-        <div class="price">${formatNaira(item.price)}</div>
-        <div class="product-footer">
-          <button class="btn secondary" onclick="viewProduct('${escapeHTML(item.id)}')">Details</button>
-          <button class="btn" onclick="startOrder('${escapeHTML(item.id)}')">Order</button>
-        </div>
-      </div>
-    </article>`;
-  }).join("");
+function renderProducts() {
+ const query = $('search').value.trim().toLowerCase();
+ const category = $('categoryFilter').value;
+ const filtered = products.filter(p =>
+  (!category || p.category === category) &&
+  (!query || `${p.title} ${p.description} ${p.category}`.toLowerCase().includes(query))
+ );
+ $('productCount').textContent = products.length;
+ $('productGrid').innerHTML = filtered.length
+  ? filtered.map(productCard).join('')
+  : '<div class="empty" style="grid-column:1/-1">No products found. Try another search or category.</div>';
 }
 
 async function loadMarketplace() {
-  if (!ready()) {
-    setConnection("Setup required: add your Supabase anon key and create the marketplace tables.", true);
-    $("productGrid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>Marketplace setup required</b>Add your Supabase anon key and run the database SQL before loading live products.</div>`;
-    return;
-  }
+ $('productGrid').innerHTML = '<div class="empty">Loading products...</div>';
 
-  setConnection("Loading approved marketplace listings…");
+ // The existing "marketplace" table is the canonical seller-listing table.
+ // Its RLS policy allows public reads of active products and sellers to read their own rows.
+ const {data, error} = await db.from('marketplace')
+  .select('id,title,description,category,price,seller_id,status,stock,image_url,created_at')
+  .eq('status','active')
+  .order('created_at',{ascending:false});
 
-  const [catResult, listResult] = await Promise.all([
-    supabaseClient.from(TABLES.categories).select("id,name,active").eq("active", true).order("name"),
-    supabaseClient.from(TABLES.listings).select("*").eq("status", "approved").eq("is_active", true).order("created_at", {ascending:false}).limit(100)
-  ]);
+ if (error) {
+  $('productGrid').innerHTML = '';
+  message('globalMessage', 'Could not load marketplace products: ' + errorText(error));
+  return;
+ }
 
-  if (catResult.error) console.error("Categories:", catResult.error);
-  if (listResult.error) console.error("Listings:", listResult.error);
-
-  categories = catResult.error ? [] : (catResult.data || []);
-  listings = listResult.error ? [] : (listResult.data || []).map(normalizeListing);
-
-  renderCategories();
-  renderListings();
-
-  if (listResult.error || catResult.error) {
-    setConnection("Marketplace database setup is incomplete. Check the marketplace tables, columns and Row Level Security policies.", true);
-  } else {
-    setConnection("Marketplace connected. Only approved and active listings are shown.");
-  }
+ products = (data || []).map(normalizeProduct).filter(p => p.id);
+ renderCategories();
+ renderProducts();
+ message('globalMessage','');
 }
 
-async function refreshAuth() {
-  if (!supabaseClient) return;
-  const {data, error} = await supabaseClient.auth.getUser();
-  currentUser = error ? null : data.user;
-  updateAuthUI();
-}
+window.placeOrder = async function(productId) {
+ if (!currentUser) {
+  toast('Please sign in to your NAIJA TASK account before ordering.');
+  return;
+ }
 
-function updateAuthUI() {
-  $("authButton").textContent = currentUser ? "My account" : "Sign in";
-  $("signOutButton").disabled = !currentUser;
-}
+ const product = products.find(p => String(p.id) === String(productId));
+ if (!product) return toast('Product not found. Refresh and try again.');
+ if (product.seller_id === currentUser.id) return toast('You cannot order your own product.');
+ if (product.stock < 1) return toast('This product is out of stock.');
 
-async function handleAuth() {
-  if (!ready()) return;
-  if (currentUser) {
-    showPage("profile");
-    return;
-  }
+ const raw = prompt('How many units do you want to order?', '1');
+ if (raw === null) return;
+ const quantity = Number(raw);
+ if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > product.stock) {
+  return toast('Enter a valid quantity within the available stock.');
+ }
 
-  const email = prompt("Enter your account email:");
-  if (!email) return;
-  const password = prompt("Enter your password:");
-  if (!password) return;
+ const total = Number((quantity * product.price).toFixed(2));
+ if (!Number.isFinite(total) || total <= 0) return toast('Invalid order amount.');
 
-  const {data, error} = await supabaseClient.auth.signInWithPassword({
-    email: email.trim(), password
-  });
+ // Only columns confirmed to exist in marketplace_orders are inserted.
+ // Payment is NOT marked as completed by this action.
+ const {data, error} = await db.from('marketplace_orders').insert({
+  buyer_id: currentUser.id,
+  product_id: product.id,
+  quantity,
+  unit_price: product.price,
+  total_amount: total,
+  status: 'pending',
+  delivery_status: 'pending'
+ }).select('id').single();
 
-  if (error) {
-    showToast("Sign-in failed: " + error.message);
-    return;
-  }
+ if (error) {
+  toast('Order could not be placed: ' + errorText(error));
+  return;
+ }
 
-  currentUser = data.user;
-  updateAuthUI();
-  showToast("Signed in successfully.");
-  loadProfile();
-}
+ toast('Order created. Order ID: ' + data.id + '. Follow official offline-payment instructions.');
+ await loadMyOrders();
+ await loadMarketplace();
+ showPage('orders');
+};
 
-async function signOut() {
-  if (!ready()) return;
-  const {error} = await supabaseClient.auth.signOut();
-  if (error) return showToast("Sign-out failed: " + error.message);
-  currentUser = null;
-  updateAuthUI();
-  showToast("You have signed out.");
-  showPage("home");
-}
+$('listingForm').addEventListener('submit', async event => {
+ event.preventDefault();
+ if (!currentUser) return message('listingMessage','Please sign in before creating a listing.');
 
-function viewProduct(id) {
-  const item = listings.find(x => String(x.id) === String(id));
-  if (!item) return showToast("Listing is no longer available.");
-  selectedProduct = item;
+ const title = $('productName').value.trim();
+ const category = $('productCategory').value.trim();
+ const description = $('productDescription').value.trim();
+ const price = Number($('productPrice').value);
+ const stock = Number($('productStock').value);
+ const imageUrl = $('productImage').value.trim();
+ if (!title || !category || !description || !Number.isFinite(price) || price <= 0 || !Number.isSafeInteger(stock) || stock < 1) {
+  return message('listingMessage','Please enter a valid name, category, description, price and stock quantity.');
+ }
+ if (imageUrl && !safeImage(imageUrl)) return message('listingMessage','Enter a valid HTTP or HTTPS image URL.');
 
-  const img = safeImageURL(item.image_url);
-  $("modalTitle").textContent = item.title;
-  $("productModalContent").innerHTML = `
-    ${img ? `<img src="${escapeHTML(img)}" alt="${escapeHTML(item.title)}" style="width:100%;max-height:260px;object-fit:cover;border-radius:12px">` : ""}
-    <p class="product-category">${escapeHTML(categoryName(item.category_id))}</p>
-    <h2>${escapeHTML(item.title)}</h2>
-    <div class="price">${formatNaira(item.price)}</div>
-    <p>${escapeHTML(item.description)}</p>
-    <p class="muted small">Type: ${escapeHTML(item.listing_type)} · Stock: ${escapeHTML(item.stock_quantity ?? "Check availability")}</p>
-    <div class="notice">Order details and payment instructions will be provided through the platform's order process. Do not send money to an unverified seller.</div>
-    <div class="form-actions"><button class="btn" onclick="closeModal();startOrder('${escapeHTML(item.id)}')">Place order</button><button class="btn outline" onclick="closeModal()">Close</button></div>`;
-  $("productModal").classList.add("open");
-}
+ $('publishBtn').disabled = true;
+ $('publishBtn').textContent = 'Submitting...';
 
-function closeModal() {
-  $("productModal").classList.remove("open");
-}
+ // Use actual marketplace columns. The existing policy requires seller_id = auth.uid().
+ // Status is pending so the listing is not publicly visible until authorized approval.
+ const {error} = await db.from('marketplace').insert({
+  title,
+  category,
+  description,
+  price,
+  stock,
+  image_url: imageUrl || null,
+  seller_id: currentUser.id,
+  status: 'pending'
+ });
 
-$("productModal").addEventListener("click", e => {
-  if (e.target === $("productModal")) closeModal();
+ $('publishBtn').disabled = false;
+ $('publishBtn').textContent = 'Submit Listing';
+
+ if (error) {
+  message('listingMessage','Listing could not be submitted: ' + errorText(error));
+  return;
+ }
+
+ $('listingForm').reset();
+ $('productStock').value = '1';
+ message('listingMessage','Listing submitted. It will appear publicly only when its status is activated/approved by your existing moderation process.',true);
+ await loadMyListings();
+ await loadMarketplace();
 });
 
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") closeModal();
-});
+async function loadMyOrders() {
+ if (!currentUser) {
+  $('myOrders').innerHTML = '<div class="empty">Sign in to view your orders.</div>';
+  return;
+ }
 
-async function startOrder(id) {
-  if (!ready()) return;
-  if (!currentUser) {
-    showToast("Please sign in before placing an order.");
-    await handleAuth();
-    if (!currentUser) return;
-  }
+ $('myOrders').innerHTML = '<div class="empty">Loading orders...</div>';
+ const {data, error} = await db.from('marketplace_orders')
+  .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+  .eq('buyer_id',currentUser.id)
+  .order('created_at',{ascending:false});
 
-  const item = listings.find(x => String(x.id) === String(id));
-  if (!item || !listingIsPublic(item)) return showToast("This listing is not available.");
+ if (error) {
+  $('myOrders').innerHTML = '';
+  return message('globalMessage','Could not load your orders: ' + errorText(error));
+ }
 
-  if (String(item.seller_id) === String(currentUser.id)) {
-    return showToast("You cannot place an order for your own listing.");
-  }
+ orderRows = data || [];
+ $('orderCount').textContent = orderRows.length;
 
-  const confirmed = confirm(`Place an order for "${item.title}" at ${formatNaira(item.price)}?\n\nThis creates an order request. It does not confirm payment.`);
-  if (!confirmed) return;
+ const productIds = [...new Set(orderRows.map(o => o.product_id).filter(Boolean))];
+ let productMap = {};
+ if (productIds.length) {
+  const result = await db.from('marketplace')
+   .select('id,title,category,image_url')
+   .in('id',productIds);
+  if (!result.error) (result.data || []).forEach(p => productMap[p.id] = p);
+ }
 
-  // The database must enforce server-side price calculation, stock checks,
-  // seller restrictions and buyer permissions. Never trust browser totals.
-  const {data, error} = await supabaseClient.from(TABLES.orders).insert({
-    buyer_id: currentUser.id,
-    seller_id: item.seller_id,
-    listing_id: item.id,
-    quantity: 1,
-    unit_price: item.price,
-    total_amount: item.price,
-    status: "awaiting_payment",
-    payment_status: "unpaid"
-  }).select("id,status,payment_status,total_amount").single();
-
-  if (error) {
-    console.error("Create order:", error);
-    showToast("Order was not created. Check the marketplace order table and its security policies.");
-    return;
-  }
-
-  showToast("Order request created. Payment is not yet confirmed.");
-  alert(`Order created.\nOrder reference: ${data.id}\nAmount: ${formatNaira(data.total_amount)}\nStatus: ${data.status}\n\nNext: follow the official payment instructions and wait for administrator verification.`);
-  showPage("orders");
-}
-
-$("searchForm").addEventListener("submit", e => {
-  e.preventDefault();
-  searchTerm = $("searchInput").value.trim();
-  renderListings();
-  $("catalogue").scrollIntoView({behavior:"smooth"});
-});
-
-$("listingForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  if (!ready()) return;
-  if (!currentUser) {
-    showToast("Please sign in before creating a listing.");
-    await handleAuth();
-    if (!currentUser) return;
-  }
-
-  const title = $("listingTitle").value.trim();
-  const description = $("listingDescription").value.trim();
-  const category_id = $("listingCategory").value;
-  const listing_type = $("listingType").value;
-  const price = Number($("listingPrice").value);
-  const stock_quantity = Number($("listingStock").value);
-  const image_url = safeImageURL($("listingImage").value.trim());
-  const delivery_info = $("listingDelivery").value.trim();
-
-  if (!title || !description || !category_id || !delivery_info ||
-      !Number.isFinite(price) || price <= 0 ||
-      !Number.isInteger(stock_quantity) || stock_quantity < 1) {
-    return showToast("Check all required fields and enter a valid price and quantity.");
-  }
-
-  if ($("listingImage").value.trim() && !image_url) {
-    return showToast("Enter a valid HTTP or HTTPS image URL, or leave the image field blank.");
-  }
-
-  const button = $("publishButton");
-  button.disabled = true;
-  button.textContent = "Submitting…";
-
-  const {error} = await supabaseClient.from(TABLES.listings).insert({
-    seller_id: currentUser.id,
-    title, description, category_id, listing_type, price,
-    stock_quantity, image_url: image_url || null, delivery_info,
-    status: "pending",
-    is_active: false
-  });
-
-  button.disabled = false;
-  button.textContent = "Submit listing for review";
-
-  if (error) {
-    console.error("Create listing:", error);
-    showToast("Listing was not submitted. Check database columns and seller RLS policies.");
-    return;
-  }
-
-  $("listingForm").reset();
-  $("listingStock").value = "1";
-  showToast("Listing submitted for admin review.");
-  showPage("listings");
-  loadMyListings();
-});
-
-async function loadOrders() {
-  const root = $("ordersContent");
-  if (!ready() || !currentUser) {
-    root.innerHTML = `<div class="empty"><b>Sign in to view orders</b>Your orders are private to your account.</div>`;
-    return;
-  }
-
-  root.innerHTML = `<div class="loading">Loading your orders…</div>`;
-  const {data, error} = await supabaseClient.from(TABLES.orders)
-    .select("id,listing_id,quantity,total_amount,status,payment_status,created_at")
-    .eq("buyer_id", currentUser.id)
-    .order("created_at", {ascending:false})
-    .limit(100);
-
-  if (error) {
-    console.error(error);
-    root.innerHTML = `<div class="empty"><b>Could not load orders</b>Check the marketplace_orders table and Row Level Security policies.</div>`;
-    return;
-  }
-
-  if (!data?.length) {
-    root.innerHTML = `<div class="empty"><b>No orders yet</b>Products you order will appear here.</div>`;
-    return;
-  }
-
-  root.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Order reference</th><th>Total</th><th>Order status</th><th>Payment</th><th>Date</th></tr></thead><tbody>` +
-    data.map(o => `<tr>
-      <td>${escapeHTML(String(o.id).slice(0,12))}</td>
-      <td>${formatNaira(o.total_amount)}</td>
-      <td><span class="status ${escapeHTML(o.status)}">${escapeHTML(o.status)}</span></td>
-      <td><span class="status ${o.payment_status==="paid"?"approved":"pending"}">${escapeHTML(o.payment_status)}</span></td>
-      <td>${o.created_at ? escapeHTML(new Date(o.created_at).toLocaleDateString("en-NG")) : "—"}</td>
-    </tr>`).join("") + `</tbody></table></div>`;
+ $('myOrders').innerHTML = orderRows.length ? orderRows.map(o => {
+  const p = productMap[o.product_id];
+  return `<div class="row"><div>
+   <h3>${escapeHTML(p?.title || 'Marketplace product')}</h3>
+   <div class="muted">Order: ${escapeHTML(o.id)}</div>
+   <div class="muted">Quantity: ${Number(o.quantity)} × ${money(o.unit_price)}</div>
+   <div class="muted">Order status: ${escapeHTML(o.status || 'pending')}</div>
+   <div class="muted">Delivery: ${escapeHTML(o.delivery_status || 'pending')}</div>
+   <div class="price">${money(o.total_amount)}</div>
+   <div class="muted">Payment must be confirmed through the official process.</div>
+  </div></div>`;
+ }).join('') : '<div class="empty">You have not placed any orders yet.</div>';
 }
 
 async function loadMyListings() {
-  const root = $("myListingsContent");
-  if (!ready() || !currentUser) {
-    root.innerHTML = `<div class="empty"><b>Sign in to manage listings</b>Your products and services will appear here.</div>`;
-    return;
-  }
+ if (!currentUser) {
+  $('myListings').innerHTML = '<div class="empty">Sign in to view your listings.</div>';
+  return;
+ }
 
-  root.innerHTML = `<div class="loading">Loading your listings…</div>`;
-  const {data, error} = await supabaseClient.from(TABLES.listings)
-    .select("id,title,price,status,is_active,created_at,stock_quantity")
-    .eq("seller_id", currentUser.id)
-    .order("created_at", {ascending:false})
-    .limit(100);
+ $('myListings').innerHTML = '<div class="empty">Loading your listings...</div>';
+ const {data,error} = await db.from('marketplace')
+  .select('id,title,description,category,price,stock,image_url,status,created_at')
+  .eq('seller_id',currentUser.id)
+  .order('created_at',{ascending:false});
 
-  if (error) {
-    console.error(error);
-    root.innerHTML = `<div class="empty"><b>Could not load listings</b>Check your database table and seller policies.</div>`;
-    return;
-  }
+ if (error) {
+  $('myListings').innerHTML = '';
+  return message('globalMessage','Could not load your listings: ' + errorText(error));
+ }
 
-  if (!data?.length) {
-    root.innerHTML = `<div class="empty"><b>No listings yet</b>Create a listing to begin selling.</div>`;
-    return;
-  }
-
-  root.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Listing</th><th>Price</th><th>Stock</th><th>Status</th><th>Created</th></tr></thead><tbody>` +
-    data.map(item => `<tr>
-      <td>${escapeHTML(item.title)}</td>
-      <td>${formatNaira(item.price)}</td>
-      <td>${escapeHTML(item.stock_quantity)}</td>
-      <td><span class="status ${item.status==="approved"?"approved":item.status==="rejected"?"rejected":"pending"}">${escapeHTML(item.status)}</span></td>
-      <td>${item.created_at ? escapeHTML(new Date(item.created_at).toLocaleDateString("en-NG")) : "—"}</td>
-    </tr>`).join("") + `</tbody></table></div>`;
+ myListingRows = data || [];
+ $('myListings').innerHTML = myListingRows.length ? myListingRows.map(p => `
+  <div class="row">
+   <div>
+    <h3>${escapeHTML(p.title)}</h3>
+    <div class="muted">${escapeHTML(p.category)} · ${money(p.price)} · Stock: ${Number(p.stock||0)}</div>
+    <p><span class="badge">${escapeHTML(p.status || 'pending')}</span></p>
+   </div>
+   <div class="actions">
+    ${p.status === 'active' ? `<button class="secondary" onclick="window.changeListingStatus('${escapeHTML(p.id)}','inactive')">Pause</button>` : ''}
+    ${p.status === 'inactive' ? `<button class="secondary" onclick="window.changeListingStatus('${escapeHTML(p.id)}','active')">Activate</button>` : ''}
+   </div>
+  </div>`).join('') : '<div class="empty">You have not created any listings yet.</div>';
 }
+
+window.changeListingStatus = async function(id,status) {
+ if (!currentUser) return toast('Please sign in again.');
+ const {error} = await db.from('marketplace')
+  .update({status})
+  .eq('id',id)
+  .eq('seller_id',currentUser.id);
+
+ if (error) return toast('Could not update listing: ' + errorText(error));
+ toast('Listing updated.');
+ await loadMyListings();
+ await loadMarketplace();
+};
 
 async function loadSellerOrders() {
-  const root = $("sellerOrdersContent");
-  if (!ready() || !currentUser) {
-    root.innerHTML = `<div class="empty"><b>Sign in to view seller orders</b>Only orders for your own listings should be displayed.</div>`;
-    return;
-  }
+ if (!currentUser) {
+  $('sellerOrders').innerHTML = '<div class="empty">Sign in to view seller orders.</div>';
+  return;
+ }
 
-  root.innerHTML = `<div class="loading">Loading seller orders…</div>`;
-  const {data, error} = await supabaseClient.from(TABLES.orders)
-    .select("id,listing_id,buyer_id,quantity,total_amount,status,payment_status,created_at")
-    .eq("seller_id", currentUser.id)
-    .order("created_at", {ascending:false})
-    .limit(100);
+ $('sellerOrders').innerHTML = '<div class="empty">Checking order permissions...</div>';
 
-  if (error) {
-    console.error(error);
-    root.innerHTML = `<div class="empty"><b>Could not load seller orders</b>Check order columns and Row Level Security policies.</div>`;
-    return;
-  }
+ // First fetch the seller's product IDs. The orders query is still protected by RLS.
+ const {data: owned, error: ownedError} = await db.from('marketplace')
+  .select('id,title')
+  .eq('seller_id',currentUser.id);
 
-  if (!data?.length) {
-    root.innerHTML = `<div class="empty"><b>No seller orders yet</b>Orders for your approved listings will appear here.</div>`;
-    return;
-  }
+ if (ownedError) {
+  $('sellerOrders').innerHTML = '';
+  return message('globalMessage','Could not load your products: ' + errorText(ownedError));
+ }
 
-  root.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Order</th><th>Quantity</th><th>Total</th><th>Payment</th><th>Order status</th><th>Date</th></tr></thead><tbody>` +
-    data.map(o => `<tr>
-      <td>${escapeHTML(String(o.id).slice(0,12))}</td>
-      <td>${escapeHTML(o.quantity)}</td>
-      <td>${formatNaira(o.total_amount)}</td>
-      <td><span class="status ${o.payment_status==="paid"?"approved":"pending"}">${escapeHTML(o.payment_status)}</span></td>
-      <td><span class="status">${escapeHTML(o.status)}</span></td>
-      <td>${o.created_at ? escapeHTML(new Date(o.created_at).toLocaleDateString("en-NG")) : "—"}</td>
-    </tr>`).join("") + `</tbody></table></div>`;
+ if (!owned?.length) {
+  $('sellerOrders').innerHTML = '<div class="empty">Create a product listing first.</div>';
+  return;
+ }
+
+ const ids = owned.map(p => p.id);
+ const titleMap = {};
+ owned.forEach(p => titleMap[p.id] = p.title);
+
+ const {data,error} = await db.from('marketplace_orders')
+  .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+  .in('product_id',ids)
+  .order('created_at',{ascending:false});
+
+ if (error) {
+  $('sellerOrders').innerHTML = '';
+  message('globalMessage','Seller orders are blocked by your current database permissions. A secure seller-read RLS policy is required. Details: ' + errorText(error));
+  return;
+ }
+
+ $('sellerOrders').innerHTML = data?.length ? data.map(o => `
+  <div class="row"><div>
+   <h3>${escapeHTML(titleMap[o.product_id] || 'Product order')}</h3>
+   <div class="muted">Order: ${escapeHTML(o.id)}</div>
+   <div class="muted">Quantity: ${Number(o.quantity)}</div>
+   <div class="muted">Buyer ID: ${escapeHTML(o.buyer_id || 'Unavailable')}</div>
+   <div class="muted">Status: ${escapeHTML(o.status || 'pending')}</div>
+   <div class="muted">Delivery: ${escapeHTML(o.delivery_status || 'pending')}</div>
+   <div class="price">${money(o.total_amount)}</div>
+  </div></div>`).join('') : '<div class="empty">No visible orders for your products yet. If buyers have ordered, an RLS policy may need to authorize sellers to read orders for their own products.</div>';
 }
 
-async function loadProfile() {
-  const root = $("profileContent");
-  if (!currentUser) {
-    root.innerHTML = `<div class="empty"><b>Not signed in</b>Sign in with your existing NAIJA TASK account.</div>`;
-    return;
-  }
+$('search').addEventListener('input',renderProducts);
+$('categoryFilter').addEventListener('change',renderProducts);
+$('refreshBtn').addEventListener('click',async()=>{
+ await getUser();
+ await loadMarketplace();
+ if (currentUser) {
+  if (currentPage === 'orders') await loadMyOrders();
+  if (currentPage === 'listings') await loadMyListings();
+  if (currentPage === 'sellerOrders') await loadSellerOrders();
+ }
+ toast('Marketplace refreshed.');
+});
 
-  root.innerHTML = `<div class="panel" style="box-shadow:none">
-    <p><b>Email:</b> ${escapeHTML(currentUser.email || "Not available")}</p>
-    <p><b>User ID:</b> <span class="small">${escapeHTML(currentUser.id)}</span></p>
-    <p class="muted small">This is your authenticated account. Marketplace orders and task earnings are separate.</p>
-  </div>`;
-}
+db.auth.onAuthStateChange((_event,session)=>{
+ currentUser = session?.user || null;
+ if (currentUser && currentPage === 'orders') loadMyOrders();
+ if (currentUser && currentPage === 'listings') loadMyListings();
+ if (currentUser && currentPage === 'sellerOrders') loadSellerOrders();
+});
 
-async function init() {
-  if (!window.supabase || SUPABASE_ANON_KEY === "PASTE_YOUR_SUPABASE_ANON_KEY_HERE") {
-    setConnection("Setup required: add your existing Supabase anon/public key in the code.", true);
-    $("productGrid").innerHTML = `<div class="empty" style="grid-column:1/-1"><b>Ready for database connection</b>The dashboard layout is ready. Add your Supabase anon key and marketplace database tables to load real listings.</div>`;
-    updateAuthUI();
-    return;
-  }
-
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  await refreshAuth();
-
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    currentUser = session?.user || null;
-    updateAuthUI();
-  });
-
-  await loadMarketplace();
-}
-
-init();
+(async function init(){
+ await getUser();
+ await loadMarketplace();
+})();
+})();
 </script>
 </body>
 </html>
