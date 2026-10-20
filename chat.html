@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087f36">
+<title>Private Chat | NAIJA TASK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --green:#087f36;
+  --green2:#0b9b45;
+  --dark:#064d25;
+  --lime:#b7ef43;
+  --bg:#f3f8f5;
+  --white:#fff;
+  --text:#17251b;
+  --muted:#77857b;
+  --border:#e2ebe4;
+  --danger:#c62828;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hidden{display:none!important}
+.topbar{height:65px;background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{height:39px;width:39px;border-radius:12px;background:var(--green);color:white;display:grid;place-items:center;font-weight:900}
+.brand strong{display:block;color:var(--dark);font-size:15px}
+.brand small{display:block;color:var(--muted);font-size:11px}
+.btn{border:0;border-radius:10px;background:var(--green);color:white;padding:10px 14px;font-weight:750}
+.btn:hover{background:var(--dark)}
+.btn.secondary{background:#eaf5ed;color:var(--dark)}
+.btn.outline{background:white;border:1px solid var(--border);color:var(--text)}
+.btn.danger{background:#fff0f0;color:var(--danger)}
+input,textarea{border:1px solid var(--border);border-radius:11px;padding:12px;width:100%;outline:none;background:white}
+input:focus,textarea:focus{border-color:var(--green2)}
+.layout{max-width:1200px;height:calc(100dvh - 65px);min-height:540px;margin:auto;padding:18px;display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}
+.panel{background:white;border:1px solid var(--border);border-radius:16px;overflow:hidden;min-height:0}
+.list-panel{display:flex;flex-direction:column}
+.list-head{padding:18px;border-bottom:1px solid var(--border)}
+.list-head h2{margin:0 0 4px;font-size:20px}
+.list-head p{margin:0 0 13px;color:var(--muted);font-size:12px}
+.list-head input{margin-top:10px}
+.conversations{overflow:auto;flex:1}
+.conversation{width:100%;display:flex;align-items:center;gap:11px;padding:13px 14px;border:0;border-bottom:1px solid #f0f3f0;background:white;text-align:left}
+.conversation:hover,.conversation.active{background:#edf7ef}
+.avatar{width:43px;height:43px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:#dff1e3;color:var(--dark);font-weight:900}
+.convo-main{min-width:0;flex:1}
+.convo-name{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.convo-preview{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.convo-meta{display:grid;justify-items:end;gap:5px}
+.unread{min-width:19px;height:19px;padding:0 5px;border-radius:100px;background:var(--green);color:white;font-size:10px;display:grid;place-items:center}
+.chat-panel{display:flex;flex-direction:column;position:relative}
+.chat-header{display:flex;align-items:center;gap:11px;padding:14px 17px;border-bottom:1px solid var(--border);min-height:75px}
+.chat-person{flex:1;min-width:0}
+.chat-person strong{display:block}
+.chat-person small{color:var(--muted)}
+.header-actions{display:flex;gap:6px}
+.messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:11px;background:#f8fbf8}
+.empty{margin:auto;text-align:center;padding:25px;color:var(--muted);max-width:330px}
+.empty .big{font-size:38px;margin-bottom:10px}
+.empty strong{display:block;font-size:17px;color:var(--text);margin-bottom:5px}
+.date-divider{text-align:center;font-size:11px;color:var(--muted);margin:7px 0}
+.bubble-row{display:flex;flex-direction:column;max-width:min(76%,460px);align-self:flex-start;gap:4px}
+.bubble-row.mine{align-self:flex-end}
+.bubble{background:white;border:1px solid var(--border);padding:11px 13px;border-radius:15px 15px 15px 4px;overflow-wrap:anywhere;white-space:pre-wrap}
+.mine .bubble{background:var(--green);color:white;border-color:var(--green);border-radius:15px 15px 4px 15px}
+.message-time{font-size:10px;color:var(--muted);padding:0 4px}
+.mine .message-time{text-align:right}
+.composer{padding:13px;border-top:1px solid var(--border);background:white}
+.composer form{display:flex;align-items:flex-end;gap:9px}
+.composer textarea{resize:none;min-height:44px;max-height:120px;flex:1}
+.composer-note{font-size:10px;color:var(--muted);margin-top:7px}
+.statusbar{padding:8px 14px;background:#f1f8f2;color:#386046;font-size:11px;border-bottom:1px solid var(--border)}
+.back-mobile{display:none}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#182b1e;color:white;padding:12px 18px;border-radius:12px;z-index:30;max-width:90%;box-shadow:0 6px 25px #0002}
+.setup{margin:18px auto;max-width:600px;padding:22px;background:white;border:1px solid var(--border);border-radius:16px}
+.setup h2{margin-top:0;color:var(--dark)}
+.setup p{color:var(--muted)}
+@media(max-width:700px){
+ .topbar{height:59px;padding:0 12px}
+ .layout{height:calc(100dvh - 59px);min-height:0;padding:0;display:block}
+ .panel{border:0;border-radius:0;height:100%}
+ .list-panel{display:flex}
+ .chat-panel{display:none}
+ body.chat-open .list-panel{display:none}
+ body.chat-open .chat-panel{display:flex}
+ .chat-header{padding:10px 12px;min-height:67px}
+ .back-mobile{display:inline-block}
+ .header-actions .btn{padding:8px;font-size:11px}
+ .messages{padding:13px}
+ .bubble-row{max-width:86%}
+ .composer{padding:10px}
+ .brand strong{font-size:13px}
+ .brand small{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="task.html">
+    <div class="logo">NT</div>
+    <div><strong>NAIJA TASK</strong><small>Private messages</small></div>
+  </a>
+  <button class="btn secondary" onclick="goBack()">Back to platform</button>
+</header>
+
+<div id="setupNotice" class="setup hidden">
+  <h2>Private Chat setup required</h2>
+  <p id="setupText">Configure the Supabase connection and chat database tables to start messaging.</p>
+  <p>For privacy, messages must be protected by database policies. A frontend-only chat is not secure enough for private conversations.</p>
+</div>
+
+<div class="layout" id="chatApp">
+  <aside class="panel list-panel">
+    <div class="list-head">
+      <h2>Messages</h2>
+      <p>Private conversations on NAIJA TASK</p>
+      <button class="btn" style="width:100%" onclick="newConversation()">＋ New message</button>
+      <input id="conversationSearch" type="search" placeholder="Search conversations..." aria-label="Search conversations">
+    </div>
+    <div id="conversationList" class="conversations">
+      <div class="empty"><div class="big">💬</div><strong>Your messages</strong>Loading conversations…</div>
+    </div>
+  </aside>
+
+  <main class="panel chat-panel">
+    <div id="chatHeader" class="chat-header">
+      <button class="btn secondary back-mobile" onclick="showConversationList()">←</button>
+      <div class="avatar">NT</div>
+      <div class="chat-person"><strong>Private chat</strong><small>Select a conversation to begin</small></div>
+    </div>
+    <div id="chatStatus" class="statusbar">Messages are visible only to conversation participants when database security is correctly configured.</div>
+    <div id="messages" class="messages">
+      <div class="empty"><div class="big">🔒</div><strong>Your private space</strong>Select a conversation or start a new one.</div>
+    </div>
+    <div class="composer">
+      <form id="messageForm">
+        <textarea id="messageInput" maxlength="5000" rows="1" placeholder="Write a message..." aria-label="Message" disabled></textarea>
+        <button id="sendButton" class="btn" type="submit" disabled>Send</button>
+      </form>
+      <div class="composer-note">Never share passwords, PINs, bank OTPs or private account recovery codes.</div>
+    </div>
+  </main>
+</div>
+
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script>
+/* ======================================================
+   CONFIGURATION
+   Use the project's Supabase anon/public key only.
+   Never put the service-role key in this file.
+   ====================================================== */
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_ANON_KEY_HERE";
+
+const TABLE_CONVERSATIONS = "chat_conversations";
+const TABLE_MEMBERS = "chat_participants";
+const TABLE_MESSAGES = "chat_messages";
+const TABLE_PROFILES = "profiles";
+const TABLE_BLOCKS = "chat_blocks";
+const TABLE_REPORTS = "chat_reports";
+
+let sb = null;
+let user = null;
+let activeConversation = null;
+let conversations = [];
+let messageCache = {};
+let realtimeChannel = null;
+let refreshTimer = null;
+let busy = false;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+function toast(text) {
+  $("toast").textContent = text;
+  $("toast").classList.remove("hidden");
+  setTimeout(()=>$("toast").classList.add("hidden"),3000);
+}
+
+function timeText(date) {
+  if(!date) return "";
+  const d = new Date(date);
+  if(Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+}
+
+function dateText(date) {
+  const d = new Date(date);
+  if(Number.isNaN(d.getTime())) return "";
+  const now = new Date();
+  if(d.toDateString()===now.toDateString()) return "Today";
+  return d.toLocaleDateString([], {day:"numeric",month:"short",year:"numeric"});
+}
+
+function initials(name) {
+  return String(name || "User").trim().split(/\s+/).slice(0,2).map(s=>s[0]||"").join("").toUpperCase();
+}
+
+function goBack() {
+  if(history.length > 1) history.back();
+  else location.href = "task.html";
+}
+
+function showConversationList() {
+  document.body.classList.remove("chat-open");
+}
+
+function showChatMobile() {
+  document.body.classList.add("chat-open");
+}
+
+async function init() {
+  if(!window.supabase || SUPABASE_ANON_KEY==="PASTE_YOUR_SUPABASE_ANON_KEY_HERE") {
+    $("chatApp").classList.add("hidden");
+    $("setupNotice").classList.remove("hidden");
+    $("setupText").textContent="Add your Supabase anon/public key and create the chat tables before this dashboard can connect.";
+    return;
+  }
+
+  sb = window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+  const {data,error} = await sb.auth.getUser();
+  if(error || !data.user) {
+    $("chatApp").classList.add("hidden");
+    $("setupNotice").classList.remove("hidden");
+    $("setupText").textContent="Please sign in to your existing NAIJA TASK account first. Private chat requires authentication.";
+    const btn=document.createElement("button");
+    btn.className="btn";
+    btn.textContent="Sign in";
+    btn.onclick=signIn;
+    $("setupNotice").appendChild(btn);
+    return;
+  }
+
+  user=data.user;
+  $("chatApp").classList.remove("hidden");
+  await loadConversations();
+
+  sb.auth.onAuthStateChange((_event,session)=>{
+    if(!session?.user) location.reload();
+  });
+}
+
+async function signIn() {
+  if(!sb) {
+    if(!window.supabase || SUPABASE_ANON_KEY==="PASTE_YOUR_SUPABASE_ANON_KEY_HERE") {
+      return toast("Configure Supabase first.");
+    }
+    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  }
+  const email=prompt("Enter your NAIJA TASK account email:");
+  if(!email) return;
+  const password=prompt("Enter your password:");
+  if(!password) return;
+  const {error}=await sb.auth.signInWithPassword({email:email.trim(),password});
+  if(error) return toast("Sign-in failed: "+error.message);
+  location.reload();
+}
+
+async function profileFor(id) {
+  const {data,error}=await sb.from(TABLE_PROFILES)
+    .select("id,full_name")
+    .eq("id",id)
+    .maybeSingle();
+  if(error) console.error("Profile lookup:",error);
+  return data || {id,full_name:"NAIJA TASK user"};
+}
+
+async function loadConversations() {
+  const root=$("conversationList");
+  root.innerHTML='<div class="empty">Loading conversations…</div>';
+
+  /*
+    Expected structure:
+    chat_participants: conversation_id, user_id, last_read_at
+    chat_conversations: id, created_at
+    chat_messages: id, conversation_id, sender_id, body, created_at
+  */
+  const {data:members,error}=await sb.from(TABLE_MEMBERS)
+    .select("conversation_id,last_read_at")
+    .eq("user_id",user.id);
+
+  if(error) {
+    console.error(error);
+    root.innerHTML='<div class="empty"><strong>Chat database not ready</strong>Check chat_participants and its RLS SELECT policy.</div>';
+    return;
+  }
+
+  if(!members?.length) {
+    conversations=[];
+    renderConversations();
+    return;
+  }
+
+  const ids=[...new Set(members.map(m=>m.conversation_id))];
+  const {data:rows,error:convError}=await sb.from(TABLE_CONVERSATIONS)
+    .select("id,created_at")
+    .in("id",ids)
+    .order("created_at",{ascending:false});
+
+  if(convError) {
+    console.error(convError);
+    root.innerHTML='<div class="empty"><strong>Could not load conversations</strong>Check chat_conversations permissions.</div>';
+    return;
+  }
+
+  const output=[];
+  for(const c of rows||[]) {
+    const {data:people,error:peopleError}=await sb.from(TABLE_MEMBERS)
+      .select("user_id,last_read_at")
+      .eq("conversation_id",c.id);
+
+    if(peopleError) {
+      console.error(peopleError);
+      continue;
+    }
+
+    const other=(people||[]).find(p=>p.user_id!==user.id);
+    if(!other) continue;
+
+    const person=await profileFor(other.user_id);
+    const {data:lastRows}=await sb.from(TABLE_MESSAGES)
+      .select("body,sender_id,created_at")
+      .eq("conversation_id",c.id)
+      .order("created_at",{ascending:false})
+      .limit(1);
+
+    const last=(lastRows||[])[0]||null;
+    const {count}=await sb.from(TABLE_MESSAGES)
+      .select("id",{count:"exact",head:true})
+      .eq("conversation_id",c.id)
+      .neq("sender_id",user.id)
+      .gt("created_at",other.last_read_at||"1970-01-01T00:00:00Z");
+
+    output.push({
+      id:c.id,
+      created_at:c.created_at,
+      other_id:other.user_id,
+      name:person.full_name||"NAIJA TASK user",
+      last,
+      unread:count||0
+    });
+  }
+
+  conversations=output;
+  renderConversations();
+}
+
+function renderConversations() {
+  const root=$("conversationList");
+  const q=$("conversationSearch").value.trim().toLowerCase();
+  const filtered=conversations.filter(c=>c.name.toLowerCase().includes(q));
+
+  if(!filtered.length) {
+    root.innerHTML='<div class="empty"><div class="big">💬</div><strong>No conversations yet</strong>Start a private conversation with another registered user.</div>';
+    return;
+  }
+
+  root.innerHTML=filtered.map(c=>`
+    <button class="conversation ${String(activeConversation?.id)===String(c.id)?"active":""}" onclick="openConversation('${esc(c.id)}')">
+      <div class="avatar">${esc(initials(c.name))}</div>
+      <div class="convo-main">
+        <div class="convo-name">${esc(c.name)}</div>
+        <div class="convo-preview">${esc(c.last?.body||"Start a conversation")}</div>
+      </div>
+      <div class="convo-meta">
+        <small class="muted">${esc(timeText(c.last?.created_at))}</small>
+        ${c.unread?`<span class="unread">${c.unread>99?"99+":c.unread}</span>`:""}
+      </div>
+    </button>`).join("");
+}
+
+async function openConversation(id) {
+  const c=conversations.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  activeConversation=c;
+  showChatMobile();
+
+  $("chatHeader").innerHTML=`
+    <button class="btn secondary back-mobile" onclick="showConversationList()">←</button>
+    <div class="avatar">${esc(initials(c.name))}</div>
+    <div class="chat-person"><strong>${esc(c.name)}</strong><small>Private conversation</small></div>
+    <div class="header-actions">
+      <button class="btn outline" onclick="reportUser('${esc(c.other_id)}')">Report</button>
+      <button class="btn danger" onclick="blockUser('${esc(c.other_id)}')">Block</button>
+    </div>`;
+
+  $("messages").innerHTML='<div class="empty">Loading messages…</div>';
+  $("messageInput").disabled=false;
+  $("sendButton").disabled=false;
+
+  if(realtimeChannel) {
+    await sb.removeChannel(realtimeChannel);
+    realtimeChannel=null;
+  }
+
+  await loadMessages(id);
+  await markRead(id);
+  await loadConversations();
+
+  realtimeChannel=sb.channel("chat-"+id)
+    .on("postgres_changes",{
+      event:"INSERT",schema:"public",table:TABLE_MESSAGES,
+      filter:"conversation_id=eq."+id
+    },async payload=>{
+      const msg=payload.new;
+      if(String(msg.conversation_id)!==String(activeConversation?.id)) return;
+      if(!(messageCache[id]||[]).some(m=>String(m.id)===String(msg.id))) {
+        messageCache[id]=[...(messageCache[id]||[]),msg];
+      }
+      renderMessages();
+      if(msg.sender_id!==user.id) await markRead(id);
+      await loadConversations();
+    })
+    .subscribe(status=>{
+      if(status==="CHANNEL_ERROR" || status==="TIMED_OUT") {
+        $("chatStatus").textContent="Live connection interrupted. Refresh to check for new messages.";
+      } else if(status==="SUBSCRIBED") {
+        $("chatStatus").textContent="Private conversation · Live updates enabled";
+      }
+    });
+}
+
+async function loadMessages(id) {
+  const {data,error}=await sb.from(TABLE_MESSAGES)
+    .select("id,conversation_id,sender_id,body,created_at")
+    .eq("conversation_id",id)
+    .order("created_at",{ascending:true})
+    .limit(300);
+
+  if(error) {
+    console.error(error);
+    $("messages").innerHTML='<div class="empty"><strong>Could not load messages</strong>Check chat_messages permissions and database policies.</div>';
+    return;
+  }
+
+  messageCache[id]=data||[];
+  renderMessages();
+}
+
+function renderMessages() {
+  const c=activeConversation;
+  if(!c) return;
+  const rows=messageCache[c.id]||[];
+  const root=$("messages");
+
+  if(!rows.length) {
+    root.innerHTML='<div class="empty"><div class="big">👋</div><strong>Say hello</strong>This is the beginning of your conversation.</div>';
+    return;
+  }
+
+  let lastDate="";
+  root.innerHTML=rows.map(m=>{
+    const date=dateText(m.created_at);
+    let divider="";
+    if(date!==lastDate) {
+      divider=`<div class="date-divider">${esc(date)}</div>`;
+      lastDate=date;
+    }
+    const mine=m.sender_id===user.id;
+    return `${divider}<div class="bubble-row ${mine?"mine":""}">
+      <div class="bubble">${esc(m.body)}</div>
+      <div class="message-time">${esc(timeText(m.created_at))}${mine?" · You":""}</div>
+    </div>`;
+  }).join("");
+
+  root.scrollTop=root.scrollHeight;
+}
+
+async function markRead(id) {
+  const {error}=await sb.from(TABLE_MEMBERS)
+    .update({last_read_at:new Date().toISOString()})
+    .eq("conversation_id",id)
+    .eq("user_id",user.id);
+
+  if(error) console.error("Mark read:",error);
+}
+
+$("messageForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(busy || !activeConversation) return;
+
+  const body=$("messageInput").value.trim();
+  if(!body) return;
+  if(body.length>5000) return toast("Message is too long.");
+  busy=true;
+  $("sendButton").disabled=true;
+
+  /*
+    RLS must verify that the sender is a conversation participant
+    and that neither participant has blocked the other.
+  */
+  const {data,error}=await sb.from(TABLE_MESSAGES).insert({
+    conversation_id:activeConversation.id,
+    sender_id:user.id,
+    body
+  }).select("id,conversation_id,sender_id,body,created_at").single();
+
+  busy=false;
+  $("sendButton").disabled=false;
+
+  if(error) {
+    console.error(error);
+    toast("Message not sent. Check chat security policies.");
+    return;
+  }
+
+  $("messageInput").value="";
+  if(!(messageCache[activeConversation.id]||[]).some(m=>String(m.id)===String(data.id))) {
+    messageCache[activeConversation.id]=[...(messageCache[activeConversation.id]||[]),data];
+  }
+  renderMessages();
+  await loadConversations();
+});
+
+$("messageInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter" && !e.shiftKey) {
+    e.preventDefault();
+    $("messageForm").requestSubmit();
+  }
+});
+
+$("conversationSearch").addEventListener("input",renderConversations);
+
+async function newConversation() {
+  if(!sb || !user) return toast("Please sign in first.");
+
+  const target=prompt("Enter the exact registered user ID of the person you want to message.\n\nDo not enter a password, PIN or OTP.");
+  if(!target || !target.trim()) return;
+  const targetId=target.trim();
+
+  if(targetId===user.id) return toast("You cannot start a conversation with yourself.");
+
+  const {data:profile,error:profileError}=await sb.from(TABLE_PROFILES)
+    .select("id,full_name")
+    .eq("id",targetId)
+    .maybeSingle();
+
+  if(profileError || !profile) return toast("User not found. Check the user ID.");
+
+  const {data:blocked,error:blockError}=await sb.from(TABLE_BLOCKS)
+    .select("blocker_id,blocked_id")
+    .or(`and(blocker_id.eq.${user.id},blocked_id.eq.${targetId}),and(blocker_id.eq.${targetId},blocked_id.eq.${user.id})`)
+    .limit(1);
+
+  if(!blockError && blocked?.length) {
+    return toast("This conversation cannot be started because a block is active.");
+  }
+
+  const {data:mine,error:mineError}=await sb.from(TABLE_MEMBERS)
+    .select("conversation_id")
+    .eq("user_id",user.id);
+
+  if(mineError) return toast("Could not check your conversations.");
+
+  for(const member of mine||[]) {
+    const {data:others}=await sb.from(TABLE_MEMBERS)
+      .select("user_id")
+      .eq("conversation_id",member.conversation_id)
+      .eq("user_id",targetId)
+      .limit(1);
+    if(others?.length) {
+      await loadConversations();
+      return openConversation(member.conversation_id);
+    }
+  }
+
+  /*
+    IMPORTANT:
+    A production implementation should create a conversation and both
+    participant rows through a SECURITY DEFINER RPC or backend function
+    that validates membership, blocks, and duplicate conversations.
+    This browser insert will work only if your database intentionally
+    permits it under safe RLS policies.
+  */
+  const {data:conv,error:convError}=await sb.from(TABLE_CONVERSATIONS)
+    .insert({created_by:user.id})
+    .select("id,created_at")
+    .single();
+
+  if(convError) {
+    console.error(convError);
+    return toast("Could not create conversation. A secure create-chat RPC may be required.");
+  }
+
+  const {error:membersError}=await sb.from(TABLE_MEMBERS).insert([
+    {conversation_id:conv.id,user_id:user.id,last_read_at:new Date().toISOString()},
+    {conversation_id:conv.id,user_id:targetId,last_read_at:null}
+  ]);
+
+  if(membersError) {
+    console.error(membersError);
+    toast("Conversation setup incomplete. Ask the administrator to inspect chat participant policies.");
+    return;
+  }
+
+  await loadConversations();
+  await openConversation(conv.id);
+}
+
+async function blockUser(targetId) {
+  if(!confirm("Block this user? This should prevent further messages according to your chat security policies.")) return;
+
+  const {error}=await sb.from(TABLE_BLOCKS).upsert({
+    blocker_id:user.id,
+    blocked_id:targetId
+  },{onConflict:"blocker_id,blocked_id"});
+
+  if(error) {
+    console.error(error);
+    return toast("Could not block user. Check chat_blocks policies.");
+  }
+
+  toast("User blocked.");
+  if(realtimeChannel) await sb.removeChannel(realtimeChannel);
+  realtimeChannel=null;
+  activeConversation=null;
+  $("messageInput").disabled=true;
+  $("sendButton").disabled=true;
+  $("messages").innerHTML='<div class="empty"><strong>Conversation closed</strong>You blocked this user.</div>';
+  await loadConversations();
+}
+
+async function reportUser(targetId) {
+  const reason=prompt("Why are you reporting this user? Please include a brief, factual reason.");
+  if(!reason || !reason.trim()) return;
+
+  const {error}=await sb.from(TABLE_REPORTS).insert({
+    reporter_id:user.id,
+    reported_user_id:targetId,
+    conversation_id:activeConversation?.id||null,
+    reason:reason.trim().slice(0,2000),
+    status:"open"
+  });
+
+  if(error) {
+    console.error(error);
+    return toast("Report not submitted. Check chat_reports policies.");
+  }
+  toast("Report submitted for administrator review.");
+}
+
+init();
+</script>
+</body>
+</html>
