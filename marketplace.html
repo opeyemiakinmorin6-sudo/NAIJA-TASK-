@@ -2,540 +2,772 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#087f36">
 <title>Marketplace | NAIJA TASK</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--green:#087f36;--deep:#064d25;--light:#eaf7ee;--lime:#b7ef43;--bg:#f3f8f5;--text:#173323;--muted:#64766b;--border:#dce8df;--white:#fff;--red:#b42318}
+:root {
+  --green:#087f36;
+  --deep:#064d25;
+  --bright:#0b9b45;
+  --lime:#b7ef43;
+  --bg:#f3f8f5;
+  --white:#fff;
+  --text:#17251c;
+  --muted:#6b7b70;
+  --border:#e1eae3;
+  --danger:#c62828;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
-button,input,select,textarea{font:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 header{background:var(--green);color:white;padding:18px 16px}
-.top{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.brand{font-weight:900;font-size:21px}.brand small{display:block;font-size:11px;font-weight:500;margin-top:4px}
-.wrap{max-width:1100px;margin:auto;padding:16px}
-.hero{background:linear-gradient(135deg,#064d25,#0b9b45);color:white;border-radius:18px;padding:22px;margin-bottom:16px}
-.hero h1{margin:0 0 8px;font-size:25px}.hero p{margin:0;line-height:1.5;color:#e6f6e9}
-.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.stat{background:#ffffff18;border:1px solid #ffffff35;border-radius:10px;padding:10px 13px}
-.nav{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}
-.nav button{white-space:nowrap;border:1px solid var(--border);background:white;color:var(--deep);padding:11px 14px;border-radius:10px;font-weight:700}
-.nav button.active{background:var(--green);color:white;border-color:var(--green)}
-.panel{background:white;border:1px solid var(--border);border-radius:15px;padding:16px;margin-bottom:16px}
-.panel h2{margin:0 0 14px;font-size:19px}
-.toolbar{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:10px;margin-bottom:15px}
-input,select,textarea{width:100%;border:1px solid #ccdacf;border-radius:9px;padding:12px;background:white;color:var(--text);outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--green)}
+.header-inner{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:21px;font-weight:900;letter-spacing:.4px}
+.brand small{display:block;font-size:11px;font-weight:500;margin-top:4px}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+button,.button{border:0;border-radius:10px;padding:11px 14px;font-weight:700}
+.btn-white{background:white;color:var(--green)}
+.btn-green{background:var(--green);color:white}
+.btn-light{background:#e9f5ec;color:var(--deep)}
+.btn-danger{background:#ffebeb;color:var(--danger)}
+button:disabled{opacity:.55;cursor:not-allowed}
+main{max-width:1100px;margin:auto;padding:18px 14px 40px}
+.notice{padding:12px 14px;border-radius:12px;background:#e8f6eb;color:var(--deep);font-size:13px;line-height:1.6;margin-bottom:16px}
+.status{font-size:13px;margin:12px 0;padding:11px 12px;border-radius:9px;display:none;line-height:1.5}
+.status.success{display:block;background:#e7f7eb;color:#12672e}
+.status.error{display:block;background:#ffebeb;color:#a51e1e}
+.status.info{display:block;background:#e9f2ff;color:#194e89}
+.auth-card,.panel{background:white;border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 3px 12px #102c1510}
+.auth-card{max-width:500px;margin:22px auto}
+h1,h2,h3,p{margin-top:0}
+h2{font-size:20px;margin-bottom:8px}
+h3{font-size:16px}
+.muted{color:var(--muted);font-size:13px;line-height:1.55}
+label{display:block;font-size:13px;font-weight:700;margin:13px 0 6px}
+input,textarea,select{width:100%;padding:12px;border:1px solid #d5e1d8;border-radius:10px;background:#fff;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--bright);box-shadow:0 0 0 3px #0b9b4518}
 textarea{min-height:95px;resize:vertical}
-button.primary{background:var(--green);color:white;border:0;border-radius:9px;padding:12px 16px;font-weight:700}
-button.secondary{background:var(--light);color:var(--deep);border:1px solid #c8e6d0;border-radius:9px;padding:10px 13px;font-weight:700}
-button.danger{background:#fff0ef;color:var(--red);border:1px solid #ffd0cc;border-radius:9px;padding:10px}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
-.card{border:1px solid var(--border);border-radius:13px;overflow:hidden;background:white;min-width:0}
-.product-image{height:145px;background:var(--light);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:42px;overflow:hidden}
+.auth-actions{display:flex;gap:8px;margin-top:14px}
+.auth-actions button{flex:1}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 0 13px;margin-bottom:12px}
+.tab{white-space:nowrap;background:white;color:var(--deep);border:1px solid var(--border)}
+.tab.active{background:var(--green);color:white;border-color:var(--green)}
+.section{display:none}
+.section.active{display:block}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar>*{flex:1;min-width:140px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.product{border:1px solid var(--border);border-radius:15px;background:white;overflow:hidden;min-width:0}
+.product-image{height:180px;background:#eaf3ec;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .product-image img{width:100%;height:100%;object-fit:cover}
-.cardbody{padding:13px}.card h3{margin:0 0 8px;font-size:16px;overflow-wrap:anywhere}
-.price{color:var(--green);font-size:19px;font-weight:900;margin:8px 0}
-.muted{color:var(--muted);font-size:13px;line-height:1.5;overflow-wrap:anywhere}
-.badge{display:inline-block;background:var(--light);color:var(--deep);border-radius:20px;padding:5px 9px;font-size:11px;font-weight:800}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.actions button{flex:1}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field{display:flex;flex-direction:column;gap:6px}
-.field label{font-size:13px;font-weight:700}
-.field.full{grid-column:1/-1}
-.notice{padding:12px;border-radius:10px;background:#f0f8ff;color:#17436b;line-height:1.5;margin:10px 0}
-.error{background:#fff0ef;color:#a52218;padding:12px;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}
-.success{background:#e9f8ed;color:#17662f;padding:12px;border-radius:10px;margin:10px 0}
-.empty{text-align:center;padding:28px 12px;color:var(--muted)}
-.row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--border);padding:13px 0}
-.row:last-child{border-bottom:0}
-.row h3{margin:0 0 5px;font-size:15px}
+.no-image{font-size:42px;color:#7b9b82}
+.product-content{padding:14px}
+.product h3{margin-bottom:7px;overflow-wrap:anywhere}
+.price{font-size:20px;font-weight:900;color:var(--green);margin:8px 0}
+.badge{display:inline-block;background:#e9f5ec;color:var(--deep);padding:5px 8px;border-radius:20px;font-size:11px;font-weight:800;margin-bottom:8px}
+.badge.pending{background:#fff2d9;color:#815100}
+.badge.rejected,.badge.inactive{background:#ffebeb;color:#a51e1e}
+.badge.active{background:#e5f7e9;color:#176b31}
+.product-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.product-actions button{flex:1;font-size:12px;padding:10px 8px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.full{grid-column:1/-1}
+.preview-wrap{display:none;margin-top:12px}
+.preview-wrap img{width:100%;max-width:300px;max-height:240px;object-fit:contain;border:1px solid var(--border);border-radius:12px;background:#f5f8f5}
+.row-card{padding:14px 0;border-bottom:1px solid var(--border)}
+.row-card:last-child{border-bottom:0}
+.row-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.row-card p{margin:7px 0;font-size:13px;line-height:1.5}
+.empty{background:white;border:1px dashed #c9d9cd;border-radius:14px;text-align:center;padding:28px 14px;color:var(--muted);font-size:14px}
 .hidden{display:none!important}
-#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#173323;color:white;padding:12px 16px;border-radius:10px;max-width:90%;z-index:20;display:none}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
-@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:22px}.wrap{padding:12px}.panel{padding:13px}}
-@media(max-width:430px){.grid{grid-template-columns:1fr 1fr;gap:8px}.product-image{height:110px}.cardbody{padding:10px}.card h3{font-size:14px}.toolbar{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.brand{font-size:18px}}
+footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.product-image{height:150px}}
+@media(max-width:480px){main{padding:13px 10px 30px}.grid{grid-template-columns:1fr 1fr;gap:9px}.product-image{height:125px}.product-content{padding:10px}.product h3{font-size:14px}.price{font-size:17px}.product-actions button{font-size:11px;padding:9px 5px}.panel{padding:14px}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.brand{font-size:18px}.header-inner{align-items:flex-start}.header-actions button{padding:9px;font-size:12px}}
 </style>
 </head>
 <body>
 <header>
- <div class="top">
-  <div class="brand">NAIJA TASK <small>Marketplace · Buy and sell</small></div>
-  <button class="secondary" id="refreshBtn">↻ Refresh</button>
- </div>
+  <div class="header-inner">
+    <div class="brand">NAIJA TASK <small>Marketplace · Buy and Sell</small></div>
+    <div class="header-actions">
+      <button class="btn-white" id="authHeaderBtn" onclick="showAuth()">Sign in</button>
+      <button class="btn-white hidden" id="logoutBtn" onclick="logout()">Sign out</button>
+    </div>
+  </div>
 </header>
 
-<main class="wrap">
- <section class="hero">
-  <h1>NAIJA TASK Marketplace</h1>
-  <p>Discover products, place orders and manage your listings in one place.</p>
-  <div class="stats">
-   <div class="stat">Products <strong id="productCount">0</strong></div>
-   <div class="stat">My orders <strong id="orderCount">0</strong></div>
+<main>
+  <div class="notice">
+    <strong>Welcome to NAIJA TASK Marketplace.</strong><br>
+    Browse products, place orders, and list your own products. Payments currently use the offline method arranged with the seller. Always confirm payment instructions before sending money.
   </div>
- </section>
 
- <div id="globalMessage"></div>
+  <div id="globalStatus" class="status" role="status" aria-live="polite"></div>
 
- <nav class="nav">
-  <button class="active" data-page="shop">🛍️ Shop</button>
-  <button data-page="orders">📦 My Orders</button>
-  <button data-page="sell">＋ Sell Product</button>
-  <button data-page="listings">My Listings</button>
-  <button data-page="sellerOrders">Seller Orders</button>
- </nav>
+  <section id="authPanel" class="auth-card">
+    <h2>Sign in or create an account</h2>
+    <p class="muted">Sign in to buy products, upload product photos, manage listings, and view orders.</p>
+    <label for="authEmail">Email address</label>
+    <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com">
+    <label for="authPassword">Password</label>
+    <input id="authPassword" type="password" autocomplete="current-password" placeholder="Your password">
+    <div class="auth-actions">
+      <button class="btn-green" id="signInBtn" onclick="signIn()">Sign in</button>
+      <button class="btn-light" id="signUpBtn" onclick="signUp()">Create account</button>
+    </div>
+    <p style="margin-top:14px"><button class="btn-light" onclick="resetPassword()">Forgot password?</button></p>
+    <p class="muted">If email confirmation is enabled in Supabase, confirm your email before signing in.</p>
+  </section>
 
- <section id="page-shop" class="panel">
-  <h2>Explore Products</h2>
-  <div class="toolbar">
-   <input id="search" placeholder="Search products..." autocomplete="off">
-   <select id="categoryFilter"><option value="">All categories</option></select>
+  <div id="appPanel" class="hidden">
+    <div class="tabs" role="tablist" aria-label="Marketplace sections">
+      <button class="tab active" data-section="shop" onclick="openTab('shop',this)">🛍️ Shop</button>
+      <button class="tab" data-section="orders" onclick="openTab('orders',this)">📦 My Orders</button>
+      <button class="tab" data-section="sell" onclick="openTab('sell',this)">➕ Sell Product</button>
+      <button class="tab" data-section="listings" onclick="openTab('listings',this)">🏪 My Listings</button>
+      <button class="tab" data-section="sellerOrders" onclick="openTab('sellerOrders',this)">🚚 Seller Orders</button>
+    </div>
+
+    <section id="section-shop" class="section active">
+      <div class="toolbar">
+        <input id="searchInput" placeholder="Search products..." oninput="renderProducts()">
+        <select id="categoryFilter" onchange="renderProducts()">
+          <option value="">All categories</option>
+          <option>Phones</option><option>Electronics</option><option>Fashion</option>
+          <option>Home</option><option>Accessories</option><option>Books</option>
+          <option>Beauty</option><option>Other</option>
+        </select>
+        <button class="btn-light" onclick="loadMarketplace()">Refresh shop</button>
+      </div>
+      <div id="productGrid" class="grid"></div>
+    </section>
+
+    <section id="section-orders" class="section">
+      <div class="panel">
+        <h2>My Orders</h2>
+        <p class="muted">Orders you have placed. Check the status before arranging payment or delivery.</p>
+        <button class="btn-light" onclick="loadMyOrders()">Refresh orders</button>
+        <div id="myOrdersList" style="margin-top:12px"></div>
+      </div>
+    </section>
+
+    <section id="section-sell" class="section">
+      <div class="panel">
+        <h2>List a product</h2>
+        <p class="muted">Upload a real product photo from your phone. New listings are submitted as pending and may need administrator approval before appearing in the shop.</p>
+        <form id="listingForm">
+          <div class="form-grid">
+            <div class="full">
+              <label for="productTitle">Product name *</label>
+              <input id="productTitle" maxlength="120" required placeholder="e.g. Samsung phone">
+            </div>
+            <div>
+              <label for="productCategory">Category *</label>
+              <select id="productCategory" required>
+                <option value="">Select category</option>
+                <option>Phones</option><option>Electronics</option><option>Fashion</option>
+                <option>Home</option><option>Accessories</option><option>Books</option>
+                <option>Beauty</option><option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="productPrice">Price (₦) *</label>
+              <input id="productPrice" type="number" min="1" step="1" required placeholder="5000">
+            </div>
+            <div>
+              <label for="productStock">Quantity available *</label>
+              <input id="productStock" type="number" min="1" step="1" value="1" required>
+            </div>
+            <div class="full">
+              <label for="productDescription">Description *</label>
+              <textarea id="productDescription" maxlength="3000" required placeholder="Describe the condition, features, and other important details."></textarea>
+            </div>
+            <div class="full">
+              <label for="productImageFile">Product photo (optional, max 5 MB)</label>
+              <input id="productImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+              <p class="muted">Choose an image from your phone gallery or camera if your browser offers that option. JPEG, PNG, WebP, and GIF are supported.</p>
+              <div class="preview-wrap" id="previewWrap">
+                <img id="imagePreview" alt="Selected product photo preview">
+                <p><button type="button" class="btn-danger" onclick="clearImage()">Remove photo</button></p>
+              </div>
+            </div>
+          </div>
+          <button class="btn-green" id="submitListingBtn" type="submit" style="width:100%;margin-top:16px">Submit product for review</button>
+        </form>
+        <div id="listingStatus" class="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="section-listings" class="section">
+      <div class="panel">
+        <h2>My Listings</h2>
+        <p class="muted">Review your product listings and their current statuses.</p>
+        <button class="btn-light" onclick="loadMyListings()">Refresh listings</button>
+        <div id="myListingsList" style="margin-top:12px"></div>
+      </div>
+    </section>
+
+    <section id="section-sellerOrders" class="section">
+      <div class="panel">
+        <h2>Seller Orders</h2>
+        <p class="muted">Orders connected to your products. Contact the buyer only through the contact details provided through your approved platform process.</p>
+        <button class="btn-light" onclick="loadSellerOrders()">Refresh seller orders</button>
+        <div id="sellerOrdersList" style="margin-top:12px"></div>
+      </div>
+    </section>
   </div>
-  <div id="productGrid" class="grid"><div class="empty">Loading products...</div></div>
- </section>
-
- <section id="page-orders" class="panel hidden">
-  <h2>My Orders</h2>
-  <div class="notice">Orders are recorded in your account. Follow the offline payment instructions provided by the platform. An order does not mean payment has been confirmed.</div>
-  <div id="myOrders"><div class="empty">Loading orders...</div></div>
- </section>
-
- <section id="page-sell" class="panel hidden">
-  <h2>Create Product Listing</h2>
-  <div class="notice">Only list products you are authorized to sell. Your listing must be approved/activated according to the platform's existing rules before public buyers can see it.</div>
-  <form id="listingForm">
-   <div class="formgrid">
-    <div class="field full"><label for="productName">Product name *</label><input id="productName" maxlength="120" required placeholder="Enter product name"></div>
-    <div class="field"><label for="productCategory">Category *</label><input id="productCategory" maxlength="60" required placeholder="e.g. Phones"></div>
-    <div class="field"><label for="productPrice">Price (₦) *</label><input id="productPrice" type="number" min="1" step="0.01" required placeholder="Price in naira"></div>
-    <div class="field"><label for="productStock">Available stock *</label><input id="productStock" type="number" min="1" step="1" value="1" required></div>
-    <div class="field"><label for="productImage">Image URL (optional)</label><input id="productImage" type="url" placeholder="https://..."></div>
-    <div class="field full"><label for="productDescription">Description *</label><textarea id="productDescription" maxlength="3000" required placeholder="Describe the product accurately"></textarea></div>
-   </div>
-   <div class="actions"><button class="primary" id="publishBtn" type="submit">Submit Listing</button></div>
-   <div id="listingMessage"></div>
-  </form>
- </section>
-
- <section id="page-listings" class="panel hidden">
-  <h2>My Listings</h2>
-  <div id="myListings"><div class="empty">Loading your listings...</div></div>
- </section>
-
- <section id="page-sellerOrders" class="panel hidden">
-  <h2>Orders for My Products</h2>
-  <div class="notice">Seller order details are shown only if the database's Row Level Security policies authorize you to read them. If orders are blocked, the database policy must be corrected securely.</div>
-  <div id="sellerOrders"><div class="empty">Loading seller orders...</div></div>
- </section>
-
- <section class="panel">
-  <h2>Offline Payment & Support</h2>
-  <p class="muted">Use only the official NAIJA TASK payment instructions supplied by the administrator. Keep your transaction receipt and order ID. Never share your password or OTP. Do not assume an order is paid until an authorized administrator confirms the payment.</p>
-  <p class="muted">Support: naijataskofficia@gmail.com</p>
- </section>
 </main>
 
 <footer>NAIJA TASK · Complete Tasks. Earn Naira.</footer>
-<div id="toast"></div>
 
 <script>
-(() => {
 'use strict';
 
 const SUPABASE_URL = 'https://jwakveeiynpakunwjzkj.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D';
+const STORAGE_BUCKET = 'marketplace-images';
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const $ = id => document.getElementById(id);
-const money = value => '₦' + Number(value || 0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
-const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
- '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-})[ch]);
-
 let currentUser = null;
 let products = [];
-let myListingRows = [];
-let orderRows = [];
-let currentPage = 'shop';
+let selectedProductImage = null;
+let previewObjectUrl = null;
+let submittingListing = false;
 
-function toast(message) {
- const el = $('toast');
- el.textContent = message;
- el.style.display = 'block';
- clearTimeout(toast.timer);
- toast.timer = setTimeout(() => el.style.display = 'none', 3500);
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[char]));
 }
 
-function message(id, text, success = false) {
- $(id).innerHTML = text ? `<div class="${success?'success':'error'}">${escapeHTML(text)}</div>` : '';
+function money(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return '₦0';
+  return '₦' + number.toLocaleString('en-NG', {maximumFractionDigits:2});
 }
 
-function errorText(error) {
- return error?.message || error?.details || error?.hint || 'An unexpected database error occurred.';
+function showStatus(id, text, type='info') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'status ' + type;
+  el.textContent = text;
 }
 
-function showPage(page) {
- currentPage = page;
- document.querySelectorAll('[data-page]').forEach(btn => btn.classList.toggle('active', btn.dataset.page === page));
- document.querySelectorAll('[id^="page-"]').forEach(section => section.classList.add('hidden'));
- $('page-' + page).classList.remove('hidden');
-
- if (!currentUser && ['orders','sell','listings','sellerOrders'].includes(page)) {
-  toast('Please sign in to your NAIJA TASK account first.');
- }
- if (currentUser && page === 'orders') loadMyOrders();
- if (currentUser && page === 'listings') loadMyListings();
- if (currentUser && page === 'sellerOrders') loadSellerOrders();
+function clearStatus(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.className = 'status';
+    el.textContent = '';
+  }
 }
 
-document.querySelectorAll('[data-page]').forEach(btn => {
- btn.addEventListener('click', () => showPage(btn.dataset.page));
-});
-
-async function getUser() {
- const {data, error} = await db.auth.getUser();
- if (error) console.warn('Authentication check:', error.message);
- currentUser = data?.user || null;
- return currentUser;
+function showGlobal(text, type='info') {
+  showStatus('globalStatus', text, type);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function normalizeProduct(row) {
- return {
-  id: row.id,
-  title: row.title || '',
-  description: row.description || '',
-  category: row.category || 'Other',
-  price: Number(row.price || 0),
-  stock: Number(row.stock || 0),
-  image_url: row.image_url || '',
-  seller_id: row.seller_id,
-  status: row.status || ''
- };
+function showAuth() {
+  document.getElementById('authPanel').classList.remove('hidden');
+  document.getElementById('authPanel').scrollIntoView({behavior:'smooth'});
 }
 
-function safeImage(url) {
- try {
-  const parsed = new URL(url);
-  return ['https:','http:'].includes(parsed.protocol) ? parsed.href : '';
- } catch { return ''; }
+function updateAuthUI() {
+  const signedIn = !!currentUser;
+  document.getElementById('authPanel').classList.toggle('hidden', signedIn);
+  document.getElementById('appPanel').classList.toggle('hidden', !signedIn);
+  document.getElementById('logoutBtn').classList.toggle('hidden', !signedIn);
+  document.getElementById('authHeaderBtn').classList.toggle('hidden', signedIn);
+}
+
+async function getSessionUser() {
+  const {data,error} = await db.auth.getUser();
+  if (error) throw error;
+  return data.user || null;
+}
+
+async function signIn() {
+  clearStatus('globalStatus');
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || !password) return showGlobal('Enter your email and password.', 'error');
+
+  const button = document.getElementById('signInBtn');
+  button.disabled = true;
+  button.textContent = 'Signing in...';
+  try {
+    const {error} = await db.auth.signInWithPassword({email,password});
+    if (error) throw error;
+    currentUser = await getSessionUser();
+    updateAuthUI();
+    await refreshAll();
+    showGlobal('You are signed in.', 'success');
+  } catch (error) {
+    showGlobal('Sign-in failed: ' + error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Sign in';
+  }
+}
+
+async function signUp() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  if (!email || password.length < 6) {
+    return showGlobal('Enter a valid email and a password with at least 6 characters.', 'error');
+  }
+
+  const button = document.getElementById('signUpBtn');
+  button.disabled = true;
+  button.textContent = 'Creating...';
+  try {
+    const {data,error} = await db.auth.signUp({email,password});
+    if (error) throw error;
+    if (!data.session) {
+      showGlobal('Account created. Check your email for a confirmation link, then sign in.', 'success');
+    } else {
+      currentUser = data.user;
+      updateAuthUI();
+      await refreshAll();
+      showGlobal('Account created successfully.', 'success');
+    }
+  } catch (error) {
+    showGlobal('Sign-up failed: ' + error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Create account';
+  }
+}
+
+async function resetPassword() {
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email) return showGlobal('Enter your email address first.', 'error');
+  try {
+    const {error} = await db.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+    showGlobal('If password recovery is enabled, a reset email will be sent to that address.', 'success');
+  } catch (error) {
+    showGlobal('Password reset failed: ' + error.message, 'error');
+  }
+}
+
+async function logout() {
+  const {error} = await db.auth.signOut();
+  if (error) return showGlobal('Sign-out failed: ' + error.message, 'error');
+  currentUser = null;
+  products = [];
+  updateAuthUI();
+  showGlobal('You have signed out.', 'success');
+}
+
+function openTab(name, button) {
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  const section = document.getElementById('section-' + name);
+  if (section) section.classList.add('active');
+  if (button) button.classList.add('active');
+
+  if (name === 'shop') loadMarketplace();
+  if (name === 'orders') loadMyOrders();
+  if (name === 'listings') loadMyListings();
+  if (name === 'sellerOrders') loadSellerOrders();
+}
+
+function safeImageURL(value) {
+  try {
+    const url = new URL(value);
+    if (url.protocol === 'https:' || url.protocol === 'http:') return url.href;
+  } catch (_) {}
+  return '';
 }
 
 function productCard(p) {
- const image = safeImage(p.image_url);
- const own = currentUser && p.seller_id === currentUser.id;
- return `<article class="card">
-  <div class="product-image">${image ? `<img src="${escapeHTML(image)}" alt="${escapeHTML(p.title)}" loading="lazy" onerror="this.remove()">` : '🛍️'}</div>
-  <div class="cardbody">
-   <span class="badge">${escapeHTML(p.category)}</span>
-   <h3>${escapeHTML(p.title)}</h3>
-   <div class="price">${money(p.price)}</div>
-   <div class="muted">${escapeHTML((p.description || '').slice(0,110))}${p.description?.length > 110 ? '…' : ''}</div>
-   <p class="muted">Available: ${p.stock}</p>
-   <div class="actions">
-    ${own ? '<span class="badge">Your product</span>' : `<button class="primary" ${p.stock < 1 ? 'disabled' : ''} onclick="window.placeOrder('${escapeHTML(p.id)}')">Order</button>`}
-   </div>
-  </div>
- </article>`;
-}
+  const image = safeImageURL(p.image_url);
+  const title = escapeHTML(p.title || 'Untitled product');
+  const category = escapeHTML(p.category || 'Other');
+  const description = escapeHTML(p.description || 'No description provided.');
+  const stock = Number(p.stock || 0);
+  const imageHTML = image
+    ? '<img loading="lazy" src="' + escapeHTML(image) + '" alt="' + title + '" onerror="this.style.display=\'none\'">'
+    : '<div class="no-image" aria-label="No product photo">🛍️</div>';
 
-function renderCategories() {
- const select = $('categoryFilter');
- const selected = select.value;
- const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
- select.innerHTML = '<option value="">All categories</option>' + categories.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
- if (categories.includes(selected)) select.value = selected;
-}
-
-function renderProducts() {
- const query = $('search').value.trim().toLowerCase();
- const category = $('categoryFilter').value;
- const filtered = products.filter(p =>
-  (!category || p.category === category) &&
-  (!query || `${p.title} ${p.description} ${p.category}`.toLowerCase().includes(query))
- );
- $('productCount').textContent = products.length;
- $('productGrid').innerHTML = filtered.length
-  ? filtered.map(productCard).join('')
-  : '<div class="empty" style="grid-column:1/-1">No products found. Try another search or category.</div>';
+  return '<article class="product"><div class="product-image">' + imageHTML +
+    '</div><div class="product-content"><span class="badge">' + category +
+    '</span><h3>' + title + '</h3><div class="price">' + money(p.price) +
+    '</div><p class="muted">' + description + '</p><p class="muted">' +
+    (stock > 0 ? escapeHTML(stock) + ' available' : 'Out of stock') +
+    '</p><div class="product-actions"><button class="btn-green" ' +
+    (stock < 1 ? 'disabled' : '') + ' onclick="placeOrder(\'' +
+    escapeHTML(p.id) + '\')">Order</button></div></div></article>';
 }
 
 async function loadMarketplace() {
- $('productGrid').innerHTML = '<div class="empty">Loading products...</div>';
-
- // The existing "marketplace" table is the canonical seller-listing table.
- // Its RLS policy allows public reads of active products and sellers to read their own rows.
- const {data, error} = await db.from('marketplace')
-  .select('id,title,description,category,price,seller_id,status,stock,image_url,created_at')
-  .eq('status','active')
-  .order('created_at',{ascending:false});
-
- if (error) {
-  $('productGrid').innerHTML = '';
-  message('globalMessage', 'Could not load marketplace products: ' + errorText(error));
-  return;
- }
-
- products = (data || []).map(normalizeProduct).filter(p => p.id);
- renderCategories();
- renderProducts();
- message('globalMessage','');
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '<div class="empty">Loading products...</div>';
+  try {
+    const {data,error} = await db.from('marketplace')
+      .select('id,title,description,category,price,seller_id,status,stock,image_url,created_at')
+      .eq('status','active')
+      .order('created_at',{ascending:false});
+    if (error) throw error;
+    products = data || [];
+    renderProducts();
+  } catch (error) {
+    grid.innerHTML = '';
+    showStatus('globalStatus','Could not load products: ' + error.message,'error');
+    grid.innerHTML = '<div class="empty">Products could not be loaded. Check your database permissions and table columns.</div>';
+  }
 }
 
-window.placeOrder = async function(productId) {
- if (!currentUser) {
-  toast('Please sign in to your NAIJA TASK account before ordering.');
-  return;
- }
+function renderProducts() {
+  const grid = document.getElementById('productGrid');
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const category = document.getElementById('categoryFilter').value.toLowerCase();
+  const filtered = products.filter(p =>
+    (!category || String(p.category || '').toLowerCase() === category) &&
+    (!query || [p.title,p.description,p.category].some(v => String(v || '').toLowerCase().includes(query)))
+  );
+  grid.innerHTML = filtered.length
+    ? filtered.map(productCard).join('')
+    : '<div class="empty">No matching active products were found.</div>';
+}
 
- const product = products.find(p => String(p.id) === String(productId));
- if (!product) return toast('Product not found. Refresh and try again.');
- if (product.seller_id === currentUser.id) return toast('You cannot order your own product.');
- if (product.stock < 1) return toast('This product is out of stock.');
+async function placeOrder(productId) {
+  if (!currentUser) return showGlobal('Sign in before placing an order.','error');
+  const product = products.find(p => String(p.id) === String(productId));
+  if (!product) return showGlobal('This product is no longer available. Refresh the shop.','error');
+  if (String(product.seller_id) === String(currentUser.id)) {
+    return showGlobal('You cannot order your own product.','error');
+  }
 
- const raw = prompt('How many units do you want to order?', '1');
- if (raw === null) return;
- const quantity = Number(raw);
- if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > product.stock) {
-  return toast('Enter a valid quantity within the available stock.');
- }
+  const quantityText = prompt('Enter quantity (available: ' + Number(product.stock || 0) + '):','1');
+  if (quantityText === null) return;
+  const quantity = Number(quantityText);
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > Number(product.stock || 0)) {
+    return showGlobal('Enter a valid quantity within available stock.','error');
+  }
 
- const total = Number((quantity * product.price).toFixed(2));
- if (!Number.isFinite(total) || total <= 0) return toast('Invalid order amount.');
+  const unitPrice = Number(product.price);
+  const total = unitPrice * quantity;
+  if (!Number.isFinite(total) || unitPrice <= 0) return showGlobal('This product has an invalid price.','error');
 
- // Only columns confirmed to exist in marketplace_orders are inserted.
- // Payment is NOT marked as completed by this action.
- const {data, error} = await db.from('marketplace_orders').insert({
-  buyer_id: currentUser.id,
-  product_id: product.id,
-  quantity,
-  unit_price: product.price,
-  total_amount: total,
-  status: 'pending',
-  delivery_status: 'pending'
- }).select('id').single();
+  const confirmed = confirm(
+    'Place this order?\n\nProduct: ' + product.title +
+    '\nQuantity: ' + quantity + '\nTotal: ' + money(total) +
+    '\n\nPayment is currently handled offline. Confirm the seller/payment instructions before sending money.'
+  );
+  if (!confirmed) return;
 
- if (error) {
-  toast('Order could not be placed: ' + errorText(error));
-  return;
- }
+  try {
+    const {error} = await db.from('marketplace_orders').insert({
+      buyer_id:currentUser.id,
+      product_id:product.id,
+      quantity:quantity,
+      unit_price:unitPrice,
+      total_amount:total,
+      status:'pending',
+      delivery_status:'pending'
+    });
+    if (error) throw error;
+    showGlobal('Order submitted. Check My Orders for its status. No payment has been taken by this page.','success');
+    await loadMyOrders();
+    openTab('orders',document.querySelector('[data-section="orders"]'));
+  } catch (error) {
+    showGlobal('Order could not be placed: ' + error.message,'error');
+  }
+}
 
- toast('Order created. Order ID: ' + data.id + '. Follow official offline-payment instructions.');
- await loadMyOrders();
- await loadMarketplace();
- showPage('orders');
-};
+function showRows(containerId, rows, type) {
+  const container = document.getElementById(containerId);
+  if (!rows || !rows.length) {
+    container.innerHTML = '<div class="empty">Nothing to show yet.</div>';
+    return;
+  }
 
-$('listingForm').addEventListener('submit', async event => {
- event.preventDefault();
- if (!currentUser) return message('listingMessage','Please sign in before creating a listing.');
+  container.innerHTML = rows.map(row => {
+    const status = String(row.status || 'pending');
+    const badgeClass = ['active','approved','completed'].includes(status.toLowerCase())
+      ? 'active'
+      : ['rejected','cancelled','inactive'].includes(status.toLowerCase())
+        ? 'rejected' : 'pending';
 
- const title = $('productName').value.trim();
- const category = $('productCategory').value.trim();
- const description = $('productDescription').value.trim();
- const price = Number($('productPrice').value);
- const stock = Number($('productStock').value);
- const imageUrl = $('productImage').value.trim();
- if (!title || !category || !description || !Number.isFinite(price) || price <= 0 || !Number.isSafeInteger(stock) || stock < 1) {
-  return message('listingMessage','Please enter a valid name, category, description, price and stock quantity.');
- }
- if (imageUrl && !safeImage(imageUrl)) return message('listingMessage','Enter a valid HTTP or HTTPS image URL.');
+    if (type === 'order') {
+      return '<div class="row-card"><div class="row-top"><strong>Order #' +
+        escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' +
+        badgeClass + '">' + escapeHTML(status) + '</span></div><p>Product ID: ' +
+        escapeHTML(row.product_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
+        ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
+        escapeHTML(row.delivery_status || 'pending') + '</p><p class="muted">' +
+        escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') +
+        '</p></div>';
+    }
 
- $('publishBtn').disabled = true;
- $('publishBtn').textContent = 'Submitting...';
+    if (type === 'listing') {
+      return '<div class="row-card"><div class="row-top"><strong>' +
+        escapeHTML(row.title) + '</strong><span class="badge ' + badgeClass +
+        '">' + escapeHTML(status) + '</span></div><p>' + money(row.price) +
+        ' · Stock: ' + escapeHTML(row.stock) + '</p><p class="muted">' +
+        escapeHTML(row.description || '') + '</p>' +
+        (status.toLowerCase() === 'active'
+          ? '<button class="btn-light" onclick="changeListingStatus(\'' + escapeHTML(row.id) + '\',\'inactive\')">Deactivate</button>'
+          : status.toLowerCase() === 'inactive'
+            ? '<button class="btn-green" onclick="changeListingStatus(\'' + escapeHTML(row.id) + '\',\'active\')">Activate</button>'
+            : '<p class="muted">This listing is awaiting review. Only approved/active listings appear in the shop.</p>') +
+        '</div>';
+    }
 
- // Use actual marketplace columns. The existing policy requires seller_id = auth.uid().
- // Status is pending so the listing is not publicly visible until authorized approval.
- const {error} = await db.from('marketplace').insert({
-  title,
-  category,
-  description,
-  price,
-  stock,
-  image_url: imageUrl || null,
-  seller_id: currentUser.id,
-  status: 'pending'
- });
-
- $('publishBtn').disabled = false;
- $('publishBtn').textContent = 'Submit Listing';
-
- if (error) {
-  message('listingMessage','Listing could not be submitted: ' + errorText(error));
-  return;
- }
-
- $('listingForm').reset();
- $('productStock').value = '1';
- message('listingMessage','Listing submitted. It will appear publicly only when its status is activated/approved by your existing moderation process.',true);
- await loadMyListings();
- await loadMarketplace();
-});
+    return '<div class="row-card"><div class="row-top"><strong>Order #' +
+      escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' +
+      badgeClass + '">' + escapeHTML(status) + '</span></div><p>Product ID: ' +
+      escapeHTML(row.product_id) + '</p><p>Buyer ID: ' +
+      escapeHTML(row.buyer_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
+      ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
+      escapeHTML(row.delivery_status || 'pending') + '</p></div>';
+  }).join('');
+}
 
 async function loadMyOrders() {
- if (!currentUser) {
-  $('myOrders').innerHTML = '<div class="empty">Sign in to view your orders.</div>';
-  return;
- }
-
- $('myOrders').innerHTML = '<div class="empty">Loading orders...</div>';
- const {data, error} = await db.from('marketplace_orders')
-  .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
-  .eq('buyer_id',currentUser.id)
-  .order('created_at',{ascending:false});
-
- if (error) {
-  $('myOrders').innerHTML = '';
-  return message('globalMessage','Could not load your orders: ' + errorText(error));
- }
-
- orderRows = data || [];
- $('orderCount').textContent = orderRows.length;
-
- const productIds = [...new Set(orderRows.map(o => o.product_id).filter(Boolean))];
- let productMap = {};
- if (productIds.length) {
-  const result = await db.from('marketplace')
-   .select('id,title,category,image_url')
-   .in('id',productIds);
-  if (!result.error) (result.data || []).forEach(p => productMap[p.id] = p);
- }
-
- $('myOrders').innerHTML = orderRows.length ? orderRows.map(o => {
-  const p = productMap[o.product_id];
-  return `<div class="row"><div>
-   <h3>${escapeHTML(p?.title || 'Marketplace product')}</h3>
-   <div class="muted">Order: ${escapeHTML(o.id)}</div>
-   <div class="muted">Quantity: ${Number(o.quantity)} × ${money(o.unit_price)}</div>
-   <div class="muted">Order status: ${escapeHTML(o.status || 'pending')}</div>
-   <div class="muted">Delivery: ${escapeHTML(o.delivery_status || 'pending')}</div>
-   <div class="price">${money(o.total_amount)}</div>
-   <div class="muted">Payment must be confirmed through the official process.</div>
-  </div></div>`;
- }).join('') : '<div class="empty">You have not placed any orders yet.</div>';
+  const container = document.getElementById('myOrdersList');
+  container.innerHTML = '<div class="empty">Loading your orders...</div>';
+  if (!currentUser) return;
+  try {
+    const {data,error} = await db.from('marketplace_orders')
+      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+      .eq('buyer_id',currentUser.id).order('created_at',{ascending:false});
+    if (error) throw error;
+    showRows('myOrdersList',data,'order');
+  } catch (error) {
+    container.innerHTML = '<div class="empty">Could not load orders: ' + escapeHTML(error.message) + '</div>';
+  }
 }
 
 async function loadMyListings() {
- if (!currentUser) {
-  $('myListings').innerHTML = '<div class="empty">Sign in to view your listings.</div>';
-  return;
- }
-
- $('myListings').innerHTML = '<div class="empty">Loading your listings...</div>';
- const {data,error} = await db.from('marketplace')
-  .select('id,title,description,category,price,stock,image_url,status,created_at')
-  .eq('seller_id',currentUser.id)
-  .order('created_at',{ascending:false});
-
- if (error) {
-  $('myListings').innerHTML = '';
-  return message('globalMessage','Could not load your listings: ' + errorText(error));
- }
-
- myListingRows = data || [];
- $('myListings').innerHTML = myListingRows.length ? myListingRows.map(p => `
-  <div class="row">
-   <div>
-    <h3>${escapeHTML(p.title)}</h3>
-    <div class="muted">${escapeHTML(p.category)} · ${money(p.price)} · Stock: ${Number(p.stock||0)}</div>
-    <p><span class="badge">${escapeHTML(p.status || 'pending')}</span></p>
-   </div>
-   <div class="actions">
-    ${p.status === 'active' ? `<button class="secondary" onclick="window.changeListingStatus('${escapeHTML(p.id)}','inactive')">Pause</button>` : ''}
-    ${p.status === 'inactive' ? `<button class="secondary" onclick="window.changeListingStatus('${escapeHTML(p.id)}','active')">Activate</button>` : ''}
-   </div>
-  </div>`).join('') : '<div class="empty">You have not created any listings yet.</div>';
+  const container = document.getElementById('myListingsList');
+  container.innerHTML = '<div class="empty">Loading your listings...</div>';
+  if (!currentUser) return;
+  try {
+    const {data,error} = await db.from('marketplace')
+      .select('id,title,description,category,price,stock,status,image_url,created_at')
+      .eq('seller_id',currentUser.id).order('created_at',{ascending:false});
+    if (error) throw error;
+    showRows('myListingsList',data,'listing');
+  } catch (error) {
+    container.innerHTML = '<div class="empty">Could not load listings: ' + escapeHTML(error.message) + '</div>';
+  }
 }
-
-window.changeListingStatus = async function(id,status) {
- if (!currentUser) return toast('Please sign in again.');
- const {error} = await db.from('marketplace')
-  .update({status})
-  .eq('id',id)
-  .eq('seller_id',currentUser.id);
-
- if (error) return toast('Could not update listing: ' + errorText(error));
- toast('Listing updated.');
- await loadMyListings();
- await loadMarketplace();
-};
 
 async function loadSellerOrders() {
- if (!currentUser) {
-  $('sellerOrders').innerHTML = '<div class="empty">Sign in to view seller orders.</div>';
-  return;
- }
+  const container = document.getElementById('sellerOrdersList');
+  container.innerHTML = '<div class="empty">Loading seller orders...</div>';
+  if (!currentUser) return;
 
- $('sellerOrders').innerHTML = '<div class="empty">Checking order permissions...</div>';
+  try {
+    const {data:listingData,error:listingError} = await db.from('marketplace')
+      .select('id').eq('seller_id',currentUser.id);
+    if (listingError) throw listingError;
+    const ids = (listingData || []).map(item => item.id);
+    if (!ids.length) {
+      container.innerHTML = '<div class="empty">You have no products listed yet.</div>';
+      return;
+    }
 
- // First fetch the seller's product IDs. The orders query is still protected by RLS.
- const {data: owned, error: ownedError} = await db.from('marketplace')
-  .select('id,title')
-  .eq('seller_id',currentUser.id);
-
- if (ownedError) {
-  $('sellerOrders').innerHTML = '';
-  return message('globalMessage','Could not load your products: ' + errorText(ownedError));
- }
-
- if (!owned?.length) {
-  $('sellerOrders').innerHTML = '<div class="empty">Create a product listing first.</div>';
-  return;
- }
-
- const ids = owned.map(p => p.id);
- const titleMap = {};
- owned.forEach(p => titleMap[p.id] = p.title);
-
- const {data,error} = await db.from('marketplace_orders')
-  .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
-  .in('product_id',ids)
-  .order('created_at',{ascending:false});
-
- if (error) {
-  $('sellerOrders').innerHTML = '';
-  message('globalMessage','Seller orders are blocked by your current database permissions. A secure seller-read RLS policy is required. Details: ' + errorText(error));
-  return;
- }
-
- $('sellerOrders').innerHTML = data?.length ? data.map(o => `
-  <div class="row"><div>
-   <h3>${escapeHTML(titleMap[o.product_id] || 'Product order')}</h3>
-   <div class="muted">Order: ${escapeHTML(o.id)}</div>
-   <div class="muted">Quantity: ${Number(o.quantity)}</div>
-   <div class="muted">Buyer ID: ${escapeHTML(o.buyer_id || 'Unavailable')}</div>
-   <div class="muted">Status: ${escapeHTML(o.status || 'pending')}</div>
-   <div class="muted">Delivery: ${escapeHTML(o.delivery_status || 'pending')}</div>
-   <div class="price">${money(o.total_amount)}</div>
-  </div></div>`).join('') : '<div class="empty">No visible orders for your products yet. If buyers have ordered, an RLS policy may need to authorize sellers to read orders for their own products.</div>';
+    const {data:orderData,error:orderError} = await db.from('marketplace_orders')
+      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+      .in('product_id',ids).order('created_at',{ascending:false});
+    if (orderError) throw orderError;
+    showRows('sellerOrdersList',orderData,'seller');
+  } catch (error) {
+    container.innerHTML = '<div class="empty">Could not load seller orders: ' + escapeHTML(error.message) + '</div>';
+  }
 }
 
-$('search').addEventListener('input',renderProducts);
-$('categoryFilter').addEventListener('change',renderProducts);
-$('refreshBtn').addEventListener('click',async()=>{
- await getUser();
- await loadMarketplace();
- if (currentUser) {
-  if (currentPage === 'orders') await loadMyOrders();
-  if (currentPage === 'listings') await loadMyListings();
-  if (currentPage === 'sellerOrders') await loadSellerOrders();
- }
- toast('Marketplace refreshed.');
+async function changeListingStatus(productId, newStatus) {
+  if (!currentUser) return showGlobal('Sign in first.','error');
+  if (!['active','inactive'].includes(newStatus)) return;
+  if (!confirm('Change this listing status to ' + newStatus + '?')) return;
+
+  try {
+    const {data,error} = await db.from('marketplace')
+      .update({status:newStatus})
+      .eq('id',productId)
+      .eq('seller_id',currentUser.id)
+      .select('id,status');
+    if (error) throw error;
+    if (!data || !data.length) {
+      throw new Error('No listing was updated. Check your database update policy or whether the listing belongs to you.');
+    }
+    showGlobal('Listing status updated.','success');
+    await Promise.all([loadMyListings(),loadMarketplace()]);
+  } catch (error) {
+    showGlobal('Could not update listing: ' + error.message,'error');
+  }
+}
+
+function clearImage() {
+  selectedProductImage = null;
+  const input = document.getElementById('productImageFile');
+  input.value = '';
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('imagePreview').removeAttribute('src');
+  if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+  previewObjectUrl = null;
+}
+
+document.getElementById('productImageFile').addEventListener('change', function() {
+  clearStatus('listingStatus');
+  const file = this.files && this.files[0];
+  if (!file) {
+    clearImage();
+    return;
+  }
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    clearImage();
+    showStatus('listingStatus','Choose a JPEG, PNG, WebP, or GIF image.','error');
+    return;
+  }
+  if (file.size > MAX_IMAGE_SIZE) {
+    clearImage();
+    showStatus('listingStatus','This image exceeds 5 MB. Choose a smaller image.','error');
+    return;
+  }
+
+  selectedProductImage = file;
+  if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+  previewObjectUrl = URL.createObjectURL(file);
+  document.getElementById('imagePreview').src = previewObjectUrl;
+  document.getElementById('previewWrap').style.display = 'block';
 });
 
-db.auth.onAuthStateChange((_event,session)=>{
- currentUser = session?.user || null;
- if (currentUser && currentPage === 'orders') loadMyOrders();
- if (currentUser && currentPage === 'listings') loadMyListings();
- if (currentUser && currentPage === 'sellerOrders') loadSellerOrders();
+function makeUniqueFileName(file) {
+  const extByType = {
+    'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'
+  };
+  const extension = extByType[file.type] || 'img';
+  let randomPart;
+  try {
+    randomPart = crypto.randomUUID();
+  } catch (_) {
+    randomPart = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+  }
+  return randomPart + '.' + extension;
+}
+
+async function uploadMarketplaceImage(file) {
+  if (!currentUser) throw new Error('Sign in before uploading a photo.');
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) throw new Error('Unsupported image type.');
+  if (file.size > MAX_IMAGE_SIZE) throw new Error('Image exceeds the 5 MB limit.');
+
+  const storagePath = currentUser.id + '/' + makeUniqueFileName(file);
+  const {data,error} = await db.storage.from(STORAGE_BUCKET).upload(
+    storagePath,file,{
+      cacheControl:'3600',
+      contentType:file.type,
+      upsert:false
+    }
+  );
+  if (error) throw new Error('Photo upload failed: ' + error.message);
+
+  const {data:publicData} = db.storage.from(STORAGE_BUCKET).getPublicUrl(data.path);
+  if (!publicData || !publicData.publicUrl) {
+    throw new Error('Photo uploaded, but its public URL could not be created.');
+  }
+  return publicData.publicUrl;
+}
+
+document.getElementById('listingForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  if (submittingListing) return;
+  if (!currentUser) return showStatus('listingStatus','Sign in before submitting a listing.','error');
+
+  const title = document.getElementById('productTitle').value.trim();
+  const category = document.getElementById('productCategory').value;
+  const description = document.getElementById('productDescription').value.trim();
+  const price = Number(document.getElementById('productPrice').value);
+  const stock = Number(document.getElementById('productStock').value);
+  const imageFile = selectedProductImage;
+
+  if (!title || !category || !description) {
+    return showStatus('listingStatus','Complete all required fields.','error');
+  }
+  if (!Number.isFinite(price) || price <= 0) {
+    return showStatus('listingStatus','Enter a valid price greater than zero.','error');
+  }
+  if (!Number.isInteger(stock) || stock < 1) {
+    return showStatus('listingStatus','Quantity must be a whole number greater than zero.','error');
+  }
+
+  submittingListing = true;
+  const button = document.getElementById('submitListingBtn');
+  button.disabled = true;
+  button.textContent = 'Submitting...';
+  showStatus('listingStatus','Preparing your product listing...','info');
+
+  try {
+    let imageUrl = null;
+    if (imageFile) {
+      showStatus('listingStatus','Uploading your product photo. Please keep this page open...','info');
+      imageUrl = await uploadMarketplaceImage(imageFile);
+    }
+
+    showStatus('listingStatus','Saving your listing...','info');
+    const {error} = await db.from('marketplace').insert({
+      title,
+      category,
+      description,
+      price,
+      stock,
+      image_url:imageUrl,
+      seller_id:currentUser.id,
+      status:'pending'
+    });
+    if (error) throw error;
+
+    document.getElementById('listingForm').reset();
+    clearImage();
+    showStatus('listingStatus','Product submitted successfully and is pending review. It will appear in the shop only when approved and active.','success');
+    await Promise.all([loadMyListings(),loadMarketplace()]);
+  } catch (error) {
+    showStatus('listingStatus','Submission failed: ' + error.message,'error');
+  } finally {
+    submittingListing = false;
+    button.disabled = false;
+    button.textContent = 'Submit product for review';
+  }
 });
 
-(async function init(){
- await getUser();
- await loadMarketplace();
-})();
+async function refreshAll() {
+  if (!currentUser) return;
+  await Promise.all([
+    loadMarketplace(),
+    loadMyOrders(),
+    loadMyListings(),
+    loadSellerOrders()
+  ]);
+}
+
+db.auth.onAuthStateChange((_event,session) => {
+  currentUser = session?.user || null;
+  updateAuthUI();
+  if (currentUser) {
+    setTimeout(() => refreshAll().catch(error =>
+      showGlobal('Some marketplace information could not load: ' + error.message,'error')
+    ),0);
+  }
+});
+
+(async function init() {
+  try {
+    currentUser = await getSessionUser();
+    updateAuthUI();
+    if (currentUser) await refreshAll();
+  } catch (error) {
+    updateAuthUI();
+    showGlobal('Could not initialize your session: ' + error.message,'error');
+  }
 })();
 </script>
 </body>
