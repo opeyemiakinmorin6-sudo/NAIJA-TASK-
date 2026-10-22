@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087f36">
+<title>VIP Membership | NAIJA TASK</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --green: #087f36;
+  --bright: #0b9b45;
+  --dark: #064d25;
+  --lime: #b7ef43;
+  --bg: #f3f8f5;
+  --white: #ffffff;
+  --text: #173525;
+  --muted: #64776b;
+  --border: #dce9df;
+  --danger: #b42318;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+header {
+  background: var(--green);
+  color: white;
+  padding: 17px 16px;
+  box-shadow: 0 2px 10px #00000012;
+}
+.header-inner {
+  max-width: 700px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.brand {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: .5px;
+}
+.brand span {
+  color: var(--lime);
+}
+.header-link {
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: bold;
+}
+main {
+  max-width: 560px;
+  margin: 25px auto;
+  padding: 0 15px 30px;
+}
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 5px 22px #064d250b;
+  margin-bottom: 16px;
+}
+.badge {
+  display: inline-block;
+  background: #edf8d9;
+  color: var(--dark);
+  border-radius: 30px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+h1 {
+  font-size: 27px;
+  line-height: 1.2;
+  margin: 16px 0 8px;
+  color: var(--dark);
+}
+.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.price-box {
+  margin: 23px 0;
+  background: #f0f8f2;
+  border: 1px solid #d6eadb;
+  border-radius: 14px;
+  padding: 20px;
+}
+.price-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+.price {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--green);
+  margin-top: 7px;
+}
+.price-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 5px;
+}
+.features {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+.features li {
+  padding: 11px 0;
+  border-bottom: 1px solid #edf2ee;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.features li:last-child {
+  border-bottom: 0;
+}
+button, .button {
+  width: 100%;
+  display: block;
+  border: 0;
+  border-radius: 11px;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+.primary {
+  background: var(--green);
+  color: white;
+}
+.primary:hover {
+  background: var(--dark);
+}
+.secondary {
+  background: #eaf4ed;
+  color: var(--dark);
+  margin-top: 10px;
+}
+button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+.notice {
+  padding: 13px;
+  background: #f0f8f2;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+.message {
+  display: none;
+  padding: 13px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.message.show {
+  display: block;
+}
+.message.error {
+  background: #fff0ef;
+  color: var(--danger);
+  border: 1px solid #f2c7c4;
+}
+.message.success {
+  background: #eaf8ee;
+  color: var(--dark);
+  border: 1px solid #c9e8d1;
+}
+.message.info {
+  background: #edf5ff;
+  color: #164a82;
+  border: 1px solid #cfe1f7;
+}
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 5px 15px 25px;
+}
+footer a {
+  color: var(--green);
+}
+.hidden {
+  display: none !important;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand">NAIJA <span>TASK</span></div>
+    <a class="header-link" href="dashboard.html">← Dashboard</a>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <span class="badge">VIP MEMBERSHIP</span>
+    <h1>Unlock your VIP membership</h1>
+    <p class="subtitle">
+      Get access to the VIP opportunities currently offered by NAIJA TASK.
+      Your membership status is linked to your account.
+    </p>
+
+    <div class="price-box">
+      <div class="price-label">VIP membership fee</div>
+      <div class="price" id="vipPrice">Loading price...</div>
+      <div class="price-note">One-time payment at the current listed price. Confirm the terms before paying.</div>
+    </div>
+
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+
+    <div id="loadingNotice" class="notice">
+      Checking your account and current VIP price...
+    </div>
+
+    <div id="loginNotice" class="notice hidden">
+      Please sign in to your NAIJA TASK account before purchasing VIP membership.
+      <a href="login.html">Go to login</a>
+    </div>
+
+    <div id="activationNotice" class="notice hidden">
+      <strong>Account activation required.</strong><br>
+      Activate your account first before purchasing VIP membership.
+      <a href="activation.html">Go to account activation</a>
+    </div>
+
+    <div id="disabledNotice" class="notice hidden">
+      VIP membership purchases are currently disabled by the administrator.
+    </div>
+
+    <div id="vipNotice" class="notice hidden">
+      Your account already has VIP membership.
+    </div>
+
+    <ul class="features">
+      <li>✓ Access to VIP tasks when available and eligible.</li>
+      <li>✓ VIP membership status saved to your NAIJA TASK account after payment verification.</li>
+      <li>✓ Task rewards depend on each task's actual reward and approval.</li>
+      <li>✓ Poster fees, task funding, and other separately charged services are not included.</li>
+    </ul>
+
+    <button id="payButton" class="primary" disabled>
+      Checking account...
+    </button>
+
+    <a class="button secondary" href="dashboard.html">Return to dashboard</a>
+  </section>
+
+  <section class="card">
+    <strong>Payment information</strong>
+    <p class="subtitle">
+      Payments are initiated through Flutterwave. This page must verify a returned
+      transaction with the server before VIP membership is granted. Never share
+      your password or payment details with another person.
+    </p>
+  </section>
+</main>
+
+<footer>
+  NAIJA TASK — Complete Tasks. Earn Naira.<br>
+  Need help? Contact
+  <a href="mailto:naijataskofficia@gmail.com">naijataskofficia@gmail.com</a>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const SUPABASE_URL =
+    "https://jwakveeiynpakunwjzkj.supabase.co";
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+  const FUNCTION_URL =
+    SUPABASE_URL + "/functions/v1/flutterwave-payments";
+
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  const $ = (id) => document.getElementById(id);
+
+  let currentSession = null;
+  let vipPrice = null;
+  let vipEnabled = false;
+  let isActivated = false;
+  let isVip = false;
+  let busy = false;
+
+  function showMessage(text, type = "info") {
+    const el = $("message");
+    el.textContent = text;
+    el.className = "message show " + type;
+  }
+
+  function hideMessage() {
+    $("message").className = "message";
+    $("message").textContent = "";
+  }
+
+  function setButton(text, disabled = true) {
+    $("payButton").textContent = text;
+    $("payButton").disabled = disabled;
+  }
+
+  function naira(value) {
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) return "Price unavailable";
+    return "₦" + amount.toLocaleString("en-NG", {
+      maximumFractionDigits: 2
+    });
+  }
+
+  function hideAccountNotices() {
+    $("loginNotice").classList.add("hidden");
+    $("activationNotice").classList.add("hidden");
+    $("disabledNotice").classList.add("hidden");
+    $("vipNotice").classList.add("hidden");
+  }
+
+  async function loadAccount() {
+    $("loadingNotice").classList.remove("hidden");
+    setButton("Checking account...", true);
+
+    const { data: sessionData, error: sessionError } =
+      await client.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    currentSession = sessionData.session;
+
+    if (!currentSession) {
+      $("loadingNotice").classList.add("hidden");
+      $("loginNotice").classList.remove("hidden");
+      setButton("Sign in to continue", true);
+      return;
+    }
+
+    const user = currentSession.user;
+
+    const { data: settings, error: settingsError } = await client
+      .from("platform_settings")
+      .select("vip_enabled, vip_price")
+      .eq("id", 1)
+      .single();
+
+    if (settingsError) throw settingsError;
+
+    vipEnabled = settings.vip_enabled === true;
+    vipPrice = Number(settings.vip_price);
+
+    if (!Number.isFinite(vipPrice) || vipPrice <= 0) {
+      throw new Error("The VIP price in platform settings is invalid.");
+    }
+
+    $("vipPrice").textContent = naira(vipPrice);
+
+    const { data: profile, error: profileError } = await client
+      .from("profiles")
+      .select("is_activated, is_vip")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) throw profileError;
+
+    isActivated = profile.is_activated === true;
+    isVip = profile.is_vip === true;
+
+    $("loadingNotice").classList.add("hidden");
+    hideAccountNotices();
+
+    if (isVip) {
+      $("vipNotice").classList.remove("hidden");
+      setButton("VIP membership already active", true);
+      return;
+    }
+
+    if (!isActivated) {
+      $("activationNotice").classList.remove("hidden");
+      setButton("Activate account first", true);
+      return;
+    }
+
+    if (!vipEnabled) {
+      $("disabledNotice").classList.remove("hidden");
+      setButton("VIP purchases unavailable", true);
+      return;
+    }
+
+    setButton("Pay " + naira(vipPrice) + " for VIP", false);
+  }
+
+  async function callPaymentFunction(payload) {
+    if (!currentSession) {
+      throw new Error("Your session has expired. Please sign in again.");
+    }
+
+    const response = await fetch(FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + currentSession.access_token,
+        "apikey": SUPABASE_PUBLISHABLE_KEY
+      },
+      body: JSON.stringify(payload)
+    });
+
+    let result;
+    try {
+      result = await response.json();
+    } catch (_) {
+      throw new Error("The payment server returned an unreadable response.");
+    }
+
+    if (!response.ok || result.error) {
+      throw new Error(result.error || result.message ||
+        "The payment request failed. Please try again.");
+    }
+
+    return result;
+  }
+
+  async function verifyReturnedPayment() {
+    const params = new URLSearchParams(window.location.search);
+    const transactionId = params.get("transaction_id");
+    const txRef = params.get("tx_ref");
+    const status = params.get("status");
+
+    if (!transactionId && !txRef && !status) return false;
+
+    if (status && status.toLowerCase() === "cancelled") {
+      showMessage(
+        "Payment was cancelled. Your VIP membership has not been activated.",
+        "info"
+      );
+      cleanPaymentUrl();
+      return true;
+    }
+
+    if (!transactionId || !txRef) {
+      showMessage(
+        "The payment return information is incomplete. Do not pay again yet. Contact support if you were charged.",
+        "error"
+      );
+      return true;
+    }
+
+    setButton("Verifying payment...", true);
+    showMessage(
+      "Checking your transaction with the payment server. Please wait.",
+      "info"
+    );
+
+    try {
+      const result = await callPaymentFunction({
+        action: "verify",
+        tx_ref: txRef,
+        transaction_id: transactionId
+      });
+
+      if (result.success || result.already_verified) {
+        showMessage(
+          "Payment verified successfully. Your VIP membership is active.",
+          "success"
+        );
+        cleanPaymentUrl();
+        await loadAccount();
+        showMessage(
+          "Payment verified successfully. Your VIP membership is active.",
+          "success"
+        );
+      } else {
+        showMessage(
+          result.message || "The payment has not been confirmed. Please contact support before trying again.",
+          "error"
+        );
+      }
+    } catch (error) {
+      showMessage(
+        (error.message || "Payment verification failed.") +
+        " If you were charged, do not pay again. Contact support with your transaction reference.",
+        "error"
+      );
+      setButton("Retry verification", false);
+    }
+
+    return true;
+  }
+
+  function cleanPaymentUrl() {
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+
+  async function startPayment() {
+    if (busy) return;
+
+    hideMessage();
+
+    if (!currentSession) {
+      showMessage("Please sign in before continuing.", "error");
+      return;
+    }
+
+    if (!isActivated) {
+      showMessage("Activate your account before purchasing VIP.", "error");
+      return;
+    }
+
+    if (isVip) {
+      showMessage("Your account already has VIP membership.", "info");
+      return;
+    }
+
+    if (!vipEnabled) {
+      showMessage("VIP purchases are currently disabled.", "error");
+      return;
+    }
+
+    busy = true;
+    setButton("Connecting to Flutterwave...", true);
+
+    try {
+      const result = await callPaymentFunction({
+        action: "initiate",
+        purpose: "vip",
+        redirect_url: window.location.origin + window.location.pathname
+      });
+
+      if (!result.payment_url || !result.tx_ref) {
+        throw new Error(
+          "The payment server did not return a payment link. No payment was started."
+        );
+      }
+
+      showMessage(
+        "Your payment page is ready. Redirecting to Flutterwave...",
+        "info"
+      );
+
+      window.location.href = result.payment_url;
+    } catch (error) {
+      showMessage(
+        error.message || "Could not start payment. Please try again.",
+        "error"
+      );
+      busy = false;
+      setButton("Retry VIP payment", false);
+    }
+  }
+
+  $("payButton").addEventListener("click", startPayment);
+
+  async function start() {
+    try {
+      await loadAccount();
+      await verifyReturnedPayment();
+    } catch (error) {
+      $("loadingNotice").classList.add("hidden");
+      showMessage(
+        error.message ||
+        "Could not load your account. Refresh the page or contact support.",
+        "error"
+      );
+      setButton("Refresh page to retry", false);
+    }
+  }
+
+  start();
+})();
+</script>
+</body>
+</html>
