@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087f36">
+<title>Account Activation | NAIJA TASK</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#087f36;--deep:#064d25;--lime:#b7ef43;--bg:#f3f8f5;--white:#fff;--text:#183525;--muted:#68786d;--border:#e0eae3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+header{background:var(--green);color:white;padding:18px 16px}
+nav{max-width:720px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-size:20px;font-weight:800;letter-spacing:.4px}
+.back{color:white;text-decoration:none;font-size:14px}
+main{max-width:520px;margin:30px auto;padding:0 16px 35px}
+.card{background:white;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 8px 30px #12331a0b}
+.icon{width:58px;height:58px;border-radius:16px;background:#e5f7e9;display:grid;place-items:center;font-size:28px}
+h1{font-size:25px;margin:18px 0 8px}
+p{line-height:1.6;color:var(--muted);font-size:14px}
+.price{font-size:35px;font-weight:800;color:var(--green);margin:18px 0}
+.badge{display:inline-block;background:#e5f7e9;color:var(--deep);padding:7px 11px;border-radius:20px;font-size:12px;font-weight:700}
+ul{padding-left:20px;color:var(--text);font-size:14px;line-height:1.9}
+button,.btn{width:100%;display:block;border:0;border-radius:11px;background:var(--green);color:white;text-align:center;text-decoration:none;padding:15px;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px}
+button:disabled{opacity:.6;cursor:wait}
+.secondary{background:#edf5ef;color:var(--deep)}
+#message{display:none;padding:12px;border-radius:10px;background:#fff4dd;color:#704d00;font-size:13px;line-height:1.5;margin-top:15px;overflow-wrap:anywhere}
+#message.success{background:#e5f7e9;color:#155b2b}
+.small{text-align:center;font-size:12px;margin-top:18px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
+</style>
+</head>
+<body>
+<header><nav><div class="brand">🌿 NAIJA TASK</div><a class="back" href="dashboard.html">← Dashboard</a></nav></header>
+<main>
+<section class="card">
+<div class="icon">✓</div>
+<span class="badge">ACCOUNT ACTIVATION</span>
+<h1>Activate your account</h1>
+<p>Activate your NAIJA TASK account to access the platform's activation-required earning features.</p>
+<div class="price" id="price">Loading price…</div>
+<ul>
+<li>One-time activation payment.</li>
+<li>Payment must be verified before activation.</li>
+<li>VIP membership is separate.</li>
+</ul>
+<button id="payButton" disabled>Loading…</button>
+<a href="dashboard.html" class="btn secondary">Return to dashboard</a>
+<div id="message" role="status" aria-live="polite"></div>
+<p class="small">Secure payment processing · Flutterwave</p>
+</section>
+</main>
+<footer>© NAIJA TASK — Complete Tasks. Earn Naira.</footer>
+
+<script>
+(() => {
+  const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+  const FUNCTION_URL = SUPABASE_URL + "/functions/v1/flutterwave-payments";
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const priceEl = document.getElementById("price");
+  const payButton = document.getElementById("payButton");
+  const messageEl = document.getElementById("message");
+
+  function showMessage(text, success = false) {
+    messageEl.textContent = text;
+    messageEl.className = success ? "success" : "";
+    messageEl.style.display = "block";
+  }
+
+  function naira(value) {
+    return "₦" + Number(value).toLocaleString("en-NG", {
+      maximumFractionDigits: 2
+    });
+  }
+
+  async function load() {
+    payButton.disabled = true;
+    payButton.textContent = "Checking account…";
+
+    const { data: sessionData, error: sessionError } =
+      await client.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+      priceEl.textContent = "Sign-in required";
+      payButton.textContent = "Sign in to continue";
+      payButton.disabled = false;
+      payButton.onclick = () => location.href = "login.html";
+      showMessage("Please sign in to your NAIJA TASK account before paying.");
+      return;
+    }
+
+    const { data: settings, error: settingsError } = await client
+      .from("platform_settings")
+      .select("activation_enabled, activation_fee")
+      .eq("id", 1)
+      .single();
+
+    if (settingsError || !settings) {
+      priceEl.textContent = "Unavailable";
+      payButton.textContent = "Price unavailable";
+      showMessage("We couldn't load the activation price. Please try again later.");
+      return;
+    }
+
+    if (settings.activation_enabled !== true) {
+      priceEl.textContent = naira(settings.activation_fee);
+      payButton.textContent = "Activation unavailable";
+      showMessage("Account activation payments are currently disabled.");
+      return;
+    }
+
+    const { data: profile, error: profileError } = await client
+      .from("profiles")
+      .select("is_activated")
+      .eq("id", sessionData.session.user.id)
+      .maybeSingle();
+
+    if (profileError || !profile) {
+      priceEl.textContent = naira(settings.activation_fee);
+      payButton.textContent = "Profile unavailable";
+      showMessage("We couldn't load your profile. Please contact support.");
+      return;
+    }
+
+    priceEl.textContent = naira(settings.activation_fee);
+
+    if (profile.is_activated === true) {
+      payButton.textContent = "Account already activated";
+      showMessage("Your account is already activated.", true);
+      return;
+    }
+
+    payButton.disabled = false;
+    payButton.textContent = "Pay " + naira(settings.activation_fee);
+    payButton.onclick = startPayment;
+    await verifyReturn();
+  }
+
+  async function startPayment() {
+    payButton.disabled = true;
+    payButton.textContent = "Preparing secure payment…";
+    messageEl.style.display = "none";
+
+    try {
+      const { data: sessionData } = await client.auth.getSession();
+      const session = sessionData.session;
+
+      if (!session) {
+        throw new Error("Please sign in again.");
+      }
+
+      const response = await fetch(FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + session.access_token,
+          "apikey": SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          action: "initiate",
+          purpose: "activation",
+          redirect_url: location.origin + location.pathname
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success || !result.payment_url) {
+        throw new Error(result.error || "Could not start payment.");
+      }
+
+      location.href = result.payment_url;
+    } catch (error) {
+      showMessage(error.message || "Payment could not be started.");
+      payButton.disabled = false;
+      payButton.textContent = "Try payment again";
+    }
+  }
+
+  async function verifyReturn() {
+    const params = new URLSearchParams(location.search);
+    const transactionId = params.get("transaction_id");
+    const txRef = params.get("tx_ref");
+    const status = params.get("status");
+
+    if (!transactionId || !txRef) return;
+
+    history.replaceState({}, "", location.pathname);
+    payButton.disabled = true;
+    payButton.textContent = "Verifying payment…";
+
+    if (status && status.toLowerCase() !== "successful") {
+      showMessage("Flutterwave did not report a successful payment. Your account has not been activated.");
+      payButton.disabled = false;
+      payButton.textContent = "Try payment again";
+      return;
+    }
+
+    try {
+      const { data: sessionData } = await client.auth.getSession();
+      const session = sessionData.session;
+
+      if (!session) {
+        throw new Error("Please sign in again to verify your payment.");
+      }
+
+      const response = await fetch(FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + session.access_token,
+          "apikey": SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          action: "verify",
+          purpose: "activation",
+          tx_ref: txRef,
+          transaction_id: transactionId
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || result.message || "Payment verification is pending.");
+      }
+
+      showMessage("Payment verified. Your account activation is complete!", true);
+      payButton.textContent = "Activation successful";
+      payButton.disabled = true;
+      setTimeout(() => location.href = "dashboard.html", 2500);
+    } catch (error) {
+      showMessage((error.message || "Payment verification is pending.") +
+        " If money was deducted, don't pay again yet. Contact support for a check.");
+      payButton.disabled = false;
+      payButton.textContent = "Retry verification";
+      payButton.onclick = verifyReturn;
+    }
+  }
+
+  load().catch(() => {
+    priceEl.textContent = "Unavailable";
+    payButton.textContent = "Please refresh";
+    showMessage("The activation page could not finish loading.");
+  });
+})();
+</script>
+</body>
+</html>
