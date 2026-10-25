@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#064d25">
+<title>Naija Games | NAIJA TASK</title>
+<style>
+:root{--green:#087f36;--dark:#064d25;--light:#0b9b45;--lime:#b7ef43;--text:#173326}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;font-family:Arial,Helvetica,sans-serif;touch-action:none;overscroll-behavior:none}
+.hide{display:none!important}
+#menu{height:100%;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top)) 16px 30px;background:radial-gradient(circle at 50% 0,#0b9b45,#064d25 60%,#03210f);touch-action:pan-y}
+#menu h1{margin:6px 0 4px;font-size:28px;text-align:center}
+#menu p.sub{margin:0 auto 18px;max-width:420px;text-align:center;color:#cfe8d6;font-size:13px;line-height:1.5}
+.card{display:block;width:100%;max-width:460px;margin:0 auto 12px;text-align:left;border:0;border-radius:18px;padding:16px;background:rgba(255,255,255,.12);color:#fff;font:inherit;border:1px solid rgba(255,255,255,.2)}
+.card b{display:block;font-size:18px;margin:4px 0 2px}.card small{display:block;color:#d6ecdc;font-size:12px;line-height:1.4}
+.card em{display:block;margin-top:6px;font-style:normal;color:var(--lime);font-size:12px;font-weight:700}
+.card .big{font-size:34px}
+.back{display:block;text-align:center;margin-top:18px;color:var(--lime);font-weight:800;text-decoration:none;font-size:14px}
+#game{position:fixed;inset:0;display:flex;flex-direction:column;background:#06331a}
+#top{display:flex;align-items:center;gap:10px;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;background:#064d25;z-index:3}
+#top button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:12px;padding:9px 12px;font:inherit;font-weight:800;font-size:13px}
+#title{font-size:15px}
+#hud{margin-left:auto;font-weight:800;font-size:13px;color:var(--lime);text-align:right}
+#stage{position:relative;flex:1;min-height:0;overflow:hidden}
+#stage canvas{display:block;touch-action:none}
+.ov{position:absolute;inset:0;background:rgba(3,25,12,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:5}
+.ov h2{margin:0 0 8px;font-size:26px}.ov p{margin:0 0 16px;color:#d6ecdc;font-size:15px;line-height:1.5}
+.ov button{min-width:190px;margin:5px;border:0;border-radius:14px;padding:14px 18px;font:inherit;font-weight:800;font-size:15px;background:var(--lime);color:var(--dark)}
+.ov button.alt{background:rgba(255,255,255,.18);color:#fff}
+/* match */
+#mwrap{display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(#0b3d22,#06331a)}
+#board{position:relative}
+.tile{position:absolute;left:0;top:0;display:flex;align-items:center;justify-content:center;transition:transform .22s ease,opacity .2s ease;will-change:transform}
+.tile i{font-style:normal;display:flex;align-items:center;justify-content:center;width:88%;height:88%;border-radius:22%;background:rgba(255,255,255,.14)}
+.tile.sel i{background:rgba(183,239,67,.55);box-shadow:0 0 0 3px #b7ef43}
+.tile.pop{opacity:0;transform-origin:center}
+/* fighter controls */
+.pad{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;z-index:4}
+.pad button{width:70px;height:70px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;font-size:26px;touch-action:none}
+.pad button:active,.pad button.on{background:rgba(183,239,67,.6)}
+</style>
+</head>
+<body>
+
+<div id="menu">
+  <h1>🇳🇬 Naija Games</h1>
+  <p class="sub">Three quick games with a Lagos flavour. Scores are for fun only. They are not naira and cannot be withdrawn.</p>
+  <button class="card" data-g="dash"><span class="big">🏃</span><b>Naija Dash</b><small>Run down a busy Lagos road. Swipe to change lane, swipe up or tap to jump over potholes, and dodge danfo buses, okada and barriers.</small><em id="b1"></em></button>
+  <button class="card" data-g="match"><span class="big">🍢</span><b>Naija Match</b><small>Swap snacks to match three or more. Reach the target score before you run out of moves.</small><em id="b2"></em></button>
+  <button class="card" data-g="fight"><span class="big">🥊</span><b>Naija Fighter</b><small>Take on three street fighters. Punch, kick and block. Win two rounds to move on.</small><em id="b3"></em></button>
+  <a class="back" href="dashboard.html">← Back to dashboard</a>
+</div>
+
+<div id="game" class="hide">
+  <div id="top"><button id="exit" type="button">← Menu</button><b id="title"></b><span id="hud"></span></div>
+  <div id="stage"></div>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function best(key, v){
+  try{
+    if (v !== undefined && v > Number(localStorage.getItem(key) || 0)) localStorage.setItem(key, String(v));
+    return Number(localStorage.getItem(key) || 0);
+  }catch(e){ return 0; }
+}
+function overlay(stage, title, text, buttons){
+  const o = document.createElement("div"); o.className = "ov";
+  o.innerHTML = `<h2>${title}</h2><p>${text}</p>`;
+  buttons.forEach(b => { const x = document.createElement("button"); x.textContent = b[0]; if (b[2]) x.className = "alt"; x.onclick = () => { o.remove(); b[1](); }; o.appendChild(x); });
+  stage.appendChild(o); return o;
+}
+
+/*PURE-RUN-START*/
+const RUN_SOLIDS = ["danfo", "okada", "barrier"];
+function runShuffle(a, rand){ for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(rand() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function runMakeRow(rand){
+  const row = [null, null, null], lanes = runShuffle([0, 1, 2], rand);
+  if (rand() < 0.12){
+    const n = 1 + Math.floor(rand() * 3);
+    for (let k = 0; k < n; k++) row[lanes[k]] = "pothole";
+    return row;
+  }
+  const solid = 1 + (rand() < 0.45 ? 1 : 0);
+  for (let k = 0; k < solid; k++) row[lanes[k]] = RUN_SOLIDS[Math.floor(rand() * 3)];
+  for (let k = solid; k < 3; k++) if (rand() < 0.55) row[lanes[k]] = "coin";
+  return row;
+}
+/*PURE-RUN-END*/
+
+function RunnerGame(stage, hud, done){
+  const cv = document.createElement("canvas"); stage.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  let W = 0, H = 0, raf = 0, last = 0, alive = true, stopped = false;
+  function resize(){
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    W = stage.clientWidth; H = stage.clientHeight;
+    cv.width = Math.round(W * d); cv.height = Math.round(H * d); cv.style.width = W + "px"; cv.style.height = H + "px";
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  resize(); window.addEventListener("resize", resize);
+
+  let lane = 1, laneX = 1, jumpT = 0, jumping = false, speed = 300, dist = 0, coins = 0, since = 0, gap = 260, scroll = 0;
+  const rows = [];
+  const rand = Math.random;
+  function laneW(){ return Math.min(W * 0.27, 112); }
+  function roadX(){ return (W - laneW() * 3) / 2; }
+  function playerY(){ return H * 0.78; }
+
+  function move(d){ if (!alive) return; lane = Math.max(0, Math.min(2, lane + d)); }
+  function jump(){ if (alive && !jumping){ jumping = true; jumpT = 0; } }
+  const kd = e => {
+    const k = e.key.toLowerCase();
+    if (k === "arrowleft" || k === "a") move(-1);
+    else if (k === "arrowright" || k === "d") move(1);
+    else if (k === "arrowup" || k === "w" || k === " ") jump();
+  };
+  window.addEventListener("keydown", kd);
+  let t0 = null;
+  const ts = e => { const t = e.changedTouches ? e.changedTouches[0] : e; t0 = { x:t.clientX, y:t.clientY }; };
+  const te = e => {
+    if (!t0) return; const t = e.changedTouches ? e.changedTouches[0] : e;
+    const dx = t.clientX - t0.x, dy = t.clientY - t0.y; t0 = null;
+    if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? 1 : -1);
+    else if (dy < -28) jump();
+    else if (Math.abs(dx) < 14 && Math.abs(dy) < 14) jump();
+  };
+  cv.addEventListener("pointerdown", ts); cv.addEventListener("pointerup", te); cv.addEventListener("pointercancel", () => { t0 = null; });
+
+  function update(dt){
+    speed = Math.min(300 + dist * 1.1, 680);
+    dist += speed * dt / 40;
+    laneX += (lane - laneX) * Math.min(1, dt * 14);
+    if (jumping){ jumpT += dt / 0.62; if (jumpT >= 1){ jumping = false; jumpT = 0; } }
+    const h = jumping ? Math.sin(Math.PI * jumpT) : 0;
+    scroll = (scroll + speed * dt) % 80;
+    since += speed * dt;
+    if (since >= gap){ rows.push({ y:-70, cells:runMakeRow(rand), taken:[false, false, false] }); since = 0; gap = Math.max(230, speed * 0.72) + rand() * 110; }
+    for (let i = rows.length - 1; i >= 0; i--){
+      const r = rows[i]; r.y += speed * dt;
+      if (r.y > H + 90){ rows.splice(i, 1); continue; }
+      if (Math.abs(r.y - playerY()) < 38){
+        for (let l = 0; l < 3; l++){
+          const c = r.cells[l]; if (!c || Math.abs(laneX - l) > 0.45) continue;
+          if (c === "coin"){ if (!r.taken[l]){ r.taken[l] = true; coins++; } }
+          else if (c === "pothole"){ if (h < 0.35) crash(); }
+          else crash();
+        }
+      }
+    }
+    hud.textContent = "Score " + Math.floor(dist + coins * 10) + " · 🪙 " + coins;
+  }
+  function crash(){
+    if (!alive) return; alive = false;
+    const score = Math.floor(dist + coins * 10), b = best("ng_best_dash", score);
+    setTimeout(() => {
+      if (stopped) return;
+      overlay(stage, "Crash! 💥", "Score: <b>" + score + "</b><br>Coins: " + coins + "<br>Best: " + b, [["Run again", () => done("dash")], ["Menu", () => done(null), true]]);
+    }, 450);
+  }
+  function emoji(ch, x, y, size){ ctx.font = size + "px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(ch, x, y); }
+  function draw(){
+    const lw = laneW(), rx = roadX();
+    ctx.fillStyle = "#0b7a37"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#0d8c3e";
+    for (let y = -80 + scroll; y < H; y += 80){ ctx.fillRect(0, y, rx - 8, 40); ctx.fillRect(rx + lw * 3 + 8, y, W - rx - lw * 3 - 8, 40); }
+    ctx.fillStyle = "#e8e8e8"; ctx.fillRect(rx - 8, 0, 8, H); ctx.fillRect(rx + lw * 3, 0, 8, H);
+    ctx.fillStyle = "#3a3f47"; ctx.fillRect(rx, 0, lw * 3, H);
+    ctx.fillStyle = "#e9e3a0";
+    for (let l = 1; l < 3; l++) for (let y = -60 + scroll; y < H; y += 80) ctx.fillRect(rx + lw * l - 2, y, 4, 38);
+    rows.forEach(r => {
+      for (let l = 0; l < 3; l++){
+        const c = r.cells[l]; if (!c) continue; const x = rx + lw * (l + 0.5);
+        if (c === "pothole"){ ctx.fillStyle = "#16191d"; ctx.beginPath(); ctx.ellipse(x, r.y, lw * 0.33, lw * 0.2, 0, 0, 6.3); ctx.fill(); }
+        else if (c === "coin"){ if (!r.taken[l]){ ctx.fillStyle = "#ffd54f"; ctx.beginPath(); ctx.arc(x, r.y, lw * 0.17, 0, 6.3); ctx.fill(); ctx.fillStyle = "#8a6d00"; ctx.font = "bold " + lw * 0.2 + "px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("N", x, r.y + 1); } }
+        else emoji(c === "danfo" ? "🚌" : c === "okada" ? "🏍️" : "🚧", x, r.y, lw * 0.62);
+      }
+    });
+    const h = jumping ? Math.sin(Math.PI * jumpT) : 0, px = rx + lw * (laneX + 0.5), py = playerY();
+    ctx.fillStyle = "rgba(0,0,0,.3)"; ctx.beginPath(); ctx.ellipse(px, py + lw * 0.3, lw * 0.22 * (1 - h * 0.3), lw * 0.08, 0, 0, 6.3); ctx.fill();
+    emoji(alive ? "🏃" : "💫", px, py - h * lw * 0.7 + Math.sin(performance.now() / 70) * 2, lw * 0.7);
+  }
+  function loop(now){
+    if (stopped) return;
+    const dt = Math.min(0.04, (now - last) / 1000); last = now;
+    if (alive) update(dt);
+    draw(); raf = requestAnimationFrame(loop);
+  }
+  last = performance.now(); raf = requestAnimationFrame(loop);
+  return { destroy(){ stopped = true; cancelAnimationFrame(raf); window.removeEventListener("keydown", kd); window.removeEventListener("resize", resize); } };
+}
+
+/*PURE-MATCH-START*/
+function mFind(k){
+  const R = k.length, C = k[0].length, out = new Set();
+  for (let r = 0; r < R; r++){
+    let run = 1;
+    for (let c = 1; c <= C; c++){
+      if (c < C && k[r][c] && k[r][c] === k[r][c - 1]) run++;
+      else { if (run >= 3 && k[r][c - 1]) for (let i = c - run; i < c; i++) out.add(r + "," + i); run = 1; }
+    }
+  }
+  for (let c = 0; c < C; c++){
+    let run = 1;
+    for (let r = 1; r <= R; r++){
+      if (r < R && k[r][c] && k[r][c] === k[r - 1][c]) run++;
+      else { if (run >= 3 && k[r - 1][c]) for (let i = r - run; i < r; i++) out.add(i + "," + c); run = 1; }
+    }
+  }
+  return out;
+}
+function mHasMove(k){
+  const R = k.length, C = k[0].length;
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++){
+    for (const d of [[0, 1], [1, 0]]){
+      const r2 = r + d[0], c2 = c + d[1]; if (r2 >= R || c2 >= C) continue;
+      const t = k[r][c]; k[r][c] = k[r2][c2]; k[r2][c2] = t;
+      const f = mFind(k).size > 0;
+      const u = k[r][c]; k[r][c] = k[r2][c2]; k[r2][c2] = u;
+      if (f) return true;
+    }
+  }
+  return false;
+}
+function mInit(R, C, kinds, rand){
+  for (let attempt = 0; attempt < 60; attempt++){
+    const k = [];
+    for (let r = 0; r < R; r++){
+      k[r] = [];
+      for (let c = 0; c < C; c++){
+        let opts = kinds.slice();
+        if (c >= 2 && k[r][c - 1] === k[r][c - 2]) opts = opts.filter(x => x !== k[r][c - 1]);
+        if (r >= 2 && k[r - 1][c] === k[r - 2][c]) opts = opts.filter(x => x !== k[r - 1][c]);
+        k[r][c] = opts[Math.floor(rand() * opts.length)];
+      }
+    }
+    if (mHasMove(k)) return k;
+  }
+  return mInit(R, C, kinds, rand);
+}
+function mShuffle(k, rand){
+  const R = k.length, C = k[0].length;
+  const flat = [].concat.apply([], k);
+  for (let attempt = 0; attempt < 200; attempt++){
+    for (let i = flat.length - 1; i > 0; i--){ const j = Math.floor(rand() * (i + 1)); const t = flat[i]; flat[i] = flat[j]; flat[j] = t; }
+    const g = []; for (let r = 0; r < R; r++) g.push(flat.slice(r * C, r * C + C));
+    if (mFind(g).size === 0 && mHasMove(g)) return g;
+  }
+  return mInit(R, C, Array.from(new Set(flat)), rand);
+}
+/*PURE-MATCH-END*/
+
+function MatchGame(stage, hud, done){
+  const COLS = 7, ROWS = 8, KINDS = ["🍗", "🍌", "🥭", "🍍", "🥜", "🌽"];
+  const wrap = document.createElement("div"); wrap.id = "mwrap";
+  const board = document.createElement("div"); board.id = "board"; wrap.appendChild(board); stage.appendChild(wrap);
+  let size = 40, grid = [], score = 0, moves = 20, level = 1, target = 300, busy = false, sel = null, stopped = false, nextId = 1;
+  const rand = Math.random;
+
+  function layout(){
+    size = Math.max(30, Math.min(Math.floor((stage.clientWidth - 16) / COLS), Math.floor((stage.clientHeight - 16) / ROWS), 62));
+    board.style.width = COLS * size + "px"; board.style.height = ROWS * size + "px";
+    grid.forEach(row => row.forEach(t => { if (t){ t.el.style.width = t.el.style.height = size + "px"; t.el.style.fontSize = size * 0.55 + "px"; place(t, t.r, t.c); } }));
+  }
+  window.addEventListener("resize", layout);
+  function place(t, r, c){ t.r = r; t.c = c; t.el.style.transform = "translate(" + c * size + "px," + r * size + "px)"; }
+  function makeTile(kind, r, c){
+    const el = document.createElement("div"); el.className = "tile"; el.innerHTML = "<i>" + kind + "</i>";
+    el.style.width = el.style.height = size + "px"; el.style.fontSize = size * 0.55 + "px";
+    board.appendChild(el);
+    const t = { id:nextId++, kind, el, r, c }; place(t, r, c); return t;
+  }
+  function kinds(){ return grid.map(row => row.map(t => t ? t.kind : null)); }
+  function hudUpdate(){ hud.textContent = "Lv " + level + " · Moves " + moves + " · " + score + "/" + target; }
+
+  function newLevel(){
+    board.innerHTML = ""; grid = []; score = (level === 1 ? 0 : score); moves = 20 + Math.min(level, 10); target = 250 + (level - 1) * 180; sel = null; busy = false;
+    layout();
+    const k = mInit(ROWS, COLS, KINDS, rand);
+    for (let r = 0; r < ROWS; r++){ grid[r] = []; for (let c = 0; c < COLS; c++) grid[r][c] = makeTile(k[r][c], r, c); }
+    hudUpdate();
+  }
+  async function swap(a, b){
+    const t1 = grid[a.r][a.c], t2 = grid[b.r][b.c];
+    grid[a.r][a.c] = t2; grid[b.r][b.c] = t1;
+    const r1 = t1.r, c1 = t1.c; place(t1, t2.r, t2.c); place(t2, r1, c1);
+  }
+  async function attempt(a, b){
+    busy = true;
+    await swap(a, b); await sleep(220);
+    if (mFind(kinds()).size === 0){ await swap(a, b); await sleep(220); busy = false; return; }
+    moves--; hudUpdate();
+    await resolve();
+    if (stopped) return;
+    if (!mHasMove(kinds())){ const g = mShuffle(kinds(), rand); for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++){ grid[r][c].kind = g[r][c]; grid[r][c].el.firstChild.textContent = g[r][c]; } await sleep(250); }
+    busy = false; finish();
+  }
+  async function resolve(){
+    let combo = 0;
+    for (;;){
+      const m = mFind(kinds()); if (!m.size) break;
+      combo++; score += m.size * 10 * combo; hudUpdate();
+      m.forEach(key => { const p = key.split(","), t = grid[+p[0]][+p[1]]; t.el.classList.add("pop"); t.el.style.transform += " scale(.3)"; });
+      await sleep(230); if (stopped) return;
+      m.forEach(key => { const p = key.split(","), t = grid[+p[0]][+p[1]]; t.el.remove(); grid[+p[0]][+p[1]] = null; });
+      for (let c = 0; c < COLS; c++){
+        let write = ROWS - 1;
+        for (let r = ROWS - 1; r >= 0; r--) if (grid[r][c]){ const t = grid[r][c]; grid[r][c] = null; grid[write][c] = t; place(t, write, c); write--; }
+        for (let r = write, k = 1; r >= 0; r--, k++){
+          const t = makeTile(KINDS[Math.floor(rand() * KINDS.length)], -k, c); grid[r][c] = t;
+          void t.el.offsetWidth; place(t, r, c);
+        }
+      }
+      await sleep(300);
+    }
+  }
+  function finish(){
+    if (score >= target){
+      best("ng_best_match", score);
+      overlay(stage, "Level " + level + " complete! 🎉", "Score: <b>" + score + "</b>", [["Next level", () => { level++; newLevel(); }], ["Menu", () => done(null), true]]);
+    } else if (moves <= 0){
+      const b = best("ng_best_match", score);
+      overlay(stage, "Out of moves", "Score: <b>" + score + "</b> of " + target + "<br>Best: " + b, [["Try again", () => { level = 1; newLevel(); }], ["Menu", () => done(null), true]]);
+    }
+  }
+  board.addEventListener("pointerdown", e => {
+    if (busy || stopped) return;
+    const rect = board.getBoundingClientRect();
+    const c = Math.floor((e.clientX - rect.left) / size), r = Math.floor((e.clientY - rect.top) / size);
+    if (r < 0 || c < 0 || r >= ROWS || c >= COLS) return;
+    const t = grid[r][c]; if (!t) return;
+    if (!sel){ sel = { r, c }; t.el.classList.add("sel"); return; }
+    const old = grid[sel.r][sel.c]; if (old) old.el.classList.remove("sel");
+    if (Math.abs(sel.r - r) + Math.abs(sel.c - c) === 1){ const a = sel; sel = null; attempt(a, { r, c }); }
+    else if (sel.r === r && sel.c === c){ sel = null; }
+    else { sel = { r, c }; t.el.classList.add("sel"); }
+  });
+  newLevel();
+  return { destroy(){ stopped = true; window.removeEventListener("resize", layout); } };
+}
+
+/*PURE-FIGHT-START*/
+const ATK = { punch:{ dmg:8, range:84, dur:0.24, cd:0.32 }, kick:{ dmg:13, range:104, dur:0.36, cd:0.7 } };
+function newFighter(x, name, color){ return { x, name, color, facing:1, hp:100, st:"idle", kind:null, t:0, hit:false, cd:0, stun:0, blocking:false, flash:0 }; }
+function newSim(W, dmgMul){ return { W, p:newFighter(W * 0.3, "Tunde", "#1b8f3a"), e:newFighter(W * 0.7, "Opponent", "#c62828"), time:45, over:false, winner:null, dmgMul:dmgMul || 1 }; }
+function startAtk(f, k){ f.st = "atk"; f.kind = k; f.t = 0; f.hit = false; f.cd = ATK[k].cd; }
+function resolveHit(f, o, a, mul){
+  if (Math.abs(f.x - o.x) > a.range) return;
+  if ((o.x - f.x) * f.facing <= 0) return;
+  let dmg = a.dmg * mul;
+  if (o.blocking && o.st !== "atk" && o.st !== "stun"){ dmg *= 0.2; o.x += f.facing * 8; }
+  else { o.stun = 0.28; o.st = "stun"; o.x += f.facing * 22; o.flash = 0.15; }
+  o.hp = Math.max(0, o.hp - dmg);
+}
+function fightStep(sim, inP, inE, dt){
+  if (sim.over) return;
+  sim.time -= dt;
+  const fs = [sim.p, sim.e], ins = [inP, inE], muls = [1, sim.dmgMul];
+  for (let i = 0; i < 2; i++){
+    const f = fs[i], o = fs[1 - i], inp = ins[i];
+    f.facing = o.x > f.x ? 1 : -1;
+    f.cd = Math.max(0, f.cd - dt); f.stun = Math.max(0, f.stun - dt); f.flash = Math.max(0, f.flash - dt);
+    if (f.st === "atk"){
+      f.t += dt; const a = ATK[f.kind]; f.blocking = false;
+      if (!f.hit && f.t >= a.dur * 0.5){ f.hit = true; resolveHit(f, o, a, muls[i]); }
+      if (f.t >= a.dur){ f.st = "idle"; f.t = 0; }
+      continue;
+    }
+    if (f.stun > 0){ f.st = "stun"; f.blocking = false; continue; }
+    if (f.st === "stun") f.st = "idle";
+    f.blocking = !!inp.block;
+    if (inp.punch && f.cd <= 0) startAtk(f, "punch");
+    else if (inp.kick && f.cd <= 0) startAtk(f, "kick");
+    else if (!f.blocking){
+      const dir = (inp.right ? 1 : 0) - (inp.left ? 1 : 0), nx = f.x + dir * 230 * dt;
+      if (Math.abs(nx - o.x) >= 62) f.x = nx;
+      f.st = dir ? "walk" : "idle";
+    } else f.st = "block";
+    f.x = Math.max(40, Math.min(sim.W - 40, f.x));
+  }
+  const gap = sim.e.x - sim.p.x;
+  if (Math.abs(gap) < 60){ const push = (60 - Math.abs(gap)) / 2 * (gap >= 0 ? 1 : -1); sim.p.x -= push; sim.e.x += push; }
+  sim.p.x = Math.max(40, Math.min(sim.W - 40, sim.p.x)); sim.e.x = Math.max(40, Math.min(sim.W - 40, sim.e.x));
+  if (sim.p.hp <= 0 || sim.e.hp <= 0 || sim.time <= 0){
+    sim.over = true;
+    sim.winner = sim.p.hp === sim.e.hp ? "draw" : (sim.p.hp > sim.e.hp ? "p" : "e");
+  }
+}
+function aiInput(ai, sim, dt, rand){
+  const e = sim.e, p = sim.p, dist = Math.abs(e.x - p.x);
+  ai.timer -= dt;
+  if (ai.timer <= 0){
+    ai.timer = ai.react * (0.7 + rand() * 0.8);
+    const r = rand();
+    if (dist > ATK.punch.range * 0.95) ai.action = "approach";
+    else if (r < ai.aggr) ai.action = rand() < 0.6 ? "punch" : "kick";
+    else if (r < ai.aggr + 0.22) ai.action = "block";
+    else ai.action = "retreat";
+  }
+  if (p.st === "atk" && dist < ATK.kick.range + 20 && rand() < ai.defense * dt * 8) ai.action = "block";
+  const inp = { left:false, right:false, punch:false, kick:false, block:false };
+  const toward = p.x > e.x ? "right" : "left", away = toward === "right" ? "left" : "right";
+  if (ai.action === "approach") inp[toward] = true;
+  else if (ai.action === "punch"){ inp.punch = true; ai.action = "wait"; }
+  else if (ai.action === "kick"){ inp.kick = true; ai.action = "wait"; }
+  else if (ai.action === "block") inp.block = true;
+  else if (ai.action === "retreat") inp[away] = true;
+  return inp;
+}
+/*PURE-FIGHT-END*/
+
+const FOES = [
+  { name:"Danfo Dan",     color:"#f9a825", react:0.60, aggr:0.30, defense:0.20, mul:0.85 },
+  { name:"Iron Mama",     color:"#e65100", react:0.42, aggr:0.42, defense:0.35, mul:1.0 },
+  { name:"Chief Thunder", color:"#6a1b9a", react:0.30, aggr:0.50, defense:0.45, mul:1.05 }
+];
+
+function FighterGame(stage, hud, done){
+  const cv = document.createElement("canvas"); stage.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  let W = 0, H = 0, raf = 0, last = 0, stopped = false;
+  function resize(){
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    W = stage.clientWidth; H = stage.clientHeight;
+    cv.width = Math.round(W * d); cv.height = Math.round(H * d); cv.style.width = W + "px"; cv.style.height = H + "px";
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  resize(); window.addEventListener("resize", resize);
+
+  const inP = { left:false, right:false, punch:false, kick:false, block:false };
+  const pad1 = document.createElement("div"); pad1.className = "pad"; pad1.style.left = "12px";
+  const pad2 = document.createElement("div"); pad2.className = "pad"; pad2.style.right = "12px";
+  function btn(parent, label, key, tap){
+    const b = document.createElement("button"); b.textContent = label;
+    b.addEventListener("pointerdown", e => { e.preventDefault(); inP[key] = true; b.classList.add("on"); if (tap) setTimeout(() => { inP[key] = false; }, 90); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(t => b.addEventListener(t, () => { if (!tap) inP[key] = false; b.classList.remove("on"); }));
+    parent.appendChild(b);
+  }
+  btn(pad1, "◀", "left", false); btn(pad1, "▶", "right", false);
+  btn(pad2, "🛡️", "block", false); btn(pad2, "🦵", "kick", true); btn(pad2, "👊", "punch", true);
+  stage.appendChild(pad1); stage.appendChild(pad2);
+  const keyMap = { arrowleft:"left", a:"left", arrowright:"right", d:"right", j:"punch", k:"kick", l:"block" };
+  const kd = e => { const k = keyMap[e.key.toLowerCase()]; if (k) inP[k] = true; };
+  const ku = e => { const k = keyMap[e.key.toLowerCase()]; if (k) inP[k] = false; };
+  window.addEventListener("keydown", kd); window.addEventListener("keyup", ku);
+
+  let foeIdx = 0, wins = 0, losses = 0, sim = null, ai = null, banner = "", bannerT = 0, frozen = false, totalWins = 0;
+  function startRound(){
+    const foe = FOES[foeIdx];
+    sim = newSim(1000, foe.mul); sim.e.name = foe.name; sim.e.color = foe.color;
+    ai = { timer:0.6, action:"approach", react:foe.react, aggr:foe.aggr, defense:foe.defense };
+    banner = "Round " + (wins + losses + 1) + " · " + foe.name; bannerT = 1.4; frozen = false;
+    hud.textContent = "Win " + wins + " - " + losses + " Lose";
+  }
+  function startMatch(){ wins = 0; losses = 0; startRound(); }
+  startMatch();
+
+  function endRound(){
+    frozen = true;
+    if (sim.winner === "p") wins++; else if (sim.winner === "e") losses++;
+    banner = sim.winner === "p" ? "You win the round! 🥊" : sim.winner === "e" ? "You lost the round" : "Draw";
+    bannerT = 1.6; hud.textContent = "Win " + wins + " - " + losses + " Lose";
+    setTimeout(() => {
+      if (stopped) return;
+      if (wins >= 2){
+        totalWins++; best("ng_best_fight", totalWins);
+        if (foeIdx >= FOES.length - 1){
+          overlay(stage, "Champion! 🏆", "You beat all three fighters.<br>Fights won: " + totalWins, [["Play again", () => { foeIdx = 0; startMatch(); }], ["Menu", () => done(null), true]]);
+        } else {
+          overlay(stage, "You beat " + FOES[foeIdx].name + "!", "Next up: " + FOES[foeIdx + 1].name, [["Next fighter", () => { foeIdx++; startMatch(); }], ["Menu", () => done(null), true]]);
+        }
+      } else if (losses >= 2){
+        overlay(stage, "Knocked out 😵", FOES[foeIdx].name + " wins this one.<br>Fights won so far: " + totalWins, [["Rematch", () => startMatch()], ["Menu", () => done(null), true]]);
+      } else { startRound(); }
+    }, 1500);
+  }
+
+  function limb(x, y, len, ang, w, col){ ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(ang) * len, y + Math.sin(ang) * len); ctx.stroke(); }
+  function drawFighter(f, sc, gy, mx){
+    const x = f.x * mx, face = f.facing, bob = f.st === "walk" ? Math.sin(performance.now() / 90) * 3 * sc : 0;
+    const flash = f.flash > 0;
+    ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(x, gy + 4, 32 * sc, 7 * sc, 0, 0, 6.3); ctx.fill();
+    const body = flash ? "#ffffff" : f.color, skin = "#8d5a3b";
+    const hipY = gy - 46 * sc, shY = gy - 100 * sc;
+    limb(x - 8 * sc, hipY, 46 * sc, 1.57 - (f.st === "walk" ? Math.sin(performance.now() / 90) * 0.4 : 0), 11 * sc, "#2b3a55");
+    if (f.st === "atk" && f.kind === "kick" && f.t > 0.05) limb(x + 6 * sc * face, hipY, 70 * sc, face > 0 ? -0.2 : Math.PI + 0.2, 11 * sc, "#2b3a55");
+    else limb(x + 8 * sc, hipY, 46 * sc, 1.57 + (f.st === "walk" ? Math.sin(performance.now() / 90) * 0.4 : 0), 11 * sc, "#2b3a55");
+    ctx.fillStyle = body; ctx.fillRect(x - 17 * sc, shY + bob, 34 * sc, 58 * sc);
+    ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(x, shY - 16 * sc + bob, 16 * sc, 0, 6.3); ctx.fill();
+    ctx.fillStyle = "#222"; ctx.fillRect(x - 16 * sc, shY - 33 * sc + bob, 32 * sc, 7 * sc);
+    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(x + 6 * sc * face, shY - 17 * sc + bob, 2.4 * sc, 0, 6.3); ctx.fill();
+    const armY = shY + 12 * sc + bob;
+    if (f.st === "atk" && f.kind === "punch" && f.t > 0.03) limb(x + 10 * sc * face, armY, 66 * sc, face > 0 ? 0 : Math.PI, 10 * sc, skin);
+    else if (f.blocking) { limb(x + 6 * sc * face, armY, 40 * sc, face > 0 ? -1.1 : Math.PI + 1.1, 10 * sc, skin); }
+    else limb(x + 10 * sc * face, armY, 38 * sc, face > 0 ? 0.9 : Math.PI - 0.9, 10 * sc, skin);
+    if (f.blocking){ ctx.strokeStyle = "rgba(183,239,67,.8)"; ctx.lineWidth = 3 * sc; ctx.beginPath(); ctx.arc(x + 20 * sc * face, shY + 30 * sc, 46 * sc, face > 0 ? -1.2 : Math.PI - 1.2 - 0, face > 0 ? 1.2 : Math.PI + 1.2); ctx.stroke(); }
+  }
+  function bar(x, y, w, h, frac, col, rtl){
+    ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = col; const bw = Math.max(0, w * frac); ctx.fillRect(rtl ? x + w - bw : x, y, bw, h);
+  }
+  function draw(){
+    const gy = H * 0.8, mx = W / 1000, sc = Math.min(W / 1000 * 1.25, H / 340);
+    const g = ctx.createLinearGradient(0, 0, 0, gy); g.addColorStop(0, "#7ec8ee"); g.addColorStop(1, "#d9efe0");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, gy);
+    const cols = ["#8b6b4f", "#a78b6a", "#6e7f8d", "#b08f6e", "#7a6a5a"];
+    for (let i = 0; i < 9; i++){ const bw = W / 9, bh = H * (0.2 + ((i * 37) % 23) / 100); ctx.fillStyle = cols[i % 5]; ctx.fillRect(i * bw, gy - bh, bw - 4, bh);
+      ctx.fillStyle = "rgba(255,255,255,.35)"; for (let w = 0; w < 3; w++) ctx.fillRect(i * bw + 8 + w * (bw / 3.3), gy - bh + 14, bw / 6, 14); }
+    ctx.fillStyle = "#4a4f57"; ctx.fillRect(0, gy, W, H - gy);
+    ctx.fillStyle = "#e9e3a0"; for (let x = 10; x < W; x += 80) ctx.fillRect(x, gy + (H - gy) * 0.5, 40, 4);
+    drawFighter(sim.p, sc, gy + 10, mx); drawFighter(sim.e, sc, gy + 10, mx);
+    const pad = 12, bw = W / 2 - 60;
+    bar(pad, 10, bw, 16, sim.p.hp / 100, "#8bc34a", false); bar(W - pad - bw, 10, bw, 16, sim.e.hp / 100, "#ef5350", true);
+    ctx.fillStyle = "#fff"; ctx.font = "bold 12px Arial"; ctx.textBaseline = "top"; ctx.textAlign = "left"; ctx.fillText(sim.p.name, pad, 30);
+    ctx.textAlign = "right"; ctx.fillText(sim.e.name, W - pad, 30);
+    ctx.textAlign = "center"; ctx.font = "bold 18px Arial"; ctx.fillText(String(Math.max(0, Math.ceil(sim.time))), W / 2, 10);
+    if (bannerT > 0){ ctx.font = "bold " + Math.min(34, W / 12) + "px Arial"; ctx.textBaseline = "middle"; ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fillText(banner, W / 2 + 2, H * 0.36 + 2); ctx.fillStyle = "#ffeb3b"; ctx.fillText(banner, W / 2, H * 0.36); }
+  }
+  function loop(now){
+    if (stopped) return;
+    const dt = Math.min(0.033, (now - last) / 1000); last = now;
+    if (bannerT > 0) bannerT -= dt;
+    if (!frozen && sim){
+      fightStep(sim, inP, aiInput(ai, sim, dt, Math.random), dt);
+      if (sim.over){ endRound(); }
+    }
+    draw(); raf = requestAnimationFrame(loop);
+  }
+  last = performance.now(); raf = requestAnimationFrame(loop);
+  return { destroy(){ stopped = true; cancelAnimationFrame(raf); window.removeEventListener("keydown", kd); window.removeEventListener("keyup", ku); window.removeEventListener("resize", resize); } };
+}
+
+/* ---------- menu ---------- */
+const GAMES = { dash:["Naija Dash", RunnerGame], match:["Naija Match", MatchGame], fight:["Naija Fighter", FighterGame] };
+let current = null, currentName = null;
+function refreshMenu(){
+  $("b1").textContent = "Best score: " + best("ng_best_dash");
+  $("b2").textContent = "Best score: " + best("ng_best_match");
+  $("b3").textContent = "Fights won: " + best("ng_best_fight");
+}
+function openGame(name){
+  if (current){ current.destroy(); current = null; }
+  $("stage").innerHTML = ""; $("hud").textContent = "";
+  if (!name){ $("game").classList.add("hide"); $("menu").classList.remove("hide"); currentName = null; refreshMenu(); return; }
+  currentName = name;
+  $("menu").classList.add("hide"); $("game").classList.remove("hide"); $("title").textContent = GAMES[name][0];
+  current = GAMES[name][1]($("stage"), $("hud"), openGame);
+}
+document.querySelectorAll("#menu [data-g]").forEach(b => b.addEventListener("click", () => openGame(b.dataset.g)));
+$("exit").addEventListener("click", () => openGame(null));
+refreshMenu();
+</script>
+</body>
+</html>
