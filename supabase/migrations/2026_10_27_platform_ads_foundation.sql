@@ -57,6 +57,24 @@ create policy "Admins can view ad campaign payments"
 -- No authenticated INSERT/UPDATE policy is created. Only trusted server-side
 -- payment code should create payment intents or mark them paid.
 
+-- SECURITY DEFINER helper allows public-ad RLS to check payment status
+-- without relying on the caller's restricted view of payment rows.
+create or replace function public.is_platform_ad_paid(p_ad_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $
+  select exists (
+    select 1 from public.ad_campaign_payments p
+    where p.ad_id = p_ad_id and p.status = 'paid'
+  );
+$;
+
+revoke all on function public.is_platform_ad_paid(uuid) from public;
+grant execute on function public.is_platform_ad_paid(uuid) to authenticated;
+
 -- Restrict the existing active-ad SELECT policy so a campaign is publicly
 -- readable only after a trusted backend has marked at least one payment paid.
 -- Admins and campaign owners can still inspect unpaid/inactive campaigns.
@@ -64,10 +82,7 @@ drop policy if exists "Paid ads only unless owner or active admin" on public.pla
 create policy "Paid ads only unless owner or active admin"
   on public.platform_ads as restrictive for select to authenticated
   using (
-    exists (
-      select 1 from public.ad_campaign_payments p
-      where p.ad_id = platform_ads.id and p.status = 'paid'
-    )
+    public.is_platform_ad_paid(platform_ads.id)
     or created_by = auth.uid()
     or exists (
       select 1 from public.admin_users a
