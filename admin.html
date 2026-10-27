@@ -8995,6 +8995,11 @@ function collectSettingsFromUI() {
 function validateSettings(settings) {
   const errors = [];
 
+  if ([settings.ad_dashboard_placement_fee, settings.ad_page_placement_fee, settings.ad_daily_fee]
+    .some(value => value !== null && (!Number.isFinite(value) || value < 0))) {
+    errors.push("Ad placement and daily prices must be blank or a valid non-negative amount.");
+  }
+
   if (
     settings.activation_fee < 0
   ) {
