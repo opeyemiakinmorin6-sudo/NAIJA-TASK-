@@ -10,6 +10,13 @@ alter table public.platform_settings
 alter table public.platform_ads
   alter column active set default false;
 
+-- Let advertisers read their own inactive/pending campaigns without exposing
+-- other advertisers' campaigns. Campaign creation and approval stay restricted.
+drop policy if exists "Users can view own platform ads" on public.platform_ads;
+create policy "Users can view own platform ads"
+  on public.platform_ads for select to authenticated
+  using (created_by = auth.uid());
+
 create table if not exists public.ad_campaign_payments (
   id uuid primary key default gen_random_uuid(),
   ad_id uuid not null references public.platform_ads(id) on delete cascade,
