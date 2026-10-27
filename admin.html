@@ -9458,7 +9458,7 @@ async function loadAds() {
   const er=await withTimeout(supabaseClient.from("ad_events").select("*").order("created_at",{ascending:false}).limit(500),15000,"ad events read");if(er.error)ee=er.error;else events=safeArray(er.data);
   if(status){status.textContent="Campaigns readable: "+rows.length+". "+(pe?"Payment records unavailable: "+errorMessage(pe,"read failed"):"Payment records readable: "+payments.length+".")+" Activation requires a matching payment with status paid.";status.className=pe?"notice warning":"notice success";}
   if(body){if(!rows.length)body.innerHTML='<div class="empty">No campaign records found. No demo records are shown.</div>';else body.innerHTML=rows.map(row=>{
-   const id=String(row.id??""),payment=payments.find(p=>String(p.ad_id)===id),paid=String(payment?.status||"").toLowerCase()==="paid",active=boolValue(row.active),valid=/^[a-f0-9-]{16,40}$/i.test(id);let action="";
+   const id=String(row.id??""),payment=payments.find(p=>String(p.ad_id)===id),paid=payments.some(p=>String(p.ad_id)===id&&String(p.status||"").toLowerCase()==="paid"),active=boolValue(row.active),valid=/^[a-f0-9-]{16,40}$/i.test(id);let action="";
    if(valid&&!pe&&paid&&!active)action='<button class="success" onclick="reviewPlatformAd(\''+id+'\',true)">Approve &amp; activate</button>';
    else if(valid&&!pe&&active)action='<button class="warning" onclick="reviewPlatformAd(\''+id+'\',false)">Pause ad</button>';
    else if(!paid)action='<span class="small">Awaiting confirmed payment</span>';
