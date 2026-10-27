@@ -3442,108 +3442,21 @@ th{
      ===================================================== -->
 
 <section id="page-ads" class="page">
-
-  <div class="page-header">
-
-    <div>
-      <h2>Ads Manager</h2>
-      <p>Monitor platform advertising controls.</p>
-    </div>
-
-    <button class="primary" onclick="loadAds()">
-      Refresh
-    </button>
-
-  </div>
-
-
-  <div class="grid grid-2">
-
-    <div class="card">
-
-      <h3>Ad Behaviour</h3>
-
-      <div class="setting">
-
-        <div>
-          <strong>Normal User Ads</strong>
-          <small>Allow ads for normal users.</small>
-        </div>
-
-        <label class="switch">
-          <input id="normalAdsEnabled" type="checkbox">
-          <span class="slider"></span>
-        </label>
-
-      </div>
-
-
-      <div class="setting">
-
-        <div>
-          <strong>VIP User Ads</strong>
-          <small>Control whether VIP users receive ads.</small>
-        </div>
-
-        <label class="switch">
-          <input id="vipAdsEnabled" type="checkbox">
-          <span class="slider"></span>
-        </label>
-
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          Ad Frequency
-        </label>
-
-        <input
-          id="adFrequency"
-          type="number"
-          min="0"
-          step="1">
-
-      </div>
-
-
-      <button
-        class="primary"
-        onclick="saveSettings()">
-
-        Save Ad Settings
-
-      </button>
-
-    </div>
-
-
-    <div class="card">
-
-      <h3>Advertising Activity</h3>
-
-      <div
-        id="adsStatus"
-        class="notice">
-
-        Advertising statistics will be displayed when
-        the corresponding ad tables are available.
-
-      </div>
-
-      <div id="adsBody">
-
-        <div class="empty">
-          No ad activity loaded.
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
+<div class="page-header"><div><h2>Ads Manager</h2><p>Review campaigns only after payment is confirmed. Payment records are read-only until trusted payment verification is connected.</p></div><button class="primary" onclick="loadAds()">Refresh</button></div>
+<div class="notice warning">Safety rule: ads remain inactive until payment is confirmed and an administrator reviews the creative. This page does not mark payments as paid or collect payments.</div>
+<div class="grid grid-2"><div class="card"><h3>Ad Behaviour</h3>
+<div class="setting"><div><strong>Normal User Ads</strong><small>Existing platform setting; does not approve individual campaigns.</small></div><label class="switch"><input id="normalAdsEnabled" type="checkbox"><span class="slider"></span></label></div>
+<div class="setting"><div><strong>VIP User Ads</strong><small>Existing platform setting; does not approve individual campaigns.</small></div><label class="switch"><input id="vipAdsEnabled" type="checkbox"><span class="slider"></span></label></div>
+<div class="field"><label>Ad Frequency</label><input id="adFrequency" type="number" min="0" step="1"></div>
+<h4>Campaign Pricing (₦)</h4>
+<div class="field"><label>Dashboard placement fee</label><input id="adDashboardPlacementFee" type="number" min="0" step="0.01" placeholder="Set a price"></div>
+<div class="field"><label>Separate Ads-page placement fee</label><input id="adPagePlacementFee" type="number" min="0" step="0.01" placeholder="Set a price"></div>
+<div class="field"><label>Daily duration fee</label><input id="adDailyFee" type="number" min="0" step="0.01" placeholder="Set a price"></div>
+<button class="primary" onclick="saveSettings()">Save Ad Settings &amp; Prices</button>
+<p class="small">Leave prices blank until you choose them. Campaign checkout stays locked until all three rates are set and trusted payment verification is connected.</p></div>
+<div class="card"><h3>Campaign Review</h3><div id="adsStatus" class="notice">Checking advertising tables…</div><div id="adsBody"><div class="empty">No campaign data loaded.</div></div></div></div>
+<div class="card" style="margin-top:14px"><h3>Ad Campaign Payments</h3><p class="small">Read-only records from the existing ad_campaign_payments table. Only trusted server-side payment verification should mark a payment paid.</p><div class="table-wrap"><table><thead><tr><th>Campaign</th><th>Payer</th><th>Amount</th><th>Status</th><th>Provider</th><th>Reference</th><th>Date</th></tr></thead><tbody id="adPaymentsBody"><tr><td colspan="7" class="empty">Loading payment records…</td></tr></tbody></table></div></div>
+<div class="card" style="margin-top:14px"><h3>Ad Performance Events</h3><div id="adEventsStatus" class="notice">Performance appears only when real events exist.</div><div id="adEventsBody" class="small">No event data loaded.</div></div>
 </section>
 
 
@@ -8777,6 +8690,10 @@ function applySettingsToUI(settings) {
     settings.ad_frequency
   );
 
+  setValue("adDashboardPlacementFee", settings.ad_dashboard_placement_fee);
+  setValue("adPagePlacementFee", settings.ad_page_placement_fee);
+  setValue("adDailyFee", settings.ad_daily_fee);
+
   updateModeIndicators(settings);
 }
 
@@ -9051,6 +8968,10 @@ function collectSettingsFromUI() {
         )
       ),
 
+    ad_dashboard_placement_fee: $("adDashboardPlacementFee")?.value.trim() === "" ? null : Number($("adDashboardPlacementFee").value),
+    ad_page_placement_fee: $("adPagePlacementFee")?.value.trim() === "" ? null : Number($("adPagePlacementFee").value),
+    ad_daily_fee: $("adDailyFee")?.value.trim() === "" ? null : Number($("adDailyFee").value),
+
     minimum_poster_task_slots:
       Math.max(
         1,
@@ -9073,6 +8994,11 @@ function collectSettingsFromUI() {
 
 function validateSettings(settings) {
   const errors = [];
+
+  if ([settings.ad_dashboard_placement_fee, settings.ad_page_placement_fee, settings.ad_daily_fee]
+    .some(value => value !== null && (!Number.isFinite(value) || value < 0))) {
+    errors.push("Ad placement and daily prices must be blank or a valid non-negative amount.");
+  }
 
   if (
     settings.activation_fee < 0
@@ -9341,6 +9267,10 @@ async function saveSettings() {
       ad_frequency:
         settings.ad_frequency,
 
+      ad_dashboard_placement_fee: settings.ad_dashboard_placement_fee,
+      ad_page_placement_fee: settings.ad_page_placement_fee,
+      ad_daily_fee: settings.ad_daily_fee,
+
       minimum_poster_task_slots:
         settings.minimum_poster_task_slots,
 
@@ -9517,72 +9447,35 @@ async function loadSecurity() {
    ========================================================= */
 
 async function loadAds() {
-  const body = $("adsBody");
-  const status = $("adsStatus");
-  if (body) body.innerHTML = '<div class="empty">Loading saved advertising settings and campaign records…</div>';
-  if (status) { status.textContent = "Connecting to Supabase…"; status.className = "notice"; }
-
-  try {
-    if (!platformSettings) await loadSettings();
-    applySettingsToUI(platformSettings);
-
-    const result = await withTimeout(
-      supabaseClient.from("platform_ads").select("*").limit(100),
-      15000,
-      "Advertising campaigns request (platform_ads)"
-    );
-    if (result.error) throw new Error("platform_ads: " + result.error.message);
-
-    const rows = safeArray(result.data);
-    if (status) {
-      status.textContent = "Supabase connection succeeded for platform_ads. " + rows.length + " campaign record(s) returned. This is a read check; payment verification and write permissions are not yet confirmed.";
-      status.className = "notice success";
-    }
-
-    if (!body) return;
-    if (!rows.length) {
-      body.innerHTML = '<div class="empty">The platform_ads table is accessible but contains no campaign records yet. Campaign creation and bank-transfer verification will be added after the actual table columns and policies are confirmed.</div>';
-      return;
-    }
-
-    body.innerHTML = rows.map(row => {
-      const title = row.title || row.ad_title || row.name || row.business_name || row.advertiser_name || "Advertising campaign";
-      const advertiser = row.advertiser_name || row.business_name || row.company_name || row.user_id || row.owner_id || "—";
-      const campaignStatus = row.status || row.approval_status || row.state || "unknown";
-      const paymentStatus = row.payment_status || row.payment_state || "not specified";
-      const price = row.amount ?? row.price ?? row.campaign_price ?? row.ad_price;
-      const placement = row.placement || row.position || row.ad_type || row.type || "—";
-      const dates = row.start_date || row.starts_at || row.created_at || "—";
-      const expiry = row.end_date || row.expires_at || row.expiry_date || "—";
-      return `<article class="card" style="margin:10px 0;padding:14px;overflow-wrap:anywhere">
-        <strong>${escapeHTML(title)}</strong>
-        <div style="margin-top:8px;font-size:13px;line-height:1.8">
-          <div>Campaign ID: ${escapeHTML(row.id ?? "—")}</div>
-          <div>Advertiser: ${escapeHTML(advertiser)}</div>
-          <div>Placement: ${escapeHTML(placement)}</div>
-          <div>Campaign status: ${badge(campaignStatus)}</div>
-          <div>Payment status: ${badge(paymentStatus)}</div>
-          <div>Price: ${price == null ? "—" : money(price)}</div>
-          <div>Start/created: ${escapeHTML(dates)}</div>
-          <div>Expiry: ${escapeHTML(expiry)}</div>
-        </div>
-        <div class="notice warning" style="margin-top:10px">Read-only display. No campaign status or payment was changed.</div>
-      </article>`;
-    }).join("");
-  } catch (error) {
-    reportError("loadAds", error);
-    if (status) {
-      status.textContent = "Advertising backend check failed: " + errorMessage(error, "Unknown error") + ". This points to a schema, permission/RLS, or connection issue; no payment or campaign data was changed.";
-      status.className = "notice warning";
-    }
-    if (body) body.innerHTML = '<div class="empty">Advertising records could not load. Use System Check and inspect the platform_ads result. No fake campaign records are shown.</div>';
-  }
+ const body=$("adsBody"),status=$("adsStatus"),pb=$("adPaymentsBody"),eb=$("adEventsBody"),es=$("adEventsStatus");
+ if(body)body.innerHTML='<div class="empty">Loading campaigns…</div>';if(pb)pb.innerHTML='<tr><td colspan="7" class="empty">Loading payments…</td></tr>';
+ if(status){status.textContent="Checking existing advertising tables…";status.className="notice";}
+ try{
+  if(!platformSettings)await loadSettings();if(platformSettings)applySettingsToUI(platformSettings);
+  const ar=await withTimeout(supabaseClient.from("platform_ads").select("*").order("created_at",{ascending:false}).limit(100),15000,"platform_ads read");if(ar.error)throw new Error("platform_ads: "+ar.error.message);
+  const rows=safeArray(ar.data);let payments=[],pe=null,events=[],ee=null;
+  const pr=await withTimeout(supabaseClient.from("ad_campaign_payments").select("*").order("created_at",{ascending:false}).limit(200),15000,"ad campaign payments read");if(pr.error)pe=pr.error;else payments=safeArray(pr.data);
+  const er=await withTimeout(supabaseClient.from("ad_events").select("*").order("created_at",{ascending:false}).limit(500),15000,"ad events read");if(er.error)ee=er.error;else events=safeArray(er.data);
+  if(status){status.textContent="Campaigns readable: "+rows.length+". "+(pe?"Payment records unavailable: "+errorMessage(pe,"read failed"):"Payment records readable: "+payments.length+".")+" Activation requires a matching payment with status paid.";status.className=pe?"notice warning":"notice success";}
+  if(body){if(!rows.length)body.innerHTML='<div class="empty">No campaign records found. No demo records are shown.</div>';else body.innerHTML=rows.map(row=>{
+   const id=String(row.id??""),payment=payments.find(p=>String(p.ad_id)===id),paid=payments.some(p=>String(p.ad_id)===id&&String(p.status||"").toLowerCase()==="paid"),active=boolValue(row.active),valid=/^[a-f0-9-]{16,40}$/i.test(id);let action="";
+   if(valid&&!pe&&paid&&!active)action='<button class="success" onclick="reviewPlatformAd(\''+id+'\',true)">Approve &amp; activate</button>';
+   else if(valid&&!pe&&active)action='<button class="warning" onclick="reviewPlatformAd(\''+id+'\',false)">Pause ad</button>';
+   else if(!paid)action='<span class="small">Awaiting confirmed payment</span>';
+   return '<article class="card" style="margin:10px 0;padding:14px;overflow-wrap:anywhere"><strong>'+escapeHTML(row.title||row.ad_title||row.name||"Advertisement")+'</strong><div style="margin-top:8px;font-size:13px;line-height:1.8"><div>Campaign ID: '+escapeHTML(id)+'</div><div>Owner: '+escapeHTML(row.created_by||row.user_id||row.owner_id||"—")+'</div><div>Placement: '+escapeHTML(row.placement||"—")+'</div><div>Schedule: '+escapeHTML(row.start_at||"—")+' → '+escapeHTML(row.end_at||"—")+'</div><div>Campaign: '+badge(active?"active":"inactive")+'</div><div>Payment: '+badge(payment?.status||"no payment record")+'</div><div>Amount: '+(payment?.amount==null?"—":money(payment.amount))+'</div></div>'+(row.description?'<p style="margin:8px 0">'+escapeHTML(row.description)+'</p>':'')+(row.image_url&&/^https?:\/\//i.test(String(row.image_url))?'<img src="'+escapeHTML(row.image_url)+'" alt="Ad creative preview" style="display:block;max-width:100%;max-height:180px;object-fit:contain;border-radius:10px;margin:8px 0">':'')+(row.target_url&&/^https?:\/\//i.test(String(row.target_url))?'<p><a href="'+escapeHTML(row.target_url)+'" target="_blank" rel="noopener noreferrer">Open destination to review</a></p>':'')+'<div class="actions" style="margin-top:10px">'+action+'</div></article>';
+  }).join("");}
+  if(pb){if(pe)pb.innerHTML='<tr><td colspan="7" class="empty">Payment records unavailable: '+escapeHTML(errorMessage(pe,"unknown error"))+'</td></tr>';else if(!payments.length)pb.innerHTML='<tr><td colspan="7" class="empty">No ad campaign payments found.</td></tr>';else pb.innerHTML=payments.map(p=>'<tr><td>'+escapeHTML(p.ad_id||"—")+'</td><td>'+escapeHTML(p.payer_user_id||"—")+'</td><td>'+money(p.amount)+'</td><td>'+badge(p.status||"pending")+'</td><td>'+escapeHTML(p.provider||"—")+'</td><td class="mono">'+escapeHTML(p.payment_reference||"—")+'</td><td>'+formatDate(p.paid_at||p.created_at)+'</td></tr>').join("");}
+  if(es){es.textContent=ee?"Events unavailable: "+errorMessage(ee,"read failed"):"Loaded "+events.length+" real event record(s). No metrics are fabricated.";es.className=ee?"notice warning":"notice";}
+  if(eb){if(ee)eb.textContent="Event records could not be read.";else if(!events.length)eb.textContent="No ad impressions or clicks recorded yet.";else{const im=events.filter(x=>x.event_type==="impression").length,cl=events.filter(x=>x.event_type==="click").length;eb.innerHTML='<div class="stat-strip"><div><b>'+im+'</b><span>Retrieved impressions</span></div><div><b>'+cl+'</b><span>Retrieved clicks</span></div></div>';}}
+ }catch(error){reportError("loadAds",error);if(status){status.textContent="Advertising read failed: "+errorMessage(error,"unknown error")+". No campaign or payment data was changed.";status.className="notice warning";}if(body)body.innerHTML='<div class="empty">Campaigns could not be loaded. Use System Check to inspect the exact table and policies.</div>';if(pb)pb.innerHTML='<tr><td colspan="7" class="empty">Payment records could not be loaded.</td></tr>';}
 }
-
-
-/* =========================================================
-   COMMUNITY
-   ========================================================= */
+async function reviewPlatformAd(id,activate){
+ if(!/^[a-f0-9-]{16,40}$/i.test(String(id||""))){toast("Invalid campaign ID.","warning");return;}
+ if(activate){const q=await supabaseClient.from("ad_campaign_payments").select("id,status").eq("ad_id",id).eq("status","paid").limit(1);if(q.error||!q.data?.length){toast("Cannot activate: no confirmed paid payment record found.","warning");return;}if(!confirm("Approve and activate this paid advertisement? Check its creative and destination URL first."))return;}
+ else if(!confirm("Pause this advertisement? It will remain in the database."))return;
+ try{setLoading(true,activate?"Activating approved ad…":"Pausing ad…");const {error}=await supabaseClient.from("platform_ads").update({active:!!activate}).eq("id",id);if(error)throw error;await writeAudit(activate?"approve_paid_ad":"pause_ad",id,{active:!!activate,reviewed_by:currentUser?.id||null});toast(activate?"Paid advertisement activated.":"Advertisement paused.","success");await loadAds();}
+ catch(error){reportError("reviewPlatformAd",error);toast("Ad update failed: "+errorMessage(error,"unknown error"),"danger");}finally{setLoading(false);}
+}
 
 async function loadCommunity() {
   try {

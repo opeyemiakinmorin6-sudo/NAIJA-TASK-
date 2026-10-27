@@ -181,6 +181,12 @@ button,a{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer
     </div>
   </section>
 
+  <section class="section" id="dashboardAdsSection" data-cat="earn" style="display:none">
+    <div class="section-heading"><h2>📣 Sponsored</h2><a href="ads.html">Advertise →</a></div>
+    <div class="panel"><div id="dashboardAdsList" class="task-list"><div class="loading">Checking sponsored placements…</div></div></div>
+    <p class="small" style="margin:6px 2px">Sponsored content is shown only when an ad is active and has a confirmed paid campaign record.</p>
+  </section>
+
   <section class="section" id="availableTasksSection" data-cat="earn">
     <div class="section-heading"><h2>🎯 Available Tasks <span id="tasksCount" style="font-weight:600;color:var(--muted);font-size:12px"></span></h2><a href="task.html">View all →</a></div>
     <div class="panel"><div id="tasksList" class="task-list"><div class="loading">Loading available tasks…</div></div></div>
@@ -693,6 +699,38 @@ window.addEventListener("online", () => { if (currentUser) refreshDashboard(); }
 document.addEventListener("visibilitychange", () => { if (!document.hidden && currentUser) refreshDashboard(); });
 window.addEventListener("pageshow", e => { if (e.persisted && currentUser) refreshDashboard(); });
 
+/* Render only active dashboard ads with a confirmed paid campaign payment. */
+async function loadDashboardAds(){
+ const section=$("dashboardAdsSection"),box=$("dashboardAdsList");if(!section||!box)return;
+ section.style.display="none";box.innerHTML="";
+ try{
+  const {data:ads,error:adError}=await supabaseClient.from("platform_ads").select("id,title,description,image_url,target_url,placement,active,start_at,end_at").eq("active",true).limit(30);
+  if(adError)throw adError;
+  const now=Date.now();
+  const eligible=(ads||[]).filter(a=>{
+   const place=String(a.placement||"").toLowerCase();
+   const starts=a.start_at?new Date(a.start_at).getTime():0,ends=a.end_at?new Date(a.end_at).getTime():Infinity;
+   return (place==="dashboard"||place==="both"||place==="home")&&(!starts||starts<=now)&&(!ends||ends>=now);
+  });
+  if(!eligible.length){section.style.display="none";return;}
+  const ids=eligible.map(a=>a.id);
+  const {data:payments,error:paymentError}=await supabaseClient.from("ad_campaign_payments").select("ad_id,status").in("ad_id",ids).eq("status","paid");
+  if(paymentError)throw paymentError;
+  const paidIds=new Set((payments||[]).map(p=>String(p.ad_id)));
+  const visible=eligible.filter(a=>paidIds.has(String(a.id)));
+  if(!visible.length){section.style.display="none";return;}
+  box.innerHTML=visible.slice(0,3).map(a=>{
+   const safeUrl=/^https?:\/\//i.test(String(a.target_url||""))?String(a.target_url):"";
+   const image=/^https?:\/\//i.test(String(a.image_url||""))?'<img src="'+escapeDashboardAd(a.image_url)+'" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:8px 0">':"";
+   return '<article class="task-item" style="padding:13px"><span style="display:inline-block;font-size:10px;font-weight:800;background:#e7f6eb;color:#064d25;border-radius:999px;padding:3px 7px">SPONSORED</span><strong style="display:block;margin-top:7px">'+escapeDashboardAd(a.title||"Advertisement")+'</strong>'+image+'<p style="margin:6px 0;color:var(--muted)">'+escapeDashboardAd(a.description||"Sponsored message")+'</p>'+(safeUrl?'<a href="'+escapeDashboardAd(safeUrl)+'" target="_blank" rel="noopener noreferrer" data-ad-click="'+escapeDashboardAd(a.id)+'" class="button" style="display:inline-block;margin-top:6px">Learn more</a>':"")+'</article>';
+  }).join("");
+  section.style.display="block";
+  box.querySelectorAll("[data-ad-click]").forEach(link=>link.addEventListener("click",()=>{supabaseClient.rpc("record_ad_event",{p_ad_id:link.dataset.adClick,p_event_type:"click"}).then(({error})=>{if(error)console.warn("Ad click event not recorded:",error.message)})}));
+  visible.slice(0,3).forEach(a=>supabaseClient.rpc("record_ad_event",{p_ad_id:a.id,p_event_type:"impression"}).then(({error})=>{if(error)console.warn("Ad impression not recorded:",error.message)}));
+ }catch(e){section.style.display="none";console.warn("Dashboard ads are hidden because campaign/payment checks failed:",e.message||e);}
+}
+function escapeDashboardAd(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
 async function loadModuleLinks(){
   try{
     const { data, error } = await supabaseClient.from("platform_feature_flags").select("key, enabled").in("key", ["arena", "starlife"]);
@@ -736,7 +774,7 @@ $("catChips").querySelectorAll("[data-cat]").forEach(b => b.addEventListener("cl
   applyFilters();
 }));
 
-startDashboard().then(loadModuleLinks).then(applyFilters);
+startDashboard().then(loadModuleLinks).then(loadDashboardAds).then(applyFilters);
 </script>
 </body>
 </html>
