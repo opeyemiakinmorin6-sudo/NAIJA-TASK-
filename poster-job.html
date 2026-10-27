@@ -256,6 +256,9 @@ const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Allow dashboard shortcuts to open a specific job-status filter.
+const requestedJobFilter = new URLSearchParams(window.location.search).get("filter");
+
 let currentUser = null;
 let jobs = [];
 let payments = [];
@@ -521,6 +524,7 @@ async function loadSubmissionCounts(){
 }
 
 async function loadAll(){
+  if(requestedJobFilter && ["ALL","LIVE","PAYMENT","APPROVAL","PAUSED","COMPLETED","REJECTED"].includes(requestedJobFilter)) $("jobFilter").value=requestedJobFilter;
   if(!currentUser)return;
   hideMessage();
   $("jobsList").innerHTML='<div class="empty"><div class="emoji">⏳</div>Refreshing jobs and payment information…</div>';
