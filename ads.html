@@ -36,8 +36,8 @@ async function loadAdsPagePlacement(){
   const paid=new Set((pr.data||[]).map(p=>String(p.ad_id))),visible=eligible.filter(a=>paid.has(String(a.id)));
   if(!visible.length){box.innerHTML='<div class="empty">No approved sponsored ads are available right now.</div>';return;}
   box.innerHTML=visible.map(a=>{
-   const url=/^https?:\\/\\//i.test(String(a.target_url||""))?String(a.target_url):"";
-   const image=/^https?:\\/\\//i.test(String(a.image_url||""))?'<img src="'+esc(a.image_url)+'" alt="Sponsored advertisement">':"";
+   const url=/^https?:\/\//i.test(String(a.target_url||""))?String(a.target_url):"";
+   const image=/^https?:\/\//i.test(String(a.image_url||""))?'<img src="'+esc(a.image_url)+'" alt="Sponsored advertisement">':"";
    return '<article class="ad"><div class="adtop"><strong>'+esc(a.title||"Advertisement")+'</strong><span class="pill">SPONSORED</span></div>'+image+'<p>'+esc(a.description||"")+'</p>'+(url?'<a class="button" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" data-ad-page-click="'+esc(a.id)+'">Learn more</a>':"")+'</article>';
   }).join("");
   box.querySelectorAll("[data-ad-page-click]").forEach(link=>link.addEventListener("click",()=>{db.rpc("record_ad_event",{p_ad_id:link.dataset.adPageClick,p_event_type:"click"}).then(({error})=>{if(error)console.warn("Ad click event not recorded:",error.message)})}));
