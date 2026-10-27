@@ -725,8 +725,8 @@ async function loadDashboardAds(){
    return '<article class="task-item" style="padding:13px"><span style="display:inline-block;font-size:10px;font-weight:800;background:#e7f6eb;color:#064d25;border-radius:999px;padding:3px 7px">SPONSORED</span><strong style="display:block;margin-top:7px">'+escapeDashboardAd(a.title||"Advertisement")+'</strong>'+image+'<p style="margin:6px 0;color:var(--muted)">'+escapeDashboardAd(a.description||"Sponsored message")+'</p>'+(safeUrl?'<a href="'+escapeDashboardAd(safeUrl)+'" target="_blank" rel="noopener noreferrer" data-ad-click="'+escapeDashboardAd(a.id)+'" class="button" style="display:inline-block;margin-top:6px">Learn more</a>':"")+'</article>';
   }).join("");
   section.style.display="block";
-  box.querySelectorAll("[data-ad-click]").forEach(link=>link.addEventListener("click",()=>{supabaseClient.rpc("record_ad_event",{p_ad_id:link.dataset.adClick,p_event_type:"click",p_session_id:null}).then(({error})=>{if(error)console.warn("Ad click event not recorded:",error.message)})}));
-  visible.slice(0,3).forEach(a=>supabaseClient.rpc("record_ad_event",{p_ad_id:a.id,p_event_type:"impression",p_session_id:null}).then(({error})=>{if(error)console.warn("Ad impression not recorded:",error.message)}));
+  box.querySelectorAll("[data-ad-click]").forEach(link=>link.addEventListener("click",()=>{supabaseClient.rpc("record_ad_event",{p_ad_id:link.dataset.adClick,p_event_type:"click"}).then(({error})=>{if(error)console.warn("Ad click event not recorded:",error.message)})}));
+  visible.slice(0,3).forEach(a=>supabaseClient.rpc("record_ad_event",{p_ad_id:a.id,p_event_type:"impression"}).then(({error})=>{if(error)console.warn("Ad impression not recorded:",error.message)}));
  }catch(e){section.style.display="none";console.warn("Dashboard ads are hidden because campaign/payment checks failed:",e.message||e);}
 }
 function escapeDashboardAd(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
