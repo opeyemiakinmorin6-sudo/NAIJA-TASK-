@@ -3447,7 +3447,13 @@ th{
 <div class="grid grid-2"><div class="card"><h3>Ad Behaviour</h3>
 <div class="setting"><div><strong>Normal User Ads</strong><small>Existing platform setting; does not approve individual campaigns.</small></div><label class="switch"><input id="normalAdsEnabled" type="checkbox"><span class="slider"></span></label></div>
 <div class="setting"><div><strong>VIP User Ads</strong><small>Existing platform setting; does not approve individual campaigns.</small></div><label class="switch"><input id="vipAdsEnabled" type="checkbox"><span class="slider"></span></label></div>
-<div class="field"><label>Ad Frequency</label><input id="adFrequency" type="number" min="0" step="1"></div><button class="primary" onclick="saveSettings()">Save Ad Settings</button><p class="small">Placement and duration rates are not editable here until their actual settings columns are confirmed. No new settings columns are assumed.</p></div>
+<div class="field"><label>Ad Frequency</label><input id="adFrequency" type="number" min="0" step="1"></div>
+<h4>Campaign Pricing (₦)</h4>
+<div class="field"><label>Dashboard placement fee</label><input id="adDashboardPlacementFee" type="number" min="0" step="0.01" placeholder="Set a price"></div>
+<div class="field"><label>Separate Ads-page placement fee</label><input id="adPagePlacementFee" type="number" min="0" step="0.01" placeholder="Set a price"></div>
+<div class="field"><label>Daily duration fee</label><input id="adDailyFee" type="number" min="0" step="0.01" placeholder="Set a price"></div>
+<button class="primary" onclick="saveSettings()">Save Ad Settings &amp; Prices</button>
+<p class="small">Leave prices blank until you choose them. Campaign checkout stays locked until all three rates are set and trusted payment verification is connected.</p></div>
 <div class="card"><h3>Campaign Review</h3><div id="adsStatus" class="notice">Checking advertising tables…</div><div id="adsBody"><div class="empty">No campaign data loaded.</div></div></div></div>
 <div class="card" style="margin-top:14px"><h3>Ad Campaign Payments</h3><p class="small">Read-only records from the existing ad_campaign_payments table. Only trusted server-side payment verification should mark a payment paid.</p><div class="table-wrap"><table><thead><tr><th>Campaign</th><th>Payer</th><th>Amount</th><th>Status</th><th>Provider</th><th>Reference</th><th>Date</th></tr></thead><tbody id="adPaymentsBody"><tr><td colspan="7" class="empty">Loading payment records…</td></tr></tbody></table></div></div>
 <div class="card" style="margin-top:14px"><h3>Ad Performance Events</h3><div id="adEventsStatus" class="notice">Performance appears only when real events exist.</div><div id="adEventsBody" class="small">No event data loaded.</div></div>
@@ -8684,6 +8690,10 @@ function applySettingsToUI(settings) {
     settings.ad_frequency
   );
 
+  setValue("adDashboardPlacementFee", settings.ad_dashboard_placement_fee);
+  setValue("adPagePlacementFee", settings.ad_page_placement_fee);
+  setValue("adDailyFee", settings.ad_daily_fee);
+
   updateModeIndicators(settings);
 }
 
@@ -8957,6 +8967,10 @@ function collectSettingsFromUI() {
           )
         )
       ),
+
+    ad_dashboard_placement_fee: $("adDashboardPlacementFee")?.value.trim() === "" ? null : Number($("adDashboardPlacementFee").value),
+    ad_page_placement_fee: $("adPagePlacementFee")?.value.trim() === "" ? null : Number($("adPagePlacementFee").value),
+    ad_daily_fee: $("adDailyFee")?.value.trim() === "" ? null : Number($("adDailyFee").value),
 
     minimum_poster_task_slots:
       Math.max(
@@ -9248,6 +9262,10 @@ async function saveSettings() {
       ad_frequency:
         settings.ad_frequency,
 
+      ad_dashboard_placement_fee: settings.ad_dashboard_placement_fee,
+      ad_page_placement_fee: settings.ad_page_placement_fee,
+      ad_daily_fee: settings.ad_daily_fee,
+
       minimum_poster_task_slots:
         settings.minimum_poster_task_slots,
 
@@ -9439,7 +9457,7 @@ async function loadAds() {
    if(valid&&!pe&&paid&&!active)action='<button class="success" onclick="reviewPlatformAd(\''+id+'\',true)">Approve &amp; activate</button>';
    else if(valid&&!pe&&active)action='<button class="warning" onclick="reviewPlatformAd(\''+id+'\',false)">Pause ad</button>';
    else if(!paid)action='<span class="small">Awaiting confirmed payment</span>';
-   return '<article class="card" style="margin:10px 0;padding:14px;overflow-wrap:anywhere"><strong>'+escapeHTML(row.title||row.ad_title||row.name||"Advertisement")+'</strong><div style="margin-top:8px;font-size:13px;line-height:1.8"><div>Campaign ID: '+escapeHTML(id)+'</div><div>Owner: '+escapeHTML(row.created_by||row.user_id||row.owner_id||"—")+'</div><div>Placement: '+escapeHTML(row.placement||"—")+'</div><div>Schedule: '+escapeHTML(row.start_at||"—")+' → '+escapeHTML(row.end_at||"—")+'</div><div>Campaign: '+badge(active?"active":"inactive")+'</div><div>Payment: '+badge(payment?.status||"no payment record")+'</div><div>Amount: '+(payment?.amount==null?"—":money(payment.amount))+'</div></div><div class="actions" style="margin-top:10px">'+action+'</div></article>';
+   return '<article class="card" style="margin:10px 0;padding:14px;overflow-wrap:anywhere"><strong>'+escapeHTML(row.title||row.ad_title||row.name||"Advertisement")+'</strong><div style="margin-top:8px;font-size:13px;line-height:1.8"><div>Campaign ID: '+escapeHTML(id)+'</div><div>Owner: '+escapeHTML(row.created_by||row.user_id||row.owner_id||"—")+'</div><div>Placement: '+escapeHTML(row.placement||"—")+'</div><div>Schedule: '+escapeHTML(row.start_at||"—")+' → '+escapeHTML(row.end_at||"—")+'</div><div>Campaign: '+badge(active?"active":"inactive")+'</div><div>Payment: '+badge(payment?.status||"no payment record")+'</div><div>Amount: '+(payment?.amount==null?"—":money(payment.amount))+'</div></div>'+(row.description?'<p style="margin:8px 0">'+escapeHTML(row.description)+'</p>':'')+(row.image_url&&/^https?:\\/\\//i.test(String(row.image_url))?'<img src="'+escapeHTML(row.image_url)+'" alt="Ad creative preview" style="display:block;max-width:100%;max-height:180px;object-fit:contain;border-radius:10px;margin:8px 0">':'')+(row.target_url&&/^https?:\\/\\//i.test(String(row.target_url))?'<p><a href="'+escapeHTML(row.target_url)+'" target="_blank" rel="noopener noreferrer">Open destination to review</a></p>':'')+'<div class="actions" style="margin-top:10px">'+action+'</div></article>';
   }).join("");}
   if(pb){if(pe)pb.innerHTML='<tr><td colspan="7" class="empty">Payment records unavailable: '+escapeHTML(errorMessage(pe,"unknown error"))+'</td></tr>';else if(!payments.length)pb.innerHTML='<tr><td colspan="7" class="empty">No ad campaign payments found.</td></tr>';else pb.innerHTML=payments.map(p=>'<tr><td>'+escapeHTML(p.ad_id||"—")+'</td><td>'+escapeHTML(p.payer_user_id||"—")+'</td><td>'+money(p.amount)+'</td><td>'+badge(p.status||"pending")+'</td><td>'+escapeHTML(p.provider||"—")+'</td><td class="mono">'+escapeHTML(p.payment_reference||"—")+'</td><td>'+formatDate(p.paid_at||p.created_at)+'</td></tr>').join("");}
   if(es){es.textContent=ee?"Events unavailable: "+errorMessage(ee,"read failed"):"Loaded "+events.length+" real event record(s). No metrics are fabricated.";es.className=ee?"notice warning":"notice";}
