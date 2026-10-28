@@ -657,7 +657,7 @@ async function loadSellerOrders() {
     }
 
     const {data:orderData,error:orderError} = await db.from('marketplace_orders')
-      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,payment_status,delivery_status,created_at')
       .in('product_id',ids).order('created_at',{ascending:false});
     if (orderError) throw orderError;
     showRows('sellerOrdersList',orderData,'seller');
