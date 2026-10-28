@@ -493,6 +493,28 @@ async function verifyMarketplaceReturn() {
   }
 }
 
+async function retryMarketplacePayment(orderId) {
+  if (!currentUser) return showGlobal('Sign in before paying for an order.','error');
+  if (!orderId) return showGlobal('Order ID is missing. Refresh My Orders and try again.','error');
+  try {
+    const redirect = new URL(location.origin + location.pathname);
+    redirect.searchParams.set('payment_return','marketplace');
+    redirect.searchParams.set('order_id',String(orderId));
+    showGlobal('Preparing secure checkout for your existing order…','info');
+    const result = await callPaymentFunction({
+      action:'initiate',
+      purpose:'marketplace',
+      redirect_url:redirect.toString(),
+      metadata:{order_id:String(orderId)}
+    });
+    if (!result.payment_url) throw new Error('The payment server did not return a checkout link.');
+    location.href = result.payment_url;
+  } catch (error) {
+    showGlobal('Checkout could not start: ' + (error.message || 'Unknown error') +
+      ' If you were charged, do not pay again until support checks the transaction.','error');
+  }
+}
+
 async function placeOrder(productId) {
   if (!currentUser) return showGlobal('Sign in before placing an order.','error');
   const product = products.find(p => String(p.id) === String(productId));
@@ -567,8 +589,11 @@ function showRows(containerId, rows, type) {
         badgeClass + '">' + escapeHTML(status) + '</span></div><p>Product ID: ' +
         escapeHTML(row.product_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
         ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
-        escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p><p class="muted">'
-        escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') +
+        escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
+        (String(row.payment_status || '').toLowerCase() === 'paid'
+          ? '<p class="muted">Payment confirmed. Await seller fulfilment.</p>'
+          : '<button class="btn-green" onclick="retryMarketplacePayment(\'' + escapeHTML(row.id) + '\')">Pay securely with Flutterwave</button>') +
+        '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') +
         '</p></div>';
     }
 
