@@ -860,9 +860,10 @@ async function renderPayment(payment){
 
       <button
         class="approve"
-        data-payment-id="${payment.id}">
+        data-payment-id="${payment.id}"
+        ${String(payment.payment_method || "").toLowerCase() === "flutterwave" ? "" : "disabled"}>
 
-        Approve Payment & Make LIVE
+        ${String(payment.payment_method || "").toLowerCase() === "flutterwave" ? "Approve Verified Flutterwave Payment" : "Legacy manual payment — approval disabled"}
 
       </button>
 
@@ -900,6 +901,7 @@ async function renderPayment(payment){
 
       approvePayment(
         payment.id,
+        payment.payment_method,
         approveButton,
         card
       );
@@ -925,118 +927,54 @@ async function renderPayment(payment){
 
 async function approvePayment(
   paymentId,
+  paymentMethod,
   button,
   card
 ){
-
-  /*
-    Final confirmation before
-    changing the job to LIVE.
-  */
-
-  const confirmed =
-    window.confirm(
-      "Confirm that you have reviewed the payment proof and want to make this job LIVE?"
+  const method = String(paymentMethod || "").toLowerCase();
+  if (method !== "flutterwave") {
+    showNotice(
+      "This is a legacy manual-payment record. It cannot be approved through the Flutterwave workflow. Do not mark the task LIVE; reconcile the old payment separately.",
+      "error"
     );
-
-
-  if(!confirmed){
     return;
   }
 
+  const confirmed = window.confirm(
+    "Approve this Flutterwave payment only? The task will remain inactive until task moderation separately approves it."
+  );
+  if (!confirmed) return;
 
-  button.disabled =
-    true;
+  button.disabled = true;
+  button.textContent = "Approving payment…";
 
-  button.textContent =
-    "Approving...";
-
-
-  try{
-
-    /*
-      IMPORTANT:
-
-      This calls the secure database
-      function created earlier.
-
-      The browser does NOT directly
-      change the job to LIVE.
-    */
-
-    const {
-      data,
-      error
-    } = await db.rpc(
-      "admin_approve_poster_payment",
-      {
-        p_payment_id:
-          paymentId
-      }
+  try {
+    const { data, error } = await db.rpc(
+      "admin_approve_flutterwave_poster_payment",
+      { p_payment_id: paymentId }
     );
-
-
-    if(error){
-      throw error;
+    if (error) throw error;
+    if (!data || data.success !== true) {
+      throw new Error(data?.message || "The server did not confirm payment approval.");
     }
 
-
-    console.log(
-      "Approval result:",
-      data
-    );
-
-
-    /*
-      Remove approved payment
-      from pending list.
-    */
-
     card.remove();
-
-
     showNotice(
-      "Payment approved successfully. The job is now LIVE and can be shown to Taskers.",
+      "Flutterwave payment approved. The task remains inactive and must pass the separate task-moderation process before it can go live.",
       "success"
     );
 
-
-    /*
-      If nothing remains,
-      show empty state.
-    */
-
-    if(
-      content.children.length === 0
-    ){
-
+    if (content.children.length === 0) {
       showEmptyState(
         "No payments waiting for review.",
-        "All pending payments have been reviewed."
+        "All displayed Flutterwave payments have been reviewed."
       );
     }
-
-
-  }catch(error){
-
-    console.error(
-      "Approval error:",
-      error
-    );
-
-
-    button.disabled =
-      false;
-
-    button.textContent =
-      "Approve Payment & Make LIVE";
-
-
-    showNotice(
-      error.message ||
-      "Payment approval failed.",
-      "error"
-    );
+  } catch (error) {
+    console.error("Flutterwave payment approval error:", error);
+    button.disabled = false;
+    button.textContent = "Approve Verified Flutterwave Payment";
+    showNotice(error.message || "Payment approval failed.", "error");
   }
 }
 
