@@ -593,14 +593,22 @@ async function handlePosterPaymentReturn() {
   if (url.searchParams.get("nt_poster_return") !== "1") return;
   const txRef = url.searchParams.get("tx_ref") || "";
   const transactionId = url.searchParams.get("transaction_id") || "";
-  const paymentId = url.searchParams.get("nt_poster_payment_id") || "";
+  let paymentId = url.searchParams.get("nt_poster_payment_id") || "";
+  const taskId = url.searchParams.get("nt_poster_task_id") || "";
   const flwStatus = (url.searchParams.get("status") || "").toLowerCase();
   try {
     if (flwStatus && !["successful", "completed"].includes(flwStatus)) {
       paymentReturnMessage = "Flutterwave did not report a successful payment. Your task has not been marked paid.";
     } else {
-      if (!txRef || !transactionId || !paymentId) {
+      if (!txRef || !transactionId || (!paymentId && !taskId)) {
         throw new Error("Flutterwave returned without all payment references. Do not pay again; contact support.");
+      }
+      if (!paymentId && taskId) {
+        const {data: payment, error} = await db.from("poster_payments")
+          .select("id,tx_ref").eq("task_id", taskId).eq("poster_id", currentUser.id)
+          .eq("tx_ref", txRef).maybeSingle();
+        if (error || !payment) throw new Error("Could not find the matching poster payment record. Contact support before paying again.");
+        paymentId = String(payment.id);
       }
       const result = await callPaymentFunction({
         action: "verify",
@@ -615,7 +623,7 @@ async function handlePosterPaymentReturn() {
   } catch (error) {
     paymentReturnMessage = (error?.message || "Could not verify this payment.") + " Do not pay again until support checks the transaction.";
   } finally {
-    ["nt_poster_return", "nt_poster_payment_id", "status", "tx_ref", "transaction_id"].forEach(key => url.searchParams.delete(key));
+    ["nt_poster_return", "nt_poster_payment_id", "nt_poster_task_id", "status", "tx_ref", "transaction_id"].forEach(key => url.searchParams.delete(key));
     history.replaceState({}, document.title, url.pathname + url.search + url.hash);
   }
 }
@@ -656,6 +664,7 @@ async function submitPayment() {
     const returnUrl = new URL(location.href);
     returnUrl.searchParams.set("nt_poster_return", "1");
     returnUrl.searchParams.delete("nt_poster_payment_id");
+    returnUrl.searchParams.set("nt_poster_task_id", String(currentTask.id));
     returnUrl.hash = "";
     const result = await callPaymentFunction({
       action: "initiate",
