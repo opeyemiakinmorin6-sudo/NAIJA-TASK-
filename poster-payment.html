@@ -114,6 +114,7 @@ label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field{marg
 
       <div id="formMessage"></div>
       <button id="submitBtn" class="primary" type="button">Submit Payment Proof</button>
+        <button id="flutterwaveBtn" class="primary" type="button" style="margin-top:10px;background:#064d25">Pay securely with Flutterwave</button>
       <div class="notice">The server must verify the payment amount and submitted evidence before the payment can be accepted.</div>
     </div>
   </section>
@@ -385,6 +386,21 @@ function renderPaymentStatus() {
   if (!existingPayment) return;
 
   const status = String(existingPayment.status || "").toUpperCase();
+  const paymentStatus = String(existingPayment.payment_status || "").toLowerCase();
+  const flutterwaveButton = $("flutterwaveBtn");
+  if (flutterwaveButton) {
+    flutterwaveButton.disabled = submitting || tooFewSlots ||
+      status === "APPROVED" || paymentStatus === "paid";
+    flutterwaveButton.textContent = paymentStatus === "paid" || status === "APPROVED"
+      ? "Payment received — awaiting review" : "Pay securely with Flutterwave";
+  }
+  if (paymentStatus === "paid") {
+    box.innerHTML = '<div class="status pending"><strong>Flutterwave payment verified</strong><br>Your payment has been received. Admin review is still required before the task can go live.</div>';
+    submit.disabled = true;
+    submit.textContent = "Payment Received";
+    lockForm(true);
+    return;
+  }
   const reference = String(existingPayment.payment_reference || "").trim();
   const proof = String(existingPayment.proof_url || "").trim();
   const evidenceSaved = reference.length >= 3 && proof.length > 0;
@@ -720,6 +736,100 @@ async function submitPayment() {
 
 $("submitBtn").addEventListener("click", submitPayment);
 
+async function callPosterPaymentFunction(payload) {
+  const {data,error} = await db.auth.getSession();
+  if (error) throw error;
+  const session = data?.session;
+  if (!session) throw new Error("Your session expired. Please sign in again.");
+  const response = await fetch(SUPABASE_URL + "/functions/v1/flutterwave-payments", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + session.access_token,
+      "apikey":SUPABASE_KEY
+    },
+    body:JSON.stringify(payload)
+  });
+  let result;
+  try { result = await response.json(); }
+  catch (_) { throw new Error("The payment server returned an unreadable response."); }
+  if (!response.ok || result.error || result.success === false) {
+    throw new Error(result.error || result.message || "Payment request failed.");
+  }
+  return result;
+}
+
+async function startPosterFlutterwavePayment() {
+  const button = $("flutterwaveBtn");
+  if (!currentUser || !currentTask) return showFormMessage("Sign in and reload the task before paying.", "error");
+  if (Number(currentTask.slots) < minimumPosterTaskSlots) {
+    return showFormMessage("Increase the task slots to at least " + minimumPosterTaskSlots + " before payment.", "error");
+  }
+  button.disabled = true;
+  button.textContent = "Preparing secure checkout…";
+  try {
+    const redirect = new URL(location.origin + location.pathname);
+    redirect.searchParams.set("task_id", String(currentTask.id));
+    const result = await callPosterPaymentFunction({
+      action:"initiate",
+      purpose:"poster_task",
+      redirect_url:redirect.toString(),
+      metadata:{task_id:String(currentTask.id)}
+    });
+    if (!result.payment_url) throw new Error("The payment server did not return a Flutterwave checkout link.");
+    showFormMessage("Redirecting to Flutterwave. Payment must be verified, then your task still requires admin review.", "info");
+    location.href = result.payment_url;
+  } catch (error) {
+    showFormMessage((error.message || "Could not start Flutterwave checkout.") +
+      " If a manual payment proof is already under review, contact support before starting another payment.", "error");
+    button.disabled = false;
+    button.textContent = "Pay securely with Flutterwave";
+  }
+}
+
+async function verifyPosterFlutterwaveReturn() {
+  const params = new URLSearchParams(location.search);
+  if (params.get("nt_poster_return") !== "1") return;
+  const paymentId = params.get("nt_poster_payment_id");
+  const txRef = params.get("tx_ref");
+  const transactionId = params.get("transaction_id");
+  const status = (params.get("status") || "").toLowerCase();
+  const taskId = params.get("task_id");
+  const clean = new URL(location.href);
+  clean.searchParams.delete("nt_poster_return");
+  clean.searchParams.delete("nt_poster_payment_id");
+  clean.searchParams.delete("tx_ref");
+  clean.searchParams.delete("transaction_id");
+  clean.searchParams.delete("status");
+  history.replaceState({}, document.title, clean.pathname + clean.search);
+  if (status && status !== "successful") {
+    showFormMessage("Flutterwave did not report a successful payment. Your task has not been marked paid. If money was deducted, contact support before retrying.", "error");
+    return;
+  }
+  if (!paymentId || !txRef || !transactionId) {
+    showFormMessage("Payment return details are incomplete. If you were charged, do not pay again; contact support with your transaction reference.", "error");
+    return;
+  }
+  try {
+    showFormMessage("Verifying your payment with Flutterwave…", "info");
+    const result = await callPosterPaymentFunction({
+      action:"verify",
+      purpose:"poster_task",
+      tx_ref:txRef,
+      transaction_id:transactionId,
+      metadata:{payment_id:paymentId,task_id:String(taskId || currentTask?.id || "")}
+    });
+    if (!result.success) throw new Error(result.error || "Payment verification is pending.");
+    await loadExistingPayment();
+    renderPaymentStatus();
+    showFormMessage("Payment verified. Your task is still subject to admin review before it can go live.", "success");
+  } catch (error) {
+    showFormMessage((error.message || "Payment verification failed.") +
+      " If you were charged, do not pay again; contact support with your transaction reference.", "error");
+  }
+}
+$("flutterwaveBtn").addEventListener("click", startPosterFlutterwavePayment);
+
 async function loadPage() {
   try {
     const taskId = getTaskId();
@@ -746,6 +856,7 @@ async function loadPage() {
      * Apply quantity and payment-status rules after both are loaded.
      */
     renderPaymentStatus();
+    await verifyPosterFlutterwaveReturn();
 
   } catch (error) {
     console.error("Poster payment page error:", error);
