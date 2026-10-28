@@ -73,48 +73,29 @@ label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field{marg
       <div class="info">Your payment is reviewed by the NAIJA TASK admin team. Your task becomes live only after the payment and task have passed the required approval process.</div>
     </div>
 
-    <div class="card">
-      <h2>Bank Payment Details</h2>
-      <div id="bankDetails" class="bank"><div class="loading">Loading bank details...</div></div>
+    <div class="card" style="display:none" aria-hidden="true">
+      <h2>Legacy payment details</h2>
+      <div id="bankDetails" class="bank"></div>
     </div>
 
     <div class="card">
-      <h2>Submit Payment Proof</h2>
+      <h2>Secure Flutterwave Checkout</h2>
       <div id="paymentStatus"></div>
-
-      <div class="field">
+      <div class="info">Pay the exact amount shown above through Flutterwave. NAIJA TASK verifies the transaction on the server. A successful payment does not publish your task automatically; admin payment review and task moderation still apply.</div>
+      <div class="field" style="display:none" aria-hidden="true">
         <label for="paymentMethod">Payment Method</label>
-        <select id="paymentMethod">
-          <option value="BANK_TRANSFER">Bank Transfer</option>
-          <option value="BANK_DEPOSIT">Bank Deposit</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="reference">Payment Reference / Transfer Reference</label>
-        <input id="reference" type="text" maxlength="150" placeholder="Enter your transfer reference" autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label for="proofFile">Payment Screenshot</label>
-        <div class="file-box">
-          <input id="proofFile" type="file" accept="image/*">
-          <div class="notice">Upload a clear screenshot showing the payment details. Maximum original file size: 10MB.</div>
-        </div>
-
-        <div id="previewWrap" class="preview-wrap">
-          <canvas id="previewCanvas"></canvas>
-          <div class="controls">
-            <button type="button" class="small-btn" id="zoomOutBtn">− Zoom</button>
-            <button type="button" class="small-btn" id="rotateBtn">↻ Rotate</button>
-            <button type="button" class="small-btn" id="zoomInBtn">+ Zoom</button>
-          </div>
+        <select id="paymentMethod"><option value="BANK_TRANSFER">Bank Transfer</option><option value="BANK_DEPOSIT">Bank Deposit</option></select>
+        <label for="reference">Legacy payment reference</label>
+        <input id="reference" type="text" maxlength="150" autocomplete="off">
+        <label for="proofFile">Legacy payment screenshot</label>
+        <input id="proofFile" type="file" accept="image/*">
+        <div id="previewWrap" class="preview-wrap"><canvas id="previewCanvas"></canvas>
+          <div class="controls"><button type="button" class="small-btn" id="zoomOutBtn">− Zoom</button><button type="button" class="small-btn" id="rotateBtn">↻ Rotate</button><button type="button" class="small-btn" id="zoomInBtn">+ Zoom</button></div>
         </div>
       </div>
-
       <div id="formMessage"></div>
-      <button id="submitBtn" class="primary" type="button">Submit Payment Proof</button>
-      <div class="notice">The server must verify the payment amount and submitted evidence before the payment can be accepted.</div>
+      <button id="submitBtn" class="primary" type="button">Pay with Flutterwave</button>
+      <div class="notice">Do not send a separate bank transfer. Only a payment verified by Flutterwave will be marked paid.</div>
     </div>
   </section>
 </main>
@@ -133,6 +114,8 @@ if (!window.supabase) {
 }
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const PAYMENT_FUNCTION_URL = SUPABASE_URL + "/functions/v1/flutterwave-payments";
+let paymentReturnMessage = "";
 
 let currentUser = null;
 let currentTask = null;
@@ -372,22 +355,17 @@ async function loadExistingPayment() {
 function renderPaymentStatus() {
   const box = $("paymentStatus");
   const submit = $("submitBtn");
-
   box.innerHTML = "";
   approvedTask = false;
-
   const slots = Number(currentTask?.slots || 0);
   const tooFewSlots = slots < minimumPosterTaskSlots;
+  const status = String(existingPayment?.status || "").toUpperCase();
+  const method = String(existingPayment?.payment_method || "").toLowerCase();
+  const paymentStatus = String(existingPayment?.payment_status || "").toLowerCase();
+  const reviewable = ["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(status);
 
   submit.disabled = submitting || tooFewSlots;
-  submit.textContent = "Submit Payment Proof";
-
-  if (!existingPayment) return;
-
-  const status = String(existingPayment.status || "").toUpperCase();
-  const reference = String(existingPayment.payment_reference || "").trim();
-  const proof = String(existingPayment.proof_url || "").trim();
-  const evidenceSaved = reference.length >= 3 && proof.length > 0;
+  submit.textContent = tooFewSlots ? "Increase Task Quantity" : "Pay with Flutterwave";
 
   if (status === "APPROVED") {
     box.innerHTML = '<div class="status approved"><strong>Payment Approved</strong><br>Your payment has been approved. Task activation remains subject to the platform moderation workflow.</div>';
@@ -398,33 +376,42 @@ function renderPaymentStatus() {
     return;
   }
 
-  if (["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(status) && evidenceSaved) {
-    box.innerHTML = '<div class="status pending"><strong>Payment Under Review</strong><br>Your payment reference and proof are saved. Please wait for admin verification.</div>';
+  if (method === "flutterwave" && paymentStatus === "paid") {
+    box.innerHTML = '<div class="status pending"><strong>Flutterwave Payment Verified</strong><br>Your payment is verified and awaiting admin review. Do not pay again.</div>';
     submit.disabled = true;
-    submit.textContent = "Awaiting Review";
+    submit.textContent = "Awaiting Admin Review";
     lockForm(true);
     return;
   }
 
-  if (["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(status) && !evidenceSaved) {
-    box.innerHTML = '<div class="status rejected"><strong>Payment Submission Incomplete</strong><br>The previous payment record is missing its reference or proof. Enter your actual reference and upload the receipt to resubmit.</div>';
-    lockForm(false);
+  if (reviewable && method !== "flutterwave") {
+    box.innerHTML = '<div class="status pending"><strong>Existing Payment Awaiting Review</strong><br>A previous manual payment record is still under review. Do not start another payment. Contact support or wait for admin review.</div>';
+    submit.disabled = true;
+    submit.textContent = "Awaiting Admin Review";
+    lockForm(true);
+    return;
+  }
+
+  if (method === "flutterwave" && reviewable && paymentStatus !== "paid") {
+    box.innerHTML = '<div class="status pending"><strong>Flutterwave Checkout Not Completed</strong><br>You can reopen secure checkout. Only one verified payment will be accepted for this payment reference.</div>';
+    lockForm(true);
     submit.disabled = submitting || tooFewSlots;
+    submit.textContent = "Continue to Flutterwave";
     return;
   }
 
   if (status === "REJECTED") {
-    box.innerHTML = '<div class="status rejected"><strong>Payment Rejected</strong><br>Correct the payment details and submit the actual payment reference and screenshot again.</div>';
-    lockForm(false);
+    box.innerHTML = '<div class="status rejected"><strong>Previous Payment Rejected</strong><br>You can start a new Flutterwave checkout for this task.</div>';
+    lockForm(true);
     submit.disabled = submitting || tooFewSlots;
+    submit.textContent = "Pay with Flutterwave";
     return;
   }
 
   if (status) {
-    box.innerHTML = `<div class="status pending"><strong>Payment Status:</strong> ${escapeHtml(status)}<br>If you cannot submit a new proof, contact NAIJA TASK support.</div>`;
+    box.innerHTML = '<div class="status pending"><strong>Payment Status:</strong> ' + escapeHtml(status) + '<br>If you cannot continue, contact NAIJA TASK support.</div>';
   }
 }
-
 function lockForm(locked) {
   $("reference").disabled = locked;
   $("paymentMethod").disabled = locked;
@@ -577,147 +564,116 @@ async function removeUploadedProof(filePath) {
   }
 }
 
+async function callPaymentFunction(payload) {
+  const { data, error } = await db.auth.getSession();
+  if (error) throw error;
+  const token = data?.session?.access_token;
+  if (!token) throw new Error("Your session expired. Sign in again.");
+  const response = await fetch(PAYMENT_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify(payload)
+  });
+  let result;
+  try { result = await response.json(); }
+  catch (_) { throw new Error("The payment service returned an unreadable response."); }
+  if (!response.ok || result?.success === false ||
+      (payload.action === "initiate" && !result?.payment_url)) {
+    throw new Error(result?.error || result?.message || "Flutterwave checkout could not start.");
+  }
+  return result;
+}
+
+async function handlePosterPaymentReturn() {
+  const url = new URL(location.href);
+  if (url.searchParams.get("nt_poster_return") !== "1") return;
+  const txRef = url.searchParams.get("tx_ref") || "";
+  const transactionId = url.searchParams.get("transaction_id") || "";
+  const paymentId = url.searchParams.get("nt_poster_payment_id") || "";
+  const flwStatus = (url.searchParams.get("status") || "").toLowerCase();
+  try {
+    if (flwStatus && !["successful", "completed"].includes(flwStatus)) {
+      paymentReturnMessage = "Flutterwave did not report a successful payment. Your task has not been marked paid.";
+    } else {
+      if (!txRef || !transactionId || !paymentId) {
+        throw new Error("Flutterwave returned without all payment references. Do not pay again; contact support.");
+      }
+      const result = await callPaymentFunction({
+        action: "verify",
+        purpose: "poster_task",
+        tx_ref: txRef,
+        transaction_id: transactionId,
+        metadata: { payment_id: String(paymentId) }
+      });
+      if (!result?.success) throw new Error(result?.error || "Payment verification did not succeed.");
+      paymentReturnMessage = "Flutterwave verified your payment. Your task remains subject to admin review and task moderation.";
+    }
+  } catch (error) {
+    paymentReturnMessage = (error?.message || "Could not verify this payment.") + " Do not pay again until support checks the transaction.";
+  } finally {
+    ["nt_poster_return", "nt_poster_payment_id", "status", "tx_ref", "transaction_id"].forEach(key => url.searchParams.delete(key));
+    history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+  }
+}
+
 async function submitPayment() {
   if (submitting) return;
-
   if (!currentUser) {
     location.href = "poster-login.html";
     return;
   }
-
   if (!currentTask) {
     showFormMessage("Task information is unavailable. Refresh and try again.", "error");
     return;
   }
-
   if (approvedTask || String(existingPayment?.status || "").toUpperCase() === "APPROVED") {
-    showFormMessage("This payment has already been approved.", "error");
+    showFormMessage("This task payment has already been approved.", "error");
     return;
   }
-
-  const slots = Number(currentTask.slots || 0);
-  if (slots < minimumPosterTaskSlots) {
-    showFormMessage(`This task requires at least ${minimumPosterTaskSlots} slots.`, "error");
+  if (Number(currentTask.slots || 0) < minimumPosterTaskSlots) {
+    showFormMessage("Increase the task quantity before paying.", "error");
     return;
   }
-
-  const reference = $("reference").value.trim();
-
-  if (reference.length < 3) {
-    showFormMessage("Enter the actual transfer reference (at least 3 characters).", "error");
-    $("reference").focus();
-    return;
-  }
-
-  if (!selectedImage) {
-    showFormMessage("Upload the actual payment screenshot before submitting.", "error");
-    return;
-  }
-
   const oldStatus = String(existingPayment?.status || "").toUpperCase();
-  const oldReference = String(existingPayment?.payment_reference || "").trim();
-  const oldProof = String(existingPayment?.proof_url || "").trim();
-  const oldEvidenceSaved = oldReference.length >= 3 && oldProof.length > 0;
-
-  if (["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(oldStatus) && oldEvidenceSaved) {
-    showFormMessage("Your payment already has a reference and proof and is awaiting review. Do not submit it again.", "error");
+  const oldMethod = String(existingPayment?.payment_method || "").toLowerCase();
+  if (["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(oldStatus) &&
+      oldMethod !== "flutterwave") {
+    showFormMessage("A previous manual payment is awaiting review. Do not make another payment; contact support or wait for admin review.", "error");
     return;
   }
 
   submitting = true;
   const button = $("submitBtn");
   button.disabled = true;
-  button.textContent = "Submitting...";
-  let uploadedPath = null;
-  let rpcSucceeded = false;
-
+  button.textContent = "Preparing checkout…";
   try {
-    showFormMessage("Verifying the amount with the server...", "info");
-    const secureAmount = await getSecurePaymentAmount();
-
-    showFormMessage("Preparing the screenshot...", "info");
-    const file = await canvasToFile();
-
-    showFormMessage("Uploading payment screenshot...", "info");
-    uploadedPath = await uploadPaymentProof(file);
-
-    showFormMessage("Submitting payment details for review...", "info");
-
-    const { data, error } = await db.rpc("submit_poster_payment", {
-      p_task_id: String(currentTask.id),
-      p_amount: secureAmount,
-      p_payment_method: $("paymentMethod").value,
-      p_payment_reference: reference,
-      p_proof_url: uploadedPath
+    showFormMessage("Checking the server-calculated amount and preparing secure checkout…", "info");
+    await getSecurePaymentAmount();
+    const returnUrl = new URL(location.href);
+    returnUrl.searchParams.set("nt_poster_return", "1");
+    returnUrl.searchParams.delete("nt_poster_payment_id");
+    returnUrl.hash = "";
+    const result = await callPaymentFunction({
+      action: "initiate",
+      purpose: "poster_task",
+      redirect_url: returnUrl.toString(),
+      metadata: { task_id: String(currentTask.id) }
     });
-
-    if (error) throw error;
-
-    /*
-     * Require explicit success from the existing server RPC.
-     * Do not invent success if the function returns a different result.
-     */
-    if (!data || data.success !== true) {
-      throw new Error(
-        data?.message ||
-        "The server did not confirm the submission. Your payment has not been confirmed as submitted."
-      );
-    }
-
-    rpcSucceeded = true;
-
-    existingPayment = {
-      ...(existingPayment || {}),
-      id: data.payment_id ?? existingPayment?.id,
-      task_id: currentTask.id,
-      poster_id: currentUser.id,
-      amount: Number(data.amount ?? secureAmount),
-      payment_method: $("paymentMethod").value,
-      payment_reference: reference,
-      proof_url: uploadedPath,
-      status: String(data.status || "UNDER_REVIEW").toUpperCase()
-    };
-
-    renderPaymentStatus();
-
-    showFormMessage(
-      "The server accepted your payment proof. Save your reference and wait for admin review. This does not mean the payment has been approved.",
-      "success"
-    );
-
+    if (!result?.payment_url) throw new Error("Flutterwave did not return a checkout link.");
+    showFormMessage("Opening secure Flutterwave checkout…", "info");
+    location.href = result.payment_url;
   } catch (error) {
-    console.error("Poster payment submission error:", error);
-
-    if (uploadedPath && !rpcSucceeded) {
-      await removeUploadedProof(uploadedPath);
-    }
-
-    showFormMessage(
-      error?.message || "Payment submission failed. Please try again.",
-      "error"
-    );
-
+    showFormMessage((error?.message || "Could not start Flutterwave checkout.") + " No payment is confirmed.", "error");
     button.disabled = false;
-    button.textContent = "Submit Payment Proof";
-
+    button.textContent = "Pay with Flutterwave";
   } finally {
     submitting = false;
-
-    if (!approvedTask) {
-      const slots = Number(currentTask?.slots || 0);
-      const status = String(existingPayment?.status || "").toUpperCase();
-      const ref = String(existingPayment?.payment_reference || "").trim();
-      const proof = String(existingPayment?.proof_url || "").trim();
-      const completeEvidence = ref.length >= 3 && proof.length > 0;
-      const waiting = ["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(status) && completeEvidence;
-
-      button.disabled = slots < minimumPosterTaskSlots || waiting;
-      if (waiting) button.textContent = "Awaiting Review";
-      else if (!button.disabled) button.textContent = "Submit Payment Proof";
-    }
   }
 }
-
 $("submitBtn").addEventListener("click", submitPayment);
 
 async function loadPage() {
@@ -735,7 +691,7 @@ async function loadPage() {
     await loadPlatformSettings();
     await loadTask(taskId);
     await getSecurePaymentAmount();
-    await loadPaymentSettings();
+    await handlePosterPaymentReturn();
     await loadExistingPayment();
 
     $("loadingBox").classList.add("hidden");
@@ -746,6 +702,7 @@ async function loadPage() {
      * Apply quantity and payment-status rules after both are loaded.
      */
     renderPaymentStatus();
+    if (paymentReturnMessage) showFormMessage(paymentReturnMessage, paymentReturnMessage.toLowerCase().includes("verified") ? "success" : "error");
 
   } catch (error) {
     console.error("Poster payment page error:", error);

@@ -102,7 +102,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
 <main>
   <div class="notice">
     <strong>Welcome to NAIJA TASK Marketplace.</strong><br>
-    Browse products, place orders, and list your own products. Payments currently use the offline method arranged with the seller. Always confirm payment instructions before sending money.
+    Browse products, place orders, and list your own products. Checkout is handled securely through Flutterwave. Payment must be verified before an order is treated as paid or fulfilled.
   </div>
 
   <div id="globalStatus" class="status" role="status" aria-live="polite"></div>
@@ -233,7 +233,71 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg','image/png','image/webp','image/gif'];
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const PAYMENT_FUNCTION_URL = SUPABASE_URL + '/functions/v1/flutterwave-payments';
 let currentUser = null;
+let paymentReturnHandled = false;
+
+async function callPaymentFunction(payload) {
+  const {data,error} = await db.auth.getSession();
+  if (error) throw error;
+  const token = data?.session?.access_token;
+  if (!token) throw new Error('Your session expired. Sign in again.');
+  const response = await fetch(PAYMENT_FUNCTION_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':SUPABASE_ANON_KEY,
+      'Authorization':'Bearer ' + token
+    },
+    body:JSON.stringify(payload)
+  });
+  let result;
+  try { result = await response.json(); }
+  catch (_) { throw new Error('The payment service returned an unreadable response.'); }
+  if (!response.ok || result?.success === false || !result?.payment_url && payload.action === 'initiate') {
+    throw new Error(result?.error || result?.message || 'Could not start Flutterwave checkout.');
+  }
+  return result;
+}
+
+async function handleMarketplacePaymentReturn() {
+  if (paymentReturnHandled || !currentUser) return;
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('nt_payment_return') !== 'marketplace') return;
+  paymentReturnHandled = true;
+  const orderId = url.searchParams.get('nt_order_id') || '';
+  const txRef = url.searchParams.get('tx_ref') || '';
+  const transactionId = url.searchParams.get('transaction_id') || '';
+  const flwStatus = (url.searchParams.get('status') || '').toLowerCase();
+  try {
+    if (!orderId) throw new Error('The order reference is missing. Open My Orders and contact support before paying again.');
+    if (flwStatus && !['successful','completed'].includes(flwStatus)) {
+      showGlobal('Flutterwave did not report a successful payment. Your order has not been marked paid. You can check My Orders or contact support.','error');
+    } else {
+      if (!txRef || !transactionId) throw new Error('Flutterwave returned without a transaction reference. Your order has not been marked paid.');
+      const result = await callPaymentFunction({
+        action:'verify',
+        purpose:'marketplace',
+        tx_ref:txRef,
+        transaction_id:transactionId,
+        metadata:{order_id:String(orderId)}
+      });
+      if (!result?.success) throw new Error(result?.error || 'Payment verification did not succeed.');
+      showGlobal('Payment verified by Flutterwave. Your order is awaiting fulfilment; payment does not mean delivery is complete.','success');
+    }
+  } catch (error) {
+    showGlobal(error?.message || 'Could not verify the marketplace payment. Do not pay again until you check the order status.','error');
+  } finally {
+    url.searchParams.delete('nt_payment_return');
+    url.searchParams.delete('nt_order_id');
+    url.searchParams.delete('status');
+    url.searchParams.delete('tx_ref');
+    url.searchParams.delete('transaction_id');
+    window.history.replaceState({},document.title,url.pathname + url.search + url.hash);
+    await loadMyOrders();
+    openTab('orders',document.querySelector('[data-section="orders"]'));
+  }
+}
 let products = [];
 let selectedProductImage = null;
 let previewObjectUrl = null;
@@ -456,28 +520,44 @@ async function placeOrder(productId) {
   if (!Number.isFinite(total) || unitPrice <= 0) return showGlobal('This product has an invalid price.','error');
 
   const confirmed = confirm(
-    'Place this order?\n\nProduct: ' + product.title +
+    'Continue to secure Flutterwave checkout?\n\nProduct: ' + product.title +
     '\nQuantity: ' + quantity + '\nTotal: ' + money(total) +
-    '\n\nPayment is currently handled offline. Confirm the seller/payment instructions before sending money.'
+    '\n\nYour order will only be marked paid after the server verifies the Flutterwave transaction.'
   );
   if (!confirmed) return;
 
   try {
-    const {error} = await db.from('marketplace_orders').insert({
+    showGlobal('Creating your order…','info');
+    const {data:order,error} = await db.from('marketplace_orders').insert({
       buyer_id:currentUser.id,
       product_id:product.id,
       quantity:quantity,
       unit_price:unitPrice,
       total_amount:total,
       status:'pending',
-      delivery_status:'pending'
-    });
+      delivery_status:'pending',
+      payment_status:'pending'
+    }).select('id').single();
     if (error) throw error;
-    showGlobal('Order submitted. Check My Orders for its status. No payment has been taken by this page.','success');
-    await loadMyOrders();
-    openTab('orders',document.querySelector('[data-section="orders"]'));
+    if (!order?.id) throw new Error('The order was created but its ID could not be read. Check My Orders before retrying.');
+
+    const returnUrl = new URL(window.location.href);
+    returnUrl.searchParams.set('nt_payment_return','marketplace');
+    returnUrl.searchParams.set('nt_order_id',String(order.id));
+    returnUrl.hash = '';
+
+    showGlobal('Preparing secure Flutterwave checkout…','info');
+    const result = await callPaymentFunction({
+      action:'initiate',
+      purpose:'marketplace',
+      redirect_url:returnUrl.toString(),
+      metadata:{order_id:String(order.id)}
+    });
+    if (!result?.payment_url) throw new Error('The order exists, but Flutterwave did not return a checkout link. Check My Orders before trying again.');
+    window.location.href = result.payment_url;
   } catch (error) {
-    showGlobal('Order could not be placed: ' + error.message,'error');
+    showGlobal('Checkout could not start: ' + (error?.message || 'Unknown error') + '. Check My Orders before creating another order.','error');
+    await loadMyOrders();
   }
 }
 
@@ -763,7 +843,10 @@ db.auth.onAuthStateChange((_event,session) => {
   try {
     currentUser = await getSessionUser();
     updateAuthUI();
-    if (currentUser) await refreshAll();
+    if (currentUser) {
+      await handleMarketplacePaymentReturn();
+      await refreshAll();
+    }
   } catch (error) {
     updateAuthUI();
     showGlobal('Could not initialize your session: ' + error.message,'error');
