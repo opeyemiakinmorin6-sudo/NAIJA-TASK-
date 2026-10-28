@@ -436,6 +436,63 @@ function renderProducts() {
     : '<div class="empty">No matching active products were found.</div>';
 }
 
+async function callPaymentFunction(payload) {
+  const {data,error} = await db.auth.getSession();
+  if (error) throw error;
+  const session = data?.session;
+  if (!session) throw new Error('Your session expired. Sign in again.');
+  const response = await fetch(SUPABASE_URL + '/functions/v1/flutterwave-payments', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + session.access_token,
+      'apikey':SUPABASE_ANON_KEY
+    },
+    body:JSON.stringify(payload)
+  });
+  let result;
+  try { result = await response.json(); }
+  catch (_) { throw new Error('The payment server returned an unreadable response.'); }
+  if (!response.ok || result.error || result.success === false) {
+    throw new Error(result.error || result.message || 'Payment request failed.');
+  }
+  return result;
+}
+
+async function verifyMarketplaceReturn() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('payment_return') !== 'marketplace') return;
+  const orderId = params.get('order_id');
+  const txRef = params.get('tx_ref');
+  const transactionId = params.get('transaction_id');
+  const status = (params.get('status') || '').toLowerCase();
+  history.replaceState({}, document.title, location.pathname);
+  if (status && status !== 'successful') {
+    showGlobal('Flutterwave did not report a successful payment. Your order remains unpaid. You can retry from My Orders or contact support if you were charged.','error');
+    return;
+  }
+  if (!orderId || !txRef || !transactionId) {
+    showGlobal('Payment return details are incomplete. Do not pay again if money was deducted; contact support with your reference.','error');
+    return;
+  }
+  try {
+    showGlobal('Verifying your marketplace payment with Flutterwave…','info');
+    const result = await callPaymentFunction({
+      action:'verify',
+      purpose:'marketplace',
+      tx_ref:txRef,
+      transaction_id:transactionId,
+      metadata:{order_id:orderId}
+    });
+    if (!result.success) throw new Error(result.error || 'Payment verification is still pending.');
+    showGlobal('Payment verified. Your order is paid and awaiting seller fulfilment.','success');
+    await loadMyOrders();
+    openTab('orders',document.querySelector('[data-section="orders"]'));
+  } catch (error) {
+    showGlobal((error.message || 'Payment verification failed.') + ' If you were charged, do not pay again yet; contact support.','error');
+  }
+}
+
 async function placeOrder(productId) {
   if (!currentUser) return showGlobal('Sign in before placing an order.','error');
   const product = products.find(p => String(p.id) === String(productId));
@@ -443,41 +500,50 @@ async function placeOrder(productId) {
   if (String(product.seller_id) === String(currentUser.id)) {
     return showGlobal('You cannot order your own product.','error');
   }
-
   const quantityText = prompt('Enter quantity (available: ' + Number(product.stock || 0) + '):','1');
   if (quantityText === null) return;
   const quantity = Number(quantityText);
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > Number(product.stock || 0)) {
     return showGlobal('Enter a valid quantity within available stock.','error');
   }
-
   const unitPrice = Number(product.price);
   const total = unitPrice * quantity;
   if (!Number.isFinite(total) || unitPrice <= 0) return showGlobal('This product has an invalid price.','error');
-
-  const confirmed = confirm(
-    'Place this order?\n\nProduct: ' + product.title +
+  if (!confirm('Continue to secure Flutterwave checkout?\n\nProduct: ' + product.title +
     '\nQuantity: ' + quantity + '\nTotal: ' + money(total) +
-    '\n\nPayment is currently handled offline. Confirm the seller/payment instructions before sending money.'
-  );
-  if (!confirmed) return;
+    '\n\nYour order will remain pending until the payment is verified.')) return;
 
+  let orderId = null;
   try {
-    const {error} = await db.from('marketplace_orders').insert({
+    showGlobal('Creating your pending order…','info');
+    const {data:order,error} = await db.from('marketplace_orders').insert({
       buyer_id:currentUser.id,
       product_id:product.id,
-      quantity:quantity,
+      quantity,
       unit_price:unitPrice,
       total_amount:total,
       status:'pending',
-      delivery_status:'pending'
-    });
+      delivery_status:'pending',
+      payment_status:'pending'
+    }).select('id').single();
     if (error) throw error;
-    showGlobal('Order submitted. Check My Orders for its status. No payment has been taken by this page.','success');
-    await loadMyOrders();
-    openTab('orders',document.querySelector('[data-section="orders"]'));
+    orderId = order.id;
+    const redirect = new URL(location.origin + location.pathname);
+    redirect.searchParams.set('payment_return','marketplace');
+    redirect.searchParams.set('order_id',String(orderId));
+    showGlobal('Preparing Flutterwave checkout…','info');
+    const result = await callPaymentFunction({
+      action:'initiate',
+      purpose:'marketplace',
+      redirect_url:redirect.toString(),
+      metadata:{order_id:String(orderId)}
+    });
+    if (!result.payment_url) throw new Error('The payment server did not return a checkout link.');
+    location.href = result.payment_url;
   } catch (error) {
-    showGlobal('Order could not be placed: ' + error.message,'error');
+    showGlobal('Checkout could not start: ' + (error.message || 'Unknown error') +
+      (orderId ? ' Your unpaid order is saved. Refresh My Orders and contact support if you need help.' : ''),'error');
+    if (orderId) await loadMyOrders();
   }
 }
 
@@ -501,7 +567,7 @@ function showRows(containerId, rows, type) {
         badgeClass + '">' + escapeHTML(status) + '</span></div><p>Product ID: ' +
         escapeHTML(row.product_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
         ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
-        escapeHTML(row.delivery_status || 'pending') + '</p><p class="muted">' +
+        escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p><p class="muted">'
         escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') +
         '</p></div>';
     }
@@ -536,7 +602,7 @@ async function loadMyOrders() {
   if (!currentUser) return;
   try {
     const {data,error} = await db.from('marketplace_orders')
-      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,created_at')
       .eq('buyer_id',currentUser.id).order('created_at',{ascending:false});
     if (error) throw error;
     showRows('myOrdersList',data,'order');
@@ -576,7 +642,7 @@ async function loadSellerOrders() {
     }
 
     const {data:orderData,error:orderError} = await db.from('marketplace_orders')
-      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,created_at')
       .in('product_id',ids).order('created_at',{ascending:false});
     if (orderError) throw orderError;
     showRows('sellerOrdersList',orderData,'seller');
@@ -763,7 +829,7 @@ db.auth.onAuthStateChange((_event,session) => {
   try {
     currentUser = await getSessionUser();
     updateAuthUI();
-    if (currentUser) await refreshAll();
+    if (currentUser) { await refreshAll(); await verifyMarketplaceReturn(); }
   } catch (error) {
     updateAuthUI();
     showGlobal('Could not initialize your session: ' + error.message,'error');
