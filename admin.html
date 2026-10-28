@@ -8191,10 +8191,15 @@ async function approvePosterPayment(paymentId) {
     return;
   }
 
+  const paymentRow = allPosterPayments.find(row => String(row.id) === String(id));
+  const isVerifiedFlutterwave = String(paymentRow?.payment_method || "").toLowerCase() === "flutterwave" &&
+    String(paymentRow?.payment_status || "").toLowerCase() === "paid" &&
+    !!paymentRow?.flw_transaction_id;
+
   if (!await uiConfirm(
-    "Approve this poster payment?\n\n" +
-    "The database will re-check the payment reference, proof, and required amount. " +
-    "Approval marks the task as paid. The task goes live only after it is approved in task moderation."
+    isVerifiedFlutterwave
+      ? "Approve this Flutterwave payment?\n\nThe server will re-check the verified transaction, payment amount and task funding. This will NOT publish the task; task moderation remains separate."
+      : "Approve this poster payment?\n\nThe database will re-check the payment reference, proof, and required amount. Approval marks the task as paid. The task goes live only after it is approved in task moderation."
   )) {
     return;
   }
@@ -8202,16 +8207,19 @@ async function approvePosterPayment(paymentId) {
   try {
     setLoading(true, "Approving poster payment...");
 
-    const { data, error } = await supabaseClient.rpc("admin_approve_poster_payment", { p_payment_id: id });
+    const rpcName = isVerifiedFlutterwave
+      ? "admin_approve_flutterwave_poster_payment"
+      : "admin_approve_poster_payment";
+    const { data, error } = await supabaseClient.rpc(rpcName, { p_payment_id: id });
     if (error) throw error;
 
-    await writeAudit("poster_payment_approved", id, { result: data || null });
-    toast("Poster payment approved. The task is now waiting for moderation.", "success");
+    await writeAudit("poster_payment_approved", id, { payment_method: isVerifiedFlutterwave ? "flutterwave" : "manual", result: data || null });
+    toast("Poster payment approved. The task is still waiting for moderation.", "success");
 
   } catch (error) {
     reportError("approvePosterPayment", error);
     toast(
-      posterRpcHint(error, "admin_approve_poster_payment") ||
+      posterRpcHint(error, isVerifiedFlutterwave ? "admin_approve_flutterwave_poster_payment" : "admin_approve_poster_payment") ||
       errorMessage(error, "Unable to approve poster payment."),
       "danger"
     );
