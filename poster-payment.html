@@ -389,10 +389,15 @@ function renderPaymentStatus() {
   const paymentStatus = String(existingPayment.payment_status || "").toLowerCase();
   const flutterwaveButton = $("flutterwaveBtn");
   if (flutterwaveButton) {
+    const hasLegacyProof = Boolean(String(existingPayment?.proof_url || "").trim()) &&
+      String(existingPayment?.payment_method || "").toLowerCase() !== "flutterwave" &&
+      ["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(status);
     flutterwaveButton.disabled = submitting || tooFewSlots ||
-      status === "APPROVED" || paymentStatus === "paid";
+      status === "APPROVED" || paymentStatus === "paid" || hasLegacyProof;
     flutterwaveButton.textContent = paymentStatus === "paid" || status === "APPROVED"
-      ? "Payment received — awaiting review" : "Pay securely with Flutterwave";
+      ? "Payment received — awaiting review"
+      : hasLegacyProof ? "Existing manual proof — contact support"
+      : "Pay securely with Flutterwave";
   }
   if (paymentStatus === "paid") {
     box.innerHTML = '<div class="status pending"><strong>Flutterwave payment verified</strong><br>Your payment has been received. Admin review is still required before the task can go live.</div>';
@@ -445,6 +450,25 @@ function lockForm(locked) {
   $("reference").disabled = locked;
   $("paymentMethod").disabled = locked;
   $("proofFile").disabled = locked;
+}
+
+function hideLegacyManualPaymentUI() {
+  // New poster payments must go through Flutterwave. Keep existing manual
+  // payment records visible for status/reconciliation, but disable new manual submissions.
+  const bankDetails = $("bankDetails");
+  if (bankDetails && bankDetails.parentElement) {
+    bankDetails.parentElement.style.display = "none";
+  }
+  ["paymentMethod", "reference", "proofFile"].forEach((id) => {
+    const field = $(id);
+    if (field && field.closest(".field")) {
+      field.closest(".field").style.display = "none";
+    }
+  });
+  const preview = $("previewWrap");
+  if (preview) preview.style.display = "none";
+  const manualSubmit = $("submitBtn");
+  if (manualSubmit) manualSubmit.style.display = "none";
 }
 
 $("proofFile").addEventListener("change", function () {
@@ -847,6 +871,7 @@ async function loadPage() {
     await getSecurePaymentAmount();
     await loadPaymentSettings();
     await loadExistingPayment();
+    hideLegacyManualPaymentUI();
 
     $("loadingBox").classList.add("hidden");
     $("errorBox").classList.add("hidden");
