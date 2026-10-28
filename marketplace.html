@@ -605,7 +605,8 @@ function showRows(containerId, rows, type) {
       badgeClass + '">' + escapeHTML(status) + '</span></div><p>Product ID: ' +
       escapeHTML(row.product_id) + '</p><p>Buyer ID: ' +
       escapeHTML(row.buyer_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
-      ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
+      ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Payment: <strong>' +
+      escapeHTML(row.payment_status || 'pending') + '</strong></p><p>Delivery: ' +
       escapeHTML(row.delivery_status || 'pending') + '</p></div>';
   }).join('');
 }
@@ -616,7 +617,7 @@ async function loadMyOrders() {
   if (!currentUser) return;
   try {
     const {data,error} = await db.from('marketplace_orders')
-      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,created_at')
+      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,payment_status,delivery_status,created_at')
       .eq('buyer_id',currentUser.id).order('created_at',{ascending:false});
     if (error) throw error;
     showRows('myOrdersList',data,'order');
