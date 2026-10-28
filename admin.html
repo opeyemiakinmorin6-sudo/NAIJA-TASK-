@@ -8143,7 +8143,12 @@ function renderPosters(rows) {
     const status = row.status || "—";
     const idText = String(row.id ?? "");
     const idAttr = escapeHTML(idText);
-    const reviewable = isPosterPaymentReviewable(status);
+    const paymentMethod = String(row.payment_method || "").toLowerCase();
+    const paymentStatus = String(row.payment_status || "").toLowerCase();
+    const flutterwavePaid = paymentMethod === "flutterwave" && paymentStatus === "paid";
+    // Flutterwave payments must be verified before the admin can approve them.
+    const reviewable = isPosterPaymentReviewable(status) &&
+      (paymentMethod !== "flutterwave" || flutterwavePaid);
     const hasEvidence = !!(row.proof_url || row.proof || row.payment_proof || row.payment_screenshot);
     const rejected = String(status).toUpperCase() === "REJECTED";
 
@@ -8162,9 +8167,13 @@ function renderPosters(rows) {
         </td>
         <td>${shortDate(row.created_at)}</td>
         <td>
-          ${hasEvidence
-            ? `<button type="button" class="small-btn" onclick="openPosterPaymentProof('${idAttr}')">View Evidence</button>`
-            : "—"}
+          \${flutterwavePaid
+            ? \`<div class="small" style="color:#087f36;font-weight:800">Flutterwave verified</div><div class="small" style="overflow-wrap:anywhere">Transaction: \${escapeHTML(row.flw_transaction_id || "verified")}</div>\`
+            : paymentMethod === "flutterwave"
+              ? \`<div class="small">Awaiting verified payment</div>\`
+              : hasEvidence
+                ? \`<button type="button" class="small-btn" onclick="openPosterPaymentProof('\${idAttr}')">View Evidence</button>\`
+                : "—"}
         </td>
         <td>
           ${reviewable
