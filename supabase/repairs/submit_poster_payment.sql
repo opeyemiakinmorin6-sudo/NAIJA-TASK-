@@ -1,4 +1,6 @@
--- NAIJA TASK: secure RPC used by poster-payment.html for manual bank-transfer proof.
+-- DEPRECATED (2026-10-29): manual poster payments are retired; do not install this RPC.
+-- Use Flutterwave checkout for new poster payments.
+-- NAIJA TASK: legacy secure RPC for manual bank-transfer proof.
 -- This is separate from Flutterwave verification. Admins must check the actual bank account.
 create or replace function public.submit_poster_payment(
   p_task_id bigint,
