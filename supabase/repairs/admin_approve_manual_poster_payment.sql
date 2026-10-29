@@ -1,4 +1,6 @@
--- NAIJA TASK: admin-only review for manually transferred poster task funding.
+-- DEPRECATED (2026-10-29): manual poster payments are retired; do not install this RPC.
+-- Use Flutterwave verification and admin_approve_flutterwave_poster_payment instead.
+-- NAIJA TASK: legacy admin-only manual payment review.
 -- Run in Supabase SQL Editor after the matching HTML changes are deployed.
 -- Only approve after checking the actual receiving bank account; a screenshot alone is not verification.
 create or replace function public.admin_approve_manual_poster_payment(
