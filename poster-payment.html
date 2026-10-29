@@ -796,7 +796,6 @@ async function startPosterFlutterwavePayment() {
   try {
     const redirect = new URL(location.origin + location.pathname);
     redirect.searchParams.set("task_id", String(currentTask.id));
-    redirect.searchParams.set("nt_poster_return", "1");
     const result = await callPosterPaymentFunction({
       action:"initiate",
       purpose:"poster_task",
@@ -817,12 +816,14 @@ async function startPosterFlutterwavePayment() {
 async function verifyPosterFlutterwaveReturn() {
   const params = new URLSearchParams(location.search);
   if (params.get("nt_poster_return") !== "1") return;
+  const paymentId = params.get("nt_poster_payment_id");
   const txRef = params.get("tx_ref");
   const transactionId = params.get("transaction_id");
   const status = (params.get("status") || "").toLowerCase();
   const taskId = params.get("task_id");
   const clean = new URL(location.href);
   clean.searchParams.delete("nt_poster_return");
+  clean.searchParams.delete("nt_poster_payment_id");
   clean.searchParams.delete("tx_ref");
   clean.searchParams.delete("transaction_id");
   clean.searchParams.delete("status");
@@ -831,7 +832,7 @@ async function verifyPosterFlutterwaveReturn() {
     showFormMessage("Flutterwave did not report a successful payment. Your task has not been marked paid. If money was deducted, contact support before retrying.", "error");
     return;
   }
-  if (!txRef || !transactionId || !taskId) {
+  if (!paymentId || !txRef || !transactionId) {
     showFormMessage("Payment return details are incomplete. If you were charged, do not pay again; contact support with your transaction reference.", "error");
     return;
   }
@@ -842,7 +843,7 @@ async function verifyPosterFlutterwaveReturn() {
       purpose:"poster_task",
       tx_ref:txRef,
       transaction_id:transactionId,
-      metadata:{task_id:String(taskId)}
+      metadata:{payment_id:paymentId,task_id:String(taskId || currentTask?.id || "")}
     });
     if (!result.success) throw new Error(result.error || "Payment verification is pending.");
     await loadExistingPayment();
