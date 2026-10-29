@@ -12,6 +12,9 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--green:#087f36;--green2:#0b9b45;--green3:#064d25;--lime:#b7ef43;--bg:#f3f8f5;--card:#fff;--text:#13251b;--muted:#64746b;--border:#dce9e1;--danger:#c62828;--shadow:0 12px 30px rgba(0,50,25,.09)}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at top right,rgba(183,239,67,.2),transparent 28%),var(--bg);color:var(--text)}
+/* Manual bank-transfer and proof-of-payment UI is retired. */
+.card:has(#bankDetails),.card:has(#submitBtn){display:none!important}
+
 button,input,select{font:inherit}button{cursor:pointer}
 .topbar{background:linear-gradient(120deg,var(--green3),var(--green),var(--green2));color:#fff;padding:17px 16px 22px;box-shadow:0 5px 20px rgba(0,50,25,.18)}
 .top-inner{max-width:900px;margin:auto}.brand-row{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-size:24px;font-weight:900;letter-spacing:.4px}.secure{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);padding:8px 11px;border-radius:999px;font-size:12px;font-weight:800}.subtitle{margin-top:7px;opacity:.88;font-size:13px}
@@ -115,7 +118,7 @@ label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field{marg
       <div id="formMessage"></div>
       <button id="submitBtn" class="primary" type="button">Submit Payment Proof</button>
         <button id="flutterwaveBtn" class="primary" type="button" style="margin-top:10px;background:#064d25">Pay securely with Flutterwave</button>
-      <div class="notice">The server must verify the payment amount and submitted evidence before the payment can be accepted.</div>
+      <div class="notice">Flutterwave is the only accepted payment method. Your payment is verified securely by the server. A successful payment does not bypass task moderation.</div>
     </div>
   </section>
 </main>
@@ -794,6 +797,7 @@ async function startPosterFlutterwavePayment() {
   try {
     const redirect = new URL(location.origin + location.pathname);
     redirect.searchParams.set("task_id", String(currentTask.id));
+    redirect.searchParams.set("nt_poster_return", "1");
     const result = await callPosterPaymentFunction({
       action:"initiate",
       purpose:"poster_task",
@@ -805,7 +809,7 @@ async function startPosterFlutterwavePayment() {
     location.href = result.payment_url;
   } catch (error) {
     showFormMessage((error.message || "Could not start Flutterwave checkout.") +
-      " If a manual payment proof is already under review, contact support before starting another payment.", "error");
+      " Do not retry if money was deducted; contact support with your Flutterwave reference.", "error");
     button.disabled = false;
     button.textContent = "Pay securely with Flutterwave";
   }
@@ -814,14 +818,12 @@ async function startPosterFlutterwavePayment() {
 async function verifyPosterFlutterwaveReturn() {
   const params = new URLSearchParams(location.search);
   if (params.get("nt_poster_return") !== "1") return;
-  const paymentId = params.get("nt_poster_payment_id");
   const txRef = params.get("tx_ref");
   const transactionId = params.get("transaction_id");
   const status = (params.get("status") || "").toLowerCase();
   const taskId = params.get("task_id");
   const clean = new URL(location.href);
   clean.searchParams.delete("nt_poster_return");
-  clean.searchParams.delete("nt_poster_payment_id");
   clean.searchParams.delete("tx_ref");
   clean.searchParams.delete("transaction_id");
   clean.searchParams.delete("status");
@@ -830,7 +832,7 @@ async function verifyPosterFlutterwaveReturn() {
     showFormMessage("Flutterwave did not report a successful payment. Your task has not been marked paid. If money was deducted, contact support before retrying.", "error");
     return;
   }
-  if (!paymentId || !txRef || !transactionId) {
+  if (!txRef || !transactionId || !taskId) {
     showFormMessage("Payment return details are incomplete. If you were charged, do not pay again; contact support with your transaction reference.", "error");
     return;
   }
@@ -841,7 +843,7 @@ async function verifyPosterFlutterwaveReturn() {
       purpose:"poster_task",
       tx_ref:txRef,
       transaction_id:transactionId,
-      metadata:{payment_id:paymentId,task_id:String(taskId || currentTask?.id || "")}
+      metadata:{task_id:String(taskId)}
     });
     if (!result.success) throw new Error(result.error || "Payment verification is pending.");
     await loadExistingPayment();
@@ -869,11 +871,9 @@ async function loadPage() {
     await loadPlatformSettings();
     await loadTask(taskId);
     await getSecurePaymentAmount();
-    await loadPaymentSettings();
     await loadExistingPayment();
 
-    // Keep manual proof submission visible alongside Flutterwave checkout.
-    // Admins can review manual evidence separately; Flutterwave remains verified server-side.
+    // Flutterwave-only checkout. Legacy manual proof records are not accepted as payment.
     $("loadingBox").classList.add("hidden");
     $("errorBox").classList.add("hidden");
     $("pageContent").classList.remove("hidden");
