@@ -391,14 +391,12 @@ function renderPaymentStatus() {
   const paymentStatus = String(existingPayment.payment_status || "").toLowerCase();
   const flutterwaveButton = $("flutterwaveBtn");
   if (flutterwaveButton) {
-    const hasLegacyProof = Boolean(String(existingPayment?.proof_url || "").trim()) &&
-      String(existingPayment?.payment_method || "").toLowerCase() !== "flutterwave" &&
-      ["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(status);
+    // Legacy manual proof must never block the Flutterwave checkout.
+    // Only a verified paid record or an approved payment blocks another charge.
     flutterwaveButton.disabled = submitting || tooFewSlots ||
-      status === "APPROVED" || paymentStatus === "paid" || hasLegacyProof;
+      status === "APPROVED" || paymentStatus === "paid";
     flutterwaveButton.textContent = paymentStatus === "paid" || status === "APPROVED"
       ? "Payment received — awaiting review"
-      : hasLegacyProof ? "Existing manual proof — contact support"
       : "Pay securely with Flutterwave";
   }
   if (paymentStatus === "paid") {
@@ -430,14 +428,14 @@ function renderPaymentStatus() {
   }
 
   if (["PENDING", "UNDER_REVIEW", "PENDING_REVIEW"].includes(status) && !evidenceSaved) {
-    box.innerHTML = '<div class="status rejected"><strong>Payment Submission Incomplete</strong><br>The previous payment record is missing its reference or proof. Enter your actual reference and upload the receipt to resubmit.</div>';
+    box.innerHTML = '<div class="status rejected"><strong>Payment Submission Incomplete</strong><br>This old payment record is incomplete. Use Flutterwave checkout above; manual proof submission is no longer accepted.</div>';
     lockForm(false);
     submit.disabled = submitting || tooFewSlots;
     return;
   }
 
   if (status === "REJECTED") {
-    box.innerHTML = '<div class="status rejected"><strong>Payment Rejected</strong><br>Correct the payment details and submit the actual payment reference and screenshot again.</div>';
+    box.innerHTML = '<div class="status rejected"><strong>Payment Rejected</strong><br>Use Flutterwave checkout above to make a new online payment. Manual payment proofs are no longer accepted.</div>';
     lockForm(false);
     submit.disabled = submitting || tooFewSlots;
     return;
