@@ -793,6 +793,7 @@ async function startPosterFlutterwavePayment() {
   button.textContent = "Preparing secure checkout…";
   try {
     const redirect = new URL(location.origin + location.pathname);
+    redirect.searchParams.set("nt_poster_return", "1");
     redirect.searchParams.set("task_id", String(currentTask.id));
     const result = await callPosterPaymentFunction({
       action:"initiate",
@@ -814,7 +815,7 @@ async function startPosterFlutterwavePayment() {
 async function verifyPosterFlutterwaveReturn() {
   const params = new URLSearchParams(location.search);
   if (params.get("nt_poster_return") !== "1") return;
-  const paymentId = params.get("nt_poster_payment_id");
+  let paymentId = params.get("nt_poster_payment_id");
   const txRef = params.get("tx_ref");
   const transactionId = params.get("transaction_id");
   const status = (params.get("status") || "").toLowerCase();
@@ -822,6 +823,7 @@ async function verifyPosterFlutterwaveReturn() {
   const clean = new URL(location.href);
   clean.searchParams.delete("nt_poster_return");
   clean.searchParams.delete("nt_poster_payment_id");
+  clean.searchParams.delete("task_id");
   clean.searchParams.delete("tx_ref");
   clean.searchParams.delete("transaction_id");
   clean.searchParams.delete("status");
@@ -830,11 +832,18 @@ async function verifyPosterFlutterwaveReturn() {
     showFormMessage("Flutterwave did not report a successful payment. Your task has not been marked paid. If money was deducted, contact support before retrying.", "error");
     return;
   }
-  if (!paymentId || !txRef || !transactionId) {
+  if (!txRef || !transactionId || !taskId) {
     showFormMessage("Payment return details are incomplete. If you were charged, do not pay again; contact support with your transaction reference.", "error");
     return;
   }
   try {
+    if (!paymentId) {
+      const {data: payment, error} = await db.from("poster_payments")
+        .select("id,tx_ref").eq("task_id", String(taskId))
+        .eq("poster_id", currentUser.id).eq("tx_ref", txRef).maybeSingle();
+      if (error || !payment) throw new Error("Could not locate the matching poster payment record. Contact support before paying again.");
+      paymentId = String(payment.id);
+    }
     showFormMessage("Verifying your payment with Flutterwave…", "info");
     const result = await callPosterPaymentFunction({
       action:"verify",
