@@ -1,3 +1,6 @@
+-- DEPRECATED (2026-10-29): do not run this legacy manual-payment setup for new installations.
+-- Poster checkout is now Flutterwave-only. Use supabase/repairs/disable_manual_poster_payments.sql to disable legacy manual RPCs.
+-- The remainder is retained for historical reference only.
 -- NAIJA TASK: one-time manual poster payment proof setup.
 -- Confirm the private Storage bucket exists with the exact ID "payment proof" before running.
 -- This script does not create a public bucket and does not auto-publish tasks.
