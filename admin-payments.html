@@ -532,7 +532,7 @@ async function loadPayments(){
     } = await db
       .from("poster_payments")
       .select("*")
-      .eq("status","UNDER_REVIEW")
+      .in("status", ["UNDER_REVIEW", "PENDING", "PENDING_REVIEW"])
       .order(
         "created_at",
         {ascending:true}
