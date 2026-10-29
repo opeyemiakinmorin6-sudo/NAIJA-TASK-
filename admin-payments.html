@@ -309,7 +309,7 @@ button:disabled{
   </h1>
 
   <p class="page-description">
-    Review poster payments before their jobs become available to Taskers.
+    Review Flutterwave poster payments. Manual bank-transfer proofs are no longer accepted. A task still requires separate moderation before it can go live.
   </p>
 
   <div id="notice" class="notice"></div>
@@ -532,6 +532,7 @@ async function loadPayments(){
     } = await db
       .from("poster_payments")
       .select("*")
+      .eq("payment_method", "flutterwave")
       .in("status", ["UNDER_REVIEW", "PENDING", "PENDING_REVIEW"])
       .order(
         "created_at",
@@ -555,7 +556,7 @@ async function loadPayments(){
 
       showEmptyState(
         "No payments waiting for review.",
-        "New poster payments will appear here after they submit proof."
+        "Pending Flutterwave poster payments will appear here after checkout."
       );
 
       return;
@@ -853,7 +854,7 @@ async function renderPayment(payment){
     </div>
 
 
-    ${proofHtml}
+    ${String(payment.payment_method || "").toLowerCase() === "flutterwave" ? "" : proofHtml}
 
 
     <div class="actions">
@@ -862,7 +863,7 @@ async function renderPayment(payment){
         class="approve"
         data-payment-id="${payment.id}">
 
-        ${String(payment.payment_method || "").toLowerCase() === "flutterwave" ? "Approve Verified Flutterwave Payment" : "Verify & Approve Manual Payment"}
+        Verify Flutterwave Payment
 
       </button>
 
@@ -931,11 +932,12 @@ async function approvePayment(
   card
 ){
   const method = String(paymentMethod || "").toLowerCase();
-  const isFlutterwave = method === "flutterwave";
+  if (method !== "flutterwave") {
+    showNotice("Manual payments are no longer accepted. Only Flutterwave transactions can be reviewed here.", "error");
+    return;
+  }
   const confirmed = window.confirm(
-    isFlutterwave
-      ? "Approve this Flutterwave payment only? The server must verify the transaction. The task remains inactive until task moderation separately approves it."
-      : "Only continue after you personally verified the bank transfer in the receiving account. A screenshot alone is not proof of payment. The task remains inactive until task moderation separately approves it."
+    "Verify this Flutterwave transaction on the server? The task remains inactive until task moderation separately approves it."
   );
   if (!confirmed) return;
 
@@ -944,9 +946,7 @@ async function approvePayment(
 
   try {
     const { data, error } = await db.rpc(
-      isFlutterwave
-        ? "admin_approve_flutterwave_poster_payment"
-        : "admin_approve_manual_poster_payment",
+      "admin_approve_flutterwave_poster_payment",
       { p_payment_id: paymentId }
     );
     if (error) throw error;
@@ -969,7 +969,7 @@ async function approvePayment(
   } catch (error) {
     console.error("Flutterwave payment approval error:", error);
     button.disabled = false;
-    button.textContent = isFlutterwave ? "Approve Verified Flutterwave Payment" : "Verify & Approve Manual Payment";
+    button.textContent = "Verify Flutterwave Payment";
     showNotice(error.message || "Payment approval failed.", "error");
   }
 }
