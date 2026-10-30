@@ -559,14 +559,14 @@ textarea{
       </div>
 
       <div class="money-row money-total">
-        <span>Total Required</span>
+        <span>Tasker Funding (before posting charge)</span>
         <strong>₦<span id="calcTotal">0</span></strong>
       </div>
 
     </div>
 
     <div class="help">
-      The required funding is calculated as Reward × Slots.
+      Tasker funding is Reward × Slots. Your separate poster posting charge is calculated securely by NAIJA TASK and shown on the Flutterwave payment page before you pay.
     </div>
 
   </div>
@@ -686,7 +686,7 @@ textarea{
 
       <div>
         <strong>Initial Status:</strong>
-        <span>PAYMENT_REQUIRED</span>
+        <span>PAYMENT_REQUIRED — not live until payment is verified and admin approves the task.</span>
       </div>
 
     </div>
@@ -1662,79 +1662,15 @@ publishBtn.addEventListener(
 
 
       /* =====================================
-         CREATE PAYMENT RECORD
-      ===================================== */
-
-      const {
-        error:paymentError
-      } =
-        await supabaseClient
-          .from("poster_payments")
-          .insert({
-
-            poster_id:
-              authenticatedUserId,
-
-            task_id:
-              taskId,
-
-            amount:
-              totalFunding,
-
-            payment_method:
-              null,
-
-            payment_reference:
-              null,
-
-            proof_url:
-              null,
-
-            status:
-              "PENDING"
-
-          });
-
-
-      if(paymentError){
-
-        console.error(
-          "Payment record error:",
-          paymentError
-        );
-
-
-        /*
-          Try to remove the task if the
-          payment record cannot be created.
-        */
-
-        await supabaseClient
-          .from("tasks")
-          .delete()
-          .eq(
-            "id",
-            taskId
-          )
-          .eq(
-            "created_by",
-            authenticatedUserId
-          );
-
-
-        throw new Error(
-          paymentError.message ||
-          "The job was created but the payment record could not be created."
-        );
-      }
-
-
-      /* =====================================
-         GO TO PAYMENT
+         FLUTTERWAVE CHECKOUT
+         The Edge Function creates the payment
+         row with a real transaction reference.
+         Never insert an empty/manual payment row
+         from this browser page.
       ===================================== */
 
       showMessage(
-        "Job created. Continue to payment.",
+        "Job created. Opening secure Flutterwave checkout…",
         "success"
       );
 
