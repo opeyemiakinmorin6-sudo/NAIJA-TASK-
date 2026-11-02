@@ -280,7 +280,8 @@ const taskId = t => String(t.id ?? "");
 function needsPhotoProof(t){
   const up = t.upload_required === true || String(t.upload_required).toLowerCase() === "true";
   const a = normalize(t.proof_type), b = normalize(t.required_proof);
-  return up || /photo|image|screenshot/.test(a) || /photo|image|screenshot/.test(b);
+  const requirements = Array.isArray(t.requirements) ? t.requirements.join(" ") : String(t.requirements || "");
+  return up || /photo|image|screenshot/.test(a) || /photo|image|screenshot/.test(b) || /photo|image|screenshot/.test(normalize(requirements));
 }
 function proofIsRequired(t){
   return t.proof_required !== false && String(t.proof_required).toLowerCase() !== "false";
