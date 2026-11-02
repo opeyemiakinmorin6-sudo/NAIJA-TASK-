@@ -499,6 +499,15 @@ function openTask(task){
       <div class="linkrow"><div class="linkbox">${escapeHtml(safeUrl)}</div><a class="btn p" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">Open</a></div></div>` : ""}
     ${submitted ? '<div class="notice show info">You already submitted this task. It cannot be submitted again.</div>' : ""}`;
 
+  const isBusinessTask = String(task.task_type || "").startsWith("business_");
+  if (isBusinessTask) {
+    const proofLabel = $("proofText").previousElementSibling;
+    if (proofLabel) proofLabel.textContent = "Your feedback, answers or completed work";
+    $("proofText").placeholder = "Write your comments, test results, answers, findings or work summary...";
+    const uploadLabel = document.querySelector('label[for="proofPhoto"]');
+    if (uploadLabel) uploadLabel.querySelector("b").textContent = "UPLOAD SCREENSHOT / PHOTO";
+  }
+
   resetProofForm();
   $("photoReq").textContent = photo ? "REQUIRED" : "OPTIONAL";
   $("submitProofBtn").disabled = submitted;
