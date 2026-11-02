@@ -2370,6 +2370,28 @@ th{
 
       </div>
 
+      <hr style="margin:18px 0;border:0;border-top:1px solid #e1ece5">
+      <h4>Business Jobs & Promotion Pricing</h4>
+      <div class="setting">
+        <div><strong>Business Job Posting</strong><small>Allow posters to choose the separate Business Job form.</small></div>
+        <label class="switch"><input id="businessJobEnabled" type="checkbox" checked><span class="slider"></span></label>
+      </div>
+      <div class="field">
+        <label>Additional Business Job Fee (₦)</label>
+        <input id="businessJobFee" type="number" min="0" step="1" value="0">
+        <small>Added to the normal poster task fee. Set 0 to use the standard fee only.</small>
+      </div>
+      <div class="field">
+        <label>Fast Promotion Fee (₦)</label>
+        <input id="fastPromotionFee" type="number" min="0" step="1" value="500">
+        <small>Default ₦500. Admin can change it at any time.</small>
+      </div>
+      <div class="field">
+        <label>Priority Promotion Fee (₦)</label>
+        <input id="priorityPromotionFee" type="number" min="0" step="1" value="1000">
+        <small>Default ₦1,000. Admin can change it at any time.</small>
+      </div>
+
     </div>
 
 
@@ -8469,6 +8491,11 @@ function applySettingsToUI(settings) {
     settings.minimum_poster_task_slots
   );
 
+  setChecked("businessJobEnabled", settings.business_job_enabled !== false);
+  setValue("businessJobFee", settings.business_job_fee);
+  setValue("fastPromotionFee", settings.fast_promotion_fee);
+  setValue("priorityPromotionFee", settings.priority_promotion_fee);
+
 
   /* Task reward limits */
 
@@ -8996,7 +9023,19 @@ function collectSettingsFromUI() {
       numberValue(
         $("posterTaskFee")?.value,
         500
-      )
+      ),
+
+    business_job_enabled:
+      $("businessJobEnabled")?.checked !== false,
+
+    business_job_fee:
+      numberValue($("businessJobFee")?.value, 0),
+
+    fast_promotion_fee:
+      numberValue($("fastPromotionFee")?.value, 500),
+
+    priority_promotion_fee:
+      numberValue($("priorityPromotionFee")?.value, 1000)
   };
 }
 
@@ -9080,11 +9119,12 @@ function validateSettings(settings) {
   }
 
   if (
-    settings.poster_task_fee < 0
+    settings.poster_task_fee < 0 ||
+    settings.business_job_fee < 0 ||
+    settings.fast_promotion_fee < 0 ||
+    settings.priority_promotion_fee < 0
   ) {
-    errors.push(
-      "Poster task fee cannot be negative."
-    );
+    errors.push("Poster, Business Job and promotion fees cannot be negative.");
   }
 
   if (
@@ -9284,7 +9324,19 @@ async function saveSettings() {
         settings.minimum_poster_task_slots,
 
       poster_task_fee:
-        settings.poster_task_fee
+        settings.poster_task_fee,
+
+      business_job_enabled:
+        settings.business_job_enabled,
+
+      business_job_fee:
+        settings.business_job_fee,
+
+      fast_promotion_fee:
+        settings.fast_promotion_fee,
+
+      priority_promotion_fee:
+        settings.priority_promotion_fee
     };
 
 
