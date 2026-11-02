@@ -359,7 +359,7 @@ function renderTasks(){
     <article class="task">
       <div class="tile" aria-hidden="true">${LOGOS[cat]}</div>
       <div class="task-t">
-        <div class="plat">${NAMES[cat]} • Task</div>
+        <div class="plat">${String(task.task_type||"").startsWith("business_") ? "Business service" : NAMES[cat]} • Task</div>
         <h2>${escapeHtml(task.title || "Untitled task")}</h2>
         <div class="meta">
           <span class="pill">${hasSlots ? left + " slot" + (left === 1 ? "" : "s") + " left" : "Limited slots"}</span>
@@ -488,7 +488,7 @@ function openTask(task){
   $("selectedTaskDetails").innerHTML = `
     <div class="sheet-head">
       <div class="logo" aria-hidden="true">${LOGOS[cat]}</div>
-      <div class="task-t"><h2>${escapeHtml(task.title || "Untitled task")}</h2><div class="plat">${NAMES[cat]} · Earn ${escapeHtml(money(getTaskReward(task)))}</div></div>
+      <div class="task-t"><h2>${escapeHtml(task.title || "Untitled task")}</h2><div class="plat">${String(task.task_type||"").startsWith("business_") ? "Business service" : NAMES[cat]} · Earn ${escapeHtml(money(getTaskReward(task)))}</div></div>
     </div>
 
     <div class="field"><div class="lab" style="font-size:14px">Task instructions</div>
