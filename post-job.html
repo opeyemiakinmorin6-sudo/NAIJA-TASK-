@@ -237,6 +237,14 @@ textarea{
   cursor:not-allowed;
 }
 
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mode-option{border:1px solid #cfe2d5;border-radius:12px;padding:14px;background:#fbfffc;cursor:pointer}
+.mode-option:has(input:checked){border:2px solid #0b8f3c;background:#effaf2}
+.mode-option label{margin:0;display:flex;gap:9px;align-items:center;cursor:pointer}
+.mode-option input{width:auto}
+.business-fields{display:none}
+.business-fields.active{display:block}
+.money-note{font-size:12px;color:#52645a;line-height:1.5;margin-top:10px}
 .message{
   display:none;
   padding:13px;
@@ -313,6 +321,45 @@ textarea{
   <div class="notice">
     <strong>Payment approval is required.</strong><br>
     Your job will not become available to Taskers until the required funding has been paid and approved by the NAIJA TASK admin.
+  </div>
+
+  <div class="card">
+    <h2>Choose What You Want to Post</h2>
+    <div class="mode-grid">
+      <div class="mode-option">
+        <label><input type="radio" name="taskKind" value="normal_task" checked> <span><strong>Normal Task</strong><br><small>Likes, follows, visits, downloads and other simple tasks.</small></span></label>
+      </div>
+      <div class="mode-option">
+        <label><input type="radio" name="taskKind" value="business_job"> <span><strong>Business Job</strong><br><small>Promote a business, product, service or campaign.</small></span></label>
+      </div>
+    </div>
+    <div class="help">Both options stay inside this Post Job page. Business Jobs use a separate details form.</div>
+  </div>
+
+  <div class="card business-fields" id="businessFields">
+    <h2>Business Job Details</h2>
+    <label for="businessName">Business / Brand Name</label>
+    <input id="businessName" maxlength="120" placeholder="Name of your business or brand">
+    <label for="businessIndustry">Business Category</label>
+    <select id="businessIndustry">
+      <option value="">Choose category</option>
+      <option>Fashion & Beauty</option><option>Food & Restaurant</option><option>Education</option>
+      <option>Technology</option><option>Entertainment</option><option>Health & Wellness</option>
+      <option>Retail & Shopping</option><option>Finance</option><option>Real Estate</option><option>Other</option>
+    </select>
+    <label for="businessWebsite">Website / Business Link</label>
+    <input id="businessWebsite" type="url" placeholder="https://...">
+    <label for="businessObjective">Campaign Objective</label>
+    <select id="businessObjective">
+      <option value="">Choose objective</option><option>Brand awareness</option><option>Product promotion</option>
+      <option>Drive website visits</option><option>Get enquiries or leads</option><option>Promote an event</option>
+      <option>App downloads</option><option>Other</option>
+    </select>
+    <label for="businessAudience">Target Audience</label>
+    <input id="businessAudience" maxlength="180" placeholder="Who should see or engage with this campaign?">
+    <label for="businessCallToAction">What should people do?</label>
+    <textarea id="businessCallToAction" maxlength="1000" placeholder="Describe the action you want real Taskers to take."></textarea>
+    <div class="help">Business information is attached to the job for review. Do not request fake reviews, misleading endorsements or spam.</div>
   </div>
 
   <div class="card">
@@ -558,12 +605,31 @@ textarea{
         <strong>₦<span id="calcFunding">0</span></strong>
       </div>
 
+      <div class="money-row">
+        <span>Standard Poster Task Fee</span>
+        <strong>₦<span id="calcPosterFee">500</span></strong>
+      </div>
+      <div class="money-row">
+        <span>Business Job Fee</span>
+        <strong>₦<span id="calcBusinessFee">0</span></strong>
+      </div>
+      <div class="money-row">
+        <span>Promotion Fee</span>
+        <strong>₦<span id="calcPromotionFee">0</span></strong>
+      </div>
       <div class="money-row money-total">
-        <span>Tasker Funding (before posting charge)</span>
+        <span>Estimated Total</span>
         <strong>₦<span id="calcTotal">0</span></strong>
       </div>
 
     </div>
+    <label for="promotionTier">Optional Paid Promotion</label>
+    <select id="promotionTier">
+      <option value="none">No promotion</option>
+      <option value="fast">Fast Promotion — ₦500</option>
+      <option value="priority">Priority Promotion — ₦1,000</option>
+    </select>
+    <div class="money-note" id="promotionHelp">Promotion is optional. Final prices are confirmed by the secure server before Flutterwave checkout.</div>
 
     <div class="help">
       Tasker funding is Reward × Slots. Your separate poster posting charge is calculated securely by NAIJA TASK and shown on the Flutterwave payment page before you pay.
@@ -1020,40 +1086,33 @@ function updateRewardRules(){
    FUNDING
 ========================================= */
 
+let posterPricing = {
+  minimumSlots:10, posterFee:500, businessFee:0,
+  fastFee:500, priorityFee:1000, businessEnabled:true
+};
+
+function selectedTaskKind(){
+  return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";
+}
+function selectedPromotionFee(){
+  const tier=document.getElementById("promotionTier").value;
+  return tier==="fast" ? posterPricing.fastFee : tier==="priority" ? posterPricing.priorityFee : 0;
+}
 function calculateFunding(){
-
-  const reward =
-    Number(
-      document.getElementById("reward").value
-    ) || 0;
-
-  const slots =
-    Number(
-      document.getElementById("slots").value
-    ) || 0;
-
-  const funding =
-    reward * slots;
-
-  document.getElementById("calcReward")
-    .textContent =
-      reward.toLocaleString();
-
-  document.getElementById("calcSlots")
-    .textContent =
-      slots.toLocaleString();
-
-  document.getElementById("calcFunding")
-    .textContent =
-      funding.toLocaleString();
-
-  document.getElementById("calcTotal")
-    .textContent =
-      funding.toLocaleString();
-
-  document.getElementById("summaryFunding")
-    .textContent =
-      funding.toLocaleString();
+  const reward=Number(document.getElementById("reward").value)||0;
+  const slots=Number(document.getElementById("slots").value)||0;
+  const funding=reward*slots;
+  const businessFee=selectedTaskKind()==="business_job" ? posterPricing.businessFee : 0;
+  const promotionFee=selectedPromotionFee();
+  const total=funding+posterPricing.posterFee+businessFee+promotionFee;
+  document.getElementById("calcReward").textContent=reward.toLocaleString();
+  document.getElementById("calcSlots").textContent=slots.toLocaleString();
+  document.getElementById("calcFunding").textContent=funding.toLocaleString();
+  document.getElementById("calcPosterFee").textContent=posterPricing.posterFee.toLocaleString();
+  document.getElementById("calcBusinessFee").textContent=businessFee.toLocaleString();
+  document.getElementById("calcPromotionFee").textContent=promotionFee.toLocaleString();
+  document.getElementById("calcTotal").textContent=total.toLocaleString();
+  document.getElementById("summaryFunding").textContent=total.toLocaleString();
 }
 
 
@@ -1474,15 +1533,33 @@ publishBtn.addEventListener(
 
     if(
       !Number.isInteger(slots) ||
-      slots <= 0
+      slots < posterPricing.minimumSlots
     ){
-
       showMessage(
-        "Please enter a valid number of slots.",
+        "This job requires at least " + posterPricing.minimumSlots + " slots.",
         "error"
       );
-
       return;
+    }
+
+    if(selectedTaskKind()==="business_job"){
+      const businessName=document.getElementById("businessName").value.trim();
+      const objective=document.getElementById("businessObjective").value;
+      const audience=document.getElementById("businessAudience").value.trim();
+      const callToAction=document.getElementById("businessCallToAction").value.trim();
+      if(!posterPricing.businessEnabled){
+        showMessage("Business Job posting is currently disabled.", "error");
+        return;
+      }
+      if(!businessName || !objective || !audience || !callToAction){
+        showMessage("Complete the Business Name, Objective, Target Audience and Action fields.", "error");
+        return;
+      }
+      const businessUrl=document.getElementById("businessWebsite").value.trim();
+      if(businessUrl && !/^https:\/\//i.test(businessUrl)){
+        showMessage("Business website must begin with https://", "error");
+        return;
+      }
     }
 
 
@@ -1597,6 +1674,19 @@ publishBtn.addEventListener(
         requirements:
           requirements,
 
+        task_kind: selectedTaskKind(),
+
+        business_details: selectedTaskKind()==="business_job" ? {
+          business_name:document.getElementById("businessName").value.trim(),
+          industry:document.getElementById("businessIndustry").value,
+          website:document.getElementById("businessWebsite").value.trim(),
+          objective:document.getElementById("businessObjective").value,
+          target_audience:document.getElementById("businessAudience").value.trim(),
+          call_to_action:document.getElementById("businessCallToAction").value.trim()
+        } : {},
+
+        promotion_tier:document.getElementById("promotionTier").value,
+
         active:false,
 
         status:
@@ -1710,13 +1800,57 @@ publishBtn.addEventListener(
 
 
 /* =========================================
+   JOB TYPE / PRICING SETTINGS
+========================================= */
+
+document.querySelectorAll('input[name="taskKind"]').forEach(function(radio){
+  radio.addEventListener("change",function(){
+    document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
+    updateSummary();
+  });
+});
+document.getElementById("promotionTier").addEventListener("change",calculateFunding);
+
+async function loadPosterPricing(){
+  try{
+    const {data,error}=await supabaseClient.from("platform_settings")
+      .select("minimum_poster_task_slots,poster_task_fee,business_job_fee,business_job_enabled,fast_promotion_fee,priority_promotion_fee")
+      .limit(1).maybeSingle();
+    if(error) throw error;
+    if(data){
+      posterPricing.minimumSlots=Math.max(1,Number(data.minimum_poster_task_slots)||10);
+      posterPricing.posterFee=Math.max(0,Number(data.poster_task_fee??500));
+      posterPricing.businessFee=Math.max(0,Number(data.business_job_fee??0));
+      posterPricing.businessEnabled=data.business_job_enabled!==false;
+      posterPricing.fastFee=Math.max(0,Number(data.fast_promotion_fee??500));
+      posterPricing.priorityFee=Math.max(0,Number(data.priority_promotion_fee??1000));
+      document.getElementById("slots").min=posterPricing.minimumSlots;
+      document.getElementById("slots").placeholder="Minimum "+posterPricing.minimumSlots;
+      const promo=document.getElementById("promotionTier");
+      promo.options[1].text="Fast Promotion — ₦"+posterPricing.fastFee.toLocaleString();
+      promo.options[2].text="Priority Promotion — ₦"+posterPricing.priorityFee.toLocaleString();
+      document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
+      document.querySelectorAll('input[name="taskKind"]').forEach(el=>{
+        if(el.value==="business_job") el.disabled=!posterPricing.businessEnabled;
+      });
+      if(!posterPricing.businessEnabled && selectedTaskKind()==="business_job"){
+        document.querySelector('input[name="taskKind"][value="normal_task"]').checked=true;
+      }
+      calculateFunding();
+    }
+  }catch(error){
+    console.warn("Poster pricing settings could not be loaded; secure server validation remains active.",error);
+    showMessage("Some price settings could not load. Refresh before creating a job.", "error");
+  }
+}
+
+/* =========================================
    INITIAL
 ========================================= */
 
 updateRewardRules();
-
 updateSummary();
-
+loadPosterPricing();
 checkPoster();
 
 </script>
