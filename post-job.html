@@ -1120,7 +1120,7 @@ let posterPricing = {minimumSlots:10,posterFee:500,fastFee:500,priorityFee:1000}
 let servicePricing = {social:{},business:{},commission_percent:30,tasker_share_percent:70,min_slots:10,max_price:999,fast_fee:500,priority_fee:1000};
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"playstore_appstore",survey:"survey_task"})[category] || category;}
-function priceItem(group,key){return (servicePricing[group]||{})[key] || {fee:0,enabled:false};}
+function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {fee:0,enabled:true};return {fee:Math.max(0,Number(item.fee)||0),enabled:item.enabled!==false};}
 function selectedSocialItem(){return priceItem("social",socialPriceKey(document.getElementById("category").value));}
 function selectedBusinessItem(){return priceItem("business",document.getElementById("businessService").value);}
 function selectedPromotionFee(){const tier=document.getElementById("promotionTier").value;return tier==="fast"?Number(servicePricing.fast_fee||0):tier==="priority"?Number(servicePricing.priority_fee||0):0;}
