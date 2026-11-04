@@ -1116,8 +1116,8 @@ function updateRewardRules(){
    FUNDING
 ========================================= */
 
-let posterPricing = {minimumSlots:10,posterFee:500,fastFee:500,priorityFee:999};
-let servicePricing = {social:{},business:{},commission_percent:30,tasker_share_percent:70,min_slots:10,max_price:999,fast_fee:500,priority_fee:999};
+let posterPricing = {minimumSlots:10,posterFee:500,fastFee:500,priorityFee:1000};
+let servicePricing = {social:{},business:{},commission_percent:30,tasker_share_percent:70,min_slots:10,max_price:999,fast_fee:500,priority_fee:1000};
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"playstore_appstore",survey:"survey_task"})[category] || category;}
 function priceItem(group,key){return (servicePricing[group]||{})[key] || {fee:0,enabled:false};}
@@ -1856,7 +1856,7 @@ async function loadPosterPricing(){
   if(error)throw error;
   if(data){
    const saved=data.service_pricing||{},commission=[30,40,50].includes(Number(saved.commission_percent))?Number(saved.commission_percent):30;
-   servicePricing={social:saved.social||{},business:saved.business||{},commission_percent:commission,tasker_share_percent:100-commission,min_slots:Math.max(10,Number(saved.min_slots)||10),max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??999)};
+   servicePricing={social:saved.social||{},business:saved.business||{},commission_percent:commission,tasker_share_percent:100-commission,min_slots:Math.max(10,Number(saved.min_slots)||10),max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)};
    posterPricing.minimumSlots=Math.max(10,Number(data.minimum_poster_task_slots)||servicePricing.min_slots||10);
    posterPricing.posterFee=Math.max(0,Number(data.poster_task_fee??500));
    posterPricing.fastFee=servicePricing.fast_fee;posterPricing.priorityFee=servicePricing.priority_fee;
