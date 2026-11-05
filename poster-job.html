@@ -392,77 +392,82 @@ function renderJobs(){
     return matchesTerm&&matchesFilter;
   });
 
+  function renderSection(items,title,emptyText){
+    if(!items.length){
+      return '<section class="job-category"><h3 style="margin:16px 0 8px;font-size:15px;color:var(--green)">'+title+
+        '</h3><div class="empty">'+emptyText+'</div></section>';
+    }
+    return '<section class="job-category"><h3 style="margin:16px 0 8px;font-size:15px;color:var(--green)">'+title+
+      '</h3>'+items.map(job=>{
+        const status=job.status||"UNKNOWN";
+        const group=jobGroup(job);
+        const pay=paymentFor(job.id);
+        const payStatus=pay?displayStatus(pay.status):"No payment record found";
+        const count=countFor(job);
+        const slots=slotsFor(job);
+        const remaining=slots?Math.max(0,slots-count):"—";
+        const payBadge=pay?badgeClass(pay.status):"neutral";
+        const paymentHint=pay?
+          (normalized(pay.status)==="APPROVED"?"Payment record is marked approved; check the job status for publication.":
+           normalized(pay.status)==="REJECTED"?"Payment was rejected. Review the payment centre for next steps.":
+           "Payment is not confirmed as approved in the current payment record.")
+          :"No matching payment record was returned. Check the payment centre or contact support.";
+
+        return `
+          <article class="job">
+            <div class="jobtop">
+              <div>
+                <div class="jobtitle">${esc(job.title||"Untitled job")}</div>
+                <div class="jobmeta">Created: ${esc(dateText(job.created_at))}<br>Job ID: ${esc(String(job.id||"").slice(0,12))}</div>
+              </div>
+              <span class="badge ${badgeClass(status)}">${esc(displayStatus(status))}</span>
+            </div>
+
+            <div class="jobmetrics">
+              <div class="metric"><strong>${slots||"—"}</strong><span>Planned slots</span></div>
+              <div class="metric"><strong>${count}</strong><span>Submissions received</span></div>
+              <div class="metric"><strong>${remaining}</strong><span>Estimated slots remaining</span></div>
+            </div>
+
+            <div class="detailgrid">
+              <div class="detailbox">
+                <strong>Payment status</strong>
+                <span class="badge ${payBadge}">${esc(payStatus)}</span>
+                <div class="jobmeta">${esc(paymentHint)}</div>
+              </div>
+            </div>
+
+            <div style="margin-top:13px;font-size:11px;color:var(--muted)">Submission progress: ${count}${slots?" of "+slots:""} received</div>
+            <div class="progress"><span style="width:${progressFor(job)}%"></span></div>
+
+            ${group==="PAYMENT"?'<div class="notice warning">This job appears to need payment or payment review. It should not be considered live until the platform confirms payment and publication.</div>':""}
+            ${group==="APPROVAL"?'<div class="notice info">This job appears to be waiting for an approval or publication step.</div>':""}
+            ${group==="REJECTED"?'<div class="notice error">This job or its payment has a rejected status. Review the payment centre or contact support for the recorded reason.</div>':""}
+
+            <div class="actions">
+              <button class="btn btn-primary" type="button" onclick="viewSubmissions('${esc(String(job.id))}')">View submissions (${count})</button>
+              ${group==="PAYMENT"||group==="REJECTED"?`<a class="btn btn-secondary" href="poster-payment.html?task_id=${encodeURIComponent(job.id)}">Open payment centre</a>`:""}
+              ${group==="LIVE"?'<span class="btn btn-disabled">Job status: live/active</span>':""}
+            </div>
+          </article>`;
+      }).join("")+'</section>';
+  }
+
   if(!visible.length){
     $("jobsList").innerHTML='<div class="empty"><div class="emoji">📋</div><strong>No jobs match this filter.</strong><br>Create a job or choose another filter.</div>';
     return;
   }
 
-  $("jobsList").innerHTML=visible.map(job=>{
-    const status=job.status||"UNKNOWN";
-    const group=jobGroup(job);
-    const pay=paymentFor(job.id);
-    const payStatus=pay?displayStatus(pay.status):"No payment record found";
-    const count=countFor(job);
-    const slots=slotsFor(job);
-    const remaining=slots?Math.max(0,slots-count):"—";
-    const progress=progressFor(job);
-    const amount=jobAmount(job);
-    const payBadge=pay?badgeClass(pay.status):"neutral";
-    const paymentHint=pay?
-      (normalized(pay.status)==="APPROVED"?"Payment record is marked approved; check the job status for publication.":
-       normalized(pay.status)==="REJECTED"?"Payment was rejected. Review the payment centre for next steps.":
-       "Payment is not confirmed as approved in the current payment record.")
-      :"No matching payment record was returned. Check the payment centre or contact support.";
-
-    return `
-      <article class="job">
-        <div class="jobtop">
-          <div>
-            <div class="jobtitle">${esc(job.title||"Untitled job")}</div>
-            <div class="jobmeta">Created: ${esc(dateText(job.created_at))}<br>Job ID: ${esc(String(job.id||"").slice(0,12))}</div>
-          </div>
-          <span class="badge ${badgeClass(status)}">${esc(displayStatus(status))}</span>
-        </div>
-
-        <div class="jobmetrics">
-          <div class="metric"><strong>${money(job.reward)}</strong><span>Reward per tasker</span></div>
-          <div class="metric"><strong>${slots||"—"}</strong><span>Planned slots</span></div>
-          <div class="metric"><strong>${count}</strong><span>Submissions received</span></div>
-          <div class="metric"><strong>${remaining}</strong><span>Estimated slots remaining</span></div>
-        </div>
-
-        <div class="detailgrid">
-          <div class="detailbox">
-            <strong>Payment status</strong>
-            <span class="badge ${payBadge}">${esc(payStatus)}</span>
-            <div class="jobmeta">${esc(paymentHint)}</div>
-          </div>
-          <div class="detailbox">
-            <strong>Job funding / payment amount</strong>
-            <div style="font-weight:800;font-size:17px">${money(amount)}</div>
-            <div class="jobmeta">This is the recorded payment amount when available; otherwise it is an estimate of reward × planned slots. It is not proof that funds were received.</div>
-          </div>
-        </div>
-
-        <div style="margin-top:13px;font-size:11px;color:var(--muted)">Submission progress: ${count}${slots?" of "+slots:""} received</div>
-        <div class="progress"><span style="width:${progress}%"></span></div>
-
-        ${group==="PAYMENT"?'<div class="notice warning">This job appears to need payment or payment review. It should not be considered live until the platform confirms payment and publication.</div>':""}
-        ${group==="APPROVAL"?'<div class="notice info">This job appears to be waiting for an approval or publication step.</div>':""}
-        ${group==="REJECTED"?'<div class="notice error">This job or its payment has a rejected status. Review the payment centre or contact support for the recorded reason.</div>':""}
-
-        <div class="actions">
-          <button class="btn btn-primary" type="button" onclick="viewSubmissions('${esc(String(job.id))}')">View submissions (${count})</button>
-          ${group==="PAYMENT"||group==="REJECTED"?`<a class="btn btn-secondary" href="poster-payment.html?task_id=${encodeURIComponent(job.id)}">Open payment centre</a>`:""}
-          ${group==="LIVE"?'<span class="btn btn-disabled">Job status: live/active</span>':""}
-        </div>
-      </article>`;
-  }).join("");
+  const social=visible.filter(job=>job.task_kind!=="business_job");
+  const business=visible.filter(job=>job.task_kind==="business_job");
+  $("jobsList").innerHTML=
+    renderSection(social,"Social Tasks","No social tasks match this filter.")+
+    renderSection(business,"Business Jobs","No business jobs match this filter.");
 }
 
 async function loadJobs(){
   const result=await db.from("tasks")
-    .select("id,title,description,reward,slots,status,active,created_at,expiry_date,created_by,task_type")
+    .select("id,title,description,reward,slots,status,active,created_at,expiry_date,created_by,task_type,task_kind")
     .eq("created_by",currentUser.id)
     .order("created_at",{ascending:false})
     .limit(300);
