@@ -403,7 +403,7 @@ main{
   <section class="balance-card">
 
     <div class="balance-label">💰 
-      TOTAL JOB BUDGETS
+      TOTAL ESTIMATED POSTER BUDGET
     </div>
 
     <div class="balance" id="totalFunding">
@@ -411,7 +411,7 @@ main{
     </div>
 
     <div class="balance-note">
-      Combined estimated budget for your posted jobs
+      Uses saved poster prices; older jobs without pricing snapshots are excluded
     </div>
 
   </section>
@@ -907,7 +907,7 @@ async function loadJobs(user){
     const rate = Number(job.poster_rate_per_slot || 0);
     const savedFees = Number(job.poster_base_fee_snapshot || 0) +
       Number(job.promotion_fee_snapshot || 0);
-    return sum + (rate > 0 ? rate * slots + savedFees : Number(job.reward || 0) * slots);
+    return sum + (rate > 0 ? rate * slots + savedFees : 0);
   }, 0);
   document.getElementById("totalFunding").textContent = naira(totalBudget);
 
