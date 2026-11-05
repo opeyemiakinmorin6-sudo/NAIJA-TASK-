@@ -152,7 +152,9 @@ begin
 
 
 
-  return round((v_task.poster_rate_per_slot * v_task.slots) +\n    coalesce(v_task.poster_base_fee_snapshot,0) +\n    coalesce(v_task.promotion_fee_snapshot,0),2);
+  return round((v_task.poster_rate_per_slot * v_task.slots) +
+    coalesce(v_task.poster_base_fee_snapshot,0) +
+    coalesce(v_task.promotion_fee_snapshot,0),2);
 end;
 $function$;
 
