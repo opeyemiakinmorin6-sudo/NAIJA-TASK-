@@ -41,7 +41,7 @@ begin
     v_key := case v_key
       when 'website' then 'website_blog'
       when 'survey' then 'survey_task'
-      when 'app_download' then 'playstore_appstore'
+      when 'app_download' then 'app_testing'
       else v_key
     end;
   end if;
