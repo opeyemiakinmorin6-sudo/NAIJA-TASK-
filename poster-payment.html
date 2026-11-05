@@ -84,6 +84,7 @@ label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field{marg
     <div class="card">
       <h2>Flutterwave Checkout</h2>
       <div id="paymentStatus"></div>
+      <div id="checkoutMessage" aria-live="polite"></div>
       <div class="hidden" aria-hidden="true">
 
       <div class="field">
@@ -182,10 +183,13 @@ function showError(message, authRequired = false) {
 }
 
 function showFormMessage(message, type = "info") {
-  const box = $("formMessage");
+  // Checkout feedback must remain outside the retired/hidden manual-proof form.
+  const box = $("checkoutMessage");
+  if (!box) { console.warn("Checkout message area is missing:", message); return; }
   box.className = type === "error" ? "error" :
     type === "success" ? "success" : "info";
   box.textContent = message;
+  box.classList.remove("hidden");
 }
 
 function getTaskId() {
