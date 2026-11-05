@@ -307,7 +307,7 @@ label{color:#244b31;font-size:13px;font-weight:800}
 input,textarea,select{border:1px solid #cbdccb;background:#fbfdf9;border-radius:10px;color:#193323}
 input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:0 0 0 3px #b7ef4350;background:white}
 .help{color:#647469}
-.price-rule{background:#eff8e8;border:1px solid #cfe6b5;color:#245b2e}
+.price-rule{background:#eff8e8;border:1px solid #cfe6b5;color:#245b2e}.price-rule.price-ready{background:#e8f6dc;border-color:#9bcf73;color:#174b25;font-weight:800}
 .proof-item{border:1px solid #d6e6d6;background:#f8fcf5}
 .proof-item:has(input:checked){border-color:var(--nt-green);background:#eff8e8}
 .money-box{background:#f0f8e8;border:1px solid #cfe5b7}
@@ -884,9 +884,18 @@ function calculateFunding(){
  const submit=document.getElementById("publishBtn");
  if(submit)submit.disabled=!item.enabled||slots<posterPricing.minimumSlots;
  const rule=document.getElementById("priceRule");
- if(rule)rule.textContent=item.enabled
-   ?"Service selected. Your total updates automatically as you change the number of slots."
-   :"This service is not enabled yet. Please choose another service.";
+ if(rule){
+  if(item.enabled){
+   const perTen=posterRate.toLocaleString("en-NG",{maximumFractionDigits:2});
+   const totalText=total>0?"Estimated total: ₦"+total.toLocaleString("en-NG",{maximumFractionDigits:2}):
+    "Enter at least "+posterPricing.minimumSlots+" slots to calculate your total.";
+   rule.textContent="Poster price: ₦"+perTen+" per 10 slots. "+totalText;
+   rule.classList.add("price-ready");
+  }else{
+   rule.textContent="This service does not have an active Admin price yet. Choose another service or contact support.";
+   rule.classList.remove("price-ready");
+  }
+ }
 }
 
 function validateReward(){
