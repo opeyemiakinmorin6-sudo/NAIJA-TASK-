@@ -332,7 +332,7 @@ label[for="reward"],#reward,#rewardHelp{display:none!important;}
     <h2>Choose What You Want to Post</h2>
     <div class="mode-grid">
       <div class="mode-option">
-        <label><input type="radio" name="taskKind" value="normal_task" checked> <span><strong>Normal Task</strong><br><small>Testing, research and other approved work.</small></span></label>
+        <label><input type="radio" name="taskKind" value="normal_task" checked> <span><strong>Normal Task</strong><br><small>Social platforms and their available task types.</small></span></label>
       </div>
       <div class="mode-option">
         <label><input type="radio" name="taskKind" value="business_job"> <span><strong>Business Job</strong><br><small>Promote a business, product, service or campaign.</small></span></label>
@@ -396,31 +396,10 @@ label[for="reward"],#reward,#rewardHelp{display:none!important;}
       maxlength="150"
     >
 
-    <label for="category">Normal Task / Social Service</label>
-    <select id="category">
-      <option value="">Choose a service</option>
-      <optgroup label="Testing, research and general work">
-        <option value="website">Website / Blog Testing</option>
-        <option value="app_download">App Testing</option>
-        <option value="survey">Survey / Research</option>
-        <option value="traffic_seo">Website Traffic / SEO Research</option>
-        <option value="other">Other Approved Work</option>
-      </optgroup>
-      <optgroup label="Social platform work — genuine services only">
-        <option value="social_content_writing">Social Content & Caption Writing</option>
-        <option value="social_video_editing">Short Video Editing</option>
-        <option value="social_graphic_design">Social Graphics & Thumbnail Design</option>
-        <option value="social_account_audit">Social Account / Profile Audit</option>
-        <option value="social_content_calendar">Content Calendar Planning</option>
-        <option value="social_community_moderation">Community Moderation & Inbox Support</option>
-        <option value="social_audience_research">Audience & Competitor Research</option>
-        <option value="social_transcription_translation">Transcription & Translation</option>
-      </optgroup>
-    </select>
-    <div id="socialPlatformField" style="display:none">
-      <label for="socialPlatform">Social Platform</label>
+    <div id="normalSocialServiceFields">
+      <label for="socialPlatform">Choose Social Platform</label>
       <select id="socialPlatform">
-        <option value="">Choose platform</option>
+        <option value="">Select the platform you want to use</option>
         <option>Facebook</option><option>Instagram</option><option>TikTok</option>
         <option>YouTube</option><option>YouTube Music</option><option>X / Twitter</option>
         <option>LinkedIn</option><option>WhatsApp</option><option>Telegram</option>
@@ -429,7 +408,11 @@ label[for="reward"],#reward,#rewardHelp{display:none!important;}
         <option>Website</option><option>Google Play Store</option><option>Apple App Store</option>
         <option>Other</option>
       </select>
-      <div class="help">Choose where the genuine content, design, research or moderation work applies.</div>
+      <label for="category">Choose the task type for this platform</label>
+      <select id="category" disabled>
+        <option value="">Select a platform first</option>
+      </select>
+      <div class="help">The task-type list changes when you choose a platform. Only genuine content, creative, research and support services are offered.</div>
     </div>
 
     <div id="priceRule" class="price-rule">
@@ -1386,9 +1369,9 @@ publishBtn.addEventListener(
          TASK DATA
       ===================================== */
 
-      const socialService=category.startsWith("social_");
+      const socialService=selectedTaskKind()==="normal_task";
     const socialPlatform=socialService?document.getElementById("socialPlatform").value:"";
-    if(socialService&&!socialPlatform){
+    if(socialService&&(!socialPlatform||!category.startsWith("social_"))){
       showMessage("Choose the social platform for this service.","error");
       return;
     }
@@ -1406,7 +1389,7 @@ publishBtn.addEventListener(
 
         slots:slots,
 
-        task_type:category,
+        task_type:selectedTaskKind()==="business_job"?"business_job":category,
 
         task_link:
           link || null,
@@ -1557,17 +1540,44 @@ publishBtn.addEventListener(
 document.querySelectorAll('input[name="taskKind"]').forEach(function(radio){
   radio.addEventListener("change",function(){
     document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
+    document.getElementById("normalSocialServiceFields").style.display=selectedTaskKind()==="business_job"?"none":"block";
     updateSummary();
   });
 });
 document.getElementById("promotionTier").addEventListener("change",calculateFunding);
-document.getElementById("category").addEventListener("change",function(){
- const social=this.value.startsWith("social_");
- document.getElementById("socialPlatformField").style.display=social?"block":"none";
- if(!social)document.getElementById("socialPlatform").value="";
+const SOCIAL_SERVICE_OPTIONS=[
+ ["social_content_writing","Social Content & Caption Writing"],
+ ["social_video_editing","Short Video Editing"],
+ ["social_graphic_design","Social Graphics & Thumbnail Design"],
+ ["social_account_audit","Social Account / Profile Audit"],
+ ["social_content_calendar","Content Calendar Planning"],
+ ["social_community_moderation","Community Moderation & Inbox Support"],
+ ["social_audience_research","Audience & Competitor Research"],
+ ["social_transcription_translation","Transcription & Translation"]
+];
+const PLATFORM_SERVICE_TYPES={
+ "Spotify":["social_content_writing","social_graphic_design","social_content_calendar","social_audience_research","social_transcription_translation"],
+ "Apple Music":["social_content_writing","social_graphic_design","social_content_calendar","social_audience_research","social_transcription_translation"],
+ "Audiomack":["social_content_writing","social_graphic_design","social_content_calendar","social_audience_research","social_transcription_translation"],
+ "YouTube Music":["social_content_writing","social_graphic_design","social_content_calendar","social_audience_research","social_transcription_translation"]
+};
+function rebuildPlatformTaskTypes(){
+ const platform=document.getElementById("socialPlatform").value;
+ const category=document.getElementById("category");
+ const allowed=PLATFORM_SERVICE_TYPES[platform]||SOCIAL_SERVICE_OPTIONS.map(x=>x[0]);
+ const previous=category.value;
+ category.innerHTML='<option value="">Choose a task type</option>';
+ SOCIAL_SERVICE_OPTIONS.filter(([key])=>allowed.includes(key)).forEach(([key,label])=>{
+   const option=document.createElement("option");option.value=key;option.textContent=label;
+   category.appendChild(option);
+ });
+ category.disabled=!platform;
+ if(previous&&allowed.includes(previous))category.value=previous;
+ refreshServiceOptions();
  calculateFunding();
-});
-document.getElementById("socialPlatform").addEventListener("change",calculateFunding);
+}
+document.getElementById("socialPlatform").addEventListener("change",rebuildPlatformTaskTypes);
+document.getElementById("category").addEventListener("change",calculateFunding);
 document.getElementById("businessService").addEventListener("change",calculateFunding);
 async function loadPosterPricing(){
  try{
@@ -1596,7 +1606,8 @@ async function loadPosterPricing(){
 ========================================= */
 
 const requestedMode=new URLSearchParams(window.location.search).get("mode");
-document.getElementById("socialPlatformField").style.display="none";
+document.getElementById("normalSocialServiceFields").style.display="block";
+document.getElementById("category").disabled=true;
 if(requestedMode==="business"){
   const businessRadio=document.querySelector('input[name="taskKind"][value="business_job"]');
   if(businessRadio)businessRadio.checked=true;
