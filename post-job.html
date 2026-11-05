@@ -352,7 +352,7 @@ label[for="reward"],#reward,#rewardHelp{display:none!important;}
         <option>LinkedIn</option><option>WhatsApp</option><option>Telegram</option>
         <option>Threads</option><option>Spotify</option><option>Apple Music</option>
         <option>Audiomack</option><option>Snapchat</option><option>Quora</option>
-        <option>Boomplay</option><option>Google Play Store</option><option>Apple App Store</option>
+        <option>Boomplay</option><option>Google</option><option>Google Play Store</option><option>Apple App Store</option>
       </select>
       <label for="category">Choose the task type for this platform</label>
       <select id="category" disabled>
@@ -1201,7 +1201,7 @@ publishBtn.addEventListener(
       return;
     }
 
-    if(!Number.isInteger(reward) || reward !== selectedItem.tasker_reward){
+    if(!Number.isFinite(reward) || Math.abs(reward - selectedItem.tasker_reward/10) > 0.0001){
       showMessage("Service pricing could not be verified. Refresh the page and try again.", "error");
       return;
     }
