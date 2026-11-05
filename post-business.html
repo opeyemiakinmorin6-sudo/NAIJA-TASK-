@@ -852,11 +852,11 @@ function refreshServiceOptions(){
 function calculateFunding(){
  const slots=Number(document.getElementById("slots").value)||0;
  const item=selectedTaskKind()==="business_job"?selectedBusinessItem():selectedSocialItem();
- const reward=item.enabled?item.tasker_reward:0,posterRate=item.enabled?item.poster_price:0;
+ const reward=item.enabled?item.tasker_reward/10:0,posterRate=item.enabled?item.poster_price:0;
  document.getElementById("reward").value=reward||"";
  const funding=reward*slots,promotionFee=selectedPromotionFee();
  const total=item.enabled&&slots>=posterPricing.minimumSlots
-   ? posterRate*slots+posterPricing.posterFee+promotionFee
+   ? (posterRate*slots/10)+posterPricing.posterFee+promotionFee
    : 0;
  document.getElementById("calcReward").textContent=reward.toLocaleString();
  document.getElementById("calcTaskerReward").textContent=reward.toLocaleString();
