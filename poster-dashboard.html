@@ -403,7 +403,7 @@ main{
   <section class="balance-card">
 
     <div class="balance-label">💰 
-      TOTAL JOB FUNDING
+      TOTAL JOB BUDGETS
     </div>
 
     <div class="balance" id="totalFunding">
@@ -411,7 +411,7 @@ main{
     </div>
 
     <div class="balance-note">
-      Based on your created jobs
+      Combined estimated budget for your posted jobs
     </div>
 
   </section>
@@ -599,7 +599,7 @@ main{
   <!-- RECENT JOBS -->
 
   <div class="section-title">
-    🗂️ Recent Jobs
+    🗂️ My Social Tasks & Business Jobs
   </div>
 
   <section id="jobsList" class="jobs">
@@ -873,219 +873,71 @@ async function loadProfile(user){
 
 async function loadJobs(user){
 
-  const jobsList =
-    document.getElementById("jobsList");
-
-  const {
-    data: jobs,
-    error
-  } = await supabaseClient
+  const jobsList = document.getElementById("jobsList");
+  const { data: jobs, error } = await supabaseClient
     .from("tasks")
-    .select(`
-      id,
-      title,
-      reward,
-      slots,
-      status,
-      active,
-      created_at,
-      expiry_date
-    `)
+    .select("id,title,reward,slots,status,active,created_at,expiry_date,task_kind,poster_rate_per_slot,poster_base_fee_snapshot,promotion_fee_snapshot")
     .eq("created_by", user.id)
-    .order("created_at", {
-      ascending:false
-    });
-
+    .order("created_at", { ascending:false });
 
   if(error){
-
-    jobsList.innerHTML = `
-      <div class="empty">
-        Unable to load your jobs.<br><br>
-        ${escapeHtml(error.message)}
-      </div>
-    `;
-
+    jobsList.innerHTML = '<div class="empty">Unable to load your jobs.<br><br>' +
+      escapeHtml(error.message) + '</div>';
     return;
-
   }
 
+  const list = jobs || [];
+  const socialJobs = list.filter(job => job.task_kind !== "business_job");
+  const businessJobs = list.filter(job => job.task_kind === "business_job");
 
-  const list =
-    jobs || [];
+  document.getElementById("totalJobs").textContent = list.length;
+  document.getElementById("liveJobs").textContent = list.filter(job =>
+    job.status === "LIVE" && job.active === true
+  ).length;
+  document.getElementById("reviewJobs").textContent = list.filter(job =>
+    job.status === "UNDER_REVIEW"
+  ).length;
+  document.getElementById("completedJobs").textContent = list.filter(job =>
+    job.status === "COMPLETED"
+  ).length;
 
+  // Show only the poster's total job budget. Never expose Tasker rates or platform margins.
+  const totalBudget = list.reduce((sum, job) => {
+    const slots = Number(job.slots || 0);
+    const rate = Number(job.poster_rate_per_slot || 0);
+    const savedFees = Number(job.poster_base_fee_snapshot || 0) +
+      Number(job.promotion_fee_snapshot || 0);
+    return sum + (rate > 0 ? rate * slots + savedFees : Number(job.reward || 0) * slots);
+  }, 0);
+  document.getElementById("totalFunding").textContent = naira(totalBudget);
 
-  /* ============================
-     STATS
-     ============================ */
-
-  const total =
-    list.length;
-
-  const live =
-    list.filter(job =>
-      job.status === "LIVE" &&
-      job.active === true
-    ).length;
-
-  const review =
-    list.filter(job =>
-      job.status === "UNDER_REVIEW"
-    ).length;
-
-  const completed =
-    list.filter(job =>
-      job.status === "COMPLETED"
-    ).length;
-
-
-  document.getElementById(
-    "totalJobs"
-  ).textContent =
-    total;
-
-  document.getElementById(
-    "liveJobs"
-  ).textContent =
-    live;
-
-  document.getElementById(
-    "reviewJobs"
-  ).textContent =
-    review;
-
-  document.getElementById(
-    "completedJobs"
-  ).textContent =
-    completed;
-
-
-  /* ============================
-     TOTAL FUNDING
-     reward × slots
-     ============================ */
-
-  let funding = 0;
-
-  list.forEach(job => {
-
-    const reward =
-      Number(job.reward || 0);
-
-    const slots =
-      Number(job.slots || 0);
-
-    funding +=
-      reward * slots;
-
-  });
-
-
-  document.getElementById(
-    "totalFunding"
-  ).textContent =
-    naira(funding);
-
-
-  /* ============================
-     RECENT JOBS
-     ============================ */
-
-  if(list.length === 0){
-
-    jobsList.innerHTML = `
-      <div class="empty">
-
-        You have not posted any jobs yet.
-
-        <br><br>
-
-        Create your first job to get started.
-
-      </div>
-    `;
-
-    return;
-
+  function renderGroup(items, heading, emptyText){
+    const recent = items.slice(0, 5);
+    if(!recent.length){
+      return '<div class="job-group"><h3 class="job-group-title">' + heading +
+        '</h3><div class="empty">' + emptyText + '</div></div>';
+    }
+    return '<div class="job-group"><h3 class="job-group-title">' + heading +
+      '</h3>' + recent.map(job => {
+        const status = String(job.status || "UNKNOWN").toUpperCase();
+        let statusClass = "";
+        if(status === "LIVE") statusClass = "live";
+        if(status === "UNDER_REVIEW") statusClass = "review";
+        if(status === "PAYMENT_REQUIRED") statusClass = "payment";
+        const date = job.created_at ? new Date(job.created_at).toLocaleDateString() : "—";
+        return '<div class="job"><div class="job-top"><div class="job-title">' +
+          escapeHtml(job.title || "Untitled Job") + '</div><div class="status ' +
+          statusClass + '">' + formatStatus(status) + '</div></div><div class="job-info">' +
+          '<span class="info">Slots: ' + Number(job.slots || 0).toLocaleString() + '</span>' +
+          '<span class="info">Posted: ' + escapeHtml(date) + '</span>' +
+          '</div></div>';
+      }).join("") + '</div>';
   }
-
-
-  const recent =
-    list.slice(0,5);
-
 
   jobsList.innerHTML =
-    recent.map(job => {
-
-      const status =
-        String(
-          job.status || "UNKNOWN"
-        ).toUpperCase();
-
-
-      let statusClass = "";
-
-      if(status === "LIVE"){
-        statusClass = "live";
-      }
-
-      if(status === "UNDER_REVIEW"){
-        statusClass = "review";
-      }
-
-      if(status === "PAYMENT_REQUIRED"){
-        statusClass = "payment";
-      }
-
-
-      const funding =
-        Number(job.reward || 0) *
-        Number(job.slots || 0);
-
-
-      return `
-
-        <div class="job">
-
-          <div class="job-top">
-
-            <div class="job-title">
-              ${escapeHtml(
-                job.title || "Untitled Job"
-              )}
-            </div>
-
-            <div class="status ${statusClass}">
-              ${formatStatus(status)}
-            </div>
-
-          </div>
-
-
-          <div class="job-info">
-
-            <span class="info">
-              Reward: ${naira(job.reward)}
-            </span>
-
-            <span class="info">
-              Slots: ${Number(job.slots || 0)}
-            </span>
-
-            <span class="info">
-              Funding: ${naira(funding)}
-            </span>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }).join("");
-
+    renderGroup(socialJobs, "Social Tasks", "You have not posted any social tasks yet.") +
+    renderGroup(businessJobs, "Business Jobs", "You have not posted any business jobs yet.");
 }
-
 
 /* =========================================================
    FORMAT STATUS
