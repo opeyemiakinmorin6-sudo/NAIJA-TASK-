@@ -200,6 +200,9 @@ textarea{
 }
 /* Internal commission, tasker allocation and fee components are never shown to posters. */
 .money-row:not(.money-total){display:none;}
+/* Keep internal per-slot rates and worker rewards private from posters. */
+label[for="reward"],#reward,#rewardHelp{display:none!important;}
+#summaryReward{display:none!important;}
 
 .money-total{
   font-size:20px;
@@ -449,121 +452,11 @@ textarea{
 
   <div class="card">
 
-    <h2>Task Actions</h2>
-
-    <div class="help">
-      Select everything the Tasker must do.
-    </div>
-
-    <div class="proof-grid" style="margin-top:14px;">
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="like">
-          Like
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="follow">
-          Follow
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="comment">
-          Comment
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="share">
-          Share
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="repost">
-          Repost
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="favorite">
-          Favorite / Save
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="subscribe">
-          Subscribe
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="watch">
-          Watch / Listen
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="join">
-          Join
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="visit">
-          Visit
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="download">
-          Download
-        </label>
-      </div>
-
-      <div class="proof-item">
-        <label>
-          <input type="checkbox" class="action-check" value="signup">
-          Sign Up
-        </label>
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="card">
-
     <h2>Reward & Slots</h2>
 
-    <label for="reward">
-      Reward per Tasker (₦)
-    </label>
-
-    <input
-      id="reward"
-      type="number"
-      min="3"
-      max="999"
-      step="1"
-      placeholder="Example: 10"
-    >
-
-    <div id="rewardHelp" class="help">
-      Enter an amount within the allowed range.
+    <input id="reward" type="hidden" value="">
+    <div id="rewardHelp" class="help" aria-live="polite">
+      Service pricing is calculated automatically.
     </div>
 
     <label for="slots">
@@ -721,16 +614,6 @@ textarea{
       <div>
         <strong>Category:</strong>
         <span id="summaryCategory">General</span>
-      </div>
-
-      <div>
-        <strong>Actions:</strong>
-        <span id="summaryActions">None selected</span>
-      </div>
-
-      <div>
-        <strong>Reward:</strong>
-        ₦<span id="summaryReward">0</span>
       </div>
 
       <div>
@@ -955,130 +838,20 @@ document
    CATEGORY TYPE
 ========================================= */
 
-function getCategoryType(category){
-
-  const socialCategories = [
-
-    "tiktok",
-    "youtube",
-    "instagram",
-    "facebook",
-    "x",
-    "snapchat",
-    "telegram",
-    "whatsapp",
-    "linkedin",
-    "spotify",
-    "audiomack",
-    "pinterest",
-    "reddit",
-    "threads",
-    "discord",
-    "messenger",
-    "twitch",
-    "tumblr",
-    "quora",
-    "medium",
-    "vk",
-    "wechat",
-    "line",
-    "signal",
-    "google"
-
-  ];
-
-  if(
-    socialCategories.includes(category)
-  ){
-    return "social";
-  }
-
-  if(category === "website"){
-    return "website";
-  }
-
-  if(category === "app_download"){
-    return "app_download";
-  }
-
-  return "other";
-}
-
-
-/* =========================================
-   REWARD LIMITS
-========================================= */
-
 function getRewardLimits(){
-
-  const category =
-    document.getElementById("category").value;
-
-  const type =
-    getCategoryType(category);
-
-  if(type === "social"){
-
-    return {
-      min:3,
-      max:999,
-      text:"Social task reward range: ₦3 – ₦999"
-    };
-
-  }
-
-  if(
-    type === "website" ||
-    type === "app_download"
-  ){
-
-    return {
-      min:10,
-      max:999,
-      text:"Website/App Download reward range: ₦10 – ₦999"
-    };
-
-  }
-
-  return {
-    min:3,
-    max:999,
-    text:"Reward range: ₦3 – ₦999"
-  };
+  return {min:1,max:999,text:"Service pricing is calculated automatically by NAIJA TASK."};
 }
-
 
 function updateRewardRules(){
-
-  const limits =
-    getRewardLimits();
-
-  const reward =
-    document.getElementById("reward");
-
-  reward.min =
-    limits.min;
-
-  reward.max =
-    limits.max;
-
-  document
-    .getElementById("priceRule")
-    .textContent =
-      limits.text;
-
-  document
-    .getElementById("rewardHelp")
-    .textContent =
-      "Enter an amount between ₦" +
-      limits.min +
-      " and ₦" +
-      limits.max +
-      ".";
-
-  validateReward();
+  const reward=document.getElementById("reward");
+  reward.min=1;
+  reward.max=999;
+  reward.value="";
+  document.getElementById("priceRule").textContent=
+    "Choose an enabled service. NAIJA TASK automatically calculates the amount.";
+  document.getElementById("rewardHelp").textContent=
+    "Your service rate is set by NAIJA TASK and cannot be edited here.";
 }
-
 
 /* =========================================
    FUNDING
@@ -1109,7 +882,9 @@ function calculateFunding(){
  const reward=item.enabled?item.tasker_reward:0,posterRate=item.enabled?item.poster_price:0;
  document.getElementById("reward").value=reward||"";
  const funding=reward*slots,promotionFee=selectedPromotionFee();
- const total=posterRate*slots+posterPricing.posterFee+promotionFee;
+ const total=item.enabled&&slots>=posterPricing.minimumSlots
+   ? posterRate*slots+posterPricing.posterFee+promotionFee
+   : 0;
  document.getElementById("calcReward").textContent=reward.toLocaleString();
  document.getElementById("calcTaskerReward").textContent=reward.toLocaleString();
  document.getElementById("calcSlots").textContent=slots.toLocaleString();
@@ -1123,7 +898,9 @@ function calculateFunding(){
  const submit=document.getElementById("publishBtn");
  if(submit)submit.disabled=!item.enabled||slots<posterPricing.minimumSlots;
  const rule=document.getElementById("priceRule");
- if(rule)rule.textContent=item.enabled?"Poster rate: ₦"+posterRate+" per slot · Tasker reward: ₦"+reward+" per slot":"This service is not available yet. Choose another service or contact the admin.";
+ if(rule)rule.textContent=item.enabled
+   ?"Service selected. Your total updates automatically as you change the number of slots."
+   :"This service is not enabled yet. Please choose another service.";
 }
 
 function validateReward(){
@@ -1163,40 +940,6 @@ function validateReward(){
   rewardInput.setCustomValidity("");
 
   return true;
-}
-
-
-/* =========================================
-   ACTIONS
-========================================= */
-
-function getSelectedActions(){
-
-  return Array
-    .from(
-      document.querySelectorAll(
-        ".action-check:checked"
-      )
-    )
-    .map(function(item){
-      return item.value;
-    });
-
-}
-
-
-function updateActionsSummary(){
-
-  const actions =
-    getSelectedActions();
-
-  document
-    .getElementById("summaryActions")
-    .textContent =
-      actions.length
-        ? actions.join(", ")
-        : "None selected";
-
 }
 
 
@@ -1251,8 +994,6 @@ function updateSummary(){
     .getElementById("summaryLink")
     .textContent =
       link || "Not provided";
-
-  updateActionsSummary();
 
   calculateFunding();
 }
@@ -1395,18 +1136,6 @@ document
 });
 
 
-document
-  .querySelectorAll(".action-check")
-  .forEach(function(box){
-
-    box.addEventListener(
-      "change",
-      updateSummary
-    );
-
-  });
-
-
 /* =========================================
    CREATE JOB
    NOW USES SECURE RPC
@@ -1475,8 +1204,9 @@ publishBtn.addEventListener(
     const limits =
       getRewardLimits();
 
-    const actions =
-      getSelectedActions();
+    const selectedItem = selectedTaskKind()==="business_job"
+      ? selectedBusinessItem()
+      : selectedSocialItem();
 
 
     /* VALIDATION */
@@ -1518,21 +1248,13 @@ publishBtn.addEventListener(
     }
 
 
-    if(
-      !Number.isInteger(reward) ||
-      reward < limits.min ||
-      reward > limits.max
-    ){
+    if(!selectedItem.enabled){
+      showMessage("This service is not currently available. Choose an enabled service.", "error");
+      return;
+    }
 
-      showMessage(
-        "Reward must be between ₦" +
-        limits.min +
-        " and ₦" +
-        limits.max +
-        ".",
-        "error"
-      );
-
+    if(!Number.isInteger(reward) || reward !== selectedItem.tasker_reward){
+      showMessage("Service pricing could not be verified. Refresh the page and try again.", "error");
       return;
     }
 
@@ -1549,6 +1271,10 @@ publishBtn.addEventListener(
     }
 
     if(selectedTaskKind()==="business_job"){
+      if(!document.getElementById("businessService").value){
+        showMessage("Choose the Business Service Type.", "error");
+        return;
+      }
       const businessName=document.getElementById("businessName").value.trim();
       const objective=document.getElementById("businessObjective").value;
       const audience=document.getElementById("businessAudience").value.trim();
@@ -1566,17 +1292,6 @@ publishBtn.addEventListener(
         showMessage("Business website must begin with https://", "error");
         return;
       }
-    }
-
-
-    if(actions.length === 0){
-
-      showMessage(
-        "Select at least one task action.",
-        "error"
-      );
-
-      return;
     }
 
 
