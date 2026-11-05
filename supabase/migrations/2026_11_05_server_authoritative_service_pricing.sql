@@ -49,7 +49,7 @@ begin
   -- Only genuine work, research, testing and creative services are supported.
   if v_group = 'social' and v_key not in
     ('website_blog','survey_task','traffic_seo','other',
-     'playstore_appstore') then
+     'app_testing') then
     raise exception 'This service is unavailable. Choose a genuine testing, research or business service.';
   end if;
   if v_group = 'business' and v_key not in
