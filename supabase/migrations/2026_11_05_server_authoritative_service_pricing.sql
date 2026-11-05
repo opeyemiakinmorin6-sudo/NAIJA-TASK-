@@ -141,14 +141,9 @@ begin
     raise exception 'This task requires at least % slots.',v_min_slots;
   end if;
 
-  case coalesce(v_task.promotion_tier,'none')
-    when 'fast' then v_promo := greatest(0,coalesce((v_pricing->>'fast_fee')::numeric,500));
-    when 'priority' then v_promo := greatest(0,coalesce((v_pricing->>'priority_fee')::numeric,1000));
-    when 'none' then v_promo := 0;
-    else raise exception 'Invalid promotion option';
-  end case;
 
-  return round((v_task.poster_rate_per_slot * v_task.slots) + v_base_fee + v_promo,2);
+
+  return round((v_task.poster_rate_per_slot * v_task.slots) +\n    coalesce(v_task.poster_base_fee_snapshot,0) +\n    coalesce(v_task.promotion_fee_snapshot,0),2);
 end;
 $function$;
 
