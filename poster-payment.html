@@ -19,7 +19,7 @@ button,input,select{font:inherit}button{cursor:pointer}
 .top-inner{max-width:900px;margin:auto}.brand-row{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-size:24px;font-weight:900;letter-spacing:.4px}.secure{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);padding:8px 11px;border-radius:999px;font-size:12px;font-weight:800}.subtitle{margin-top:7px;opacity:.88;font-size:13px}
 .container{width:min(900px,calc(100% - 24px));margin:18px auto 50px}.back{display:inline-flex;align-items:center;gap:7px;color:var(--green);text-decoration:none;font-weight:800;font-size:14px;margin-bottom:15px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;margin-bottom:15px;box-shadow:var(--shadow)}.card h2,.card h3{margin:0 0 12px}.card h2{font-size:20px}.card h3{font-size:16px}
-.task-title{font-size:21px;font-weight:900;margin-bottom:8px}.task-description{color:var(--muted);font-size:14px;line-height:1.55}
+.task-title{font-size:21px;font-weight:900;margin-bottom:8px}.task-description{color:var(--muted);font-size:14px;line-height:1.55}.service-line{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding:13px 14px;border:1px solid var(--border);border-radius:13px;background:#f7fbf8;font-size:13px;color:var(--muted)}.service-line strong{color:var(--green3);text-align:right;font-size:13px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.stat{background:#f6faf7;border:1px solid var(--border);border-radius:14px;padding:13px}.stat-label{color:var(--muted);font-size:11px;font-weight:700;margin-bottom:5px}.stat-value{font-size:17px;font-weight:900;color:var(--green3)}
 .amount-box{background:linear-gradient(135deg,#064d25,#087f36,#0b9b45);color:#fff;border-radius:18px;padding:19px;margin-top:15px}.amount-label{font-size:12px;opacity:.85;font-weight:700}.amount{font-size:32px;font-weight:900;margin-top:5px}.amount-breakdown{display:none!important}.break-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:13px}
 .info,.warning,.error,.success{border-radius:13px;padding:12px;font-size:13px;line-height:1.5;margin-top:13px}.info{background:#edf8f1;border:1px solid #cce9d5;color:#185c32}.warning{background:#fff6e8;border:1px solid #f1d4a6;color:#855000}.error{background:#fff0f0;border:1px solid #efcaca;color:#9d2020}.success{background:#edf9f0;border:1px solid #c6e8cf;color:#17602f}
@@ -29,7 +29,7 @@ label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field{marg
 .preview-wrap{display:none;margin-top:14px;background:#101512;border-radius:15px;padding:10px;overflow:hidden}#previewCanvas{width:100%;max-height:420px;object-fit:contain;display:block;border-radius:10px}.controls{display:flex;gap:8px;margin-top:10px}.small-btn{flex:1;border:0;border-radius:11px;padding:11px 8px;background:#eaf5ee;color:var(--green3);font-weight:900}
 .status{border-radius:13px;padding:12px;font-size:13px;line-height:1.45;margin-bottom:14px}.status.pending{background:#fff7e8;border:1px solid #efd6a7;color:#855000}.status.approved{background:#eaf8ef;border:1px solid #c4e5cd;color:#17602f}.status.rejected{background:#fff0f0;border:1px solid #efcaca;color:#9d2020}
 .primary{width:100%;border:0;border-radius:14px;padding:15px;background:linear-gradient(120deg,var(--green3),var(--green2));color:#fff;font-weight:900;font-size:15px;box-shadow:0 8px 20px rgba(8,127,54,.22)}.primary:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
-.loading{text-align:center;padding:30px 10px;color:var(--muted);font-weight:700}.hidden{display:none!important}.notice{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.5}
+.loading{text-align:center;padding:30px 10px;color:var(--muted);font-weight:700}.hidden{display:none!important}.notice{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.5}.auth-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}.auth-actions a{display:block;text-align:center;padding:12px 8px;border-radius:11px;background:#eaf5ee;color:var(--green3);text-decoration:none;font-size:12px;font-weight:900}@media(max-width:520px){.auth-actions{grid-template-columns:1fr}}
 @media(max-width:600px){.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}.amount{font-size:28px}.bank-row{flex-direction:column;gap:4px}.bank-value{text-align:left}}
 </style>
 </head>
@@ -49,11 +49,13 @@ label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field{marg
   <a class="back" href="poster-dashboard.html">← Back to Poster Dashboard</a>
   <div id="loadingBox" class="card loading">Loading payment details...</div>
   <div id="errorBox" class="card error hidden"></div>
+  <div id="authActions" class="card hidden"><strong>Continue safely</strong><p class="notice">Your task and payment have not been changed. Sign in to the same poster account, or return to your dashboard.</p><div class="auth-actions"><a href="poster-login.html">Poster Login</a><a href="poster-signup.html">Create Account</a><a href="poster-dashboard.html">Poster Dashboard</a></div></div>
 
   <section id="pageContent" class="hidden">
     <div class="card">
       <div class="task-title" id="taskTitle">Poster Task</div>
       <div class="task-description" id="taskDescription"></div>
+      <div class="service-line"><span>Selected service</span><strong id="serviceValue">Loading…</strong></div>
 
       <div class="stats">
         <div class="stat"><div class="stat-label">Task Quantity</div><div class="stat-value" id="slotsValue">0</div></div>
@@ -171,11 +173,12 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-function showError(message) {
-  $("loadingBox").classList.add("hidden");
-  $("pageContent").classList.add("hidden");
-  $("errorBox").textContent = message || "Unable to load the payment page.";
-  $("errorBox").classList.remove("hidden");
+function showError(message, authRequired = false) {
+  $("loadingBox")?.classList.add("hidden");
+  $("pageContent")?.classList.add("hidden");
+  const box = $("errorBox");
+  if (box) { box.textContent = message || "Unable to load the payment page."; box.classList.remove("hidden"); }
+  $("authActions")?.classList.toggle("hidden", !authRequired);
 }
 
 function showFormMessage(message, type = "info") {
@@ -190,15 +193,16 @@ function getTaskId() {
 }
 
 async function requireUser() {
-  const { data, error } = await db.auth.getUser();
+  // Read the persisted session first. Do not redirect away from this page:
+  // the back link and task context must remain available if the session expired.
+  const { data, error } = await db.auth.getSession();
   if (error) throw error;
-
-  if (!data?.user) {
-    location.href = "poster-login.html";
+  const session = data?.session;
+  if (!session?.user) {
+    showError("Your poster session is not active in this browser. Sign in with the same account used to create this task. You can return to the dashboard without losing the task.", true);
     return null;
   }
-
-  currentUser = data.user;
+  currentUser = session.user;
   return currentUser;
 }
 
@@ -305,7 +309,13 @@ async function loadTask(taskId) {
 
   $("taskTitle").textContent = data.title || "Poster Task";
   $("taskDescription").textContent = data.description || "No task description provided.";
-  $("rewardValue").textContent = money(reward);
+  const kind = String(data.task_kind || "").toLowerCase();
+  const taskType = String(data.task_type || "").trim();
+  const platformMatch = String(data.description || "").match(/Social platform:\\s*([^\\n]+)/i);
+  const platform = platformMatch ? platformMatch[1].trim() : "";
+  const serviceLabel = kind === "business_job" ? "Business service" :
+    (platform ? platform + " — " : "") + taskType.replace(/_/g, " ");
+  $("serviceValue").textContent = serviceLabel || "Social task";
   $("slotsValue").textContent = slots.toLocaleString("en-NG");
   $("minimumSlotsValue").textContent = minimumPosterTaskSlots.toLocaleString("en-NG");
 
@@ -647,7 +657,8 @@ async function callPosterPaymentFunction(payload) {
 
 async function startPosterFlutterwavePayment() {
   const button = $("flutterwaveBtn");
-  if (!currentUser || !currentTask) return showFormMessage("Sign in and reload the task before paying.", "error");
+  if (!button) return;
+  if (!currentUser || !currentTask) return showFormMessage("Your poster session or task details are unavailable. Return to the dashboard and reopen this payment page.", "error");
   if (Number(currentTask.slots) < minimumPosterTaskSlots) {
     return showFormMessage("Increase the task slots to at least " + minimumPosterTaskSlots + " before payment.", "error");
   }
@@ -714,7 +725,7 @@ async function verifyPosterFlutterwaveReturn() {
       " If you were charged, do not pay again; contact support with your transaction reference.", "error");
   }
 }
-$("flutterwaveBtn").addEventListener("click", startPosterFlutterwavePayment);
+$("flutterwaveBtn")?.addEventListener("click", startPosterFlutterwavePayment);
 
 async function loadPage() {
   try {
