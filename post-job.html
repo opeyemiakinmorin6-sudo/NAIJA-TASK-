@@ -827,8 +827,9 @@ function refreshServiceOptions(){
  // should be reported after selection, not by disabling the dropdown option.
  [...category.options].forEach(option=>{if(option.value)option.disabled=false;});
  const business=document.getElementById("businessService");
- [...business.options].forEach(option=>{if(!option.value)return;option.disabled=!priceItem("business",option.value).enabled;});
- const anyBusiness=[...business.options].some(o=>o.value&&!o.disabled);
+ const businessOptions=business?[...business.options]:[];
+ businessOptions.forEach(option=>{if(!option.value)return;option.disabled=!priceItem("business",option.value).enabled;});
+ const anyBusiness=businessOptions.some(o=>o.value&&!o.disabled);
  document.querySelectorAll('input[name="taskKind"]').forEach(el=>{if(el.value==="business_job")el.disabled=!anyBusiness;});
  if(selectedTaskKind()==="business_job"&&!anyBusiness)document.querySelector('input[name="taskKind"][value="normal_task"]').checked=true;
 }
@@ -1518,7 +1519,7 @@ function rebuildPlatformTaskTypes(){
 }
 document.getElementById("socialPlatform").addEventListener("change",rebuildPlatformTaskTypes);
 document.getElementById("category").addEventListener("change",calculateFunding);
-document.getElementById("businessService").addEventListener("change",calculateFunding);
+document.getElementById("businessService")?.addEventListener("change",calculateFunding);
 
 async function loadPosterPricing(){
  try{
