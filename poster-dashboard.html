@@ -876,7 +876,7 @@ async function loadJobs(user){
   const jobsList = document.getElementById("jobsList");
   const { data: jobs, error } = await supabaseClient
     .from("tasks")
-    .select("id,title,reward,slots,status,active,created_at,expiry_date,task_kind,poster_rate_per_slot,poster_base_fee_snapshot,promotion_fee_snapshot")
+    .select("id,title,reward,slots,status,active,created_at,expiry_date,task_kind,task_type,poster_rate_per_slot,poster_base_fee_snapshot,promotion_fee_snapshot")
     .eq("created_by", user.id)
     .order("created_at", { ascending:false });
 
@@ -911,6 +911,16 @@ async function loadJobs(user){
   }, 0);
   document.getElementById("totalFunding").textContent = naira(totalBudget);
 
+  function socialTaskTypeLabel(value){
+    if(!value||value==="business_job")return "Business service";
+    const names={"x_twitter":"X / Twitter","youtube_music":"YouTube Music","google_play":"Google Play Store","apple_app":"Apple App Store"};
+    const parts=String(value).split("_");
+    const prefix=parts.length>2&&names[parts.slice(0,2).join("_")]?parts.slice(0,2).join("_"):parts[0];
+    const platform=names[prefix]||prefix.charAt(0).toUpperCase()+prefix.slice(1);
+    const action=parts.slice(prefix.split("_").length).join(" ").replace(/\\b\\w/g,c=>c.toUpperCase());
+    return platform+(action?" — "+action:"");
+  }
+
   function renderGroup(items, heading, emptyText){
     const recent = items.slice(0, 5);
     if(!recent.length){
@@ -928,7 +938,7 @@ async function loadJobs(user){
         return '<div class="job"><div class="job-top"><div class="job-title">' +
           escapeHtml(job.title || "Untitled Job") + '</div><div class="status ' +
           statusClass + '">' + formatStatus(status) + '</div></div><div class="job-info">' +
-          '<span class="info">Slots: ' + Number(job.slots || 0).toLocaleString() + '</span>' +
+          '<span class="info">Task: ' + escapeHtml(socialTaskTypeLabel(job.task_type)) + '</span>' + '<span class="info">Slots: ' + Number(job.slots || 0).toLocaleString() + '</span>' +
           '<span class="info">Posted: ' + escapeHtml(date) + '</span>' +
           '</div></div>';
       }).join("") + '</div>';
