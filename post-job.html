@@ -396,46 +396,12 @@ textarea{
     <label for="category">Task Category</label>
 
     <select id="category">
-
-      <option value="general">General</option>
-
-      <option value="tiktok">TikTok</option>
-      <option value="youtube">YouTube</option>
-      <option value="youtube_music">YouTube Music</option>
-      <option value="instagram">Instagram</option>
-      <option value="facebook">Facebook</option>
-      <option value="x">X (Twitter)</option>
-      <option value="snapchat">Snapchat</option>
-      <option value="telegram">Telegram</option>
-      <option value="whatsapp">WhatsApp</option>
-      <option value="linkedin">LinkedIn</option>
-      <option value="spotify">Spotify</option>
-      <option value="apple_music">Apple Music</option>
-      <option value="audiomack">Audiomack</option>
-      <option value="boomplay">Boomplay</option>
-      <option value="pinterest">Pinterest</option>
-      <option value="reddit">Reddit</option>
-      <option value="threads">Threads</option>
-      <option value="discord">Discord</option>
-      <option value="messenger">Messenger</option>
-      <option value="twitch">Twitch</option>
-      <option value="tumblr">Tumblr</option>
-      <option value="quora">Quora</option>
-      <option value="medium">Medium</option>
-      <option value="vk">VK</option>
-      <option value="wechat">WeChat</option>
-      <option value="line">LINE</option>
-      <option value="signal">Signal</option>
-      <option value="google">Google</option>
-      <option value="trustpilot">Trustpilot</option>
-      <option value="music_streaming">Music Streaming</option>
-      <option value="traffic_seo">Traffic / SEO</option>
-
-      <option value="website">Website</option>
-      <option value="app_download">App Download</option>
-      <option value="survey">Survey</option>
-      <option value="other">Other</option>
-
+      <option value="">Choose a genuine service</option>
+      <option value="website">Website / Blog Testing</option>
+      <option value="app_download">App / Website Usability Testing</option>
+      <option value="survey">Survey / Research</option>
+      <option value="traffic_seo">Website Traffic / SEO Research</option>
+      <option value="other">Other Approved Work</option>
     </select>
 
     <div id="priceRule" class="price-rule">
@@ -1122,42 +1088,43 @@ let posterPricing = {minimumSlots:10,posterFee:500,fastFee:500,priorityFee:1000}
 let servicePricing = {social:{},business:{},commission_percent:30,tasker_share_percent:70,min_slots:10,max_price:999,fast_fee:500,priority_fee:1000};
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"playstore_appstore",survey:"survey_task"})[category] || category;}
-function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {fee:0,enabled:true};return {fee:Math.max(0,Number(item.fee)||0),enabled:item.enabled!==false};}
+function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,tasker_reward:0,enabled:false};const poster=Number(item.poster_price)||0,worker=Number(item.tasker_reward)||0;return {poster_price:poster,tasker_reward:worker,enabled:item.enabled===true&&poster>=1&&worker>=1&&worker<=poster};}
 function selectedSocialItem(){return priceItem("social",socialPriceKey(document.getElementById("category").value));}
 function selectedBusinessItem(){return priceItem("business",document.getElementById("businessService").value);}
 function selectedPromotionFee(){const tier=document.getElementById("promotionTier").value;return tier==="fast"?Number(servicePricing.fast_fee||0):tier==="priority"?Number(servicePricing.priority_fee||0):0;}
 function refreshServiceOptions(){
  const category=document.getElementById("category");
- [...category.options].forEach(option=>{if(!option.value)return;option.disabled=priceItem("social",socialPriceKey(option.value)).enabled===false;});
+ [...category.options].forEach(option=>{if(!option.value)return;option.disabled=!priceItem("social",socialPriceKey(option.value)).enabled;});
  const business=document.getElementById("businessService");
- [...business.options].forEach(option=>{if(!option.value)return;option.disabled=priceItem("business",option.value).enabled===false;});
+ [...business.options].forEach(option=>{if(!option.value)return;option.disabled=!priceItem("business",option.value).enabled;});
  const anyBusiness=[...business.options].some(o=>o.value&&!o.disabled);
  document.querySelectorAll('input[name="taskKind"]').forEach(el=>{if(el.value==="business_job")el.disabled=!anyBusiness;});
  if(selectedTaskKind()==="business_job"&&!anyBusiness)document.querySelector('input[name="taskKind"][value="normal_task"]').checked=true;
+ const available=[...category.options].find(o=>o.value&&!o.disabled);
+ if(!category.value||category.selectedOptions[0]?.disabled)category.value=available?.value||"";
 }
 function calculateFunding(){
- const gross=Number(document.getElementById("reward").value)||0,slots=Number(document.getElementById("slots").value)||0;
- const commission=Number(servicePricing.commission_percent||30),taskerShare=100-commission;
- const taskerReward=Math.round(gross*taskerShare)/100,funding=gross*slots;
- const socialFee=selectedTaskKind()==="normal_task"&&selectedSocialItem().enabled!==false?Number(selectedSocialItem().fee||0):0;
- const businessFee=selectedTaskKind()==="business_job"&&selectedBusinessItem().enabled!==false?Number(selectedBusinessItem().fee||0):0;
- const promotionFee=selectedPromotionFee(),total=funding+posterPricing.posterFee+socialFee+businessFee+promotionFee;
- document.getElementById("calcReward").textContent=gross.toLocaleString();
- document.getElementById("calcTaskerReward").textContent=taskerReward.toLocaleString();
+ const slots=Number(document.getElementById("slots").value)||0;
+ const item=selectedTaskKind()==="business_job"?selectedBusinessItem():selectedSocialItem();
+ const reward=item.enabled?item.tasker_reward:0,posterRate=item.enabled?item.poster_price:0;
+ document.getElementById("reward").value=reward||"";
+ const funding=reward*slots,promotionFee=selectedPromotionFee();
+ const total=posterRate*slots+posterPricing.posterFee+promotionFee;
+ document.getElementById("calcReward").textContent=reward.toLocaleString();
+ document.getElementById("calcTaskerReward").textContent=reward.toLocaleString();
  document.getElementById("calcSlots").textContent=slots.toLocaleString();
  document.getElementById("calcFunding").textContent=funding.toLocaleString();
- document.getElementById("calcSocialFee").textContent=socialFee.toLocaleString();
+ document.getElementById("calcSocialFee").textContent="0";
  document.getElementById("calcPosterFee").textContent=posterPricing.posterFee.toLocaleString();
- document.getElementById("calcBusinessFee").textContent=businessFee.toLocaleString();
+ document.getElementById("calcBusinessFee").textContent="0";
  document.getElementById("calcPromotionFee").textContent=promotionFee.toLocaleString();
  document.getElementById("calcTotal").textContent=total.toLocaleString();
  document.getElementById("summaryFunding").textContent=total.toLocaleString();
+ const submit=document.getElementById("publishBtn");
+ if(submit)submit.disabled=!item.enabled||slots<posterPricing.minimumSlots;
+ const rule=document.getElementById("priceRule");
+ if(rule)rule.textContent=item.enabled?"Poster rate: ₦"+posterRate+" per slot · Tasker reward: ₦"+reward+" per slot":"This service is not available yet. Choose another service or contact the admin.";
 }
-
-
-/* =========================================
-   VALIDATE REWARD
-========================================= */
 
 function validateReward(){
 
@@ -1857,8 +1824,8 @@ async function loadPosterPricing(){
   const {data,error}=await supabaseClient.from("platform_settings").select("minimum_poster_task_slots,poster_task_fee,service_pricing,business_job_enabled").limit(1).maybeSingle();
   if(error)throw error;
   if(data){
-   const saved=data.service_pricing||{},commission=[30,40,50].includes(Number(saved.commission_percent))?Number(saved.commission_percent):30;
-   servicePricing={social:saved.social||{},business:saved.business||{},commission_percent:commission,tasker_share_percent:100-commission,min_slots:Math.max(10,Number(saved.min_slots)||10),max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)};
+   const saved=data.service_pricing||{};
+   servicePricing={social:saved.social||{},business:saved.business||{},min_slots:Math.max(10,Number(saved.min_slots)||10),max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)};
    posterPricing.minimumSlots=Math.max(10,Number(data.minimum_poster_task_slots)||servicePricing.min_slots||10);
    posterPricing.posterFee=Math.max(0,Number(data.poster_task_fee??500));
    posterPricing.fastFee=servicePricing.fast_fee;posterPricing.priorityFee=servicePricing.priority_fee;posterPricing.businessEnabled=data.business_job_enabled!==false;
