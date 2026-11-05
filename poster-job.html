@@ -392,7 +392,16 @@ function renderJobs(){
     return matchesTerm&&matchesFilter;
   });
 
-  function renderSection(items,title,emptyText){
+  function socialTaskTypeLabel(value){
+  if(!value||value==="business_job")return "Business service";
+  const names={"x_twitter":"X / Twitter","youtube_music":"YouTube Music","google_play":"Google Play Store","apple_app":"Apple App Store"};
+  const parts=String(value).split("_");
+  const prefix=parts.length>2&&names[parts.slice(0,2).join("_")]?parts.slice(0,2).join("_"):parts[0];
+  const platform=names[prefix]||prefix.charAt(0).toUpperCase()+prefix.slice(1);
+  const action=parts.slice(prefix.split("_").length).join(" ").replace(/\\b\\w/g,c=>c.toUpperCase());
+  return platform+(action?" — "+action:"");
+}
+function renderSection(items,title,emptyText){
     if(!items.length){
       return '<section class="job-category"><h3 style="margin:16px 0 8px;font-size:15px;color:var(--green)">'+title+
         '</h3><div class="empty">'+emptyText+'</div></section>';
@@ -418,7 +427,7 @@ function renderJobs(){
             <div class="jobtop">
               <div>
                 <div class="jobtitle">${esc(job.title||"Untitled job")}</div>
-                <div class="jobmeta">Created: ${esc(dateText(job.created_at))}<br>Job ID: ${esc(String(job.id||"").slice(0,12))}</div>
+                <div class="jobmeta">Task: ${esc(socialTaskTypeLabel(job.task_type))}<br>Created: ${esc(dateText(job.created_at))}<br>Job ID: ${esc(String(job.id||"").slice(0,12))}</div>
               </div>
               <span class="badge ${badgeClass(status)}">${esc(displayStatus(status))}</span>
             </div>
