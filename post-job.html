@@ -396,19 +396,44 @@ label[for="reward"],#reward,#rewardHelp{display:none!important;}
       maxlength="150"
     >
 
-    <label for="category">Task Category</label>
-
+    <label for="category">Normal Task / Social Service</label>
     <select id="category">
-      <option value="">Choose a genuine service</option>
-      <option value="website">Website / Blog Testing</option>
-      <option value="app_download">App Testing</option>
-      <option value="survey">Survey / Research</option>
-      <option value="traffic_seo">Website Traffic / SEO Research</option>
-      <option value="other">Other Approved Work</option>
+      <option value="">Choose a service</option>
+      <optgroup label="Testing, research and general work">
+        <option value="website">Website / Blog Testing</option>
+        <option value="app_download">App Testing</option>
+        <option value="survey">Survey / Research</option>
+        <option value="traffic_seo">Website Traffic / SEO Research</option>
+        <option value="other">Other Approved Work</option>
+      </optgroup>
+      <optgroup label="Social platform work — genuine services only">
+        <option value="social_content_writing">Social Content & Caption Writing</option>
+        <option value="social_video_editing">Short Video Editing</option>
+        <option value="social_graphic_design">Social Graphics & Thumbnail Design</option>
+        <option value="social_account_audit">Social Account / Profile Audit</option>
+        <option value="social_content_calendar">Content Calendar Planning</option>
+        <option value="social_community_moderation">Community Moderation & Inbox Support</option>
+        <option value="social_audience_research">Audience & Competitor Research</option>
+        <option value="social_transcription_translation">Transcription & Translation</option>
+      </optgroup>
     </select>
+    <div id="socialPlatformField" style="display:none">
+      <label for="socialPlatform">Social Platform</label>
+      <select id="socialPlatform">
+        <option value="">Choose platform</option>
+        <option>Facebook</option><option>Instagram</option><option>TikTok</option>
+        <option>YouTube</option><option>YouTube Music</option><option>X / Twitter</option>
+        <option>LinkedIn</option><option>WhatsApp</option><option>Telegram</option>
+        <option>Threads</option><option>Spotify</option><option>Apple Music</option>
+        <option>Audiomack</option><option>Snapchat</option><option>Quora</option>
+        <option>Website</option><option>Google Play Store</option><option>Apple App Store</option>
+        <option>Other</option>
+      </select>
+      <div class="help">Choose where the genuine content, design, research or moderation work applies.</div>
+    </div>
 
     <div id="priceRule" class="price-rule">
-      Social task reward range: ₦3 – ₦999
+      Select a service to load its Admin-set price automatically.
     </div>
 
     <label for="description">
@@ -1361,11 +1386,21 @@ publishBtn.addEventListener(
          TASK DATA
       ===================================== */
 
-      const taskPayload = {
+      const socialService=category.startsWith("social_");
+    const socialPlatform=socialService?document.getElementById("socialPlatform").value:"";
+    if(socialService&&!socialPlatform){
+      showMessage("Choose the social platform for this service.","error");
+      return;
+    }
+    const taskDescription=socialService
+      ? description+"\n\nSocial platform: "+socialPlatform
+      : description;
+
+    const taskPayload = {
 
         title:title,
 
-        description:description,
+        description:taskDescription,
 
         reward:reward,
 
@@ -1526,7 +1561,13 @@ document.querySelectorAll('input[name="taskKind"]').forEach(function(radio){
   });
 });
 document.getElementById("promotionTier").addEventListener("change",calculateFunding);
-document.getElementById("category").addEventListener("change",calculateFunding);
+document.getElementById("category").addEventListener("change",function(){
+ const social=this.value.startsWith("social_");
+ document.getElementById("socialPlatformField").style.display=social?"block":"none";
+ if(!social)document.getElementById("socialPlatform").value="";
+ calculateFunding();
+});
+document.getElementById("socialPlatform").addEventListener("change",calculateFunding);
 document.getElementById("businessService").addEventListener("change",calculateFunding);
 async function loadPosterPricing(){
  try{
@@ -1555,6 +1596,7 @@ async function loadPosterPricing(){
 ========================================= */
 
 const requestedMode=new URLSearchParams(window.location.search).get("mode");
+document.getElementById("socialPlatformField").style.display="none";
 if(requestedMode==="business"){
   const businessRadio=document.querySelector('input[name="taskKind"][value="business_job"]');
   if(businessRadio)businessRadio.checked=true;
