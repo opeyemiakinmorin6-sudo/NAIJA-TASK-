@@ -818,18 +818,19 @@ function selectedTaskKind(){return document.querySelector('input[name="taskKind"
 function socialPriceKey(category){return ({website:"website_blog",app_download:"app_testing",survey:"survey_task"})[category] || category;}
 function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,tasker_reward:0,enabled:false};const poster=Number(item.poster_price)||0,worker=Number(item.tasker_reward)||0;return {poster_price:poster,tasker_reward:worker,enabled:item.enabled===true&&poster>=1&&worker>=1&&worker<=poster};}
 function selectedSocialItem(){return priceItem("social",socialPriceKey(document.getElementById("category").value));}
+function socialServiceIsConfigured(){const item=selectedSocialItem();return item.enabled&&item.poster_price>=1&&item.tasker_reward>=1&&item.tasker_reward<=item.poster_price;}
 function selectedBusinessItem(){return priceItem("business",document.getElementById("businessService").value);}
 function selectedPromotionFee(){const tier=document.getElementById("promotionTier").value;return tier==="fast"?Number(servicePricing.fast_fee||0):tier==="priority"?Number(servicePricing.priority_fee||0):0;}
 function refreshServiceOptions(){
  const category=document.getElementById("category");
- [...category.options].forEach(option=>{if(!option.value)return;option.disabled=!priceItem("social",socialPriceKey(option.value)).enabled;});
+ // Keep every platform-specific social task selectable. Missing Admin pricing
+ // should be reported after selection, not by disabling the dropdown option.
+ [...category.options].forEach(option=>{if(option.value)option.disabled=false;});
  const business=document.getElementById("businessService");
  [...business.options].forEach(option=>{if(!option.value)return;option.disabled=!priceItem("business",option.value).enabled;});
  const anyBusiness=[...business.options].some(o=>o.value&&!o.disabled);
  document.querySelectorAll('input[name="taskKind"]').forEach(el=>{if(el.value==="business_job")el.disabled=!anyBusiness;});
  if(selectedTaskKind()==="business_job"&&!anyBusiness)document.querySelector('input[name="taskKind"][value="normal_task"]').checked=true;
- const available=[...category.options].find(o=>o.value&&!o.disabled);
- if(!category.value||category.selectedOptions[0]?.disabled)category.value=available?.value||"";
 }
 function calculateFunding(){
  const slots=Number(document.getElementById("slots").value)||0;
@@ -1318,7 +1319,15 @@ publishBtn.addEventListener(
 
       const socialService=selectedTaskKind()==="normal_task";
     const socialPlatform=socialService?document.getElementById("socialPlatform").value:"";
-    if(socialService&&(!socialPlatform||!category.startsWith("social_"))){
+    if(socialService&&(!socialPlatform||!(PLATFORM_SERVICE_TYPES[socialPlatform]||[]).includes(category))){
+      showMessage("Choose a valid task type for the selected social platform.","error");
+      return;
+    }
+    if(socialService&&!socialServiceIsConfigured()){
+      showMessage("This social task is selectable, but its price is not active yet. Ask Admin to enable and set its poster price and tasker reward.","error");
+      return;
+    }
+    if(false){
       showMessage("Choose the social platform for this service.","error");
       return;
     }
