@@ -9,6 +9,8 @@ alter table public.tasks
   add column if not exists poster_rate_per_slot numeric,
   add column if not exists tasker_reward_per_slot numeric,
   add column if not exists platform_margin_per_slot numeric,
+  add column if not exists poster_base_fee_snapshot numeric,
+  add column if not exists promotion_fee_snapshot numeric,
   add column if not exists pricing_snapshot jsonb not null default '{}'::jsonb;
 
 create or replace function public.apply_poster_service_pricing()
@@ -25,6 +27,8 @@ declare
   v_item jsonb;
   v_poster numeric;
   v_worker numeric;
+  v_base_fee numeric := 500;
+  v_promo_fee numeric := 0;
 begin
   if coalesce(new.status,'') <> 'PAYMENT_REQUIRED'
      or new.created_by is null then
@@ -59,8 +63,9 @@ begin
     raise exception 'Invalid business service.';
   end if;
 
-  select coalesce(service_pricing,'{}'::jsonb)
-    into v_pricing
+  select coalesce(service_pricing,'{}'::jsonb),
+         greatest(0,coalesce(poster_task_fee,500))
+    into v_pricing,v_base_fee
   from public.platform_settings
   order by id
   limit 1;
@@ -89,10 +94,19 @@ begin
   new.tasker_reward_per_slot := v_worker;
   new.platform_margin_per_slot := v_poster - v_worker;
   new.reward := v_worker;
+  case coalesce(new.promotion_tier,'none')
+    when 'fast' then v_promo_fee := greatest(0,coalesce((v_pricing->>'fast_fee')::numeric,500));
+    when 'priority' then v_promo_fee := greatest(0,coalesce((v_pricing->>'priority_fee')::numeric,1000));
+    when 'none' then v_promo_fee := 0;
+    else raise exception 'Invalid promotion option';
+  end case;
+  new.poster_base_fee_snapshot := v_base_fee;
+  new.promotion_fee_snapshot := v_promo_fee;
   new.pricing_snapshot := jsonb_build_object(
     'group',v_group,'service_key',v_key,
     'poster_price',v_poster,'tasker_reward',v_worker,
     'platform_margin',v_poster-v_worker,
+    'poster_base_fee',v_base_fee,'promotion_fee',v_promo_fee,
     'captured_at',now()
   );
   return new;
@@ -112,9 +126,6 @@ set search_path = public
 as $function$
 declare
   v_task public.tasks;
-  v_base_fee numeric := 500;
-  v_promo numeric := 0;
-  v_pricing jsonb;
   v_min_slots integer := 10;
 begin
   if auth.uid() is null then raise exception 'Login required'; end if;
@@ -130,10 +141,8 @@ begin
     raise exception 'This task has no valid saved pricing. Please recreate it.';
   end if;
 
-  select coalesce(service_pricing,'{}'::jsonb),
-         greatest(0,coalesce(poster_task_fee,500)),
-         greatest(10,coalesce(minimum_poster_task_slots,10))
-    into v_pricing,v_base_fee,v_min_slots
+  select greatest(10,coalesce(minimum_poster_task_slots,10))
+    into v_min_slots
   from public.platform_settings
   order by id limit 1;
 
