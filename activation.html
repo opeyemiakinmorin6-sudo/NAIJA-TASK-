@@ -95,8 +95,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
     const { data: settings, error: settingsError } = await client
       .from("platform_settings")
       .select("activation_enabled, activation_fee")
-      .eq("id", 1)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (settingsError || !settings) {
       priceEl.textContent = "Unavailable";
