@@ -366,10 +366,11 @@ footer a {
     const { data: settings, error: settingsError } = await client
       .from("platform_settings")
       .select("vip_enabled, vip_price")
-      .eq("id", 1)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (settingsError) throw settingsError;
+    if (!settings) throw new Error("Platform payment settings are not configured.");
 
     vipEnabled = settings.vip_enabled === true;
     vipPrice = Number(settings.vip_price);
