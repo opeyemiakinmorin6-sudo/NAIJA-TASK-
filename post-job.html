@@ -200,7 +200,7 @@ textarea{
   border-bottom:none;
 }
 /* Internal commission, tasker allocation and fee components are never shown to posters. */
-.money-row:not(.money-total){display:none;}
+.money-row:not(.money-total){display:none;}.money-row.price-visible{display:flex!important;}
 /* Keep internal per-slot rates and worker rewards private from posters. */
 label[for="reward"],#reward,#rewardHelp{display:none!important;}
 #summaryReward{display:none!important;}
@@ -290,7 +290,7 @@ label[for="reward"],#reward,#rewardHelp{display:none!important;}
 }
 
 #businessFields{display:none!important}
-.money-box .money-row:not(.money-total){display:none!important;}
+.money-box .money-row:not(.money-total){display:none!important;}.money-box .money-row.price-visible{display:flex!important;}
 
 /* NAIJA TASK social posting form visual refresh */
 :root{--nt-deep:#063d20;--nt-green:#087f36;--nt-bright:#0b9b45;--nt-lime:#b7ef43;--nt-pale:#eff8e9}
@@ -450,35 +450,30 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
     <input
       id="slots"
       type="number"
-      min="1"
+      min="10"
       step="1"
-      placeholder="Example: 50"
+      value="10"
+      placeholder="Minimum 10 slots"
+      inputmode="numeric"
     >
 
     <div class="money-box">
 
-      <div class="money-row">
-        <span>Gross reward budget per slot</span>
-        <strong>₦<span id="calcReward">0</span></strong>
-      </div>
-
-      <div class="money-row">
-        <span>Available Slots</span>
-        <strong id="calcSlots">0</strong>
-      </div>
-
-      <div class="money-row">
+      <div class="money-row price-visible">
         <span>Number of slots</span>
-        <strong><span id="calcSlots">0</span></strong>
+        <strong id="calcSlots">10</strong>
       </div>
-      <div class="money-row">
+
+      <div class="money-row price-visible">
         <span>Service charge</span>
         <strong>₦<span id="calcServiceCharge">0</span></strong>
       </div>
-      <div class="money-row">
+
+      <div class="money-row price-visible">
         <span>Promotion charge</span>
         <strong>₦<span id="calcPromotionFee">0</span></strong>
       </div>
+
       <div class="money-row money-total">
         <span>Total Amount to Pay</span>
         <strong>₦<span id="calcTotal">0</span></strong>
@@ -870,9 +865,12 @@ function calculateFunding(){
  if(rule){
   if(item.enabled){
    const perTen=posterRate.toLocaleString("en-NG",{maximumFractionDigits:2});
-   const totalText=total>0?"Estimated total: ₦"+total.toLocaleString("en-NG",{maximumFractionDigits:2}):
+   const selectedKey=socialPriceKey(document.getElementById("category").value);
+   const isWhatsApp=selectedTaskKind()==="normal_task" && selectedKey.startsWith("whatsapp_");
+   const serviceName=document.getElementById("category").selectedOptions[0]?.textContent?.trim()||"Selected service";
+   const totalText=total>0?"Total for "+slots.toLocaleString()+" slots: ₦"+total.toLocaleString("en-NG",{maximumFractionDigits:2}):
     "Enter at least "+posterPricing.minimumSlots+" slots to calculate your total.";
-   rule.textContent="Poster price: ₦"+perTen+" per 10 slots. "+totalText;
+   rule.textContent=(isWhatsApp?serviceName+" price: ":"Poster price: ")+"₦"+perTen+" for every 10 slots. 10 slots = ₦"+perTen+". "+totalText;
    rule.classList.add("price-ready");
   }else{
    rule.textContent="This service does not have an active Admin price yet. Choose another service or contact support.";
@@ -1552,8 +1550,12 @@ async function loadPosterPricing(){
    posterPricing.minimumSlots=Math.max(10,Number(data.minimum_poster_task_slots)||servicePricing.min_slots||10);
    posterPricing.posterFee=0;
    posterPricing.fastFee=servicePricing.fast_fee;posterPricing.priorityFee=servicePricing.priority_fee;posterPricing.businessEnabled=data.business_job_enabled!==false;
-   document.getElementById("slots").min=posterPricing.minimumSlots;
-   document.getElementById("slots").placeholder="Minimum "+posterPricing.minimumSlots;
+   const slotsInput=document.getElementById("slots");
+   slotsInput.min=posterPricing.minimumSlots;
+   slotsInput.placeholder="Minimum "+posterPricing.minimumSlots+" slots";
+   if(!Number.isInteger(Number(slotsInput.value)) || Number(slotsInput.value)<posterPricing.minimumSlots){
+     slotsInput.value=String(posterPricing.minimumSlots);
+   }
    const promo=document.getElementById("promotionTier");
    promo.options[1].text="Fast Promotion — ₦"+posterPricing.fastFee.toLocaleString();
    promo.options[2].text="Priority Promotion — ₦"+posterPricing.priorityFee.toLocaleString();
