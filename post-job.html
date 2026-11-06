@@ -468,28 +468,15 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
       </div>
 
       <div class="money-row">
-        <span>Tasker receives per approved task</span>
-        <strong>₦<span id="calcTaskerReward">0</span></strong>
+        <span>Number of slots</span>
+        <strong><span id="calcSlots">0</span></strong>
       </div>
       <div class="money-row">
-        <span>Tasker Reward Funding (gross)</span>
-        <strong>₦<span id="calcFunding">0</span></strong>
+        <span>Service charge</span>
+        <strong>₦<span id="calcServiceCharge">0</span></strong>
       </div>
       <div class="money-row">
-        <span>Social Service Fee</span>
-        <strong>₦<span id="calcSocialFee">0</span></strong>
-      </div>
-
-      <div class="money-row">
-        <span>Standard Poster Task Fee</span>
-        <strong>₦<span id="calcPosterFee">500</span></strong>
-      </div>
-      <div class="money-row">
-        <span>Business Service Fee</span>
-        <strong>₦<span id="calcBusinessFee">0</span></strong>
-      </div>
-      <div class="money-row">
-        <span>Promotion Fee</span>
+        <span>Promotion charge</span>
         <strong>₦<span id="calcPromotionFee">0</span></strong>
       </div>
       <div class="money-row money-total">
@@ -867,19 +854,15 @@ function calculateFunding(){
  const item=selectedTaskKind()==="business_job"?selectedBusinessItem():selectedSocialItem();
  const reward=item.enabled?item.tasker_reward/10:0,posterRate=item.enabled?item.poster_price:0;
  document.getElementById("reward").value=reward||"";
- const funding=reward*slots,promotionFee=selectedPromotionFee();
+ const promotionFee=selectedPromotionFee();
+ const serviceCharge=item.enabled?posterRate*slots/10:0;
  const total=item.enabled&&slots>=posterPricing.minimumSlots
-   ? (posterRate*slots/10)+posterPricing.posterFee+promotionFee
+   ? serviceCharge+promotionFee
    : 0;
- document.getElementById("calcReward").textContent=reward.toLocaleString();
- document.getElementById("calcTaskerReward").textContent=reward.toLocaleString();
  document.getElementById("calcSlots").textContent=slots.toLocaleString();
- document.getElementById("calcFunding").textContent=funding.toLocaleString();
- document.getElementById("calcSocialFee").textContent="0";
- document.getElementById("calcPosterFee").textContent=posterPricing.posterFee.toLocaleString();
- document.getElementById("calcBusinessFee").textContent="0";
- document.getElementById("calcPromotionFee").textContent=promotionFee.toLocaleString();
- document.getElementById("calcTotal").textContent=total.toLocaleString();
+ document.getElementById("calcServiceCharge").textContent=serviceCharge.toLocaleString("en-NG",{maximumFractionDigits:2});
+ document.getElementById("calcPromotionFee").textContent=promotionFee.toLocaleString("en-NG",{maximumFractionDigits:2});
+ document.getElementById("calcTotal").textContent=total.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("summaryFunding").textContent=total.toLocaleString();
  const submit=document.getElementById("publishBtn");
  if(submit)submit.disabled=!item.enabled||slots<posterPricing.minimumSlots;
@@ -1567,7 +1550,7 @@ async function loadPosterPricing(){
    const saved=data.service_pricing||{};
    servicePricing={social:saved.social||{},business:saved.business||{},min_slots:Math.max(10,Number(saved.min_slots)||10),max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)};
    posterPricing.minimumSlots=Math.max(10,Number(data.minimum_poster_task_slots)||servicePricing.min_slots||10);
-   posterPricing.posterFee=Math.max(0,Number(data.poster_task_fee??500));
+   posterPricing.posterFee=0;
    posterPricing.fastFee=servicePricing.fast_fee;posterPricing.priorityFee=servicePricing.priority_fee;posterPricing.businessEnabled=data.business_job_enabled!==false;
    document.getElementById("slots").min=posterPricing.minimumSlots;
    document.getElementById("slots").placeholder="Minimum "+posterPricing.minimumSlots;
