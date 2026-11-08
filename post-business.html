@@ -806,9 +806,11 @@ async function checkPoster(){
   const metadata =
     user.user_metadata || {};
 
+  const posterRoles = ["task_poster", "poster", "task poster"];
   const isPoster =
-    metadata.user_type === "task_poster" ||
-    metadata.role === "task_poster";
+    posterRoles.includes(String(metadata.user_type || "").toLowerCase()) ||
+    posterRoles.includes(String(metadata.role || "").toLowerCase()) ||
+    posterRoles.includes(String(metadata.account_type || "").toLowerCase());
 
   if(!isPoster){
 
