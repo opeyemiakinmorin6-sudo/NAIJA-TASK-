@@ -297,7 +297,7 @@ async function loadReferrals() {
       "id, referred_user_id, reward, status"
     )
     .eq(
-      "referrer_user_id",
+      "referrer_id",
       user.id
     )
     .order("id", {
@@ -372,42 +372,19 @@ async function loadReferrals() {
       "New user";
 
 
-    const {
-      data: profile
-    } = await supabaseClient
-      .from("profiles")
-      .select("full_name")
-      .eq(
-        "id",
-        referral.referred_user_id
-      )
-      .maybeSingle();
+    const nameLine = document.createElement("div");
+    nameLine.className = "referral-name";
+    nameLine.textContent = "Referred member";
 
+    const rewardLine = document.createElement("div");
+    rewardLine.className = "reward";
+    rewardLine.textContent = "Reward: ₦" + Number(referral.reward || 0).toFixed(2);
 
-    if (profile?.full_name) {
-      name = profile.full_name;
-    }
+    const statusLine = document.createElement("div");
+    statusLine.className = "status";
+    statusLine.textContent = "Status: " + String(referral.status || "PENDING").toUpperCase();
 
-
-    item.innerHTML =
-      "<div class='referral-name'>" +
-      name +
-      "</div>" +
-
-      "<div class='reward'>" +
-      "Reward: ₦" +
-      Number(
-        referral.reward || 0
-      ).toFixed(2) +
-      "</div>" +
-
-      "<div class='status'>" +
-      "Status: " +
-      (
-        referral.status ||
-        "PENDING"
-      ) +
-      "</div>";
+    item.append(nameLine, rewardLine, statusLine);
 
 
     referralList.appendChild(item);
