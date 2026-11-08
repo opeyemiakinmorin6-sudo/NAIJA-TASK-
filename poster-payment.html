@@ -207,6 +207,16 @@ async function requireUser() {
     return null;
   }
   currentUser = session.user;
+  const metadata = currentUser.user_metadata || {};
+  const posterRoles = ["task_poster", "poster", "task poster"];
+  const isPoster = posterRoles.includes(String(metadata.role || "").toLowerCase()) ||
+    posterRoles.includes(String(metadata.user_type || "").toLowerCase()) ||
+    posterRoles.includes(String(metadata.account_type || "").toLowerCase());
+  if (!isPoster) {
+    showError("This payment page is only available to the Poster account that created the task. Please sign in through Poster Login.", true);
+    currentUser = null;
+    return null;
+  }
   return currentUser;
 }
 
