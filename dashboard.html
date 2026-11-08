@@ -149,21 +149,23 @@ button,a{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer
 
   <div id="notice" class="notice" role="status"></div>
 
-<!-- Adsterra sponsored pop-up: dashboard only, dismissible, shown at most once per 24 hours -->
-<div class="ad-popup-backdrop" id="adPopup" role="dialog" aria-modal="true" aria-labelledby="adPopupTitle" aria-hidden="true">
-  <section class="ad-popup-card">
-    <div class="ad-popup-head">
-      <div class="ad-popup-brand">
-        <span class="ad-popup-brand-mark">NT</span>
-        <span id="adPopupTitle">SPONSORED <small>NAIJA TASK PARTNER MESSAGE</small></span>
-      </div>
-      <button type="button" class="ad-popup-close" id="closeAdPopup" aria-label="Close advertisement">×</button>
+
+  <!-- Adsterra 300x250 banner: normal dashboard placement -->
+  <section class="adsterra-panel" aria-label="Advertisement">
+    <span class="adsterra-label">ADVERTISEMENT</span>
+    <div class="adsterra-unit adsterra-300x250">
+      <script>
+        atOptions = {
+          'key' : 'd33fd661fe11e17cd12dc188cb8b8bd1',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+        };
+      </script>
+      <script src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1"></script>
     </div>
-    <p class="ad-popup-note">Discover a message from our advertising partner. Your dashboard will be ready when you continue.</p>
-    <div class="ad-popup-unit" id="adPopupUnit" aria-label="Advertisement"></div>
-    <button type="button" class="ad-popup-dismiss" id="dismissAdPopup">Continue to dashboard</button>
   </section>
-</div>
 
   <section class="wallet-card">
     <div class="wallet-label">Available Wallet Balance</div>
@@ -810,53 +812,7 @@ $("catChips").querySelectorAll("[data-cat]").forEach(b => b.addEventListener("cl
 
 startDashboard().then(loadModuleLinks).then(loadDashboardAds).then(applyFilters);
 
-/* Show one dismissible sponsored placement at most once every 24 hours.
-   The existing dashboard banner zone is loaded only when the pop-up opens. */
-(function setupSponsoredPopup(){
-  const popup = document.getElementById("adPopup");
-  const unit = document.getElementById("adPopupUnit");
-  const close = document.getElementById("closeAdPopup");
-  const dismiss = document.getElementById("dismissAdPopup");
-  if(!popup || !unit || !close || !dismiss) return;
-  const storageKey = "nt_dashboard_ad_popup_last_shown";
-  const day = 24 * 60 * 60 * 1000;
-  let opened = false;
-  function closePopup(){
-    popup.classList.remove("is-open");
-    popup.setAttribute("aria-hidden","true");
-    document.body.style.overflow = "";
-  }
-  function openPopup(){
-    if(opened || document.visibilityState !== "visible") return;
-    opened = true;
-    popup.classList.add("is-open");
-    popup.setAttribute("aria-hidden","false");
-    document.body.style.overflow = "hidden";
-    try{ localStorage.setItem(storageKey,String(Date.now())); }catch(_){}
-    if(!unit.dataset.loaded){
-      unit.dataset.loaded = "1";
-      window.atOptions = {
-        key: "d33fd661fe11e17cd12dc188cb8b8bd1",
-        format: "iframe",
-        height: 250,
-        width: 300,
-        params: {}
-      };
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = "https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";
-      unit.appendChild(script);
-    }
-    close.focus();
-  }
-  close.addEventListener("click",closePopup);
-  dismiss.addEventListener("click",closePopup);
-  popup.addEventListener("click",e=>{if(e.target===popup) closePopup();});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape" && popup.classList.contains("is-open")) closePopup();});
-  let last = 0;
-  try{last = Number(localStorage.getItem(storageKey)||0);}catch(_){}
-  if(!last || Date.now()-last>=day) window.setTimeout(openPopup,25000);
-})();
+
 </script>
 </body>
 </html>
