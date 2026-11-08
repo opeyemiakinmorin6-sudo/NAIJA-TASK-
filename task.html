@@ -126,6 +126,21 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 .nt-ad-slot{margin:18px auto 10px;padding:9px 6px;max-width:360px;border:1px solid #dce9df;border-radius:12px;background:#fff;text-align:center;overflow:hidden}
 .nt-ad-label{display:block;margin-bottom:5px;color:#66756b;font-size:9px;font-weight:800;letter-spacing:.9px}
 .nt-ad-frame{width:320px;max-width:100%;min-height:50px;margin:0 auto;display:flex;justify-content:center;overflow:hidden}
+
+/* Shared sponsored pop-up */
+.ad-popup-backdrop{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(3,24,12,.76);backdrop-filter:blur(5px)}
+.ad-popup-backdrop.is-open{display:flex;animation:adFadeIn .22s ease-out}
+.ad-popup-card{width:min(100%,370px);padding:0 16px 16px;background:#fff;border:1px solid #dce9df;border-radius:22px;box-shadow:0 24px 75px rgba(0,0,0,.34);text-align:center;overflow:hidden;animation:adCardIn .26s ease-out}
+.ad-popup-head{display:flex;align-items:center;justify-content:space-between;margin:0 -16px 12px;padding:15px 16px;background:linear-gradient(120deg,#064d25,#087f36 70%,#0b9b45);color:#fff;font-size:11px;font-weight:900;letter-spacing:1.1px}
+.ad-popup-brand{display:flex;align-items:center;gap:9px;text-align:left}
+.ad-popup-brand-mark{width:31px;height:31px;border-radius:10px;display:grid;place-items:center;background:#b7ef43;color:#064d25;font-size:11px;font-weight:1000;letter-spacing:0}
+.ad-popup-brand small{display:block;margin-top:2px;color:#e3f4e7;font-size:9px;font-weight:600;letter-spacing:.25px}
+.ad-popup-close{width:34px;height:34px;flex:0 0 34px;border:1px solid #ffffff45;border-radius:50%;background:#ffffff18;color:#fff;font-size:24px;line-height:1;cursor:pointer}
+.ad-popup-note{margin:0 0 12px;color:#506657;font-size:12px;line-height:1.5}
+.ad-popup-unit{width:300px;max-width:100%;min-height:250px;margin:0 auto;display:flex;justify-content:center;align-items:flex-start;overflow:hidden;border-radius:10px;background:#f6f9f6}
+.ad-popup-dismiss{width:100%;margin-top:13px;padding:13px;border:0;border-radius:12px;background:linear-gradient(110deg,#087f36,#0b9b45);color:#fff;font-size:13px;font-weight:850;box-shadow:0 5px 14px rgba(8,127,54,.18);cursor:pointer}
+@keyframes adFadeIn{from{opacity:0}to{opacity:1}}@keyframes adCardIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:360px){.ad-popup-backdrop{padding:10px}.ad-popup-card{padding:0 11px 12px;border-radius:18px}.ad-popup-head{margin:0 -11px 10px;padding:13px 11px}.ad-popup-unit{width:100%}}
 </style>
 </head>
 <body>
@@ -682,5 +697,52 @@ $("submitProofBtn").addEventListener("click", submitProof);
 
 loadTasks();
 </script>
+
+<!-- Shared, dismissible NAIJA TASK sponsored pop-up -->
+<div class="ad-popup-backdrop" id="adPopup" role="dialog" aria-modal="true" aria-labelledby="adPopupTitle" aria-hidden="true">
+  <section class="ad-popup-card">
+    <div class="ad-popup-head"><div class="ad-popup-brand"><span class="ad-popup-brand-mark">NT</span><span id="adPopupTitle">SPONSORED <small>NAIJA TASK PARTNER MESSAGE</small></span></div><button type="button" class="ad-popup-close" id="closeAdPopup" aria-label="Close advertisement">×</button></div>
+    <p class="ad-popup-note">Discover a message from our advertising partner. Your page will be ready when you continue.</p>
+    <div class="ad-popup-unit" id="adPopupUnit" aria-label="Advertisement"></div>
+    <button type="button" class="ad-popup-dismiss" id="dismissAdPopup">Continue</button>
+  </section>
+</div>
+<script>
+(function setupSiteSponsoredPopup(){
+  const popup=document.getElementById("adPopup"),unit=document.getElementById("adPopupUnit");
+  const close=document.getElementById("closeAdPopup"),dismiss=document.getElementById("dismissAdPopup");
+  if(!popup||!unit||!close||!dismiss)return;
+  const storageKey="nt_dashboard_ad_popup_last_shown",day=86400000;
+  let opened=false,timer=null;
+  function closePopup(){popup.classList.remove("is-open");popup.setAttribute("aria-hidden","true");document.body.style.overflow="";}
+  function pageIsSafe(){
+    if(document.visibilityState!=="visible")return false;
+    const active=document.activeElement;
+    if(active&&(/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)||active.isContentEditable))return false;
+    if(document.querySelector('form:focus-within'))return false;
+    if(document.querySelector('[aria-modal="true"]:not(#adPopup),.modal.show,.modal.open,.dialog.open'))return false;
+    if(document.getElementById("game")&&!document.getElementById("game").classList.contains("hide"))return false;
+    return true;
+  }
+  function loadAd(){
+    if(unit.dataset.loaded)return;unit.dataset.loaded="1";
+    window.atOptions={key:"d33fd661fe11e17cd12dc188cb8b8bd1",format:"iframe",height:250,width:300,params:{}};
+    const script=document.createElement("script");script.async=true;script.src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";unit.appendChild(script);
+  }
+  function openPopup(){
+    if(opened)return;
+    if(!pageIsSafe()){timer=window.setTimeout(openPopup,10000);return;}
+    opened=true;popup.classList.add("is-open");popup.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
+    try{localStorage.setItem(storageKey,String(Date.now()));}catch(_){}
+    loadAd();close.focus();
+  }
+  close.addEventListener("click",closePopup);dismiss.addEventListener("click",closePopup);
+  popup.addEventListener("click",e=>{if(e.target===popup)closePopup();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&popup.classList.contains("is-open"))closePopup();});
+  let last=0;try{last=Number(localStorage.getItem(storageKey)||0);}catch(_){}
+  if(!last||Date.now()-last>=day)timer=window.setTimeout(openPopup,25000);
+})();
+</script>
+
 </body>
 </html>
