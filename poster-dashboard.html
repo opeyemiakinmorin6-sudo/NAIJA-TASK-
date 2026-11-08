@@ -840,7 +840,7 @@ async function checkPoster(){
   const {
     data,
     error
-  } = await supabaseClient.auth.getSession();
+  } = await supabaseClient.auth.getUser();
 
   if(error){
 
@@ -850,9 +850,9 @@ async function checkPoster(){
 
   }
 
-  const session = data.session;
+  const user = data.user;
 
-  if(!session){
+  if(!user){
 
     window.location.href =
       "poster-login.html";
@@ -861,24 +861,22 @@ async function checkPoster(){
 
   }
 
-  const user =
-    session.user;
-
   const metadata =
     user.user_metadata || {};
 
-  const role =
+  const role = String(
     metadata.role ||
     metadata.user_type ||
-    "";
+    metadata.account_type ||
+    ""
+  ).toLowerCase().replace(/[\s-]+/g, "_");
 
   /*
      Poster accounts use task_poster.
   */
 
   if(
-    role !== "task_poster" &&
-    role !== "poster"
+    !["task_poster","poster","task_poster_account"].includes(role)
   ){
 
     await supabaseClient.auth.signOut();
