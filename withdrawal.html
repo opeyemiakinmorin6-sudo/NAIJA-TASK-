@@ -175,14 +175,14 @@
       <h2>Request Withdrawal</h2>
 
       <div class="info" id="withdrawalInfo">
-        <div>Minimum withdrawal: <strong>₦1,500</strong></div>
+        <div>Minimum withdrawal: <strong>₦500</strong></div>
         <div>Withdrawal fee: <strong>₦100</strong></div>
       </div>
 
       <input
         id="amount"
         type="number"
-        min="1500"
+        min="500"
         inputmode="numeric"
         placeholder="Enter withdrawal amount"
       >
@@ -294,6 +294,7 @@
 
         if (data) {
           Object.assign(platformSettings, data);
+          applyWithdrawalSettings();
         }
       } catch (error) {
         console.warn("Platform settings read failed:", error);
@@ -301,7 +302,7 @@
     }
 
     function applyWithdrawalSettings() {
-      const minimumWithdrawal = Number(platformSettings.minimum_withdrawal || 1500);
+      const minimumWithdrawal = Number(platformSettings.minimum_withdrawal ?? 500);
       const withdrawalFee = Number(platformSettings.free_withdrawal_fee || 100);
 
       const info = document.getElementById("withdrawalInfo");
@@ -426,7 +427,7 @@
       await loadPlatformSettings();
       applyWithdrawalSettings();
       const amount = Number(document.getElementById("amount").value);
-      const minimumWithdrawal = Number(platformSettings.minimum_withdrawal || 1500);
+      const minimumWithdrawal = Number(platformSettings.minimum_withdrawal ?? 500);
       if (!amount || amount < minimumWithdrawal) {
         status.textContent = "Minimum withdrawal is " + formatMoney(minimumWithdrawal) + ".";
         status.style.color = "#b42318";
