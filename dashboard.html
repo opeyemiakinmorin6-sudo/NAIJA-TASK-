@@ -938,6 +938,13 @@ async function startDashboard(){
     if (!data?.session?.user){ window.location.replace("login.html"); return; }
 
     currentUser = data.session.user;
+    const dashboardMetadata = currentUser.user_metadata || {};
+    const dashboardRole = String(dashboardMetadata.role || dashboardMetadata.user_type || dashboardMetadata.account_type || "").toLowerCase();
+    if (["task_poster", "poster", "task poster"].includes(dashboardRole)) {
+      await supabaseClient.auth.signOut();
+      window.location.replace("poster-login.html");
+      return;
+    }
     subscribeToChanges();
     await refreshDashboard();
   } catch (error) {
