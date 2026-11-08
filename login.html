@@ -181,13 +181,15 @@
 
 
         if (!data || !data.user) {
-
-          throw new Error(
-            "Login was not completed."
-          );
-
+          throw new Error("Login was not completed.");
         }
 
+        const metadata = data.user.user_metadata || {};
+        const accountRole = String(metadata.role || metadata.user_type || metadata.account_type || "").toLowerCase();
+        if (["task_poster", "poster", "task poster"].includes(accountRole)) {
+          await supabaseClient.auth.signOut();
+          throw new Error("This is a Poster account. Please use Poster Login.");
+        }
 
         showSuccess(
           "Login successful. Opening your dashboard..."
@@ -284,8 +286,7 @@
               email,
               {
                 redirectTo:
-                  window.location.origin +
-                  window.location.pathname
+                  new URL("reset-password.html", window.location.href).href
               }
             );
 
