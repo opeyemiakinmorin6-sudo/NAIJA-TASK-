@@ -1854,51 +1854,5 @@ document
 </script>
 
 
-<!-- Shared, dismissible NAIJA TASK sponsored pop-up -->
-<div class="ad-popup-backdrop" id="adPopup" role="dialog" aria-modal="true" aria-labelledby="adPopupTitle" aria-hidden="true">
-  <section class="ad-popup-card">
-    <div class="ad-popup-head"><div class="ad-popup-brand"><span class="ad-popup-brand-mark">NT</span><span id="adPopupTitle">SPONSORED <small>NAIJA TASK PARTNER MESSAGE</small></span></div><button type="button" class="ad-popup-close" id="closeAdPopup" aria-label="Close advertisement">×</button></div>
-    <p class="ad-popup-note">Discover a message from our advertising partner. Your page will be ready when you continue.</p>
-    <div class="ad-popup-unit" id="adPopupUnit" aria-label="Advertisement"></div>
-    <button type="button" class="ad-popup-dismiss" id="dismissAdPopup">Continue</button>
-  </section>
-</div>
-<script>
-(function setupSiteSponsoredPopup(){
-  const popup=document.getElementById("adPopup"),unit=document.getElementById("adPopupUnit");
-  const close=document.getElementById("closeAdPopup"),dismiss=document.getElementById("dismissAdPopup");
-  if(!popup||!unit||!close||!dismiss)return;
-  const storageKey="nt_dashboard_ad_popup_last_shown",day=86400000;
-  let opened=false,timer=null;
-  function closePopup(){popup.classList.remove("is-open");popup.setAttribute("aria-hidden","true");document.body.style.overflow="";}
-  function pageIsSafe(){
-    if(document.visibilityState!=="visible")return false;
-    const active=document.activeElement;
-    if(active&&(/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)||active.isContentEditable))return false;
-    if(document.querySelector('form:focus-within'))return false;
-    if(document.querySelector('[aria-modal="true"]:not(#adPopup),.modal.show,.modal.open,.dialog.open'))return false;
-    if(document.getElementById("game")&&!document.getElementById("game").classList.contains("hide"))return false;
-    return true;
-  }
-  function loadAd(){
-    if(unit.dataset.loaded)return;unit.dataset.loaded="1";
-    window.atOptions={key:"d33fd661fe11e17cd12dc188cb8b8bd1",format:"iframe",height:250,width:300,params:{}};
-    const script=document.createElement("script");script.async=true;script.src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";unit.appendChild(script);
-  }
-  function openPopup(){
-    if(opened)return;
-    if(!pageIsSafe()){timer=window.setTimeout(openPopup,10000);return;}
-    opened=true;popup.classList.add("is-open");popup.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";
-    try{localStorage.setItem(storageKey,String(Date.now()));}catch(_){}
-    loadAd();close.focus();
-  }
-  close.addEventListener("click",closePopup);dismiss.addEventListener("click",closePopup);
-  popup.addEventListener("click",e=>{if(e.target===popup)closePopup();});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&popup.classList.contains("is-open"))closePopup();});
-  let last=0;try{last=Number(localStorage.getItem(storageKey)||0);}catch(_){}
-  if(!last||Date.now()-last>=day)timer=window.setTimeout(openPopup,25000);
-})();
-</script>
-
 </body>
   </html>
