@@ -456,6 +456,12 @@ async function loadTasks(){
       window.location.replace("login.html?next=task.html");
       return;
     }
+    const accountMeta = currentUser.user_metadata || {};
+    const accountRole = String(accountMeta.role || accountMeta.user_type || "").toLowerCase();
+    if (["task_poster", "poster", "task poster"].includes(accountRole)) {
+      window.location.replace("poster-dashboard.html");
+      return;
+    }
     let tasks = null, rpcError = null, usedRpc = false;
     const rpc = await db.rpc("get_available_tasks");
     if (!rpc.error && Array.isArray(rpc.data)){ tasks = rpc.data; usedRpc = true; } else rpcError = rpc.error;
