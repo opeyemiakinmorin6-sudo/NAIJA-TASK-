@@ -171,6 +171,30 @@ body{background:linear-gradient(180deg,#edf5ef 0,#f6f8f6 420px,#f4f7f5 100%);col
 .task-item,.transaction-item{border-color:#e6ede7;border-radius:14px;background:#fff;transition:border-color .16s ease,transform .16s ease}
 a.task-item:active{transform:scale(.99);border-color:#9acaa7}
 .task-reward{font-variant-numeric:tabular-nums}
+.activity-centre{margin-top:25px}
+.activity-subtitle{margin:5px 0 0;color:var(--muted);font-size:12px;font-weight:500}
+.activity-centre-grid{display:grid;grid-template-columns:minmax(220px,.82fr) minmax(0,1.5fr);gap:13px}
+.activity-progress,.activity-updates{min-width:0;padding:16px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow)}
+.activity-progress{background:linear-gradient(145deg,#063f22,#087f36);color:#fff;border-color:#087f36}
+.activity-progress-top,.activity-updates-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.activity-progress-top{font-size:12px;font-weight:850}
+.live-label{padding:5px 7px;border-radius:20px;background:#ffffff1b;color:#d9f4c4;font-size:8px;letter-spacing:.6px}
+.progress-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:22px 0}
+.progress-metrics strong,.progress-metrics small{display:block}
+.progress-metrics strong{font-size:25px;font-weight:900;letter-spacing:-.7px}
+.progress-metrics small{margin-top:5px;color:#d6e9dc;font-size:10px;line-height:1.3}
+.activity-action{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;border-radius:11px;background:#c7f36b;color:#123c20;font-size:11px;font-weight:900}
+.activity-updates-title{margin-bottom:10px}
+.activity-updates-title strong{font-size:13px}.activity-updates-title span{font-size:10px;color:var(--muted)}
+.activity-update{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #edf1ed;min-width:0}
+.activity-update:first-child{border-top:0}
+.activity-update-icon{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:10px;background:#edf6ef;font-size:15px}
+.activity-update-copy{min-width:0;flex:1}
+.activity-update-copy strong,.activity-update-copy small{display:block;overflow-wrap:anywhere}
+.activity-update-copy strong{font-size:11px}.activity-update-copy small{margin-top:4px;color:var(--muted);font-size:10px}
+.activity-status{font-size:9px;font-weight:900;white-space:nowrap;color:var(--green)}
+.activity-status.rejected{color:#b42318}.activity-status.pending{color:#936000}
+@media(max-width:620px){.activity-centre-grid{grid-template-columns:1fr}.activity-progress{padding:15px}.progress-metrics{margin:16px 0}.activity-updates{padding:14px}}
 .adsterra-panel{margin:24px 0;padding:12px;border-radius:18px;background:rgba(255,255,255,.88);border-color:#e2eae3;box-shadow:var(--shadow)}
 .adsterra-label{letter-spacing:1.2px}
 .finder{margin-top:25px;padding:15px;background:#e9f2eb;border:1px solid #dce9df;border-radius:19px}
@@ -310,6 +334,28 @@ a.task-item:active{transform:scale(.99);border-color:#9acaa7}
       <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" id="pendingCount">—</div><div class="stat-label">Pending Reviews</div></div>
       <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="approvedCount">—</div><div class="stat-label">Approved Submissions</div></div>
       <div class="stat-card"><div class="stat-icon">💵</div><div class="stat-value" id="earnedAmount">₦—</div><div class="stat-label">Approved rewards (estimate)</div></div>
+    </div>
+  </section>
+
+  <section class="section activity-centre" id="activityCentre" data-cat="earn">
+    <div class="section-heading">
+      <div><h2>🔔 Activity Centre</h2><p class="activity-subtitle">Your latest task updates and account progress</p></div>
+      <a href="applied-jobs.html">Track tasks →</a>
+    </div>
+    <div class="activity-centre-grid">
+      <div class="activity-progress">
+        <div class="activity-progress-top"><span>Submission overview</span><span class="live-label">LIVE ACCOUNT DATA</span></div>
+        <div class="progress-metrics">
+          <div><strong id="centrePending">—</strong><small>Under review</small></div>
+          <div><strong id="centreApproved">—</strong><small>Approved</small></div>
+          <div><strong id="centreRejected">—</strong><small>Needs attention</small></div>
+        </div>
+        <a class="activity-action" href="applied-jobs.html">Open my submissions <span>→</span></a>
+      </div>
+      <div class="activity-updates">
+        <div class="activity-updates-title"><strong>Recent task updates</strong><span>Latest first</span></div>
+        <div id="activityUpdates" aria-live="polite"><div class="loading">Loading your updates…</div></div>
+      </div>
     </div>
   </section>
 
@@ -695,7 +741,7 @@ async function loadSubmissionStats(){
   setText("approvedCount", "—");
   setText("earnedAmount", "₦—");
 
-  const { data, error } = await withTimeout(supabaseClient.from("task_submissions").select("id, task_id, status").eq("user_id", currentUser.id).limit(1000));
+  const { data, error } = await withTimeout(supabaseClient.from("task_submissions").select("id, task_id, status, created_at").eq("user_id", currentUser.id).order("created_at", {ascending:false}).limit(1000));
   if (error){ console.warn("Submission statistics unavailable:", error); return; }
 
   const rows = Array.isArray(data) ? data : [];
@@ -711,6 +757,11 @@ async function loadSubmissionStats(){
   }
   setText("pendingCount", String(pending));
   setText("approvedCount", String(approved));
+  const rejected = rows.filter(r => /REJECT|CANCEL/i.test(String(r.status || ""))).length;
+  setText("centrePending", String(pending));
+  setText("centreApproved", String(approved));
+  setText("centreRejected", String(rejected));
+  renderActivityUpdates(rows);
 
   /* Estimate only: wallet transactions remain the authoritative record of real credits. */
   const ids = [...new Set(approvedRows.map(r => r.task_id).filter(Boolean))];
@@ -721,6 +772,27 @@ async function loadSubmissionStats(){
 
   const map = new Map((taskRows || []).map(t => [String(t.id), Number(t.reward_per_worker ?? t.reward ?? 0)]));
   setText("earnedAmount", money(approvedRows.reduce((sum, r) => sum + (map.get(String(r.task_id)) || 0), 0)));
+}
+
+function renderActivityUpdates(rows){
+  const box=$("activityUpdates");
+  if(!box)return;
+  const recent=(rows||[]).slice(0,4);
+  if(!recent.length){
+    box.innerHTML='<div class="empty-state">No task updates yet. When you submit a task, its progress will appear here.</div>';
+    return;
+  }
+  box.innerHTML=recent.map(row=>{
+    const status=String(row.status||"Submitted").trim().toUpperCase();
+    const rejected=/REJECT|CANCEL/.test(status);
+    const approved=/APPROVED|COMPLETED/.test(status);
+    const pending=!rejected&&!approved;
+    const icon=rejected?"⚠️":approved?"✓":"◷";
+    const label=rejected?"Needs attention":approved?"Approved":"Under review";
+    const date=row.created_at?new Date(row.created_at).toLocaleString("en-NG",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}):"Date unavailable";
+    const taskLabel=row.task_id?("Task #"+String(row.task_id)):"Task submission";
+    return '<div class="activity-update"><span class="activity-update-icon">'+icon+'</span><div class="activity-update-copy"><strong>'+escapeHTML(taskLabel)+'</strong><small>'+escapeHTML(date)+'</small></div><span class="activity-status'+(rejected?' rejected':pending?' pending':'')+'">'+label+'</span></div>';
+  }).join("");
 }
 
 /* ---------- Recent wallet activity ---------- */
