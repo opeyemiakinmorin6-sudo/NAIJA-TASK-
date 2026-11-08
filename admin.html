@@ -755,6 +755,43 @@ th{
 #proofModal .modal-footer .success-btn{background:#087f36;color:#fff}
 #proofModal .modal-footer .danger-btn{background:#fff;color:#c62828;border:1px solid #f0c6c6}
 </style>
+
+<style id="naija-admin-modern-refresh">
+:root{--admin-ink:#12251a;--admin-muted:#718078;--admin-line:#e4ece6;--admin-green:#087f36;--admin-deep:#063b22;--admin-lime:#b7ef43}
+html,body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f3f7f4;color:var(--admin-ink)}
+#loading{background:rgba(244,249,245,.96);backdrop-filter:blur(10px)}
+.login-screen{background:radial-gradient(circle at 15% 12%,#dff2d9 0,transparent 32%),linear-gradient(145deg,#f5faf6,#eaf3ed);padding:22px}
+.login-card{max-width:440px;border:1px solid #e0ebe3;border-radius:25px;padding:30px;box-shadow:0 24px 70px rgba(6,59,34,.12)}
+.login-card .logo{width:62px;height:62px;border-radius:19px;background:linear-gradient(145deg,#063b22,#0b9b45);color:var(--admin-lime);box-shadow:0 10px 25px #063b222b}
+.login-card h1{font-size:27px;letter-spacing:-.8px;color:#102d1c}
+.login-card p{font-size:14px;line-height:1.65}
+.field label{font-size:12px;color:#344b3b}
+input,select,textarea{border-color:#dce8df;border-radius:13px;padding:13px;background:#fbfdfb}
+.primary,.success,.danger,.warning,.secondary{border-radius:12px;min-height:42px}
+.primary{background:linear-gradient(135deg,#087f36,#0b9b45);box-shadow:0 6px 16px #087f3624}
+.topbar{height:68px;background:linear-gradient(105deg,#052f1b,#07552d 60%,#087f36);box-shadow:0 5px 22px #052f1b24;padding:0 18px}
+.brand-mark{border-radius:13px;background:var(--admin-lime);color:#063b22}
+.menu-btn{border-radius:12px}
+.sidebar{top:68px;background:#fff;border-right:1px solid var(--admin-line);padding:15px 12px}
+.nav-btn{border-radius:12px;padding:11px 12px;margin-bottom:4px;transition:background .15s,color .15s}
+.nav-btn:hover,.nav-btn.active{background:#eaf6ed;color:#06652c}
+.main{padding:24px;max-width:1800px}
+.page-header{align-items:center;margin-bottom:21px}
+.page-header h2{font-size:25px;letter-spacing:-.6px;color:#102d1c}
+.page-header p{font-size:13px}
+.card{border:1px solid #e4ece6;border-radius:18px;padding:18px;box-shadow:0 7px 24px rgba(20,55,32,.035)}
+.card h3{font-size:15px}
+.stat-value{font-size:29px;letter-spacing:-.7px;color:#123b24}
+th{background:#f4f8f5;color:#5c7063}
+td,th{padding:13px 11px}
+.notice{border-radius:13px}
+.modal-box{border-radius:22px;box-shadow:0 25px 80px #102b1b24}
+.mobile-bottom{background:#ffffffed;backdrop-filter:blur(12px);border-color:#e2ebe4;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+.mobile-bottom button{border-radius:10px}
+@media(max-width:900px){.main{padding:16px 13px 90px}.sidebar{top:68px;box-shadow:15px 0 40px #102b1b20}.page-header h2{font-size:22px}}
+@media(max-width:600px){.login-card{padding:25px 21px}.grid-2,.grid-3,.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:14px}.stat-value{font-size:22px}.page-header{align-items:stretch}}
+@media(max-width:370px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+</style>
 </head>
 
 <body>
@@ -11573,6 +11610,20 @@ function ntCollectServicePricing(){const max=Number($("pricingMax").value),minSl
 async function loadServicePricing(){const status=$("servicePricingStatus");if(status)status.textContent="Loading service prices…";try{const {data,error}=await supabaseClient.from("platform_settings").select("id,service_pricing").limit(1).maybeSingle();if(error)throw error;if(!data)throw Error("No platform_settings row was found.");const saved=data.service_pricing&&typeof data.service_pricing==="object"?data.service_pricing:{};ntServicePricing={...saved,social:{...ntDefaultPriceMap(NT_SOCIAL_PRICE_ITEMS),...(saved.social||{})},business:{...ntDefaultPriceMap(NT_BUSINESS_PRICE_ITEMS),...(saved.business||{})},min_slots:Math.max(10,Number(saved.min_slots)||10),max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)};ntRenderServicePricing();if(status)status.textContent="Loaded platform-specific social rates per 10 slots. Review poster price and Tasker reward before enabling.";}catch(error){if(status)status.textContent="Could not load prices: "+(error.message||error);console.error("loadServicePricing",error);}}
 async function saveServicePricing(){const status=$("servicePricingStatus");try{if(!currentUser)throw Error("Admin session expired. Sign in again.");const pricing=ntCollectServicePricing();const {data,error}=await supabaseClient.from("platform_settings").select("id").limit(1).maybeSingle();if(error)throw error;if(!data)throw Error("No platform_settings row exists.");const result=await supabaseClient.from("platform_settings").update({service_pricing:pricing}).eq("id",data.id);if(result.error)throw result.error;ntServicePricing=pricing;if(status)status.textContent="Saved. New tasks use the configured per-10-slot prices; existing tasks keep their saved prices.";toast("Service prices saved.","success");}catch(error){if(status)status.textContent="Save failed: "+(error.message||error);toast(error.message||"Could not save service prices.","danger");console.error("saveServicePricing",error);}}
 
+
+/* Start the admin controller explicitly. Without this call the page stays on its loading screen. */
+(function startAdminPage(){
+  const run = () => {
+    if (window.__naijaAdminInitStarted) return;
+    window.__naijaAdminInitStarted = true;
+    init();
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  } else {
+    run();
+  }
+})();
 </script>
 </body>
 </html>
