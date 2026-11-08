@@ -24,6 +24,15 @@ button,a{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer
 .adsterra-label{display:block;margin-bottom:7px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.8px}
 .adsterra-unit{display:flex;justify-content:center;align-items:center;margin:0 auto;max-width:100%;overflow:hidden}
 .adsterra-300x250{width:300px;min-height:250px}
+.ad-popup-backdrop{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,25,13,.72);backdrop-filter:blur(3px)}
+.ad-popup-backdrop.is-open{display:flex}
+.ad-popup-card{width:min(100%,360px);padding:14px;background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.28);text-align:center}
+.ad-popup-head{display:flex;align-items:center;justify-content:space-between;color:var(--green-dark);font-size:10px;font-weight:900;letter-spacing:1px}
+.ad-popup-close{width:34px;height:34px;border:0;border-radius:50%;background:#eef4ef;color:#263b2d;font-size:25px;line-height:1}
+.ad-popup-note{margin:2px 0 10px;color:var(--muted);font-size:12px}
+.ad-popup-unit{width:300px;max-width:100%;min-height:250px;margin:0 auto;display:flex;justify-content:center;align-items:flex-start;overflow:hidden}
+.ad-popup-dismiss{width:100%;margin-top:10px;padding:12px;border:0;border-radius:11px;background:var(--green);color:#fff;font-size:13px;font-weight:800}
+@media(max-width:360px){.ad-popup-backdrop{padding:10px}.ad-popup-card{padding:11px}.ad-popup-unit{width:100%}}
 .welcome{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:7px 0 16px}
 .welcome h1{margin:0;font-size:23px;line-height:1.3}
 .welcome p{margin:5px 0 0;color:var(--muted);font-size:13px}
@@ -135,22 +144,18 @@ button,a{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer
 
   <div id="notice" class="notice" role="status"></div>
 
-<!-- Adsterra 300x250 dashboard banner -->
-<section class="adsterra-panel" aria-label="Advertisement">
-  <span class="adsterra-label">ADVERTISEMENT</span>
-  <div class="adsterra-unit adsterra-300x250">
-    <script>
-      atOptions = {
-        'key' : 'd33fd661fe11e17cd12dc188cb8b8bd1',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1"></script>
-  </div>
-</section>
+<!-- Adsterra sponsored pop-up: dashboard only, dismissible, shown at most once per 24 hours -->
+<div class="ad-popup-backdrop" id="adPopup" role="dialog" aria-modal="true" aria-labelledby="adPopupTitle" aria-hidden="true">
+  <section class="ad-popup-card">
+    <div class="ad-popup-head">
+      <span id="adPopupTitle">SPONSORED</span>
+      <button type="button" class="ad-popup-close" id="closeAdPopup" aria-label="Close advertisement">×</button>
+    </div>
+    <p class="ad-popup-note">A sponsored message helps support NAIJA TASK.</p>
+    <div class="ad-popup-unit" id="adPopupUnit" aria-label="Advertisement"></div>
+    <button type="button" class="ad-popup-dismiss" id="dismissAdPopup">Continue to dashboard</button>
+  </section>
+</div>
 
   <section class="wallet-card">
     <div class="wallet-label">Available Wallet Balance</div>
@@ -796,6 +801,54 @@ $("catChips").querySelectorAll("[data-cat]").forEach(b => b.addEventListener("cl
 }));
 
 startDashboard().then(loadModuleLinks).then(loadDashboardAds).then(applyFilters);
+
+/* Show one dismissible sponsored placement at most once every 24 hours.
+   The existing dashboard banner zone is loaded only when the pop-up opens. */
+(function setupSponsoredPopup(){
+  const popup = document.getElementById("adPopup");
+  const unit = document.getElementById("adPopupUnit");
+  const close = document.getElementById("closeAdPopup");
+  const dismiss = document.getElementById("dismissAdPopup");
+  if(!popup || !unit || !close || !dismiss) return;
+  const storageKey = "nt_dashboard_ad_popup_last_shown";
+  const day = 24 * 60 * 60 * 1000;
+  let opened = false;
+  function closePopup(){
+    popup.classList.remove("is-open");
+    popup.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+  }
+  function openPopup(){
+    if(opened || document.visibilityState !== "visible") return;
+    opened = true;
+    popup.classList.add("is-open");
+    popup.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    try{ localStorage.setItem(storageKey,String(Date.now())); }catch(_){}
+    if(!unit.dataset.loaded){
+      unit.dataset.loaded = "1";
+      window.atOptions = {
+        key: "d33fd661fe11e17cd12dc188cb8b8bd1",
+        format: "iframe",
+        height: 250,
+        width: 300,
+        params: {}
+      };
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = "https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";
+      unit.appendChild(script);
+    }
+    close.focus();
+  }
+  close.addEventListener("click",closePopup);
+  dismiss.addEventListener("click",closePopup);
+  popup.addEventListener("click",e=>{if(e.target===popup) closePopup();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape" && popup.classList.contains("is-open")) closePopup();});
+  let last = 0;
+  try{last = Number(localStorage.getItem(storageKey)||0);}catch(_){}
+  if(!last || Date.now()-last>=day) window.setTimeout(openPopup,25000);
+})();
 </script>
 </body>
 </html>
