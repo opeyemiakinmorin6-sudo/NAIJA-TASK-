@@ -452,6 +452,10 @@ async function loadTasks(){
   renderSkeleton();
   try{
     currentUser = await getSignedInUser();
+    if (!currentUser) {
+      window.location.replace("login.html?next=task.html");
+      return;
+    }
     let tasks = null, rpcError = null, usedRpc = false;
     const rpc = await db.rpc("get_available_tasks");
     if (!rpc.error && Array.isArray(rpc.data)){ tasks = rpc.data; usedRpc = true; } else rpcError = rpc.error;
