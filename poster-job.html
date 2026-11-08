@@ -716,7 +716,14 @@ async function startPage(){
     currentUser=data.session&&data.session.user;
 
     if(!currentUser){
-      location.href="poster-login.html";
+      location.replace("poster-login.html");
+      return;
+    }
+    const metadata = currentUser.user_metadata || {};
+    const role = String(metadata.role || metadata.user_type || "").toLowerCase();
+    if (!["task_poster", "poster", "task poster"].includes(role)) {
+      await db.auth.signOut();
+      location.replace("poster-login.html");
       return;
     }
 
