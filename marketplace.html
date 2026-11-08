@@ -889,7 +889,12 @@ db.auth.onAuthStateChange((_event,session) => {
   try {
     currentUser = await getSessionUser();
     updateAuthUI();
-    if (currentUser) { await refreshAll(); await verifyMarketplaceReturn(); }
+    if (!currentUser) {
+      location.replace("login.html?next=marketplace.html");
+      return;
+    }
+    await refreshAll();
+    await verifyMarketplaceReturn();
   } catch (error) {
     updateAuthUI();
     showGlobal('Could not initialize your session: ' + error.message,'error');
