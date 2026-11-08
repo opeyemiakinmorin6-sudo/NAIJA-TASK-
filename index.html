@@ -105,7 +105,7 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-ser
 .nt-wide-copy small{font-size:8px;font-weight:900;letter-spacing:1.05px;white-space:nowrap;color:inherit;opacity:.72}
 @media(max-width:420px){.nt-wide-mark{width:42px;height:40px;flex-basis:42px}.nt-wide-copy strong{font-size:15px}.nt-wide-copy small{font-size:7px;letter-spacing:.75px}}
 
-.brand.nt-wide-brand{gap:11px;text-decoration:none}
+.brand.nt-wide-brand{gap:11px;text-decoration:none;padding:8px 15px 8px 9px;border:1px solid #dce9df;border-radius:16px;background:#fff;box-shadow:0 7px 22px #103b1d0d;min-width:220px}
 .brand.nt-wide-brand .brand-mark{width:48px;height:43px;border-radius:13px;background:linear-gradient(145deg,#07351f,#0a8f3c);color:#d8ff70;box-shadow:0 7px 18px #062f1b35;font-size:16px;position:relative;overflow:hidden}
 .brand.nt-wide-brand .brand-mark:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:linear-gradient(#b8f34b 0 50%,#f4d34f 50%)}
 .brand.nt-wide-brand .nt-wide-copy{display:flex;flex-direction:column;gap:4px;line-height:1}
@@ -439,13 +439,11 @@ const referral =
 
 
 if(referral){
-  document.getElementById("referralCode").value = referral;
-  openTaskerAuth("signup");
+  window.location.replace("signup.html?ref="+encodeURIComponent(referral));
 } else {
   const requestedAuth = params.get("auth");
-  if(requestedAuth === "signup" || requestedAuth === "login") {
-    openTaskerAuth(requestedAuth);
-  }
+  if(requestedAuth === "signup") window.location.replace("signup.html");
+  if(requestedAuth === "login") window.location.replace("login.html");
 }
 
 
@@ -1102,10 +1100,10 @@ document
     if(resetTimer)clearTimeout(resetTimer);
     if(taps>=5){
       taps=0;
-      window.location.href='admin.html';
+      window.location.href='admin-login.html';
       return;
     }
-    resetTimer=setTimeout(function(){taps=0;},2500);
+    resetTimer=setTimeout(function(){taps=0;},1800);
   },true);
 })();
 </script>
