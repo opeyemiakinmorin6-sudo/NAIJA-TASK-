@@ -1015,4 +1015,29 @@ document
 </body>
   </html>
 
+
+<script id="NAIJA_TASK_FIVE_TAP_ADMIN_ACCESS">
+/* Discreet admin entry: tap the NT brand mark five times quickly.
+   Admin credentials and admin_users authorization are still required. */
+(function(){
+  const mark=document.querySelector('.brand-mark');
+  if(!mark)return;
+  let taps=0,resetTimer=null;
+  mark.style.cursor='pointer';
+  mark.setAttribute('title','');
+  mark.addEventListener('click',function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    taps++;
+    if(resetTimer)clearTimeout(resetTimer);
+    if(taps>=5){
+      taps=0;
+      window.location.href='admin.html';
+      return;
+    }
+    resetTimer=setTimeout(function(){taps=0;},2500);
+  },true);
+})();
+</script>
+
 </body></html>
