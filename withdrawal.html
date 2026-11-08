@@ -93,6 +93,26 @@
       cursor: not-allowed;
     }
 
+    select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d7e5da;
+      border-radius: 10px;
+      margin-bottom: 13px;
+      background: #fff;
+      color: #17251b;
+      font-size: 15px;
+    }
+    .field-label{display:block;margin:8px 0 7px;color:#34483a;font-size:12px;font-weight:800}
+    .verify-button{margin:0 0 12px;background:#e8f5eb;color:#075b2b;border:1px solid #cce6d2}
+    .account-verification{display:flex;align-items:center;gap:11px;padding:13px;margin:0 0 14px;border:1px solid #dcebe0;border-radius:12px;background:#f7fbf8}
+    .account-verification.verified{border-color:#a9d8b5;background:#effaf1}
+    .account-verification.invalid{border-color:#f0c4c0;background:#fff7f6}
+    .verification-icon{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:10px;background:#e4f1e7}
+    .account-verification strong,.account-verification small{display:block;overflow-wrap:anywhere}
+    .account-verification strong{font-size:13px;color:#153b22}
+    .account-verification small{margin-top:4px;color:#66756a;font-size:11px;line-height:1.4}
+    .verify-button:disabled{opacity:.55}
     .status {
       margin-top: 14px;
       text-align: center;
@@ -167,19 +187,30 @@
         placeholder="Enter withdrawal amount"
       >
 
-      <input
-        id="bankName"
-        type="text"
-        placeholder="Bank name"
-      >
+      <label class="field-label" for="bankName">Select your bank</label>
+      <select id="bankName" autocomplete="off">
+        <option value="">Loading Nigerian banks…</option>
+      </select>
 
+      <label class="field-label" for="accountNumber">Account number</label>
       <input
         id="accountNumber"
         type="text"
         inputmode="numeric"
+        autocomplete="off"
         maxlength="10"
-        placeholder="10-digit account number"
+        pattern="[0-9]{10}"
+        placeholder="Enter your 10-digit account number"
       >
+
+      <button type="button" id="verifyBankButton" class="verify-button" onclick="verifyBankAccount()" disabled>
+        Verify Bank Account
+      </button>
+
+      <div id="accountVerification" class="account-verification" aria-live="polite">
+        <span class="verification-icon">🔒</span>
+        <div><strong id="accountName">Account name will appear here</strong><small id="verificationMessage">Choose a bank and enter your account number.</small></div>
+      </div>
 
       <button
         id="withdrawButton"
@@ -287,113 +318,159 @@
       }
     }
 
-    async function requestWithdrawal() {
-      const status = document.getElementById("withdrawStatus");
-      const button = document.getElementById("withdrawButton");
+    let verifiedBankAccount = null;
+    let availableBanks = [];
 
-      await loadPlatformSettings();
-      applyWithdrawalSettings();
+    function setVerificationState(state, title, message) {
+      const box = document.getElementById("accountVerification");
+      const name = document.getElementById("accountName");
+      const note = document.getElementById("verificationMessage");
+      const icon = box.querySelector(".verification-icon");
+      box.classList.remove("verified", "invalid");
+      if (state === "verified") box.classList.add("verified");
+      if (state === "invalid") box.classList.add("invalid");
+      icon.textContent = state === "verified" ? "✓" : state === "invalid" ? "!" : "🔒";
+      name.textContent = title;
+      note.textContent = message;
+    }
 
-      if (platformSettings.withdrawals_enabled === false) {
-        status.textContent = "Withdrawal requests are currently disabled.";
-        status.style.color = "#b42318";
+    function invalidateAccountVerification() {
+      verifiedBankAccount = null;
+      setVerificationState("idle", "Account name will appear here", "Choose a bank and enter your account number.");
+      const verifyButton = document.getElementById("verifyBankButton");
+      verifyButton.disabled = !document.getElementById("bankName").value ||
+        !/^\\d{10}$/.test(document.getElementById("accountNumber").value.trim());
+    }
+
+    async function loadBanks() {
+      const select = document.getElementById("bankName");
+      select.innerHTML = '<option value="">Loading Nigerian banks…</option>';
+      try {
+        const { data, error } = await supabaseClient.functions.invoke("flutterwave-payments", {
+          body: { action: "banks" }
+        });
+        if (error) throw error;
+        if (!data?.success || !Array.isArray(data.banks) || !data.banks.length) {
+          throw new Error(data?.error || "The bank list is unavailable.");
+        }
+        availableBanks = data.banks;
+        select.innerHTML = '<option value="">Choose your bank</option>' +
+          availableBanks.map(bank => '<option value="' +
+            String(bank.code).replace(/[&<>"']/g, "") + '">' +
+            String(bank.name).replace(/[&<>"']/g, "&amp;") + '</option>').join("");
+      } catch (error) {
+        console.error("Bank list error:", error);
+        select.innerHTML = '<option value="">Unable to load banks — tap to retry</option>';
+        select.addEventListener("focus", loadBanks, { once: true });
+        setVerificationState("invalid", "Bank list unavailable", "Please check your connection and try again.");
+      }
+    }
+
+    async function verifyBankAccount() {
+      const bankSelect = document.getElementById("bankName");
+      const accountInput = document.getElementById("accountNumber");
+      const button = document.getElementById("verifyBankButton");
+      const bankCode = bankSelect.value;
+      const accountNumber = accountInput.value.trim();
+      const selectedBank = availableBanks.find(bank => bank.code === bankCode);
+      if (!selectedBank) {
+        setVerificationState("invalid", "Select a bank", "Choose a supported Nigerian bank from the list.");
         return;
       }
-
-      status.textContent = "Checking wallet...";
-      status.style.color = "#111";
+      if (!/^\\d{10}$/.test(accountNumber)) {
+        setVerificationState("invalid", "Invalid account number", "Enter exactly 10 digits.");
+        return;
+      }
       button.disabled = true;
-
+      button.textContent = "Verifying account…";
+      setVerificationState("idle", "Verifying account…", "Securely checking the details with Flutterwave.");
+      verifiedBankAccount = null;
       try {
-        const {
-          data: { user },
-          error: userError
-        } = await supabaseClient.auth.getUser();
-
-        if (userError || !user) {
-          window.location.href = "index.html";
-          return;
+        const { data, error } = await supabaseClient.functions.invoke("flutterwave-payments", {
+          body: { action: "resolve_account", bank_code: bankCode, account_number: accountNumber }
+        });
+        if (error) throw error;
+        if (!data?.success || !data.account_name || data.account_number !== accountNumber) {
+          throw new Error(data?.error || "We could not verify this account.");
         }
-
-        const amount = Number(document.getElementById("amount").value);
-        const bankName = document.getElementById("bankName").value.trim();
-        const accountNumber = document.getElementById("accountNumber").value.trim();
-        const minimumWithdrawal = Number(platformSettings.minimum_withdrawal || 1500);
-
-        if (!amount || amount < minimumWithdrawal) {
-          status.textContent = `Minimum withdrawal is ${formatMoney(minimumWithdrawal)}.`;
-          status.style.color = "#b42318";
-          return;
-        }
-
-        if (!bankName) {
-          status.textContent = "Enter your bank name.";
-          status.style.color = "#b42318";
-          return;
-        }
-
-        if (!/^\d{10}$/.test(accountNumber)) {
-          status.textContent = "Enter a valid 10-digit account number.";
-          status.style.color = "#b42318";
-          return;
-        }
-
-        const {
-          data: profile,
-          error: profileError
-        } = await supabaseClient
-          .from("profiles")
-          .select("balance")
-          .eq("id", user.id)
-          .single();
-
-        if (profileError) {
-          console.error(profileError);
-          status.textContent = "Unable to check wallet balance.";
-          status.style.color = "#b42318";
-          return;
-        }
-
-        const balance = Number(profile?.balance || 0);
-        if (balance < amount) {
-          status.textContent = "Insufficient wallet balance.";
-          status.style.color = "#b42318";
-          return;
-        }
-
-        status.textContent = "Submitting withdrawal...";
-
-        const { error } = await supabaseClient
-          .from("withdrawals")
-          .insert({
-            user_id: user.id,
-            amount: amount,
-            bank_name: bankName,
-            account_number: accountNumber,
-            status: "PENDING"
-          });
-
-        if (error) {
-          console.error(error);
-          status.textContent = "Withdrawal request failed.";
-          status.style.color = "#b42318";
-          return;
-        }
-
-        status.textContent = "Withdrawal request submitted successfully.";
-        status.style.color = "#0b8f3c";
-
-        document.getElementById("amount").value = "";
-        document.getElementById("bankName").value = "";
-        document.getElementById("accountNumber").value = "";
-
-        loadWithdrawals();
-
+        verifiedBankAccount = {
+          bank_code: bankCode,
+          bank_name: selectedBank.name,
+          account_number: accountNumber,
+          account_name: data.account_name
+        };
+        setVerificationState("verified", data.account_name, "Verified account · " + selectedBank.name + " · " + accountNumber);
+      } catch (error) {
+        console.error("Account verification error:", error);
+        setVerificationState("invalid", "Account not verified", error?.message || "Check the bank and account number.");
       } finally {
+        button.textContent = "Verify Bank Account";
         button.disabled = false;
       }
     }
 
+    document.getElementById("bankName").addEventListener("change", invalidateAccountVerification);
+    document.getElementById("accountNumber").addEventListener("input", invalidateAccountVerification);
+    document.getElementById("accountNumber").addEventListener("blur", () => {
+      const button = document.getElementById("verifyBankButton");
+      if (document.getElementById("bankName").value &&
+          /^\\d{10}$/.test(document.getElementById("accountNumber").value.trim()) &&
+          !verifiedBankAccount) {
+        verifyBankAccount();
+      }
+    });
+
+    async function requestWithdrawal() {
+      const status = document.getElementById("withdrawStatus");
+      const button = document.getElementById("withdrawButton");
+      await loadPlatformSettings();
+      applyWithdrawalSettings();
+      const amount = Number(document.getElementById("amount").value);
+      const minimumWithdrawal = Number(platformSettings.minimum_withdrawal || 1500);
+      if (!amount || amount < minimumWithdrawal) {
+        status.textContent = "Minimum withdrawal is " + formatMoney(minimumWithdrawal) + ".";
+        status.style.color = "#b42318";
+        return;
+      }
+      const bankCode = document.getElementById("bankName").value;
+      const accountNumber = document.getElementById("accountNumber").value.trim();
+      if (!verifiedBankAccount ||
+          verifiedBankAccount.bank_code !== bankCode ||
+          verifiedBankAccount.account_number !== accountNumber) {
+        status.textContent = "Verify your bank account before requesting a withdrawal.";
+        status.style.color = "#b42318";
+        return;
+      }
+      status.textContent = "Submitting verified withdrawal request…";
+      status.style.color = "#111";
+      button.disabled = true;
+      try {
+        const { data, error } = await supabaseClient.functions.invoke("flutterwave-payments", {
+          body: {
+            action: "request_withdrawal",
+            amount,
+            bank_code: verifiedBankAccount.bank_code,
+            account_number: verifiedBankAccount.account_number,
+            account_name: verifiedBankAccount.account_name
+          }
+        });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error || "Withdrawal request failed.");
+        status.textContent = "Withdrawal request submitted. Account name verified: " + data.account_name + ".";
+        status.style.color = "#087f36";
+        document.getElementById("amount").value = "";
+        document.getElementById("bankName").value = "";
+        document.getElementById("accountNumber").value = "";
+        invalidateAccountVerification();
+        await loadWithdrawals();
+      } catch (error) {
+        console.error("Withdrawal request error:", error);
+        status.textContent = error?.message || "Withdrawal request failed. Please try again.";
+        status.style.color = "#b42318";
+      } finally {
+        button.disabled = false;
+      }
+    }
 
     async function loadWithdrawals() {
       const {
@@ -443,7 +520,9 @@
         bank.textContent = withdrawal.bank_name || "";
 
         const account = document.createElement("p");
-        account.textContent = "Account: " + (withdrawal.account_number || "");
+        const rawAccount = String(withdrawal.account_number || "");
+        account.textContent = (withdrawal.account_name ? withdrawal.account_name + " · " : "") +
+          "Account ending " + (rawAccount.length >= 4 ? rawAccount.slice(-4) : "****");
 
         const status = document.createElement("small");
         status.textContent = "Status: " + (withdrawal.status || "PENDING");
@@ -459,6 +538,7 @@
 
     loadPlatformSettings();
     applyWithdrawalSettings();
+    loadBanks();
     loadWithdrawals();
 
   </script>
