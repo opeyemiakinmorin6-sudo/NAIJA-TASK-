@@ -941,8 +941,7 @@ async function startDashboard(){
     const dashboardMetadata = currentUser.user_metadata || {};
     const dashboardRole = String(dashboardMetadata.role || dashboardMetadata.user_type || dashboardMetadata.account_type || "").toLowerCase();
     if (["task_poster", "poster", "task poster"].includes(dashboardRole)) {
-      await supabaseClient.auth.signOut();
-      window.location.replace("poster-login.html");
+      window.location.replace("poster-dashboard.html");
       return;
     }
     subscribeToChanges();
