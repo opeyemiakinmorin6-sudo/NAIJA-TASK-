@@ -25,7 +25,7 @@ const linkList=items=>'<div class="links">'+items.map(x=>'<a class="link" href="
 async function start(){
  const auth=await sb.auth.getUser();const user=auth.data&&auth.data.user;if(!user){location.href="login.html";return}
  if(moduleName==="support"||moduleName==="appeals"){
- const isAppeal=moduleName==="appeals", table=isAppeal?"appeals":"support", title=isAppeal?"Submit an appeal":"Contact support";
+ const isAppeal=moduleName==="appeals", table=isAppeal?"appeals":"support_tickets", title=isAppeal?"Submit an appeal":"Contact support";
  const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30);
  app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">Do not include your password, PIN, OTP or full bank details.</p><form id="sendForm"><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your requests</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,x.admin_reply||"")))+'</section>';
  document.getElementById("sendForm").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");b.disabled=true;const {error}=await sb.from(table).insert({user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()});document.getElementById("result").innerHTML=error?note(error.message,true):note("Your request has been submitted.");if(!error){f.reset();start()}else b.disabled=false};return;
