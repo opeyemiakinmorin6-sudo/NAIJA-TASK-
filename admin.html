@@ -7438,10 +7438,9 @@ function renderWithdrawals(rows) {
       "—";
 
     const account =
-      row.account_number ||
-      row.account_details ||
-      row.bank_name ||
-      "—";
+      [row.account_name, row.bank_name, row.account_number]
+        .filter(Boolean)
+        .join(" · ") || row.account_details || "—";
 
     const status =
       row.status ||
@@ -7547,7 +7546,9 @@ function filterWithdrawals() {
         row.method,
         row.payment_method,
         row.account_number,
+        row.account_name,
         row.bank_name,
+        row.bank_code,
         row.reference
       ]
         .filter(Boolean)
