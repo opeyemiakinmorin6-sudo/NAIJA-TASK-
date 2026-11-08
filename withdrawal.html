@@ -187,6 +187,15 @@
         placeholder="Enter withdrawal amount"
       >
 
+      <label class="field-label" for="bankSearch">Search Nigerian banks</label>
+      <input
+        id="bankSearch"
+        type="search"
+        inputmode="search"
+        autocomplete="off"
+        placeholder="Type bank name e.g. Access, GTBank, UBA…"
+        aria-label="Search Nigerian banks"
+      >
       <label class="field-label" for="bankName">Select your bank</label>
       <select id="bankName" autocomplete="off">
         <option value="">Loading Nigerian banks…</option>
@@ -343,6 +352,38 @@
         !/^\d{10}$/.test(document.getElementById("accountNumber").value.trim());
     }
 
+    function renderBankOptions(searchTerm = "") {
+      const select = document.getElementById("bankName");
+      const query = String(searchTerm || "").trim().toLowerCase();
+      const currentValue = select.value;
+      const filteredBanks = availableBanks.filter(bank =>
+        String(bank.name || "").toLowerCase().includes(query) ||
+        String(bank.code || "").toLowerCase().includes(query)
+      );
+
+      select.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = filteredBanks.length
+        ? (query ? "Choose a matching bank" : "Choose your bank")
+        : "No matching bank found";
+      select.appendChild(placeholder);
+
+      filteredBanks.forEach(bank => {
+        const option = document.createElement("option");
+        option.value = String(bank.code || "");
+        option.textContent = String(bank.name || "Bank");
+        select.appendChild(option);
+      });
+
+      if (currentValue && filteredBanks.some(bank => String(bank.code) === currentValue)) {
+        select.value = currentValue;
+      } else if (currentValue) {
+        select.value = "";
+        invalidateAccountVerification();
+      }
+    }
+
     async function loadBanks() {
       const select = document.getElementById("bankName");
       select.innerHTML = '<option value="">Loading Nigerian banks…</option>';
@@ -410,6 +451,9 @@
       }
     }
 
+    document.getElementById("bankSearch").addEventListener("input", event => {
+      renderBankOptions(event.target.value);
+    });
     document.getElementById("bankName").addEventListener("change", invalidateAccountVerification);
     document.getElementById("accountNumber").addEventListener("input", invalidateAccountVerification);
     document.getElementById("accountNumber").addEventListener("blur", () => {
