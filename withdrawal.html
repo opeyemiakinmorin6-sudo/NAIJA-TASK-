@@ -339,7 +339,7 @@
       setVerificationState("idle", "Account name will appear here", "Choose a bank and enter your account number.");
       const verifyButton = document.getElementById("verifyBankButton");
       verifyButton.disabled = !document.getElementById("bankName").value ||
-        !/^\\d{10}$/.test(document.getElementById("accountNumber").value.trim());
+        !/^\d{10}$/.test(document.getElementById("accountNumber").value.trim());
     }
 
     async function loadBanks() {
@@ -377,7 +377,7 @@
         setVerificationState("invalid", "Select a bank", "Choose a supported Nigerian bank from the list.");
         return;
       }
-      if (!/^\\d{10}$/.test(accountNumber)) {
+      if (!/^\d{10}$/.test(accountNumber)) {
         setVerificationState("invalid", "Invalid account number", "Enter exactly 10 digits.");
         return;
       }
@@ -414,7 +414,7 @@
     document.getElementById("accountNumber").addEventListener("blur", () => {
       const button = document.getElementById("verifyBankButton");
       if (document.getElementById("bankName").value &&
-          /^\\d{10}$/.test(document.getElementById("accountNumber").value.trim()) &&
+          /^\d{10}$/.test(document.getElementById("accountNumber").value.trim()) &&
           !verifiedBankAccount) {
         verifyBankAccount();
       }
@@ -489,7 +489,7 @@
       } = await supabaseClient
         .from("withdrawals")
         .select(
-          "id, amount, bank_name, account_number, status, created_at"
+          "id, amount, bank_name, account_name, account_number, status, created_at"
         )
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
