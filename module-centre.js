@@ -65,6 +65,20 @@ async function start(){
  community:[["💬","Private Chat","private-chat.html"],["📢","Announcements","announcements.html"],["🎧","Community support","support.html"]],
  "ai-assistant":[["💚","AI Care inbox","ai-care.html"],["🎧","Support Centre","support.html"],["📋","My task activity","applied-jobs.html"]]
  };
+ if(moduleName==="ai-assistant"){
+ const faq=[
+ ["How do I earn on NAIJA TASK?","Open Find Tasks, read the task instructions, complete the task and submit genuine proof."],
+ ["When is a task reward credited?","A task reward is credited after the submission has been reviewed and approved."],
+ ["How do I withdraw money?","Open Wallet, choose Withdraw, verify your bank account and submit an amount within your available balance."],
+ ["Why did my withdrawal fail?","Check that your available balance covers the amount and that your bank account was verified. Contact Support if the dashboard balance looks incorrect."],
+ ["How do I track submitted tasks?","Open My Task Activity to see submission status, review dates and any rejection reason."],
+ ["How do I contact support?","Open Support Centre and submit a request. Never send your password, PIN or OTP."],
+ ["Can I buy airtime or data now?","Your order history is available, but new purchases are not enabled until the live catalogue and verified payment flow are connected."]
+ ];
+ app.innerHTML='<section class="panel"><h2>Search help articles</h2><p class="muted">Find quick answers about earning, withdrawals and your account.</p><input id="helpSearch" type="search" placeholder="Search wallet, task, withdrawal…"><div id="helpResults"></div></section><section class="panel"><h2>Need more help?</h2><div class="links"><a class="link" href="support.html">🎧 Contact support</a><a class="link" href="ai-care.html">💚 Care inbox</a></div></section>';
+ const drawHelp=term=>{const matches=faq.filter(x=>(x[0]+" "+x[1]).toLowerCase().includes(term.toLowerCase()));document.getElementById("helpResults").innerHTML=matches.length?matches.map(x=>'<article class="item"><div><strong>'+esc(x[0])+'</strong><small>'+esc(x[1])+'</small></div></article>').join(""):'<div class="empty">No matching help article. Try another word.</div>'};
+ document.getElementById("helpSearch").addEventListener("input",e=>drawHelp(e.target.value));drawHelp("");return;
+ }
  const items=pages[moduleName]||pages.more;
  app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>';
 }
