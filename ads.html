@@ -11,7 +11,7 @@ const URL="https://jwakveeiynpakunwjzkj.supabase.co",KEY="sb_publishable_iT-y7ZO
 const $=id=>document.getElementById(id),esc=v=>String(v??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),money=v=>"₦"+Number(v||0).toLocaleString("en-NG",{maximumFractionDigits:2});
 function status(msg,kind="notice"){$("pageStatus").className=kind;$("pageStatus").textContent=msg}
 function get(o,keys){for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null)return o[k];return null}
-async function init(){const s=await db.auth.getSession();user=s.data?.session?.user||null;if(!user){location.replace("login.html?next=ads.html");return}
+async function init(){const s=await db.auth.getSession();user=s.data?.session?.user||null;if(!user){location.replace("index.html#account-types");return}
 try{const sr=await db.from("platform_settings").select("*").limit(1).maybeSingle();if(sr.error)throw new Error("Could not read platform_settings: "+sr.error.message);settings=sr.data||{};
 const d=settings.ad_dashboard_placement_fee,p=settings.ad_page_placement_fee,day=settings.ad_daily_fee;
 if(d!==null&&p!==null&&day!==null&&Number(d)>=0&&Number(p)>=0&&Number(day)>=0){rates={dashboard:Number(d),adsPage:Number(p),daily:Number(day)};updatePrice()}else{$("priceBox").textContent="Campaign submission is locked: an administrator must set dashboard placement, Ads-page placement and daily duration prices in Admin → Ads Manager. No price is guessed."}
