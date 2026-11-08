@@ -39,11 +39,19 @@ async function start(){
  }
  if(moduleName==="notifications"){
  const q=await sb.from("notifications").select("id,title,message,type,is_read,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60);
- app.innerHTML='<section class="panel"><h2>Your notifications</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.title,x.message+" · "+date(x.created_at),x.is_read?"Read":"New")))+'</section>';return;
+ const unread=(q.data||[]).filter(x=>!x.is_read).length;
+ app.innerHTML='<section class="panel"><h2>Your notifications</h2><p class="muted">'+unread+' unread · '+(q.data||[]).length+' total</p>'+(q.error?note(q.error.message,true):list(q.data,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+' · '+date(x.created_at)+'</small></div><div><span class="pill '+(x.is_read?'good':'wait')+'">'+(x.is_read?'Read':'New')+'</span>'+(x.is_read?'':'<button class="btn alt mark-read" data-id="'+esc(x.id)+'">Mark read</button>')+'</div></article>'))+'</section>'; 
+ document.querySelectorAll(".mark-read").forEach(b=>b.addEventListener("click",async()=>{b.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("id",b.dataset.id).eq("user_id",user.id);if(error){b.disabled=false;alert("Could not mark as read: "+error.message)}else start()}));return;
  }
  if(moduleName==="announcements"){
  const q=await sb.from("announcements").select("id,title,message,created_at").eq("is_published",true).order("created_at",{ascending:false}).limit(50);
  app.innerHTML='<section class="panel"><h2>Latest updates</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+'</small><small>'+date(x.created_at)+'</small></div></article>'))+'</section>';return;
+ }
+ if(moduleName==="community"){
+ const groups=await sb.from("community_groups").select("id,name,description,created_at").eq("active",true).order("created_at",{ascending:false}).limit(60);
+ const memberships=await sb.from("community_group_members").select("group_id,role").eq("user_id",user.id);
+ const mine=new Map((memberships.data||[]).map(x=>[x.group_id,x.role]));
+ app.innerHTML='<section class="panel"><h2>Active community groups</h2><p class="muted">Browse groups and check your membership. Group joining is currently managed by the platform team.</p>'+(groups.error?note(groups.error.message,true):list(groups.data,x=>row(x.name,x.description||"NAIJA TASK member group",mine.has(x.id)?"Member":"Available",mine.has(x.id)?(mine.get(x.id)||"Member"):"Membership managed by admins")))+'</section><section class="panel"><h2>Connect with members</h2><a class="btn" href="private-chat.html">Open Private Chat</a></section>';return;
  }
  if(moduleName==="airtime-data"){
  const q=await sb.from("airtime_data_orders").select("id,phone_number,network,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40);
