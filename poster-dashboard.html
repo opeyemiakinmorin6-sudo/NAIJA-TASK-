@@ -533,6 +533,16 @@ main{max-width:980px;padding-top:22px}
 
     </div>
 
+    <div class="stat">
+      <div class="stat-label">💳 Payment Needed</div>
+      <div class="stat-value" id="paymentRequiredJobs">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">🛡️ Awaiting Review</div>
+      <div class="stat-value" id="moderationPendingJobs">0</div>
+    </div>
+
   </section>
 
 
@@ -953,7 +963,7 @@ async function loadJobs(user){
   const jobsList = document.getElementById("jobsList");
   const { data: jobs, error } = await supabaseClient
     .from("tasks")
-    .select("id,title,reward,slots,status,active,created_at,expiry_date,task_kind,task_type,poster_rate_per_slot,poster_base_fee_snapshot,promotion_fee_snapshot")
+    .select("id,title,reward,slots,status,active,created_at,expiry_date,task_kind,task_type,payment_status,moderation_status,poster_rate_per_slot,poster_base_fee_snapshot,promotion_fee_snapshot")
     .eq("created_by", user.id)
     .order("created_at", { ascending:false });
 
@@ -975,8 +985,24 @@ async function loadJobs(user){
     job.status === "UNDER_REVIEW"
   ).length;
   document.getElementById("completedJobs").textContent = list.filter(job =>
-    job.status === "COMPLETED"
+    String(job.status || "").toUpperCase() === "COMPLETED"
   ).length;
+
+  const paymentRequired = list.filter(job => {
+    const status = String(job.status || "").toUpperCase();
+    const payment = String(job.payment_status || "").toUpperCase();
+    return status === "PAYMENT_REQUIRED" || ["PENDING", "PENDING_PAYMENT", "PAYMENT_REQUIRED"].includes(payment);
+  }).length;
+  document.getElementById("paymentRequiredJobs").textContent = paymentRequired;
+
+  const moderationPending = list.filter(job => {
+    const status = String(job.status || "").toUpperCase();
+    const moderation = String(job.moderation_status || "").toUpperCase();
+    const payment = String(job.payment_status || "").toUpperCase();
+    const funded = ["PAID", "NOT_REQUIRED", "SUCCESS", "SUCCESSFUL"].includes(payment);
+    return status === "UNDER_REVIEW" || (funded && ["PENDING", "PENDING_REVIEW", "UNDER_REVIEW"].includes(moderation));
+  }).length;
+  document.getElementById("moderationPendingJobs").textContent = moderationPending;
 
   // Show only the poster's total job budget. Never expose Tasker rates or platform margins.
   const totalBudget = list.reduce((sum, job) => {
