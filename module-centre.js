@@ -95,6 +95,7 @@ async function start(){
    app.innerHTML='<section class="panel"><h2>Airtime & Data</h2><p class="muted">Buy data bundles or airtime for Nigerian networks using your NAIJA TASK wallet. Provider confirmation may take a little time.</p><div id="vtCatalog">'+note("Loading live VTpass catalogue…")+'</div></section><section class="panel"><h2>Your recent orders</h2><div id="vtOrders">'+note("Loading order history…")+'</div></section>';
    const catalogBox=document.getElementById("vtCatalog"),ordersBox=document.getElementById("vtOrders");
    let products=[];
+   let purchasesEnabled=false;
    const invoke=async payload=>sb.functions.invoke("vtpass-services",{body:payload});
    const loadOrders=async()=>{
      const q=await sb.from("airtime_data_orders").select("id,phone_number,network,amount,status,created_at,order_type,product_name,request_id,wallet_refunded_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30);
@@ -119,7 +120,7 @@ async function start(){
      const selectedProduct=matching.find(p=>String(p.id)===String(selected))||matching[0];
      const networkOptions=networks.map(n=>'<option value="'+esc(n)+'" '+(n===network?'selected':'')+'>'+esc(n)+'</option>').join("");
      const planOptions=matching.filter(p=>kind==="data").map(p=>'<option value="'+esc(p.id)+'" '+(p.id===selectedProduct?.id?'selected':'')+'>'+esc(p.name)+' — '+money(p.selling_price)+'</option>').join("");
-     catalogBox.innerHTML='<form id="vtPurchase"><label>Service</label><select id="vtKind" name="kind"><option value="data" '+(kind==="data"?'selected':'')+'>Data bundle</option><option value="airtime" '+(kind==="airtime"?'selected':'')+'>Airtime</option></select><label>Network</label><select id="vtNetwork" name="network">'+networkOptions+'</select>'+(kind==="data"?'<label>Choose data plan</label><select id="vtPlan" name="product_id">'+planOptions+'</select><p class="muted">Price: '+money(selectedProduct?.selling_price||0)+'</p>':'<label>Airtime amount (₦50 – ₦50,000)</label><input name="amount" type="number" min="50" max="50000" step="1" required placeholder="Enter amount">')+'<label>Recipient phone number</label><input name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10,14}" minlength="10" maxlength="14" required placeholder="e.g. 08012345678"><div class="note">Please confirm the network and phone number before buying. Successful provider purchases cannot be reversed.</div><button class="btn" id="vtBuy">Continue to purchase</button><div id="vtResult"></div></form>';
+     catalogBox.innerHTML='<form id="vtPurchase"><label>Service</label><select id="vtKind" name="kind"><option value="data" '+(kind==="data"?'selected':'')+'>Data bundle</option><option value="airtime" '+(kind==="airtime"?'selected':'')+'>Airtime</option></select><label>Network</label><select id="vtNetwork" name="network">'+networkOptions+'</select>'+(kind==="data"?'<label>Choose data plan</label><select id="vtPlan" name="product_id">'+planOptions+'</select><p class="muted">Price: '+money(selectedProduct?.selling_price||0)+'</p>':'<label>Airtime amount (₦50 – ₦50,000)</label><input name="amount" type="number" min="50" max="50000" step="1" required placeholder="Enter amount">')+'<label>Recipient phone number</label><input name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10,14}" minlength="10" maxlength="14" required placeholder="e.g. 08012345678"><div class="note">Please confirm the network and phone number before buying. Successful provider purchases cannot be reversed.</div><button class="btn" id="vtBuy" '+(purchasesEnabled?'':'disabled')+'>'+(purchasesEnabled?'Continue to purchase':'Purchases temporarily disabled')+'</button>'+(purchasesEnabled?'':note("The catalogue can be viewed. Purchases will be enabled after VTpass credentials and environment are verified."))+'<div id="vtResult"></div></form>';
      document.getElementById("vtKind").addEventListener("change",renderForm);
      document.getElementById("vtNetwork").addEventListener("change",renderForm);
      document.getElementById("vtPlan")?.addEventListener("change",renderForm);
@@ -145,6 +146,7 @@ async function start(){
    if(error){catalogBox.innerHTML=note("Could not load VTpass catalogue: "+error.message,true);await loadOrders();return}
    if(!data?.ok){catalogBox.innerHTML=note(data?.message||"VTpass catalogue is not available.",true);await loadOrders();return}
    products=data.products||[];
+   purchasesEnabled=data.purchases_enabled===true;
    if(!products.length){catalogBox.innerHTML=note("No products are currently available from VTpass.",true)}
    else renderForm();
    if(data.warnings?.length)catalogBox.insertAdjacentHTML("beforeend",note("Some network catalogues could not refresh: "+data.warnings.join(", ")));
