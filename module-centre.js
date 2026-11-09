@@ -264,7 +264,7 @@ async function start(){
  ["Why did my withdrawal fail?","Check that your available balance covers the amount and that your bank account was verified. Contact Support if the dashboard balance looks incorrect."],
  ["How do I track submitted tasks?","Open My Task Activity to see submission status, review dates and any rejection reason."],
  ["How do I contact support?","Open Support Centre and submit a request. Never send your password, PIN or OTP."],
- ["Can I buy airtime or data now?","Open Airtime & Data to load the VTpass catalogue, select a network and plan, and pay from your wallet. If a transaction is pending, use Check status instead of buying again."]
+ ["Can I buy airtime or data now?","The Airtime & Data page currently shows the live catalogue, but purchases are temporarily disabled while VTpass live credentials and service settings are verified. No wallet debit is made while purchases are disabled."]
  ];
  app.innerHTML='<section class="panel"><h2>Search help articles</h2><p class="muted">Find quick answers about earning, withdrawals and your account.</p><input id="helpSearch" type="search" placeholder="Search wallet, task, withdrawal…"><div id="helpResults"></div></section><section class="panel"><h2>Need more help?</h2><div class="links"><a class="link" href="support.html">🎧 Contact support</a><a class="link" href="ai-care.html">💚 Care inbox</a></div></section>';
  const drawHelp=term=>{const matches=faq.filter(x=>(x[0]+" "+x[1]).toLowerCase().includes(term.toLowerCase()));document.getElementById("helpResults").innerHTML=matches.length?matches.map(x=>'<article class="item"><div><strong>'+esc(x[0])+'</strong><small>'+esc(x[1])+'</small></div></article>').join(""):'<div class="empty">No matching help article. Try another word.</div>'};
