@@ -9,7 +9,7 @@ support:"Support Centre",notifications:"Notifications","applied-jobs":"My Task A
 const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = v => "₦" + Number(v || 0).toLocaleString("en-NG");
 const date = v => v ? new Date(v).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"}) : "—";
-const pill = s => /approved|complete|paid|success/i.test(s||"") ? "good" : /reject|cancel|fail/i.test(s||"") ? "bad" : "wait";
+const pill = s => /approved|complete|paid|success|answered|resolved|active/i.test(s||"") ? "good" : /reject|cancel|fail/i.test(s||"") ? "bad" : "wait";
 const css = ":root{--g:#087f36;--d:#064d25;--bg:#f2f7f3;--ink:#173326;--muted:#708176;--line:#e0eae3}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eaf4ed,#f7f9f7 360px);color:var(--ink);font:15px/1.5 system-ui,Arial,sans-serif}.top{background:linear-gradient(110deg,#063f22,#087f36);color:white;padding:15px max(16px,calc((100vw - 900px)/2));display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}.top b{font-weight:900}.back{color:white;text-decoration:none;background:#ffffff20;padding:9px 13px;border-radius:10px;font-size:12px;font-weight:800}main{max-width:900px;margin:auto;padding:20px 15px}.hero{padding:23px;border-radius:22px;background:linear-gradient(120deg,#064322,#087f36 70%,#0b9b45);color:white;margin-bottom:16px}.hero small{font-size:10px;letter-spacing:1.5px;font-weight:900;color:#d9f5b9}.hero h1{margin:8px 0;font-size:clamp(23px,5vw,31px)}.hero p{margin:0;color:#e1f2e6;font-size:13px}.panel{background:white;border:1px solid var(--line);border-radius:17px;padding:17px;margin:13px 0;box-shadow:0 8px 24px #12351b0a}.panel h2{font-size:17px;margin:0 0 12px}.muted,small{color:var(--muted)}.muted{font-size:13px}.item{border:1px solid var(--line);border-radius:13px;padding:12px;margin:9px 0;display:flex;justify-content:space-between;gap:10px}.item strong{display:block;font-size:13px}.item small{display:block;font-size:11px;margin-top:5px}.pill{padding:5px 9px;border-radius:20px;font-size:10px;font-weight:900;background:#fff4dc;color:#805900;white-space:nowrap}.pill.good{background:#e5f7e9;color:#087f36}.pill.bad{background:#ffeded;color:#a12828}.empty{text-align:center;padding:24px 10px;color:var(--muted);font-size:13px}.note{padding:12px;border-radius:11px;background:#eef7f0;color:#365b40;font-size:12px;margin:10px 0}.error{background:#fff0f0;color:#9d2828}label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}input,textarea{width:100%;border:1px solid #d8e4db;border-radius:11px;padding:13px;font:inherit;font-size:14px}textarea{min-height:100px}.btn{display:inline-block;border:0;border-radius:11px;background:var(--g);color:white;padding:12px 16px;font-weight:850;font-size:13px;margin-top:12px;cursor:pointer}.btn.alt{background:#eaf5ec;color:var(--d)}.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.link{padding:13px;border:1px solid var(--line);border-radius:13px;background:white;font-size:12px;font-weight:850;text-decoration:none;color:var(--ink)}@media(max-width:430px){main{padding:15px 12px}.links{grid-template-columns:1fr}}";
 const style=document.createElement("style");style.textContent=css;document.head.appendChild(style);
 const names={support:"🎧",notifications:"🔔","applied-jobs":"📋",approved:"✅",retry:"🔁",cancelled:"✖️","airtime-data":"📱",more:"▦",promote:"📣",announcements:"📢",community:"👥","ai-assistant":"✨","ai-care":"💚",arena:"🎮",security:"🔐",appeals:"⚖️"};
@@ -76,6 +76,12 @@ async function start(){
  app.innerHTML='<section class="panel"><h2>Latest updates</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+'</small><small>'+date(x.created_at)+'</small></div></article>'))+'</section>';return;
  }
  if(moduleName==="community"){
+ const feature=await sb.from("platform_settings").select("community_chat_enabled,private_chat_enabled").eq("id",1).maybeSingle();
+ if(feature.error){app.innerHTML='<section class="panel">'+note(feature.error.message,true)+'</section>';return}
+ if(!feature.data||feature.data.community_chat_enabled!==true){
+   app.innerHTML='<section class="panel"><h2>Community is currently unavailable</h2>'+note("Community access is temporarily disabled by NAIJA TASK administrators.")+(feature.data?.private_chat_enabled===true?'<a class="btn" href="private-chat.html">Open Private Chat</a>':"")+'</section>';
+   return;
+ }
  const groups=await sb.from("community_groups").select("id,name,description,created_at").eq("active",true).order("created_at",{ascending:false}).limit(60);
  const memberships=await sb.from("community_group_members").select("group_id,role").eq("user_id",user.id);
  const mine=new Map((memberships.data||[]).map(x=>[x.group_id,x.role]));
@@ -86,6 +92,12 @@ async function start(){
  app.innerHTML='<section class="panel"><h2>Your orders</h2><p class="muted">Order history only. New purchases are not enabled until the product catalogue and verified VTpass payment flow are connected.</p>'+(q.error?note(q.error.message,true):list(q.data,x=>row((x.network||"Service")+" · "+x.phone_number,date(x.created_at),x.status,money(x.amount))))+'</section>';return;
  }
  if(moduleName==="ai-care"){
+ const feature=await sb.from("platform_settings").select("ai_care_enabled").eq("id",1).maybeSingle();
+ if(feature.error){app.innerHTML='<section class="panel">'+note(feature.error.message,true)+'</section>';return}
+ if(!feature.data||feature.data.ai_care_enabled!==true){
+   app.innerHTML='<section class="panel"><h2>Care inbox unavailable</h2>'+note("The Care Inbox is currently disabled by NAIJA TASK administrators.")+'<a class="btn alt" href="support.html">Contact Support</a></section>';
+   return;
+ }
  const q=await sb.from("ai_care_threads").select("id,title,status,created_at,updated_at").eq("user_id",user.id).order("updated_at",{ascending:false}).limit(30);
  if(q.error){app.innerHTML='<section class="panel">'+note(q.error.message,true)+'</section>';return}
  let activeThread=(q.data||[])[0]?.id||null;
