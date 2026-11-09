@@ -274,15 +274,26 @@ async function loadReferrals() {
   }
 
 
+  const { data: profile, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("referral_code")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile || !profile.referral_code) {
+    console.error("Unable to load referral code:", profileError);
+    document.getElementById("referralLink").value = "";
+    document.getElementById("message").textContent =
+      "Your referral code is being prepared. Please refresh this page shortly.";
+    return;
+  }
+
   const referralLink =
     new URL("signup.html", window.location.href).toString() +
     "?ref=" +
-    encodeURIComponent(user.id);
+    encodeURIComponent(profile.referral_code);
 
-
-  document.getElementById(
-    "referralLink"
-  ).value = referralLink;
+  document.getElementById("referralLink").value = referralLink;
 
 
   const {
