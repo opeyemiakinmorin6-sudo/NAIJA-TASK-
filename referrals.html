@@ -172,10 +172,11 @@ button {
     <h2>Invite & Earn</h2>
 
     <p class="info">
-      Invite new users to NAIJA TASK using your personal referral link.
-      Your referral activity and rewards will appear here when they are
-      recorded in your account.
+      Invite friends to NAIJA TASK. Earn <strong>₦100</strong> when their
+      activation payment is verified, plus <strong>5% lifetime commission</strong>
+      on every task reward they receive after approval.
     </p>
+    <p class="info">No reward is paid for rejected tasks, duplicate accounts or unverified activation payments.</p>
 
     <div class="stats">
       <div class="stat">
@@ -274,13 +275,9 @@ async function loadReferrals() {
 
 
   const referralLink =
-    window.location.origin +
-    window.location.pathname.replace(
-      "referrals.html",
-      ""
-    ) +
+    new URL("signup.html", window.location.href).toString() +
     "?ref=" +
-    user.id;
+    encodeURIComponent(user.id);
 
 
   document.getElementById(
