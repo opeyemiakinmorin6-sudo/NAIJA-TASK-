@@ -49,7 +49,7 @@ async function start(){
    if(isAppeal){
      const ref=String(fd.get("reference")||"");
      payload.submission_id=ref.startsWith("submission:")?Number(ref.slice(11)):null;
-     payload.withdrawal_id=ref.startsWith("withdrawal:")?Number(ref.slice(10)):null;
+     payload.withdrawal_id=ref.startsWith("withdrawal:")?Number(ref.slice(11)):null;
    }
    const {error}=await sb.from(table).insert(payload);
    document.getElementById("result").innerHTML=error?note(error.message,true):note(isAppeal?"Your appeal has been submitted for review.":"Your support request has been submitted.");
