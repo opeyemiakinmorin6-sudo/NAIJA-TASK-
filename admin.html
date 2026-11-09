@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b8f3c">
 
-<title>Admin Control Center — NAIJA TASK | Pre-Launch</title>
+<title>Admin Control Center — NAIJA TASK</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -2655,6 +2655,7 @@ td,th{padding:13px 11px}
         <option value="all">All statuses</option>
         <option value="open">Open</option>
         <option value="pending">Pending</option>
+        <option value="answered">Answered</option>
         <option value="resolved">Resolved</option>
         <option value="closed">Closed</option>
 
@@ -2679,6 +2680,7 @@ td,th{padding:13px 11px}
             <th>User</th>
             <th>Subject</th>
             <th>Message</th>
+            <th>Admin reply</th>
             <th>Status</th>
             <th>Date</th>
             <th>Action</th>
@@ -2689,7 +2691,7 @@ td,th{padding:13px 11px}
         <tbody id="supportBody">
 
           <tr>
-            <td colspan="6" class="empty">
+            <td colspan="7" class="empty">
               Loading support requests...
             </td>
           </tr>
@@ -3610,52 +3612,23 @@ td,th{padding:13px 11px}
      ===================================================== -->
 
 <section id="page-ai" class="page">
-
   <div class="page-header">
-
-    <div>
-      <h2>AI Care</h2>
-      <p>AI support and assistance controls.</p>
-    </div>
-
+    <div><h2>AI Care & Member Inbox</h2><p>Review member messages and send human support replies.</p></div>
+    <button class="primary" onclick="loadAICare()">Refresh inbox</button>
   </div>
-
-
   <div class="card">
-
-    <div class="notice">
-
-      AI Care is controlled from the platform settings.
-      This Admin panel does not pretend to provide an AI
-      provider that has not been connected.
-
-    </div>
-
-
+    <div class="notice">This is a human-reviewed inbox. Automated AI replies are not enabled until a verified AI provider is connected.</div>
     <div class="setting">
-
-      <div>
-        <strong>AI Care Enabled</strong>
-        <small>
-          Enable or disable the configured AI support feature.
-        </small>
-      </div>
-
-      <label class="switch">
-
-        <input
-          id="aiCarePageToggle"
-          type="checkbox"
-          onchange="syncAiCareSetting()">
-
-        <span class="slider"></span>
-
-      </label>
-
+      <div><strong>AI Care Enabled</strong><small>Platform feature switch. This does not claim that automated AI is connected.</small></div>
+      <label class="switch"><input id="aiCarePageToggle" type="checkbox" onchange="saveAICareSetting()"><span class="slider"></span></label>
     </div>
-
   </div>
-
+  <div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr><th>Member</th><th>Topic</th><th>Latest message</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+      <tbody id="aiCareBody"><tr><td colspan="6" class="loading-row">Loading member conversations…</td></tr></tbody>
+    </table></div>
+  </div>
 </section>
 
 
@@ -3664,37 +3637,17 @@ td,th{padding:13px 11px}
      ===================================================== -->
 
 <section id="page-appeals" class="page">
-
   <div class="page-header">
-
-    <div>
-      <h2>Appeals & Disputes</h2>
-      <p>Review disputed task or account decisions.</p>
-    </div>
-
+    <div><h2>Appeals & Disputes</h2><p>Review member appeals, send a decision and keep a review record.</p></div>
+    <button class="primary" onclick="loadAppeals()">Refresh appeals</button>
   </div>
-
-
   <div class="card">
-
-    <div class="notice">
-
-      Appeals require a dedicated database structure before
-      they can safely become a live moderation workflow.
-      This panel deliberately does not invent an appeals table
-      or fake records.
-
-    </div>
-
-
-    <div class="empty">
-
-      Appeals database workflow is not configured yet.
-
-    </div>
-
+    <div class="notice">Responses are saved to the appeal record and shown to the member. Review the referenced task or withdrawal before making a decision.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Appeal</th><th>Member</th><th>Reference</th><th>Reason</th><th>Status</th><th>Admin response</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody id="appealsBody"><tr><td colspan="8" class="loading-row">Loading appeals…</td></tr></tbody>
+    </table></div>
   </div>
-
 </section>
 
 
@@ -3703,37 +3656,17 @@ td,th{padding:13px 11px}
      ===================================================== -->
 
 <section id="page-marketplace" class="page">
-
   <div class="page-header">
-
-    <div>
-      <h2>Marketplace</h2>
-      <p>Marketplace administration.</p>
-    </div>
-
+    <div><h2>Marketplace</h2><p>Monitor product listings and customer orders.</p></div>
+    <button class="primary" onclick="loadMarketplace()">Refresh marketplace</button>
   </div>
-
-
   <div class="card">
-
-    <div class="notice">
-
-      Marketplace controls are reserved for the existing
-      marketplace schema. No fake products, balances or
-      transactions are generated by the Admin panel.
-
-    </div>
-
-
-    <div class="empty">
-
-      Marketplace transaction workflow requires the configured
-      marketplace database records.
-
-    </div>
-
+    <div class="notice">Read-only monitoring. Payment and delivery actions remain in their verified marketplace workflows.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Record</th><th>Item</th><th>Seller / Buyer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody id="marketplaceBody"><tr><td colspan="6" class="loading-row">Loading marketplace records…</td></tr></tbody>
+    </table></div>
   </div>
-
 </section>
 
 
@@ -4575,7 +4508,9 @@ function statusClass(value) {
     status.includes("live") ||
     status.includes("completed") ||
     status.includes("success") ||
-    status.includes("verified")
+    status.includes("verified") ||
+    status.includes("answered") ||
+    status.includes("resolved")
   ) {
     return "success";
   }
@@ -5421,8 +5356,8 @@ async function loadOverview() {
     const results = await withTimeout(Promise.all([
       supabaseClient.from("profiles").select("id", { count: "exact", head: true }),
       supabaseClient.from("tasks").select("id", { count: "exact", head: true }).eq("active", true),
-      supabaseClient.from("task_submissions").select("id", { count: "exact", head: true }).eq("status", "pending"),
-      supabaseClient.from("withdrawals").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      supabaseClient.from("task_submissions").select("id", { count: "exact", head: true }).ilike("status", "pending"),
+      supabaseClient.from("withdrawals").select("id", { count: "exact", head: true }).ilike("status", "pending"),
       supabaseClient.from("platform_settings").select("*").limit(1).maybeSingle()
     ]), 15000, "Dashboard data request");
 
@@ -9593,25 +9528,95 @@ async function loadCommunity() {
    ========================================================= */
 
 async function loadAICare() {
+  const body = $("aiCareBody");
   try {
-
-    if (!platformSettings) {
-      await loadSettings();
+    if (!platformSettings) await loadSettings();
+    setChecked("aiCarePageToggle", platformSettings?.ai_care_enabled);
+    if (!body) return;
+    body.innerHTML = '<tr><td colspan="6" class="loading-row">Loading member conversations…</td></tr>';
+    const { data, error } = await withTimeout(
+      supabaseClient.from("ai_care_threads").select("id,user_id,title,status,created_at,updated_at").order("updated_at", { ascending: false }).limit(150),
+      15000, "AI Care inbox request"
+    );
+    if (error) throw error;
+    const threads = safeArray(data);
+    if (!threads.length) {
+      body.innerHTML = '<tr><td colspan="6" class="empty-row">No member conversations yet.</td></tr>';
+      return;
     }
-
-    setChecked(
-      "aiCarePageToggle",
-      platformSettings?.ai_care_enabled
+    const ids = threads.map(row => row.id);
+    const messagesResult = await withTimeout(
+      supabaseClient.from("ai_care_messages").select("thread_id,message,sender_type,created_at").in("thread_id", ids).order("created_at", { ascending: false }).limit(600),
+      15000, "AI Care messages request"
     );
-
+    if (messagesResult.error) throw messagesResult.error;
+    const latest = new Map();
+    safeArray(messagesResult.data).forEach(message => {
+      if (!latest.has(String(message.thread_id))) latest.set(String(message.thread_id), message);
+    });
+    body.innerHTML = threads.map(row => {
+      const message = latest.get(String(row.id));
+      const status = String(row.status || "OPEN").toUpperCase();
+      const closed = /CLOSED|RESOLVED/.test(status);
+      return '<tr><td class="mono">' + escapeHTML(row.user_id || "—") + '</td>' +
+        '<td>' + escapeHTML(row.title || "Care request") + '</td>' +
+        '<td>' + escapeHTML(message ? String(message.message || "").slice(0, 140) : "No message") + '</td>' +
+        '<td>' + badge(status) + '</td>' +
+        '<td>' + formatDate(row.updated_at || row.created_at) + '</td>' +
+        '<td><button class="small-btn" onclick="replyAICare(\'' + escapeHTML(row.id) + '\')">Reply</button> ' +
+        '<button class="small-btn" onclick="setAICareStatus(\'' + escapeHTML(row.id) + '\',\'' + (closed ? "OPEN" : "RESOLVED") + '\')">' + (closed ? "Reopen" : "Resolve") + '</button></td></tr>';
+    }).join("");
   } catch (error) {
-    reportError(
-      "loadAICare",
-      error
-    );
+    reportError("loadAICare", error);
+    if (body) body.innerHTML = '<tr><td colspan="6" class="empty-row">AI Care inbox could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
   }
 }
 
+async function replyAICare(id) {
+  const thread = await supabaseClient.from("ai_care_threads").select("id,user_id,title").eq("id", id).maybeSingle();
+  if (thread.error || !thread.data) {
+    toast(errorMessage(thread.error, "Care conversation not found."), "danger");
+    return;
+  }
+  const reply = await uiPrompt("Write a clear, respectful reply to this member. Do not request passwords, PINs or OTPs.");
+  if (reply === null || !String(reply).trim()) return;
+  try {
+    const { error } = await withTimeout(
+      supabaseClient.from("ai_care_messages").insert({
+        thread_id: id,
+        user_id: thread.data.user_id,
+        sender_type: "admin",
+        message: String(reply).trim()
+      }),
+      15000, "Send AI Care reply"
+    );
+    if (error) throw error;
+    await supabaseClient.from("ai_care_threads").update({ status: "ANSWERED", updated_at: new Date().toISOString() }).eq("id", id);
+    await writeAudit("ai_care_reply_sent", id, { title: thread.data.title || "Care request" });
+    toast("Reply sent to the member.", "success");
+    await loadAICare();
+  } catch (error) {
+    reportError("replyAICare", error);
+    toast(errorMessage(error, "Unable to send the reply."), "danger");
+  }
+}
+
+async function setAICareStatus(id, status) {
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.from("ai_care_threads").update({ status, updated_at: new Date().toISOString() }).eq("id", id).select("id,status"),
+      15000, "Update AI Care status"
+    );
+    if (error) throw error;
+    if (!Array.isArray(data) || !data.length) throw new Error("The conversation status was not updated.");
+    await writeAudit("ai_care_status_changed", id, { status });
+    toast("Conversation status updated.", "success");
+    await loadAICare();
+  } catch (error) {
+    reportError("setAICareStatus", error);
+    toast(errorMessage(error, "Unable to update conversation status."), "danger");
+  }
+}
 
 async function saveAICareSetting() {
   const enabled =
@@ -9631,155 +9636,51 @@ async function saveAICareSetting() {
    ========================================================= */
 
 async function loadSupport() {
-  const body =
-    $("supportBody");
-
-  if (body) {
-    body.innerHTML = `
-      <tr>
-        <td colspan="8" class="loading-row">
-          Loading support requests...
-        </td>
-      </tr>
-    `;
-  }
-
+  const body = $("supportBody");
+  if (body) body.innerHTML = '<tr><td colspan="7" class="loading-row">Loading support requests…</td></tr>';
   try {
-
     const data = await fetchAllRows(
       () => supabaseClient.from("support_tickets").select("*").order("created_at", { ascending: false }),
       { label: "Support tickets request", maxRows: 5000 }
     );
-
     allSupport = safeArray(data);
-
-    renderSupport(
-      allSupport
-    );
-
+    renderSupport(allSupport);
   } catch (error) {
-    reportError(
-      "loadSupport",
-      error
-    );
-
+    reportError("loadSupport", error);
     allSupport = [];
-
-    if (body) {
-      body.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty-row">
-            Unable to load support_tickets. Check table permissions and columns.
-          </td>
-        </tr>
-      `;
-    }
-
-    toast(
-      errorMessage(
-        error,
-        "Unable to load support records."
-      ),
-      "danger"
-    );
+    if (body) body.innerHTML = '<tr><td colspan="7" class="empty-row">Unable to load support tickets: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
+    toast(errorMessage(error, "Unable to load support records."), "danger");
   }
 }
-
 
 function renderSupport(rows) {
-  const body =
-    $("supportBody");
-
+  const body = $("supportBody");
   if (!body) return;
-
-  if (!rows.length) {
-    body.innerHTML = `
-      <tr>
-        <td colspan="8" class="empty-row">
-          No support requests found.
-        </td>
-      </tr>
-    `;
+  const query = $("supportSearch")?.value.trim().toLowerCase() || "";
+  const statusFilter = String($("supportStatusFilter")?.value || "all").toLowerCase();
+  const visible = safeArray(rows).filter(row => {
+    const status = String(row.status || "open").toLowerCase();
+    const statusMatch = statusFilter === "all" || status === statusFilter;
+    const searchText = [row.id,row.user_id,row.subject,row.title,row.message,row.admin_reply,row.status].filter(Boolean).join(" ").toLowerCase();
+    return statusMatch && (!query || searchText.includes(query));
+  });
+  if (!visible.length) {
+    body.innerHTML = '<tr><td colspan="7" class="empty-row">No support requests match this filter.</td></tr>';
     return;
   }
-
-  body.innerHTML = rows.map(row => {
-
-    const subject =
-      row.subject ||
-      row.title ||
-      row.message ||
-      "Support request";
-
-    const message =
-      row.message ||
-      row.description ||
-      "";
-
-    const user =
-      row.user_id ||
-      row.email ||
-      "—";
-
-    const status =
-      row.status ||
-      "open";
-
-    return `
-      <tr>
-
-        <td>
-          ${escapeHTML(user)}
-        </td>
-
-        <td>
-          <strong>
-            ${escapeHTML(subject)}
-          </strong>
-        </td>
-
-        <td>
-          ${escapeHTML(
-            String(message).slice(0, 120)
-          )}
-        </td>
-
-        <td>
-          ${badge(status)}
-        </td>
-
-        <td>
-          ${formatDate(
-            row.created_at
-          )}
-        </td>
-
-        <td>
-          ${
-            row.status
-              ? `
-                <button
-                  class="small-btn"
-                  onclick="resolveSupport('${escapeHTML(
-                    row.id
-                  )}')">
-                  ${
-                    String(status).toLowerCase() ===
-                    "resolved"
-                      ? "Reopen"
-                      : "Resolve"
-                  }
-                </button>
-              `
-              : "—"
-          }
-        </td>
-
-      </tr>
-    `;
+  body.innerHTML = visible.map(row => {
+    const status = String(row.status || "open").toLowerCase();
+    const closed = status === "resolved" || status === "closed";
+    return '<tr><td class="mono">' + escapeHTML(row.user_id || "—") + '</td>' +
+      '<td><strong>' + escapeHTML(row.subject || "Support request") + '</strong></td>' +
+      '<td>' + escapeHTML(String(row.message || "").slice(0, 120)) + '</td>' +
+      '<td>' + escapeHTML(row.admin_reply || "No reply yet") + '</td>' +
+      '<td>' + badge(status) + '</td>' +
+      '<td>' + formatDate(row.created_at) + '</td>' +
+      '<td><button class="small-btn" onclick="replySupport(\'' + escapeHTML(row.id) + '\')">Reply</button> ' +
+      '<button class="small-btn" onclick="resolveSupport(\'' + escapeHTML(row.id) + '\')">' + (closed ? "Reopen" : "Resolve") + '</button></td></tr>';
   }).join("");
 }
-
 
 function filterSupport() {
   const query =
@@ -9818,6 +9719,29 @@ function filterSupport() {
 }
 
 
+async function replySupport(id) {
+  const row = allSupport.find(item => String(item.id) === String(id));
+  if (!row) { toast("Support record not found.", "warning"); return; }
+  const reply = await uiPrompt("Write a clear reply to this support request. Never request a password, PIN or OTP.");
+  if (reply === null || !String(reply).trim()) return;
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.from("support_tickets")
+        .update({ admin_reply: String(reply).trim(), status: "answered", updated_at: new Date().toISOString() })
+        .eq("id", id).select("id,admin_reply,status"),
+      15000, "Reply to support ticket"
+    );
+    if (error) throw error;
+    if (!Array.isArray(data) || !data.length) throw new Error("The support reply was not saved. Check admin access.");
+    await writeAudit("support_reply_sent", id, { status: "answered" });
+    toast("Support reply sent to the member.", "success");
+    await loadSupport();
+  } catch (error) {
+    reportError("replySupport", error);
+    toast(errorMessage(error, "Unable to send support reply."), "danger");
+  }
+}
+
 async function resolveSupport(id) {
   const row =
     allSupport.find(
@@ -9841,11 +9765,8 @@ async function resolveSupport(id) {
     return;
   }
 
-  const newStatus =
-    String(row.status).toLowerCase() ===
-    "resolved"
-      ? "open"
-      : "resolved";
+  const currentStatus = String(row.status).toLowerCase();
+  const newStatus = ["resolved", "closed"].includes(currentStatus) ? "open" : "resolved";
 
   try {
 
@@ -9903,147 +9824,126 @@ async function resolveSupport(id) {
 async function loadAppeals() {
   const body = $("appealsBody");
   if (!body) return;
-  body.innerHTML = `<tr><td colspan="7" class="loading-row">Loading appeals…</td></tr>`;
+  body.innerHTML = '<tr><td colspan="8" class="loading-row">Loading appeals…</td></tr>';
   try {
     const { data, error } = await withTimeout(
-      supabaseClient.from("appeals").select("*").limit(100), 15000, "Appeals request"
+      supabaseClient.from("appeals").select("id,user_id,submission_id,withdrawal_id,subject,message,status,admin_response,reviewed_at,created_at").order("created_at", { ascending: false }).limit(250),
+      15000, "Appeals request"
     );
     if (error) throw error;
     const rows = safeArray(data);
     if (!rows.length) {
-      body.innerHTML = `<tr><td colspan="7" class="empty-row">No appeals found.</td></tr>`;
+      body.innerHTML = '<tr><td colspan="8" class="empty-row">No appeals have been submitted.</td></tr>';
       return;
     }
     body.innerHTML = rows.map(row => {
-      const title = row.title || row.subject || row.reason || row.id || "Appeal";
-      const user = row.user_id || row.profile_id || row.created_by || "—";
-      const status = row.status || row.state || "pending";
-      const created = row.created_at || row.submitted_at;
-      const reason = row.description || row.message || row.reason || "—";
-      return `<tr><td>${escapeHTML(row.id ?? "—")}</td><td>${escapeHTML(title)}</td><td>${escapeHTML(user)}</td><td>${escapeHTML(reason)}</td><td>${badge(status)}</td><td>${formatDate(created)}</td><td>—</td></tr>`;
+      const rawMessage = String(row.message || "");
+      const referenceMatch = rawMessage.match(/^Related record:\s*(Task submission #\d+|Withdrawal #\d+)/i);
+      const reference = row.submission_id ? "Submission reference" : row.withdrawal_id ? "Withdrawal reference" : (referenceMatch ? referenceMatch[1] : "General appeal");
+      const reason = rawMessage.replace(/^Related record:.*?\n\s*\n/i, "");
+      return '<tr><td>' + escapeHTML(row.subject || "Appeal") + '</td>' +
+        '<td class="mono">' + escapeHTML(row.user_id || "—") + '</td>' +
+        '<td>' + escapeHTML(reference) + '</td>' +
+        '<td>' + escapeHTML(reason.slice(0, 180)) + '</td>' +
+        '<td>' + badge(row.status || "PENDING") + '</td>' +
+        '<td>' + escapeHTML(row.admin_response || "Awaiting review") + '</td>' +
+        '<td>' + formatDate(row.created_at) + '</td>' +
+        '<td><button class="small-btn" onclick="reviewAppeal(\'' + escapeHTML(row.id) + '\')">' + (row.admin_response ? "Update response" : "Review & respond") + '</button></td></tr>';
     }).join("");
   } catch (error) {
     reportError("loadAppeals", error);
-    body.innerHTML = `<tr><td colspan="7" class="empty-row">Appeals could not load: ${escapeHTML(errorMessage(error, "Database request failed."))}</td></tr>`;
+    body.innerHTML = '<tr><td colspan="8" class="empty-row">Appeals could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
   }
 }
 
+async function reviewAppeal(id) {
+  const { data: appeal, error: readError } = await supabaseClient.from("appeals")
+    .select("id,subject,message,user_id,submission_id,withdrawal_id")
+    .eq("id", id).maybeSingle();
+  if (readError || !appeal) {
+    toast(errorMessage(readError, "Appeal not found."), "danger");
+    return;
+  }
+  const response = await uiPrompt("Review: " + (appeal.subject || "Member appeal") + "\nWrite the decision or next steps. The member will see this response.");
+  if (response === null || !String(response).trim()) return;
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.from("appeals").update({
+        admin_response: String(response).trim(),
+        status: "RESOLVED",
+        reviewed_by: currentUser.id,
+        reviewed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }).eq("id", id).select("id,status,admin_response"),
+      15000, "Save appeal response"
+    );
+    if (error) throw error;
+    if (!Array.isArray(data) || !data.length) throw new Error("The appeal response was not saved. Check admin access.");
+    await writeAudit("appeal_reviewed", id, { status: "RESOLVED" });
+    toast("Appeal response saved and marked resolved.", "success");
+    await loadAppeals();
+  } catch (error) {
+    reportError("reviewAppeal", error);
+    toast(errorMessage(error, "Unable to save appeal response."), "danger");
+  }
+}
 /* =========================================================
    MARKETPLACE
    ========================================================= */
 
 async function loadMarketplace() {
-  const body =
-    $("marketplaceBody");
-
+  const body = $("marketplaceBody");
   if (!body) return;
-
-  /*
-    The marketplace table exists in the project,
-    but no complete production workflow/schema has
-    been assumed here.
-  */
-
+  body.innerHTML = '<tr><td colspan="6" class="loading-row">Loading marketplace records…</td></tr>';
   try {
-
     const [productsResult, ordersResult] = await Promise.all([
-      withTimeout(supabaseClient.from("marketplace_products").select("*").limit(100), 15000, "Marketplace products request"),
-      withTimeout(supabaseClient.from("marketplace_orders").select("*").limit(100), 15000, "Marketplace orders request")
+      withTimeout(supabaseClient.from("marketplace_products").select("id,name,seller_id,price,category,active,created_at").order("created_at", { ascending: false }).limit(150), 15000, "Marketplace products request"),
+      withTimeout(supabaseClient.from("marketplace_orders").select("id,buyer_id,product_id,total_amount,status,delivery_status,payment_status,created_at").order("created_at", { ascending: false }).limit(150), 15000, "Marketplace orders request")
     ]);
     if (productsResult.error) throw new Error("marketplace_products: " + productsResult.error.message);
     if (ordersResult.error) throw new Error("marketplace_orders: " + ordersResult.error.message);
-
-    const productRows = safeArray(productsResult.data).map(row => ({
-      ...row,
-      __record_type: "Product",
-      __display_title: row.title || row.name || row.product_name || "Marketplace product",
-      __display_user: row.user_id || row.seller_id || row.owner_id || "—",
-      __display_price: row.price ?? row.amount ?? row.selling_price,
-      __display_status: row.status || (row.active === false ? "inactive" : "available"),
-      __display_date: row.created_at
-    }));
-    const orderRows = safeArray(ordersResult.data).map(row => ({
-      ...row,
-      __record_type: "Order",
-      __display_title: row.product_name || row.title || row.product_id || "Marketplace order",
-      __display_user: row.user_id || row.buyer_id || row.customer_id || "—",
-      __display_price: row.amount ?? row.total_amount ?? row.price,
-      __display_status: row.__display_status || "—",
-      __display_date: row.created_at || row.order_date
-    }));
-    const rows = [...productRows, ...orderRows];
-
+    const products = safeArray(productsResult.data);
+    const productMap = new Map(products.map(row => [String(row.id), row]));
+    const rows = [
+      ...products.map(row => ({
+        kind: "Product",
+        title: row.name || row.category || "Marketplace product",
+        member: row.seller_id || "—",
+        amount: row.price,
+        status: row.active === false ? "INACTIVE" : "AVAILABLE",
+        date: row.created_at,
+        id: row.id
+      })),
+      ...safeArray(ordersResult.data).map(row => {
+        const product = productMap.get(String(row.product_id));
+        return {
+          kind: "Order",
+          title: product?.name || "Marketplace order",
+          member: row.buyer_id || "—",
+          amount: row.total_amount,
+          status: row.delivery_status || row.payment_status || row.status || "UNKNOWN",
+          date: row.created_at,
+          id: row.id
+        };
+      })
+    ].sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
     if (!rows.length) {
-      body.innerHTML = `
-        <tr>
-          <td colspan="7" class="empty-row">
-            No marketplace records found.
-          </td>
-        </tr>
-      `;
+      body.innerHTML = '<tr><td colspan="6" class="empty-row">No marketplace products or orders have been recorded.</td></tr>';
       return;
     }
-
-    body.innerHTML =
-      rows.map(row => `
-        <tr>
-          <td>
-            ${escapeHTML(
-              row.id || "—"
-            )}
-          </td>
-
-          <td>
-            ${escapeHTML(
-              (row.__record_type ? row.__record_type + ": " : "") + (row.__display_title || "Marketplace item")
-            )}
-          </td>
-
-          <td>
-            ${escapeHTML(
-              row.__display_user || "—"
-            )}
-          </td>
-
-          <td>
-            ${
-              row.__display_price === undefined || row.__display_price === null
-                ? "—"
-                : money(row.__display_price)
-            }
-          </td>
-
-          <td>
-            ${badge(
-              row.__display_status || "—"
-            )}
-          </td>
-
-          <td>
-            ${formatDate(
-              row.__display_date
-            )}
-          </td>
-        </tr>
-      `).join("");
-
+    body.innerHTML = rows.map(row =>
+      '<tr><td>' + escapeHTML(row.kind + " · " + row.id) + '</td>' +
+      '<td>' + escapeHTML(row.title) + '</td>' +
+      '<td class="mono">' + escapeHTML(row.member) + '</td>' +
+      '<td>' + (row.amount == null ? "—" : money(row.amount)) + '</td>' +
+      '<td>' + badge(row.status) + '</td>' +
+      '<td>' + formatDate(row.date) + '</td></tr>'
+    ).join("");
   } catch (error) {
-
-    reportError(
-      "loadMarketplace",
-      error
-    );
-
-    body.innerHTML = `
-      <tr>
-        <td colspan="7" class="empty-row">
-          Marketplace products could not load: ${escapeHTML(errorMessage(error, "Check marketplace_products permissions and columns."))}
-        </td>
-      </tr>
-    `;
+    reportError("loadMarketplace", error);
+    body.innerHTML = '<tr><td colspan="6" class="empty-row">Marketplace records could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
   }
 }
-
 
 /* =========================================================
    AIRTIME / DATA

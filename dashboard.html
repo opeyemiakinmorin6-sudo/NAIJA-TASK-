@@ -798,15 +798,22 @@ async function loadSubmissionStats(){
   setText("centreRejected", String(rejected));
   renderActivityUpdates(rows);
 
-  /* Estimate only: wallet transactions remain the authoritative record of real credits. */
-  const ids = [...new Set(approvedRows.map(r => r.task_id).filter(Boolean))];
-  if (!ids.length){ setText("earnedAmount", money(0)); return; }
-
-  const { data: taskRows, error: taskError } = await withTimeout(supabaseClient.from("tasks").select("id, reward, reward_per_worker").in("id", ids));
-  if (taskError){ console.warn("Task reward lookup unavailable:", taskError); setText("earnedAmount", "—"); return; }
-
-  const map = new Map((taskRows || []).map(t => [String(t.id), Number(t.reward_per_worker ?? t.reward ?? 0)]));
-  setText("earnedAmount", money(approvedRows.reduce((sum, r) => sum + (map.get(String(r.task_id)) || 0), 0)));
+  /* Display actual credited task rewards, not estimated task values. */
+  const { data: rewardRows, error: rewardError } = await withTimeout(
+    supabaseClient.from("wallet_transactions")
+      .select("amount")
+      .eq("user_id", currentUser.id)
+      .eq("type", "TASK_REWARD")
+      .in("status", ["APPROVED", "COMPLETED", "SUCCESS"])
+      .limit(2000)
+  );
+  if (rewardError){
+    console.warn("Credited task earnings unavailable:", rewardError);
+    setText("earnedAmount", "—");
+    return;
+  }
+  const actualTaskEarnings = (rewardRows || []).reduce((sum, row) => sum + Number(row.amount || 0), 0);
+  setText("earnedAmount", money(actualTaskEarnings));
 }
 
 function renderActivityUpdates(rows){

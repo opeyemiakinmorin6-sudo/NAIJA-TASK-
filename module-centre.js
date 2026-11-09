@@ -4,12 +4,12 @@ const url = "https://jwakveeiynpakunwjzkj.supabase.co";
 const anon = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const moduleName = document.body.dataset.module || "more";
 const titles = {
-support:"Support Centre",notifications:"Notifications","applied-jobs":"My Task Activity",approved:"Approved Tasks",retry:"Needs Attention",cancelled:"Cancelled Tasks","airtime-data":"Airtime & Data",more:"More Services",promote:"Promote Your Business",announcements:"Platform Announcements",community:"Community","ai-assistant":"Help Assistant","ai-care":"AI Care Inbox",arena:"Games Arena",security:"Account Security",appeals:"Appeals Centre"
+support:"Support Centre",notifications:"Notifications","applied-jobs":"My Task Activity",approved:"Approved Tasks",retry:"Needs Attention",cancelled:"Cancelled Tasks","airtime-data":"Airtime & Data",more:"More Services",promote:"Promote Your Business",announcements:"Platform Announcements",community:"Community","ai-assistant":"Help Assistant","ai-care":"Member Care Inbox",arena:"Games Arena",security:"Account Security",appeals:"Appeals Centre"
 };
 const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = v => "₦" + Number(v || 0).toLocaleString("en-NG");
 const date = v => v ? new Date(v).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"}) : "—";
-const pill = s => /approved|complete|paid|success/i.test(s||"") ? "good" : /reject|cancel|fail/i.test(s||"") ? "bad" : "wait";
+const pill = s => /approved|complete|paid|success|answered|resolved|active/i.test(s||"") ? "good" : /reject|cancel|fail/i.test(s||"") ? "bad" : "wait";
 const css = ":root{--g:#087f36;--d:#064d25;--bg:#f2f7f3;--ink:#173326;--muted:#708176;--line:#e0eae3}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eaf4ed,#f7f9f7 360px);color:var(--ink);font:15px/1.5 system-ui,Arial,sans-serif}.top{background:linear-gradient(110deg,#063f22,#087f36);color:white;padding:15px max(16px,calc((100vw - 900px)/2));display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}.top b{font-weight:900}.back{color:white;text-decoration:none;background:#ffffff20;padding:9px 13px;border-radius:10px;font-size:12px;font-weight:800}main{max-width:900px;margin:auto;padding:20px 15px}.hero{padding:23px;border-radius:22px;background:linear-gradient(120deg,#064322,#087f36 70%,#0b9b45);color:white;margin-bottom:16px}.hero small{font-size:10px;letter-spacing:1.5px;font-weight:900;color:#d9f5b9}.hero h1{margin:8px 0;font-size:clamp(23px,5vw,31px)}.hero p{margin:0;color:#e1f2e6;font-size:13px}.panel{background:white;border:1px solid var(--line);border-radius:17px;padding:17px;margin:13px 0;box-shadow:0 8px 24px #12351b0a}.panel h2{font-size:17px;margin:0 0 12px}.muted,small{color:var(--muted)}.muted{font-size:13px}.item{border:1px solid var(--line);border-radius:13px;padding:12px;margin:9px 0;display:flex;justify-content:space-between;gap:10px}.item strong{display:block;font-size:13px}.item small{display:block;font-size:11px;margin-top:5px}.pill{padding:5px 9px;border-radius:20px;font-size:10px;font-weight:900;background:#fff4dc;color:#805900;white-space:nowrap}.pill.good{background:#e5f7e9;color:#087f36}.pill.bad{background:#ffeded;color:#a12828}.empty{text-align:center;padding:24px 10px;color:var(--muted);font-size:13px}.note{padding:12px;border-radius:11px;background:#eef7f0;color:#365b40;font-size:12px;margin:10px 0}.error{background:#fff0f0;color:#9d2828}label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}input,textarea{width:100%;border:1px solid #d8e4db;border-radius:11px;padding:13px;font:inherit;font-size:14px}textarea{min-height:100px}.btn{display:inline-block;border:0;border-radius:11px;background:var(--g);color:white;padding:12px 16px;font-weight:850;font-size:13px;margin-top:12px;cursor:pointer}.btn.alt{background:#eaf5ec;color:var(--d)}.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.link{padding:13px;border:1px solid var(--line);border-radius:13px;background:white;font-size:12px;font-weight:850;text-decoration:none;color:var(--ink)}@media(max-width:430px){main{padding:15px 12px}.links{grid-template-columns:1fr}}";
 const style=document.createElement("style");style.textContent=css;document.head.appendChild(style);
 const names={support:"🎧",notifications:"🔔","applied-jobs":"📋",approved:"✅",retry:"🔁",cancelled:"✖️","airtime-data":"📱",more:"▦",promote:"📣",announcements:"📢",community:"👥","ai-assistant":"✨","ai-care":"💚",arena:"🎮",security:"🔐",appeals:"⚖️"};
@@ -25,10 +25,41 @@ const linkList=items=>'<div class="links">'+items.map(x=>'<a class="link" href="
 async function start(){
  const auth=await sb.auth.getUser();const user=auth.data&&auth.data.user;if(!user){location.href="login.html";return}
  if(moduleName==="support"||moduleName==="appeals"){
- const isAppeal=moduleName==="appeals", table=isAppeal?"appeals":"support_tickets", title=isAppeal?"Submit an appeal":"Contact support";
- const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30);
- app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">Do not include your password, PIN, OTP or full bank details.</p><form id="sendForm"><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your requests</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,x.admin_reply||"")))+'</section>';
- document.getElementById("sendForm").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");b.disabled=true;const {error}=await sb.from(table).insert({user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()});document.getElementById("result").innerHTML=error?note(error.message,true):note("Your request has been submitted.");if(!error){f.reset();start()}else b.disabled=false};return;
+ const isAppeal=moduleName==="appeals",table=isAppeal?"appeals":"support_tickets",title=isAppeal?"Submit an appeal":"Contact support";
+ const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40);
+ let referenceOptions='<option value="">General account appeal (optional)</option>';
+ let referenceNotice="";
+ if(isAppeal){
+   const [submissionsResult,withdrawalsResult]=await Promise.all([
+     sb.from("task_submissions").select("id,task_id,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60),
+     sb.from("withdrawals").select("id,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60)
+   ]);
+   const submissions=submissionsResult.error?[]:(submissionsResult.data||[]);
+   const withdrawals=withdrawalsResult.error?[]:(withdrawalsResult.data||[]);
+   referenceOptions+='<optgroup label="Task submissions">'+submissions.map(x=>'<option value="submission:'+esc(x.id)+'">Task submission #'+esc(x.id)+' · '+esc(x.status||"Submitted")+'</option>').join("")+'</optgroup>';
+   referenceOptions+='<optgroup label="Withdrawals">'+withdrawals.map(x=>'<option value="withdrawal:'+esc(x.id)+'">Withdrawal #'+esc(x.id)+' · '+money(x.amount)+' · '+esc(x.status||"Pending")+'</option>').join("")+'</optgroup>';
+   if(submissionsResult.error||withdrawalsResult.error)referenceNotice=note("Some reference records could not be loaded. You can still submit a general appeal.",true);
+ }
+ app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">'+(isAppeal?"Choose the task or withdrawal if your appeal concerns a specific record. Include the facts and why you believe the decision should be reviewed.":"Describe the issue clearly. Never include your password, PIN, OTP or full bank details.")+'</p>'+(isAppeal?referenceNotice:"")+'<form id="sendForm">'+(isAppeal?'<label>Related record</label><select name="reference">'+referenceOptions+'</select>':"")+'<label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your '+(isAppeal?"appeals":"requests")+'</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,(isAppeal?x.admin_response:x.admin_reply)||"")))+'</section>';
+ document.getElementById("sendForm").onsubmit=async e=>{
+   e.preventDefault();
+   const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");
+   b.disabled=true;
+   const payload={user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()};
+   if(isAppeal){
+     const ref=String(fd.get("reference")||"");
+     let label="";
+     if(ref.startsWith("submission:"))label="Task submission #"+ref.slice(11);
+     else if(ref.startsWith("withdrawal:"))label="Withdrawal #"+ref.slice(11);
+     if(label)payload.message="Related record: "+label+"\n\n"+payload.message;
+     // The legacy appeal reference columns are UUIDs, while current submission/withdrawal IDs are numeric.
+     // Keep the reference in the message until a compatible relationship is deliberately migrated.
+   }
+   const {error}=await sb.from(table).insert(payload);
+   document.getElementById("result").innerHTML=error?note(error.message,true):note(isAppeal?"Your appeal has been submitted for review.":"Your support request has been submitted.");
+   if(!error){f.reset();start()}else b.disabled=false;
+ };
+ return;
  }
  if(["applied-jobs","approved","retry","cancelled"].includes(moduleName)){
  const q=await sb.from("task_submissions").select("id,task_id,status,created_at,rejection_reason").eq("user_id",user.id).order("created_at",{ascending:false}).limit(250);
@@ -39,8 +70,9 @@ async function start(){
  }
  if(moduleName==="notifications"){
  const q=await sb.from("notifications").select("id,title,message,type,is_read,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60);
- const unread=(q.data||[]).filter(x=>!x.is_read).length;
- app.innerHTML='<section class="panel"><h2>Your notifications</h2><p class="muted">'+unread+' unread · '+(q.data||[]).length+' total</p>'+(q.error?note(q.error.message,true):list(q.data,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+' · '+date(x.created_at)+'</small></div><div><span class="pill '+(x.is_read?'good':'wait')+'">'+(x.is_read?'Read':'New')+'</span>'+(x.is_read?'':'<button class="btn alt mark-read" data-id="'+esc(x.id)+'">Mark read</button>')+'</div></article>'))+'</section>'; 
+ const rows=q.data||[],unread=rows.filter(x=>!x.is_read).length;
+ app.innerHTML='<section class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2>Your notifications</h2><button class="btn alt" id="markAllRead" '+(unread?'':'disabled')+'>Mark all as read</button></div><p class="muted">'+unread+' unread · '+rows.length+' total</p>'+(q.error?note(q.error.message,true):list(rows,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+' · '+date(x.created_at)+'</small></div><div><span class="pill '+(x.is_read?'good':'wait')+'">'+(x.is_read?'Read':'New')+'</span>'+(x.is_read?'':'<button class="btn alt mark-read" data-id="'+esc(x.id)+'">Mark read</button>')+'</div></article>'))+'</section>';
+ document.getElementById("markAllRead").addEventListener("click",async b=>{const button=b.currentTarget;button.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("user_id",user.id).eq("is_read",false);if(error){button.disabled=false;alert("Could not update notifications: "+error.message)}else start()});
  document.querySelectorAll(".mark-read").forEach(b=>b.addEventListener("click",async()=>{b.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("id",b.dataset.id).eq("user_id",user.id);if(error){b.disabled=false;alert("Could not mark as read: "+error.message)}else start()}));return;
  }
  if(moduleName==="announcements"){
@@ -48,6 +80,12 @@ async function start(){
  app.innerHTML='<section class="panel"><h2>Latest updates</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+'</small><small>'+date(x.created_at)+'</small></div></article>'))+'</section>';return;
  }
  if(moduleName==="community"){
+ const feature=await sb.from("platform_settings").select("community_chat_enabled,private_chat_enabled").eq("id",1).maybeSingle();
+ if(feature.error){app.innerHTML='<section class="panel">'+note(feature.error.message,true)+'</section>';return}
+ if(!feature.data||feature.data.community_chat_enabled!==true){
+   app.innerHTML='<section class="panel"><h2>Community is currently unavailable</h2>'+note("Community access is temporarily disabled by NAIJA TASK administrators.")+(feature.data?.private_chat_enabled===true?'<a class="btn" href="private-chat.html">Open Private Chat</a>':"")+'</section>';
+   return;
+ }
  const groups=await sb.from("community_groups").select("id,name,description,created_at").eq("active",true).order("created_at",{ascending:false}).limit(60);
  const memberships=await sb.from("community_group_members").select("group_id,role").eq("user_id",user.id);
  const mine=new Map((memberships.data||[]).map(x=>[x.group_id,x.role]));
@@ -58,9 +96,58 @@ async function start(){
  app.innerHTML='<section class="panel"><h2>Your orders</h2><p class="muted">Order history only. New purchases are not enabled until the product catalogue and verified VTpass payment flow are connected.</p>'+(q.error?note(q.error.message,true):list(q.data,x=>row((x.network||"Service")+" · "+x.phone_number,date(x.created_at),x.status,money(x.amount))))+'</section>';return;
  }
  if(moduleName==="ai-care"){
+ const feature=await sb.from("platform_settings").select("ai_care_enabled").eq("id",1).maybeSingle();
+ if(feature.error){app.innerHTML='<section class="panel">'+note(feature.error.message,true)+'</section>';return}
+ if(!feature.data||feature.data.ai_care_enabled!==true){
+   app.innerHTML='<section class="panel"><h2>Care inbox unavailable</h2>'+note("The Care Inbox is currently disabled by NAIJA TASK administrators.")+'<a class="btn alt" href="support.html">Contact Support</a></section>';
+   return;
+ }
  const q=await sb.from("ai_care_threads").select("id,title,status,created_at,updated_at").eq("user_id",user.id).order("updated_at",{ascending:false}).limit(30);
- app.innerHTML='<section class="panel"><h2>Start a care conversation</h2><p class="muted">Your message is saved for review. This page does not generate an automated AI response.</p><form id="care"><label>Topic</label><input name="title" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Send message</button></form><div id="result"></div></section><section class="panel"><h2>Your conversations</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.title||"Care request",date(x.updated_at),x.status)))+'</section>';
- document.getElementById("care").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");b.disabled=true;const a=await sb.from("ai_care_threads").insert({user_id:user.id,title:String(fd.get("title")).trim()}).select("id").single();if(a.error){document.getElementById("result").innerHTML=note(a.error.message,true);b.disabled=false;return}const z=await sb.from("ai_care_messages").insert({thread_id:a.data.id,user_id:user.id,sender_type:"user",message:String(fd.get("message")).trim()});document.getElementById("result").innerHTML=z.error?note(z.error.message,true):note("Your message has been sent.");if(!z.error){f.reset();start()}else b.disabled=false};return;
+ if(q.error){app.innerHTML='<section class="panel">'+note(q.error.message,true)+'</section>';return}
+ let activeThread=(q.data||[])[0]?.id||null;
+ const threadRows=(q.data||[]).map(x=>'<button type="button" class="item care-thread" data-id="'+esc(x.id)+'" style="width:100%;text-align:left;background:white"><span><strong>'+esc(x.title||"Care request")+'</strong><small>'+date(x.updated_at||x.created_at)+'</small></span><span class="pill '+pill(x.status)+'">'+esc(x.status||"OPEN")+'</span></button>').join("")||'<div class="empty">No conversations yet. Start one when you need help.</div>';
+ app.innerHTML='<section class="panel"><h2>NAIJA TASK Care Inbox</h2><p class="muted">Send a message to the support team and continue the conversation here. This is a human-reviewed inbox, not an automated AI diagnosis or emergency service.</p><form id="care"><label>Topic</label><input name="title" required maxlength="120" placeholder="What do you need help with?"><label>Message</label><textarea name="message" required maxlength="3000" placeholder="Explain what happened. Do not share passwords, PINs or OTPs."></textarea><button class="btn">Start conversation</button></form><div id="result"></div></section><section class="panel"><h2>Your conversations</h2><div id="careThreads">'+threadRows+'</div></section><section class="panel" id="careConversation"><h2 id="careTitle">Select a conversation</h2><div id="careMessages" class="muted">Your messages and support replies will appear here.</div><form id="careReply" hidden><label>Reply</label><textarea name="message" required maxlength="3000" placeholder="Write a follow-up message"></textarea><button class="btn">Send reply</button></form><div id="replyResult"></div></section>';
+ const threadsBox=document.getElementById("careThreads");
+ async function openThread(id){
+   activeThread=id;
+   const thread=(q.data||[]).find(x=>String(x.id)===String(id));
+   document.getElementById("careTitle").textContent=thread?.title||"Care conversation";
+   const box=document.getElementById("careMessages");
+   box.textContent="Loading conversation…";
+   const r=await sb.from("ai_care_messages").select("id,sender_type,message,created_at").eq("thread_id",id).order("created_at",{ascending:true}).limit(100);
+   if(r.error){box.innerHTML=note(r.error.message,true);return}
+   box.innerHTML=(r.data||[]).map(x=>'<article class="item"><div><strong>'+esc(String(x.sender_type||"support").toLowerCase()==="user"?"You":"NAIJA TASK Support")+'</strong><small>'+esc(x.message)+'</small><small>'+date(x.created_at)+'</small></div></article>').join("")||'<div class="empty">No messages in this conversation yet.</div>';
+   const status=String(thread?.status||"OPEN").toUpperCase();
+   document.getElementById("careReply").hidden=/CLOSED|RESOLVED|REJECTED/.test(status);
+   threadsBox.querySelectorAll(".care-thread").forEach(b=>b.classList.toggle("active",String(b.dataset.id)===String(id)));
+ }
+ threadsBox.addEventListener("click",e=>{
+   const b=e.target.closest(".care-thread");
+   if(b)openThread(b.dataset.id);
+ });
+ document.getElementById("care").onsubmit=async e=>{
+   e.preventDefault();
+   const form=e.currentTarget,fd=new FormData(form),button=form.querySelector("button");
+   button.disabled=true;
+   const title=String(fd.get("title")).trim(),message=String(fd.get("message")).trim();
+   const a=await sb.from("ai_care_threads").insert({user_id:user.id,title}).select("id").single();
+   if(a.error){document.getElementById("result").innerHTML=note(a.error.message,true);button.disabled=false;return}
+   const z=await sb.from("ai_care_messages").insert({thread_id:a.data.id,user_id:user.id,sender_type:"user",message});
+   if(z.error){document.getElementById("result").innerHTML=note(z.error.message,true);button.disabled=false;return}
+   form.reset();document.getElementById("result").innerHTML=note("Conversation created. You can continue it below.");
+   start();
+ };
+ document.getElementById("careReply").onsubmit=async e=>{
+   e.preventDefault();
+   if(!activeThread)return;
+   const form=e.currentTarget,fd=new FormData(form),button=form.querySelector("button");
+   button.disabled=true;
+   const {error}=await sb.from("ai_care_messages").insert({thread_id:activeThread,user_id:user.id,sender_type:"user",message:String(fd.get("message")).trim()});
+   if(error){document.getElementById("replyResult").innerHTML=note(error.message,true);button.disabled=false;return}
+   form.reset();document.getElementById("replyResult").innerHTML=note("Reply sent.");button.disabled=false;openThread(activeThread);
+ };
+ if(activeThread)await openThread(activeThread);
+ return;
  }
  if(moduleName==="security"){
  app.innerHTML='<section class="panel"><h2>Change password</h2><p class="muted">Use a unique password with at least 8 characters. Never share it or your one-time code.</p><form id="pw"><label>New password</label><input type="password" name="p" minlength="8" required><label>Confirm password</label><input type="password" name="c" minlength="8" required><button class="btn">Update password</button></form><div id="result"></div></section><section class="panel"><h2>Safety checklist</h2><p>• Use a unique password.</p><p>• Sign out on shared devices.</p><p>• Never share OTPs or PINs.</p><a class="btn alt" href="profile.html">Open profile</a> <a class="btn alt" href="support.html">Report a concern</a></section>';
