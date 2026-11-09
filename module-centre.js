@@ -92,9 +92,66 @@ async function start(){
  app.innerHTML='<section class="panel"><h2>Active community groups</h2><p class="muted">Browse groups and check your membership. Group joining is currently managed by the platform team.</p>'+(groups.error?note(groups.error.message,true):list(groups.data,x=>row(x.name,x.description||"NAIJA TASK member group",mine.has(x.id)?"Member":"Available",mine.has(x.id)?(mine.get(x.id)||"Member"):"Membership managed by admins")))+'</section><section class="panel"><h2>Connect with members</h2><a class="btn" href="private-chat.html">Open Private Chat</a></section>';return;
  }
  if(moduleName==="airtime-data"){
- const q=await sb.from("airtime_data_orders").select("id,phone_number,network,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40);
- app.innerHTML='<section class="panel"><h2>Your orders</h2><p class="muted">Order history only. New purchases are not enabled until the product catalogue and verified VTpass payment flow are connected.</p>'+(q.error?note(q.error.message,true):list(q.data,x=>row((x.network||"Service")+" · "+x.phone_number,date(x.created_at),x.status,money(x.amount))))+'</section>';return;
+   app.innerHTML='<section class="panel"><h2>Airtime & Data</h2><p class="muted">Buy data bundles or airtime for Nigerian networks using your NAIJA TASK wallet. Provider confirmation may take a little time.</p><div id="vtCatalog">'+note("Loading live VTpass catalogue…")+'</div></section><section class="panel"><h2>Your recent orders</h2><div id="vtOrders">'+note("Loading order history…")+'</div></section>';
+   const catalogBox=document.getElementById("vtCatalog"),ordersBox=document.getElementById("vtOrders");
+   let products=[];
+   const invoke=async payload=>sb.functions.invoke("vtpass-services",{body:payload});
+   const loadOrders=async()=>{
+     const q=await sb.from("airtime_data_orders").select("id,phone_number,network,amount,status,created_at,order_type,product_name,request_id,wallet_refunded_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30);
+     if(q.error){ordersBox.innerHTML=note(q.error.message,true);return}
+     ordersBox.innerHTML=list(q.data,x=>{
+       const pending=/pending|processing/i.test(x.status||"")&&!x.wallet_refunded_at;
+       return '<article class="item"><div><strong>'+esc(x.network||"Service")+' '+esc(x.order_type||"")+' · '+esc(x.phone_number)+'</strong><small>'+esc(x.product_name||"Airtime/Data")+' · '+date(x.created_at)+'</small></div><div><span class="pill '+pill(x.status)+'">'+esc(x.status)+'</span><small>'+money(x.amount)+'</small>'+(pending?'<button class="btn alt vt-requery" data-id="'+esc(x.id)+'">Check status</button>':x.wallet_refunded_at?'<small>Refunded</small>':"")+'</div></article>';
+     },"No airtime or data orders yet.");
+     ordersBox.querySelectorAll(".vt-requery").forEach(button=>button.addEventListener("click",async()=>{
+       button.disabled=true;button.textContent="Checking…";
+       const {data,error}=await invoke({action:"requery",order_id:button.dataset.id});
+       if(error){button.disabled=false;button.textContent="Try again";alert(error.message);return}
+       alert(data?.message||"Status updated.");loadOrders();
+     }));
+   };
+   const renderForm=()=>{
+     const kind=document.getElementById("vtKind")?.value||"data";
+     const networks=[...new Set(products.filter(p=>p.product_type===kind).map(p=>p.network))];
+     const network=document.getElementById("vtNetwork")?.value||networks[0]||"";
+     const matching=products.filter(p=>p.product_type===kind&&p.network===network);
+     const selected=document.getElementById("vtPlan")?.value||matching[0]?.id||"";
+     const selectedProduct=matching.find(p=>String(p.id)===String(selected))||matching[0];
+     const networkOptions=networks.map(n=>'<option value="'+esc(n)+'" '+(n===network?'selected':'')+'>'+esc(n)+'</option>').join("");
+     const planOptions=matching.filter(p=>kind==="data").map(p=>'<option value="'+esc(p.id)+'" '+(p.id===selectedProduct?.id?'selected':'')+'>'+esc(p.name)+' — '+money(p.selling_price)+'</option>').join("");
+     catalogBox.innerHTML='<form id="vtPurchase"><label>Service</label><select id="vtKind" name="kind"><option value="data" '+(kind==="data"?'selected':'')+'>Data bundle</option><option value="airtime" '+(kind==="airtime"?'selected':'')+'>Airtime</option></select><label>Network</label><select id="vtNetwork" name="network">'+networkOptions+'</select>'+(kind==="data"?'<label>Choose data plan</label><select id="vtPlan" name="product_id">'+planOptions+'</select><p class="muted">Price: '+money(selectedProduct?.selling_price||0)+'</p>':'<label>Airtime amount (₦50 – ₦50,000)</label><input name="amount" type="number" min="50" max="50000" step="1" required placeholder="Enter amount">')+'<label>Recipient phone number</label><input name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10,14}" minlength="10" maxlength="14" required placeholder="e.g. 08012345678"><div class="note">Please confirm the network and phone number before buying. Successful provider purchases cannot be reversed.</div><button class="btn" id="vtBuy">Continue to purchase</button><div id="vtResult"></div></form>';
+     document.getElementById("vtKind").addEventListener("change",renderForm);
+     document.getElementById("vtNetwork").addEventListener("change",renderForm);
+     document.getElementById("vtPlan")?.addEventListener("change",renderForm);
+     document.getElementById("vtPurchase").onsubmit=async e=>{
+       e.preventDefault();
+       const form=e.currentTarget,fd=new FormData(form),button=document.getElementById("vtBuy");
+       const orderKind=String(fd.get("kind")),phone=String(fd.get("phone")).replace(/\D/g,"");
+       const chosen=products.find(p=>String(p.id)===String(fd.get("product_id")));
+       if(orderKind==="data"&&!chosen){document.getElementById("vtResult").innerHTML=note("Please choose a valid data plan.",true);return}
+       if(!confirm("Confirm "+orderKind+" purchase on "+String(fd.get("network"))+" for "+phone+"? The wallet will be debited only when the order is reserved."))return;
+       button.disabled=true;button.textContent="Processing…";
+       const payload={action:"purchase",order_type:orderKind,product_id:orderKind==="data"?chosen.id:products.find(p=>p.product_type==="airtime"&&p.network===String(fd.get("network")) )?.id,phone};
+       if(orderKind==="airtime")payload.amount=Number(fd.get("amount"));
+       const {data,error}=await invoke(payload);
+       const result=document.getElementById("vtResult");
+       if(error){result.innerHTML=note(error.message,true);button.disabled=false;button.textContent="Try again";return}
+       result.innerHTML=note(data?.message||"Purchase request received.",!data?.ok);
+       button.textContent="Purchase request sent";
+       await loadOrders();
+     };
+   };
+   const {data,error}=await invoke({action:"catalog"});
+   if(error){catalogBox.innerHTML=note("Could not load VTpass catalogue: "+error.message,true);await loadOrders();return}
+   if(!data?.ok){catalogBox.innerHTML=note(data?.message||"VTpass catalogue is not available.",true);await loadOrders();return}
+   products=data.products||[];
+   if(!products.length){catalogBox.innerHTML=note("No products are currently available from VTpass.",true)}
+   else renderForm();
+   if(data.warnings?.length)catalogBox.insertAdjacentHTML("beforeend",note("Some network catalogues could not refresh: "+data.warnings.join(", ")));
+   await loadOrders();
+   return;
  }
+
  if(moduleName==="ai-care"){
  const feature=await sb.from("platform_settings").select("ai_care_enabled").eq("id",1).maybeSingle();
  if(feature.error){app.innerHTML='<section class="panel">'+note(feature.error.message,true)+'</section>';return}
