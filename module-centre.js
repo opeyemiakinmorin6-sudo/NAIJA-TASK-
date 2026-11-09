@@ -25,10 +25,37 @@ const linkList=items=>'<div class="links">'+items.map(x=>'<a class="link" href="
 async function start(){
  const auth=await sb.auth.getUser();const user=auth.data&&auth.data.user;if(!user){location.href="login.html";return}
  if(moduleName==="support"||moduleName==="appeals"){
- const isAppeal=moduleName==="appeals", table=isAppeal?"appeals":"support_tickets", title=isAppeal?"Submit an appeal":"Contact support";
- const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30);
- app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">Do not include your password, PIN, OTP or full bank details.</p><form id="sendForm"><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your requests</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,(isAppeal ? x.admin_response : x.admin_reply)||"")))+'</section>';
- document.getElementById("sendForm").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");b.disabled=true;const {error}=await sb.from(table).insert({user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()});document.getElementById("result").innerHTML=error?note(error.message,true):note("Your request has been submitted.");if(!error){f.reset();start()}else b.disabled=false};return;
+ const isAppeal=moduleName==="appeals",table=isAppeal?"appeals":"support_tickets",title=isAppeal?"Submit an appeal":"Contact support";
+ const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40);
+ let referenceOptions='<option value="">General account appeal (optional)</option>';
+ let referenceNotice="";
+ if(isAppeal){
+   const [submissionsResult,withdrawalsResult]=await Promise.all([
+     sb.from("task_submissions").select("id,task_id,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60),
+     sb.from("withdrawals").select("id,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60)
+   ]);
+   const submissions=submissionsResult.error?[]:(submissionsResult.data||[]);
+   const withdrawals=withdrawalsResult.error?[]:(withdrawalsResult.data||[]);
+   referenceOptions+='<optgroup label="Task submissions">'+submissions.map(x=>'<option value="submission:'+esc(x.id)+'">Task submission #'+esc(x.id)+' · '+esc(x.status||"Submitted")+'</option>').join("")+'</optgroup>';
+   referenceOptions+='<optgroup label="Withdrawals">'+withdrawals.map(x=>'<option value="withdrawal:'+esc(x.id)+'">Withdrawal #'+esc(x.id)+' · '+money(x.amount)+' · '+esc(x.status||"Pending")+'</option>').join("")+'</optgroup>';
+   if(submissionsResult.error||withdrawalsResult.error)referenceNotice=note("Some reference records could not be loaded. You can still submit a general appeal.",true);
+ }
+ app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">'+(isAppeal?"Choose the task or withdrawal if your appeal concerns a specific record. Include the facts and why you believe the decision should be reviewed.":"Describe the issue clearly. Never include your password, PIN, OTP or full bank details.")+'</p>'+(isAppeal?referenceNotice:"")+'<form id="sendForm">'+(isAppeal?'<label>Related record</label><select name="reference">'+referenceOptions+'</select>':"")+'<label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your '+(isAppeal?"appeals":"requests")+'</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,(isAppeal?x.admin_response:x.admin_reply)||"")))+'</section>';
+ document.getElementById("sendForm").onsubmit=async e=>{
+   e.preventDefault();
+   const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");
+   b.disabled=true;
+   const payload={user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()};
+   if(isAppeal){
+     const ref=String(fd.get("reference")||"");
+     payload.submission_id=ref.startsWith("submission:")?Number(ref.slice(11)):null;
+     payload.withdrawal_id=ref.startsWith("withdrawal:")?Number(ref.slice(10)):null;
+   }
+   const {error}=await sb.from(table).insert(payload);
+   document.getElementById("result").innerHTML=error?note(error.message,true):note(isAppeal?"Your appeal has been submitted for review.":"Your support request has been submitted.");
+   if(!error){f.reset();start()}else b.disabled=false;
+ };
+ return;
  }
  if(["applied-jobs","approved","retry","cancelled"].includes(moduleName)){
  const q=await sb.from("task_submissions").select("id,task_id,status,created_at,rejection_reason").eq("user_id",user.id).order("created_at",{ascending:false}).limit(250);
