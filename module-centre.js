@@ -27,7 +27,7 @@ async function start(){
  if(moduleName==="support"||moduleName==="appeals"){
  const isAppeal=moduleName==="appeals", table=isAppeal?"appeals":"support_tickets", title=isAppeal?"Submit an appeal":"Contact support";
  const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(30);
- app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">Do not include your password, PIN, OTP or full bank details.</p><form id="sendForm"><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your requests</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,x.admin_reply||"")))+'</section>';
+ app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">Do not include your password, PIN, OTP or full bank details.</p><form id="sendForm"><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your requests</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,(isAppeal ? x.admin_response : x.admin_reply)||"")))+'</section>';
  document.getElementById("sendForm").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");b.disabled=true;const {error}=await sb.from(table).insert({user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()});document.getElementById("result").innerHTML=error?note(error.message,true):note("Your request has been submitted.");if(!error){f.reset();start()}else b.disabled=false};return;
  }
  if(["applied-jobs","approved","retry","cancelled"].includes(moduleName)){
@@ -39,8 +39,9 @@ async function start(){
  }
  if(moduleName==="notifications"){
  const q=await sb.from("notifications").select("id,title,message,type,is_read,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60);
- const unread=(q.data||[]).filter(x=>!x.is_read).length;
- app.innerHTML='<section class="panel"><h2>Your notifications</h2><p class="muted">'+unread+' unread · '+(q.data||[]).length+' total</p>'+(q.error?note(q.error.message,true):list(q.data,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+' · '+date(x.created_at)+'</small></div><div><span class="pill '+(x.is_read?'good':'wait')+'">'+(x.is_read?'Read':'New')+'</span>'+(x.is_read?'':'<button class="btn alt mark-read" data-id="'+esc(x.id)+'">Mark read</button>')+'</div></article>'))+'</section>'; 
+ const rows=q.data||[],unread=rows.filter(x=>!x.is_read).length;
+ app.innerHTML='<section class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2>Your notifications</h2><button class="btn alt" id="markAllRead" '+(unread?'':'disabled')+'>Mark all as read</button></div><p class="muted">'+unread+' unread · '+rows.length+' total</p>'+(q.error?note(q.error.message,true):list(rows,x=>'<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+' · '+date(x.created_at)+'</small></div><div><span class="pill '+(x.is_read?'good':'wait')+'">'+(x.is_read?'Read':'New')+'</span>'+(x.is_read?'':'<button class="btn alt mark-read" data-id="'+esc(x.id)+'">Mark read</button>')+'</div></article>'))+'</section>';
+ document.getElementById("markAllRead").addEventListener("click",async b=>{const button=b.currentTarget;button.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("user_id",user.id).eq("is_read",false);if(error){button.disabled=false;alert("Could not update notifications: "+error.message)}else start()});
  document.querySelectorAll(".mark-read").forEach(b=>b.addEventListener("click",async()=>{b.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("id",b.dataset.id).eq("user_id",user.id);if(error){b.disabled=false;alert("Could not mark as read: "+error.message)}else start()}));return;
  }
  if(moduleName==="announcements"){
@@ -59,8 +60,51 @@ async function start(){
  }
  if(moduleName==="ai-care"){
  const q=await sb.from("ai_care_threads").select("id,title,status,created_at,updated_at").eq("user_id",user.id).order("updated_at",{ascending:false}).limit(30);
- app.innerHTML='<section class="panel"><h2>Start a care conversation</h2><p class="muted">Your message is saved for review. This page does not generate an automated AI response.</p><form id="care"><label>Topic</label><input name="title" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Send message</button></form><div id="result"></div></section><section class="panel"><h2>Your conversations</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.title||"Care request",date(x.updated_at),x.status)))+'</section>';
- document.getElementById("care").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");b.disabled=true;const a=await sb.from("ai_care_threads").insert({user_id:user.id,title:String(fd.get("title")).trim()}).select("id").single();if(a.error){document.getElementById("result").innerHTML=note(a.error.message,true);b.disabled=false;return}const z=await sb.from("ai_care_messages").insert({thread_id:a.data.id,user_id:user.id,sender_type:"user",message:String(fd.get("message")).trim()});document.getElementById("result").innerHTML=z.error?note(z.error.message,true):note("Your message has been sent.");if(!z.error){f.reset();start()}else b.disabled=false};return;
+ if(q.error){app.innerHTML='<section class="panel">'+note(q.error.message,true)+'</section>';return}
+ let activeThread=(q.data||[])[0]?.id||null;
+ const threadRows=(q.data||[]).map(x=>'<button type="button" class="item care-thread" data-id="'+esc(x.id)+'" style="width:100%;text-align:left;background:white"><span><strong>'+esc(x.title||"Care request")+'</strong><small>'+date(x.updated_at||x.created_at)+'</small></span><span class="pill '+pill(x.status)+'">'+esc(x.status||"OPEN")+'</span></button>').join("")||'<div class="empty">No conversations yet. Start one when you need help.</div>';
+ app.innerHTML='<section class="panel"><h2>NAIJA TASK Care Inbox</h2><p class="muted">Send a message to the support team and continue the conversation here. This is a human-reviewed inbox, not an automated AI diagnosis or emergency service.</p><form id="care"><label>Topic</label><input name="title" required maxlength="120" placeholder="What do you need help with?"><label>Message</label><textarea name="message" required maxlength="3000" placeholder="Explain what happened. Do not share passwords, PINs or OTPs."></textarea><button class="btn">Start conversation</button></form><div id="result"></div></section><section class="panel"><h2>Your conversations</h2><div id="careThreads">'+threadRows+'</div></section><section class="panel" id="careConversation"><h2 id="careTitle">Select a conversation</h2><div id="careMessages" class="muted">Your messages and support replies will appear here.</div><form id="careReply" hidden><label>Reply</label><textarea name="message" required maxlength="3000" placeholder="Write a follow-up message"></textarea><button class="btn">Send reply</button></form><div id="replyResult"></div></section>';
+ const threadsBox=document.getElementById("careThreads");
+ async function openThread(id){
+   activeThread=id;
+   const thread=(q.data||[]).find(x=>String(x.id)===String(id));
+   document.getElementById("careTitle").textContent=thread?.title||"Care conversation";
+   const box=document.getElementById("careMessages");
+   box.textContent="Loading conversation…";
+   const r=await sb.from("ai_care_messages").select("id,sender_type,message,created_at").eq("thread_id",id).order("created_at",{ascending:true}).limit(100);
+   if(r.error){box.innerHTML=note(r.error.message,true);return}
+   box.innerHTML=(r.data||[]).map(x=>'<article class="item"><div><strong>'+esc(String(x.sender_type||"support").toLowerCase()==="user"?"You":"NAIJA TASK Support")+'</strong><small>'+esc(x.message)+'</small><small>'+date(x.created_at)+'</small></div></article>').join("")||'<div class="empty">No messages in this conversation yet.</div>';
+   const status=String(thread?.status||"OPEN").toUpperCase();
+   document.getElementById("careReply").hidden=/CLOSED|RESOLVED|REJECTED/.test(status);
+   threadsBox.querySelectorAll(".care-thread").forEach(b=>b.classList.toggle("active",String(b.dataset.id)===String(id)));
+ }
+ threadsBox.addEventListener("click",e=>{
+   const b=e.target.closest(".care-thread");
+   if(b)openThread(b.dataset.id);
+ });
+ document.getElementById("care").onsubmit=async e=>{
+   e.preventDefault();
+   const form=e.currentTarget,fd=new FormData(form),button=form.querySelector("button");
+   button.disabled=true;
+   const title=String(fd.get("title")).trim(),message=String(fd.get("message")).trim();
+   const a=await sb.from("ai_care_threads").insert({user_id:user.id,title}).select("id").single();
+   if(a.error){document.getElementById("result").innerHTML=note(a.error.message,true);button.disabled=false;return}
+   const z=await sb.from("ai_care_messages").insert({thread_id:a.data.id,user_id:user.id,sender_type:"user",message});
+   if(z.error){document.getElementById("result").innerHTML=note(z.error.message,true);button.disabled=false;return}
+   form.reset();document.getElementById("result").innerHTML=note("Conversation created. You can continue it below.");
+   start();
+ };
+ document.getElementById("careReply").onsubmit=async e=>{
+   e.preventDefault();
+   if(!activeThread)return;
+   const form=e.currentTarget,fd=new FormData(form),button=form.querySelector("button");
+   button.disabled=true;
+   const {error}=await sb.from("ai_care_messages").insert({thread_id:activeThread,user_id:user.id,sender_type:"user",message:String(fd.get("message")).trim()});
+   if(error){document.getElementById("replyResult").innerHTML=note(error.message,true);button.disabled=false;return}
+   form.reset();document.getElementById("replyResult").innerHTML=note("Reply sent.");button.disabled=false;openThread(activeThread);
+ };
+ if(activeThread)await openThread(activeThread);
+ return;
  }
  if(moduleName==="security"){
  app.innerHTML='<section class="panel"><h2>Change password</h2><p class="muted">Use a unique password with at least 8 characters. Never share it or your one-time code.</p><form id="pw"><label>New password</label><input type="password" name="p" minlength="8" required><label>Confirm password</label><input type="password" name="c" minlength="8" required><button class="btn">Update password</button></form><div id="result"></div></section><section class="panel"><h2>Safety checklist</h2><p>• Use a unique password.</p><p>• Sign out on shared devices.</p><p>• Never share OTPs or PINs.</p><a class="btn alt" href="profile.html">Open profile</a> <a class="btn alt" href="support.html">Report a concern</a></section>';
