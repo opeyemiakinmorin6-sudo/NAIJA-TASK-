@@ -4,7 +4,7 @@ const url = "https://jwakveeiynpakunwjzkj.supabase.co";
 const anon = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const moduleName = document.body.dataset.module || "more";
 const titles = {
-support:"Support Centre",notifications:"Notifications","applied-jobs":"My Task Activity",approved:"Approved Tasks",retry:"Needs Attention",cancelled:"Cancelled Tasks","airtime-data":"Airtime & Data",more:"More Services",promote:"Promote Your Business",announcements:"Platform Announcements",community:"Community","ai-assistant":"Help Assistant","ai-care":"AI Care Inbox",arena:"Games Arena",security:"Account Security",appeals:"Appeals Centre"
+support:"Support Centre",notifications:"Notifications","applied-jobs":"My Task Activity",approved:"Approved Tasks",retry:"Needs Attention",cancelled:"Cancelled Tasks","airtime-data":"Airtime & Data",more:"More Services",promote:"Promote Your Business",announcements:"Platform Announcements",community:"Community","ai-assistant":"Help Assistant","ai-care":"Member Care Inbox",arena:"Games Arena",security:"Account Security",appeals:"Appeals Centre"
 };
 const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money = v => "₦" + Number(v || 0).toLocaleString("en-NG");
