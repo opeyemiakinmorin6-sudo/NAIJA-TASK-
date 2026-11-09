@@ -47,6 +47,10 @@ const descriptions={"applied-jobs":"Track every task you have submitted and its 
 document.title=(titles[moduleName]||titles.more)+" — NAIJA TASK";
 document.body.innerHTML='<header class="top"><b>NAIJA TASK</b><a class="back" href="dashboard.html">← Dashboard</a></header><main><section class="hero"><small>MEMBER CENTRE</small><h1>'+(names[moduleName]||"")+' '+esc(titles[moduleName]||titles.more)+'</h1><p>'+esc(descriptions[moduleName]||"Your account services and updates in one place.")+'</p></section><div id="app"><section class="panel muted">Loading…</section></div></main>';
 const app=document.getElementById("app");
+if(!window.supabase||typeof window.supabase.createClient!=="function"){
+ app.innerHTML='<section class="panel"><h2>Airtime & Data is temporarily unavailable</h2>'+note("The secure page library did not load. Check your internet connection, then reload this page.",true)+'<a class="btn alt" href="dashboard.html">← Back to Dashboard</a></section>';
+ return;
+}
 const sb=window.supabase.createClient(url,anon);
 const note=(s,bad)=>'<div class="note '+(bad?"error":"")+'">'+esc(s)+'</div>';
 const list=(rows,fn,empty)=>rows&&rows.length?rows.map(fn).join(""):'<div class="empty">'+esc(empty||"Nothing here yet.")+'</div>';
