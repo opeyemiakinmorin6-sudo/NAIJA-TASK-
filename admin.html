@@ -4508,7 +4508,9 @@ function statusClass(value) {
     status.includes("live") ||
     status.includes("completed") ||
     status.includes("success") ||
-    status.includes("verified")
+    status.includes("verified") ||
+    status.includes("answered") ||
+    status.includes("resolved")
   ) {
     return "success";
   }
@@ -9763,11 +9765,8 @@ async function resolveSupport(id) {
     return;
   }
 
-  const newStatus =
-    String(row.status).toLowerCase() ===
-    "resolved"
-      ? "open"
-      : "resolved";
+  const currentStatus = String(row.status).toLowerCase();
+  const newStatus = ["resolved", "closed"].includes(currentStatus) ? "open" : "resolved";
 
   try {
 
