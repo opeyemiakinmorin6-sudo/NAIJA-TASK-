@@ -48,8 +48,12 @@ async function start(){
    const payload={user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()};
    if(isAppeal){
      const ref=String(fd.get("reference")||"");
-     payload.submission_id=ref.startsWith("submission:")?Number(ref.slice(11)):null;
-     payload.withdrawal_id=ref.startsWith("withdrawal:")?Number(ref.slice(11)):null;
+     let label="";
+     if(ref.startsWith("submission:"))label="Task submission #"+ref.slice(11);
+     else if(ref.startsWith("withdrawal:"))label="Withdrawal #"+ref.slice(11);
+     if(label)payload.message="Related record: "+label+"\n\n"+payload.message;
+     // The legacy appeal reference columns are UUIDs, while current submission/withdrawal IDs are numeric.
+     // Keep the reference in the message until a compatible relationship is deliberately migrated.
    }
    const {error}=await sb.from(table).insert(payload);
    document.getElementById("result").innerHTML=error?note(error.message,true):note(isAppeal?"Your appeal has been submitted for review.":"Your support request has been submitted.");
