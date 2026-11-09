@@ -9837,11 +9837,14 @@ async function loadAppeals() {
       return;
     }
     body.innerHTML = rows.map(row => {
-      const reference = row.submission_id ? "Submission #" + row.submission_id : row.withdrawal_id ? "Withdrawal #" + row.withdrawal_id : "General appeal";
+      const rawMessage = String(row.message || "");
+      const referenceMatch = rawMessage.match(/^Related record:\s*(Task submission #\d+|Withdrawal #\d+)/i);
+      const reference = row.submission_id ? "Submission reference" : row.withdrawal_id ? "Withdrawal reference" : (referenceMatch ? referenceMatch[1] : "General appeal");
+      const reason = rawMessage.replace(/^Related record:.*?\n\s*\n/i, "");
       return '<tr><td>' + escapeHTML(row.subject || "Appeal") + '</td>' +
         '<td class="mono">' + escapeHTML(row.user_id || "—") + '</td>' +
         '<td>' + escapeHTML(reference) + '</td>' +
-        '<td>' + escapeHTML(String(row.message || "").slice(0, 180)) + '</td>' +
+        '<td>' + escapeHTML(reason.slice(0, 180)) + '</td>' +
         '<td>' + badge(row.status || "PENDING") + '</td>' +
         '<td>' + escapeHTML(row.admin_response || "Awaiting review") + '</td>' +
         '<td>' + formatDate(row.created_at) + '</td>' +
