@@ -2655,6 +2655,7 @@ td,th{padding:13px 11px}
         <option value="all">All statuses</option>
         <option value="open">Open</option>
         <option value="pending">Pending</option>
+        <option value="answered">Answered</option>
         <option value="resolved">Resolved</option>
         <option value="closed">Closed</option>
 
@@ -2679,6 +2680,7 @@ td,th{padding:13px 11px}
             <th>User</th>
             <th>Subject</th>
             <th>Message</th>
+            <th>Admin reply</th>
             <th>Status</th>
             <th>Date</th>
             <th>Action</th>
@@ -9632,155 +9634,51 @@ async function saveAICareSetting() {
    ========================================================= */
 
 async function loadSupport() {
-  const body =
-    $("supportBody");
-
-  if (body) {
-    body.innerHTML = `
-      <tr>
-        <td colspan="8" class="loading-row">
-          Loading support requests...
-        </td>
-      </tr>
-    `;
-  }
-
+  const body = $("supportBody");
+  if (body) body.innerHTML = '<tr><td colspan="7" class="loading-row">Loading support requests…</td></tr>';
   try {
-
     const data = await fetchAllRows(
       () => supabaseClient.from("support_tickets").select("*").order("created_at", { ascending: false }),
       { label: "Support tickets request", maxRows: 5000 }
     );
-
     allSupport = safeArray(data);
-
-    renderSupport(
-      allSupport
-    );
-
+    renderSupport(allSupport);
   } catch (error) {
-    reportError(
-      "loadSupport",
-      error
-    );
-
+    reportError("loadSupport", error);
     allSupport = [];
-
-    if (body) {
-      body.innerHTML = `
-        <tr>
-          <td colspan="8" class="empty-row">
-            Unable to load support_tickets. Check table permissions and columns.
-          </td>
-        </tr>
-      `;
-    }
-
-    toast(
-      errorMessage(
-        error,
-        "Unable to load support records."
-      ),
-      "danger"
-    );
+    if (body) body.innerHTML = '<tr><td colspan="7" class="empty-row">Unable to load support tickets: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
+    toast(errorMessage(error, "Unable to load support records."), "danger");
   }
 }
-
 
 function renderSupport(rows) {
-  const body =
-    $("supportBody");
-
+  const body = $("supportBody");
   if (!body) return;
-
-  if (!rows.length) {
-    body.innerHTML = `
-      <tr>
-        <td colspan="8" class="empty-row">
-          No support requests found.
-        </td>
-      </tr>
-    `;
+  const query = $("supportSearch")?.value.trim().toLowerCase() || "";
+  const statusFilter = String($("supportStatusFilter")?.value || "all").toLowerCase();
+  const visible = safeArray(rows).filter(row => {
+    const status = String(row.status || "open").toLowerCase();
+    const statusMatch = statusFilter === "all" || status === statusFilter;
+    const searchText = [row.id,row.user_id,row.subject,row.title,row.message,row.admin_reply,row.status].filter(Boolean).join(" ").toLowerCase();
+    return statusMatch && (!query || searchText.includes(query));
+  });
+  if (!visible.length) {
+    body.innerHTML = '<tr><td colspan="7" class="empty-row">No support requests match this filter.</td></tr>';
     return;
   }
-
-  body.innerHTML = rows.map(row => {
-
-    const subject =
-      row.subject ||
-      row.title ||
-      row.message ||
-      "Support request";
-
-    const message =
-      row.message ||
-      row.description ||
-      "";
-
-    const user =
-      row.user_id ||
-      row.email ||
-      "—";
-
-    const status =
-      row.status ||
-      "open";
-
-    return `
-      <tr>
-
-        <td>
-          ${escapeHTML(user)}
-        </td>
-
-        <td>
-          <strong>
-            ${escapeHTML(subject)}
-          </strong>
-        </td>
-
-        <td>
-          ${escapeHTML(
-            String(message).slice(0, 120)
-          )}
-        </td>
-
-        <td>
-          ${badge(status)}
-        </td>
-
-        <td>
-          ${formatDate(
-            row.created_at
-          )}
-        </td>
-
-        <td>
-          ${
-            row.status
-              ? `
-                <button
-                  class="small-btn"
-                  onclick="resolveSupport('${escapeHTML(
-                    row.id
-                  )}')">
-                  ${
-                    String(status).toLowerCase() ===
-                    "resolved"
-                      ? "Reopen"
-                      : "Resolve"
-                  }
-                </button>
-              `
-              : "—"
-          }
-        </td>
-
-      </tr>
-    `;
+  body.innerHTML = visible.map(row => {
+    const status = String(row.status || "open").toLowerCase();
+    const closed = status === "resolved" || status === "closed";
+    return '<tr><td class="mono">' + escapeHTML(row.user_id || "—") + '</td>' +
+      '<td><strong>' + escapeHTML(row.subject || "Support request") + '</strong></td>' +
+      '<td>' + escapeHTML(String(row.message || "").slice(0, 120)) + '</td>' +
+      '<td>' + escapeHTML(row.admin_reply || "No reply yet") + '</td>' +
+      '<td>' + badge(status) + '</td>' +
+      '<td>' + formatDate(row.created_at) + '</td>' +
+      '<td><button class="small-btn" onclick="replySupport(\'' + escapeHTML(row.id) + '\')">Reply</button> ' +
+      '<button class="small-btn" onclick="resolveSupport(\'' + escapeHTML(row.id) + '\')">' + (closed ? "Reopen" : "Resolve") + '</button></td></tr>';
   }).join("");
 }
-
 
 function filterSupport() {
   const query =
@@ -9818,6 +9716,29 @@ function filterSupport() {
   renderSupport(filtered);
 }
 
+
+async function replySupport(id) {
+  const row = allSupport.find(item => String(item.id) === String(id));
+  if (!row) { toast("Support record not found.", "warning"); return; }
+  const reply = await uiPrompt("Write a clear reply to this support request. Never request a password, PIN or OTP.");
+  if (reply === null || !String(reply).trim()) return;
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.from("support_tickets")
+        .update({ admin_reply: String(reply).trim(), status: "answered", updated_at: new Date().toISOString() })
+        .eq("id", id).select("id,admin_reply,status"),
+      15000, "Reply to support ticket"
+    );
+    if (error) throw error;
+    if (!Array.isArray(data) || !data.length) throw new Error("The support reply was not saved. Check admin access.");
+    await writeAudit("support_reply_sent", id, { status: "answered" });
+    toast("Support reply sent to the member.", "success");
+    await loadSupport();
+  } catch (error) {
+    reportError("replySupport", error);
+    toast(errorMessage(error, "Unable to send support reply."), "danger");
+  }
+}
 
 async function resolveSupport(id) {
   const row =
