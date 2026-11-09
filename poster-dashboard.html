@@ -979,10 +979,10 @@ async function loadJobs(user){
 
   document.getElementById("totalJobs").textContent = list.length;
   document.getElementById("liveJobs").textContent = list.filter(job =>
-    job.status === "LIVE" && job.active === true
+    String(job.status || "").toUpperCase() === "LIVE" && job.active === true
   ).length;
   document.getElementById("reviewJobs").textContent = list.filter(job =>
-    job.status === "UNDER_REVIEW"
+    String(job.status || "").toUpperCase() === "UNDER_REVIEW"
   ).length;
   document.getElementById("completedJobs").textContent = list.filter(job =>
     String(job.status || "").toUpperCase() === "COMPLETED"
