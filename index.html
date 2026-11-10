@@ -70,10 +70,6 @@
   <meta name="twitter:description" content="NAIJA TASK connects businesses with real people for online tasks. Taskers complete tasks and track rewards. Complete Tasks. Earn Naira.">
   <meta name="twitter:image" content="https://naijatask.com.ng/assets/naija-task-share.png">
 
-  <style>
-    .nt-install-button{font-size:11px;min-height:40px;padding:0 10px;white-space:nowrap}
-    @media(max-width:520px){header .page-width{height:auto!important;min-height:68px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px;row-gap:8px}header .page-width>a{margin-right:auto}.nt-install-button{order:3;width:100%;min-height:40px}}
-  </style>
 </head>
 <body>
   <header class="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
@@ -82,7 +78,6 @@
         <img src="/assets/naija-task-logo.svg" alt="NAIJA TASK logo" class="h-10 w-10 rounded-xl object-cover">
         <span><strong class="block text-[15px] font-black tracking-tight text-[#111]">NAIJA TASK</strong><small class="block text-[8px] font-bold tracking-[1.1px] text-[#666]">COMPLETE TASKS. EARN NAIRA.</small></span>
       </a>
-      <button id="ntInstallApp" type="button" class="outline-btn nt-install-button" hidden aria-label="Install NAIJA TASK on this device">＋ Add to Home Screen</button>
       <button id="menuOpen" class="hamburger" aria-label="Open navigation menu" aria-expanded="false">☰</button>
     </div>
   </header>
@@ -512,49 +507,10 @@
 </script>
 
 <script>
-/* PWA install: use the browser's native install prompt when available.
-   If unavailable, show simple Chrome/iOS installation guidance. */
-(function(){
-  const button=document.getElementById('ntInstallApp');
-  if(!button) return;
-  let installPrompt=null;
-  const isStandalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
-  if(isStandalone){button.hidden=true;return;}
-  function show(){button.hidden=false;}
-  window.addEventListener('beforeinstallprompt',event=>{
-    event.preventDefault();
-    installPrompt=event;
-    button.textContent='＋ Add to Home Screen';
-    show();
-  });
-  window.addEventListener('appinstalled',()=>{
-    installPrompt=null;
-    button.hidden=true;
-    const toast=document.getElementById('toast');
-    if(toast){toast.textContent='NAIJA TASK added to your home screen.';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2600);}
-  });
-  button.addEventListener('click',async()=>{
-    if(installPrompt){
-      installPrompt.prompt();
-      await installPrompt.userChoice;
-      installPrompt=null;
-      return;
-    }
-    const ua=navigator.userAgent||'';
-    const isIOS=/iphone|ipad|ipod/i.test(ua);
-    const message=isIOS
-      ? 'To add NAIJA TASK: tap the Share button in Safari, then choose “Add to Home Screen”.'
-      : 'To add NAIJA TASK: open Chrome’s ⋮ menu and choose “Install app” or “Add to Home screen”. If you only see Download, update Chrome and open https://naijatask.com.ng/ directly in Chrome.';
-    const toast=document.getElementById('toast');
-    if(toast){toast.textContent=message;toast.style.maxWidth='min(92vw,420px)';toast.style.textAlign='center';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),6500);}
-    else alert(message);
-  });
-  if('serviceWorker' in navigator){
-    window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(error=>console.warn('NAIJA TASK offline setup unavailable:',error)));
-  }
-  // If Chrome has no install prompt, keep a manual install entry visible.
-  show();
-})();
+/* Register the service worker so Chrome can offer its native install option. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(error=>console.warn('NAIJA TASK offline setup unavailable:',error)));
+}
 </script>
 
 </body>
