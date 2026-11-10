@@ -401,18 +401,24 @@
   </script>
 
 <script>
+/* Hidden admin shortcut is navigation only, never authorization.
+   admin.html always requires a fresh sign-in and an active admin_users record. */
 (function(){
-  const target=document.querySelector("header a[aria-label='NAIJA TASK home'] span:first-child");
+  const target=document.querySelector("header a[aria-label='NAIJA TASK home']");
   if(!target) return;
-  let taps=0, reset;
-  target.setAttribute('title','Tap the NAIJA TASK logo 5 times for administrator sign-in');
-  target.setAttribute('aria-label','NAIJA TASK logo. Tap five times for administrator sign-in.');
+  let taps=0, reset=null;
+  target.setAttribute('title','Administrator sign-in');
+  target.setAttribute('aria-label','NAIJA TASK home');
   target.addEventListener('click',function(event){
     event.preventDefault();
     taps++;
-    clearTimeout(reset);
-    if(taps>=5){taps=0;window.location.href='admin.html';return;}
-    reset=setTimeout(function(){taps=0;},2200);
+    if(reset) window.clearTimeout(reset);
+    if(taps>=5){
+      taps=0;
+      window.location.assign('/admin.html');
+      return;
+    }
+    reset=window.setTimeout(function(){taps=0;},3000);
   });
 })();
 </script>
