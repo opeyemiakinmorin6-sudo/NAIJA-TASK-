@@ -440,7 +440,6 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-ser
       <a class="feature-card" href="retry.html"><span class="feature-icon">🔄</span><strong>Retry Tasks</strong><small>Review tasks to retry</small></a>
       <a class="feature-card" href="cancelled.html"><span class="feature-icon">🚫</span><strong>Cancelled Tasks</strong><small>Review cancellations</small></a>
       <a class="feature-card" href="referrals.html"><span class="feature-icon">🤝</span><strong>Referrals</strong><small>Invite other members</small></a>
-      <a class="feature-card" href="marketplace.html"><span class="feature-icon">🛍️</span><strong>Marketplace</strong><small>Explore listings</small></a>
       <a class="feature-card" href="airtime-data.html"><span class="feature-icon">📱</span><strong>Airtime &amp; Data</strong><small>Open airtime services</small></a>
       <a class="feature-card" href="vip.html"><span class="feature-icon">👑</span><strong>VIP Membership</strong><small>View membership details</small></a>
     </div>
@@ -1072,5 +1071,22 @@ startDashboard().then(loadModuleLinks).then(loadDashboardAds).then(applyFilters)
 })();
 </script>
 
+
+<script>
+(function(){
+  const target=document.querySelector("header .brand.nt-wide-brand");
+  if(!target) return;
+  let taps=0, reset;
+  target.setAttribute('title','Tap the NAIJA TASK logo 5 times for administrator sign-in');
+  target.setAttribute('aria-label','NAIJA TASK logo. Tap five times for administrator sign-in.');
+  target.addEventListener('click',function(event){
+    event.preventDefault();
+    taps++;
+    clearTimeout(reset);
+    if(taps>=5){taps=0;window.location.href='admin.html';return;}
+    reset=setTimeout(function(){taps=0;},2200);
+  });
+})();
+</script>
 </body>
 </html>
