@@ -302,5 +302,22 @@
       updateReviews(); restartTimer();
     })();
   </script>
+
+<script>
+(function(){
+  const target=document.querySelector("header a[aria-label='NAIJA TASK home'] span:first-child");
+  if(!target) return;
+  let taps=0, reset;
+  target.setAttribute('title','Tap the NAIJA TASK logo 5 times for administrator sign-in');
+  target.setAttribute('aria-label','NAIJA TASK logo. Tap five times for administrator sign-in.');
+  target.addEventListener('click',function(event){
+    event.preventDefault();
+    taps++;
+    clearTimeout(reset);
+    if(taps>=5){taps=0;window.location.href='admin.html';return;}
+    reset=setTimeout(function(){taps=0;},2200);
+  });
+})();
+</script>
 </body>
 </html>
