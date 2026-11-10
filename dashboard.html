@@ -356,6 +356,20 @@ body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-ser
  .quick-access{grid-template-columns:repeat(4,minmax(0,1fr))}
  .feature-card{min-height:100px}
 }
+
+/* Dashboard task cards: clear reward and action hierarchy on small screens. */
+.dashboard-task-card{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px;border-radius:16px;text-decoration:none;color:inherit}
+.dashboard-task-main{display:flex;align-items:center;gap:11px;min-width:0}
+.dashboard-task-main .task-info{flex:1;min-width:0}
+.dashboard-task-main .task-info strong{font-size:13px;line-height:1.4}
+.dashboard-task-main .task-info small{font-size:11px;line-height:1.4}
+.dashboard-task-main .task-info .dashboard-task-slots{color:#526d5a;font-weight:750}
+.dashboard-task-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--border)}
+.dashboard-task-earn{color:var(--muted);font-size:12px;font-weight:750}
+.dashboard-task-earn strong{margin-left:4px;color:var(--green);font-size:15px;font-weight:900;white-space:nowrap}
+.dashboard-task-start{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:9px 13px;border-radius:11px;background:var(--green);color:#fff;font-size:12px;font-weight:900;white-space:nowrap}
+.dashboard-task-verification{color:var(--muted);font-size:10px;line-height:1.4}
+.dashboard-task-card:focus-visible{outline:3px solid #9bcf4c;outline-offset:3px}
 </style>
 
 </head>
@@ -828,14 +842,25 @@ async function loadAvailableTasks(){
   container.innerHTML = shown.map(task => {
     const cat = taskCategory(task);
     const reward = task.reward_per_worker ?? task.reward ?? 0;
+    const slotLimit = Number(task.max_total_completions) || 0;
+    const completedSlots = Number(task.completed_count) || 0;
+    const slotsLeft = slotLimit > 0 ? Math.max(0, slotLimit - completedSlots) : null;
+    const slotsLabel = slotsLeft === null ? "Slots available" : slotsLeft + " slots left";
     return `
-      <a class="task-item" href="task.html?task=${encodeURIComponent(task.id)}">
-        <div class="tlogo" aria-hidden="true">${LOGOS[cat]}</div>
-        <div class="task-info">
-          <strong>${escapeHTML(task.title || "Untitled task")}</strong>
-          <small>${PLATFORM_NAMES[cat]} • Task</small>
+      <a class="task-item dashboard-task-card" href="task.html?task=${encodeURIComponent(task.id)}" aria-label="Start task: ${escapeHTML(task.title || "Untitled task")}">
+        <div class="dashboard-task-main">
+          <div class="tlogo" aria-hidden="true">${LOGOS[cat]}</div>
+          <div class="task-info">
+            <strong>${escapeHTML(task.title || "Untitled task")}</strong>
+            <small>${PLATFORM_NAMES[cat]} • Task</small>
+            <small class="dashboard-task-slots">${slotsLabel}</small>
+          </div>
         </div>
-        <span class="task-reward">${money(reward)}</span>
+        <div class="dashboard-task-footer">
+          <span class="dashboard-task-earn">Earn <strong>${money(reward)}</strong></span>
+          <span class="dashboard-task-start">Start Task <span aria-hidden="true">→</span></span>
+        </div>
+        <div class="dashboard-task-verification">🛡️ Verification in 24–48h</div>
       </a>`;
   }).join("") + (tasks.length > shown.length
     ? `<a class="more-link" href="task.html">See all ${tasks.length} available tasks →</a>` : "");
