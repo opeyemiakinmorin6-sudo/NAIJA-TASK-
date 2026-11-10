@@ -1,5 +1,5 @@
-const CACHE_NAME='naija-task-shell-v1';
-const APP_SHELL=['/','/index.html','/manifest.webmanifest','/assets/naija-task-logo.svg'];
+const CACHE_NAME='naija-task-shell-v2';
+const APP_SHELL=['/','/index.html','/manifest.webmanifest','/assets/naija-task-logo.svg','/assets/naija-task-icon-192.png','/assets/naija-task-icon-512.png','/assets/naija-task-share.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
 });
