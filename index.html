@@ -99,10 +99,10 @@
 
     <section class="pb-12">
       <div class="page-width grid grid-cols-2 gap-3">
-        <div class="stat-card"><div class="stat-number">700+</div><div class="stat-label">Tasks Completed Daily</div></div>
-        <div class="stat-card"><div class="stat-number">₦150M+</div><div class="stat-label">Rewards Paid</div></div>
-        <div class="stat-card"><div class="stat-number">380K+</div><div class="stat-label">Active Users</div></div>
-        <div class="stat-card"><div class="stat-number">120K+</div><div class="stat-label">Tasks Posted</div></div>
+        <div class="stat-card"><div class="stat-number" id="statApprovedTasks">—</div><div class="stat-label">Approved Task Completions</div></div>
+        <div class="stat-card"><div class="stat-number" id="statApprovedRewards">—</div><div class="stat-label">Approved Task Rewards</div></div>
+        <div class="stat-card"><div class="stat-number" id="statRegisteredUsers">—</div><div class="stat-label">Registered Members</div></div>
+        <div class="stat-card"><div class="stat-number" id="statActiveTaskers">—</div><div class="stat-label">Active Taskers · 30 days</div></div>
       </div>
     </section>
 
@@ -283,7 +283,7 @@
             </div>
             <div class="phone-frame">
               <div class="phone-notch"></div>
-              <div class="px-1 pb-1"><b class="block text-[9px] font-black text-[#0B3D2E]">NAIJA TASK</b><div class="phone-balance mt-3"><small>Wallet balance</small><strong>₦200,000</strong></div><div class="phone-row">Wallet overview　→</div><div class="phone-row">Recent activity　→</div></div>
+              <div class="px-1 pb-1"><b class="block text-[9px] font-black text-[#0B3D2E]">NAIJA TASK</b><div class="phone-balance mt-3"><small>Wallet preview</small><strong>₦0.00</strong></div><div class="phone-row">Wallet overview　→</div><div class="phone-row">Recent activity　→</div></div>
             </div>
           </div>
         </div>
@@ -391,6 +391,7 @@
 
   const referralBox=document.getElementById('homepageReferralLeaderboard');
   const referralStatus=document.getElementById('referralLeaderboardStatus');
+  const statIds={approvedTasks:'statApprovedTasks',approvedRewards:'statApprovedRewards',registeredUsers:'statRegisteredUsers',activeTaskers:'statActiveTaskers'};
   if(!taskBox || !rankBox) return;
   const money=value=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(Number(value)||0);
   const safeText=(value,fallback)=>String(value??fallback).replace(/[\\u0000-\\u001f]/g,' ').trim() || fallback;
@@ -427,7 +428,8 @@
     const results=await Promise.allSettled([
       db.rpc('get_public_task_previews',{p_limit:3}),
       db.rpc('get_tasker_leaderboard',{p_limit:5}),
-      db.rpc('get_public_referral_leaderboard',{p_limit:5})
+      db.rpc('get_public_referral_leaderboard',{p_limit:5}),
+      db.rpc('get_public_platform_totals')
     ]);
     const tasks=results[0];
     if(tasks.status==='fulfilled'&&!tasks.value.error&&Array.isArray(tasks.value.data)){
@@ -447,6 +449,14 @@
       if(referrals.value.data.length){referrals.value.data.forEach(person=>referralBox.appendChild(referralRow(person)));referralStatus.textContent='Updated rankings';}
       else{state(referralBox,'No registered referrals yet. Invite friends and help grow the NAIJA TASK community.');referralStatus.textContent='Awaiting referrals';}
     }else{state(referralBox,'Referral rankings could not be loaded right now.');referralStatus.textContent='Could not load';}
+    const totals=results[3];
+    if(totals.status==='fulfilled'&&!totals.value.error&&Array.isArray(totals.value.data)&&totals.value.data[0]){
+      const data=totals.value.data[0];
+      const values={approvedTasks:Number(data.approved_completions)||0,approvedRewards:money(data.approved_reward_total),registeredUsers:Number(data.registered_users)||0,activeTaskers:Number(data.active_taskers_30d)||0};
+      Object.entries(statIds).forEach(([key,id])=>{const el=document.getElementById(id);if(el)el.textContent=values[key];});
+    }else{
+      Object.values(statIds).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+    }
   }
   load();
 })();
