@@ -1055,6 +1055,13 @@ td,th{padding:13px 11px}
 
   <button
     class="nav-btn"
+    data-page="reviews"
+    onclick="navigate('reviews')">
+    ⭐ Member Reviews
+  </button>
+
+  <button
+    class="nav-btn"
     data-page="appeals"
     onclick="navigate('appeals')">
     ⚖️ Appeals
@@ -3655,6 +3662,20 @@ td,th{padding:13px 11px}
      MARKETPLACE
      ===================================================== -->
 
+<section id="page-reviews" class="page">
+  <div class="page-header">
+    <div><h2>Member Reviews</h2><p>Approve genuine member feedback before it appears on the public homepage.</p></div>
+    <button class="primary" onclick="loadMemberReviews()">Refresh reviews</button>
+  </div>
+  <div class="card">
+    <div class="notice">Only approved reviews are visible to the public. Review text is shown with a masked member name. Do not approve spam, personal information, abusive content or claims you cannot reasonably verify.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Member</th><th>Rating</th><th>Review</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+      <tbody id="memberReviewsBody"><tr><td colspan="6" class="loading-row">Loading member reviews…</td></tr></tbody>
+    </table></div>
+  </div>
+</section>
+
 <section id="page-marketplace" class="page">
   <div class="page-header">
     <div><h2>Marketplace</h2><p>Monitor product listings and customer orders.</p></div>
@@ -5307,6 +5328,10 @@ function navigate(page) {
       case "ai":
       case "ai-care":
         loadAICare();
+        break;
+
+      case "reviews":
+        loadMemberReviews();
         break;
 
       case "appeals":
@@ -9820,6 +9845,64 @@ async function resolveSupport(id) {
 /* =========================================================
    APPEALS
    ========================================================= */
+
+async function loadMemberReviews() {
+  const body = $("memberReviewsBody");
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="6" class="loading-row">Loading member reviews…</td></tr>';
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.from("member_reviews").select("id,user_id,display_name,member_role,rating,review_text,status,created_at").order("created_at", { ascending: false }).limit(300),
+      15000, "Member reviews request"
+    );
+    if (error) throw error;
+    const rows = safeArray(data);
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="6" class="empty-row">No member reviews have been submitted yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(row => {
+      const stars = "★".repeat(Number(row.rating) || 0) + "☆".repeat(5 - (Number(row.rating) || 0));
+      const actions = row.status === "pending"
+        ? '<button class="primary" onclick="moderateMemberReview(\'' + escapeHTML(row.id) + '\',\'approved\')">Approve</button> <button class="danger" onclick="moderateMemberReview(\'' + escapeHTML(row.id) + '\',\'rejected\')">Reject</button>'
+        : '<button class="secondary" onclick="moderateMemberReview(\'' + escapeHTML(row.id) + '\',\'approved\')">Approve</button> <button class="secondary" onclick="moderateMemberReview(\'' + escapeHTML(row.id) + '\',\'rejected\')">Reject</button>';
+      return '<tr><td>' + escapeHTML(row.display_name || "Member") + '</td>' +
+        '<td style="white-space:nowrap">' + stars + '</td>' +
+        '<td style="min-width:240px;white-space:normal">' + escapeHTML(row.review_text || "") + '</td>' +
+        '<td>' + badge(row.status || "pending") + '</td>' +
+        '<td>' + formatDate(row.created_at) + '</td>' +
+        '<td style="min-width:170px">' + actions + '</td></tr>';
+    }).join("");
+  } catch (error) {
+    reportError("loadMemberReviews", error);
+    body.innerHTML = '<tr><td colspan="6" class="empty-row">' + escapeHTML(errorMessage(error, "Unable to load member reviews.")) + '</td></tr>';
+  }
+}
+
+async function moderateMemberReview(id, status) {
+  if (!id || !["approved", "rejected"].includes(status)) return;
+  const action = status === "approved" ? "approve" : "reject";
+  if (!confirm("Are you sure you want to " + action + " this member review?")) return;
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.from("member_reviews")
+        .update({ status, moderated_by: currentUser.id, moderated_at: new Date().toISOString() })
+        .eq("id", id)
+        .select("id")
+        .maybeSingle(),
+      15000, "Review moderation"
+    );
+    if (error) throw error;
+    if (!data) throw new Error("No review was updated. Confirm that your administrator account is active.");
+    try { await writeAudit("member_review_" + status, id, { status }); } catch (auditError) { console.warn("Review audit note was not saved:", auditError); }
+    toast(status === "approved" ? "Review approved and published." : "Review rejected.", "success");
+    await loadMemberReviews();
+  } catch (error) {
+    reportError("moderateMemberReview", error);
+    toast(errorMessage(error, "Unable to update this review."), "danger");
+  }
+}
+
 
 async function loadAppeals() {
   const body = $("appealsBody");
