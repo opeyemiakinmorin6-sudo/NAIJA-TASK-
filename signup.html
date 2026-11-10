@@ -1,152 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#064d25">
-<title>Create a Tasker Account — NAIJA TASK</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#073b2b"><title>Tasker Sign Up | NAIJA TASK</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:linear-gradient(145deg,#eaf4ed,#f7faf7 55%,#edf5ee);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#173522;display:flex;flex-direction:column}
-.top{padding:16px 20px;background:#fff;border-bottom:1px solid #e1ebe3;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#064d25;font-weight:950;font-size:18px}
-.mark{width:36px;height:36px;display:grid;place-items:center;background:#064d25;color:#b7ef43;border-radius:11px;font-size:12px}
-.top a:last-child{font-size:12px;font-weight:800;text-decoration:none;color:#087f36}
-.layout{width:min(100% - 30px,940px);margin:auto;display:grid;grid-template-columns:1fr 430px;gap:46px;align-items:center;padding:36px 0}
-.kicker{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#087f36}
-h1{font-size:clamp(32px,5vw,47px);line-height:1.08;letter-spacing:-1.6px;margin:13px 0;color:#12351f}
-.intro p{font-size:14px;line-height:1.8;color:#65766b;max-width:420px}
-.points{display:grid;gap:11px;margin-top:22px}
-.points span{font-size:12px;color:#3f5b48;font-weight:750}
-.points b{color:#087f36;margin-right:8px}
-.card{background:#fff;border:1px solid #e0eae2;border-radius:22px;padding:26px;box-shadow:0 22px 60px #163c2112}
-.role{background:#edf6ef;border-radius:13px;padding:12px 14px;margin-bottom:20px}
-.role strong{display:block;font-size:12px;color:#064d25}
-.role span{font-size:11px;color:#718077}
-h2{font-size:23px;margin:0 0 7px}
-.sub{font-size:12px;line-height:1.65;color:#718077;margin:0 0 15px}
-label{display:block;font-size:12px;font-weight:850;margin:13px 0 7px}
-input{width:100%;padding:13px;border:1px solid #d9e4dc;border-radius:11px;font-size:14px;outline:none;background:#fbfdfb}
-input:focus{border-color:#087f36;box-shadow:0 0 0 3px #087f3615}
-.password-box{position:relative}
-.password-box input{padding-right:65px}
-.show{position:absolute;right:7px;top:7px;border:0;border-radius:8px;background:#edf6ef;color:#087f36;padding:7px 10px;font-size:11px;font-weight:850}
-.small{font-size:10px;color:#748178;line-height:1.5;margin-top:6px}
-.main-btn{width:100%;padding:14px;border:0;border-radius:11px;background:#087f36;color:#fff;font-size:13px;font-weight:900;margin-top:19px;cursor:pointer}
-.main-btn:disabled{opacity:.6}
-.message{display:none;padding:11px;border-radius:10px;margin-top:12px;text-align:center;font-size:12px;line-height:1.5}
-.message.error{display:block;background:#ffecec;color:#b00020}
-.message.success{display:block;background:#e8f8ed;color:#08752f}
-.bottom{text-align:center;margin-top:17px;font-size:12px;color:#6c7a70;line-height:1.9}
-.bottom a{color:#087f36;font-weight:900;text-decoration:none}
-.footer{text-align:center;color:#87948b;padding:18px;font-size:11px}
-@media(max-width:800px){.layout{grid-template-columns:1fr;gap:20px;padding:27px 0}.intro{text-align:center}.intro p{margin:0 auto}.points{display:flex;justify-content:center;flex-wrap:wrap}.card{padding:21px}}
-
-/* NAIJA TASK account identity: visually separate Taskers and Posters */
-:root{--account-accent:#1769c2;--account-soft:#eaf3ff;--account-ink:#124b8d}
-body{background:radial-gradient(circle at 8% 4%,#eaf3ff 0,transparent 34%),linear-gradient(145deg,#f4f7fb,#fbfcff 55%,#f2f6fa)}
-.top{padding:18px clamp(16px,4vw,34px);border-bottom:1px solid #e3e9f0;box-shadow:0 4px 18px #142c4308}
-.brand{font-size:21px;letter-spacing:-.4px;color:#173522}
-.mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#124b8d,#1769c2);color:#fff;font-size:15px;box-shadow:0 7px 17px #1769c230}
-.top a:last-child{color:var(--account-accent);font-size:13px}
-.layout{width:min(100% - 30px,1040px);grid-template-columns:minmax(0,1fr) minmax(0,500px);gap:clamp(24px,5vw,58px);padding:clamp(28px,5vw,52px) 0}
-.intro .kicker{color:var(--account-accent);letter-spacing:1.8px}
-.intro h1{max-width:540px}
-.card{padding:clamp(24px,4vw,36px);border:1px solid #e0e7ef;border-radius:25px;box-shadow:0 24px 65px #172c4312}
-.role{background:var(--account-soft);border:1px solid #1769c220;padding:15px 16px}
-.role strong{color:var(--account-ink);letter-spacing:.5px}
-input:focus{border-color:var(--account-accent);box-shadow:0 0 0 3px #1769c218}
-.main-btn,.login-btn{background:linear-gradient(135deg,#124b8d,#1769c2);min-height:50px;border-radius:13px;font-size:14px;box-shadow:0 9px 20px #1769c225}
-.main-btn:hover,.login-btn:hover{filter:brightness(1.06)}
-.show,.show-btn,.forgot,.forgot a,.bottom a,.signup a,.links a{color:var(--account-accent)}
-.show,.show-btn{background:var(--account-soft)}
-.account-logo{display:flex;align-items:center;gap:13px;margin:0 0 22px;padding:0 0 18px;border-bottom:1px solid #e8edf2}
-.account-logo-mark{width:58px;height:58px;flex:0 0 58px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#124b8d,#1769c2);color:white;font-size:19px;font-weight:1000;letter-spacing:-1px;box-shadow:0 9px 20px #1769c22c}
-.account-logo-copy strong{display:block;color:#163323;font-size:19px;letter-spacing:-.5px;font-weight:1000}
-.account-logo-copy small{display:block;margin-top:4px;color:var(--account-accent);font-size:9px;letter-spacing:1.25px;font-weight:900}
-@media(max-width:760px){.layout{grid-template-columns:1fr;gap:20px;padding:25px 0 34px}.card{padding:23px}.account-logo-mark{width:52px;height:52px;flex-basis:52px}}
-</style>
-</head>
-<body>
-<header class="top">
-<a class="brand" href="index.html"><span class="mark">NT</span> NAIJA TASK</a>
-<a href="index.html">← Home</a>
-</header>
-<main class="layout">
-<section class="intro">
-<span class="kicker">TASKER REGISTRATION</span>
-<h1>Create your account.<br>Start completing tasks.</h1>
-<p>Join as a Tasker to browse available jobs, follow the instructions, submit proof and track approved rewards.</p>
-<div class="points">
-<span><b>✓</b> Find available tasks</span>
-<span><b>✓</b> Submit work for review</span>
-<span><b>✓</b> Track your rewards</span>
-</div>
-</section>
-<section class="card"><div class="account-logo"><span class="account-logo-mark">NT</span><span class="account-logo-copy"><strong>NAIJA TASK</strong><small>COMPLETE TASKS · EARN NAIRA</small></span></div>
-<div class="role"><strong>👤 TASKER ACCOUNT</strong><span>For people who complete tasks and earn rewards.</span></div>
-<h2>Create your Tasker account</h2>
-<p class="sub">Enter your details below. Use an email address you can access.</p>
-<form id="signupForm">
-<label for="fullName">Full name</label>
-<input id="fullName" type="text" placeholder="Your full name" autocomplete="name" required>
-<label for="phone">Phone number</label>
-<input id="phone" type="tel" placeholder="08012345678" autocomplete="tel" required>
-<label for="email">Email address</label>
-<input id="email" type="email" placeholder="you@example.com" autocomplete="email" required>
-<label for="password">Create password</label>
-<div class="password-box"><input id="password" type="password" placeholder="At least 6 characters" minlength="6" autocomplete="new-password" required><button class="show" type="button" id="showPassword">Show</button></div>
-<div class="small">Use at least 6 characters. Keep your password private.</div>
-<label for="referralCode">Referral code <span style="font-weight:500;color:#758078">(optional)</span></label>
-<input id="referralCode" type="text" placeholder="Enter a referral code if you have one">
-<button class="main-btn" type="submit" id="signupBtn">Create Tasker account</button>
-<div class="message" id="message" role="status" aria-live="polite"></div>
-</form>
-<div class="bottom">Already have a Tasker account?<br><a href="login.html">Log in to your Tasker account</a><br><a href="poster-signup.html">I want to post tasks</a> · <a href="poster-login.html">Poster login</a></div>
-</section>
-</main>
-<footer class="footer">© 2026 NAIJA TASK · Complete Tasks. Earn Naira.</footer>
+:root{--forest:#073b2b;--green:#0b8f3c;--lime:#b8e62e;--ink:#14271d;--muted:#68796e;--line:#e1e9df;--soft:#eff7e9;--paper:#fff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 5%,#e1f3d5 0,transparent 32%),linear-gradient(140deg,#f4f8ef,#f8faf6 55%,#edf4e8);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);display:flex;flex-direction:column}.top{height:76px;padding:0 clamp(18px,5vw,64px);display:flex;align-items:center;justify-content:space-between;background:#ffffffdc;border-bottom:1px solid #e2eadf}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--forest);font-weight:950;font-size:19px;letter-spacing:-.5px}.mark{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--forest),var(--green));color:var(--lime);font-weight:1000;box-shadow:0 8px 18px #073b2b25}.top-link{color:var(--forest);font-size:13px;font-weight:850;text-decoration:none}.layout{width:min(1100px,calc(100% - 32px));margin:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,490px);gap:clamp(25px,6vw,78px);align-items:center;padding:38px 0}.intro .eyebrow{display:inline-flex;align-items:center;gap:8px;color:#26763c;font-size:11px;font-weight:950;letter-spacing:1.7px;text-transform:uppercase}.eyebrow:before{content:"";width:24px;height:3px;border-radius:9px;background:var(--lime)}h1{font-size:clamp(36px,5vw,58px);line-height:1.02;letter-spacing:-2.5px;margin:17px 0;color:var(--forest)}.intro p{max-width:430px;color:var(--muted);font-size:15px;line-height:1.8}.benefits{display:grid;gap:13px;margin-top:27px}.benefit{display:flex;align-items:center;gap:11px;color:#345541;font-size:13px;font-weight:750}.tick{width:25px;height:25px;display:grid;place-items:center;border-radius:9px;background:#e2f3d2;color:#287a39;font-weight:1000}.card{background:var(--paper);border:1px solid var(--line);border-radius:25px;padding:clamp(22px,4vw,34px);box-shadow:0 24px 65px #173c2014}.card-brand{display:flex;align-items:center;gap:12px;padding-bottom:19px;margin-bottom:19px;border-bottom:1px solid #edf1e9}.card-brand .mark{width:48px;height:48px}.card-brand strong{display:block;font-size:17px;color:var(--forest);font-weight:1000}.card-brand small{display:block;margin-top:4px;color:#64804c;font-size:9px;letter-spacing:1.3px;font-weight:900}.role{padding:14px 15px;background:linear-gradient(100deg,#edf7e5,#f7faef);border:1px solid #dcebcf;border-radius:14px;margin-bottom:20px}.role strong{display:block;color:var(--forest);font-size:12px;letter-spacing:.6px}.role span{display:block;margin-top:4px;color:#657667;font-size:11px;line-height:1.5}.card h2{font-size:24px;letter-spacing:-.8px;margin:0 0 6px;color:var(--ink)}.sub{margin:0 0 17px;color:var(--muted);font-size:12px;line-height:1.6}label{display:block;margin:13px 0 7px;font-size:12px;font-weight:850;color:#314b39}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}input{width:100%;height:47px;padding:0 13px;border:1px solid #dce5d9;border-radius:11px;background:#fbfdf9;color:var(--ink);font:inherit;font-size:13px;outline:none}input:focus{border-color:var(--green);box-shadow:0 0 0 3px #0b8f3c16;background:white}.password-box{position:relative}.password-box input{padding-right:66px}.show{position:absolute;right:6px;top:6px;height:35px;padding:0 10px;border:0;border-radius:8px;background:#eaf4e2;color:var(--forest);font-size:11px;font-weight:900}.hint{font-size:10px;color:#78877b;line-height:1.5;margin-top:6px}.primary{width:100%;height:51px;margin-top:20px;border:0;border-radius:12px;background:linear-gradient(110deg,var(--forest),var(--green));color:white;font-size:14px;font-weight:950;cursor:pointer;box-shadow:0 9px 20px #0b8f3c24}.primary:disabled{opacity:.6;cursor:wait}.message{display:none;margin-top:12px;padding:11px 13px;border-radius:10px;font-size:12px;line-height:1.55}.message.error{display:block;background:#fff0ee;color:#a32921}.message.success{display:block;background:#eaf7e8;color:#216b32}.switch{text-align:center;margin-top:18px;color:var(--muted);font-size:12px;line-height:1.9}.switch a{color:#187a39;text-decoration:none;font-weight:900}.footer{text-align:center;padding:17px;color:#879487;font-size:11px}.legal{font-size:10px;color:#839084;line-height:1.6;margin-top:12px;text-align:center}@media(max-width:800px){.layout{grid-template-columns:1fr;gap:20px;padding:25px 0 32px;max-width:560px}.intro{text-align:center}.intro p{margin:10px auto}.benefits{display:flex;justify-content:center;flex-wrap:wrap;gap:10px 16px}.benefit{font-size:11px}.card{padding:22px}.top{height:68px}}@media(max-width:420px){.grid2{grid-template-columns:1fr}.intro h1{font-size:39px}.card{border-radius:20px}}
+</style></head><body>
+<header class="top"><a class="brand" href="index.html"><span class="mark">NT</span>NAIJA TASK</a><a class="top-link" href="index.html">← Home</a></header>
+<main class="layout"><section class="intro"><span class="eyebrow">Your next opportunity starts here</span><h1>Complete tasks.<br>Earn naira.</h1><p>Create a Tasker account to discover available jobs, follow each instruction, upload proof and track rewards approved to your wallet.</p><div class="benefits"><div class="benefit"><span class="tick">✓</span> Browse available tasks</div><div class="benefit"><span class="tick">✓</span> Submit proof for review</div><div class="benefit"><span class="tick">✓</span> Follow your reward progress</div></div></section>
+<section class="card"><div class="card-brand"><span class="mark">NT</span><span><strong>NAIJA TASK</strong><small>COMPLETE TASKS · EARN NAIRA</small></span></div><div class="role"><strong>👤 TASKER ACCOUNT</strong><span>Choose this account if you want to complete jobs and earn rewards.</span></div><h2>Create your Tasker account</h2><p class="sub">A few details and you're ready to get started.</p>
+<form id="signupForm"><label for="fullName">Full name</label><input id="fullName" type="text" placeholder="Enter your full name" autocomplete="name" required>
+<div class="grid2"><div><label for="phone">Phone number</label><input id="phone" type="tel" placeholder="08012345678" autocomplete="tel" required></div><div><label for="email">Email address</label><input id="email" type="email" placeholder="you@example.com" autocomplete="email" required></div><div><label for="state">State</label><input id="state" type="text" placeholder="e.g. Lagos" autocomplete="address-level1" required></div><div><label for="city">City / Town</label><input id="city" type="text" placeholder="e.g. Ikorodu" autocomplete="address-level2" required></div></div>
+<label for="password">Create password</label><div class="password-box"><input id="password" type="password" placeholder="At least 6 characters" minlength="6" autocomplete="new-password" required><button class="show" type="button" id="showPassword">Show</button></div><div class="hint">Use at least 6 characters and keep it private.</div>
+<label for="referralCode">Referral code <span style="font-weight:500;color:#849084">(optional)</span></label><input id="referralCode" type="text" placeholder="Add a referral code if someone invited you">
+<button class="primary" type="submit" id="signupBtn">Create my Tasker account →</button><div class="message" id="message" role="status" aria-live="polite"></div></form>
+<div class="switch">Already registered? <a href="login.html">Log in as a Tasker</a><br>Want to publish jobs instead? <a href="poster-signup.html">Create a Poster account</a><br><a href="poster-login.html">Poster login</a></div><div class="legal">By creating an account, you agree to use NAIJA TASK honestly and follow task instructions.</div></section></main><footer class="footer">© 2026 NAIJA TASK · Complete Tasks. Earn Naira.</footer>
 <script>
 const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
 const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const form=document.getElementById("signupForm");
-const referralFromUrl=new URLSearchParams(window.location.search).get("ref");
-if(referralFromUrl)document.getElementById("referralCode").value=referralFromUrl;
-const button=document.getElementById("signupBtn");
-const message=document.getElementById("message");
-function showMessage(text,type){message.textContent=text;message.className="message "+type;}
-document.getElementById("showPassword").addEventListener("click",function(){const field=document.getElementById("password");field.type=field.type==="password"?"text":"password";this.textContent=field.type==="password"?"Show":"Hide";});
-form.addEventListener("submit",async function(event){
- event.preventDefault();
- message.className="message";message.textContent="";
- const fullName=document.getElementById("fullName").value.trim();
- const phone=document.getElementById("phone").value.trim();
- const email=document.getElementById("email").value.trim().toLowerCase();
- const password=document.getElementById("password").value;
- const referralCode=document.getElementById("referralCode").value.trim();
- if(password.length<6){showMessage("Password must contain at least 6 characters.","error");return;}
- button.disabled=true;button.textContent="Creating account...";
- try{
-  const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name:fullName,phone,referral_code:referralCode,user_type:"tasker",role:"tasker"}}});
-  if(error)throw error;
-  if(!data.user)throw new Error("Your account could not be created. Please try again.");
-  if(data.session){
-   showMessage("Your Tasker account has been created. Opening your dashboard...","success");
-   button.textContent="Account created";
-   setTimeout(()=>window.location.replace("dashboard.html"),900);
-  }else{
-   showMessage("Account created. Check your email to confirm your account, then log in as a Tasker.","success");
-   form.reset();
-   button.disabled=false;button.textContent="Create Tasker account";
-  }
- }catch(error){
-  console.error("Tasker signup error:",error);
-  showMessage(error.message||"Unable to create your account. Please try again.","error");
-  button.disabled=false;button.textContent="Create Tasker account";
- }
-});
-</script>
-</body>
-</html>
+const form=document.getElementById("signupForm"),button=document.getElementById("signupBtn"),message=document.getElementById("message");
+const referralFromUrl=new URLSearchParams(location.search).get("ref");if(referralFromUrl)document.getElementById("referralCode").value=referralFromUrl;
+function showMessage(text,type){message.textContent=text;message.className="message "+type}
+document.getElementById("showPassword").addEventListener("click",function(){const p=document.getElementById("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide"});
+form.addEventListener("submit",async event=>{event.preventDefault();message.className="message";const fullName=document.getElementById("fullName").value.trim(),phone=document.getElementById("phone").value.trim(),email=document.getElementById("email").value.trim().toLowerCase(),state=document.getElementById("state").value.trim(),city=document.getElementById("city").value.trim(),password=document.getElementById("password").value,referralCode=document.getElementById("referralCode").value.trim();if(password.length<6){showMessage("Your password must contain at least 6 characters.","error");return}button.disabled=true;button.textContent="Creating your account…";try{const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name:fullName,phone,state,city,referral_code:referralCode,user_type:"tasker",role:"tasker"}}});if(error)throw error;if(!data.user)throw new Error("Your account could not be created. Please try again.");if(data.session){showMessage("Your Tasker account is ready. Opening your dashboard…","success");button.textContent="Account created";setTimeout(()=>location.replace("dashboard.html"),900)}else{showMessage("Account created. Check your email to confirm it, then log in as a Tasker.","success");form.reset();button.disabled=false;button.textContent="Create my Tasker account →"}}catch(error){console.error("Tasker signup error:",error);showMessage(error.message||"Unable to create your account. Please try again.","error");button.disabled=false;button.textContent="Create my Tasker account →"}});
+</script></body></html>
