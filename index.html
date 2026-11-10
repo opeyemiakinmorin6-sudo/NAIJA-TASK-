@@ -55,6 +55,25 @@
 .cta-box{grid-template-columns:1fr}
 @media(min-width:681px){.cta-box{padding:42px}}
 
+
+.highest-tasks-section{background:#fff}
+.highest-tasks-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.highest-task-card{display:flex;flex-direction:column;min-height:190px;padding:20px;background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:0 5px 18px rgba(6,43,27,.045)}
+.highest-task-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.highest-task-category{font-size:9px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.7px}
+.highest-task-rank{font-size:9px;color:var(--green);font-weight:900}
+.highest-task-card h3{font-size:15px;line-height:1.4;color:var(--deep);margin:15px 0 7px}
+.highest-task-card p{font-size:11px;line-height:1.6;color:var(--muted);margin:0 0 15px}
+.highest-task-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:12px;border-top:1px solid var(--line)}
+.highest-task-reward small{display:block;font-size:9px;color:var(--muted)}
+.highest-task-reward strong{display:block;margin-top:3px;font-size:20px;color:var(--green);letter-spacing:-.5px}
+.highest-task-open{padding:9px 13px;border-radius:9px;background:var(--forest);color:white;text-decoration:none;font-size:10px;font-weight:900}
+.highest-tasks-loading,.highest-tasks-empty{grid-column:1/-1;padding:22px;border:1px solid var(--line);border-radius:15px;color:var(--muted);font-size:12px;background:#fafcf8}
+.highest-tasks-footer{margin-top:20px;text-align:right}
+.highest-tasks-footer a{font-size:12px;color:var(--green);font-weight:900;text-decoration:none}
+@media(max-width:760px){.highest-tasks-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.highest-tasks-grid{grid-template-columns:1fr}.highest-task-card{min-height:0}}
+
 </style>
 </head>
 <body>
@@ -74,6 +93,7 @@
 </div></section>
 
 <section class="public-proof" aria-labelledby="proofHeading"><div class="container"><div class="section-head"><span class="kicker">Real platform activity</span><h2 id="proofHeading">Progress You Can Check</h2><p>Public totals are calculated from approved task completions in the NAIJA TASK records. They update as new work is approved.</p></div><div class="proof-grid"><article class="proof-card"><small>Total approved task rewards</small><strong id="publicRewardTotal">Loading…</strong><span>Approved task earnings recorded in the platform</span></article><article class="proof-card payout-card"><small>Total paid to Taskers</small><strong id="publicPaidTotal">Loading…</strong><span>Only withdrawals marked paid, successful or completed</span></article><article class="proof-card"><small>Approved task completions</small><strong id="publicCompletionTotal">—</strong><span>Task completions with approved status</span></article><article class="proof-card"><small>Taskers with approved rewards</small><strong id="publicTaskerTotal">—</strong><span>Unique Tasker accounts represented in approved reward records</span></article><article class="proof-card"><small>Registered platform users</small><strong id="registeredUsers">—</strong><span>Registered profiles on NAIJA TASK</span></article><article class="proof-card"><small>Active members · last 30 days</small><strong id="activeMembers">—</strong><span>Members with task activity in the last 30 days</span></article><article class="proof-card"><small>Tasks approved today</small><strong id="tasksToday">—</strong><span>Approved completions since midnight Nigeria time</span></article><article class="proof-card"><small>Rewards distributed today</small><strong id="rewardsToday">—</strong><span>Approved task rewards recorded today, not necessarily bank withdrawals</span></article></div><p class="proof-footnote">Live figures come from platform records. Daily totals use Nigeria time. Completed bank payouts are separate from task rewards.</p></div></section>
+<section class="section highest-tasks-section" id="highest-paying"><div class="container"><div class="section-head"><span class="kicker">Earn more from your time</span><h2>Highest-Paying Available Tasks</h2><p>Browse live opportunities and see the reward before you start. Listings are taken from active, approved and funded tasks.</p></div><div class="highest-tasks-grid" id="highestPayingTasks" aria-live="polite" aria-busy="true"><p class="highest-tasks-loading">Loading available opportunities…</p></div><div class="highest-tasks-footer"><a href="task.html">Explore all available tasks <span aria-hidden="true">→</span></a></div></div></section>
 <section class="nt-home-ad" aria-label="Advertisement"><span class="nt-home-ad-label">ADVERTISEMENT</span><div class="nt-home-ad-frame"><script>atOptions = {'key':'dc095c7f78341b7c3f8c3cd337d72815','format':'iframe','height':50,'width':320,'params':{}};</script><script src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script></div></section><section class="section" id="how"><div class="container"><div class="section-head center"><span class="kicker">A clear three-step flow</span><h2>How NAIJA TASK Works</h2><p>Whether you need people to complete a task or want to earn by completing one, getting started is straightforward.</p></div><div class="steps-grid">
  <article class="step-card"><span class="step-number">01</span><span class="step-icon">✳</span><h3>Create an Account</h3><p>Sign up as a Tasker if you want to earn, or as a Poster if you have work that needs to be completed.</p></article>
  <article class="step-card"><span class="step-number">02</span><span class="step-icon">▤</span><h3>Post or Do Tasks</h3><p>Posters publish task details and budgets. Taskers browse available work and follow each task's instructions.</p></article>
@@ -120,6 +140,55 @@
  const rewardsTodayEl=document.getElementById('rewardsToday');
  const moneyFormat=new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0});
  const countFormat=new Intl.NumberFormat('en-NG');
+ async function loadHighestPayingTasks(client){
+  const target=document.getElementById('highestPayingTasks');
+  if(!target)return;
+  try{
+   const {data,error}=await client.from('tasks')
+    .select('id,title,description,reward,reward_per_worker,tasker_reward_per_slot,task_type,task_link,status,active,payment_status,moderation_status,expiry_date')
+    .eq('active',true)
+    .in('status',['LIVE','ACTIVE','PUBLISHED'])
+    .in('moderation_status',['APPROVED'])
+    .in('payment_status',['PAID','NOT_REQUIRED'])
+    .limit(40);
+   if(error)throw error;
+   const now=Date.now();
+   const tasks=(data||[]).filter(t=>!t.expiry_date||new Date(t.expiry_date).getTime()>now)
+    .map(t=>({...t,publicReward:Number(t.tasker_reward_per_slot||t.reward_per_worker||t.reward||0)}))
+    .filter(t=>Number.isFinite(t.publicReward)&&t.publicReward>0)
+    .sort((a,b)=>b.publicReward-a.publicReward).slice(0,6);
+   target.replaceChildren();
+   if(!tasks.length){
+    const empty=document.createElement('p');empty.className='highest-tasks-empty';
+    empty.textContent='No funded tasks are available to feature right now. Check the task board for new opportunities.';
+    target.append(empty);
+   }else{
+    tasks.forEach((task,index)=>{
+     const card=document.createElement('article');card.className='highest-task-card';
+     const top=document.createElement('div');top.className='highest-task-top';
+     const category=document.createElement('span');category.className='highest-task-category';category.textContent=task.task_type||'Online task';
+     const rank=document.createElement('span');rank.className='highest-task-rank';rank.textContent=index===0?'Highest reward':'Top opportunity';
+     top.append(category,rank);
+     const title=document.createElement('h3');title.textContent=task.title||'Available task';
+     const desc=document.createElement('p');desc.textContent=(task.description||'View the task instructions and eligibility before starting.').slice(0,125);
+     const bottom=document.createElement('div');bottom.className='highest-task-bottom';
+     const reward=document.createElement('span');reward.className='highest-task-reward';
+     const label=document.createElement('small');label.textContent='Tasker reward';
+     const amount=document.createElement('strong');amount.textContent=moneyFormat.format(task.publicReward);
+     reward.append(label,amount);
+     const link=document.createElement('a');link.className='highest-task-open';link.href='task.html';link.textContent='View task';
+     bottom.append(reward,link);card.append(top,title,desc,bottom);target.append(card);
+    });
+   }
+   target.setAttribute('aria-busy','false');
+  }catch(error){
+   console.error('NAIJA TASK highest-paying tasks:',error);
+   target.replaceChildren();
+   const empty=document.createElement('p');empty.className='highest-tasks-empty';
+   empty.textContent='Available tasks could not be loaded right now. Please visit the task board.';
+   target.append(empty);target.setAttribute('aria-busy','false');
+  }
+ }
  async function loadPublicTotals(client){
   try{
    const {data,error}=await client.rpc('get_public_platform_totals');
@@ -196,7 +265,7 @@
  }
  document.addEventListener('DOMContentLoaded',function(){
   loadTaskerLeaderboard();
-  window.setInterval(loadTaskerLeaderboard,60000);
+  window.setInterval(loadTaskerLeaderboard,60000);\n  window.setInterval(function(){if(window.__naijaTaskPublicClient)loadHighestPayingTasks(window.__naijaTaskPublicClient);},60000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)loadTaskerLeaderboard();});
  });
 })();
