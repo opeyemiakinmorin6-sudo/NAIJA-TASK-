@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v4';
+const CACHE_NAME='naija-task-shell-v5';
 const APP_SHELL=[
   '/',
   '/index.html',
