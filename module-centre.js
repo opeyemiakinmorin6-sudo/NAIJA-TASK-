@@ -250,7 +250,12 @@ async function start(){
  document.getElementById("pw").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),p=String(fd.get("p")),b=f.querySelector("button");if(p!==String(fd.get("c"))){document.getElementById("result").innerHTML=note("Passwords do not match.",true);return}b.disabled=true;const {error}=await sb.auth.updateUser({password:p});document.getElementById("result").innerHTML=error?note(error.message,true):note("Password updated successfully.");if(!error)f.reset();b.disabled=false};return;
  }
  const pages={
- more:[["🛍️","Marketplace","marketplace.html"],["📋","Find Tasks","task.html"],["👛","My Wallet","wallet.html"],["🏦","Withdraw","withdrawal.html"],["🧾","Transactions","transactions.html"],["📌","My Task Activity","applied-jobs.html"],["✅","Approved Tasks","approved.html"],["🔁","Retry Tasks","retry.html"],["📷","Submit / View Proofs","proofs.html"],["🤝","Referrals","referrals.html"],["📣","Platform Ads","ads.html"],["🚀","Promote a Business","promote.html"],["📝","Post a Task","poster-login.html"],["🏢","Post a Business Campaign","poster-login.html"],["📱","Airtime & Data","airtime-data.html"],["🎮","Naija Games","naija-games.html"],["🧠","Brain Battle","arena.html"],["🌟","Naija Star Life","starlife.html"],["🌍","Naija Star Life 3D","starlife-3d.html"],["💬","Private Chat","private-chat.html"],["👥","Community","community.html"],["📢","Announcements","announcements.html"],["🔔","Notifications","notifications.html"],["🤖","AI Assistant","ai-assistant.html"],["💚","AI Care","ai-care.html"],["👤","My Profile","profile.html"],["🔓","Account Activation","activation.html"],["👑","VIP Membership","vip.html"],["🛡️","Security","security.html"],["⚖️","Appeals","appeals.html"],["🎧","Support Centre","support.html"],["❓","How It Works","how-it-works.html"],["ℹ️","About NAIJA TASK","about-us.html"],["📄","FAQs","faq.html"]],
+ more:[
+  {title:"Earn & Manage Tasks",items:[["📋","Find Tasks","task.html"],["📌","My Task Activity","applied-jobs.html"],["📷","My Submitted Proofs","proofs.html"],["✅","Approved Tasks","approved.html"],["🔁","Needs Attention","retry.html"],["🤝","My Referrals","referrals.html"]]},
+  {title:"Wallet & Spending",items:[["👛","My Wallet","wallet.html"],["🏦","Withdraw Money","withdrawal.html"],["🧾","Transaction History","transactions.html"],["📱","Airtime & Data","airtime-data.html"],["🛍️","Marketplace","marketplace.html"]]},
+  {title:"Community & Entertainment",items:[["🎮","Naija Games","naija-games.html"],["🧠","Brain Battle","arena.html"],["🌟","Naija Star Life","starlife.html"],["🌍","Naija Star Life 3D","starlife-3d.html"],["💬","Private Chat","private-chat.html"],["👥","Community","community.html"],["📢","Announcements","announcements.html"],["🔔","Notifications","notifications.html"]]},
+  {title:"Account & Help",items:[["👤","My Profile","profile.html"],["🔓","Account Activation","activation.html"],["👑","VIP Membership","vip.html"],["🛡️","Security","security.html"],["⚖️","Appeals","appeals.html"],["🤖","Help Assistant","ai-assistant.html"],["💚","AI Care","ai-care.html"],["🎧","Support Centre","support.html"],["❓","How It Works","how-it-works.html"],["ℹ️","About NAIJA TASK","about-us.html"],["📄","FAQs","faq.html"]]}
+ ],
  promote:[["📣","Advertising centre","ads.html"],["🧾","Transactions","transactions.html"],["🎧","Contact support","support.html"]],
  arena:[["🏃","Naija Dash / Match / Fighter","naija-games.html"]],
  community:[["💬","Private Chat","private-chat.html"],["📢","Announcements","announcements.html"],["🎧","Community support","support.html"]],
@@ -271,7 +276,11 @@ async function start(){
  document.getElementById("helpSearch").addEventListener("input",e=>drawHelp(e.target.value));drawHelp("");return;
  }
  const items=pages[moduleName]||pages.more;
- app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>';
+ if(moduleName==="more"){
+   app.innerHTML=items.map(group=>'<section class="panel"><h2>'+esc(group.title)+'</h2><div class="links">'+group.items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>').join("");
+ }else{
+   app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>';
+ }
 }
 start().catch(e=>{app.innerHTML='<section class="panel">'+note(e.message||String(e),true)+'</section>'});
 })();
