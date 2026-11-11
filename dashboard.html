@@ -496,6 +496,32 @@ body{background:var(--nt-bg);color:var(--nt-ink);font-family:Inter,system-ui,-ap
  .nt-link-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
+<style id="nt-real-earnings-insights">
+.nt-insights-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:11px;margin-top:12px}
+.nt-insight-card{min-width:0;background:#fff;border:1px solid var(--nt-line);border-radius:15px;padding:14px}
+.nt-insight-heading{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.nt-insight-heading .nt-eyebrow{font-size:8px;margin-bottom:4px}
+.nt-insight-heading strong{display:block;font-size:12px}
+.nt-insight-heading>span{font-size:15px;font-weight:850;color:var(--nt-green);white-space:nowrap;font-variant-numeric:tabular-nums}
+.nt-earnings-trend{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;min-height:112px;margin-top:14px}
+.nt-trend-day{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0;gap:4px}
+.nt-trend-bar-wrap{height:64px;width:100%;display:flex;align-items:flex-end;justify-content:center;background:#f3f7f3;border-radius:6px 6px 3px 3px;overflow:hidden}
+.nt-trend-bar{display:block;width:65%;min-height:2px;background:#dce8de;border-radius:5px 5px 2px 2px}
+.nt-trend-bar.has-value{background:linear-gradient(180deg,#a7dc5b,#087f36)}
+.nt-trend-day strong{font-size:9px;color:#617469}
+.nt-trend-day small{font-size:8px;color:#738278;text-align:center;max-width:100%;overflow-wrap:anywhere}
+.nt-trend-empty{grid-column:1/-1;align-self:center;color:var(--nt-muted);font-size:10px;line-height:1.5}
+.nt-trend-foot{display:flex;justify-content:space-between;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid #edf1ed;color:#819087;font-size:9px}
+.nt-approval-track{height:9px;background:#edf2ed;border-radius:99px;overflow:hidden;margin:18px 0 10px}
+.nt-approval-track span{display:block;width:0;height:100%;background:linear-gradient(90deg,#a7dc5b,#087f36);border-radius:99px;transition:width .3s ease}
+.nt-approval-card p{min-height:32px;color:var(--nt-muted);font-size:10px;line-height:1.5}
+.nt-approval-breakdown{display:grid;gap:8px;margin-top:12px}
+.nt-approval-breakdown>span{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--nt-muted)}
+.nt-approval-breakdown b{margin-left:auto;color:var(--nt-ink);font-size:11px}
+.nt-dot{width:7px;height:7px;border-radius:50%;background:#9daaa0}
+.nt-dot.approved{background:#168347}.nt-dot.pending{background:#d6a33d}.nt-dot.rejected{background:#c75c52}
+@media(max-width:650px){.nt-insights-grid{grid-template-columns:1fr}.nt-insight-card{padding:12px}.nt-trend-day small{font-size:7px}.nt-trend-bar-wrap{height:58px}}
+</style>
 </head>
 <body>
 
@@ -538,6 +564,19 @@ body{background:var(--nt-bg);color:var(--nt-ink);font-family:Inter,system-ui,-ap
       <div class="stat-card"><div class="stat-label">Awaiting review</div><div class="stat-value" id="pendingCount">—</div><div class="stat-foot">Submissions being checked</div></div>
       <div class="stat-card"><div class="stat-label">Approved work</div><div class="stat-value" id="approvedCount">—</div><div class="stat-foot">Successful submissions</div></div>
       <div class="stat-card nt-stat-earned"><div class="stat-label">Task rewards credited</div><div class="stat-value" id="earnedAmount">₦—</div><div class="stat-foot">Confirmed wallet rewards</div></div>
+    </div>
+    <div class="nt-insights-grid">
+      <div class="nt-insight-card">
+        <div class="nt-insight-heading"><div><span class="nt-eyebrow">LAST 7 DAYS</span><strong>Confirmed task earnings</strong></div><span id="weeklyEarnedTotal">₦—</span></div>
+        <div id="earningsTrend" class="nt-earnings-trend" aria-label="Daily confirmed task earnings"><div class="nt-trend-empty">Your earnings trend will appear when confirmed rewards are available.</div></div>
+        <div class="nt-trend-foot"><span>Daily totals</span><span>Confirmed rewards only</span></div>
+      </div>
+      <div class="nt-insight-card nt-approval-card">
+        <div class="nt-insight-heading"><div><span class="nt-eyebrow">SUBMISSION QUALITY</span><strong>Approval progress</strong></div><span id="approvalRate">—</span></div>
+        <div class="nt-approval-track"><span id="approvalProgressBar"></span></div>
+        <p id="approvalSummary">Your approval rate will appear after your first reviewed submission.</p>
+        <div class="nt-approval-breakdown"><span><i class="nt-dot approved"></i>Approved <b id="approvalApproved">—</b></span><span><i class="nt-dot pending"></i>In review <b id="approvalPending">—</b></span><span><i class="nt-dot rejected"></i>Needs attention <b id="approvalRejected">—</b></span></div>
+      </div>
     </div>
   </section>
 
@@ -936,12 +975,21 @@ async function loadSubmissionStats(){
   setText("centrePending", String(pending));
   setText("centreApproved", String(approved));
   setText("centreRejected", String(rejected));
+  const reviewed = approved + rejected;
+  const approval = reviewed ? Math.round((approved / reviewed) * 100) : 0;
+  setText("approvalRate", reviewed ? approval + "%" : "—");
+  setText("approvalApproved", String(approved));
+  setText("approvalPending", String(pending));
+  setText("approvalRejected", String(rejected));
+  setText("approvalSummary", reviewed ? (approval + "% of reviewed submissions have been approved. This is based on your recorded submission statuses.") : "Your approval rate will appear after your first reviewed submission.");
+  const progressBar = $("approvalProgressBar");
+  if(progressBar) progressBar.style.width = reviewed ? approval + "%" : "0%";
   renderActivityUpdates(rows);
 
   /* Display actual credited task rewards, not estimated task values. */
   const { data: rewardRows, error: rewardError } = await withTimeout(
     supabaseClient.from("wallet_transactions")
-      .select("amount")
+      .select("amount, created_at")
       .eq("user_id", currentUser.id)
       .eq("type", "TASK_REWARD")
       .in("status", ["APPROVED", "COMPLETED", "SUCCESS"])
@@ -952,8 +1000,38 @@ async function loadSubmissionStats(){
     setText("earnedAmount", "—");
     return;
   }
-  const actualTaskEarnings = (rewardRows || []).reduce((sum, row) => sum + Number(row.amount || 0), 0);
+  const safeRewards = (rewardRows || []).filter(row => Number.isFinite(Number(row.amount)));
+  const actualTaskEarnings = safeRewards.reduce((sum, row) => sum + Number(row.amount || 0), 0);
   setText("earnedAmount", money(actualTaskEarnings));
+  renderEarningsTrend(safeRewards);
+}
+
+function renderEarningsTrend(rows){
+  const chart=$("earningsTrend");
+  if(!chart)return;
+  const days=[];
+  const today=new Date();
+  for(let offset=6;offset>=0;offset--){
+    const date=new Date(today.getFullYear(),today.getMonth(),today.getDate()-offset);
+    const key=date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
+    days.push({date,key,label:date.toLocaleDateString("en-NG",{weekday:"short"}),amount:0});
+  }
+  const totals=new Map(days.map(day=>[day.key,day]));
+  (rows||[]).forEach(row=>{
+    if(!row.created_at)return;
+    const date=new Date(row.created_at);
+    if(Number.isNaN(date.getTime()))return;
+    const key=date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0");
+    const day=totals.get(key);
+    if(day)day.amount+=Number(row.amount)||0;
+  });
+  const weekly=days.reduce((sum,day)=>sum+day.amount,0);
+  setText("weeklyEarnedTotal",money(weekly));
+  const max=Math.max(1,...days.map(day=>day.amount));
+  chart.innerHTML=days.map(day=>{
+    const height=day.amount>0?Math.max(7,Math.round(day.amount/max*100)):3;
+    return '<div class="nt-trend-day" title="'+escapeHTML(day.label+': '+money(day.amount))+'"><div class="nt-trend-bar-wrap"><span class="nt-trend-bar'+(day.amount>0?' has-value':'')+'" style="height:'+height+'%"></span></div><strong>'+escapeHTML(day.label)+'</strong><small>'+escapeHTML(day.amount>0?money(day.amount):"—")+'</small></div>';
+  }).join("");
 }
 
 function renderActivityUpdates(rows){
