@@ -117,7 +117,7 @@ async function start(){
  const feature=await sb.from("platform_settings").select("community_chat_enabled,private_chat_enabled").eq("id",1).maybeSingle();
  if(feature.error){app.innerHTML='<section class="panel">'+note(feature.error.message,true)+'</section>';return}
  if(!feature.data||feature.data.community_chat_enabled!==true){
-   app.innerHTML='<section class="panel"><h2>Community is currently unavailable</h2>'+note("Community access is temporarily disabled by NAIJA TASK administrators.")+(feature.data?.private_chat_enabled===true?'<a class="btn" href="private-chat.html">Open Private Chat</a>':"")+'</section>';
+   app.innerHTML='<section class="panel"><h2>Community is currently unavailable</h2>'+note("Community access is temporarily disabled by NAIJA TASK administrators.")+((feature.data && feature.data.private_chat_enabled)===true?'<a class="btn" href="private-chat.html">Open Private Chat</a>':"")+'</section>';
    return;
  }
  const groups=await sb.from("community_groups").select("id,name,description,created_at").eq("active",true).order("created_at",{ascending:false}).limit(60);
@@ -142,25 +142,25 @@ async function start(){
        button.disabled=true;button.textContent="Checking…";
        const {data,error}=await invoke({action:"requery",order_id:button.dataset.id});
        if(error){button.disabled=false;button.textContent="Try again";alert(error.message);return}
-       alert(data?.message||"Status updated.");loadOrders();
+       alert((data && data.message)||"Status updated.");loadOrders();
      }));
    };
    const renderForm=()=>{
-     const kind=document.getElementById("vtKind")?.value||"data";
+     const kind=(document.getElementById("vtKind") || {}).value||"data";
      const networks=[...new Set(products.filter(p=>p.product_type===kind).map(p=>p.network))];
-     const network=document.getElementById("vtNetwork")?.value||networks[0]||"";
+     const network=(document.getElementById("vtNetwork") || {}).value||networks[0]||"";
      const matching=products.filter(p=>p.product_type===kind&&p.network===network);
-     const selected=document.getElementById("vtPlan")?.value||matching[0]?.id||"";
+     const selected=(document.getElementById("vtPlan") || {}).value||(matching[0] && matching[0].id)||"";
      const selectedProduct=matching.find(p=>String(p.id)===String(selected))||matching[0];
      const networkOptions=networks.map(n=>'<option value="'+esc(n)+'" '+(n===network?'selected':'')+'>'+esc(n)+'</option>').join("");
      const logoFor=n=>{const k=String(n||"").toLowerCase();if(k.includes("mtn"))return ["mtn","MTN","Yellow network"];if(k.includes("airtel"))return ["airtel","airtel","Red network"];if(k.includes("glo"))return ["glo","glo","Grandmasters of data"];return ["mobile9","9mobile","Green network"];};
      const networkCards=networks.map(n=>{const logo=logoFor(n);return '<button type="button" class="network-card '+(n===network?'selected':'')+'" data-network="'+esc(n)+'"><span class="network-mark '+logo[0]+'">'+logo[1]+'</span><b>'+esc(n)+'</b><small>'+logo[2]+'</small></button>'}).join("");
-     const planOptions=matching.filter(p=>kind==="data").map(p=>'<option value="'+esc(p.id)+'" '+(p.id===selectedProduct?.id?'selected':'')+'>'+esc(p.name)+' — '+money(p.selling_price)+'</option>').join("");
-     catalogBox.innerHTML='<form id="vtPurchase"><label>Service</label><select class="vt-select" id="vtKind" name="kind"><option value="data" '+(kind==="data"?'selected':'')+'>Data bundle</option><option value="airtime" '+(kind==="airtime"?'selected':'')+'>Airtime</option></select><div class="vt-kicker">01 · CHOOSE YOUR NETWORK</div><div class="network-grid">'+networkCards+'</div><select class="vt-select" id="vtNetwork" name="network" aria-label="Selected network" style="display:none">'+networkOptions+'</select>'+(kind==="data"?'<label>Choose data plan</label><select class="vt-select" id="vtPlan" name="product_id">'+planOptions+'</select><div class="vt-plan-preview"><div><small>Selected bundle</small><br><strong>'+esc(selectedProduct?.name||"Choose a plan")+'</strong></div><span>'+money(selectedProduct?.selling_price||0)+'</span></div>':'<label>Airtime amount (₦50 – ₦50,000)</label><input name="amount" type="number" min="50" max="50000" step="1" required placeholder="Enter amount">')+'<label>Recipient phone number</label><input name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10,14}" minlength="10" maxlength="14" required placeholder="e.g. 08012345678"><div class="note">Please confirm the network and phone number before buying. Successful provider purchases cannot be reversed.</div><button class="btn vt-buy" id="vtBuy" '+(purchasesEnabled?'':'disabled')+'>'+(purchasesEnabled?'Continue securely':'Purchases temporarily disabled')+'</button>'+(purchasesEnabled?'':'<div class="vt-status">Catalogue preview is active. Purchases remain safely disabled until VTpass credentials and environment are verified.</div>')+'<div id="vtResult"></div></form>';
+     const planOptions=matching.filter(p=>kind==="data").map(p=>'<option value="'+esc(p.id)+'" '+(p.id===(selectedProduct && selectedProduct.id)?'selected':'')+'>'+esc(p.name)+' — '+money(p.selling_price)+'</option>').join("");
+     catalogBox.innerHTML='<form id="vtPurchase"><label>Service</label><select class="vt-select" id="vtKind" name="kind"><option value="data" '+(kind==="data"?'selected':'')+'>Data bundle</option><option value="airtime" '+(kind==="airtime"?'selected':'')+'>Airtime</option></select><div class="vt-kicker">01 · CHOOSE YOUR NETWORK</div><div class="network-grid">'+networkCards+'</div><select class="vt-select" id="vtNetwork" name="network" aria-label="Selected network" style="display:none">'+networkOptions+'</select>'+(kind==="data"?'<label>Choose data plan</label><select class="vt-select" id="vtPlan" name="product_id">'+planOptions+'</select><div class="vt-plan-preview"><div><small>Selected bundle</small><br><strong>'+esc((selectedProduct && selectedProduct.name)||"Choose a plan")+'</strong></div><span>'+money((selectedProduct && selectedProduct.selling_price)||0)+'</span></div>':'<label>Airtime amount (₦50 – ₦50,000)</label><input name="amount" type="number" min="50" max="50000" step="1" required placeholder="Enter amount">')+'<label>Recipient phone number</label><input name="phone" type="tel" inputmode="numeric" pattern="[0-9]{10,14}" minlength="10" maxlength="14" required placeholder="e.g. 08012345678"><div class="note">Please confirm the network and phone number before buying. Successful provider purchases cannot be reversed.</div><button class="btn vt-buy" id="vtBuy" '+(purchasesEnabled?'':'disabled')+'>'+(purchasesEnabled?'Continue securely':'Purchases temporarily disabled')+'</button>'+(purchasesEnabled?'':'<div class="vt-status">Catalogue preview is active. Purchases remain safely disabled until VTpass credentials and environment are verified.</div>')+'<div id="vtResult"></div></form>';
      document.getElementById("vtKind").addEventListener("change",renderForm);
      document.getElementById("vtNetwork").addEventListener("change",renderForm);
      catalogBox.querySelectorAll(".network-card").forEach(card=>card.addEventListener("click",()=>{document.getElementById("vtNetwork").value=card.dataset.network;renderForm()}));
-     document.getElementById("vtPlan")?.addEventListener("change",renderForm);
+     if(document.getElementById("vtPlan"))document.getElementById("vtPlan").addEventListener("change",renderForm);
      document.getElementById("vtPurchase").onsubmit=async e=>{
        e.preventDefault();
        const form=e.currentTarget,fd=new FormData(form),button=document.getElementById("vtBuy");
@@ -169,24 +169,24 @@ async function start(){
        if(orderKind==="data"&&!chosen){document.getElementById("vtResult").innerHTML=note("Please choose a valid data plan.",true);return}
        if(!confirm("Confirm "+orderKind+" purchase on "+String(fd.get("network"))+" for "+phone+"? The wallet will be debited only when the order is reserved."))return;
        button.disabled=true;button.textContent="Processing…";
-       const payload={action:"purchase",order_type:orderKind,product_id:orderKind==="data"?chosen.id:products.find(p=>p.product_type==="airtime"&&p.network===String(fd.get("network")) )?.id,phone};
+       const payload={action:"purchase",order_type:orderKind,product_id:orderKind==="data"?chosen.id:((products.find(p=>p.product_type==="airtime"&&p.network===String(fd.get("network")) )) || {}).id,phone};
        if(orderKind==="airtime")payload.amount=Number(fd.get("amount"));
        const {data,error}=await invoke(payload);
        const result=document.getElementById("vtResult");
        if(error){result.innerHTML=note(error.message,true);button.disabled=false;button.textContent="Try again";return}
-       result.innerHTML=note(data?.message||"Purchase request received.",!data?.ok);
+       result.innerHTML=note((data && data.message)||"Purchase request received.",!(data && data.ok));
        button.textContent="Purchase request sent";
        await loadOrders();
      };
    };
    const {data,error}=await invoke({action:"catalog"});
    if(error){catalogBox.innerHTML=note("Could not load VTpass catalogue: "+error.message,true);await loadOrders();return}
-   if(!data?.ok){catalogBox.innerHTML=note(data?.message||"VTpass catalogue is not available.",true);await loadOrders();return}
+   if(!(data && data.ok)){catalogBox.innerHTML=note((data && data.message)||"VTpass catalogue is not available.",true);await loadOrders();return}
    products=data.products||[];
    purchasesEnabled=data.purchases_enabled===true;
    if(!products.length){catalogBox.innerHTML=note("No products are currently available from VTpass.",true)}
    else renderForm();
-   if(data.warnings?.length)catalogBox.insertAdjacentHTML("beforeend",note("Some network catalogues could not refresh: "+data.warnings.join(", ")));
+   if((data.warnings && data.warnings.length))catalogBox.insertAdjacentHTML("beforeend",note("Some network catalogues could not refresh: "+data.warnings.join(", ")));
    await loadOrders();
    return;
  }
@@ -200,20 +200,20 @@ async function start(){
  }
  const q=await sb.from("ai_care_threads").select("id,title,status,created_at,updated_at").eq("user_id",user.id).order("updated_at",{ascending:false}).limit(30);
  if(q.error){app.innerHTML='<section class="panel">'+note(q.error.message,true)+'</section>';return}
- let activeThread=(q.data||[])[0]?.id||null;
+ let activeThread=((q.data||[])[0] && (q.data||[])[0].id)||null;
  const threadRows=(q.data||[]).map(x=>'<button type="button" class="item care-thread" data-id="'+esc(x.id)+'" style="width:100%;text-align:left;background:white"><span><strong>'+esc(x.title||"Care request")+'</strong><small>'+date(x.updated_at||x.created_at)+'</small></span><span class="pill '+pill(x.status)+'">'+esc(x.status||"OPEN")+'</span></button>').join("")||'<div class="empty">No conversations yet. Start one when you need help.</div>';
  app.innerHTML='<section class="panel"><h2>NAIJA TASK Care Inbox</h2><p class="muted">Send a message to the support team and continue the conversation here. This is a human-reviewed inbox, not an automated AI diagnosis or emergency service.</p><form id="care"><label>Topic</label><input name="title" required maxlength="120" placeholder="What do you need help with?"><label>Message</label><textarea name="message" required maxlength="3000" placeholder="Explain what happened. Do not share passwords, PINs or OTPs."></textarea><button class="btn">Start conversation</button></form><div id="result"></div></section><section class="panel"><h2>Your conversations</h2><div id="careThreads">'+threadRows+'</div></section><section class="panel" id="careConversation"><h2 id="careTitle">Select a conversation</h2><div id="careMessages" class="muted">Your messages and support replies will appear here.</div><form id="careReply" hidden><label>Reply</label><textarea name="message" required maxlength="3000" placeholder="Write a follow-up message"></textarea><button class="btn">Send reply</button></form><div id="replyResult"></div></section>';
  const threadsBox=document.getElementById("careThreads");
  async function openThread(id){
    activeThread=id;
    const thread=(q.data||[]).find(x=>String(x.id)===String(id));
-   document.getElementById("careTitle").textContent=thread?.title||"Care conversation";
+   document.getElementById("careTitle").textContent=(thread && thread.title)||"Care conversation";
    const box=document.getElementById("careMessages");
    box.textContent="Loading conversation…";
    const r=await sb.from("ai_care_messages").select("id,sender_type,message,created_at").eq("thread_id",id).order("created_at",{ascending:true}).limit(100);
    if(r.error){box.innerHTML=note(r.error.message,true);return}
    box.innerHTML=(r.data||[]).map(x=>'<article class="item"><div><strong>'+esc(String(x.sender_type||"support").toLowerCase()==="user"?"You":"NAIJA TASK Support")+'</strong><small>'+esc(x.message)+'</small><small>'+date(x.created_at)+'</small></div></article>').join("")||'<div class="empty">No messages in this conversation yet.</div>';
-   const status=String(thread?.status||"OPEN").toUpperCase();
+   const status=String((thread && thread.status)||"OPEN").toUpperCase();
    document.getElementById("careReply").hidden=/CLOSED|RESOLVED|REJECTED/.test(status);
    threadsBox.querySelectorAll(".care-thread").forEach(b=>b.classList.toggle("active",String(b.dataset.id)===String(id)));
  }
