@@ -5,6 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#087f36">
 <title>NAIJA TASK — airtime-data</title>
+<script>
+(function(){
+  function showStartupError(message, source, line){
+    if(source && source.indexOf("module-centre.js") === -1) return;
+    var box=document.getElementById("airtimeFallback");
+    if(!box) return;
+    box.innerHTML='<section style="padding:22px;border-radius:18px;background:#fff0f0;color:#8f2525"><h2>Airtime page startup error</h2><p>The service page script did not start. Your wallet has not been charged.</p><p id="startupErrorDetail" style="font-size:12px;word-break:break-word"></p><a href="dashboard.html">Back to Dashboard</a></section>';
+    var detail=document.getElementById("startupErrorDetail");
+    if(detail) detail.textContent=String(message||"Unknown script error")+(line? " (line "+line+")":"");
+  }
+  window.onerror=function(message,source,line){showStartupError(message,source,line);return false;};
+  window.addEventListener("unhandledrejection",function(event){
+    showStartupError(event && event.reason && event.reason.message ? event.reason.message : "Unhandled startup rejection","module-centre.js",0);
+  });
+})();
+</script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="module-centre.js?v=20261111-android-compat-1" onerror="var f=document.getElementById('airtimeFallback');if(f){f.innerHTML='<section style=&quot;padding:22px;border-radius:18px;background:#fff0f0;color:#8f2525&quot;><h2>Service page could not start</h2><p>The NAIJA TASK service script did not load. Your wallet has not been charged.</p><a href=&quot;dashboard.html&quot;>Back to Dashboard</a></section>'}"></script>
 </head>
