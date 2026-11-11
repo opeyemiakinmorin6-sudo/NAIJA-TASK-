@@ -250,7 +250,7 @@ async function start(){
  document.getElementById("pw").onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f),p=String(fd.get("p")),b=f.querySelector("button");if(p!==String(fd.get("c"))){document.getElementById("result").innerHTML=note("Passwords do not match.",true);return}b.disabled=true;const {error}=await sb.auth.updateUser({password:p});document.getElementById("result").innerHTML=error?note(error.message,true):note("Password updated successfully.");if(!error)f.reset();b.disabled=false};return;
  }
  const pages={
- more:[["📋","Find tasks","task.html"],["💼","Wallet","wallet.html"],["📣","Advertising","ads.html"],["🤝","Referrals","referrals.html"],["🎮","Naija Games","naija-games.html"],["🌟","Naija Star Life","starlife.html"],["💬","Private Chat","private-chat.html"],["📱","Airtime & Data history","airtime-data.html"],["🎧","Support Centre","support.html"]],
+ more:[["🛍️","Marketplace","marketplace.html"],["📋","Find tasks","task.html"],["💼","Wallet","wallet.html"],["📣","Advertising","ads.html"],["🤝","Referrals","referrals.html"],["🎮","Naija Games","naija-games.html"],["🌟","Naija Star Life","starlife.html"],["💬","Private Chat","private-chat.html"],["📱","Airtime & Data","airtime-data.html"],["🎧","Support Centre","support.html"]],
  promote:[["📣","Advertising centre","ads.html"],["🧾","Transactions","transactions.html"],["🎧","Contact support","support.html"]],
  arena:[["🏃","Naija Dash / Match / Fighter","naija-games.html"]],
  community:[["💬","Private Chat","private-chat.html"],["📢","Announcements","announcements.html"],["🎧","Community support","support.html"]],
