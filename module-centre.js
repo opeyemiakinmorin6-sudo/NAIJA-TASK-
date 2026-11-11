@@ -49,7 +49,8 @@ document.body.innerHTML='<header class="top"><b>NAIJA TASK</b><a class="back" hr
 const app=document.getElementById("app");
 const note=(s,bad)=>'<div class="note '+(bad?"error":"")+'">'+esc(s)+'</div>';
 if(!window.supabase||typeof window.supabase.createClient!=="function"){
- app.innerHTML='<section class="panel"><h2>Airtime & Data is temporarily unavailable</h2>'+note("The secure page library did not load. Check your internet connection, then reload this page.",true)+'<a class="btn alt" href="dashboard.html">← Back to Dashboard</a></section>';
+ app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||"This service")+' could not load</h2>'+note("The secure account library did not load. Check your internet connection, then try again. No wallet transaction has been made.",true)+'<button class="btn" id="retryPageLoad" type="button">Try again</button><a class="btn alt" href="dashboard.html">← Back to Dashboard</a></section>';
+ const retry=document.getElementById("retryPageLoad");if(retry)retry.addEventListener("click",()=>location.reload());
  return;
 }
 const sb=window.supabase.createClient(url,anon);
@@ -57,7 +58,14 @@ const list=(rows,fn,empty)=>rows&&rows.length?rows.map(fn).join(""):'<div class=
 const row=(title,sub,status,tail)=>'<article class="item"><div><strong>'+esc(title)+'</strong><small>'+esc(sub)+'</small></div><div><span class="pill '+pill(status)+'">'+esc(status||"Info")+'</span><small>'+esc(tail||"")+'</small></div></article>';
 const linkList=items=>'<div class="links">'+items.map(x=>'<a class="link" href="'+x[1]+'">'+x[0]+' '+esc(x[0]&&x[2]||"")+'</a>').join("")+'</div>';
 async function start(){
- const auth=await sb.auth.getUser();const user=auth.data&&auth.data.user;if(!user){location.href="login.html";return}
+ const auth=await sb.auth.getUser();
+ if(auth.error)throw auth.error;
+ const user=auth.data&&auth.data.user;
+ if(!user){location.replace("login.html");return}
+ const roleMeta=user.user_metadata||{};
+ const memberRole=String(roleMeta.role||roleMeta.user_type||roleMeta.account_type||"").toLowerCase();
+ const taskerOnlyModules=["more","applied-jobs","approved","retry","cancelled","airtime-data","arena","ai-care","appeals","community","ai-assistant"];
+ if(taskerOnlyModules.includes(moduleName)&&["task_poster","poster","task poster"].includes(memberRole)){location.replace("poster-dashboard.html");return}
  if(moduleName==="support"||moduleName==="appeals"){
  const isAppeal=moduleName==="appeals",table=isAppeal?"appeals":"support_tickets",title=isAppeal?"Submit an appeal":"Contact support";
  const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40);
@@ -282,5 +290,12 @@ async function start(){
    app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>';
  }
 }
-start().catch(e=>{app.innerHTML='<section class="panel">'+note(e.message||String(e),true)+'</section>'});
+function renderPageFailure(error){
+ const message=error&&error.message?error.message:String(error||"Unknown error");
+ app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||"This service")+' could not be opened</h2>'+note(message,true)+'<button class="btn" id="retryPageLoad" type="button">Try again</button><a class="btn alt" href="dashboard.html">← Back to Dashboard</a></section>';
+ const retry=document.getElementById("retryPageLoad");if(retry)retry.addEventListener("click",()=>location.reload());
+}
+window.addEventListener("unhandledrejection",event=>{renderPageFailure(event.reason||"A page request failed.");});
+window.addEventListener("error",event=>{if(event&&event.message)renderPageFailure(event.message);});
+start().catch(renderPageFailure);
 })();
