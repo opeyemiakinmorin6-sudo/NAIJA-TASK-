@@ -36,7 +36,35 @@ select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;f
 <div class="wrap">
   <div id="msg" class="msg" role="status"></div>
 
+<style id="nt-game-ad-styles">
+.nt-game-ad{margin:14px 0;padding:12px;border:1px solid #dce9df;border-radius:15px;background:#f4faf5;text-align:center;overflow:hidden}
+.nt-ad-label{display:block;margin-bottom:8px;color:#54715d;font-size:10px;font-weight:900;letter-spacing:1px}
+.nt-banner-slot{width:100%;min-height:50px;display:flex;justify-content:center;align-items:center;overflow:hidden}
+.nt-game-ad p{font-size:12px;color:#617267;margin:0 0 10px}
+.nt-offer-link,.nt-load-ad{display:block;width:100%;max-width:280px;margin:8px auto;padding:11px 12px;border:0;border-radius:11px;background:#b7ef43;color:#064d25;text-decoration:none;font-size:13px;font-weight:900}
+.nt-load-ad{background:#087f36;color:#fff}
+.nt-load-ad:disabled{opacity:.65}
+.nt-game-ad small{display:block;color:#708176;font-size:10px;line-height:1.5}
+</style>
   <div id="home" class="hide">
+
+    <section class="nt-game-ad" aria-label="Advertisement">
+      <span class="nt-ad-label">ADVERTISEMENT</span>
+      <div class="nt-banner-slot">
+        <script>
+          atOptions = { 'key':'dc095c7f78341b7c3f8c3cd337d72815', 'format':'iframe', 'height':50, 'width':320, 'params':{} };
+        </script>
+        <script src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script>
+      </div>
+    </section>
+    <section class="nt-game-ad nt-sponsored" aria-label="Sponsored offer">
+      <span class="nt-ad-label">SPONSORED OFFER</span>
+      <p>Optional sponsored content. Open only if you want to visit the advertiser.</p>
+      <a class="nt-offer-link" href="https://arwf.org/4/7de42ae45e004227aa64a037c9fea378" target="_blank" rel="noopener noreferrer">Visit sponsored offer ↗</a>
+      <button class="nt-load-ad" id="ntQuizLoad" type="button">Load sponsored advert</button>
+      <small id="ntQuizStatus">The external script remains off until you tap the button.</small>
+      <div id="ntQuizHost"></div>
+    </section>
     <div class="card">
       <h1>Brain Battle</h1>
       <p>Answer Nigerian knowledge questions and earn game points. Game points are for fun and the leaderboard. They are not naira and cannot be withdrawn.</p>
@@ -173,6 +201,19 @@ $("nextGameBtn").addEventListener("click", () => { clear(); show("home"); $("sta
 $("againBtn").addEventListener("click", () => { clear(); show("home"); loadBoard(); });
 
 init();
+</script>
+<script>
+(function(){
+ const b=document.getElementById('ntQuizLoad'),h=document.getElementById('ntQuizHost'),s=document.getElementById('ntQuizStatus');
+ if(!b||!h||!s)return;let loaded=false;
+ b.addEventListener('click',function(){
+  if(loaded)return;loaded=true;b.disabled=true;b.textContent='Loading sponsored advert…';
+  const t=document.createElement('script');t.async=true;t.dataset.cfasync='false';t.src='https://afders.org/1/5f6722d503776e9a4c128d973279063e';
+  t.onload=function(){b.textContent='Sponsored advert requested';s.textContent='External advert script loaded. Advert content is controlled by the provider.'};
+  t.onerror=function(){loaded=false;b.disabled=false;b.textContent='Try loading sponsored advert again';s.textContent='Could not load the external advert. Try again later.';t.remove()};
+  h.appendChild(t);
+ });
+})();
 </script>
 </body>
 </html>
