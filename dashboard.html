@@ -670,6 +670,15 @@ body{font-family:Arial,Helvetica,sans-serif}
 .nt-structure-v2 .nt-logout-row button{width:100%;background:#f5f7f5;color:#173326;border:1px solid var(--nt-line)}
 .bottom-nav{position:fixed!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:min(100%,420px)!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;background:#fff!important}
 @media(max-width:360px){.container.nt-dashboard.nt-structure-v2{padding-left:10px!important;padding-right:10px!important}.nt-structure-v2 .wallet-actions .btn{font-size:10px!important}.nt-structure-v2 .stat-value{font-size:17px!important}}
+</style><style id="nt-task-card-structure">
+.nt-structure-v2 .dashboard-task-main{display:flex!important;align-items:center!important;gap:12px!important}
+.nt-structure-v2 .dashboard-task-main .task-info{display:flex;align-items:center;min-height:38px}
+.nt-structure-v2 .dashboard-task-platform{font-size:12px!important;line-height:1.5!important;color:#176337}
+.nt-structure-v2 .dashboard-task-platform span{font-size:10px;font-weight:600;color:#718176}
+.nt-structure-v2 .dashboard-task-title{margin-top:12px;font-size:14px;font-weight:850;line-height:1.5;overflow-wrap:anywhere}
+.nt-structure-v2 .dashboard-task-meta{display:flex;flex-direction:column;gap:4px;margin-top:5px}
+.nt-structure-v2 .dashboard-task-meta small{font-size:10px;color:#708176;line-height:1.5}
+.nt-structure-v2 .dashboard-task-footer{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:12px!important;margin-top:12px!important}
 </style></head>
 <body>
 
@@ -1072,11 +1081,11 @@ async function loadAvailableTasks(){
         <div class="dashboard-task-main">
           <div class="tlogo" aria-hidden="true">${LOGOS[cat]}</div>
           <div class="task-info">
-            <strong>${escapeHTML(task.title || "Untitled task")}</strong>
-            <small>${PLATFORM_NAMES[cat]} • Task</small>
-            <small class="dashboard-task-slots">${slotsLabel}</small>
+            <strong class="dashboard-task-platform">${PLATFORM_NAMES[cat]} <span>• Task</span></strong>
           </div>
         </div>
+        <div class="dashboard-task-title">${escapeHTML(task.title || "Untitled task")}</div>
+        <div class="dashboard-task-meta"><small>Task type: ${PLATFORM_NAMES[cat]}</small><small class="dashboard-task-slots">${slotsLabel}</small></div>
         <div class="dashboard-task-footer">
           <span class="dashboard-task-earn">Earn <strong>${money(reward)}</strong></span>
           <span class="dashboard-task-start">Start Task <span aria-hidden="true">→</span></span>
