@@ -865,7 +865,7 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
 
 
 <style id="nt-dashboard-colourful-moderate-emojis">
-/* Colourful, moderate-size native emoji. Social platform logos inside .tlogo are untouched. */
+/* GoJelly-inspired colourful category cues with EarnIT-style restrained sizing. */
 .nt-structure-v2 .nt-function-icon,.nt-structure-v2 .nt-link-icon,
 .nt-structure-v2 .nt-quick-icon,.nt-structure-v2 .pay-ico,
 .nt-structure-v2 .nt-feature-mark,.nt-structure-v2 .quick-icon,
@@ -873,7 +873,7 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
 .nt-structure-v2 .activity-update-icon,.nt-structure-v2 .nt-header-icon,
 .nt-structure-v2 .nt-search-symbol{
   font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
-  font-size:25px!important;font-weight:400!important;line-height:1!important;
+  font-size:24px!important;font-weight:400!important;line-height:1!important;
   -webkit-text-stroke:0!important;text-shadow:none!important;
 }
 .nt-structure-v2 .nt-function-icon,.nt-structure-v2 .nt-link-icon,
@@ -881,8 +881,8 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
 .nt-structure-v2 .nt-feature-mark,.nt-structure-v2 .quick-icon,
 .nt-structure-v2 .feature-icon,.nt-structure-v2 .stat-icon,
 .nt-structure-v2 .activity-update-icon{
-  background:linear-gradient(145deg,var(--nt-emoji-bg,#edf6ef),#fff)!important;
-  box-shadow:0 3px 9px rgba(8,55,29,.08),inset 0 0 0 1px rgba(8,55,29,.06)!important;
+  background:var(--nt-emoji-bg,#edf6ef)!important;
+  box-shadow:inset 0 0 0 1px rgba(8,55,29,.045)!important;
 }
 .nt-structure-v2 .nt-header-icon{font-size:22px!important}
 .nt-structure-v2 .nt-section-mascot,.nt-structure-v2 .nt-real-section-emoji{display:none!important}
@@ -891,7 +891,7 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
  .nt-structure-v2 .nt-quick-icon,.nt-structure-v2 .pay-ico,
  .nt-structure-v2 .nt-feature-mark,.nt-structure-v2 .quick-icon,
  .nt-structure-v2 .feature-icon,.nt-structure-v2 .stat-icon,
- .nt-structure-v2 .activity-update-icon{font-size:23px!important}
+ .nt-structure-v2 .activity-update-icon{font-size:22px!important}
 }
 </style>
 </head>
@@ -1665,54 +1665,48 @@ startDashboard().then(loadModuleLinks).then(loadDashboardAds).then(applyFilters)
 
 
 <script id="nt-dashboard-unique-colour-emojis">
-/* One moderate, colourful emoji per dashboard function. Social network brand logos (.tlogo) are preserved. */
+/* Distinct, colourful emoji cues for dashboard functions. Brand marks in .tlogo are deliberately excluded. */
 (function(){
   const rules=[
-    [/find tasks|available tasks|browse tasks/i,"🔍"],[/my activity|activity centre/i,"📊"],
-    [/referrals|refer friends|invite/i,"🤝"],[/wallet balance|my wallet|wallet activity/i,"👛"],
-    [/my submissions|submission/i,"📄"],[/approved tasks|approved work/i,"🏅"],
+    [/find tasks|available tasks|browse tasks/i,"🔎"],[/my activity|activity centre/i,"📊"],
+    [/referrals|refer friends|invite/i,"🫂"],[/wallet balance|my wallet|wallet activity/i,"👛"],
+    [/my submissions|submission/i,"📋"],[/approved tasks|approved work/i,"🏆"],
     [/appeal|retry|attention/i,"🧰"],[/airtime/i,"📞"],[/data orders|mobile data|\bdata\b/i,"📶"],
     [/cable tv|tv subscription|television/i,"📺"],[/electricity/i,"💡"],
     [/marketplace|shop|products/i,"🛍️"],[/withdrawal|withdraw/i,"💸"],
     [/transaction|payment history/i,"🧾"],[/notification/i,"🔔"],
-    [/announcement|promotion|advert/i,"📣"],[/community/i,"🌍"],
+    [/announcement|promotion|advert/i,"📢"],[/community/i,"🌍"],
     [/private messages|private chat|messages/i,"💬"],[/support|help/i,"🛟"],
     [/ai assistant|ai tools|artificial intelligence/i,"🤖"],[/ai care/i,"🩺"],
     [/vip/i,"👑"],[/security|privacy|password/i,"🔐"],[/profile|account/i,"👤"],
     [/brain battle|arena/i,"🧠"],[/games|gaming/i,"🎮"],[/star life|starlife/i,"🌟"],
-    [/activation/i,"🔑"],[/task/i,"📝"],[/search/i,"🔎"]
+    [/activation/i,"🔑"],[/task/i,"📝"],[/search/i,"🔍"],
+    [/history|records/i,"📚"],[/payment|pay bills/i,"💳"],[/poster|campaign/i,"📣"],
+    [/leaderboard|ranking/i,"🥇"],[/bonus|reward|earnings/i,"🎁"],[/settings/i,"⚙️"],
+    [/home|dashboard/i,"🏠"],[/more|menu/i,"🧭"],[/contact/i,"📨"]
   ];
-  const spare=["🎯","🧩","🎁","📚","🧭","🪙","🛒","🧑‍🤝‍🧑","📈","🗂️","🛠️","🧮","📬","🪄","🧵","🧸","🧪","🧑‍💻","🌱","🏆","🎨","🧷","📌","🗓️","🧺","🪴","🧯","🧳","🪪","🧿"];
-  const assigned=new Map();
-  let spareIndex=0;
-  function pick(text,fallback){
-    const key=String(text||"").toLowerCase().replace(/https?:\/\/\S+/g,"").replace(/[^a-z0-9]+/g," ").trim();
+  const spare=["🎯","🧩","🪙","🛒","📈","🗂️","🛠️","🧮","📬","🪄","🧵","🧸","🧪","🧑‍💻","🌱","🎨","🧷","📌","🗓️","🧺","🪴","🧯","🧳","🪪","🧿","🪄","🧭"];
+  const colours=["#e5f1ff","#f0eaff","#fff0d9","#e8f2ff","#fff3d2","#e9f3e8","#e3f5e9","#e5f4ff","#eee9ff","#fff5d8","#ffebdf","#edf0f3","#ffe9e5","#e3f3f5","#e5f2ff","#e4f3ff","#e2f5ed","#fff1cb","#e7f1e9","#e8eef8"];
+  const assigned=new Map(),used=new Set();let spareIndex=0;
+  function pick(key){
     if(assigned.has(key))return assigned.get(key);
-    let emoji;
+    let emoji="";
     for(const [pattern,value] of rules){if(pattern.test(key)){emoji=value;break;}}
-    if(!emoji || [...assigned.values()].includes(emoji)) {
-      while(spareIndex<spare.length && [...assigned.values()].includes(spare[spareIndex]))spareIndex++;
-      emoji=spare[spareIndex++]||fallback||"✨";
+    if(!emoji||used.has(emoji)){
+      while(spareIndex<spare.length&&used.has(spare[spareIndex]))spareIndex++;
+      emoji=spare[spareIndex++]||"✨";
     }
-    assigned.set(key,emoji);
-    return emoji;
+    assigned.set(key,emoji);used.add(emoji);return emoji;
   }
-  function paint(el,ownerText,fallback){
+  function paint(el,owner){
     if(!el||el.closest(".tlogo"))return;
-    const emoji=pick(ownerText,fallback);
-    if(el.dataset.ntEmojiKey===String(ownerText||""))return;
-    el.textContent=emoji;
-    el.dataset.ntEmojiKey=String(ownerText||"");
-    el.setAttribute("aria-hidden","true");
-    const palette={
-      "🔍":"#e5f1ff","📊":"#e9e5ff","🤝":"#f2e8ff","👛":"#fff0d9","📄":"#e8f2ff",
-      "🏅":"#fff3d2","🧰":"#e9f3e8","📞":"#e3f5e9","📶":"#e5f4ff","📺":"#eee9ff",
-      "💡":"#fff5d8","🛍️":"#ffebdf","💸":"#e3f5e9","🧾":"#edf0f3","🔔":"#fff0d9",
-      "📣":"#ffe9e5","🌍":"#e3f3f5","💬":"#e5f2ff","🛟":"#e4f3ff","🤖":"#eee9ff",
-      "🩺":"#e2f5ed","👑":"#fff1cb","🔐":"#e7f1e9","👤":"#e8eef8","🧠":"#f0e8ff",
-      "🎮":"#e5edff","🌟":"#fff2d5","🔑":"#f1ebff"
-    };
-    el.style.setProperty("--nt-emoji-bg",palette[emoji]||"#eaf3ed");
+    const label=String(owner||"").toLowerCase().replace(/https?:\/\/\S+/g,"").replace(/[^a-z0-9]+/g," ").trim();
+    if(!label)return;
+    const emoji=pick(label);
+    if(el.dataset.ntEmojiKey===label)return;
+    el.textContent=emoji;el.dataset.ntEmojiKey=label;el.setAttribute("aria-hidden","true");
+    let hash=0;for(let i=0;i<label.length;i++)hash=(hash*31+label.charCodeAt(i))>>>0;
+    el.style.setProperty("--nt-emoji-bg",colours[hash%colours.length]);
   }
   function apply(){
     document.querySelectorAll(".nt-link-list>a,.nt-quick-card,.nt-feature-row,.quick-access a,.feature-card,.pay-tile").forEach(owner=>{
