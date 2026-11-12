@@ -275,6 +275,8 @@ function buildWorld(){
 
 /* ============================ GAME STATE ============================ */
 let state = null, places = [], homes = [], busy = false, modalOpen = false;
+let taskNotificationChannel = null;
+const TASK_ALERT_PREF = "slw3_new_task_alerts";
 let carSpeeds = {}, celebData = {}, celebs = [];
 const player = { x:0, y:0, hs:8, dir:1, step:0, face:0, moving:false };
 let curDistrict = null, lastSafe = { x:0, y:0 }, walkingCheck = false;
@@ -590,6 +592,53 @@ async function openVenue(){
   }catch(e){ toast(e.message || "Could not open this place."); }
 }
 
+async function stopNewTaskAlerts(){
+  try{ if(taskNotificationChannel){ await db.removeChannel(taskNotificationChannel); taskNotificationChannel=null; } }catch(e){ console.warn("Could not stop task alerts:",e); }
+  try{ localStorage.setItem(TASK_ALERT_PREF,"0"); }catch(e){}
+}
+function taskIsAlertWorthy(task){
+  if(!task || task.active===false || task.active===0 || String(task.active).toLowerCase()==="false") return false;
+  const status=String(task.status||"").toLowerCase().replace(/[ _-]/g,"");
+  const moderation=String(task.moderation_status||"").toLowerCase();
+  const payment=String(task.payment_status||"").toLowerCase().replace(/[ _-]/g,"");
+  if(["inactive","disabled","deleted","cancelled","canceled","rejected","expired","paused","draft","completed"].includes(status)) return false;
+  if(["rejected","declined","blocked","suspended"].includes(moderation)) return false;
+  if(["unfunded","paymentrequired","unpaid","failed","refunded","cancelled","canceled"].includes(payment)) return false;
+  if(task.expiry_date && new Date(task.expiry_date)<new Date()) return false;
+  const total=Number(task.max_total_completions??task.slots), done=Number(task.completed_count??task.total_completions??0);
+  if(Number.isFinite(total)&&total>0&&done>=total) return false;
+  return true;
+}
+async function startNewTaskAlerts(){
+  if(!("Notification" in window)){ toast("This browser does not support notifications. Open Jobs to check new tasks."); return false; }
+  let permission=Notification.permission;
+  if(permission!=="granted") permission=await Notification.requestPermission();
+  if(permission!=="granted"){ toast("Notifications were not allowed. Enable them in your browser site settings."); return false; }
+  const {data:userData,error:userError}=await db.auth.getUser();
+  if(userError||!userData?.user){ toast("Please sign in again to enable task alerts."); return false; }
+  if(taskNotificationChannel){ try{ await db.removeChannel(taskNotificationChannel); }catch(e){} taskNotificationChannel=null; }
+  taskNotificationChannel=db.channel("starlife-3d-new-task-alerts")
+    .on("postgres_changes",{event:"INSERT",schema:"public",table:"tasks"},payload=>{
+      const task=payload.new||{};
+      if(!taskIsAlertWorthy(task)) return;
+      const owner=task.user_id||task.poster_id||task.created_by;
+      if(owner && owner===userData.user.id) return;
+      const title=String(task.title||"A new task is available").slice(0,100);
+      try{
+        const notice=new Notification("🌍 Naija Star Life · New task",{body:title+" — open NAIJA TASK to view it.",icon:"/favicon.ico",tag:"nt-new-task-"+String(task.id||Date.now())});
+        notice.onclick=()=>{ window.focus(); location.href="task.html"+(task.id?"?task="+encodeURIComponent(task.id):""); notice.close(); };
+      }catch(e){ toast("🌍 New task available: "+title); }
+    })
+    .subscribe(status=>{
+      if(status==="SUBSCRIBED"){
+        try{ localStorage.setItem(TASK_ALERT_PREF,"1"); }catch(e){}
+        toast("🌍 New-task notifications are on while this game is open.");
+      }else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){
+        toast("Live task alerts could not connect. Check Supabase Realtime settings.");
+      }
+    });
+  return true;
+}
 async function openPhone(){
   if (!state || modalOpen) return;
   try{
@@ -610,12 +659,18 @@ async function openPhone(){
       <h2 style="margin-top:14px">Rent</h2>
       <p>${rent > 0 ? esc(rent) + " coins a week. " + (days === null ? "" : days < 0 ? "<b style='color:#c62828'>Overdue!</b> Pay to rest at home again." : "Due in " + esc(days) + " day" + (days === 1 ? "" : "s") + ".") : "No rent."}</p>
       <button class="btn" id="mRent" ${rent > 0 ? "" : "disabled"}>Pay rent (${esc(rent)} coins)</button>
+      <h2 style="margin-top:14px">🔔 New task notifications</h2>
+      <p>Get an alert when a new NAIJA TASK job is published while this game is open.</p>
+      <button class="btn" id="mTaskAlerts">🔔 Turn on notifications</button>
+      <button class="btn alt" id="mTaskAlertsOff">Turn notifications off</button>
       <h2 style="margin-top:14px">Jobs in Lagos</h2>
       ${jobs.map(j => `<div class="row"><span>${esc(j.name)}<br><small style="color:#708176">${esc(place(j.location))}${j.min_fame ? " · needs " + esc(j.min_fame) + " fame" : ""}</small></span><b>+${esc(j.pay)}</b></div>`).join("")}
       <h2 style="margin-top:14px">Friends and messages</h2>
       <p>Coming soon. They open to adults only, after blocking, reporting and moderation are ready.</p>
       <button class="btn alt" id="mClose">Close</button>`);
     $("mClose").onclick = closeModal;
+    $("mTaskAlerts").onclick = async () => { await startNewTaskAlerts(); };
+    $("mTaskAlertsOff").onclick = async () => { await stopNewTaskAlerts(); toast("New-task notifications turned off."); };
     $("mRent").onclick = async () => {
       if (busy) return; busy = true;
       try{ state = await rpc("starlife_pay_rent"); setHud(); closeModal(); toast("Rent paid. Your landlord is happy."); }
@@ -1964,6 +2019,10 @@ async function init(){
   try{
     const { data: u } = await db.auth.getUser();
     if (!u?.user){ location.replace("login.html"); return; }
+    let alertsSaved=false; try{ alertsSaved=localStorage.getItem(TASK_ALERT_PREF)==="1"; }catch(e){}
+    if(alertsSaved && "Notification" in window && Notification.permission==="granted"){
+      startNewTaskAlerts().catch(e=>console.warn("Task notification setup failed:",e));
+    }
     const { data: flag, error } = await db.from("platform_feature_flags").select("enabled").eq("key", "starlife").maybeSingle();
     if (error || !flag || flag.enabled !== true){ screen("Naija Star Life is not open yet.<br><a href='dashboard.html'>Back to dashboard</a>"); return; }
     state = await rpc("starlife_state");
@@ -2002,7 +2061,7 @@ async function init(){
     if (wk.woke) showWake();
     let seen = false; try{ seen = localStorage.getItem("slw3_help") === "1"; }catch(e){}
     if (!seen){
-      openModal(`<h2>Welcome to Lagos 🌆</h2>
+      openModal(`<h2>🌍 Welcome to Naija Star Life 3D 🌆</h2>
         <p>Use the joystick to walk and drag on the right side of the screen to turn the camera. Go near a building, bus stop, house or person and tap the green button.</p>
         <p>💼 Work buildings pay coins. 🏠 Your home is in Surulere and restores energy. 💬 Talking to people starts story events. Walking into a new area costs a little energy.</p>
         <p>📱 Your phone shows needs, rent and jobs. Keep your hunger, hygiene and bladder up or you cannot work. 🎉 Venues in every area restore fun and social. 🍲 Restaurants restore energy. 📈 The Business Hub lets you invest for daily income. 🚗 Cars make you faster. ⭐ Famous (made-up) characters notice you as your fame grows.</p>
