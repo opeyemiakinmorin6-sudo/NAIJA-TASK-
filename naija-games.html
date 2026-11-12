@@ -58,6 +58,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
 .ad-popup-dismiss{width:100%;margin-top:13px;padding:13px;border:0;border-radius:12px;background:linear-gradient(110deg,#087f36,#0b9b45);color:#fff;font-size:13px;font-weight:850;box-shadow:0 5px 14px rgba(8,127,54,.18);cursor:pointer}
 @keyframes adFadeIn{from{opacity:0}to{opacity:1}}@keyframes adCardIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:360px){.ad-popup-backdrop{padding:10px}.ad-popup-card{padding:0 11px 12px;border-radius:18px}.ad-popup-head{margin:0 -11px 10px;padding:13px 11px}.ad-popup-unit{width:100%}}
+
+/* Reliable, user-controlled sponsored entry pop-up */
+.nt-ad-gate{position:fixed;inset:0;z-index:1000000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,18,8,.78);backdrop-filter:blur(5px)}
+.nt-ad-gate.is-open{display:flex}
+.nt-ad-gate-card{width:min(100%,390px);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;color:#173321;border-radius:20px;padding:20px;box-shadow:0 22px 70px #0008;text-align:center}
+.nt-ad-gate-label{display:inline-block;padding:6px 10px;border-radius:999px;background:#eaf7d7;color:#245b16;font-size:10px;font-weight:900;letter-spacing:1px}
+.nt-ad-gate-card h2{margin:12px 0 7px;font-size:22px;color:#075b2a}
+.nt-ad-gate-card p{font-size:13px;line-height:1.5;color:#526557;margin:0 0 13px}
+.nt-ad-gate-link{display:block;padding:13px 14px;border-radius:12px;background:#b7ef43;color:#123c17;text-decoration:none;font-weight:900;font-size:14px;margin:12px 0}
+.nt-ad-gate-load,.nt-ad-gate-continue{width:100%;padding:13px;border:0;border-radius:12px;font-weight:850;font-size:13px;margin-top:9px;cursor:pointer}
+.nt-ad-gate-load{background:#edf4ee;color:#145a2b;border:1px solid #c9dfce}
+.nt-ad-gate-continue{background:#087f36;color:#fff}
+.nt-ad-gate-close{float:right;border:0;background:#eef3ef;color:#21442c;width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer}
+.nt-ad-gate-status{display:block;min-height:15px;margin-top:8px;color:#607263;font-size:10px}
+@media(max-width:360px){.nt-ad-gate{padding:10px}.nt-ad-gate-card{padding:15px;border-radius:16px}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -648,5 +663,65 @@ refreshMenu();
 })();
 </script>
 
+
+<div class="nt-ad-gate" id="ntAdGate" role="dialog" aria-modal="true" aria-labelledby="ntAdGateTitle" aria-hidden="true">
+ <div class="nt-ad-gate-card">
+  <button class="nt-ad-gate-close" id="ntAdGateClose" type="button" aria-label="Close sponsored window">×</button>
+  <span class="nt-ad-gate-label">SPONSORED · ADVERTISEMENT</span>
+  <h2 id="ntAdGateTitle">Support NAIJA TASK</h2>
+  <p>This sponsored offer helps support the platform. It is optional. You can continue to your game without visiting it.</p>
+  <a class="nt-ad-gate-link" href="https://arwf.org/4/7de42ae45e004227aa64a037c9fea378" target="_blank" rel="noopener noreferrer">View sponsored offer ↗</a>
+  <button class="nt-ad-gate-load" id="ntAdGateLoad" type="button">Load external advert</button>
+  <small class="nt-ad-gate-status" id="ntAdGateStatus">External advert loads only if you tap the button.</small>
+  <div id="ntAdGateHost"></div>
+  <button class="nt-ad-gate-continue" id="ntAdGateContinue" type="button">Continue to game</button>
+ </div>
+</div>
+
+<script>
+(function(){
+ const gate=document.getElementById('ntAdGate');
+ if(!gate)return;
+ const close=document.getElementById('ntAdGateClose');
+ const go=document.getElementById('ntAdGateContinue');
+ const load=document.getElementById('ntAdGateLoad');
+ const host=document.getElementById('ntAdGateHost');
+ const status=document.getElementById('ntAdGateStatus');
+ let shown=false, pending=null, allowNext=null, externalLoaded=false;
+ const selectors=['#menu [data-g]','#career [data-c]','#startBtn'];
+ function hideAndContinue(){
+  gate.classList.remove('is-open');gate.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  const target=pending;pending=null;
+  if(target){allowNext=target;target.click();}
+ }
+ function showFor(target){
+  pending=target;gate.classList.add('is-open');gate.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  go.focus();
+ }
+ document.addEventListener('click',function(event){
+  const target=event.target.closest(selectors.join(','));
+  if(!target)return;
+  if(allowNext===target){allowNext=null;return;}
+  if(shown)return;
+  event.preventDefault();event.stopImmediatePropagation();
+  shown=true;showFor(target);
+ },true);
+ close.addEventListener('click',hideAndContinue);
+ go.addEventListener('click',hideAndContinue);
+ gate.addEventListener('click',function(event){if(event.target===gate)hideAndContinue();});
+ document.addEventListener('keydown',function(event){if(event.key==='Escape'&&gate.classList.contains('is-open'))hideAndContinue();});
+ load.addEventListener('click',function(){
+  if(externalLoaded)return;
+  externalLoaded=true;load.disabled=true;load.textContent='Requesting advert…';
+  const tag=document.createElement('script');tag.async=true;tag.dataset.cfasync='false';
+  tag.src='https://afders.org/1/5f6722d503776e9a4c128d973279063e';
+  tag.onload=function(){load.textContent='Advert requested';status.textContent='The third-party provider controls what is displayed.';};
+  tag.onerror=function(){externalLoaded=false;load.disabled=false;load.textContent='Try loading external advert again';status.textContent='The external advert could not be loaded.';tag.remove();};
+  host.appendChild(tag);
+ });
+})();
+</script>
 </body>
 </html>
