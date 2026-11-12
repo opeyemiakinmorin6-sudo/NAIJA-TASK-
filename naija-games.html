@@ -92,6 +92,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
   <button class="card" data-g="dash"><span class="big">🏃</span><b>Naija Dash</b><small>Run down a busy Lagos road. Swipe to change lane, swipe up or tap to jump over potholes, and dodge danfo buses, okada and barriers.</small><em id="b1"></em></button>
   <button class="card" data-g="match"><span class="big">🍢</span><b>Naija Match</b><small>Swap snacks to match three or more. Reach the target score before you run out of moves.</small><em id="b2"></em></button>
   <button class="card" data-g="fight"><span class="big">🥊</span><b>Naija Fighter</b><small>Take on three street fighters. Punch, kick and block. Win two rounds to move on.</small><em id="b3"></em></button>
+  <!-- Clearly labelled sponsored placement. The third-party script loads only after a deliberate tap. -->
+  <section class="game-ad nt-sponsored-offer" aria-label="Sponsored offer">
+    <span>SPONSORED OFFER</span>
+    <p style="margin:0 0 9px;color:#d6ecdc;font-size:11px;line-height:1.45">Optional advert. Open only if you want to view the sponsor's offer.</p>
+    <a href="https://arwf.org/4/7de42ae45e004227aa64a037c9fea378" target="_blank" rel="noopener noreferrer"
+       style="display:block;margin:0 auto 9px;max-width:260px;padding:11px 14px;border-radius:11px;background:#b7ef43;color:#064d25;text-decoration:none;font-size:13px;font-weight:900">
+       Visit sponsored offer ↗
+    </a>
+    <button id="ntLoadSponsoredScript" type="button"
+       style="display:block;width:100%;max-width:260px;margin:0 auto;padding:10px 12px;border:1px solid rgba(255,255,255,.3);border-radius:11px;background:rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:800">
+       Load sponsored advert
+    </button>
+    <small id="ntSponsoredStatus" style="display:block;margin-top:7px;color:#cfe8d6;font-size:10px">The sponsored ad script stays off until you tap the button.</small>
+    <div id="ntSponsoredScriptHost" class="game-ad-unit" aria-live="polite"></div>
+  </section>
   <a class="back" href="dashboard.html">← Back to dashboard</a>
 </div>
 
@@ -595,6 +610,42 @@ function openGame(name){
 document.querySelectorAll("#menu [data-g]").forEach(b => b.addEventListener("click", () => openGame(b.dataset.g)));
 $("exit").addEventListener("click", () => openGame(null));
 refreshMenu();
+</script>
+
+
+<script>
+/* Third-party sponsored script: intentionally opt-in and limited to the games menu.
+   It is not loaded on game screens or other NAIJA TASK pages. */
+(function(){
+  const button=document.getElementById('ntLoadSponsoredScript');
+  const host=document.getElementById('ntSponsoredScriptHost');
+  const status=document.getElementById('ntSponsoredStatus');
+  if(!button||!host||!status)return;
+  let loaded=false;
+  button.addEventListener('click',function(){
+    if(loaded)return;
+    loaded=true;
+    button.disabled=true;
+    button.textContent='Loading sponsored advert…';
+    status.textContent='Loading third-party sponsored content. You can leave it unused if it does not appear.';
+    const tag=document.createElement('script');
+    tag.async=true;
+    tag.dataset.cfasync='false';
+    tag.src='https://afders.org/1/5f6722d503776e9a4c128d973279063e';
+    tag.onload=function(){
+      button.textContent='Sponsored advert requested';
+      status.textContent='The advert script has loaded. Any advert is controlled by the external provider.';
+    };
+    tag.onerror=function(){
+      loaded=false;
+      button.disabled=false;
+      button.textContent='Try loading sponsored advert again';
+      status.textContent='The external advert could not be loaded. Please try again later.';
+      tag.remove();
+    };
+    host.appendChild(tag);
+  });
+})();
 </script>
 
 </body>
