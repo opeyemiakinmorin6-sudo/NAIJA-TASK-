@@ -1651,5 +1651,103 @@ mark.setAttribute("aria-hidden","true");mark.textContent=item[1];heading.insertB
 });
 })();</script>
 
+
+<style id="nt-emoji-function-logos">
+/* Clear emoji display marks for dashboard functions */
+.nt-structure-v2 .nt-function-icon,
+.nt-structure-v2 .nt-quick-icon,
+.nt-structure-v2 .nt-feature-mark,
+.nt-structure-v2 .pay-ico,
+.nt-structure-v2 .quick-icon,
+.nt-structure-v2 .feature-icon,
+.nt-structure-v2 .tlogo,
+.nt-structure-v2 .nav-item>span{
+  display:grid!important;place-items:center!important;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:27px!important;line-height:1!important;
+}
+.nt-structure-v2 .nt-function-icon,
+.nt-structure-v2 .nt-quick-icon,
+.nt-structure-v2 .nt-feature-mark{width:48px!important;height:48px!important;flex-basis:48px!important;border-radius:14px!important}
+.nt-structure-v2 .pay-ico,.nt-structure-v2 .quick-icon,.nt-structure-v2 .feature-icon{font-size:27px!important}
+.nt-structure-v2 .tlogo{font-size:29px!important;flex:0 0 42px!important;width:42px!important;height:42px!important;border-radius:12px!important}
+.nt-structure-v2 .nt-link-list>a .nt-function-icon svg,
+.nt-structure-v2 .nt-quick-icon svg,
+.nt-structure-v2 .nt-feature-mark svg,
+.nt-structure-v2 .pay-ico svg,
+.nt-structure-v2 .bottom-nav .nav-item>span svg{display:none!important}
+.nt-structure-v2 .section-heading .nt-heading-emoji{display:inline-block;margin-right:8px;font-size:22px;vertical-align:-2px}
+@media(max-width:380px){
+ .nt-structure-v2 .nt-function-icon,.nt-structure-v2 .nt-quick-icon,.nt-structure-v2 .nt-feature-mark{width:44px!important;height:44px!important;flex-basis:44px!important;font-size:25px!important}
+}
+</style>
+<script id="nt-dashboard-emoji-function-logos">
+(function(){
+ const rules=[
+  [/marketplace|shop|product/i,"🛍️"],[/wallet|balance/i,"👛"],[/withdraw|cashout/i,"💸"],[/transaction|history/i,"🧾"],
+  [/notification/i,"🔔"],[/announcement|promotion|ads/i,"📣"],[/community|referral|friends|member/i,"👥"],
+  [/private message|chat/i,"💬"],[/support|help/i,"🎧"],[/ai assistant|assistant/i,"🤖"],[/ai care|care/i,"🩺"],
+  [/vip|membership/i,"👑"],[/find tasks|available tasks|browse tasks/i,"🔎"],[/submission|activity/i,"📋"],
+  [/approved/i,"✅"],[/retry|attention|appeal/i,"⚠️"],[/airtime|data|mobile top/i,"📱"],
+  [/arena|brain battle/i,"🧠"],[/game/i,"🎮"],[/star life|entertainment/i,"⭐"],[/security|password|privacy/i,"🔐"],
+  [/profile|account/i,"👤"],[/task/i,"📝"],[/youtube/i,"📺"],[/tiktok/i,"🎵"],[/instagram/i,"📸"],
+  [/facebook/i,"👍"],[/telegram/i,"✈️"],[/threads/i,"🧵"],[/spotify|music/i,"🎧"],[/snapchat/i,"👻"]
+ ];
+ function pick(value,fallback){
+  const s=String(value||"");
+  for(const [re,emoji] of rules)if(re.test(s))return emoji;
+  return fallback||"✨";
+ }
+ function replaceIcon(el,emoji){
+  if(!el||el.dataset.ntEmojiLogo==="1")return;
+  el.textContent=emoji;
+  el.dataset.ntEmojiLogo="1";
+  el.setAttribute("aria-hidden","true");
+ }
+ function apply(){
+  document.querySelectorAll(".nt-link-list>a").forEach(a=>{
+   const icon=a.querySelector(".nt-function-icon");
+   replaceIcon(icon,pick(a.innerText+" "+a.getAttribute("href")));
+  });
+  document.querySelectorAll(".nt-quick-card").forEach(a=>{
+   replaceIcon(a.querySelector(".nt-quick-icon"),pick(a.innerText+" "+a.getAttribute("href")));
+  });
+  document.querySelectorAll(".nt-feature-row").forEach(a=>{
+   replaceIcon(a.querySelector(".nt-feature-mark"),pick(a.innerText+" "+a.getAttribute("href")));
+  });
+  document.querySelectorAll(".pay-tile").forEach(a=>{
+   replaceIcon(a.querySelector(".pay-ico"),pick(a.innerText+" "+a.getAttribute("href"),"📱"));
+  });
+  document.querySelectorAll(".quick-access a").forEach(a=>{
+   replaceIcon(a.querySelector(".quick-icon"),pick(a.innerText+" "+a.getAttribute("href")));
+  });
+  document.querySelectorAll(".feature-card").forEach(a=>{
+   replaceIcon(a.querySelector(".feature-icon"),pick(a.innerText+" "+a.getAttribute("href")));
+  });
+  document.querySelectorAll("#tasksList .tlogo").forEach(a=>{
+   replaceIcon(a,pick(a.parentElement?.innerText||"task","📝"));
+  });
+  document.querySelectorAll(".bottom-nav .nav-item").forEach(a=>{
+   replaceIcon(a.querySelector(":scope > span"),pick(a.innerText+" "+a.getAttribute("href"),"🏠"));
+  });
+  const headings={
+   availableTasksSection:"📝",quickActions:"⚡",activitySection:"📊",activityCentre:"📈",
+   recentTaskUpdates:"🔔",payServices:"📱",earningFeatures:"💼",dashboardAdsSection:"📢",
+   communityFeatures:"👥",aiFeatures:"🤖",arenaSection:"🧠",gamesSection:"🎮",
+   starlifeSection:"⭐",accountFeatures:"🔐",walletActivity:"👛"
+  };
+  Object.keys(headings).forEach(id=>{
+   const h=document.querySelector("#"+id+" .section-heading h2");
+   if(!h||h.querySelector(".nt-heading-emoji"))return;
+   const mark=document.createElement("span");mark.className="nt-heading-emoji";
+   mark.textContent=headings[id];mark.setAttribute("aria-hidden","true");h.insertBefore(mark,h.firstChild);
+  });
+ }
+ apply();
+ const observer=new MutationObserver(apply);
+ observer.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
