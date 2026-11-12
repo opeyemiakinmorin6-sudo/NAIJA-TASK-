@@ -265,7 +265,7 @@ async function start(){
   {title:"Account & Help",items:[["👤","My Profile","profile.html"],["🔓","Account Activation","activation.html"],["👑","VIP Membership","vip.html"],["🛡️","Security","security.html"],["⚖️","Appeals","appeals.html"],["🤖","Help Assistant","ai-assistant.html"],["💚","AI Care","ai-care.html"],["🎧","Support Centre","support.html"],["❓","How It Works","how-it-works.html"],["ℹ️","About NAIJA TASK","about-us.html"],["📄","FAQs","faq.html"]]}
  ],
  promote:[["📣","Advertising centre","ads.html"],["🧾","Transactions","transactions.html"],["🎧","Contact support","support.html"]],
- arena:[["🏃","Naija Dash / Match / Fighter","naija-games.html"]],
+ arena:[["🧠","Brain Battle","811875"],["🏃","Naija Dash / Match / Fighter","naija-games.html"]],
  community:[["💬","Private Chat","private-chat.html"],["📢","Announcements","announcements.html"],["🎧","Community support","support.html"]],
  "ai-assistant":[["💚","AI Care inbox","ai-care.html"],["🎧","Support Centre","support.html"],["📋","My task activity","applied-jobs.html"]]
  };
@@ -287,7 +287,8 @@ async function start(){
  if(moduleName==="more"){
    app.innerHTML=items.map(group=>'<section class="panel"><h2>'+esc(group.title)+'</h2><div class="links">'+group.items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>').join("");
  }else{
-   app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>';
+   app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>'+(moduleName==="arena"?'<section class="panel" aria-label="Advertisement"><small style="display:block;text-align:center;font-weight:900;letter-spacing:1px;margin-bottom:7px">ADVERTISEMENT</small><div id="ntCentreArenaAd" style="width:320px;max-width:100%;min-height:50px;margin:auto;display:flex;justify-content:center;overflow:hidden"></div></section>':'');
+   if(moduleName==="arena"){window.atOptions={key:"dc095c7f78341b7c3f8c3cd337d72815",format:"iframe",height:50,width:320,params:{}};const ad=document.createElement("script");ad.async=true;ad.src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815";document.getElementById("ntCentreArenaAd").appendChild(ad);}
  }
 }
 function renderPageFailure(error){
