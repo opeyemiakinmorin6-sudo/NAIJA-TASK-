@@ -1653,5 +1653,100 @@ mark.setAttribute("aria-hidden","true");mark.textContent=item[1];heading.insertB
 
 
 <style id="nt-global-root-palette">:root{--nt-forest:#064E2B;--nt-deep:#073B24;--nt-dark-green:#073B24;--nt-green:#0B8F45;--nt-bright:#16A34A;--nt-bright-green:#16A34A;--nt-lime:#B7F34A;--nt-white:#FFFFFF;--nt-surface:#FFFFFF;--nt-card:#FFFFFF;--nt-soft-white:#F7FBF7;--nt-bg:#F1F8F2;--nt-pale:#EAF5EC;--nt-leaf:#EAF5EC;--nt-cream:#F7FBF7;--nt-ink:#173326;--nt-muted:#647568;--nt-line:#DCE9DE;--nt-border:#DCE9DE;--nt-success:#168443}</style>
+
+<script id="nt-dashboard-real-function-emojis">
+/* Dashboard-only emoji labels. Social platform brand marks (.tlogo) are deliberately untouched. */
+(function(){
+  const rules=[
+    [/find tasks|available tasks|browse tasks/i,"🔎"],
+    [/my activity|activity centre|recent task updates/i,"📊"],
+    [/refer friends|referral/i,"🤝"],
+    [/my wallet|wallet balance|wallet activity/i,"👛"],
+    [/my submissions|submission/i,"📄"],
+    [/approved tasks|approved work/i,"🏅"],
+    [/tasks needing attention|appeal|retry/i,"🛠️"],
+    [/airtime/i,"📞"],
+    [/data orders|mobile data/i,"📶"],
+    [/cable tv|tv subscription|television/i,"📺"],
+    [/electricity bills|electricity/i,"⚡"],
+    [/marketplace|shop|products/i,"🛍️"],
+    [/withdrawal|withdraw/i,"💸"],
+    [/transaction/i,"🧾"],
+    [/notification/i,"🔔"],
+    [/announcement|promotion|advert/i,"📣"],
+    [/member community|community/i,"🌐"],
+    [/private messages|private chat|chat/i,"💬"],
+    [/support centre|support|help/i,"🛟"],
+    [/ai assistant|ai tools|artificial intelligence/i,"🤖"],
+    [/ai care/i,"🩺"],
+    [/vip membership|vip/i,"👑"],
+    [/security|privacy|password/i,"🔐"],
+    [/profile|account/i,"👤"],
+    [/brain battle|arena/i,"🧠"],
+    [/games|gaming/i,"🎮"],
+    [/star life|starlife/i,"🌟"],
+    [/activation/i,"🔑"],
+    [/task/i,"📝"]
+  ];
+  function emojiFor(text, fallback){
+    const value=String(text||"");
+    for(const [pattern,emoji] of rules){ if(pattern.test(value)) return emoji; }
+    return fallback||"✨";
+  }
+  function setEmoji(el, emoji){
+    if(!el || el.dataset.ntRealEmoji==="1") return;
+    el.textContent=emoji;
+    el.dataset.ntRealEmoji="1";
+    el.setAttribute("aria-hidden","true");
+  }
+  function apply(){
+    document.querySelectorAll(".nt-link-list > a").forEach(a=>{
+      const icon=a.querySelector(".nt-function-icon");
+      setEmoji(icon,emojiFor(a.innerText+" "+a.getAttribute("href")));
+    });
+    document.querySelectorAll(".nt-quick-card").forEach(a=>{
+      const icon=a.querySelector(".nt-quick-icon");
+      setEmoji(icon,emojiFor(a.innerText+" "+a.getAttribute("href")));
+    });
+    document.querySelectorAll(".nt-feature-row").forEach(a=>{
+      const icon=a.querySelector(".nt-feature-mark");
+      setEmoji(icon,emojiFor(a.innerText+" "+a.getAttribute("href")));
+    });
+    document.querySelectorAll(".pay-tile").forEach(tile=>{
+      const label=tile.innerText+" "+(tile.dataset.soon||"");
+      const icon=tile.querySelector(".pay-ico");
+      setEmoji(icon,emojiFor(label,"📱"));
+    });
+    document.querySelectorAll(".quick-access a").forEach(a=>{
+      setEmoji(a.querySelector(".quick-icon"),emojiFor(a.innerText+" "+a.getAttribute("href")));
+    });
+    document.querySelectorAll(".feature-card").forEach(a=>{
+      setEmoji(a.querySelector(".feature-icon"),emojiFor(a.innerText+" "+a.getAttribute("href")));
+    });
+    /* Section headings get their own subject emoji, not repeated generic decorations. */
+    const sections={
+      availableTasksSection:"📝",quickActions:"⚡",activitySection:"📊",activityCentre:"📈",
+      recentTaskUpdates:"🕘",payServices:"📱",earningFeatures:"💼",dashboardAdsSection:"📢",
+      communityFeatures:"🌍",aiFeatures:"🤖",arenaSection:"🧠",gamesSection:"🎮",
+      starlifeSection:"🌟",accountFeatures:"🛡️",walletActivity:"💳"
+    };
+    Object.keys(sections).forEach(id=>{
+      const heading=document.querySelector("#"+id+" .section-heading h2");
+      if(!heading || heading.querySelector(".nt-real-section-emoji")) return;
+      const mark=document.createElement("span");
+      mark.className="nt-real-section-emoji";
+      mark.textContent=sections[id];
+      mark.setAttribute("aria-hidden","true");
+      mark.style.marginRight="8px";
+      heading.insertBefore(mark,heading.firstChild);
+    });
+  }
+  apply();
+  if(document.body){
+    new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+  }
+})();
+</script>
+
 </body>
 </html>
