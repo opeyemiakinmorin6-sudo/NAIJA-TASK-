@@ -862,6 +862,35 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
 }
 </style>
 
+<style id="nt-dashboard-emoji-only-icons-v2-style">
+/* Function icons use native emoji; task-platform brand logos in .tlogo remain unchanged. */
+.nt-structure-v2 .nt-function-icon,
+.nt-structure-v2 .nt-link-icon,
+.nt-structure-v2 .nt-quick-icon,
+.nt-structure-v2 .pay-ico,
+.nt-structure-v2 .nt-feature-mark,
+.nt-structure-v2 .nt-header-icon,
+.nt-structure-v2 .nt-search-symbol,
+.nt-structure-v2 .quick-icon,
+.nt-structure-v2 .feature-icon,
+.nt-structure-v2 .stat-icon,
+.nt-structure-v2 .activity-update-icon{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:25px!important;line-height:1!important;
+}
+.nt-structure-v2 .nt-function-icon svg,
+.nt-structure-v2 .nt-link-icon svg,
+.nt-structure-v2 .nt-quick-icon svg,
+.nt-structure-v2 .pay-ico svg,
+.nt-structure-v2 .nt-feature-mark svg,
+.nt-structure-v2 .nt-header-icon svg,
+.nt-structure-v2 .nt-search-symbol svg,
+.nt-structure-v2 .quick-icon svg,
+.nt-structure-v2 .feature-icon svg,
+.nt-structure-v2 .stat-icon svg,
+.nt-structure-v2 .activity-update-icon svg{display:none!important}
+.nt-structure-v2 .nt-header-icon{font-size:21px!important}
+</style>
 </head>
 <body>
 
@@ -1748,5 +1777,56 @@ mark.setAttribute("aria-hidden","true");mark.textContent=item[1];heading.insertB
 })();
 </script>
 
+<script id="nt-dashboard-emoji-only-icons-v2">
+/* Replace dashboard function SVG artwork with a distinct emoji. Never select .tlogo or social brand marks. */
+(function(){
+  const rules=[
+    [/notification|bell/i,"🔔"],[/profile|account/i,"👤"],[/menu|more/i,"☰"],
+    [/find tasks|available tasks|browse tasks/i,"🔎"],[/my activity|activity centre/i,"📊"],
+    [/referral|invite/i,"🤝"],[/wallet/i,"👛"],[/submission/i,"📄"],
+    [/approved tasks|approved work/i,"🏅"],[/attention|appeal|retry/i,"🛠️"],
+    [/airtime/i,"📞"],[/data/i,"📶"],[/cable tv|tv subscription|television/i,"📺"],
+    [/electricity|bill payment/i,"⚡"],[/marketplace|shop|products/i,"🛍️"],
+    [/withdraw/i,"💸"],[/transaction/i,"🧾"],[/announcement|promotion|advert/i,"📣"],
+    [/community/i,"🌍"],[/private messages|private chat|chat/i,"💬"],
+    [/support|help/i,"🛟"],[/ai assistant|ai tools|artificial intelligence/i,"🤖"],
+    [/ai care/i,"🩺"],[/vip/i,"👑"],[/security|privacy|password/i,"🔐"],
+    [/brain battle|arena/i,"🧠"],[/games|gaming/i,"🎮"],[/star life|starlife/i,"🌟"],
+    [/activation/i,"🔑"],[/task/i,"📝"],[/search/i,"🔎"]
+  ];
+  function choose(text,fallback){
+    const s=String(text||"");
+    for(const [pattern,emoji] of rules) if(pattern.test(s)) return emoji;
+    return fallback||"✨";
+  }
+  function replaceIcon(el,source,fallback){
+    if(!el || el.closest(".tlogo") || el.dataset.ntEmojiOnly==="1") return;
+    el.textContent=choose(source,fallback);
+    el.dataset.ntEmojiOnly="1";
+    el.setAttribute("aria-hidden","true");
+  }
+  function apply(){
+    document.querySelectorAll(".nt-function-icon,.nt-link-icon,.nt-quick-icon,.nt-feature-mark,.quick-icon,.feature-icon,.pay-ico").forEach(el=>{
+      const owner=el.closest("a,button,.pay-tile,.nt-feature-row")||el.parentElement;
+      const text=(owner?.innerText||"")+" "+(owner?.getAttribute("href")||"");
+      replaceIcon(el,text);
+    });
+    document.querySelectorAll(".nt-header-icon").forEach(el=>{
+      replaceIcon(el,(el.getAttribute("aria-label")||"")+" "+(el.getAttribute("href")||""));
+    });
+    document.querySelectorAll(".nt-search-symbol").forEach(el=>replaceIcon(el,"search","🔎"));
+    document.querySelectorAll(".stat-icon").forEach((el,i)=>{
+      const label=el.closest(".stat-card")?.innerText||"";
+      replaceIcon(el,label,i===0?"📊":i===1?"🏅":"💰");
+    });
+    document.querySelectorAll(".activity-update-icon").forEach(el=>{
+      const row=el.closest(".activity-update")?.innerText||"";
+      replaceIcon(el,row,/approved|completed/i.test(row)?"🏅":/reject|attention/i.test(row)?"⚠️":"🕘");
+    });
+  }
+  apply();
+  if(document.body) new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
 </body>
 </html>
