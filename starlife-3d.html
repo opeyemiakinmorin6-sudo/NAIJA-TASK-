@@ -601,6 +601,7 @@ function taskIsAlertWorthy(task){
   const status=String(task.status||"").toLowerCase().replace(/[ _-]/g,"");
   const moderation=String(task.moderation_status||"").toLowerCase();
   const payment=String(task.payment_status||"").toLowerCase().replace(/[ _-]/g,"");
+  if(status && !["live","active","published"].includes(status)) return false;
   if(["inactive","disabled","deleted","cancelled","canceled","rejected","expired","paused","draft","completed"].includes(status)) return false;
   if(["rejected","declined","blocked","suspended"].includes(moderation)) return false;
   if(["unfunded","paymentrequired","unpaid","failed","refunded","cancelled","canceled"].includes(payment)) return false;
