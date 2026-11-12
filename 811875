@@ -29,6 +29,7 @@ p{margin:0 0 10px;color:var(--muted)}
 .row:last-child{border:0}.score{font-size:42px;font-weight:900;color:var(--green);margin:6px 0}
 .small{font-size:12px;color:var(--muted)}.hide{display:none}
 select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;font:inherit;background:#fff}
+.nt-auto-ad{display:block;width:100%;margin:14px 0 18px;padding:10px 8px;border:1px solid #e3ece5;border-radius:15px;background:#fff;text-align:center;overflow:hidden}.nt-auto-ad-label{display:block;margin-bottom:7px;color:#748278;font-size:9px;font-weight:900;letter-spacing:1px}.nt-auto-ad-slot{display:flex;justify-content:center;align-items:center;width:100%;min-height:50px;overflow:hidden}.nt-auto-ad-slot iframe{max-width:100%;border:0}
 </style>
 </head>
 <body>
@@ -63,23 +64,8 @@ select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;f
 </style>
   <div id="home" class="hide">
 
-    <section class="nt-game-ad" aria-label="Advertisement">
-      <span class="nt-ad-label">ADVERTISEMENT</span>
-      <div class="nt-banner-slot">
-        <script>
-          atOptions = { 'key':'dc095c7f78341b7c3f8c3cd337d72815', 'format':'iframe', 'height':50, 'width':320, 'params':{} };
-        </script>
-        <script src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script>
-      </div>
-    </section>
-    <section class="nt-game-ad nt-sponsored" aria-label="Sponsored offer">
-      <span class="nt-ad-label">SPONSORED OFFER</span>
-      <p>Optional sponsored content. Open only if you want to visit the advertiser.</p>
-      <a class="nt-offer-link" href="https://arwf.org/4/7de42ae45e004227aa64a037c9fea378" target="_blank" rel="noopener noreferrer">Visit sponsored offer ↗</a>
-      <button class="nt-load-ad" id="ntQuizLoad" type="button">Load sponsored advert</button>
-      <small id="ntQuizStatus">The external script remains off until you tap the button.</small>
-      <div id="ntQuizHost"></div>
-    </section>
+    <section class="nt-game-ad" aria-label="Advertisement"><span class="nt-ad-label">ADVERTISEMENT</span><div id="ntQuizAutoBanner" class="nt-banner-slot"></div></section>
+    
     <div class="card">
       <h1>Brain Battle</h1>
       <p>Answer Nigerian knowledge questions and earn game points. Game points are for fun and the leaderboard. They are not naira and cannot be withdrawn.</p>
@@ -126,7 +112,8 @@ const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 
 let session = null, answers = [], idx = 0, picked = -1, busy = false;
 
-function show(id){ ["home","quiz","result"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo(0,0); }
+function loadNtAutoBanner(id){var s=document.getElementById(id);if(!s||s.dataset.ntAdLoaded==="1")return;s.dataset.ntAdLoaded="1";window.atOptions={key:"dc095c7f78341b7c3f8c3cd337d72815",format:"iframe",height:50,width:320,params:{}};var t=document.createElement("script");t.async=true;t.src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815";t.onerror=function(){s.dataset.ntAdLoaded="";s.innerHTML='<small style="font-size:10px;color:#718176">Advertisement is temporarily unavailable.</small>';};s.appendChild(t);}
+function show(id){ ["home","quiz","result"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo(0,0); if(id==="home") loadNtAutoBanner("ntQuizAutoBanner"); }
 function say(text, kind){ const m = $("msg"); m.textContent = text; m.className = "msg show " + (kind || "err"); }
 function clear(){ $("msg").className = "msg"; $("msg").textContent = ""; }
 
@@ -217,78 +204,8 @@ $("againBtn").addEventListener("click", () => { clear(); show("home"); loadBoard
 
 init();
 </script>
-<script>
-(function(){
- const b=document.getElementById('ntQuizLoad'),h=document.getElementById('ntQuizHost'),s=document.getElementById('ntQuizStatus');
- if(!b||!h||!s)return;let loaded=false;
- b.addEventListener('click',function(){
-  if(loaded)return;loaded=true;b.disabled=true;b.textContent='Loading sponsored advert…';
-  const t=document.createElement('script');t.async=true;t.dataset.cfasync='false';t.src='https://afders.org/1/5f6722d503776e9a4c128d973279063e';
-  t.onload=function(){b.textContent='Sponsored advert requested';s.textContent='External advert script loaded. Advert content is controlled by the provider.'};
-  t.onerror=function(){loaded=false;b.disabled=false;b.textContent='Try loading sponsored advert again';s.textContent='Could not load the external advert. Try again later.';t.remove()};
-  h.appendChild(t);
- });
-})();
-</script>
 
-<div class="nt-ad-gate" id="ntAdGate" role="dialog" aria-modal="true" aria-labelledby="ntAdGateTitle" aria-hidden="true">
- <div class="nt-ad-gate-card">
-  <button class="nt-ad-gate-close" id="ntAdGateClose" type="button" aria-label="Close sponsored window">×</button>
-  <span class="nt-ad-gate-label">SPONSORED · ADVERTISEMENT</span>
-  <h2 id="ntAdGateTitle">Support NAIJA TASK</h2>
-  <p>This sponsored offer helps support the platform. It is optional. You can continue to your game without visiting it.</p>
-  <a class="nt-ad-gate-link" href="https://arwf.org/4/7de42ae45e004227aa64a037c9fea378" target="_blank" rel="noopener noreferrer">View sponsored offer ↗</a>
-  <button class="nt-ad-gate-load" id="ntAdGateLoad" type="button">Load external advert</button>
-  <small class="nt-ad-gate-status" id="ntAdGateStatus">External advert loads only if you tap the button.</small>
-  <div id="ntAdGateHost"></div>
-  <button class="nt-ad-gate-continue" id="ntAdGateContinue" type="button">Continue to game</button>
- </div>
-</div>
 
-<script>
-(function(){
- const gate=document.getElementById('ntAdGate');
- if(!gate)return;
- const close=document.getElementById('ntAdGateClose');
- const go=document.getElementById('ntAdGateContinue');
- const load=document.getElementById('ntAdGateLoad');
- const host=document.getElementById('ntAdGateHost');
- const status=document.getElementById('ntAdGateStatus');
- let shown=false, pending=null, allowNext=null, externalLoaded=false;
- const selectors=['#menu [data-g]','#career [data-c]','#startBtn'];
- function hideAndContinue(){
-  gate.classList.remove('is-open');gate.setAttribute('aria-hidden','true');
-  document.body.style.overflow='';
-  const target=pending;pending=null;
-  if(target){allowNext=target;target.click();}
- }
- function showFor(target){
-  pending=target;gate.classList.add('is-open');gate.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
-  go.focus();
- }
- document.addEventListener('click',function(event){
-  const target=event.target.closest(selectors.join(','));
-  if(!target)return;
-  if(allowNext===target){allowNext=null;return;}
-  if(shown)return;
-  event.preventDefault();event.stopImmediatePropagation();
-  shown=true;showFor(target);
- },true);
- close.addEventListener('click',hideAndContinue);
- go.addEventListener('click',hideAndContinue);
- gate.addEventListener('click',function(event){if(event.target===gate)hideAndContinue();});
- document.addEventListener('keydown',function(event){if(event.key==='Escape'&&gate.classList.contains('is-open'))hideAndContinue();});
- load.addEventListener('click',function(){
-  if(externalLoaded)return;
-  externalLoaded=true;load.disabled=true;load.textContent='Requesting advert…';
-  const tag=document.createElement('script');tag.async=true;tag.dataset.cfasync='false';
-  tag.src='https://afders.org/1/5f6722d503776e9a4c128d973279063e';
-  tag.onload=function(){load.textContent='Advert requested';status.textContent='The third-party provider controls what is displayed.';};
-  tag.onerror=function(){externalLoaded=false;load.disabled=false;load.textContent='Try loading external advert again';status.textContent='The external advert could not be loaded.';tag.remove();};
-  host.appendChild(tag);
- });
-})();
-</script>
+
 </body>
 </html>
