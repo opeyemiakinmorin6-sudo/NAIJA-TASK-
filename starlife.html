@@ -101,6 +101,7 @@ h1{margin:0 0 6px;font-size:22px}h2{margin:0 0 10px;font-size:17px}p{margin:0 0 
       <button id="playBtn" class="btn alt" type="button">🚶 Walk around and see what happens</button>
       <p class="small" style="margin-top:10px">Energy refills every day, plus a small daily coin bonus.</p>
     </div>
+    <section class="nt-game-ad" aria-label="Advertisement"><span class="nt-ad-label">ADVERTISEMENT</span><div id="ntStarLifeHubBanner" class="nt-banner-slot"></div></section>
     <div class="card"><h2>🏆 Top stars this week</h2><div id="board"><p>Loading...</p></div></div>
   </div>
 
@@ -161,7 +162,7 @@ const NAMES = {music:"🎤 Music Star", nollywood:"🎬 Nollywood Star", comedy:
 let state = null, currentEvent = null, busy = false, places = [];
 
 function loadNtAutoBanner(id){var s=document.getElementById(id);if(!s||s.dataset.ntAdLoaded==="1")return;s.dataset.ntAdLoaded="1";window.atOptions={key:"dc095c7f78341b7c3f8c3cd337d72815",format:"iframe",height:50,width:320,params:{}};var t=document.createElement("script");t.async=true;t.src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815";t.onerror=function(){s.dataset.ntAdLoaded="";s.innerHTML='<small style="font-size:10px;color:#718176">Advertisement is temporarily unavailable.</small>';};s.appendChild(t);}
-function show(id){ ["career","hub","travel","work","home","event","outcome"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo(0,0); if(id==="career") loadNtAutoBanner("ntStarLifeAutoBanner"); }
+function show(id){ ["career","hub","travel","work","home","event","outcome"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo(0,0); if(id==="career") loadNtAutoBanner("ntStarLifeAutoBanner"); if(id==="hub") loadNtAutoBanner("ntStarLifeHubBanner"); }
 function say(t){ const m = $("msg"); m.textContent = t; m.className = "msg show err"; }
 function note(t){ const m = $("msg"); m.textContent = t; m.className = "msg show ok"; }
 function clearMsg(){ $("msg").className = "msg"; $("msg").textContent = ""; }
