@@ -108,7 +108,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
   <button class="card" data-g="dash"><span class="big">🏃</span><b>Naija Dash</b><small>Run down a busy Lagos road. Swipe to change lane, swipe up or tap to jump over potholes, and dodge danfo buses, okada and barriers.</small><em id="b1"></em></button>
   <button class="card" data-g="match"><span class="big">🍢</span><b>Naija Match</b><small>Swap snacks to match three or more. Reach the target score before you run out of moves.</small><em id="b2"></em></button>
   <button class="card" data-g="fight"><span class="big">🥊</span><b>Naija Fighter</b><small>Take on three street fighters. Punch, kick and block. Win two rounds to move on.</small><em id="b3"></em></button>
- href="dashboard.html">← Back to dashboard</a>
+ <a class="back" href="dashboard.html">← Back to dashboard</a>
 </div>
 
 <div id="game" class="hide">
@@ -128,9 +128,12 @@ function best(key, v){
 }
 function overlay(stage, title, text, buttons){
   const o = document.createElement("div"); o.className = "ov";
-  o.innerHTML = `<h2>${title}</h2><p>${text}</p>`;
+  o.innerHTML = `<h2>${title}</h2><p>${text}</p><section class="game-ad" aria-label="Advertisement"><span>ADVERTISEMENT</span><div id="ntGameResultAd" class="game-ad-unit"></div></section>`;
   buttons.forEach(b => { const x = document.createElement("button"); x.textContent = b[0]; if (b[2]) x.className = "alt"; x.onclick = () => { o.remove(); b[1](); }; o.appendChild(x); });
-  stage.appendChild(o); return o;
+  stage.appendChild(o);
+  const slot=o.querySelector("#ntGameResultAd");
+  if(slot){window.atOptions={key:"dc095c7f78341b7c3f8c3cd337d72815",format:"iframe",height:50,width:320,params:{}};const script=document.createElement("script");script.async=true;script.src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815";slot.appendChild(script);}
+  return o;
 }
 
 /*PURE-RUN-START*/
