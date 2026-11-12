@@ -73,6 +73,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
 .nt-ad-gate-close{float:right;border:0;background:#eef3ef;color:#21442c;width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer}
 .nt-ad-gate-status{display:block;min-height:15px;margin-top:8px;color:#607263;font-size:10px}
 @media(max-width:360px){.nt-ad-gate{padding:10px}.nt-ad-gate-card{padding:15px;border-radius:16px}}
+.nt-auto-ad{display:block;width:100%;margin:14px 0 18px;padding:10px 8px;border:1px solid #e3ece5;border-radius:15px;background:#fff;text-align:center;overflow:hidden}.nt-auto-ad-label{display:block;margin-bottom:7px;color:#748278;font-size:9px;font-weight:900;letter-spacing:1px}.nt-auto-ad-slot{display:flex;justify-content:center;align-items:center;width:100%;min-height:50px;overflow:hidden}.nt-auto-ad-slot iframe{max-width:100%;border:0}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -107,22 +108,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
   <button class="card" data-g="dash"><span class="big">🏃</span><b>Naija Dash</b><small>Run down a busy Lagos road. Swipe to change lane, swipe up or tap to jump over potholes, and dodge danfo buses, okada and barriers.</small><em id="b1"></em></button>
   <button class="card" data-g="match"><span class="big">🍢</span><b>Naija Match</b><small>Swap snacks to match three or more. Reach the target score before you run out of moves.</small><em id="b2"></em></button>
   <button class="card" data-g="fight"><span class="big">🥊</span><b>Naija Fighter</b><small>Take on three street fighters. Punch, kick and block. Win two rounds to move on.</small><em id="b3"></em></button>
-  <!-- Clearly labelled sponsored placement. The third-party script loads only after a deliberate tap. -->
-  <section class="game-ad nt-sponsored-offer" aria-label="Sponsored offer">
-    <span>SPONSORED OFFER</span>
-    <p style="margin:0 0 9px;color:#d6ecdc;font-size:11px;line-height:1.45">Optional advert. Open only if you want to view the sponsor's offer.</p>
-    <a href="https://arwf.org/4/7de42ae45e004227aa64a037c9fea378" target="_blank" rel="noopener noreferrer"
-       style="display:block;margin:0 auto 9px;max-width:260px;padding:11px 14px;border-radius:11px;background:#b7ef43;color:#064d25;text-decoration:none;font-size:13px;font-weight:900">
-       Visit sponsored offer ↗
-    </a>
-    <button id="ntLoadSponsoredScript" type="button"
-       style="display:block;width:100%;max-width:260px;margin:0 auto;padding:10px 12px;border:1px solid rgba(255,255,255,.3);border-radius:11px;background:rgba(255,255,255,.12);color:#fff;font-size:12px;font-weight:800">
-       Load sponsored advert
-    </button>
-    <small id="ntSponsoredStatus" style="display:block;margin-top:7px;color:#cfe8d6;font-size:10px">The sponsored ad script stays off until you tap the button.</small>
-    <div id="ntSponsoredScriptHost" class="game-ad-unit" aria-live="polite"></div>
-  </section>
-  <a class="back" href="dashboard.html">← Back to dashboard</a>
+ href="dashboard.html">← Back to dashboard</a>
 </div>
 
 <div id="game" class="hide">
@@ -628,100 +614,9 @@ refreshMenu();
 </script>
 
 
-<script>
-/* Third-party sponsored script: intentionally opt-in and limited to the games menu.
-   It is not loaded on game screens or other NAIJA TASK pages. */
-(function(){
-  const button=document.getElementById('ntLoadSponsoredScript');
-  const host=document.getElementById('ntSponsoredScriptHost');
-  const status=document.getElementById('ntSponsoredStatus');
-  if(!button||!host||!status)return;
-  let loaded=false;
-  button.addEventListener('click',function(){
-    if(loaded)return;
-    loaded=true;
-    button.disabled=true;
-    button.textContent='Loading sponsored advert…';
-    status.textContent='Loading third-party sponsored content. You can leave it unused if it does not appear.';
-    const tag=document.createElement('script');
-    tag.async=true;
-    tag.dataset.cfasync='false';
-    tag.src='https://afders.org/1/5f6722d503776e9a4c128d973279063e';
-    tag.onload=function(){
-      button.textContent='Sponsored advert requested';
-      status.textContent='The advert script has loaded. Any advert is controlled by the external provider.';
-    };
-    tag.onerror=function(){
-      loaded=false;
-      button.disabled=false;
-      button.textContent='Try loading sponsored advert again';
-      status.textContent='The external advert could not be loaded. Please try again later.';
-      tag.remove();
-    };
-    host.appendChild(tag);
-  });
-})();
-</script>
 
 
-<div class="nt-ad-gate" id="ntAdGate" role="dialog" aria-modal="true" aria-labelledby="ntAdGateTitle" aria-hidden="true">
- <div class="nt-ad-gate-card">
-  <button class="nt-ad-gate-close" id="ntAdGateClose" type="button" aria-label="Close sponsored window">×</button>
-  <span class="nt-ad-gate-label">SPONSORED · ADVERTISEMENT</span>
-  <h2 id="ntAdGateTitle">Support NAIJA TASK</h2>
-  <p>This sponsored offer helps support the platform. It is optional. You can continue to your game without visiting it.</p>
-  <a class="nt-ad-gate-link" href="https://arwf.org/4/7de42ae45e004227aa64a037c9fea378" target="_blank" rel="noopener noreferrer">View sponsored offer ↗</a>
-  <button class="nt-ad-gate-load" id="ntAdGateLoad" type="button">Load external advert</button>
-  <small class="nt-ad-gate-status" id="ntAdGateStatus">External advert loads only if you tap the button.</small>
-  <div id="ntAdGateHost"></div>
-  <button class="nt-ad-gate-continue" id="ntAdGateContinue" type="button">Continue to game</button>
- </div>
-</div>
 
-<script>
-(function(){
- const gate=document.getElementById('ntAdGate');
- if(!gate)return;
- const close=document.getElementById('ntAdGateClose');
- const go=document.getElementById('ntAdGateContinue');
- const load=document.getElementById('ntAdGateLoad');
- const host=document.getElementById('ntAdGateHost');
- const status=document.getElementById('ntAdGateStatus');
- let shown=false, pending=null, allowNext=null, externalLoaded=false;
- const selectors=['#menu [data-g]','#career [data-c]','#startBtn'];
- function hideAndContinue(){
-  gate.classList.remove('is-open');gate.setAttribute('aria-hidden','true');
-  document.body.style.overflow='';
-  const target=pending;pending=null;
-  if(target){allowNext=target;target.click();}
- }
- function showFor(target){
-  pending=target;gate.classList.add('is-open');gate.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
-  go.focus();
- }
- document.addEventListener('click',function(event){
-  const target=event.target.closest(selectors.join(','));
-  if(!target)return;
-  if(allowNext===target){allowNext=null;return;}
-  if(shown)return;
-  event.preventDefault();event.stopImmediatePropagation();
-  shown=true;showFor(target);
- },true);
- close.addEventListener('click',hideAndContinue);
- go.addEventListener('click',hideAndContinue);
- gate.addEventListener('click',function(event){if(event.target===gate)hideAndContinue();});
- document.addEventListener('keydown',function(event){if(event.key==='Escape'&&gate.classList.contains('is-open'))hideAndContinue();});
- load.addEventListener('click',function(){
-  if(externalLoaded)return;
-  externalLoaded=true;load.disabled=true;load.textContent='Requesting advert…';
-  const tag=document.createElement('script');tag.async=true;tag.dataset.cfasync='false';
-  tag.src='https://afders.org/1/5f6722d503776e9a4c128d973279063e';
-  tag.onload=function(){load.textContent='Advert requested';status.textContent='The third-party provider controls what is displayed.';};
-  tag.onerror=function(){externalLoaded=false;load.disabled=false;load.textContent='Try loading external advert again';status.textContent='The external advert could not be loaded.';tag.remove();};
-  host.appendChild(tag);
- });
-})();
-</script>
+
 </body>
 </html>
