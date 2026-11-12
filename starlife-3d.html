@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#064d25">
-<title>Naija Star Life · 3D Open World</title>
+<title>Naija Star Life 🌍 · 3D Open World</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -59,7 +59,7 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
   <div id="bar"><i id="eBar"></i></div>
   <span class="chip">🪙 <b id="cTxt">0</b></span>
   <span class="chip">⭐ <b id="fTxt">0</b></span>
-  <button id="lookBtn" type="button" class="hbtn" aria-label="Change look">🎨</button><button id="chatBtn" type="button" class="hbtn" aria-label="Friends and chat">💬</button><button id="placesBtn" type="button" class="hbtn" aria-label="Places">📍</button><button id="radioBtn" type="button" class="hbtn" aria-label="Radio">📻</button><button id="musicBtn" type="button" class="hbtn" aria-label="Music">🔇</button><a id="back" href="starlife.html">Menu</a>
+  <button id="lookBtn" type="button" class="hbtn" aria-label="Change look">🎨</button><button id="chatBtn" type="button" class="hbtn" aria-label="Friends and chat">💬</button><button id="placesBtn" type="button" class="hbtn" aria-label="Places">📍</button><button id="radioBtn" type="button" class="hbtn" aria-label="Radio">📻</button><button id="musicBtn" type="button" class="hbtn" aria-label="Music">🔇</button><a id="back" href="starlife.html">🌍 Menu</a>
 </div>
 <div id="place"></div>
 <div id="needs"></div>
@@ -287,6 +287,17 @@ let camYaw = 0.6;
 window.addEventListener("resize", () => resize());
 
 /* ============================ HELPERS ============================ */
+function loadStarLife3DAd(){
+  const slot=$("ntStarLife3DAd");
+  if(!slot||slot.dataset.loaded==="1")return;
+  slot.dataset.loaded="1";
+  window.atOptions={key:"dc095c7f78341b7c3f8c3cd337d72815",format:"iframe",height:50,width:320,params:{}};
+  const script=document.createElement("script");
+  script.async=true;
+  script.src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815";
+  script.onerror=()=>{slot.dataset.loaded="";slot.innerHTML='<small style="color:#708176">Advertisement temporarily unavailable.</small>';};
+  slot.appendChild(script);
+}
 function toast(t, ms = 2400){
   const el = $("toast"); el.textContent = t; el.style.display = "block";
   clearTimeout(toast.t); toast.t = setTimeout(() => { el.style.display = "none"; }, ms);
@@ -1994,7 +2005,9 @@ async function init(){
         <p>Use the joystick to walk and drag on the right side of the screen to turn the camera. Go near a building, bus stop, house or person and tap the green button.</p>
         <p>💼 Work buildings pay coins. 🏠 Your home is in Surulere and restores energy. 💬 Talking to people starts story events. Walking into a new area costs a little energy.</p>
         <p>📱 Your phone shows needs, rent and jobs. Keep your hunger, hygiene and bladder up or you cannot work. 🎉 Venues in every area restore fun and social. 🍲 Restaurants restore energy. 📈 The Business Hub lets you invest for daily income. 🚗 Cars make you faster. ⭐ Famous (made-up) characters notice you as your fame grows.</p>
+        <section style="margin:12px 0;padding:10px;border:1px solid #dce9df;border-radius:13px;background:#f5faf6;color:#173326;text-align:center"><small style="display:block;margin-bottom:6px;font-weight:800;letter-spacing:1px">ADVERTISEMENT</small><div id="ntStarLife3DAd" style="width:320px;max-width:100%;min-height:50px;margin:auto;display:flex;justify-content:center;overflow:hidden"></div></section>
         <button class="btn" id="mClose">Start walking</button>`);
+      loadStarLife3DAd();
       $("mClose").onclick = () => { try{ localStorage.setItem("slw3_help", "1"); }catch(e){} closeModal(); };
     }
     requestAnimationFrame(loop);
