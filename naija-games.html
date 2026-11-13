@@ -75,6 +75,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
 .nt-ad-gate-status{display:block;min-height:15px;margin-top:8px;color:#607263;font-size:10px}
 @media(max-width:360px){.nt-ad-gate{padding:10px}.nt-ad-gate-card{padding:15px;border-radius:16px}}
 .nt-auto-ad{display:block;width:100%;margin:14px 0 18px;padding:10px 8px;border:1px solid #e3ece5;border-radius:15px;background:#fff;text-align:center;overflow:hidden}.nt-auto-ad-label{display:block;margin-bottom:7px;color:#748278;font-size:9px;font-weight:900;letter-spacing:1px}.nt-auto-ad-slot{display:flex;justify-content:center;align-items:center;width:100%;min-height:50px;overflow:hidden}.nt-auto-ad-slot iframe{max-width:100%;border:0}
+
+/* Gaming spotlight and quick-discovery shortcuts */
+.nt-gaming-spotlight{position:relative;isolation:isolate;max-width:460px;margin:0 auto 14px;padding:17px 15px 14px;border:1px solid #b7ef4380;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 90% 0,#1c9c50 0,transparent 38%),linear-gradient(125deg,#031c10,#07532b 62%,#0a7d39);box-shadow:0 12px 28px #001b0d55}
+.nt-gaming-spotlight:after{content:"";position:absolute;z-index:-1;width:170px;height:170px;right:-75px;bottom:-105px;border:1px solid #b7ef4366;border-radius:50%;box-shadow:0 0 0 18px #b7ef4310,0 0 0 38px #b7ef430a;animation:ntSpotPulse 4s ease-in-out infinite}
+.nt-spot-kicker{display:inline-block;padding:5px 9px;border-radius:30px;background:#b7ef43;color:#064d25;font-size:9px;font-weight:1000;letter-spacing:1px}
+.nt-gaming-spotlight h2{margin:10px 0 5px;font-size:23px;line-height:1.12;color:#fff}
+.nt-gaming-spotlight p{margin:0 0 13px;color:#d9f4df;font-size:12px;line-height:1.45}
+.nt-spot-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nt-spot-action{display:flex;align-items:center;gap:8px;min-height:47px;padding:9px 10px;border:1px solid #ffffff30;border-radius:12px;background:#ffffff12;color:#fff;text-decoration:none;font-size:11px;font-weight:850}
+.nt-spot-action strong{display:block;font-size:17px;line-height:1}
+.nt-spot-action.primary{background:linear-gradient(110deg,#b7ef43,#e1ff8b);border-color:#d8ff80;color:#123d1c}
+.nt-spot-action:active{transform:scale(.98)}
+.nt-spot-foot{display:block;margin-top:11px;color:#ccebd3;font-size:10px;font-weight:700;text-align:center}
+@keyframes ntSpotPulse{0%,100%{transform:scale(.94);opacity:.65}50%{transform:scale(1.06);opacity:1}}
+@media(prefers-reduced-motion:reduce){.nt-gaming-spotlight:after{animation:none}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -89,6 +104,19 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
 <div id="menu">
   <h1>🇳🇬 Naija Games</h1>
   <p class="sub">Three quick games with a Lagos flavour. Scores are for fun only. They are not naira and cannot be withdrawn.</p>
+  <section class="nt-gaming-spotlight" aria-label="NAIJA TASK gaming highlights">
+    <span class="nt-spot-kicker">NAIJA TASK GAMING ARENA</span>
+    <h2>READY TO BE A CHAMPION?</h2>
+    <p>Play your favourite games, challenge your brain and check the weekly rankings — all from here.</p>
+    <div class="nt-spot-actions">
+      <a class="nt-spot-action primary" href="brain-battle.html#startBtn"><strong>🧠</strong><span>BRAIN BATTLE</span></a>
+      <a class="nt-spot-action" href="brain-battle.html#board"><strong>🏆</strong><span>WEEKLY LEADERBOARD</span></a>
+      <a class="nt-spot-action" href="#game-list"><strong>🎮</strong><span>ALL GAMES</span></a>
+      <a class="nt-spot-action" href="dashboard.html"><strong>⌂</strong><span>MY DASHBOARD</span></a>
+    </div>
+    <span class="nt-spot-foot">PLAY • COMPETE • CLIMB THE RANKINGS</span>
+  </section>
+
 
 <!-- Adsterra 320x50 banner shown on the games menu only, never during gameplay -->
 <section class="game-ad" aria-label="Advertisement">
@@ -106,6 +134,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
     <script src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script>
   </div>
 </section>
+  <div id="game-list" aria-label="Available games"></div>
   <button class="card" data-g="dash"><span class="big">🏃</span><b>Naija Dash</b><small>Run down a busy Lagos road. Swipe to change lane, swipe up or tap to jump over potholes, and dodge danfo buses, okada and barriers.</small><em id="b1"></em></button>
   <button class="card" data-g="match"><span class="big">🍢</span><b>Naija Match</b><small>Swap snacks to match three or more. Reach the target score before you run out of moves.</small><em id="b2"></em></button>
   <button class="card" data-g="fight"><span class="big">🥊</span><b>Naija Fighter</b><small>Take on three street fighters. Punch, kick and block. Win two rounds to move on.</small><em id="b3"></em></button>
