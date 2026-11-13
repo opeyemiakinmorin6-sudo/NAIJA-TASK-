@@ -31,9 +31,9 @@ async function loadAdsPagePlacement(){
    return (p==="ads_page"||p==="both"||p==="all")&&(!start||start<=now)&&(!end||end>=now);
   });
   if(!eligible.length){box.innerHTML='<div class="empty">No approved sponsored ads are available right now.</div>';return;}
-  const ids=eligible.map(a=>a.id),pr=await db.from("ad_campaign_payments").select("ad_id").in("ad_id",ids).eq("status","paid");
-  if(pr.error)throw pr.error;
-  const paid=new Set((pr.data||[]).map(p=>String(p.ad_id))),visible=eligible.filter(a=>paid.has(String(a.id)));
+  // Active ads are made visible only by the admin approval action, which first verifies a paid payment record.
+  // Ordinary members cannot read other advertisers' payment rows under RLS, so do not query that private table here.
+  const visible=eligible;
   if(!visible.length){box.innerHTML='<div class="empty">No approved sponsored ads are available right now.</div>';return;}
   box.innerHTML=visible.map(a=>{
    const url=/^https?:\/\//i.test(String(a.target_url||""))?String(a.target_url):"";
