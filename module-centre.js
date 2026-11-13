@@ -267,7 +267,7 @@ async function start(){
   {title:"Account & Help",items:[["👤","My Profile","profile.html"],["🔓","Account Activation","activation.html"],["👑","VIP Membership","vip.html"],["🛡️","Security","security.html"],["⚖️","Appeals","appeals.html"],["🤖","Help Assistant","ai-assistant.html"],["💚","AI Care","ai-care.html"],["🎧","Support Centre","support.html"],["❓","How It Works","how-it-works.html"],["ℹ️","About NAIJA TASK","about-us.html"],["📄","FAQs","faq.html"]]}
  ],
  promote:[["📣","Advertising centre","ads.html"],["🧾","Transactions","transactions.html"],["🎧","Contact support","support.html"]],
- arena:[["🧠","Brain Battle","811875"],["🏃","Naija Dash / Match / Fighter","naija-games.html"]],
+ arena:[["🧠","Brain Battle","brain-battle.html"],["🏃","Naija Dash / Match / Fighter","naija-games.html"]],
  community:[["💬","Private Chat","private-chat.html"],["📢","Announcements","announcements.html"],["🎧","Community support","support.html"]],
  "ai-assistant":[["💚","AI Care inbox","ai-care.html"],["🎧","Support Centre","support.html"],["📋","My task activity","applied-jobs.html"]]
  };
