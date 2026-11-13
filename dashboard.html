@@ -1566,11 +1566,9 @@ async function loadDashboardAds(){
    return (place==="dashboard"||place==="both"||place==="home")&&(!starts||starts<=now)&&(!ends||ends>=now);
   });
   if(!eligible.length){section.style.display="none";return;}
-  const ids=eligible.map(a=>a.id);
-  const {data:payments,error:paymentError}=await supabaseClient.from("ad_campaign_payments").select("ad_id,status").in("ad_id",ids).eq("status","paid");
-  if(paymentError)throw paymentError;
-  const paidIds=new Set((payments||[]).map(p=>String(p.ad_id)));
-  const visible=eligible.filter(a=>paidIds.has(String(a.id)));
+  // Admin approval is gated by a confirmed payment. Members cannot read other users' payment rows under RLS.
+  // Active ads are therefore the public, approved display signal; never query private payment records here.
+  const visible=eligible;
   if(!visible.length){section.style.display="none";return;}
   box.innerHTML=visible.slice(0,3).map(a=>{
    const safeUrl=/^https?:\/\//i.test(String(a.target_url||""))?String(a.target_url):"";
