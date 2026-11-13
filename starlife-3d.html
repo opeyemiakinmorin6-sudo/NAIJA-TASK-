@@ -2101,8 +2101,8 @@ async function init(){
       loadStarLife3DAd();
       $("mClose").onclick = () => { try{ localStorage.setItem("slw3_help", "1"); }catch(e){} closeModal(); };
     } else {
-      // Returning players see the sponsored window at world entry, before gameplay begins.
-      setTimeout(ntShowSponsoredPopup,1800);
+      // Show only when no wake/story dialog is already open; never interrupt a modal or active session.
+      if(!modalOpen) ntShowSponsoredPopup();
     }
     requestAnimationFrame(loop);
   }catch(e){
