@@ -2099,10 +2099,10 @@ async function init(){
         <section style="margin:12px 0;padding:10px;border:1px solid #dce9df;border-radius:13px;background:#f5faf6;color:#173326;text-align:center"><small style="display:block;margin-bottom:6px;font-weight:800;letter-spacing:1px">ADVERTISEMENT</small><div id="ntStarLife3DAd" style="width:300px;max-width:100%;min-height:250px;margin:auto;display:flex;justify-content:center;overflow:hidden"></div></section>
         <button class="btn" id="mClose">Start walking</button>`);
       loadStarLife3DAd();
-      $("mClose").onclick = () => { try{ localStorage.setItem("slw3_help", "1"); }catch(e){} closeModal(); };
+      $("mClose").onclick = () => { try{ localStorage.setItem("slw3_help", "1"); }catch(e){} closeModal(); setTimeout(ntShowSponsoredPopup,700); };
     } else {
-      // Show only when no wake/story dialog is already open; never interrupt a modal or active session.
-      if(!modalOpen) ntShowSponsoredPopup();
+      // Returning players: wait until the wake-up overlay has faded before showing the ad.
+      setTimeout(ntShowSponsoredPopup, wk.woke ? 4700 : 1800);
     }
     requestAnimationFrame(loop);
   }catch(e){
