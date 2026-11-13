@@ -162,8 +162,38 @@ const NAMES = {music:"🎤 Music Star", nollywood:"🎬 Nollywood Star", comedy:
 
 let state = null, currentEvent = null, busy = false, places = [];
 
+function ntShowSponsoredPopup(){
+  try{
+    const k="nt_popup_last_"+location.pathname;
+    const last=Number(sessionStorage.getItem(k)||0);
+    if(Date.now()-last<300000)return;
+    sessionStorage.setItem(k,String(Date.now()));
+  }catch(e){}
+  if(document.getElementById("ntSponsoredPopup"))return;
+  const wrap=document.createElement("div");
+  wrap.id="ntSponsoredPopup";
+  wrap.setAttribute("role","dialog");
+  wrap.setAttribute("aria-modal","true");
+  wrap.setAttribute("aria-label","Advertisement");
+  wrap.style.cssText="position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(0,18,8,.78);backdrop-filter:blur(4px)";
+  wrap.innerHTML='<div style="width:min(100%,370px);max-height:calc(100dvh - 24px);overflow:auto;background:#fff;color:#173321;border-radius:18px;padding:14px;box-shadow:0 22px 70px #0008;text-align:center"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><b style="font-size:11px;letter-spacing:1px;color:#245b16">ADVERTISEMENT</b><button type="button" id="ntPopupClose" aria-label="Close advertisement" style="width:34px;height:34px;border:0;border-radius:50%;background:#edf4ee;color:#21442c;font-size:22px">×</button></div><p style="font-size:12px;color:#526557;margin:0 0 10px">Sponsored content helps support NAIJA TASK games.</p><div id="ntSponsoredPopupUnit" style="width:300px;max-width:100%;min-height:250px;margin:0 auto;display:flex;justify-content:center;overflow:hidden;background:#f6f9f6;border-radius:9px"></div><button type="button" id="ntPopupContinue" style="width:100%;margin-top:12px;padding:13px;border:0;border-radius:11px;background:#087f36;color:#fff;font-weight:800">Continue</button></div>';
+  const close=()=>wrap.remove();
+  document.body.appendChild(wrap);
+  wrap.querySelector("#ntPopupClose").addEventListener("click",close);
+  wrap.querySelector("#ntPopupContinue").addEventListener("click",close);
+  wrap.addEventListener("click",e=>{if(e.target===wrap)close();});
+  const slot=wrap.querySelector("#ntSponsoredPopupUnit");
+  window.atOptions={key:"d33fd661fe11e17cd12dc188cb8b8bd1",format:"iframe",height:250,width:300,params:{}};
+  const script=document.createElement("script");
+  script.async=true;
+  script.src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";
+  script.onerror=()=>{if(slot.isConnected)slot.innerHTML='<small style="padding:12px;color:#708176;font-size:11px">Advertisement is temporarily unavailable. You can continue playing.</small>';};
+  slot.appendChild(script);
+}
+
+
 function loadNtAutoBanner(id){var s=document.getElementById(id);if(!s||s.dataset.ntAdLoaded==="1")return;s.dataset.ntAdLoaded="1";window.atOptions={key:"dc095c7f78341b7c3f8c3cd337d72815",format:"iframe",height:50,width:320,params:{}};var t=document.createElement("script");t.async=true;t.src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815";t.onerror=function(){s.dataset.ntAdLoaded="";s.innerHTML='<small style="font-size:10px;color:#718176">Advertisement is temporarily unavailable.</small>';};s.appendChild(t);}
-function show(id){ ["career","hub","travel","work","home","event","outcome"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo(0,0); if(id==="career") loadNtAutoBanner("ntStarLifeAutoBanner"); if(id==="hub") loadNtAutoBanner("ntStarLifeHubBanner"); }
+function show(id){ ["career","hub","travel","work","home","event","outcome"].forEach(x => $(x).classList.toggle("hide", x !== id)); window.scrollTo(0,0); if(id==="career") loadNtAutoBanner("ntStarLifeAutoBanner"); if(id==="hub") loadNtAutoBanner("ntStarLifeHubBanner"); if(id==="career"||id==="hub") setTimeout(ntShowSponsoredPopup,900); }
 function say(t){ const m = $("msg"); m.textContent = t; m.className = "msg show err"; }
 function note(t){ const m = $("msg"); m.textContent = t; m.className = "msg show ok"; }
 function clearMsg(){ $("msg").className = "msg"; $("msg").textContent = ""; }
