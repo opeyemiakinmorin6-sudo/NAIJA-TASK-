@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v7';
+const CACHE_NAME='naija-task-shell-v8';
 const APP_SHELL=[
   '/',
   '/index.html',
@@ -7,7 +7,10 @@ const APP_SHELL=[
   '/assets/naija-task-logo.svg',
   '/assets/naija-task-icon-192.png',
   '/assets/naija-task-icon-512.png',
-  '/assets/naija-task-share.png'
+  '/assets/naija-task-share.png',
+  '/brain-battle.html',
+  '/naija-games.html',
+  '/arena.html'
 ];
 self.addEventListener('install',event=>{
   event.waitUntil(
