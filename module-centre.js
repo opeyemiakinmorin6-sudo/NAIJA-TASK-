@@ -45,7 +45,9 @@ const style=document.createElement("style");style.textContent=css;document.head.
 const names={support:"🎧",notifications:"🔔","applied-jobs":"📋",approved:"✅",retry:"🔁",cancelled:"✖️","airtime-data":"📱",more:"▦",promote:"📣",announcements:"📢",community:"👥","ai-assistant":"✨","ai-care":"💚",arena:"🎮",security:"🔐",appeals:"⚖️"};
 const descriptions={"applied-jobs":"Track every task you have submitted and its review status.","airtime-data":"Buy airtime and data from supported Nigerian networks, track delivery and check pending transactions.","ai-care":"Start a care conversation. Messages are stored for review; automated AI replies are not enabled here.","security":"Protect your account and change your password securely."};
 document.title=(titles[moduleName]||titles.more)+" — NAIJA TASK";
+const memberCentreAd=document.getElementById("ntMemberCentreAd");
 document.body.innerHTML='<header class="top"><b>NAIJA TASK</b><a class="back" href="dashboard.html">← Dashboard</a></header><main><section class="hero"><small>MEMBER CENTRE</small><h1>'+(names[moduleName]||"")+' '+esc(titles[moduleName]||titles.more)+'</h1><p>'+esc(descriptions[moduleName]||"Your account services and updates in one place.")+'</p></section><div id="app"><section class="panel muted">Loading…</section></div></main>';
+if(memberCentreAd && ["more","announcements","community","arena","ai-assistant"].includes(moduleName)){document.querySelector("main").appendChild(memberCentreAd);}
 const app=document.getElementById("app");
 const note=(s,bad)=>'<div class="note '+(bad?"error":"")+'">'+esc(s)+'</div>';
 if(!window.supabase||typeof window.supabase.createClient!=="function"){
@@ -287,8 +289,7 @@ async function start(){
  if(moduleName==="more"){
    app.innerHTML=items.map(group=>'<section class="panel"><h2>'+esc(group.title)+'</h2><div class="links">'+group.items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>').join("");
  }else{
-   app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>'+(moduleName==="arena"?'<section class="panel" aria-label="Advertisement"><small style="display:block;text-align:center;font-weight:900;letter-spacing:1px;margin-bottom:7px">ADVERTISEMENT</small><div id="ntCentreArenaAd" style="width:320px;max-width:100%;min-height:50px;margin:auto;display:flex;justify-content:center;overflow:hidden"></div></section>':'');
-   if(moduleName==="arena"){window.atOptions={key:"dc095c7f78341b7c3f8c3cd337d72815",format:"iframe",height:50,width:320,params:{}};const ad=document.createElement("script");ad.async=true;ad.src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815";document.getElementById("ntCentreArenaAd").appendChild(ad);}
+   app.innerHTML='<section class="panel"><h2>'+esc(titles[moduleName]||titles.more)+'</h2><p class="muted">Open an available service below. Unavailable integrations are not presented as working purchase or AI features.</p><div class="links">'+items.map(x=>'<a class="link" href="'+x[2]+'">'+x[0]+' '+esc(x[1])+'</a>').join("")+'</div></section>';
  }
 }
 function renderPageFailure(error){
