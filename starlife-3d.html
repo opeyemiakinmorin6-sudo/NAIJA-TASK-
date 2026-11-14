@@ -40,7 +40,7 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
 .opt small{display:block;font-weight:400;color:var(--muted);margin-top:3px}
 .up{color:#17682e;font-weight:800}.down{color:var(--red);font-weight:800}
 .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
-#wake{position:fixed;inset:0;background:#000;color:#fff;display:none;align-items:center;justify-content:center;text-align:center;padding:30px;font-size:16px;line-height:1.7;z-index:40;opacity:1;transition:opacity 1.6s}
+#wake{position:fixed;top:calc(62px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(92vw,460px);max-height:22vh;overflow:hidden;background:rgba(4,43,27,.94);color:#fff;border:1px solid rgba(199,245,66,.55);border-radius:16px;display:none;align-items:center;justify-content:center;text-align:center;padding:12px 16px;font-size:14px;line-height:1.45;z-index:4;opacity:1;pointer-events:none;transition:opacity 1.2s}
 #needs{position:fixed;top:calc(84px + env(safe-area-inset-top));left:10px;display:flex;flex-direction:column;gap:5px;z-index:5;pointer-events:none}
 .nrow{display:flex;align-items:center;gap:6px;background:rgba(6,77,37,.8);border-radius:9px;padding:3px 7px;font-size:12px}
 .nrow i{display:block;width:64px;height:7px;background:rgba(255,255,255,.25);border-radius:5px;overflow:hidden}
@@ -892,10 +892,11 @@ function showWake(){
   const b = BACKGROUNDS.find(x => x.id === state.background) || BACKGROUNDS[2];
   const d = DISTRICTS.find(x => x.id === state.home_district);
   const w = $("wake");
-  w.innerHTML = `<div><div style="font-size:34px">💤</div><b>${esc(b.icon)} ${esc(b.name)}</b><br>You wake up in your home in <b>${esc(d ? d.name : "Lagos")}</b>.<br><span style="color:#b7ef43">${esc(b.morning)}</span></div>`;
+  w.innerHTML = `<div><b>${esc(b.icon)} ${esc(b.name)}</b><br>You wake up at home in <b>${esc(d ? d.name : "Lagos")}</b>.<br><span style="color:#b7ef43">${esc(b.morning)}</span></div>`;
+  // Keep the wake-up message as a small, non-blocking banner instead of covering the 3D world.
   w.style.transition = "none"; w.style.opacity = "1"; w.style.display = "flex";
-  setTimeout(() => { w.style.transition = "opacity 1.6s"; w.style.opacity = "0"; }, 2600);
-  setTimeout(() => { w.style.display = "none"; }, 4400);
+  setTimeout(() => { w.style.transition = "opacity 1.2s"; w.style.opacity = "0"; }, 2400);
+  setTimeout(() => { w.style.display = "none"; }, 3600);
 }
 
 function spawnHome(){
@@ -1946,7 +1947,7 @@ function hitsRoom(x, y, hs){
 
 /* ---- zoom: buttons, mouse wheel and two-finger pinch ---- */
 function setZoom(v){ camDist = Math.max(6, Math.min(34, v)); }
-function camR(){ return inRoom ? Math.min(camDist, 7) : camDist; }
+function camR(){ return inRoom ? Math.min(camDist, 13) : camDist; }
 $("zIn").addEventListener("click", () => setZoom(camDist - 3));
 $("zOut").addEventListener("click", () => setZoom(camDist + 3));
 canvas.addEventListener("wheel", e => { e.preventDefault(); setZoom(camDist + e.deltaY * 0.02); }, { passive:false });
