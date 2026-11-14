@@ -61,7 +61,7 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
   <div id="bar"><i id="eBar"></i></div>
   <span class="chip">🪙 <b id="cTxt">0</b></span>
   <span class="chip">⭐ <b id="fTxt">0</b></span>
-  <button id="lookBtn" type="button" class="hbtn" aria-label="Change look">🎨</button><button id="chatBtn" type="button" class="hbtn" aria-label="Friends and chat">💬</button><button id="placesBtn" type="button" class="hbtn" aria-label="Places">📍</button><button id="radioBtn" type="button" class="hbtn" aria-label="Radio">📻</button><button id="musicBtn" type="button" class="hbtn" aria-label="Music">🔇</button><a id="back" href="starlife.html">🌍 Menu</a>
+  <button id="lookBtn" type="button" class="hbtn" aria-label="Change look">🎨</button><button id="chatBtn" type="button" class="hbtn" aria-label="Friends and chat">💬</button><button id="placesBtn" type="button" class="hbtn" aria-label="Places">📍</button><button id="radioBtn" type="button" class="hbtn" aria-label="Radio">📻</button><button id="musicBtn" type="button" class="hbtn" aria-label="Music">🔇</button><button id="helpBtn" type="button" class="hbtn" aria-label="How to play" title="How to play">?</button><a id="back" href="starlife.html">🌍 Menu</a>
 </div>
 <div id="place"></div>
 <div id="needs"></div>
@@ -1999,6 +1999,29 @@ async function openLandmark(spot){
 /* ============================ START ============================ */
 function screen(html){ const m = $("msgScreen"); m.innerHTML = html; m.style.display = "flex"; }
 
+function openWorldGuide(firstRun){
+  openModal(`<div style="text-align:left">
+    <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:#087f36">NAIJA STAR LIFE 3D · PLAYER GUIDE</div>
+    <h2 style="margin-top:7px">Welcome to your Lagos life 🌍</h2>
+    <p style="color:#173326">Build your life, meet people, explore neighbourhoods, find work and grow your reputation. Take it one step at a time.</p>
+    <div class="row"><b>1. Move around</b><span>🕹️</span></div>
+    <p style="color:#52665a">Hold the joystick at the bottom-left to walk. Drag the open screen to turn your view. Use + and − to zoom.</p>
+    <div class="row"><b>2. Interact with the city</b><span>📍</span></div>
+    <p style="color:#52665a">Walk close to a building, person, bus stop or sign. When the green action button appears, tap it to see what you can do.</p>
+    <div class="row"><b>3. Build your life</b><span>💼</span></div>
+    <p style="color:#52665a">Work to earn game coins. Visit restaurants, your home and venues to manage your needs. Use the phone for jobs, rent, your needs and notifications. Fame unlocks more opportunities.</p>
+    <div class="row"><b>Explore Lagos</b><span>🇳🇬</span></div>
+    <p style="color:#52665a">Explore Ikeja, Oshodi, Yaba, Surulere, Ikorodu, Victoria Island and Lekki. Each area has different places and activities.</p>
+    <div style="padding:10px;border-radius:12px;background:#fff7df;color:#72531b;font-size:12px">Game coins and fame are virtual game points. They are not Naira and cannot be withdrawn as task earnings.</div>
+    <button class="btn" id="worldGuideClose" style="margin-top:14px">Got it — let's explore</button>
+  </div>`);
+  $("worldGuideClose").onclick=()=>{
+    if(firstRun){ try{localStorage.setItem("slw3_help","1");}catch(e){} }
+    closeModal();
+  };
+}
+$("helpBtn").addEventListener("click",()=>{if(!modalOpen)openWorldGuide(false);});
+
 async function init(){
   if (typeof THREE === "undefined"){
     screen("The 3D engine could not load. Check your internet and refresh.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
@@ -2052,17 +2075,7 @@ async function init(){
     $("msgScreen").style.display = "none";
     if (wk.woke) showWake();
     let seen = false; try{ seen = localStorage.getItem("slw3_help") === "1"; }catch(e){}
-    if (!seen){
-      openModal(`<h2>🌍 Welcome to Naija Star Life 3D 🌆</h2>
-        <p>Use the joystick to walk and drag on the right side of the screen to turn the camera. Go near a building, bus stop, house or person and tap the green button.</p>
-        <p>💼 Work buildings pay coins. 🏠 Your home is in Surulere and restores energy. 💬 Talking to people starts story events. Walking into a new area costs a little energy.</p>
-        <p>📱 Your phone shows needs, rent and jobs. Keep your hunger, hygiene and bladder up or you cannot work. 🎉 Venues in every area restore fun and social. 🍲 Restaurants restore energy. 📈 The Business Hub lets you invest for daily income. 🚗 Cars make you faster. ⭐ Famous (made-up) characters notice you as your fame grows.</p>
-        <button class="btn" id="mClose">Start walking</button>`);
-
-      $("mClose").onclick = () => { try{ localStorage.setItem("slw3_help", "1"); }catch(e){} closeModal();  };
-    } else {
-
-    }
+    if (!seen) openWorldGuide(true);
     requestAnimationFrame(loop);
   }catch(e){
     console.error(e);
