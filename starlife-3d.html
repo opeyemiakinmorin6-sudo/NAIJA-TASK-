@@ -178,26 +178,35 @@ function buildCity(){
  for(let i=0;i<14;i++){const x=-180+i*27;meshBox(4,2.8,3,0xe1a65b,x,0,18);meshBox(4.3,.35,3.3,0x8b492b,x,2.8,18);}
 }
 function makePerson(shirt=0x16824a,skin=0x754a32){
- const g=new THREE.Group();const arms=[],legs=[];
- const torso=new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,1.35,8),material(shirt));torso.position.y=1.45;g.add(torso);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.38,10,8),material(skin));head.position.y=2.42;g.add(head);
- const hair=new THREE.Mesh(new THREE.SphereGeometry(.39,8,6),material(0x171513));hair.scale.y=.45;hair.position.set(0,2.66,-.03);g.add(hair);
+ const g=new THREE.Group(),arms=[],legs=[];
+ const torso=new THREE.Mesh(new THREE.CylinderGeometry(.43,.54,1.28,9),material(shirt));torso.position.y=1.48;g.add(torso);
+ const neck=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.2,7),material(skin));neck.position.y=2.15;g.add(neck);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.36,12,10),material(skin));head.position.y=2.48;g.add(head);
+ const hair=new THREE.Mesh(new THREE.SphereGeometry(.375,10,7),material(0x171513));hair.scale.y=.43;hair.position.set(0,2.69,-.035);g.add(hair);
  for(const side of [-1,1]){
-  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.13,.16,.95,6),material(skin));arm.position.set(side*.57,1.48,0);arm.rotation.z=side*.13;g.add(arm);arms.push(arm);
-  const leg=new THREE.Mesh(new THREE.CylinderGeometry(.17,.19,.78,6),material(0x273b37));leg.position.set(side*.22,.43,0);g.add(leg);legs.push(leg);
-  const shoe=new THREE.Mesh(new THREE.BoxGeometry(.34,.16,.52),material(0x201f1d));shoe.position.set(side*.22,.12,.1);g.add(shoe);
+  const armPivot=new THREE.Group();armPivot.position.set(side*.49,1.98,0);g.add(armPivot);
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.115,.145,.88,7),material(skin));arm.position.y=-.43;armPivot.add(arm);arms.push(armPivot);
+  const hand=new THREE.Mesh(new THREE.SphereGeometry(.13,7,6),material(skin));hand.position.y=-.88;armPivot.add(hand);
+  const legPivot=new THREE.Group();legPivot.position.set(side*.21,.88,0);g.add(legPivot);
+  const leg=new THREE.Mesh(new THREE.CylinderGeometry(.145,.17,.82,7),material(0x273b37));leg.position.y=-.41;legPivot.add(leg);legs.push(legPivot);
+  const shoe=new THREE.Mesh(new THREE.BoxGeometry(.32,.15,.48),material(0x201f1d));shoe.position.set(0,-.81,.105);legPivot.add(shoe);
  }
  g.userData.phase=Math.random()*6.28;g.userData.arms=arms;g.userData.legs=legs;return g;
 }
-function characterGroundY(){return currentInterior?-0.065:-0.02;}
-function animateCharacter(g,phase,amount=1){if(!g?.userData)return;const swing=Math.sin(phase)*0.42*amount;(g.userData.legs||[]).forEach((limb,i)=>limb.rotation.x=i===0?swing:-swing);(g.userData.arms||[]).forEach((limb,i)=>limb.rotation.x=i===0?-swing*.72:swing*.72);}
-let playerWalkPhase=0,playerMoving=false;
+function characterGroundY(){return currentInterior?-.06:0;}
+function animateCharacter(g,phase,amount=1){
+ if(!g?.userData)return;
+ const swing=Math.sin(phase)*.48*amount;
+ (g.userData.legs||[]).forEach((limb,i)=>{limb.rotation.x=i===0?swing:-swing;});
+ (g.userData.arms||[]).forEach((limb,i)=>{limb.rotation.x=i===0?-swing*.68:swing*.68;});
+}
+let playerWalkPhase=0,playerMoving=false,lastNpcUpdate=0;
 function buildPeople(){
  const shirts=[0x18784a,0xc15b32,0x275f99,0x9a6a9c,0xd7a52d,0x4d7770,0xe0ddd0,0x873f35];
  AREAS.forEach((a,i)=>{
   for(let n=0;n<5;n++){
    const p=makePerson(shirts[(i*3+n)%shirts.length], [0x754a32,0x603d2b,0x8b5b3d,0x4e3024][(i+n)%4]);
-   p.position.set(a.x-20+(n%3)*17,-0.02,a.z-8+Math.floor(n/3)*17);scene.add(p);
+   p.position.set(a.x-20+(n%3)*17,0,a.z-8+Math.floor(n/3)*17);scene.add(p);
    people.push({mesh:p,homeX:p.position.x,homeZ:p.position.z,phase:n*1.7+i, speed:.45+(n%3)*.12});
   }
  });
@@ -304,8 +313,19 @@ function cameraUpdate(dt){
 }
 function updateWorld(dt){
  if(activeVehicle)driveVehicleUpdate(dt);else movePlayer(dt);
- people.forEach(p=>{p.phase+=dt*p.speed;p.mesh.position.x=p.homeX+Math.sin(p.phase)*2.8;p.mesh.position.y=-0.02;p.mesh.position.z=p.homeZ+Math.cos(p.phase*.7)*2.3;p.mesh.rotation.y=Math.atan2(Math.cos(p.phase*.7),Math.cos(p.phase));animateCharacter(p.mesh,p.phase,.65);});
- if(playerMoving)playerWalkPhase+=dt*11;else playerWalkPhase*=Math.max(0,1-dt*8);animateCharacter(playerGroup,playerWalkPhase,playerMoving?1:0);
+ const now=performance.now();
+ if(now-lastNpcUpdate>100){
+  const px=player?.x||0,pz=player?.z||0;
+  people.forEach(p=>{
+   const dx=p.homeX-px,dz=p.homeZ-pz,near=dx*dx+dz*dz<95*95;
+   if(!near)return;
+   p.phase+=.1*p.speed;p.mesh.position.x=p.homeX+Math.sin(p.phase)*2.8;p.mesh.position.y=0;p.mesh.position.z=p.homeZ+Math.cos(p.phase*.7)*2.3;
+   p.mesh.rotation.y=Math.atan2(Math.cos(p.phase*.7),Math.cos(p.phase));animateCharacter(p.mesh,p.phase,.65);
+  });
+  lastNpcUpdate=now;
+ }
+ if(playerMoving)playerWalkPhase+=dt*11;else playerWalkPhase*=Math.max(0,1-dt*8);
+ animateCharacter(playerGroup,playerWalkPhase,playerMoving?1:0);
  cars.forEach(c=>{c.mesh.position.x+=c.speed*dt;if(c.mesh.position.x>c.end)c.mesh.position.x=c.start;});
  cameraUpdate(dt);updateAction();
 }
@@ -323,7 +343,7 @@ async function rpc(name,args){const {data,error}=await db.rpc(name,args);if(erro
 function setState(next){if(next&&typeof next==="object")state=next;updateHud();}
 async function withBusy(fn){if(busy)return;busy=true;try{await fn();}catch(e){toast(e.message||"That action could not be completed.");}finally{busy=false;}}
 function openWelcome(){
- openModal('<div style="font-size:11px;font-weight:900;color:#087f43;letter-spacing:1px">YOUR LAGOS STORY STARTS HERE</div><h2>Welcome to the neighbourhood 🇳🇬</h2><p>Explore the streets, meet people, find work and build your life. Use the joystick to walk and drag the open screen to turn the camera. Walk close to a place and tap the green action button.</p><div class="stat-grid"><div class="stat"><b>🚶</b><span>Explore</span></div><div class="stat"><b>💼</b><span>Work</span></div><div class="stat"><b>🤝</b><span>Meet people</span></div></div><button class="primary" id="welcomeGo">Enter Star Life</button>');
+ openModal('<div style="font-size:11px;font-weight:900;color:#087f43;letter-spacing:1px">YOUR STAR LIFE STORY STARTS HERE</div><h2>Welcome to the neighbourhood 🇳🇬</h2><p>Explore the streets, meet people, find work and build your life. Use the joystick to walk and drag the open screen to turn the camera. Walk close to a place and tap the green action button.</p><div class="stat-grid"><div class="stat"><b>🚶</b><span>Explore</span></div><div class="stat"><b>💼</b><span>Work</span></div><div class="stat"><b>🤝</b><span>Meet people</span></div></div><button class="primary" id="welcomeGo">Enter Star Life</button>');
  $("welcomeGo").onclick=closeModal;
 }
 async function openWork(){
@@ -543,8 +563,8 @@ function setPhoneStyle(style){phoneStyle=style;try{localStorage.setItem(phoneKey
 function applyGraphicsQuality(){
  if(!renderer)return;
  const ua=navigator.userAgent||"",lowDevice=/Android 8|HUAWEI|HONOR/i.test(ua)||(navigator.deviceMemory&&navigator.deviceMemory<=3)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
- const scale=graphicsQuality==="low"?.72:graphicsQuality==="high"?1.25:graphicsQuality==="balanced"?1:lowDevice?0.82:1.15;
- const max=graphicsQuality==="high"?1.35:lowDevice?1:1.2;
+ const scale=graphicsQuality==="low"?.62:graphicsQuality==="high"?1.15:graphicsQuality==="balanced"?.88:lowDevice?.72:1;
+ const max=graphicsQuality==="high"?1.2:lowDevice?1:1.1;
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,max)*scale);renderer.setSize(window.innerWidth,window.innerHeight,false);
 }
 function phoneSettings(){
