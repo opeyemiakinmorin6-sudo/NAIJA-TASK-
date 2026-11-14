@@ -448,7 +448,17 @@ async function talk(npc){
   busy = true;
   try{
     const ev = await rpc("starlife_next_event");
-    openModal(`<h2>${esc(ev.title)}</h2><p style="color:#173326">${esc(ev.body)}</p>
+    const greetings = ({
+      ikeja:["You don reach Ikeja o! How market?","This Ikeja traffic no be small. Where you dey go?","You look sharp today. How your hustle?"],
+      oshodi:["Oga, take am easy for Oshodi. Everywhere dey move!","You don chop? Market side get better food.","How far? You dey find bus or you just dey waka?"],
+      yaba:["How far, campus person? Wetin you dey build?","Yaba no dey sleep. You don finish your plans?","You get that tech or creative spirit. Keep pushing!"],
+      surulere:["You dey alright? Surulere people sabi enjoy life.","Which side you dey go? Stadium road or the junction?","No let today wahala spoil your mood o."],
+      ikorodu:["Welcome o! Ikorodu people get strong mind.","How journey? Ferry side fit busy today.","Small small, big dreams go come true."],
+      vi:["Good day! Big dreams fit start anywhere.","You get business plans? Plenty opportunities dey.","Keep your focus. Lagos no be sprint."],
+      lekki:["How far! You don see the new spots around here?","Enjoy the breeze, but no forget your goals.","You look like person wey get big plans."]
+    })[npc.did] || ["How far, my person? How your day dey go?","You dey alright? Make we catch up small."];
+    const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+    openModal(`<h2>${esc(npc.name)}</h2><p style="color:#087f36;font-weight:700">${esc(greeting)}</p><h3>${esc(ev.title)}</h3><p style="color:#173326">${esc(ev.body)}</p>
       ${ev.choices.map((c, i) => `<button class="opt" data-i="${i}">${esc(c)}</button>`).join("")}`);
     $("box").querySelectorAll("[data-i]").forEach(b => b.onclick = async () => {
       $("box").querySelectorAll(".opt").forEach(x => x.disabled = true);
