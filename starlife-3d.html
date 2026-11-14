@@ -60,7 +60,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#86b9ce;fon
 <div id="district">📍 Loading neighbourhood…</div>
 <div id="joystick"><div id="stick"></div></div>
 <button id="action"><small>✋</small><span id="actionText">INTERACT</span></button>
-<div id="quick"><button id="zoomIn" aria-label="Zoom in">＋</button><button id="zoomOut" aria-label="Zoom out">－</button></div>
+<div id="quick"><button id="brake" aria-label="Brake" style="display:none">🛑</button><button id="zoomIn" aria-label="Zoom in">＋</button><button id="zoomOut" aria-label="Zoom out">－</button></div>
 <div id="hint">Move with the joystick · Drag the screen to look around</div>
 <div id="toast"></div>
 <div id="modal"><div id="sheet"><button class="sheet-close" id="close" aria-label="Close">×</button><div id="sheetContent"></div></div></div>
@@ -71,7 +71,7 @@ const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
 const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 let db, state=null, places=[], homes=[], busy=false;
 let scene, camera, renderer, clock, player, playerGroup, yaw=Math.PI, cameraDistance=10;
-let joy={x:0,y:0}, keys={}, spots=[], colliders=[], people=[], cars=[], driveVehicles=[], actionSpot=null, activeVehicle=null, driveSpeed=0;
+let joy={x:0,y:0}, keys={}, spots=[], colliders=[], people=[], cars=[], driveVehicles=[], actionSpot=null, activeVehicle=null, driveSpeed=0, driveBrake=false;
 let lastToast=0, frame=0, touchLook=null, modalOpen=false, interiorGroup=null, currentInterior=null, exteriorPosition=null, exteriorYaw=Math.PI, exteriorCameraDistance=10, interiorExitSpot=null;
 const WORLD={size:420,limit:198};
 const AREAS=[
@@ -217,8 +217,8 @@ function driveVehicleUpdate(dt){
  if(!activeVehicle||modalOpen)return;
  let forward=-joy.y,steer=joy.x;
  if(keys.ArrowUp||keys.w)forward=1;if(keys.ArrowDown||keys.s)forward=-1;if(keys.ArrowLeft||keys.a)steer=-1;if(keys.ArrowRight||keys.d)steer=1;
- const v=activeVehicle,target=forward*v.maxSpeed;
- driveSpeed+=(target-driveSpeed)*Math.min(1,dt*(forward===0?3.8:2.2));
+ const v=activeVehicle,target=driveBrake?0:forward*v.maxSpeed;
+ driveSpeed+=(target-driveSpeed)*Math.min(1,dt*(driveBrake?9:forward===0?3.8:2.2));
  if(Math.abs(driveSpeed)<.08)driveSpeed=0;
  if(Math.abs(driveSpeed)>.2)v.angle+=steer*dt*1.65*(driveSpeed<0?-1:1);
  const nx=v.mesh.position.x+Math.sin(v.angle)*driveSpeed*dt,nz=v.mesh.position.z+Math.cos(v.angle)*driveSpeed*dt;
@@ -251,6 +251,7 @@ function nearestSpot(){
 }
 function updateAction(){
  actionSpot=nearestSpot();const btn=$("action");
+ $("brake").style.display=activeVehicle&&!modalOpen?"block":"none";
  if(activeVehicle&&!modalOpen){btn.style.display="block";$("actionText").textContent="EXIT";btn.querySelector("small").textContent="🚪";return;}
  if(actionSpot&&!modalOpen){btn.style.display="block";$("actionText").textContent=actionSpot.label.length>13?actionSpot.label.slice(0,12)+"…":actionSpot.label;btn.querySelector("small").textContent=actionSpot.icon;}
  else btn.style.display="none";
@@ -465,7 +466,7 @@ async function init(){
   startRenderer();bindJoystick();bindLook();updateHud();
   $("loading").style.display="none";$("hud").style.display="flex";$("joystick").style.display="block";$("quick").style.display="flex";$("hint").style.display="block";
   setTimeout(()=>$("hint").style.display="none",6500);
-  $("action").addEventListener("click",interact);$("phone").onclick=openPhone;$("map").onclick=openTravel;
+  $("action").addEventListener("click",interact);$("brake").addEventListener("pointerdown",e=>{e.preventDefault();driveBrake=true;});$("brake").addEventListener("pointerup",()=>driveBrake=false);$("brake").addEventListener("pointercancel",()=>driveBrake=false);$("brake").addEventListener("pointerleave",()=>driveBrake=false);$("phone").onclick=openPhone;$("map").onclick=openTravel;
   $("menu").onclick=()=>openModal('<h2>🌍 Game menu</h2><p>Take a break, change your plans or return to the Star Life hub.</p><button class="option" id="menuPhone">📱 Player phone</button><button class="option" id="menuWork">💼 Find work</button><button class="option" id="menuTravel">🚌 Travel</button><button class="secondary" id="exitGame">Return to Star Life hub</button>');
   $("zoomIn").onclick=()=>cameraDistance=Math.max(6,cameraDistance-1.5);$("zoomOut").onclick=()=>cameraDistance=Math.min(18,cameraDistance+1.5);
   $("close").onclick=closeModal;$("modal").addEventListener("pointerdown",e=>{if(e.target===$("modal"))closeModal();});
