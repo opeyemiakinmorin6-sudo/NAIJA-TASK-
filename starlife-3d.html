@@ -72,7 +72,7 @@ const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 let db, state=null, places=[], homes=[], busy=false;
 let scene, camera, renderer, clock, player, playerGroup, yaw=Math.PI, cameraDistance=10;
 let joy={x:0,y:0}, keys={}, spots=[], colliders=[], people=[], cars=[], actionSpot=null;
-let lastToast=0, frame=0, touchLook=null, modalOpen=false, interiorGroup=null, currentInterior=null, exteriorPosition=null, exteriorYaw=Math.PI, exteriorCameraDistance=10;
+let lastToast=0, frame=0, touchLook=null, modalOpen=false, interiorGroup=null, currentInterior=null, exteriorPosition=null, exteriorYaw=Math.PI, exteriorCameraDistance=10, interiorExitSpot=null;
 const WORLD={size:420,limit:198};
 const AREAS=[
  {id:"ikeja",name:"Ikeja",x:-105,z:-105,tag:"BUSINESS DISTRICT",ground:0x9cbf85,wall:0xe7d5b4,roof:0x9c4937},
@@ -312,6 +312,7 @@ async function openPhone(){
 }
 function interact(){
  const s=actionSpot;if(!s)return;
+ if(s.kind==="interiorExit"){exitBuildingInterior();return;}
  if(s.kind==="work"||s.kind==="food"||s.kind==="home"||s.kind==="market"){enterBuildingInterior(s);return;}
  if(s.kind==="landmark"){
   const a=AREAS.find(x=>x.id===s.area);
@@ -345,11 +346,11 @@ function buildInteriorRoom(){
 function enterBuildingInterior(place){
  exteriorPosition={x:player.x,z:player.z};exteriorYaw=yaw;exteriorCameraDistance=cameraDistance;
  currentInterior=place;buildInteriorRoom();
+ interiorExitSpot={kind:"interiorExit",label:"EXIT BUILDING",x:1000,z:1007,area:place.area,icon:"🚪"};spots.push(interiorExitSpot);
  player.x=1000;player.z=1002;player.angle=Math.PI;playerGroup.position.set(player.x,0,player.z);
  yaw=0;cameraDistance=7;
  const title=safeText(place.label||"Neighbourhood building");
  const description=place.kind==="work"?"Step inside your local workplace and choose a shift.":place.kind==="food"||place.kind==="market"?"Take a seat and choose something to eat.":"Welcome home. Check your home options and take a rest.";
- const action=place.kind==="work"?"openWork()":place.kind==="home"?"openHome()":"openFood()";
  openModal('<div style="font-size:11px;font-weight:900;color:#087f43;letter-spacing:1px">BUILDING INTERIOR</div><h2>🏠 '+title+'</h2><p>'+description+'</p><button class="primary" id="interiorUse">Use this place</button><button class="secondary" id="interiorExit">Step back outside</button>');
  $("interiorUse").onclick=()=>{closeModal();if(place.kind==="work")openWork();else if(place.kind==="home")openHome();else openFood();};
  $("interiorExit").onclick=exitBuildingInterior;
@@ -358,6 +359,7 @@ function exitBuildingInterior(){
  if(!currentInterior||!exteriorPosition)return;
  player.x=exteriorPosition.x;player.z=exteriorPosition.z;playerGroup.position.set(player.x,0,player.z);
  yaw=exteriorYaw;cameraDistance=exteriorCameraDistance;currentInterior=null;exteriorPosition=null;
+ if(interiorExitSpot){const i=spots.indexOf(interiorExitSpot);if(i>=0)spots.splice(i,1);interiorExitSpot=null;}
  closeModal();updateAction();toast("Back on the streets of Lagos.");
 }
 function bindJoystick(){
