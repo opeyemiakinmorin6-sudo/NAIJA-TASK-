@@ -2152,3 +2152,20 @@ async function init(){
     let seen = false; try{ seen = localStorage.getItem("slw3_help") === "1"; }catch(e){}
     if (!seen) openWorldGuide(true);
     requestAnimationFrame(loop);
+  }catch(e){
+    console.error("Naija Star Life startup failed:", e);
+    const detail = e && e.message ? e.message : "Unknown startup error";
+    if (detail === "WEBGL"){
+      screen("Your browser could not start 3D graphics. Close other tabs, enable hardware acceleration if available, then try again.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
+    }else{
+      screen("Naija Star Life could not finish loading.<br><br><small>" + esc(detail) + "</small><br><br>Check your connection and try again. If it continues, send this error to support.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
+    }
+  }
+}
+window.addEventListener("unhandledrejection", function(e){
+  console.error("Naija Star Life background request failed:", e.reason);
+});
+init();
+</script>
+</body>
+</html>
