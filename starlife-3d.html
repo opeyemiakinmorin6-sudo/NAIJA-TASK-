@@ -1392,7 +1392,7 @@ function resize(){
 function camTarget(){
   return new THREE.Vector3(player.x * U + Math.sin(camYaw) * camR(), camR() * 0.8, player.y * U + Math.cos(camYaw) * camR());
 }
-function snapCamera(){ camera.position.copy(camTarget()); camera.lookAt(player.x * U, 1.5, player.y * U); }
+function snapCamera(){ if(!camera)return; camera.position.copy(camTarget()); camera.lookAt(player.x * U, inRoom ? 1.35 : 1.5, player.y * U); camera.updateMatrixWorld(true); }
 
 function angleLerp(a, b, t){ let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; return a + d * t; }
 
@@ -1456,7 +1456,7 @@ function draw(dt){
 
   // camera follow
   camera.position.lerp(camTarget(), 1 - Math.pow(0.0005, dt));
-  camera.lookAt(player.x * U, 1.5, player.y * U);
+  camera.lookAt(player.x * U, inRoom ? 1.35 : 1.5, player.y * U);
   renderer.render(scene, camera);
 }
 
@@ -1946,7 +1946,7 @@ function hitsRoom(x, y, hs){
 
 /* ---- zoom: buttons, mouse wheel and two-finger pinch ---- */
 function setZoom(v){ camDist = Math.max(6, Math.min(34, v)); }
-function camR(){ return inRoom ? Math.min(camDist, 16) * 0.75 : camDist; }
+function camR(){ return inRoom ? Math.min(camDist, 7) : camDist; }
 $("zIn").addEventListener("click", () => setZoom(camDist - 3));
 $("zOut").addEventListener("click", () => setZoom(camDist + 3));
 canvas.addEventListener("wheel", e => { e.preventDefault(); setZoom(camDist + e.deltaY * 0.02); }, { passive:false });
