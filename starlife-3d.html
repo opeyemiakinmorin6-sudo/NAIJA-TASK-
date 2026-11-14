@@ -293,7 +293,8 @@ function buildWorld(){
       const x = onRoadX ? ox + (11 + rand() * 3) * T : ox + (1 + rand() * (DW - 2)) * T;
       const y = onRoadX ? oy + (1 + rand() * (DH - 2)) * T : oy + (8 + rand() * 3) * T;
       npcs.push({ x, y, did:d.id, color:SHIRTS[Math.floor(rand() * SHIRTS.length)], name:NAMES[Math.floor(rand() * NAMES.length)],
-                  dx:0, dy:0, timer:rand() * 2, hs:7 });
+                  dx:0, dy:0, timer:rand() * 2, hs:7, mode:"idle", action:"looking around", goal:null,
+                  actionTime:2+rand()*4, seed:Math.floor(rand()*99999), facing:rand()*Math.PI*2, socialTarget:null });
     }
   });
 }
@@ -781,19 +782,48 @@ function update(dt){
       checkDistrict();
     }
   }
-  // npcs wander (only those near the player, to save battery)
+  // NPC daily-life state machine. Distant residents sleep in lightweight simulation.
+  const worldHour = new Date().getHours();
   npcs.forEach(n => {
-    if (Math.abs(n.x - player.x) > 700 || Math.abs(n.y - player.y) > 700) return;
-    n.timer -= dt;
-    if (n.timer <= 0){
-      n.timer = 1.2 + Math.random() * 2.5;
-      const a = Math.floor(Math.random() * 5);
-      n.dx = a === 0 ? 1 : a === 1 ? -1 : 0; n.dy = a === 2 ? 1 : a === 3 ? -1 : 0;
+    const near = Math.abs(n.x-player.x)<760 && Math.abs(n.y-player.y)<760;
+    if (!near){ n.dx=0; n.dy=0; return; }
+    n.actionTime -= dt;
+    const district = DISTRICTS.find(x => x.id === n.did);
+    if (!district) return;
+    const ox=district.c*DW*T, oy=district.r*DH*T;
+    const chooseDestination = () => {
+      const local = spots.filter(p => p.did===n.did && ["food","bus","work","venue","landmark"].includes(p.kind));
+      const candidates = local.length ? local : [
+        {x:ox+8*T,y:oy+9.5*T},{x:ox+16*T,y:oy+9.5*T},{x:ox+7*T,y:oy+14*T}
+      ];
+      const p=candidates[(Math.floor(Math.random()*candidates.length))];
+      n.goal={x:p.x+(Math.random()-.5)*22,y:p.y+(Math.random()-.5)*22};
+      n.mode="walk"; n.action="walking"; n.actionTime=8+Math.random()*8;
+    };
+    if (Math.hypot(n.x-player.x,n.y-player.y)<24 && !modalOpen){
+      n.mode="greet"; n.action="greeting"; n.goal=null; n.actionTime=Math.max(n.actionTime,1.8);
+      n.facing=Math.atan2(player.x-n.x,player.y-n.y);
+    } else if (n.mode==="greet"){
+      n.mode="idle"; n.action="looking around"; n.actionTime=2+Math.random()*3;
+    } else if (n.mode==="walk"){
+      if (!n.goal || n.actionTime<=0 || Math.hypot(n.goal.x-n.x,n.goal.y-n.y)<10){
+        n.goal=null; n.mode="idle";
+        const roll=Math.random();
+        n.action=roll<.34?"checking phone":roll<.58?"chatting nearby":roll<.78?"taking a break":"looking around";
+        n.actionTime=3+Math.random()*7;
+      } else {
+        const dx=n.goal.x-n.x, dy=n.goal.y-n.y, d=Math.hypot(dx,dy)||1;
+        const step=Math.min(d,24*dt);
+        const nx=n.x+dx/d*step, ny=n.y+dy/d*step;
+        const inside=nx>ox+8 && nx<ox+DW*T-8 && ny>oy+8 && ny<oy+DH*T-8;
+        if(inside && !hits(nx,ny,n.hs)){n.x=nx;n.y=ny;n.dx=dx/d;n.dy=dy/d;}
+        else {n.goal=null;n.mode="idle";n.action="looking around";n.actionTime=1.2;}
+      }
+    } else if(n.actionTime<=0){
+      if(Math.random()<.72) chooseDestination();
+      else { n.mode="idle"; n.action=worldHour>=18?"relaxing":"checking phone"; n.actionTime=3+Math.random()*5; }
     }
-    const nx = n.x + n.dx * 34 * dt, ny = n.y + n.dy * 34 * dt;
-    const d = DISTRICTS.find(x => x.id === n.did);
-    const inside = nx > d.c * DW * T + 8 && nx < (d.c + 1) * DW * T - 8 && ny > d.r * DH * T + 8 && ny < (d.r + 1) * DH * T - 8;
-    if (inside && !hits(nx, ny, n.hs)){ n.x = nx; n.y = ny; } else { n.timer = 0; }
+    if(n.mode!=="walk"){ n.dx=0;n.dy=0; }
   });
   // nearest interactable
   let best = null, bd = 56;
@@ -1289,7 +1319,13 @@ function draw(dt){
     const mv = n.dx !== 0 || n.dy !== 0;
     if (mv) m.rotation.y = angleLerp(m.rotation.y, Math.atan2(n.dx, n.dy), Math.min(1, dt * 8));
     animatePerson(m, performance.now() / 150 + i, mv);
-    m.userData.tag.visible = Math.hypot(n.x - player.x, n.y - player.y) < 150;
+    if(n.mode==="greet"){
+      m.rotation.y=angleLerp(m.rotation.y,n.facing,Math.min(1,dt*5));
+      m.userData.tag.visible=true;
+    } else {
+      m.userData.tag.visible = Math.hypot(n.x - player.x, n.y - player.y) < 150;
+    }
+    m.userData.tag.material.opacity=1;
   });
   const tms = performance.now() / 300;
   celebs.forEach((c, i) => {
