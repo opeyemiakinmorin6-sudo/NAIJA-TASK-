@@ -8,6 +8,8 @@
 <title>Naija Star Life 🌍 · 3D Open World</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script data-optional="1" src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script data-optional="1" src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
 <style>
 :root{--green:#087f36;--dark:#042b1b;--light:#0b9b45;--lime:#c7f542;--text:#10251b;--muted:#65766b;--line:#cbd8ce;--red:#c62828}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -84,7 +86,7 @@ function startupMessage(message){
   if(panel){ panel.style.display="flex"; panel.innerHTML=message; }
 }
 window.addEventListener("error", function(e){
-  if(e && e.target && e.target.tagName==="SCRIPT"){
+  if(e && e.target && e.target.tagName==="SCRIPT" && e.target.dataset.optional!=="1"){
     startupMessage("A game service could not load. Check your internet connection, then refresh this page.<br><br><small>Failed resource: "+esc(e.target.src || "external script")+"</small><br><br><a href='starlife.html'>Return to Star Life menu</a>");
   }else if(e && e.message){
     console.error("Naija Star Life startup error:",e.message);
@@ -922,6 +924,18 @@ const box = (w, h, d, c) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c
 const SKIN = ["#8d5a3b", "#6d4228", "#a8714b", "#5a3825"];
 let playerMesh, carGroup, beacon = null;
 const npcMeshes = [], celebMeshes = [];
+const PREMIUM_HUMANS = [
+  {id:"office",url:"https://gobkit.com/freebies/human015/OfficeWorker.glb"},
+  {id:"student",url:"https://gobkit.com/freebies/human015/Student.glb"},
+  {id:"rider",url:"https://gobkit.com/freebies/human015/DeliveryRider.glb"},
+  {id:"chef",url:"https://gobkit.com/freebies/human015/HeadChef.glb"},
+  {id:"market",url:"https://gobkit.com/freebies/human017/MarketVendor.glb"},
+  {id:"grandma",url:"https://gobkit.com/freebies/human001/GrandmaShopper.glb"},
+  {id:"engineer",url:"https://gobkit.com/freebies/human002/ItEngineer.glb"},
+  {id:"security",url:"https://gobkit.com/freebies/human002/SecurityGuard.glb"}
+];
+const premiumHumanCache=[];
+let premiumHumanLoading=false;
 
 function labelSprite(text, bg, fg, wUnits){
   const cv = document.createElement("canvas"); cv.width = 256; cv.height = 64;
@@ -1029,8 +1043,65 @@ function makePerson(shirt, skin, look){
 }
 
 function animatePerson(g, step, moving){
-  const u = g.userData, a = moving ? Math.sin(step) * 0.8 : 0;
-  u.legL.rotation.x = a; u.legR.rotation.x = -a; u.armL.rotation.x = -a; u.armR.rotation.x = a;
+  const u=g.userData;
+  if(!u || u.premium) return;
+  const a=moving?Math.sin(step)*0.8:0;
+  u.legL.rotation.x=a;u.legR.rotation.x=-a;u.armL.rotation.x=-a;u.armR.rotation.x=a;
+}
+function applyPremiumHuman(target,modelIndex){
+  const template=premiumHumanCache[modelIndex%premiumHumanCache.length];
+  if(!target||!template||!THREE.SkeletonUtils)return false;
+  const keep=target.children.filter(ch=>ch.userData&&ch.userData.keepOnPremium);
+  target.children.slice().forEach(ch=>{if(!keep.includes(ch))target.remove(ch);});
+  const body=THREE.SkeletonUtils.clone(template.scene);
+  body.updateMatrixWorld(true);
+  const bounds=new THREE.Box3().setFromObject(body),size=bounds.getSize(new THREE.Vector3());
+  if(!isFinite(size.y)||size.y<=0)return false;
+  const scale=3.35/size.y;
+  body.scale.setScalar(scale);body.position.y=-bounds.min.y*scale;
+  body.traverse(o=>{if(o.isMesh){o.frustumCulled=true;o.castShadow=false;o.receiveShadow=false;}});
+  target.add(body);
+  target.userData.premium=true;target.userData.premiumBody=body;
+  target.userData.premiumMixer=new THREE.AnimationMixer(body);
+  target.userData.premiumActions={};
+  (template.animations||[]).forEach(clip=>{
+    const key=String(clip.name||"").toLowerCase();
+    if(key==="idle"||key==="walk"||key==="run"){
+      const action=target.userData.premiumMixer.clipAction(clip);
+      target.userData.premiumActions[key]=action;
+      if(key==="idle")action.play();
+    }
+  });
+  target.userData.premiumCurrent="idle";
+  return true;
+}
+function setPremiumMotion(target,moving,dt){
+  const u=target&&target.userData;if(!u||!u.premiumMixer)return;
+  const next=moving&&u.premiumActions.walk?"walk":"idle";
+  if(next!==u.premiumCurrent){
+    const from=u.premiumActions[u.premiumCurrent],to=u.premiumActions[next];
+    if(to){to.reset().fadeIn(.18).play();if(from)from.fadeOut(.18);u.premiumCurrent=next;}
+  }
+  u.premiumMixer.update(dt);
+}
+async function loadPremiumHumans(){
+  if(premiumHumanLoading||!THREE.GLTFLoader||!THREE.SkeletonUtils||!scene)return;
+  premiumHumanLoading=true;
+  const loader=new THREE.GLTFLoader();
+  for(const asset of PREMIUM_HUMANS){
+    try{
+      const gltf=await new Promise((resolve,reject)=>loader.load(asset.url,resolve,undefined,reject));
+      premiumHumanCache.push({scene:gltf.scene,animations:gltf.animations||[]});
+    }catch(err){console.warn("Optional character model unavailable:",asset.id,err&&err.message);}
+  }
+  if(premiumHumanCache.length){
+    npcMeshes.forEach((m,i)=>applyPremiumHuman(m,i));
+    celebMeshes.forEach((m,i)=>applyPremiumHuman(m,i+2));
+    if(playerMesh)applyPremiumHuman(playerMesh,0);
+    Object.keys(others).forEach((id,i)=>{const e=others[id];if(e&&e.mesh)applyPremiumHuman(e.mesh,i+1);});
+    console.info("Premium rigged human models ready:",premiumHumanCache.length);
+  }
+  premiumHumanLoading=false;
 }
 
 function makeCar(id){
@@ -1233,12 +1304,14 @@ function buildScene(){
   npcs.forEach(n => {
     const m = makePerson(n.color, SKIN[Math.floor((n.x + n.y) % SKIN.length)]);
     const tag = labelSprite(n.name, "rgba(0,0,0,0.65)", "#ffffff", 3.4); tag.position.y = 3.9; tag.visible = false; m.add(tag);
+    tag.userData.keepOnPremium=true;
     m.userData.tag = tag; scene.add(m); npcMeshes.push(m);
   });
   celebs.forEach(c => {
     const m = makePerson(c.locked ? "#78909c" : "#f9a825", SKIN[1]);
     const star = labelSprite(c.locked ? "🔒" : "⭐", null, "#000000", 2.2); star.position.y = 4.6; m.add(star);
     const tag = labelSprite(c.name, "rgba(0,0,0,0.75)", "#ffd54f", 4.2); tag.position.y = 3.9; tag.visible = false; m.add(tag);
+    tag.userData.keepOnPremium=true; star.userData.keepOnPremium=true;
     m.userData.tag = tag; m.userData.star = star; m.position.set(c.x * U, 0, c.y * U); scene.add(m); celebMeshes.push(m);
   });
 
@@ -1246,6 +1319,7 @@ function buildScene(){
   playerMesh = buildPlayerMesh();
   scene.add(playerMesh);
   carGroup = null;
+  loadPremiumHumans();
 
   marker = new THREE.Mesh(new THREE.RingGeometry(1.1, 1.5, 24), new THREE.MeshBasicMaterial({ color:"#ffd54f", side:THREE.DoubleSide, transparent:true, opacity:0.9 }));
   marker.rotation.x = -Math.PI / 2; marker.visible = false; scene.add(marker);
@@ -1262,8 +1336,12 @@ function syncCar(){
   const u = playerMesh.userData;
   if (id){
     carGroup = makeCar(id); playerMesh.add(carGroup);
-    u.legL.visible = u.legR.visible = false;
-  } else { u.legL.visible = u.legR.visible = true; }
+    if(u.premiumBody)u.premiumBody.visible=false;
+    if(u.legL)u.legL.visible=u.legR.visible=false;
+  } else {
+    if(u.premiumBody)u.premiumBody.visible=true;
+    if(u.legL)u.legL.visible=u.legR.visible=true;
+  }
 }
 
 function updateSky(){
@@ -1307,7 +1385,8 @@ function draw(dt){
   // player
   playerMesh.position.set(player.x * U, carGroup ? 0.2 : 0, player.y * U);
   playerMesh.rotation.y = angleLerp(playerMesh.rotation.y, player.face, Math.min(1, dt * 12));
-  animatePerson(playerMesh, player.step, player.moving && !carGroup);
+  if(playerMesh.userData.premium) setPremiumMotion(playerMesh,player.moving&&!carGroup,dt);
+  else animatePerson(playerMesh,player.step,player.moving&&!carGroup);
   if (carGroup) carGroup.visible = !inRoom;
   if (sleeping){ playerMesh.rotation.x = -Math.PI / 2; playerMesh.rotation.y = 0; playerMesh.position.y = 1.4; }
   else if (playerMesh.rotation.x !== 0) playerMesh.rotation.x = 0;
@@ -1318,7 +1397,8 @@ function draw(dt){
     m.position.set(n.x * U, 0, n.y * U);
     const mv = n.dx !== 0 || n.dy !== 0;
     if (mv) m.rotation.y = angleLerp(m.rotation.y, Math.atan2(n.dx, n.dy), Math.min(1, dt * 8));
-    animatePerson(m, performance.now() / 150 + i, mv);
+    if(m.userData.premium)setPremiumMotion(m,mv,dt);
+    else animatePerson(m,performance.now()/150+i,mv);
     if(n.mode==="greet"){
       m.rotation.y=angleLerp(m.rotation.y,n.facing,Math.min(1,dt*5));
       m.userData.tag.visible=true;
@@ -1330,6 +1410,7 @@ function draw(dt){
   const tms = performance.now() / 300;
   celebs.forEach((c, i) => {
     const m = celebMeshes[i]; if (!m) return;
+    if(m.userData.premium)setPremiumMotion(m,false,dt);
     m.userData.star.position.y = 4.6 + Math.sin(tms + i) * 0.2;
     m.userData.tag.visible = Math.hypot(c.x - player.x, c.y - player.y) < 190;
     m.rotation.y = Math.atan2(player.x - c.x, player.y - c.y) * (Math.hypot(c.x - player.x, c.y - player.y) < 190 ? 1 : 0);
@@ -1474,7 +1555,7 @@ function buildPlayerMesh(){
   const L = state.look || {};
   const m = makePerson(L.topColor || L.shirt || "#1b8f3a", L.skin || SKIN[0], L);
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.75, 0.95, 20), new THREE.MeshBasicMaterial({ color:"#b7ef43", side:THREE.DoubleSide }));
-  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.08; m.add(ring);
+  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.08; ring.userData.keepOnPremium=true; m.add(ring);
   return m;
 }
 function rebuildPlayer(){
@@ -1484,6 +1565,7 @@ function rebuildPlayer(){
   playerMesh = buildPlayerMesh();
   playerMesh.position.copy(pos); playerMesh.rotation.y = ry;
   scene.add(playerMesh);
+  if(premiumHumanCache.length)applyPremiumHuman(playerMesh,0);
   carGroup = null; lastCar = "__none__";
 }
 
@@ -1682,7 +1764,8 @@ function updateOthers(dt){
       e.mesh.rotation.y = angleLerp(e.mesh.rotation.y, Math.atan2(dx, dy), Math.min(1, dt * 8));
     }
     e.mesh.position.set(e.x * U, 0, e.y * U);
-    animatePerson(e.mesh, e.step, e.moving);
+    if(e.mesh.userData.premium)setPremiumMotion(e.mesh,e.moving,dt);
+    else animatePerson(e.mesh,e.step,e.moving);
   });
 }
 
