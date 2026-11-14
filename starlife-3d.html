@@ -77,9 +77,27 @@ canvas{display:block;width:100vw;height:100vh;touch-action:none}
 
 <script>
 "use strict";
-const db = window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co", "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+function startupMessage(message){
+  const panel = $("msgScreen");
+  if(panel){ panel.style.display="flex"; panel.innerHTML=message; }
+}
+window.addEventListener("error", function(e){
+  if(e && e.target && e.target.tagName==="SCRIPT"){
+    startupMessage("A game service could not load. Check your internet connection, then refresh this page.<br><br><small>Failed resource: "+esc(e.target.src || "external script")+"</small><br><br><a href='starlife.html'>Return to Star Life menu</a>");
+  }else if(e && e.message){
+    console.error("Naija Star Life startup error:",e.message);
+  }
+}, true);
+window.addEventListener("unhandledrejection", function(e){
+  console.error("Naija Star Life background request failed:",e.reason);
+});
+if(!window.supabase || typeof window.supabase.createClient!=="function"){
+  startupMessage("The account connection service did not load, so the game cannot start.<br><br>Check your internet connection and refresh. If it continues, try again later.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
+  throw new Error("Supabase client library unavailable");
+}
+const db = window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co", "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");
 
 /* ============================ WORLD DEFINITION ============================ */
 const T = 32;                 // tile size in pixels
