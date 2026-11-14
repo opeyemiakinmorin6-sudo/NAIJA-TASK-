@@ -7,7 +7,7 @@ var demo_star_coins: int = 0
 var status_label: Label
 var balance_label: Label
 var interact_button: Button
-var current_player: CharacterBody3D
+var current_player: StarLifePlayerController
 
 func _ready() -> void:
 	_build_test_ground()
@@ -17,14 +17,14 @@ func _ready() -> void:
 	_build_hud()
 
 func _build_player() -> void:
-	current_player = PLAYER_SCENE.instantiate()
+	current_player = PLAYER_SCENE.instantiate() as StarLifePlayerController
 	current_player.position = Vector3(0.0, 0.0, 4.0)
 	add_child(current_player)
 	current_player.prompt_changed.connect(_on_prompt_changed)
 	current_player.activity_completed.connect(_on_activity_completed)
 
 func _build_first_activity() -> void:
-	var station := ACTIVITY_SCENE.instantiate()
+	var station: Node3D = ACTIVITY_SCENE.instantiate() as Node3D
 	station.position = Vector3(0.0, 0.0, -3.0)
 	add_child(station)
 
