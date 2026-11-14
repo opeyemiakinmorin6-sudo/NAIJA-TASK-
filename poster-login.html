@@ -44,7 +44,7 @@ loginForm.addEventListener("submit",async event=>{
  event.preventDefault();msg("message","","");
  if(!db){msg("message","Secure login is unavailable. Refresh the page and try again.","error");return;}
  const email=byId("email").value.trim().toLowerCase(),password=byId("password").value;
- if(!email||!password){msg("errorMessage","Enter both your email and password.","error");return;}
+ if(!email||!password){msg("message","Enter both your email and password.","error");return;}
  loginBtn.disabled=true;loginBtn.textContent="Checking your login…";
  try{
   const {data,error}=await db.auth.signInWithPassword({email,password});
@@ -54,7 +54,7 @@ loginForm.addEventListener("submit",async event=>{
   msg("message","Password accepted. Your Poster session is active. Opening workspace…","success");
   loginBtn.textContent="Opening dashboard…";location.replace("poster-dashboard.html");
  }catch(error){
-  console.error("Tasker login error:",error);
+  console.error("Poster login error:",error);
   const code=error.code||"";let text=error.message||"Unable to log in. Please try again.";
   if(code==="invalid_credentials"||/invalid login credentials/i.test(text))text="Email or password is incorrect. Check both and try again, or use Forgot Password.";
   else if(code==="email_not_confirmed"||/email not confirmed/i.test(text))text="Your email is not confirmed yet. Open the confirmation email first, then log in.";
