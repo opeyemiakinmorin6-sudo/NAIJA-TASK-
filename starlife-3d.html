@@ -273,6 +273,7 @@ function makePlayer(){
 }
 const LOOK_KEY="starlife_character_look_v1",HOME_KEY="starlife_home_style_v1";
 const LOOKS={skin:[["Warm brown",0x754a32],["Deep brown",0x4e3024],["Golden brown",0x9a6849],["Cocoa",0x603d2b]],shirt:[["Star green",0x087f43],["Royal blue",0x275f99],["Sunset orange",0xc15b32],["Lime",0xc9f45a],["Cream",0xe0ddd0],["Purple",0x80529a]],hair:["Short curls","High top","Low cut"]};
+const WARDROBE=[["Street star","Star green","Short curls"],["Campus casual","Royal blue","Low cut"],["Sunday best","Cream","High top"],["Market hustle","Sunset orange","Short curls"],["Night out","Purple","High top"],["Lime fresh","Lime","Low cut"]];
 function savedLook(){try{return JSON.parse(localStorage.getItem(LOOK_KEY)||"{}");}catch(e){return {};}}
 function applyCharacterLook(){
  if(!playerGroup?.userData)return;const v=savedLook(),u=playerGroup.userData;
@@ -282,30 +283,43 @@ function applyCharacterLook(){
 }
 function openCharacterStudio(){
  const v=savedLook(),select=(id,items,chosen)=>'<select id="'+id+'" style="width:100%;padding:12px;border:1px solid #dce6dc;border-radius:12px;background:#fff;margin:5px 0 12px">'+items.map(x=>'<option '+(x===chosen?'selected':'')+'>'+safeText(x)+'</option>').join("")+'</select>';
- openModal('<h2>✨ Character studio</h2><p>Customise your character. Your choices are saved on this device.</p><b>Skin tone</b>'+select("lookSkin",LOOKS.skin.map(x=>x[0]),v.skin||"Warm brown")+'<b>Outfit colour</b>'+select("lookShirt",LOOKS.shirt.map(x=>x[0]),v.shirt||"Star green")+'<b>Hair style</b>'+select("lookHair",LOOKS.hair,v.hair||"Short curls")+'<button class="primary" id="saveLook">Save character look</button><button class="secondary" id="closeLook">Close</button>');
- $("saveLook").onclick=()=>{try{localStorage.setItem(LOOK_KEY,JSON.stringify({skin:$("lookSkin").value,shirt:$("lookShirt").value,hair:$("lookHair").value}));applyCharacterLook();closeModal();toast("Your Star Life look has been saved.");}catch(e){toast("Could not save your look on this device.");}};
+ const preset=WARDROBE.find(x=>x[0]===v.outfit);
+ openModal('<h2>✨ Character studio & wardrobe</h2><p>Choose a ready-made colour look or customise the details. Changes are saved on this device.</p><b>Wardrobe presets</b><select id="lookPreset" style="width:100%;padding:12px;border:1px solid #dce6dc;border-radius:12px;background:#fff;margin:5px 0 12px"><option value="">Custom look</option>'+WARDROBE.map(x=>'<option '+(v.outfit===x[0]?'selected':'')+'>'+x[0]+'</option>').join("")+'</select><b>Skin tone</b>'+select("lookSkin",LOOKS.skin.map(x=>x[0]),v.skin||"Warm brown")+'<b>Outfit colour</b>'+select("lookShirt",LOOKS.shirt.map(x=>x[0]),v.shirt||"Star green")+'<b>Hair style</b>'+select("lookHair",LOOKS.hair,v.hair||"Short curls")+'<button class="primary" id="saveLook">Save character look</button><button class="secondary" id="closeLook">Close</button>');
+ $("lookPreset").onchange=()=>{const p=WARDROBE.find(x=>x[0]===$("lookPreset").value);if(p){$("lookShirt").value=p[1];$("lookHair").value=p[2];}};
+ $("saveLook").onclick=()=>{try{const preset=WARDROBE.find(x=>x[0]===$("lookPreset").value);localStorage.setItem(LOOK_KEY,JSON.stringify({skin:$("lookSkin").value,shirt:$("lookShirt").value,hair:$("lookHair").value,outfit:preset?.[0]||""}));applyCharacterLook();closeModal();toast("Your wardrobe look has been saved.");}catch(e){toast("Could not save your look on this device.");}};
  $("closeLook").onclick=closeModal;
 }
 const HOME_STYLES=[["Warm wood",0xc5a77c,0x815536],["Green calm",0xb8c9a5,0x245d43],["Modern cream",0xe5ddc9,0x5a6670],["Royal dusk",0xaaa0bd,0x43365d]];
 let homeDecorGroup=null,homeDecorMeshes=null;
+function readHomeStyle(){try{return localStorage.getItem(HOME_KEY)||"Warm wood";}catch(e){return "Warm wood";}}
+const HOME_DEFAULTS={rug:[1,0,2],sofa:[-5,0,3],bed:[6,0,3],plant:[9,0,-6]};
+function readHomeLayout(){try{return JSON.parse(localStorage.getItem("starlife_home_layout_v1")||"{}");}catch(e){return {};}}
+function saveHomeLayout(){const out={};Object.keys(HOME_DEFAULTS).forEach(k=>{const o=homeDecorMeshes?.[k];if(o)out[k]={x:o.position.x,z:o.position.z,rotation:o.rotation.y};});try{localStorage.setItem("starlife_home_layout_v1",JSON.stringify(out));return true;}catch(e){return false;}}
+function applyHomeLayout(){if(!homeDecorMeshes)return;const saved=readHomeLayout();Object.keys(HOME_DEFAULTS).forEach(k=>{const o=homeDecorMeshes[k],p=saved[k]||{};o.position.x=Number.isFinite(p.x)?Math.max(-9,Math.min(9,p.x)):HOME_DEFAULTS[k][0];o.position.z=Number.isFinite(p.z)?Math.max(-7,Math.min(7,p.z)):HOME_DEFAULTS[k][2];o.rotation.y=Number.isFinite(p.rotation)?p.rotation:0;});}
 function applyHomeStyle(){
  if(!homeDecorMeshes)return;const s=HOME_STYLES.find(x=>x[0]===readHomeStyle())||HOME_STYLES[0];
  homeDecorMeshes.rug.material.color.setHex(s[1]);homeDecorMeshes.sofa.material.color.setHex(s[2]);homeDecorMeshes.bed.material.color.setHex(s[2]);
 }
-function readHomeStyle(){try{return localStorage.getItem(HOME_KEY)||"Warm wood";}catch(e){return "Warm wood";}}
 function buildHomeDecor(){
  if(homeDecorGroup)return;homeDecorGroup=new THREE.Group();homeDecorGroup.position.set(0,0,0);interiorGroup.add(homeDecorGroup);
  const rug=new THREE.Mesh(new THREE.BoxGeometry(7,.08,5),material(0xc5a77c));rug.position.set(1,.02,2);homeDecorGroup.add(rug);
- const sofa=new THREE.Mesh(new THREE.BoxGeometry(4,1.1,1.5),material(0x815536));sofa.position.set(-5,.65,3);homeDecorGroup.add(sofa);
- const back=new THREE.Mesh(new THREE.BoxGeometry(4,.9,.35),material(0x815536));back.position.set(-5,1.35,2.45);homeDecorGroup.add(back);
+ const sofaGroup=new THREE.Group();sofaGroup.position.set(-5,0,3);homeDecorGroup.add(sofaGroup);
+ const sofa=new THREE.Mesh(new THREE.BoxGeometry(4,1.1,1.5),material(0x815536));sofa.position.y=.65;sofaGroup.add(sofa);
+ const back=new THREE.Mesh(new THREE.BoxGeometry(4,.9,.35),material(0x815536));back.position.set(0,1.35,-.55);sofaGroup.add(back);
  const bed=new THREE.Mesh(new THREE.BoxGeometry(3.8,.55,5),material(0x815536));bed.position.set(6,.3,3);homeDecorGroup.add(bed);
  const plant=new THREE.Mesh(new THREE.SphereGeometry(.8,7,6),material(0x39794a));plant.scale.y=1.5;plant.position.set(9,1.45,-6);homeDecorGroup.add(plant);
- homeDecorMeshes={rug,sofa,bed};applyHomeStyle();
+ homeDecorMeshes={rug,sofa:sofaGroup,bed,plant};applyHomeStyle();applyHomeLayout();
 }
 function openHomeStudio(){
  const current=readHomeStyle(),opts=HOME_STYLES.map(x=>'<option '+(x[0]===current?'selected':'')+'>'+x[0]+'</option>').join("");
- openModal('<h2>🛋️ Home design studio</h2><p>Choose a room theme and furniture colour. Your design is saved on this device.</p><select id="homeTheme" style="width:100%;padding:13px;border:1px solid #dce6dc;border-radius:12px;background:#fff">'+opts+'</select><button class="primary" id="saveHomeStyle">Apply room design</button><button class="secondary" id="backHome">Back to home</button>');
- $("saveHomeStyle").onclick=()=>{try{localStorage.setItem(HOME_KEY,$("homeTheme").value);if(homeDecorGroup)applyHomeStyle();closeModal();toast("Your home design has been saved.");}catch(e){toast("Could not save your room design.");}};
+ const items=[["rug","Living-room rug"],["sofa","Sofa"],["bed","Bed"],["plant","Plant"]];
+ openModal('<h2>🛋️ Home design studio</h2><p>Change your room theme, then select a furniture item and move it around your room. Use the arrows to reposition it. Your layout is saved on this device.</p><b>Room theme</b><select id="homeTheme" style="width:100%;padding:13px;border:1px solid #dce6dc;border-radius:12px;background:#fff">'+opts+'</select><button class="primary" id="saveHomeStyle">Apply room design</button><hr><b>Move furniture</b><select id="homeItem" style="width:100%;padding:12px;border:1px solid #dce6dc;border-radius:12px;background:#fff;margin:8px 0">'+items.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'</select><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px"><span></span><button class="secondary" id="moveNorth">↑ Move forward</button><span></span><button class="secondary" id="moveWest">← Left</button><button class="secondary" id="rotateFurniture">↻ Rotate</button><button class="secondary" id="moveEast">Right →</button><span></span><button class="secondary" id="moveSouth">↓ Move back</button><span></span></div><button class="secondary" id="resetFurniture">Reset furniture positions</button><button class="primary" id="saveFurniture">Save furniture layout</button><button class="secondary" id="backHome">Back to home</button>');
+ $("saveHomeStyle").onclick=()=>{try{localStorage.setItem(HOME_KEY,$("homeTheme").value);applyHomeStyle();toast("Room colours updated.");}catch(e){toast("Could not save your room design.");}};
+ const move=(dx,dz)=>{const o=homeDecorMeshes?.[$("homeItem").value];if(!o)return;o.position.x=Math.max(-9,Math.min(9,o.position.x+dx));o.position.z=Math.max(-7,Math.min(7,o.position.z+dz));};
+ $("moveNorth").onclick=()=>move(0,-.8);$("moveSouth").onclick=()=>move(0,.8);$("moveWest").onclick=()=>move(-.8,0);$("moveEast").onclick=()=>move(.8,0);
+ $("rotateFurniture").onclick=()=>{const o=homeDecorMeshes?.[$("homeItem").value];if(o)o.rotation.y+=Math.PI/4;};
+ $("saveFurniture").onclick=()=>toast(saveHomeLayout()?"Furniture layout saved on this device.":"Could not save this layout.");
+ $("resetFurniture").onclick=()=>{try{localStorage.removeItem("starlife_home_layout_v1");applyHomeLayout();toast("Furniture returned to its original positions.");}catch(e){toast("Could not reset furniture.");}};
  $("backHome").onclick=openHome;
 }
 function canonicalArea(id){
