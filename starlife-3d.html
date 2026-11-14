@@ -730,8 +730,9 @@ async function init(){
   document.addEventListener("keyup",e=>{keys[e.key]=false;});
   document.addEventListener("visibilitychange",()=>{if(document.hidden){joy.x=joy.y=0;}});
   $("sheetContent").addEventListener("click",e=>{
-   if(e.target.id==="menuLook")openCharacterStudio();if(e.target.id==="menuPhone")openPhone();if(e.target.id==="menuWork")openWork();if(e.target.id==="menuTravel")openTravel();
-   if(e.target.id==="exitGame")location.href="starlife.html";
+   const target=e.target.closest("button");if(!target)return;
+   if(target.id==="menuLook")openCharacterStudio();if(target.id==="menuPhone")openPhone();if(target.id==="menuWork")openWork();if(target.id==="menuTravel")openTravel();
+   if(target.id==="exitGame")location.href="starlife.html";
   });
   openWelcome();animate();
  }catch(e){console.error("Star Life fresh build startup:",e);showError(e.message||"Unexpected startup error.");}
