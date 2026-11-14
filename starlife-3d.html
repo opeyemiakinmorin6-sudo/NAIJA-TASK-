@@ -220,7 +220,7 @@ function movePlayer(dt){
  const speed=13,dx=(Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,dz=(Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
  const nx=player.x+dx,nz=player.z+dz;
  if(!collides(nx,player.z))player.x=nx;if(!collides(player.x,nz))player.z=nz;
- player.angle=Math.atan2(dx,dz);playerGroup.rotation.y=player.angle;
+ player.angle=Math.atan2(dx,dz);playerGroup.position.set(player.x,0,player.z);playerGroup.rotation.y=player.angle;
 }
 function cameraUpdate(dt){
  const target=new THREE.Vector3(player.x+Math.sin(yaw)*cameraDistance,6.2,player.z+Math.cos(yaw)*cameraDistance);
