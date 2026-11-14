@@ -295,7 +295,7 @@ function updateHud(){
 }
 function toast(msg){const t=$("toast");t.textContent=String(msg||"");t.style.display="block";clearTimeout(lastToast);lastToast=setTimeout(()=>t.style.display="none",2600);}
 function openModal(content){$("sheetContent").innerHTML=content; $("modal").classList.add("open");modalOpen=true;joy.x=joy.y=0;updateAction();}
-function closeModal(){ $("modal").classList.remove("open");modalOpen=false;updateAction();}
+function closeModal(){ if(typeof phoneStopChat==="function")phoneStopChat(); $("modal").classList.remove("open");modalOpen=false;updateAction();}
 function safeText(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 async function rpc(name,args){const {data,error}=await db.rpc(name,args);if(error)throw error;return data;}
 function setState(next){if(next&&typeof next==="object")state=next;updateHud();}
