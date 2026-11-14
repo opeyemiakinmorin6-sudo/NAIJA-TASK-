@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#073d2a">
-<title>NAIJA STAR LIFE 3D · Lagos Open World</title>
+<title>NAIJA STAR LIFE 3D · Open World</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -66,7 +66,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#86b9ce;fon
 </head>
 <body>
 <canvas id="world" aria-label="NAIJA STAR LIFE 3D world"></canvas>
-<div id="loading"><div class="load-card"><div class="load-mark">🇳🇬</div><div class="load-title">NAIJA STAR LIFE</div><div class="load-copy">Building your Lagos neighbourhood…<br>Getting the streets ready.</div><div class="load-track"><i></i></div></div></div>
+<div id="loading"><div class="load-card"><div class="load-mark">🇳🇬</div><div class="load-title">NAIJA STAR LIFE</div><div class="load-copy">Building your Star Life world…<br>Getting the streets ready.</div><div class="load-track"><i></i></div></div></div>
 <div id="err"></div>
 <div id="hud">
   <div class="pill">⚡ <strong id="energyText">100</strong><div id="energy"><i id="energyFill"></i></div></div>
@@ -178,23 +178,26 @@ function buildCity(){
  for(let i=0;i<14;i++){const x=-180+i*27;meshBox(4,2.8,3,0xe1a65b,x,0,18);meshBox(4.3,.35,3.3,0x8b492b,x,2.8,18);}
 }
 function makePerson(shirt=0x16824a,skin=0x754a32){
- const g=new THREE.Group();
+ const g=new THREE.Group();const arms=[],legs=[];
  const torso=new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,1.35,8),material(shirt));torso.position.y=1.45;g.add(torso);
  const head=new THREE.Mesh(new THREE.SphereGeometry(.38,10,8),material(skin));head.position.y=2.42;g.add(head);
  const hair=new THREE.Mesh(new THREE.SphereGeometry(.39,8,6),material(0x171513));hair.scale.y=.45;hair.position.set(0,2.66,-.03);g.add(hair);
  for(const side of [-1,1]){
-  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.13,.16,.95,6),material(skin));arm.position.set(side*.57,1.48,0);arm.rotation.z=side*.13;g.add(arm);
-  const leg=new THREE.Mesh(new THREE.CylinderGeometry(.17,.19,.78,6),material(0x273b37));leg.position.set(side*.22,.43,0);g.add(leg);
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.13,.16,.95,6),material(skin));arm.position.set(side*.57,1.48,0);arm.rotation.z=side*.13;g.add(arm);arms.push(arm);
+  const leg=new THREE.Mesh(new THREE.CylinderGeometry(.17,.19,.78,6),material(0x273b37));leg.position.set(side*.22,.43,0);g.add(leg);legs.push(leg);
   const shoe=new THREE.Mesh(new THREE.BoxGeometry(.34,.16,.52),material(0x201f1d));shoe.position.set(side*.22,.12,.1);g.add(shoe);
  }
- g.userData.phase=Math.random()*6.28;return g;
+ g.userData.phase=Math.random()*6.28;g.userData.arms=arms;g.userData.legs=legs;return g;
 }
+function characterGroundY(){return currentInterior?-0.065:-0.02;}
+function animateCharacter(g,phase,amount=1){if(!g?.userData)return;const swing=Math.sin(phase)*0.42*amount;(g.userData.legs||[]).forEach((limb,i)=>limb.rotation.x=i===0?swing:-swing);(g.userData.arms||[]).forEach((limb,i)=>limb.rotation.x=i===0?-swing*.72:swing*.72);}
+let playerWalkPhase=0,playerMoving=false;
 function buildPeople(){
  const shirts=[0x18784a,0xc15b32,0x275f99,0x9a6a9c,0xd7a52d,0x4d7770,0xe0ddd0,0x873f35];
  AREAS.forEach((a,i)=>{
   for(let n=0;n<5;n++){
    const p=makePerson(shirts[(i*3+n)%shirts.length], [0x754a32,0x603d2b,0x8b5b3d,0x4e3024][(i+n)%4]);
-   p.position.set(a.x-20+(n%3)*17,0,a.z-8+Math.floor(n/3)*17);scene.add(p);
+   p.position.set(a.x-20+(n%3)*17,-0.02,a.z-8+Math.floor(n/3)*17);scene.add(p);
    people.push({mesh:p,homeX:p.position.x,homeZ:p.position.z,phase:n*1.7+i, speed:.45+(n%3)*.12});
   }
  });
@@ -232,7 +235,7 @@ function exitDriveVehicle(){
  if(!activeVehicle)return;
  const v=activeVehicle;const side=2.8;const nx=v.mesh.position.x+Math.cos(v.angle)*side,nz=v.mesh.position.z-Math.sin(v.angle)*side;
  if(collides(nx,nz)){toast("There is no safe space to get out here.");return;}
- player.x=nx;player.z=nz;player.angle=v.angle;playerGroup.position.set(player.x,0,player.z);playerGroup.rotation.y=player.angle;playerGroup.visible=true;
+ player.x=nx;player.z=nz;player.angle=v.angle;playerGroup.position.set(player.x,characterGroundY(),player.z);playerGroup.rotation.y=player.angle;playerGroup.visible=true;
  activeVehicle=null;driveSpeed=0;cameraDistance=10;toast("You stepped out safely.");updateAction();
 }
 function driveVehicleUpdate(dt){
@@ -265,7 +268,7 @@ function canonicalArea(id){
  return AREAS.some(a=>a.id===raw)?raw:"surulere";
 }
 function areaForState(){return AREAS.find(a=>a.id===canonicalArea(state?.location))||AREAS[4];}
-function spawnAtState(){const a=areaForState();player={x:a.x,z:a.z+22,angle:Math.PI};playerGroup.position.set(player.x,0,player.z);$("district").textContent="📍 "+a.name+" · "+a.tag;}
+function spawnAtState(){const a=areaForState();player={x:a.x,z:a.z+22,angle:Math.PI};playerGroup.position.set(player.x,characterGroundY(),player.z);$("district").textContent="📍 "+a.name+" · "+a.tag;}
 function nearestSpot(){
  if(!player)return null;if(activeVehicle)return null;let best=null,dist=Infinity;
  for(const s of spots){const d=Math.hypot(s.x-player.x,s.z-player.z);if(d<dist){best=s;dist=d;}}
@@ -284,10 +287,10 @@ function collides(x,z){
  return colliders.some(c=>x>c.x-c.w/2-1.3&&x<c.x+c.w/2+1.3&&z>c.z-c.d/2-1.3&&z<c.z+c.d/2+1.3);
 }
 function movePlayer(dt){
- if(!player||modalOpen||activeVehicle)return;
+ playerMoving=false;if(!player||modalOpen||activeVehicle)return;
  let forward=-joy.y,side=joy.x;
  if(keys.ArrowUp||keys.w)forward=1;if(keys.ArrowDown||keys.s)forward=-1;if(keys.ArrowLeft||keys.a)side=-1;if(keys.ArrowRight||keys.d)side=1;
- const mag=Math.hypot(forward,side);if(mag<.08)return;
+ const mag=Math.hypot(forward,side);if(mag<.08)return;playerMoving=true;
  forward/=Math.max(1,mag);side/=Math.max(1,mag);
  const speed=13,dx=(Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,dz=(Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
  const nx=player.x+dx,nz=player.z+dz;
@@ -301,7 +304,8 @@ function cameraUpdate(dt){
 }
 function updateWorld(dt){
  if(activeVehicle)driveVehicleUpdate(dt);else movePlayer(dt);
- people.forEach(p=>{p.phase+=dt*p.speed;p.mesh.position.x=p.homeX+Math.sin(p.phase)*2.8;p.mesh.position.z=p.homeZ+Math.cos(p.phase*.7)*2.3;p.mesh.rotation.y=Math.atan2(Math.cos(p.phase*.7),Math.cos(p.phase));});
+ people.forEach(p=>{p.phase+=dt*p.speed;p.mesh.position.x=p.homeX+Math.sin(p.phase)*2.8;p.mesh.position.y=-0.02;p.mesh.position.z=p.homeZ+Math.cos(p.phase*.7)*2.3;p.mesh.rotation.y=Math.atan2(Math.cos(p.phase*.7),Math.cos(p.phase));animateCharacter(p.mesh,p.phase,.65);});
+ if(playerMoving)playerWalkPhase+=dt*11;else playerWalkPhase*=Math.max(0,1-dt*8);animateCharacter(playerGroup,playerWalkPhase,playerMoving?1:0);
  cars.forEach(c=>{c.mesh.position.x+=c.speed*dt;if(c.mesh.position.x>c.end)c.mesh.position.x=c.start;});
  cameraUpdate(dt);updateAction();
 }
@@ -319,7 +323,7 @@ async function rpc(name,args){const {data,error}=await db.rpc(name,args);if(erro
 function setState(next){if(next&&typeof next==="object")state=next;updateHud();}
 async function withBusy(fn){if(busy)return;busy=true;try{await fn();}catch(e){toast(e.message||"That action could not be completed.");}finally{busy=false;}}
 function openWelcome(){
- openModal('<div style="font-size:11px;font-weight:900;color:#087f43;letter-spacing:1px">YOUR LAGOS STORY STARTS HERE</div><h2>Welcome to the neighbourhood 🇳🇬</h2><p>Explore the streets, meet people, find work and build your life. Use the joystick to walk and drag the open screen to turn the camera. Walk close to a place and tap the green action button.</p><div class="stat-grid"><div class="stat"><b>🚶</b><span>Explore</span></div><div class="stat"><b>💼</b><span>Work</span></div><div class="stat"><b>🤝</b><span>Meet people</span></div></div><button class="primary" id="welcomeGo">Enter Lagos</button>');
+ openModal('<div style="font-size:11px;font-weight:900;color:#087f43;letter-spacing:1px">YOUR LAGOS STORY STARTS HERE</div><h2>Welcome to the neighbourhood 🇳🇬</h2><p>Explore the streets, meet people, find work and build your life. Use the joystick to walk and drag the open screen to turn the camera. Walk close to a place and tap the green action button.</p><div class="stat-grid"><div class="stat"><b>🚶</b><span>Explore</span></div><div class="stat"><b>💼</b><span>Work</span></div><div class="stat"><b>🤝</b><span>Meet people</span></div></div><button class="primary" id="welcomeGo">Enter Star Life</button>');
  $("welcomeGo").onclick=closeModal;
 }
 async function openWork(){
@@ -346,8 +350,8 @@ async function openTravel(){
  await withBusy(async()=>{
   if(!places.length){try{places=await rpc("starlife_locations_list")||[];}catch(e){places=[];}}
   const list=places.length?places:AREAS.map(a=>({id:a.id,name:a.name,travel_cost:"",blurb:a.tag}));
-  openModal('<h2>🚌 Explore Lagos</h2><p>Travel to another neighbourhood. Your existing game travel rules and costs still apply.</p>'+
-  list.map(p=>'<button class="option" data-place="'+safeText(p.id)+'" '+(canonicalArea(p.id)===canonicalArea(state.location)?"disabled":"")+'>'+safeText(p.name)+'<small>'+safeText(p.blurb||"Explore a new part of Lagos.")+(p.travel_cost?" · "+safeText(p.travel_cost)+" coins":"")+'</small></button>').join("")+
+  openModal('<h2>🚌 Explore Star Life</h2><p>Travel to another neighbourhood. Your existing game travel rules and costs still apply.</p>'+
+  list.map(p=>'<button class="option" data-place="'+safeText(p.id)+'" '+(canonicalArea(p.id)===canonicalArea(state.location)?"disabled":"")+'>'+safeText(p.name)+'<small>'+safeText(p.blurb||"Explore another neighbourhood.")+(p.travel_cost?" · "+safeText(p.travel_cost)+" coins":"")+'</small></button>').join("")+
   '<button class="secondary" id="dismiss">Close</button>');
   document.querySelectorAll("[data-place]").forEach(b=>b.onclick=()=>withBusy(async()=>{const next=await rpc("starlife_travel",{p_location:b.dataset.place});setState(next);spawnAtState();closeModal();toast("You arrived in "+areaForState().name+".");}));
   $("dismiss").onclick=closeModal;
@@ -370,7 +374,7 @@ async function openHome(){
 async function openConversation(){
  await withBusy(async()=>{
   const event=await rpc("starlife_next_event");
-  const greetings=["How far, my person? Lagos is moving today!","You dey alright? Keep your head up. Better days ahead.","Welcome o! How your hustle dey go?"];
+  const greetings=["How far, my person? the city is moving today!","You dey alright? Keep your head up. Better days ahead.","Welcome o! How your hustle dey go?"];
   openModal('<h2>🤝 '+safeText("Neighbour")+'</h2><p>'+greetings[Math.floor(Math.random()*greetings.length)]+'</p><h2>'+safeText(event.title)+'</h2><p>'+safeText(event.body)+'</p>'+
    (event.choices||[]).map((c,i)=>'<button class="option" data-choice="'+i+'">'+safeText(c)+'</button>').join(""));
   document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>withBusy(async()=>{const result=await rpc("starlife_resolve",{p_event_id:event.id,p_choice:Number(b.dataset.choice)});setState(result.state);openModal('<h2>What happened</h2><p>'+safeText(result.text)+'</p><div class="stat-grid"><div class="stat"><b>'+safeText(result.fame||0)+'</b><span>Fame</span></div><div class="stat"><b>'+safeText(result.coins||0)+'</b><span>Coins</span></div><div class="stat"><b>'+safeText(result.energy||0)+'</b><span>Energy</span></div></div><button class="primary" id="done">Continue</button>');$("done").onclick=closeModal;}));
@@ -399,7 +403,7 @@ const PHONE_STORE=[
  {id:"calculator",name:"Calculator",icon:"🧮",desc:"A handy calculator"},
  {id:"gallery",name:"Gallery",icon:"🖼️",desc:"View saved screenshots"},
  {id:"browser",name:"Browser",icon:"🌐",desc:"Open useful websites"},
- {id:"maps",name:"Lagos Maps",icon:"🗺️",desc:"Open the city travel map"}
+ {id:"maps",name:"World Map",icon:"🗺️",desc:"Open the city travel map"}
 ];
 function phoneKey(suffix){return "starlife_phone_"+(db?.auth?.getUser?"player":"guest")+"_"+(phoneInstalledKey||"local")+"_"+suffix;}
 function phoneInstalled(){
@@ -418,7 +422,7 @@ function phoneHome(){
  phoneStopChat();
  const installed=phoneInstalled(), apps=PHONE_APPS.filter(a=>installed.includes(a.id));
  const tiles=apps.map(a=>'<button class="ph-app" data-phapp="'+a.id+'"><span>'+a.icon+'</span><b>'+safeText(a.name)+'</b></button>').join("");
- phoneFrame("My Phone",'<div class="ph-lock-greeting">Good evening</div><div class="ph-wallpaper"><div class="ph-clock">'+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+'</div><div class="ph-date">'+new Date().toLocaleDateString([],{weekday:"long",day:"numeric",month:"long"})+'</div><div class="ph-widget">🇳🇬 <b>Lagos Life</b><small>'+safeText(areaForState().name)+' · '+safeText(state?.coins||0)+' coins · '+safeText(state?.fame||0)+' fame</small></div></div><div class="ph-grid">'+tiles+'<button class="ph-app" data-phapp="store"><span>🛍️</span><b>App Store</b></button></div><div class="ph-dock"><button data-phapp="phone">📞</button><button data-phapp="messages">💬</button><button data-phapp="browser">🌐</button><button data-phapp="music">🎵</button></div><p class="ph-tip">Real player chat · Downloads are saved to this in-game phone.</p>',false);
+ phoneFrame("My Phone",'<div class="ph-lock-greeting">Good evening</div><div class="ph-wallpaper"><div class="ph-clock">'+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+'</div><div class="ph-date">'+new Date().toLocaleDateString([],{weekday:"long",day:"numeric",month:"long"})+'</div><div class="ph-widget">🇳🇬 <b>STAR LIFE</b><small>'+safeText(areaForState().name)+' · '+safeText(state?.coins||0)+' coins · '+safeText(state?.fame||0)+' fame</small></div></div><div class="ph-grid">'+tiles+'<button class="ph-app" data-phapp="store"><span>🛍️</span><b>App Store</b></button></div><div class="ph-dock"><button data-phapp="phone">📞</button><button data-phapp="messages">💬</button><button data-phapp="browser">🌐</button><button data-phapp="music">🎵</button></div><p class="ph-tip">Real player chat · Downloads are saved to this in-game phone.</p>',false);
  document.querySelectorAll("[data-phapp]").forEach(b=>b.onclick=()=>openPhoneApp(b.dataset.phapp));
 }
 async function openPhone(){
@@ -517,7 +521,7 @@ function phoneNotes(){
 }
 function phoneCalendar(){
  const d=new Date();
- phoneSub("Calendar",'<div class="ph-calendar"><div class="ph-cal-day">'+d.toLocaleDateString([],{weekday:"long"})+'</div><div class="ph-cal-date">'+d.getDate()+'</div><b>'+d.toLocaleDateString([],{month:"long",year:"numeric"})+'</b><p>Today in Lagos</p></div><div class="ph-banner"><b>Daily plans</b><small>Explore a district, meet friends, visit a business or take a drive.</small></div>');
+ phoneSub("Calendar",'<div class="ph-calendar"><div class="ph-cal-day">'+d.toLocaleDateString([],{weekday:"long"})+'</div><div class="ph-cal-date">'+d.getDate()+'</div><b>'+d.toLocaleDateString([],{month:"long",year:"numeric"})+'</b><p>Today in Star Life</p></div><div class="ph-banner"><b>Daily plans</b><small>Explore a district, meet friends, visit a business or take a drive.</small></div>');
 }
 function phoneCamera(){
  phoneSub("Camera",'<div class="ph-camera"><div><span>📸</span><b>Star Life Camera</b><small>Capture the current game view.</small></div></div><button class="ph-primary" id="phCapture">TAKE SCREENSHOT</button><p class="ph-muted">Your screenshot will be saved by your browser if supported.</p>');
@@ -560,7 +564,7 @@ function interact(){
  if(s.kind==="work"||s.kind==="food"||s.kind==="home"||s.kind==="market"){enterBuildingInterior(s);return;}
  if(s.kind==="landmark"){
   const a=AREAS.find(x=>x.id===s.area);
-  openModal('<h2>🏛️ '+safeText(s.label)+'</h2><p>You are exploring '+safeText(a?.name||"Lagos")+'. Walk around the landmark, meet people and discover the character of this neighbourhood.</p><button class="primary" id="meet">🤝 Meet someone nearby</button><button class="secondary" id="dismiss">Close</button>');
+  openModal('<h2>🏛️ '+safeText(s.label)+'</h2><p>You are exploring '+safeText(a?.name||"this area")+'. Walk around the landmark, meet people and discover the character of this neighbourhood.</p><button class="primary" id="meet">🤝 Meet someone nearby</button><button class="secondary" id="dismiss">Close</button>');
   $("meet").onclick=openConversation;$("dismiss").onclick=closeModal;
  }
 }
@@ -604,7 +608,7 @@ function exitBuildingInterior(){
  player.x=exteriorPosition.x;player.z=exteriorPosition.z;playerGroup.position.set(player.x,0,player.z);
  yaw=exteriorYaw;cameraDistance=exteriorCameraDistance;currentInterior=null;exteriorPosition=null;
  if(interiorExitSpot){const i=spots.indexOf(interiorExitSpot);if(i>=0)spots.splice(i,1);interiorExitSpot=null;}
- closeModal();updateAction();toast("Back on the streets of Lagos.");
+ closeModal();updateAction();toast("Back outside in Star Life.");
 }
 function bindJoystick(){
  const pad=$("joystick"),stick=$("stick");let active=false,pid=null;
