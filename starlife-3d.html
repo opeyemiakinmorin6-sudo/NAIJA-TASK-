@@ -200,6 +200,8 @@ function buildWorld(){
     // Nigerian public transport parked beside the bus stop (visual scenery).
     scenery.push({ k:"danfo", x:ox + 16.2*T, y:oy + 5.6*T, w:2.4*T, h:1.2*T });
     scenery.push({ k:"keke", x:ox + 19.0*T, y:oy + 6.0*T, w:1.3*T, h:1.2*T });
+    // A small roadside buka/market stall in each neighbourhood.
+    scenery.push({ k:"marketStall", did:d.id, x:ox + 16.2*T, y:oy + 12.2*T, w:2.6*T, h:1.8*T });
     spots.push({ kind:"bus", did:d.id, x:ox + 15.5*T, y:oy + 7.2*T, label:"🚌 Bus" });
     if (d.id === "yaba" || d.id === "surulere") spots.push({ kind:"lagoon", did:d.id, x:ox + 12.5*T, y:oy + 17.3*T, label:"🌊 Look out" });
     BB_POS.forEach((bp, slot) => {      scenery.push({ k:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, w:0, h:0 });      spots.push({ kind:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, label:"📢 Billboard" });
@@ -1070,6 +1072,27 @@ function buildScene(){
       });
       const route = labelSprite(isDanfo ? "LAGOS DANFO" : "KEKE NAPEP", isDanfo ? "#087f36" : "#064d25", "#ffffff", isDanfo ? 2.5 : 2.1);
       route.position.set(0,isDanfo ? 1.55 : 1.35, isDanfo ? 1.04 : 1.16); g.add(route);
+      g.position.set(cx,0,cz); scene.add(g);
+    } else if (s.k === "marketStall"){
+      // Roadside Nigerian market/buka kiosk with canopy, counter, produce and sign.
+      const g = new THREE.Group();
+      const postMat = mat("#6d4c41");
+      const counter = box(4.8,1.25,2.5,"#9b6a3c"); counter.position.y=0.72; g.add(counter);
+      const canopy = box(5.4,0.28,3.1,"#087f36"); canopy.position.y=3.05; g.add(canopy);
+      const canopyTrim = box(5.45,0.18,0.18,"#f4c430"); canopyTrim.position.set(0,2.82,1.52); g.add(canopyTrim);
+      [[-2.35, -1.15],[2.35,-1.15],[-2.35,1.15],[2.35,1.15]].forEach(p=>{
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,2.9,6),postMat);
+        post.position.set(p[0],1.45,p[1]); g.add(post);
+      });
+      const sign = labelSprite("MAMA PUT  •  MARKET","#064d25","#ffffff",2.5);
+      sign.position.set(0,3.45,1.62); g.add(sign);
+      const produceColors=["#e53935","#f9a825","#43a047","#ff7043","#8e24aa","#fdd835"];
+      produceColors.forEach((c,i)=>{
+        const item = new THREE.Mesh(new THREE.SphereGeometry(0.22,7,6),mat(c));
+        item.position.set(-1.75+(i%3)*1.65,1.55,0.55+Math.floor(i/3)*0.5); g.add(item);
+      });
+      const crate1=box(0.9,0.65,0.8,"#c17b3a"); crate1.position.set(-2.8,0.36,-0.2); g.add(crate1);
+      const crate2=box(0.9,0.65,0.8,"#c17b3a"); crate2.position.set(2.8,0.36,-0.2); g.add(crate2);
       g.position.set(cx,0,cz); scene.add(g);
     } else if (s.k === "billboard"){
       makeBillboard(s);
