@@ -185,6 +185,8 @@ function buildWorld(){
     // roads (scenery only)
     scenery.push({ k:"road", x:ox, y:oy + 8*T, w:DW*T, h:3*T });
     scenery.push({ k:"road", x:ox + 11*T, y:oy, w:3*T, h:DH*T });
+    // Large, visible neighbourhood identity sign at the main road junction.
+    scenery.push({ k:"districtSign", did:d.id, x:ox + 14.2*T, y:oy + 9.1*T, w:1, h:1 });
 
     // work building
     const wb = { x:ox + 3*T, y:oy + 2*T, w:6*T, h:4*T };
@@ -197,8 +199,7 @@ function buildWorld(){
     scenery.push({ k:"bus", x:ox + 15*T, y:oy + 6*T, w:T, h:2*T });
     spots.push({ kind:"bus", did:d.id, x:ox + 15.5*T, y:oy + 7.2*T, label:"🚌 Bus" });
     if (d.id === "yaba" || d.id === "surulere") spots.push({ kind:"lagoon", did:d.id, x:ox + 12.5*T, y:oy + 17.3*T, label:"🌊 Look out" });
-    BB_POS.forEach((bp, slot) => {      scenery.push({ k:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, w:0, h:0 });
-      spots.push({ kind:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, label:"📢 Billboard" });
+    BB_POS.forEach((bp, slot) => {      scenery.push({ k:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, w:0, h:0 });      spots.push({ kind:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, label:"📢 Billboard" });
     });
 
     // every district has a house lot: it is YOUR home only in your home district
@@ -397,8 +398,7 @@ async function openHome(){
       ${ups.length ? ups.map(h => `<button class="opt" data-h="${esc(h.id)}">${esc(h.name)} · ${esc(h.price)} coins<small>${esc(h.blurb || "")} Rest: ${esc(h.rest_energy)} energy.</small></button>`).join("") : "<p>You live in the best home available. Well done!</p>"}
       <button class="btn alt" id="mClose">Close</button>`);
     $("mClose").onclick = closeModal;    const care = (kind, msg) => async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_home_care", { p_kind:kind }); setHud(); closeModal(); toast(msg); }
+      if (busy) return; busy = true;      try{ state = await rpc("starlife_home_care", { p_kind:kind }); setHud(); closeModal(); toast(msg); }
       catch(e){ toast(e.message || "Could not do that."); }
       finally{ busy = false; }
     };
@@ -597,8 +597,7 @@ function taskIsAlertWorthy(task){
   if(task.expiry_date && new Date(task.expiry_date)<new Date()) return false;
   const total=Number(task.max_total_completions??task.slots), done=Number(task.completed_count??task.total_completions??0);  if(Number.isFinite(total)&&total>0&&done>=total) return false;
   return true;
-}
-async function startNewTaskAlerts(){
+}async function startNewTaskAlerts(){
   if(!("Notification" in window)){ toast("This browser does not support notifications. Open Jobs to check new tasks."); return false; }
   let permission=Notification.permission;
   if(permission!=="granted") permission=await Notification.requestPermission();
@@ -797,8 +796,7 @@ function pickBackground(){
   return new Promise(resolve => {    modalLocked = true;
     openModal(`<h2>Who are you? 🌍</h2><p>Your background decides where you wake up and how your story starts. You can only choose once.</p>
       ${BACKGROUNDS.map(b => `<button class="opt" data-b="${b.id}">${b.icon} ${esc(b.name)} · ${esc(b.place)}<small>${esc(b.story)} (${esc(b.perk)})</small></button>`).join("")}`);
-    $("box").querySelectorAll("[data-b]").forEach(btn => btn.onclick = async () => {
-      if (busy) return; busy = true;
+    $("box").querySelectorAll("[data-b]").forEach(btn => btn.onclick = async () => {      if (busy) return; busy = true;
       try{
         state = await rpc("starlife_choose_background", { p_bg:btn.dataset.b });
         modalLocked = false; closeModal(); resolve();
@@ -997,8 +995,7 @@ function buildBuilding(s){
   g.position.set((s.x + s.w / 2) * U, 0, (s.y + s.h / 2) * U);
   if (s.k === "home" && s.mine){
     beacon = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.4, 4), new THREE.MeshBasicMaterial({ color:"#ffd54f" }));
-    beacon.rotation.x = Math.PI; beacon.position.set(g.position.x, h + 5, g.position.z); scene.add(beacon);
-  }
+    beacon.rotation.x = Math.PI; beacon.position.set(g.position.x, h + 5, g.position.z); scene.add(beacon);  }
   return g;
 }
 
@@ -1031,6 +1028,21 @@ function buildScene(){
       m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.06, cz); scene.add(m);
     } else if (s.k === "tree"){
       trees.push([(s.x + 16) * U, (s.y + 16) * U]);
+    } else if (s.k === "districtSign"){
+      const g = new THREE.Group();
+      const postMat = mat("#37474f"), boardMat = mat("#087f36");
+      [-1.05,1.05].forEach(x=>{
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.12,3.6,6),postMat);
+        post.position.set(x,1.8,0); g.add(post);
+      });
+      const board = box(5.1,2.0,0.22,"#087f36"); board.position.set(0,3.0,0); g.add(board);
+      const stripe = box(5.1,0.22,0.25,"#b7ef43"); stripe.position.set(0,2.0,0); g.add(stripe);
+      const district = DISTRICTS.find(d=>d.id===s.did);
+      const title = labelSprite(district ? district.name.toUpperCase() : "LAGOS", "#087f36", "#ffffff", 5.0);
+      title.position.set(0,3.12,0.18); g.add(title);
+      const subtitle = labelSprite("WELCOME TO LAGOS", "#064d25", "#b7ef43", 3.2);
+      subtitle.position.set(0,2.48,0.18); g.add(subtitle);
+      g.position.set((s.x+0.5)*U,0,(s.y+0.5)*U); scene.add(g);
     } else if (s.k === "bus"){
       const g = new THREE.Group();
       const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 3.4, 6), mat("#555555")); pole.position.y = 1.7; g.add(pole);
@@ -1197,8 +1209,7 @@ const isMissingFn = e => /could not find the function|schema cache/i.test((e && 
 /* ---- 18+ date of birth check (we keep only a yes/no, not the date) ---- */
 function confirmAdult(){
   return new Promise(resolve => {
-    modalLocked = true;
-    const yMax = new Date().getFullYear();
+    modalLocked = true;    const yMax = new Date().getFullYear();
     const sel = "width:32%;padding:13px;border:2px solid #e0eae3;border-radius:12px;font:inherit;background:#fff";
     const days = Array.from({ length:31 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("");
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => `<option value="${i + 1}">${m}</option>`).join("");
@@ -1397,8 +1408,7 @@ async function openBillboard(spot){
         const r = await rpc("starlife_rent_billboard", { p_district:spot.did, p_slot:spot.slot, p_text:$("bbText").value, p_days:Number($("bbDays").value) });
         state = r; setHud(); closeModal(); toast("Your billboard is live!"); loadBillboards();
       }catch(e){ toast(e.message || "Could not rent the billboard."); }
-      finally{ busy = false; }
-    };
+      finally{ busy = false; }    };
   }
 }
 
@@ -1597,8 +1607,7 @@ async function openChat(uid, name){
     catch(e){ toast(e.message || "Could not send the report."); }
   };
   if (chatTimer) clearInterval(chatTimer);
-  chatTimer = setInterval(load, 4000);
-  await load();
+  chatTimer = setInterval(load, 4000);  await load();
 }
 $("chatBtn").addEventListener("click", () => { if (!modalOpen) openFriends(); });
 
@@ -1797,8 +1806,7 @@ function roomBathroom(){  openModal(`<h2>🚿 Bathroom</h2><button class="btn" i
 function roomFridge(){
   openModal(`<h2>🧊 Fridge</h2><p>A quick snack from your own kitchen.</p>
     <button class="opt" data-s="puff_puff">Puff puff · 5 coins</button><button class="opt" data-s="jollof">Jollof rice · 20 coins</button>
-    <button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
+    <button class="btn alt" id="mClose">Close</button>`);  $("mClose").onclick = closeModal;
   $("box").querySelectorAll("[data-s]").forEach(b => b.onclick = async () => {
     if (busy) return; busy = true;
     try{ state = await rpc("starlife_eat", { p_food_id:b.dataset.s }); setHud(); closeModal(); toast("Tasty!"); }
@@ -1997,8 +2005,7 @@ function openWorldGuide(firstRun){
     <div class="row"><b>1. Move around</b><span>🕹️</span></div>
     <p style="color:#52665a">Hold the joystick at the bottom-left to walk. Drag the open screen to turn your view. Use + and − to zoom.</p>
     <div class="row"><b>2. Interact with the city</b><span>📍</span></div>
-    <p style="color:#52665a">Walk close to a building, person, bus stop or sign. When the green action button appears, tap it to see what you can do.</p>
-    <div class="row"><b>3. Build your life</b><span>💼</span></div>
+    <p style="color:#52665a">Walk close to a building, person, bus stop or sign. When the green action button appears, tap it to see what you can do.</p>    <div class="row"><b>3. Build your life</b><span>💼</span></div>
     <p style="color:#52665a">Work to earn game coins. Visit restaurants, your home and venues to manage your needs. Use the phone for jobs, rent, your needs and notifications. Fame unlocks more opportunities.</p>
     <div class="row"><b>Explore Lagos — choose your neighbourhood</b><span>🇳🇬</span></div>
     <div id="districtGuide" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0">
@@ -2089,15 +2096,3 @@ async function init(){
     let seen = false; try{ seen = localStorage.getItem("slw3_help") === "1"; }catch(e){}
     if (!seen) openWorldGuide(true);
     requestAnimationFrame(loop);
-  }catch(e){
-    console.error(e);
-    if (e && e.message === "WEBGL") screen("Your phone or browser cannot show the 3D world.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
-    else screen("Could not open the world. Check your internet and refresh.<br><br><a href='starlife.html'>Return to Star Life menu</a> &nbsp; <a href='starlife.html'>Star Life menu</a>");
-  }
-}
-init();
-</script>
-
-<style id="nt-global-root-palette">:root{--nt-forest:#064E2B;--nt-deep:#073B24;--nt-dark-green:#073B24;--nt-green:#0B8F45;--nt-bright:#16A34A;--nt-bright-green:#16A34A;--nt-lime:#B7F34A;--nt-white:#FFFFFF;--nt-surface:#FFFFFF;--nt-card:#FFFFFF;--nt-soft-white:#F7FBF7;--nt-bg:#F1F8F2;--nt-pale:#EAF5EC;--nt-leaf:#EAF5EC;--nt-cream:#F7FBF7;--nt-ink:#173326;--nt-muted:#647568;--nt-line:#DCE9DE;--nt-border:#DCE9DE;--nt-success:#168443}</style>
-</body>
-</html>
