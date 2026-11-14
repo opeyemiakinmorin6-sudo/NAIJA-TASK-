@@ -178,20 +178,20 @@ function buildCity(){
  for(let i=0;i<14;i++){const x=-180+i*27;meshBox(4,2.8,3,0xe1a65b,x,0,18);meshBox(4.3,.35,3.3,0x8b492b,x,2.8,18);}
 }
 function makePerson(shirt=0x16824a,skin=0x754a32){
- const g=new THREE.Group(),arms=[],legs=[];
+ const g=new THREE.Group(),arms=[],legs=[],skinMeshes=[];
  const torso=new THREE.Mesh(new THREE.CylinderGeometry(.43,.54,1.28,9),material(shirt));torso.position.y=1.48;g.add(torso);
- const neck=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.2,7),material(skin));neck.position.y=2.15;g.add(neck);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.36,12,10),material(skin));head.position.y=2.48;g.add(head);
+ const neck=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.2,7),material(skin));neck.position.y=2.15;g.add(neck);skinMeshes.push(neck);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.36,12,10),material(skin));head.position.y=2.48;g.add(head);skinMeshes.push(head);
  const hair=new THREE.Mesh(new THREE.SphereGeometry(.375,10,7),material(0x171513));hair.scale.y=.43;hair.position.set(0,2.69,-.035);g.add(hair);
  for(const side of [-1,1]){
   const armPivot=new THREE.Group();armPivot.position.set(side*.49,1.98,0);g.add(armPivot);
-  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.115,.145,.88,7),material(skin));arm.position.y=-.43;armPivot.add(arm);arms.push(armPivot);
-  const hand=new THREE.Mesh(new THREE.SphereGeometry(.13,7,6),material(skin));hand.position.y=-.88;armPivot.add(hand);
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.115,.145,.88,7),material(skin));arm.position.y=-.43;armPivot.add(arm);arms.push(armPivot);skinMeshes.push(arm);
+  const hand=new THREE.Mesh(new THREE.SphereGeometry(.13,7,6),material(skin));hand.position.y=-.88;armPivot.add(hand);skinMeshes.push(hand);
   const legPivot=new THREE.Group();legPivot.position.set(side*.21,.88,0);g.add(legPivot);
   const leg=new THREE.Mesh(new THREE.CylinderGeometry(.145,.17,.82,7),material(0x273b37));leg.position.y=-.41;legPivot.add(leg);legs.push(legPivot);
   const shoe=new THREE.Mesh(new THREE.BoxGeometry(.32,.15,.48),material(0x201f1d));shoe.position.set(0,-.81,.105);legPivot.add(shoe);
  }
- g.userData.phase=Math.random()*6.28;g.userData.arms=arms;g.userData.legs=legs;return g;
+ g.userData.phase=Math.random()*6.28;g.userData.arms=arms;g.userData.legs=legs;g.userData.skinMeshes=skinMeshes;g.userData.shirtMesh=torso;g.userData.hairMesh=hair;return g;
 }
 function characterGroundY(){return currentInterior?-.06:0;}
 function animateCharacter(g,phase,amount=1){
@@ -269,7 +269,44 @@ function buildTraffic(){
  }
 }
 function makePlayer(){
- playerGroup=makePerson(0x087f43,0x754a32);playerGroup.scale.set(1.12,1.12,1.12);scene.add(playerGroup);
+ playerGroup=makePerson(0x087f43,0x754a32);playerGroup.scale.set(1.12,1.12,1.12);scene.add(playerGroup);applyCharacterLook();
+}
+const LOOK_KEY="starlife_character_look_v1",HOME_KEY="starlife_home_style_v1";
+const LOOKS={skin:[["Warm brown",0x754a32],["Deep brown",0x4e3024],["Golden brown",0x9a6849],["Cocoa",0x603d2b]],shirt:[["Star green",0x087f43],["Royal blue",0x275f99],["Sunset orange",0xc15b32],["Lime",0xc9f45a],["Cream",0xe0ddd0],["Purple",0x80529a]],hair:["Short curls","High top","Low cut"]};
+function savedLook(){try{return JSON.parse(localStorage.getItem(LOOK_KEY)||"{}");}catch(e){return {};}}
+function applyCharacterLook(){
+ if(!playerGroup?.userData)return;const v=savedLook(),u=playerGroup.userData;
+ const skin=LOOKS.skin.find(x=>x[0]===v.skin)?.[1]||LOOKS.skin[0][1],shirt=LOOKS.shirt.find(x=>x[0]===v.shirt)?.[1]||LOOKS.shirt[0][1];
+ u.skinMeshes.forEach(m=>m.material.color.setHex(skin));u.shirtMesh.material.color.setHex(shirt);
+ const h=v.hair||"Short curls";u.hairMesh.scale.set(1,h==="High top"?.68:h==="Low cut"?.28:.43,1);u.hairMesh.position.y=h==="High top"?2.75:h==="Low cut"?2.57:2.69;
+}
+function openCharacterStudio(){
+ const v=savedLook(),select=(id,items,chosen)=>'<select id="'+id+'" style="width:100%;padding:12px;border:1px solid #dce6dc;border-radius:12px;background:#fff;margin:5px 0 12px">'+items.map(x=>'<option '+(x===chosen?'selected':'')+'>'+safeText(x)+'</option>').join("")+'</select>';
+ openModal('<h2>✨ Character studio</h2><p>Customise your character. Your choices are saved on this device.</p><b>Skin tone</b>'+select("lookSkin",LOOKS.skin.map(x=>x[0]),v.skin||"Warm brown")+'<b>Outfit colour</b>'+select("lookShirt",LOOKS.shirt.map(x=>x[0]),v.shirt||"Star green")+'<b>Hair style</b>'+select("lookHair",LOOKS.hair,v.hair||"Short curls")+'<button class="primary" id="saveLook">Save character look</button><button class="secondary" id="closeLook">Close</button>');
+ $("saveLook").onclick=()=>{try{localStorage.setItem(LOOK_KEY,JSON.stringify({skin:$("lookSkin").value,shirt:$("lookShirt").value,hair:$("lookHair").value}));applyCharacterLook();closeModal();toast("Your Star Life look has been saved.");}catch(e){toast("Could not save your look on this device.");}};
+ $("closeLook").onclick=closeModal;
+}
+const HOME_STYLES=[["Warm wood",0xc5a77c,0x815536],["Green calm",0xb8c9a5,0x245d43],["Modern cream",0xe5ddc9,0x5a6670],["Royal dusk",0xaaa0bd,0x43365d]];
+let homeDecorGroup=null,homeDecorMeshes=null;
+function applyHomeStyle(){
+ if(!homeDecorMeshes)return;const s=HOME_STYLES.find(x=>x[0]===readHomeStyle())||HOME_STYLES[0];
+ homeDecorMeshes.rug.material.color.setHex(s[1]);homeDecorMeshes.sofa.material.color.setHex(s[2]);homeDecorMeshes.bed.material.color.setHex(s[2]);
+}
+function readHomeStyle(){try{return localStorage.getItem(HOME_KEY)||"Warm wood";}catch(e){return "Warm wood";}}
+function buildHomeDecor(){
+ if(homeDecorGroup)return;homeDecorGroup=new THREE.Group();homeDecorGroup.position.set(1000,0,1000);interiorGroup.add(homeDecorGroup);
+ const rug=new THREE.Mesh(new THREE.BoxGeometry(7,.08,5),material(0xc5a77c));rug.position.set(1,.02,2);homeDecorGroup.add(rug);
+ const sofa=new THREE.Mesh(new THREE.BoxGeometry(4,1.1,1.5),material(0x815536));sofa.position.set(-5,.65,3);homeDecorGroup.add(sofa);
+ const back=new THREE.Mesh(new THREE.BoxGeometry(4,.9,.35),material(0x815536));back.position.set(-5,1.35,2.45);homeDecorGroup.add(back);
+ const bed=new THREE.Mesh(new THREE.BoxGeometry(3.8,.55,5),material(0x815536));bed.position.set(6,.3,3);homeDecorGroup.add(bed);
+ const plant=new THREE.Mesh(new THREE.SphereGeometry(.8,7,6),material(0x39794a));plant.scale.y=1.5;plant.position.set(9,1.45,-6);homeDecorGroup.add(plant);
+ homeDecorMeshes={rug,sofa,bed};applyHomeStyle();
+}
+function openHomeStudio(){
+ const current=readHomeStyle(),opts=HOME_STYLES.map(x=>'<option '+(x[0]===current?'selected':'')+'>'+x[0]+'</option>').join("");
+ openModal('<h2>🛋️ Home design studio</h2><p>Choose a room theme and furniture colour. Your design is saved on this device.</p><select id="homeTheme" style="width:100%;padding:13px;border:1px solid #dce6dc;border-radius:12px;background:#fff">'+opts+'</select><button class="primary" id="saveHomeStyle">Apply room design</button><button class="secondary" id="backHome">Back to home</button>');
+ $("saveHomeStyle").onclick=()=>{try{localStorage.setItem(HOME_KEY,$("homeTheme").value);if(homeDecorGroup)applyHomeStyle();closeModal();toast("Your home design has been saved.");}catch(e){toast("Could not save your room design.");}};
+ $("backHome").onclick=openHome;
 }
 function canonicalArea(id){
  const raw=String(id||"surulere").toLowerCase().replace(/[\s-]+/g,"_");
@@ -383,8 +420,10 @@ async function openHome(){
   const home=homes.find(h=>h.id===state.home_id)||homes[0];
   openModal('<h2>🏠 Your home</h2><p>'+safeText(home?.blurb||"Your place to rest and plan your next move.")+'</p>'+
    '<div class="stat-grid"><div class="stat"><b>⚡ '+safeText(home?.rest_energy??"—")+'</b><span>Rest energy</span></div><div class="stat"><b>🪙 '+safeText(home?.rent??0)+'</b><span>Weekly rent</span></div><div class="stat"><b>🏡</b><span>'+safeText(home?.name||"Home")+'</span></div></div>'+
+   '<button class="option" id="homeDecor">🛋️ Decorate my home<small>Choose a room theme and furniture colour</small></button>'+
    '<button class="primary" id="rest" '+(state.rested_today?"disabled":"")+'>'+(state.rested_today?"Already rested today":"😴 Rest and recover")+'</button>'+
    '<button class="secondary" id="shower">🚿 Take a shower</button><button class="secondary" id="toilet">🚽 Use the toilet</button><button class="secondary" id="dismiss">Close</button>');
+  $("homeDecor").onclick=openHomeStudio;
   $("rest").onclick=()=>withBusy(async()=>{const next=await rpc("starlife_rest");setState(next);closeModal();toast("You feel rested. Ready for the day.");});
   $("shower").onclick=()=>withBusy(async()=>{const next=await rpc("starlife_home_care",{p_kind:"shower"});setState(next);closeModal();toast("Fresh and ready.");});
   $("toilet").onclick=()=>withBusy(async()=>{const next=await rpc("starlife_home_care",{p_kind:"toilet"});setState(next);closeModal();toast("All sorted.");});
@@ -613,7 +652,7 @@ function buildInteriorRoom(){
 }
 function enterBuildingInterior(place){
  exteriorPosition={x:player.x,z:player.z};exteriorYaw=yaw;exteriorCameraDistance=cameraDistance;
- currentInterior=place;buildInteriorRoom();
+ currentInterior=place;buildInteriorRoom();if(place.kind==="home")buildHomeDecor();
  interiorExitSpot={kind:"interiorExit",label:"EXIT BUILDING",x:1000,z:1007,area:place.area,icon:"🚪"};spots.push(interiorExitSpot);
  player.x=1000;player.z=1002;player.angle=Math.PI;playerGroup.position.set(player.x,characterGroundY(),player.z);
  yaw=0;cameraDistance=7;
@@ -684,14 +723,14 @@ async function init(){
   $("loading").style.display="none";$("hud").style.display="flex";$("joystick").style.display="block";$("quick").style.display="flex";$("hint").style.display="block";
   setTimeout(()=>$("hint").style.display="none",6500);
   $("action").addEventListener("click",interact);$("brake").addEventListener("pointerdown",e=>{e.preventDefault();driveBrake=true;});$("brake").addEventListener("pointerup",()=>driveBrake=false);$("brake").addEventListener("pointercancel",()=>driveBrake=false);$("brake").addEventListener("pointerleave",()=>driveBrake=false);$("phone").onclick=openPhone;$("map").onclick=openTravel;
-  $("menu").onclick=()=>openModal('<h2>🌍 Game menu</h2><p>Take a break, change your plans or return to the Star Life hub.</p><button class="option" id="menuPhone">📱 Player phone</button><button class="option" id="menuWork">💼 Find work</button><button class="option" id="menuTravel">🚌 Travel</button><button class="secondary" id="exitGame">Return to Star Life hub</button>');
+  $("menu").onclick=()=>openModal('<h2>🌍 Star Life menu</h2><p>Customise your character, manage your day or explore.</p><button class="option" id="menuLook">✨ Character studio<small>Skin tone, hairstyle and outfit colour</small></button><button class="option" id="menuPhone">📱 Player phone</button><button class="option" id="menuWork">💼 Find work</button><button class="option" id="menuTravel">🚌 Travel</button><button class="secondary" id="exitGame">Return to Star Life hub</button>');
   $("zoomIn").onclick=()=>cameraDistance=Math.max(6,cameraDistance-1.5);$("zoomOut").onclick=()=>cameraDistance=Math.min(18,cameraDistance+1.5);
   $("close").onclick=closeModal;$("modal").addEventListener("pointerdown",e=>{if(e.target===$("modal"))closeModal();});
   document.addEventListener("keydown",e=>{keys[e.key]=true;if(e.key==="Escape")closeModal();});
   document.addEventListener("keyup",e=>{keys[e.key]=false;});
   document.addEventListener("visibilitychange",()=>{if(document.hidden){joy.x=joy.y=0;}});
   $("sheetContent").addEventListener("click",e=>{
-   if(e.target.id==="menuPhone")openPhone();if(e.target.id==="menuWork")openWork();if(e.target.id==="menuTravel")openTravel();
+   if(e.target.id==="menuLook")openCharacterStudio();if(e.target.id==="menuPhone")openPhone();if(e.target.id==="menuWork")openWork();if(e.target.id==="menuTravel")openTravel();
    if(e.target.id==="exitGame")location.href="starlife.html";
   });
   openWelcome();animate();
