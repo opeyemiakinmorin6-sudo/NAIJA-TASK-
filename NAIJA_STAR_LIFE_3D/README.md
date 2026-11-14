@@ -5,8 +5,10 @@ This folder is the isolated Godot 4 project foundation. It does not replace the 
 ## Current state
 
 - Godot project configuration targets the Compatibility renderer.
-- A minimal main scene, player scene and third-person keyboard/mouse controller are in place.
+- A minimal main scene, player scene, third-person controller, touchscreen movement/camera input and interaction ray are in place.
+- A first activity interaction loop is wired: approach the activity marker, target it with the camera, then press E or use the on-screen INTERACT button. It awards prototype-only local Star Coins and has a short cooldown.
 - The current capsule and ground are temporary greybox test objects, not final character or environment art.
+- The activity marker, player capsule and ground are temporary greybox objects. The Star Coins reward is local prototype state only; it is not connected to Supabase, cannot be withdrawn, and must not be treated as real currency.
 - No licensed production avatar, district environment, animation pack, Android export, multiplayer server or device performance test is included yet.
 
 ## Open the project
@@ -14,7 +16,7 @@ This folder is the isolated Godot 4 project foundation. It does not replace the 
 1. Install Godot 4.x on a desktop computer.
 2. Open this folder as a project.
 3. Run the main scene.
-4. Use WASD or arrow keys to move, Shift to run, Space to jump, and hold the right mouse button while moving the mouse to orbit the camera. On touchscreens, drag on the left half to move and drag on the right half to orbit the camera. The touch movement area is currently invisible and needs a proper visual joystick and action buttons before a player test.
+4. Use WASD or arrow keys to move, Shift to run, Space to jump, and hold the right mouse button while moving the mouse to orbit the camera. On touchscreens, drag on the left half to move and drag on the right half to orbit the camera. The activity button appears when the camera targets the activity marker. A visible movement joystick, jump/run controls and proper mobile HUD are still required.
 
 ## Next milestones
 
