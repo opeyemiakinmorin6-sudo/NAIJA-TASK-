@@ -137,9 +137,9 @@ const LOTS2 = {
   H:{ tx:9,  ty:13, w:2, h:3, dx:10,  dy:16.4 }
 };
 const PLACES = {
-  ikeja:{ E:"hospital", H:"bank" }, yaba:{ E:"school", H:"salon" },
+  ikeja:{ E:"hospital", F:"fela_shrine", H:"bank" }, yaba:{ E:"school", H:"salon" },
   surulere:{ E:"gym", F:"kiosk", G:"market" }, oshodi:{ E:"market", F:"kiosk" },
-  ikorodu:{ E:"kiosk", G:"salon" }, vi:{ E:"bank", F:"salon" }, lekki:{ E:"gym", H:"salon" }
+  ikorodu:{ E:"kiosk", G:"salon" }, vi:{ E:"bank", F:"salon" }, lekki:{ E:"gym", G:"dangote_refinery", H:"salon" }
 };
 const PLACE_INFO = {
   hospital:{ name:"Hospital", sign:"HOSPITAL", icon:"🏥", wall:"#ffffff", roof:"#c62828", blurb:"Look after your health or volunteer on the ward." },
@@ -148,7 +148,9 @@ const PLACE_INFO = {
   market:  { name:"Market stalls", sign:"MARKET", icon:"🧺", wall:"#ffe0b2", roof:"#ef6c00", blurb:"Buy, sell and bargain like a pro." },
   salon:   { name:"Salon and Barber", sign:"SALON", icon:"💈", wall:"#f8bbd0", roof:"#ad1457", blurb:"A fresh look can open doors." },
   kiosk:   { name:"Kiosk", sign:"KIOSK", icon:"🛒", wall:"#c8e6c9", roof:"#2e7d32", blurb:"Snacks, drinks and the latest gist." },
-  bank:    { name:"Bank", sign:"BANK", icon:"🏦", wall:"#cfd8dc", roof:"#263238", blurb:"Meet the staff and pick up work." }
+  bank:    { name:"Bank", sign:"BANK", icon:"🏦", wall:"#cfd8dc", roof:"#263238", blurb:"Meet the staff and pick up work." },
+  fela_shrine:{ name:"New Afrika Shrine", sign:"FELA SHRINE", icon:"🎷", wall:"#e6bd68", roof:"#8b2f1e", blurb:"Visit Ikeja’s legendary live-music and cultural venue. Explore Afrobeat history, the stage and community atmosphere." },
+  dangote_refinery:{ name:"Dangote Refinery Visitor Experience", sign:"DANGOTE REFINERY", icon:"🏭", wall:"#d8e2e8", roof:"#174d67", blurb:"Explore a visitor-style introduction to the Lekki industrial corridor, energy production, engineering and manufacturing. This is a fictional in-game tour, not access to the real facility." }
 };
 const SHOPS = {
   surulere:{ A:"food" }, yaba:{ A:"food" }, oshodi:{ A:"food" }, ikorodu:{ A:"food" },
@@ -766,7 +768,7 @@ function doAct(){
   else if (nearest.kind === "biz") openBiz();
   else if (nearest.kind === "cars") openCars();
   else if (nearest.kind === "celeb") meetCeleb(nearest.ref);
-  else if (nearest.kind === "house") knock();
+  else if (nearest.kind === "house") knock(nearest);
   else if (nearest.kind === "lagoon") lagoon();
   else if (nearest.kind === "billboard") openBillboard(nearest.spot);
   else if (nearest.kind === "player") openPlayer(nearest.ref);
@@ -917,10 +919,19 @@ const LAGOON_LINES = [
   "The water reflects the lights of the island. Somewhere out there, big deals are being made.",
   "A fisherman waves from his canoe. The tide is calm tonight."
 ];
-function knock(){
-  const line = NEIGHBOUR_LINES[Math.floor(Math.random() * NEIGHBOUR_LINES.length)];
-  openModal(`<h2>🚪 Knock knock</h2><p style="color:#173326">A neighbour opens the door.</p><p style="color:#173326;font-size:15px">"${esc(line)}"</p><button class="btn alt" id="mClose">Wave goodbye</button>`);
-  $("mClose").onclick = closeModal;
+function knock(spot){
+ const line=NEIGHBOUR_LINES[Math.floor(Math.random()*NEIGHBOUR_LINES.length)];
+ const names=["Aunty Bisi","Uncle Chinedu","Mama Zainab","Mr Tunde","Aunty Ngozi","Baba Musa","Sister Amaka","Mr Ibrahim"];
+ const resident=names[Math.floor(Math.random()*names.length)];
+ let log=[];try{log=JSON.parse(localStorage.getItem("slw3_neighbour_log")||"[]");}catch(e){}
+ const key=(spot&&spot.did||state.location)+":"+Math.round((spot&&spot.x||player.x)/16)+":"+Math.round((spot&&spot.y||player.y)/16);
+ const old=log.find(x=>x.key===key),visits=old?old.visits:0;
+ openModal('<small style="color:#087f36;font-weight:900">NEIGHBOURHOOD LIFE</small><h2>🚪 At the neighbour’s house</h2><p style="color:#173326"><b>'+esc(resident)+'</b> opens the door and welcomes you.</p><p style="color:#173326">"'+esc(line)+'"</p><div class="row"><span>Familiarity</span><b>'+(visits?"Returning visitor":"First meeting")+'</b></div><h3>What would you like to do?</h3><button class="opt" id="nhChat">🗣️ Have a friendly chat<small>Hear neighbourhood gist.</small></button><button class="opt" id="nhTea">☕ Accept a cup of tea<small>Spend time getting to know your neighbour.</small></button><button class="opt" id="nhTip">🧭 Ask for a local recommendation<small>Get a tip about food, transport or a nearby place.</small></button><button class="btn alt" id="mClose">👋 Say goodbye</button>');
+ const save=(action,message)=>{const item=log.find(x=>x.key===key)||{key:key,visits:0};item.visits++;item.last=action;item.name=resident;log=log.filter(x=>x.key!==key);log.unshift(item);try{localStorage.setItem("slw3_neighbour_log",JSON.stringify(log.slice(0,80)));}catch(e){}openModal('<h2>'+esc(action)+'</h2><p style="color:#173326">'+esc(message)+'</p><p>Your neighbour remembers you from this visit. Progress is saved on this device.</p><button class="btn" id="nhAgain">Continue conversation</button><button class="btn alt" id="mClose">Leave</button>');$("nhAgain").onclick=()=>knock(spot);$("mClose").onclick=closeModal;};
+ $("nhChat").onclick=()=>save("A friendly conversation",resident+" tells you about the area. You listen and leave on good terms.");
+ $("nhTea").onclick=()=>save("Tea with a neighbour","You sit for a while, enjoy a warm drink and hear stories about everyday life.");
+ $("nhTip").onclick=()=>save("Local recommendation",["Try the food stall near the bus stop; the akara sells out early.","Ask keke drivers which roads are moving before setting off.","There is a busy market nearby. Compare prices before buying.","A community football game often brings neighbours together."][Math.floor(Math.random()*4)]);
+ $("mClose").onclick=closeModal;
 }
 function lagoon(){
   const line = LAGOON_LINES[Math.floor(Math.random() * LAGOON_LINES.length)];
@@ -2258,7 +2269,32 @@ async function openLandmark(spot){
       catch(e){ toast(e.message || "Could not do that."); }
       finally{ busy = false; }
     });
-  }catch(e){ toast(isMissingFn(e) ? "This place is not set up yet. Ask the admin to run the places SQL." : (e.message || "Could not open this place.")); }
+  }catch(e){
+    if(spot.pk==="fela_shrine"||spot.pk==="dangote_refinery"){openLocalLandmark(spot,info);return;}
+    toast(isMissingFn(e) ? "This place is not set up yet. Ask the admin to run the places SQL." : (e.message || "Could not open this place."));
+  }
+}
+function openLocalLandmark(spot,info){
+ const fela=spot.pk==="fela_shrine";
+ const actions=fela?[
+  ["🎷 Explore Afrobeat history","Discover the music, creativity and cultural influence associated with Fela Kuti and the Shrine."],
+  ["🎤 Visit the performance stage","Imagine a live band warming up while the crowd gathers for music."],
+  ["🍲 Visit the food and hangout area","Discover the social side of the venue and the food culture around a night out."],
+  ["🤝 Learn about the community","Explore how music venues support artists, crews and creative businesses."]
+ ]:[
+  ["🏭 Take the industrial orientation","Learn how refining, logistics, safety systems and engineering fit together in a large industrial project."],
+  ["🦺 Visit the safety briefing centre","Review protective equipment, restricted zones and why industrial safety rules matter."],
+  ["⚙️ Explore engineering careers","Discover mechanical, electrical, process, logistics and operations career paths."],
+  ["🌍 Learn about the Lekki industrial corridor","Explore how ports, roads, suppliers and factories connect around the area."]
+ ];
+ openModal('<small style="color:#087f36;font-weight:900">SPECIAL DESTINATION</small><h2>'+info.icon+" "+esc(info.name)+'</h2><p style="color:#173326">'+esc(info.blurb)+'</p><p style="font-size:12px;color:#66766d">'+(fela?"A respectful in-game visit inspired by the public cultural identity of the New Afrika Shrine.":"A fictional visitor-centre experience inspired by the real industrial project. It does not depict or grant entry to the private operating facility.")+'</p><h3>Choose an experience</h3>'+actions.map((a,i)=>'<button class="opt" data-local-landmark="'+i+'">'+esc(a[0])+'<small>Explore this activity</small></button>').join("")+'<button class="btn alt" id="mClose">Close</button>');
+ $("mClose").onclick=closeModal;
+ $("box").querySelectorAll("[data-local-landmark]").forEach(b=>b.onclick=()=>{
+  const a=actions[Number(b.dataset.localLandmark)];let journal=[];try{journal=JSON.parse(localStorage.getItem("slw3_landmark_journal")||"[]");}catch(e){}
+  journal.unshift({place:info.name,activity:a[0],date:new Date().toISOString()});try{localStorage.setItem("slw3_landmark_journal",JSON.stringify(journal.slice(0,60)));}catch(e){}
+  openModal('<h2>'+esc(a[0])+'</h2><p style="color:#173326">'+esc(a[1])+'</p><p>Your visit is saved in your local landmark journal. No coins, fame or real-world access have been granted.</p><button class="btn" id="lmAgain">Choose another activity</button><button class="btn alt" id="mClose">Leave destination</button>');
+  $("lmAgain").onclick=()=>openLocalLandmark(spot,info);$("mClose").onclick=closeModal;
+ });
 }
 
 /* ============================ START ============================ */
