@@ -158,14 +158,6 @@ function best(key, v){
     return Number(localStorage.getItem(key) || 0);
   }catch(e){ return 0; }
 }
-function ntShowGamesPopup(){
-  try{const k="nt_games_popup_v1",last=Number(sessionStorage.getItem(k)||0);if(Date.now()-last<300000)return;sessionStorage.setItem(k,String(Date.now()));}catch(e){}
-  if(document.getElementById("ntGamesSponsoredPopup"))return;
-  const w=document.createElement("div");w.id="ntGamesSponsoredPopup";w.setAttribute("role","dialog");w.setAttribute("aria-modal","true");w.setAttribute("aria-label","Advertisement");w.style.cssText="position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(0,18,8,.78)";
-  w.innerHTML='<div style="width:min(100%,370px);max-height:calc(100dvh - 24px);overflow:auto;background:#fff;color:#173321;border-radius:18px;padding:14px;text-align:center"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b style="font-size:11px;letter-spacing:1px;color:#245b16">ADVERTISEMENT</b><button type="button" id="ntGamesPopupClose" aria-label="Close advertisement" style="width:34px;height:34px;border:0;border-radius:50%;background:#edf4ee;font-size:22px">×</button></div><p style="font-size:12px;color:#526557;margin:0 0 10px">Sponsored content helps support NAIJA TASK games.</p><div id="ntGamesPopupUnit" style="width:300px;max-width:100%;min-height:250px;margin:0 auto;display:flex;justify-content:center;overflow:hidden;background:#f6f9f6;border-radius:9px"></div><button type="button" id="ntGamesPopupContinue" style="width:100%;margin-top:12px;padding:13px;border:0;border-radius:11px;background:#087f36;color:#fff;font-weight:800">Continue to games</button></div>';
-  const close=()=>w.remove();document.body.appendChild(w);w.querySelector("#ntGamesPopupClose").addEventListener("click",close);w.querySelector("#ntGamesPopupContinue").addEventListener("click",close);w.addEventListener("click",e=>{if(e.target===w)close();});
-  const slot=w.querySelector("#ntGamesPopupUnit");window.atOptions={key:"d33fd661fe11e17cd12dc188cb8b8bd1",format:"iframe",height:250,width:300,params:{}};const t=document.createElement("script");t.async=true;t.src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";t.onerror=()=>{if(slot.isConnected)slot.innerHTML='<small style="padding:12px;color:#708176;font-size:11px">Advertisement unavailable right now.</small>';};slot.appendChild(t);
-}
 function overlay(stage, title, text, buttons){
   const o = document.createElement("div"); o.className = "ov";
   o.innerHTML = `<h2>${title}</h2><p>${text}</p><section class="game-ad" aria-label="Advertisement"><span>ADVERTISEMENT</span><div id="ntGameResultAd" class="game-ad-unit"></div></section>`;
@@ -646,7 +638,7 @@ function refreshMenu(){
 function openGame(name){
   if (current){ current.destroy(); current = null; }
   $("stage").innerHTML = ""; $("hud").textContent = "";
-  if (!name){ $("game").classList.add("hide"); $("menu").classList.remove("hide"); currentName = null; refreshMenu(); setTimeout(ntShowGamesPopup,700); return; }
+  if (!name){ $("game").classList.add("hide"); $("menu").classList.remove("hide"); currentName = null; refreshMenu(); return; }
   currentName = name;
   $("menu").classList.add("hide"); $("game").classList.remove("hide"); $("title").textContent = GAMES[name][0];
   current = GAMES[name][1]($("stage"), $("hud"), openGame);
@@ -654,7 +646,6 @@ function openGame(name){
 document.querySelectorAll("#menu [data-g]").forEach(b => b.addEventListener("click", () => openGame(b.dataset.g)));
 $("exit").addEventListener("click", () => openGame(null));
 refreshMenu();
-setTimeout(ntShowGamesPopup,1800);
 </script>
 
 
