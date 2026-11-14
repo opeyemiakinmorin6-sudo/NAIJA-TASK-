@@ -295,7 +295,7 @@ function movePlayer(dt){
  const speed=13,dx=(Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,dz=(Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
  const nx=player.x+dx,nz=player.z+dz;
  if(!collides(nx,player.z))player.x=nx;if(!collides(player.x,nz))player.z=nz;
- player.angle=Math.atan2(dx,dz);playerGroup.position.set(player.x,0,player.z);playerGroup.rotation.y=player.angle;
+ player.angle=Math.atan2(dx,dz);playerGroup.position.set(player.x,characterGroundY(),player.z);playerGroup.rotation.y=player.angle;
 }
 function cameraUpdate(dt){
  const followAngle=activeVehicle?activeVehicle.angle:yaw;
@@ -595,7 +595,7 @@ function enterBuildingInterior(place){
  exteriorPosition={x:player.x,z:player.z};exteriorYaw=yaw;exteriorCameraDistance=cameraDistance;
  currentInterior=place;buildInteriorRoom();
  interiorExitSpot={kind:"interiorExit",label:"EXIT BUILDING",x:1000,z:1007,area:place.area,icon:"🚪"};spots.push(interiorExitSpot);
- player.x=1000;player.z=1002;player.angle=Math.PI;playerGroup.position.set(player.x,0,player.z);
+ player.x=1000;player.z=1002;player.angle=Math.PI;playerGroup.position.set(player.x,characterGroundY(),player.z);
  yaw=0;cameraDistance=7;
  const title=safeText(place.label||"Neighbourhood building");
  const description=place.kind==="work"?"Step inside your local workplace and choose a shift.":place.kind==="food"||place.kind==="market"?"Take a seat and choose something to eat.":"Welcome home. Check your home options and take a rest.";
@@ -605,7 +605,7 @@ function enterBuildingInterior(place){
 }
 function exitBuildingInterior(){
  if(!currentInterior||!exteriorPosition)return;
- player.x=exteriorPosition.x;player.z=exteriorPosition.z;playerGroup.position.set(player.x,0,player.z);
+ player.x=exteriorPosition.x;player.z=exteriorPosition.z;playerGroup.position.set(player.x,characterGroundY(),player.z);
  yaw=exteriorYaw;cameraDistance=exteriorCameraDistance;currentInterior=null;exteriorPosition=null;
  if(interiorExitSpot){const i=spots.indexOf(interiorExitSpot);if(i>=0)spots.splice(i,1);interiorExitSpot=null;}
  closeModal();updateAction();toast("Back outside in Star Life.");
