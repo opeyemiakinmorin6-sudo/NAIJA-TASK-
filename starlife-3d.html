@@ -9,7 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-:root{--green:#087f36;--dark:#064d25;--light:#0b9b45;--lime:#b7ef43;--text:#173326;--muted:#708176;--line:#e0eae3;--red:#c62828}
+:root{--green:#087f36;--dark:#042b1b;--light:#0b9b45;--lime:#c7f542;--text:#10251b;--muted:#65766b;--line:#cbd8ce;--red:#c62828}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 html,body{margin:0;height:100%;overflow:hidden;background:#0b2a17;font-family:Arial,Helvetica,sans-serif;touch-action:none;overscroll-behavior:none}
 canvas{display:block;width:100vw;height:100vh;touch-action:none}
@@ -100,7 +100,7 @@ if(!window.supabase || typeof window.supabase.createClient!=="function"){
 const db = window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co", "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");
 
 /* ============================ WORLD DEFINITION ============================ */
-const T = 32;                 // tile size in pixels
+const T = 40;                 // larger tile scale for a wider, more explorable Lagos map
 const DW = 24, DH = 18;       // district size in tiles
 const COLS = 3, ROWS = 3;     // districts across the world
 const WORLD_W = COLS * DW * T, WORLD_H = ROWS * DH * T;
@@ -885,6 +885,7 @@ function lagoon(){
 /* ============================ 3D SCENE ============================ */
 const U = 1 / 16;                 // pixels to world units: one tile is 2 units
 let renderer, scene, camera, hemi, sun, marker;
+const trafficCars = [];
 const matCache = {};
 const mat = c => matCache[c] || (matCache[c] = new THREE.MeshLambertMaterial({ color:c }));
 const box = (w, h, d, c) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c));
@@ -1070,17 +1071,17 @@ function buildScene(){
     renderer = new THREE.WebGLRenderer({ canvas, antialias:false, powerPreference:"low-power", alpha:false });
     renderer.outputEncoding=THREE.sRGBEncoding;
     renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=1.08;
+    renderer.toneMappingExposure=0.88;
   }catch(e){ throw new Error("WEBGL"); }
   scene = new THREE.Scene();
-  scene.background=new THREE.Color("#9acfe4");scene.fog=new THREE.Fog("#9acfe4",75,220);
+  scene.background=new THREE.Color("#75b6d4");scene.fog=new THREE.Fog("#75b6d4",105,310);
   camera=new THREE.PerspectiveCamera(48,1,0.35,420);
-  hemi=new THREE.HemisphereLight(0xfff4df,0x526c55,1.08);scene.add(hemi);
-  sun=new THREE.DirectionalLight(0xffe4bd,1.05);sun.position.set(-35,75,42);scene.add(sun);
-  const fillLight=new THREE.DirectionalLight(0xc7e4ff,0.28);fillLight.position.set(30,22,-45);scene.add(fillLight);
+  hemi=new THREE.HemisphereLight(0xffe2b8,0x253d2c,0.82);scene.add(hemi);
+  sun=new THREE.DirectionalLight(0xffd08a,1.0);sun.position.set(-35,75,42);scene.add(sun);
+  const fillLight=new THREE.DirectionalLight(0x8fc9e8,0.16);fillLight.position.set(30,22,-45);scene.add(fillLight);
 
   DISTRICTS.forEach(d => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(DW * T * U, DH * T * U), mat(d.ground));
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(DW * T * U, DH * T * U), mat(({ikeja:"#a9c68b",oshodi:"#c1ad78",ikorodu:"#8fb57e",yaba:"#91b89b",surulere:"#b0c77d",vi:"#8baab5",lekki:"#c9ae78"})[d.id] || "#9eb889"));
     m.rotation.x = -Math.PI / 2; m.position.set((d.c + 0.5) * DW * T * U, 0, (d.r + 0.5) * DH * T * U); scene.add(m);
   });
 
@@ -1088,7 +1089,7 @@ function buildScene(){
   scenery.forEach(s => {
     const w = s.w * U, dpt = s.h * U, cx = (s.x + s.w / 2) * U, cz = (s.y + s.h / 2) * U;
     if (s.k === "road"){
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, dpt), mat("#4b5058"));
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, dpt), mat("#303941"));
       m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.03, cz); scene.add(m);
       if (s.w > s.h){ for (let x = s.x + 16; x < s.x + s.w; x += 48) dashes.push([ (x + 10) * U, cz, 0 ]); }
       else { for (let y = s.y + 16; y < s.y + s.h; y += 48) dashes.push([ cx, (y + 10) * U, Math.PI / 2 ]); }
@@ -1167,7 +1168,7 @@ function buildScene(){
 
   // road dashes (one draw call)
   if (dashes.length){
-    const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1.4, 0.02, 0.16), new THREE.MeshBasicMaterial({ color:"#e9e3a0" }), dashes.length);
+    const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1.4, 0.02, 0.16), new THREE.MeshBasicMaterial({ color:"#f5d76e" }), dashes.length);
     const dm = new THREE.Object3D();
     dashes.forEach((p, i) => { dm.position.set(p[0], 0.05, p[1]); dm.rotation.y = p[2]; dm.updateMatrix(); im.setMatrixAt(i, dm.matrix); });
     scene.add(im);
@@ -1185,6 +1186,18 @@ function buildScene(){
     });
     scene.add(trunks); scene.add(leaves);
   }
+
+  // Moving Lagos traffic on each district main road. Keep the count modest for older phones.
+  DISTRICTS.forEach((d, di) => {
+    const roadZ = (d.r * DH * T + 9.5 * T) * U;
+    [0,1].forEach(lane => {
+      const vehicle = makeCar(lane === 0 ? "suv" : "tokunbo");
+      vehicle.rotation.y = lane === 0 ? Math.PI / 2 : -Math.PI / 2;
+      vehicle.position.set((d.c * DW * T + (lane ? 18 : 5) * T) * U, 0, roadZ + (lane ? 1.25 : -1.25));
+      vehicle.userData = { district:d, lane, speed:(lane ? -1 : 1) * (7.5 + (di % 3) * 1.2), start:d.c * DW * T, length:DW * T };
+      scene.add(vehicle); trafficCars.push(vehicle);
+    });
+  });
 
   // people
   npcs.forEach(n => {
@@ -1227,9 +1240,9 @@ function updateSky(){
   const t = new Date(), h = t.getHours() + t.getMinutes() / 60;
   let d;
   if (h < 5 || h >= 19.5) d = 0; else if (h < 6.5) d = (h - 5) / 1.5; else if (h < 18) d = 1; else d = (19.5 - h) / 1.5;
-  const col = new THREE.Color("#0a1233").lerp(new THREE.Color("#8fd0f0"), d);
+  const col = new THREE.Color("#07182d").lerp(new THREE.Color("#66b4df"), d);
   scene.background = col; scene.fog.color = col;
-  hemi.intensity = 0.28 + 0.7 * d; sun.intensity = 0.06 + 0.8 * d;
+  hemi.intensity = 0.22 + 0.56 * d; sun.intensity = 0.04 + 0.76 * d;
 }
 
 function resize(){
@@ -1251,6 +1264,16 @@ function angleLerp(a, b, t){ let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.P
 
 function draw(dt){
   syncCar();
+  trafficCars.forEach(v => {
+    const u = v.userData;
+    if (inRoom){ v.visible = false; return; }
+    v.visible = true;
+    const x0 = u.start * U, x1 = (u.start + u.length) * U;
+    let x = v.position.x + u.speed * dt;
+    if (x > x1) x = x0 - 4;
+    if (x < x0 - 4) x = x1;
+    v.position.x = x;
+  });
   // player
   playerMesh.position.set(player.x * U, carGroup ? 0.2 : 0, player.y * U);
   playerMesh.rotation.y = angleLerp(playerMesh.rotation.y, player.face, Math.min(1, dt * 12));
@@ -1762,7 +1785,7 @@ $("musicBtn").addEventListener("click", () => { if (radioId) stopRadio(); }, tru
 /* ============================ YOUR ROOM, WAKING UP, ZOOM ============================ */
 const ROOM = { x:-4000, y:-4000 };      // pixels, far away from the city (20 x 20 world units)
 let inRoom = false, sleeping = false, roomGroup = null, roomSolids = [], roomSpots = [], roomSig = "";
-let camDist = 15, pinching = false, cityPos = null;
+let camDist = 19, pinching = false, cityPos = null;
 const rpx = lx => ROOM.x + lx * 16, rpz = lz => ROOM.y + lz * 16;
 const WALL_BY_HOME = { shared_room:"#b0bec5", rented_room:"#f1e3c8", one_bed:"#cfe8f7", nice_flat:"#f6d9b8" };
 const FLOOR_BY_HOME = { shared_room:"#8d6e63", rented_room:"#b08a5b", one_bed:"#c9a66b", nice_flat:"#d7b98a" };
