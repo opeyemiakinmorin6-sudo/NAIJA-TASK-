@@ -32,15 +32,44 @@
 <main class="layout"><section class="intro"><span class="eyebrow">Your campaigns, in one place</span><h1>Welcome back.<br>Let's grow your reach.</h1><p>Sign in to create campaigns, manage published jobs, fund tasks, review submissions and follow campaign progress.</p><div class="benefits"><div class="benefit"><span class="tick">✓</span> Manage your task posts</div><div class="benefit"><span class="tick">✓</span> Review submitted proof</div><div class="benefit"><span class="tick">✓</span> Track campaign activity</div></div></section>
 <section class="card"><div class="card-brand"><img class="mark" src="/assets/naija-task-logo.svg" alt="NAIJA TASK logo" style="padding:0;object-fit:cover;background:transparent"><span><strong>NAIJA TASK</strong><small>YOUR POSTER WORKSPACE</small></span></div><div class="role"><strong>🏢 POSTER LOGIN</strong><span>Use this login if you publish jobs for Taskers to complete.</span></div><div id="loginSection"><h2>Welcome back</h2><p class="sub">Enter the email and password for your Poster account.</p><form id="loginForm"><label for="email">Email address</label><input id="email" type="email" placeholder="you@example.com" autocomplete="email" required><label for="password">Password</label><div class="password-box"><input id="password" type="password" placeholder="Enter your password" autocomplete="current-password" required><button class="show" type="button" id="showPassword">Show</button></div><a href="#" class="forgot" id="forgotLink">Forgot password?</a><button class="primary" type="submit" id="loginBtn">Log in to my Poster account →</button></form><div class="message" id="message" role="status"></div><div class="switch">New to posting jobs? <a href="poster-signup.html">Create a Poster account</a><br>Want to complete jobs instead? <a href="login.html">Tasker login</a> · <a href="signup.html">Tasker sign up</a></div><p class="note">Creating your account is separate from funding a campaign. Any job charges are shown before you publish.</p></div>
 <div id="forgotSection" class="hidden"><h2>Reset your password</h2><p class="sub">Enter the email connected to your Poster account and we'll send a secure reset link.</p><form id="forgotForm"><label for="forgotEmail">Email address</label><input id="forgotEmail" type="email" placeholder="you@example.com" autocomplete="email" required><button class="primary" type="submit" id="resetBtn">Send password reset link</button></form><div class="message" id="forgotMessage" role="status"></div><button class="secondary" type="button" id="backToLogin">← Back to Poster login</button></div></section></main><footer class="footer">© 2026 NAIJA TASK · Complete Tasks. Earn Naira.</footer>
+
 <script>
 const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co",SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-const byId=id=>document.getElementById(id),loginBtn=byId("loginBtn");
-function msg(id,text,type){const el=byId(id);el.textContent=text;el.className="message "+type}
-byId("showPassword").addEventListener("click",function(){const p=byId("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide"});
-byId("forgotLink").addEventListener("click",event=>{event.preventDefault();byId("loginSection").classList.add("hidden");byId("forgotSection").classList.remove("hidden");byId("forgotEmail").value=byId("email").value.trim()});
-byId("backToLogin").addEventListener("click",()=>{byId("forgotSection").classList.add("hidden");byId("loginSection").classList.remove("hidden")});
-byId("loginForm").addEventListener("submit",async event=>{event.preventDefault();byId("message").style.display="none";loginBtn.disabled=true;loginBtn.textContent="Checking your login…";try{const {data,error}=await db.auth.signInWithPassword({email:byId("email").value.trim(),password:byId("password").value});if(error)throw error;if(!data.user)throw new Error("Login could not be completed.");const m=data.user.user_metadata||{},values=[m.user_type,m.role,m.account_type].map(v=>String(v||"").toLowerCase());if(!values.some(v=>["task_poster","poster","task poster"].includes(v))){await db.auth.signOut();throw new Error("This account is not marked as a Poster account. Please use Tasker Login if you registered to complete jobs.");}msg("message","Login successful. Opening your Poster workspace…","success");loginBtn.textContent="Opening workspace…";location.replace("poster-dashboard.html")}catch(error){console.error("Poster login error:",error);msg("message",error.message||"Unable to log in. Check your details and try again.","error");loginBtn.disabled=false;loginBtn.textContent="Log in to my Poster account →"}});
-byId("forgotForm").addEventListener("submit",async event=>{event.preventDefault();const b=byId("resetBtn");b.disabled=true;b.textContent="Sending…";try{const {error}=await db.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:new URL("reset-password.html",location.href).href});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Please check your inbox.","success")}catch(error){msg("forgotMessage",error.message||"Could not send the reset link. Please try again.","error")}finally{b.disabled=false;b.textContent="Send password reset link"}});
+const byId=id=>document.getElementById(id),loginForm=byId("loginForm"),loginBtn=byId("loginBtn");
+let db=null;
+function msg(id,text,type){const el=byId(id);el.textContent=text;el.className="message "+type;}
+try{if(!window.supabase?.createClient)throw new Error("Secure login service did not load. Check your internet connection and refresh.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});}catch(e){msg("message",e.message,"error");}
+byId("showPassword").addEventListener("click",function(){const p=byId("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide";});
+loginForm.addEventListener("submit",async event=>{
+ event.preventDefault();msg("message","","");
+ if(!db){msg("message","Secure login is unavailable. Refresh the page and try again.","error");return;}
+ const email=byId("email").value.trim().toLowerCase(),password=byId("password").value;
+ if(!email||!password){msg("errorMessage","Enter both your email and password.","error");return;}
+ loginBtn.disabled=true;loginBtn.textContent="Checking your login…";
+ try{
+  const {data,error}=await db.auth.signInWithPassword({email,password});
+  if(error)throw error;if(!data.user)throw new Error("Supabase did not return a signed-in user.");
+  const m=data.user.user_metadata||{},role=String(m.role||m.user_type||m.account_type||"").toLowerCase();
+  if(!["task_poster","poster","task poster"].includes(role)){await db.auth.signOut();throw new Error("This account is not marked as a Poster account. Use Tasker Login if you registered to complete jobs.");}
+  msg("message","Password accepted. Your Poster session is active. Opening workspace…","success");
+  loginBtn.textContent="Opening dashboard…";location.replace("poster-dashboard.html");
+ }catch(error){
+  console.error("Tasker login error:",error);
+  const code=error.code||"";let text=error.message||"Unable to log in. Please try again.";
+  if(code==="invalid_credentials"||/invalid login credentials/i.test(text))text="Email or password is incorrect. Check both and try again, or use Forgot Password.";
+  else if(code==="email_not_confirmed"||/email not confirmed/i.test(text))text="Your email is not confirmed yet. Open the confirmation email first, then log in.";
+  else if(code==="user_banned")text="This account is temporarily restricted. Contact NAIJA TASK support.";
+  else if(/failed to fetch|network/i.test(text))text="Could not connect to Supabase. Check your internet connection and retry.";
+  msg("message",text,"error");loginBtn.disabled=false;loginBtn.textContent="Log in to my Poster account →";
+ }
+});
+byId("forgotLink").addEventListener("click",event=>{event.preventDefault();byId("loginSection").classList.add("hidden");byId("forgotSection").classList.remove("hidden");byId("forgotEmail").value=byId("email").value.trim();});
+byId("backToLogin").addEventListener("click",()=>{byId("forgotSection").classList.add("hidden");byId("loginSection").classList.remove("hidden");});
+byId("forgotForm").addEventListener("submit",async event=>{
+ event.preventDefault();const b=byId("resetBtn");b.disabled=true;b.textContent="Sending…";
+ try{if(!db)throw new Error("Secure login service is unavailable. Refresh and try again.");const {error}=await db.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:new URL("reset-password.html",location.href).href});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
+ catch(error){msg("forgotMessage",error.message||"Could not send the reset email. Please try again.","error");}
+ finally{b.disabled=false;b.textContent="Send password reset link";}
+});
 </script><style id="nt-global-root-palette">:root{--nt-forest:#064E2B;--nt-deep:#073B24;--nt-dark-green:#073B24;--nt-green:#0B8F45;--nt-bright:#16A34A;--nt-bright-green:#16A34A;--nt-lime:#B7F34A;--nt-white:#FFFFFF;--nt-surface:#FFFFFF;--nt-card:#FFFFFF;--nt-soft-white:#F7FBF7;--nt-bg:#F1F8F2;--nt-pale:#EAF5EC;--nt-leaf:#EAF5EC;--nt-cream:#F7FBF7;--nt-ink:#173326;--nt-muted:#647568;--nt-line:#DCE9DE;--nt-border:#DCE9DE;--nt-success:#168443}</style>
 </body></html>
