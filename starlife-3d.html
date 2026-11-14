@@ -926,11 +926,12 @@ function knock(spot){
  let log=[];try{log=JSON.parse(localStorage.getItem("slw3_neighbour_log")||"[]");}catch(e){}
  const key=(spot&&spot.did||state.location)+":"+Math.round((spot&&spot.x||player.x)/16)+":"+Math.round((spot&&spot.y||player.y)/16);
  const old=log.find(x=>x.key===key),visits=old?old.visits:0;
- openModal('<small style="color:#087f36;font-weight:900">NEIGHBOURHOOD LIFE</small><h2>🚪 At the neighbour’s house</h2><p style="color:#173326"><b>'+esc(resident)+'</b> opens the door and welcomes you.</p><p style="color:#173326">"'+esc(line)+'"</p><div class="row"><span>Familiarity</span><b>'+(visits?"Returning visitor":"First meeting")+'</b></div><h3>What would you like to do?</h3><button class="opt" id="nhChat">🗣️ Have a friendly chat<small>Hear neighbourhood gist.</small></button><button class="opt" id="nhTea">☕ Accept a cup of tea<small>Spend time getting to know your neighbour.</small></button><button class="opt" id="nhTip">🧭 Ask for a local recommendation<small>Get a tip about food, transport or a nearby place.</small></button><button class="btn alt" id="mClose">👋 Say goodbye</button>');
+ openModal('<small style="color:#087f36;font-weight:900">NEIGHBOURHOOD LIFE</small><h2>🚪 At the neighbour’s house</h2><p style="color:#173326"><b>'+esc(resident)+'</b> opens the door and welcomes you.</p><p style="color:#173326">"'+esc(line)+'"</p><div class="row"><span>Familiarity</span><b>'+(visits?"Returning visitor":"First meeting")+'</b></div><h3>What would you like to do?</h3><button class="opt" id="nhChat">🗣️ Have a friendly chat<small>Hear neighbourhood gist.</small></button><button class="opt" id="nhTea">☕ Accept a cup of tea<small>Spend time getting to know your neighbour.</small></button><button class="opt" id="nhTip">🧭 Ask for a local recommendation<small>Get a tip about food, transport or a nearby place.</small></button><button class="opt" id="nhEnter">🏠 Step inside for a visit<small>Enter a shared 3D neighbour interior and look around.</small></button><button class="btn alt" id="mClose">👋 Say goodbye</button>');
  const save=(action,message)=>{const item=log.find(x=>x.key===key)||{key:key,visits:0};item.visits++;item.last=action;item.name=resident;log=log.filter(x=>x.key!==key);log.unshift(item);try{localStorage.setItem("slw3_neighbour_log",JSON.stringify(log.slice(0,80)));}catch(e){}openModal('<h2>'+esc(action)+'</h2><p style="color:#173326">'+esc(message)+'</p><p>Your neighbour remembers you from this visit. Progress is saved on this device.</p><button class="btn" id="nhAgain">Continue conversation</button><button class="btn alt" id="mClose">Leave</button>');$("nhAgain").onclick=()=>knock(spot);$("mClose").onclick=closeModal;};
  $("nhChat").onclick=()=>save("A friendly conversation",resident+" tells you about the area. You listen and leave on good terms.");
  $("nhTea").onclick=()=>save("Tea with a neighbour","You sit for a while, enjoy a warm drink and hear stories about everyday life.");
  $("nhTip").onclick=()=>save("Local recommendation",["Try the food stall near the bus stop; the akara sells out early.","Ask keke drivers which roads are moving before setting off.","There is a busy market nearby. Compare prices before buying.","A community football game often brings neighbours together."][Math.floor(Math.random()*4)]);
+ $("nhEnter").onclick=()=>{closeModal();enterNeighbourHome(resident,spot);};
  $("mClose").onclick=closeModal;
 }
 function lagoon(){
@@ -2113,12 +2114,36 @@ async function enterRoom(asleep){
   player.face = 0;
   snapCamera();
 }
+let visitorInterior=false,visitorInteriorGroup=null;
+function enterNeighbourHome(resident,spot){
+ if(inRoom||!scene)return;cityPos={x:player.x,y:player.y};visitorInterior=true;inRoom=true;sleeping=false;joy.x=joy.y=0;
+ if(roomGroup){scene.remove(roomGroup);roomGroup=null;}roomSig="";roomSolids=[];roomSpots=[];
+ const g=new THREE.Group();visitorInteriorGroup=g;roomGroup=g;scene.add(g);const ox=ROOM.x*U,oz=ROOM.y*U,W=20;
+ const add=(x,y,z,w,h,d,c)=>{const m=box(w,h,d,c);m.position.set(ox+x+w/2,y+h/2,oz+z+d/2);g.add(m);return m;};
+ const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,W),mat("#b98e62"));floor.rotation.x=-Math.PI/2;floor.position.set(ox+10,0,oz+10);g.add(floor);
+ const wm=mat("#d9c7a9");const back=new THREE.Mesh(new THREE.PlaneGeometry(W,7),wm);back.position.set(ox+10,3.5,oz);g.add(back);
+ const left=new THREE.Mesh(new THREE.PlaneGeometry(W,7),wm);left.rotation.y=Math.PI/2;left.position.set(ox,3.5,oz+10);g.add(left);
+ const right=new THREE.Mesh(new THREE.PlaneGeometry(W,7),wm);right.rotation.y=-Math.PI/2;right.position.set(ox+20,3.5,oz+10);g.add(right);
+ const light=new THREE.PointLight(0xffdca8,0.85,34);light.position.set(ox+10,6,oz+9);g.add(light);
+ add(1.2,0,2,7,1.2,3,"#754b3a");add(1.6,1.2,2.4,6.2,.45,2.3,"#c18b68");
+ add(9.5,0,2,3.6,1.4,2,"#5d4037");add(10.1,1.4,2,2.4,.15,1.8,"#c89b65");
+ add(14,0,1,4.2,2.4,.45,"#34383c");add(14.3,.5,1.25,3.6,1.5,.08,"#2d5b72");
+ add(2,0,10,4.5,2.4,2.2,"#9b6a48");add(7,0,12,3,1.1,2,"#694a36");add(13,0,12,4.2,1,3,"#b9b0a1");
+ const residentMesh=makePerson("#b44b31","#8d5a3b",{top:"tee",topColor:"#b44b31",bottomColor:"#263b50",style:"short"});residentMesh.position.set(ox+8.8,0,oz+7.8);residentMesh.rotation.y=Math.PI/2;g.add(residentMesh);
+ const tag=labelSprite(resident,"#064d25","#ffffff",5.2);tag.position.set(ox+8.8,3.6,oz+7.8);g.add(tag);
+ const addSpot=(x,z,label,run)=>roomSpots.push({x:rpx(x),y:rpz(z),label,run});
+ addSpot(2,16.5,"🚪 Leave neighbour’s house",exitRoom);
+ addSpot(8.8,10,"🗣️ Talk with "+resident,()=>openNeighbourInteriorAction("Conversation",resident+" welcomes you into the sitting room and shares family and neighbourhood gist."));
+ addSpot(11,5.5,"📺 Watch a little TV",()=>openNeighbourInteriorAction("Living room","You sit down for a moment. The television is on and the room feels warm and lived in."));
+ addSpot(15,14.5,"🍵 Visit the dining area",()=>openNeighbourInteriorAction("A little hospitality","Your host offers you a drink and tells you about a favourite local meal."));
+ player.x=rpx(3);player.y=rpz(16);player.face=0;snapCamera();
+}
+function openNeighbourInteriorAction(title,body){openModal("<h2>"+esc(title)+"</h2><p style='color:#173326'>"+esc(body)+"</p><button class='btn alt' id='mClose'>Continue exploring</button>");$("mClose").onclick=closeModal;}
 function exitRoom(){
   if (!inRoom) return;
   inRoom = false; sleeping = false;
-  if (roomGroup) roomGroup.visible = false;
-  const h = spots.find(x => x.kind === "home");
-  if (h){ player.x = h.x; player.y = h.y; } else if (cityPos){ player.x = cityPos.x; player.y = cityPos.y; }
+  if(visitorInterior){if(visitorInteriorGroup&&scene)scene.remove(visitorInteriorGroup);visitorInteriorGroup=null;visitorInterior=false;roomGroup=null;roomSig="";roomSpots=[];roomSolids=[];if(cityPos){player.x=cityPos.x;player.y=cityPos.y;}}
+  else{if(roomGroup)roomGroup.visible=false;const h=spots.find(x=>x.kind==="home");if(h){player.x=h.x;player.y=h.y;}else if(cityPos){player.x=cityPos.x;player.y=cityPos.y;}}
   lastSafe = { x:player.x, y:player.y };
   snapCamera();
 }
