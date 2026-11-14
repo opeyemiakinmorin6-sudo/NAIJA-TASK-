@@ -292,46 +292,6 @@ window.addEventListener("resize", () => resize());
 
 /* ============================ HELPERS ============================ */
 
-function ntShowSponsoredPopup(){
-  try{
-    const k="nt_popup_last_"+location.pathname;
-    const last=Number(sessionStorage.getItem(k)||0);
-    if(Date.now()-last<300000)return;
-    sessionStorage.setItem(k,String(Date.now()));
-  }catch(e){}
-  if(document.getElementById("ntSponsoredPopup"))return;
-  const wrap=document.createElement("div");
-  wrap.id="ntSponsoredPopup";
-  wrap.setAttribute("role","dialog");
-  wrap.setAttribute("aria-modal","true");
-  wrap.setAttribute("aria-label","Advertisement");
-  wrap.style.cssText="position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(0,18,8,.78);backdrop-filter:blur(4px)";
-  wrap.innerHTML='<div style="width:min(100%,370px);max-height:calc(100dvh - 24px);overflow:auto;background:#fff;color:#173321;border-radius:18px;padding:14px;box-shadow:0 22px 70px #0008;text-align:center"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><b style="font-size:11px;letter-spacing:1px;color:#245b16">ADVERTISEMENT</b><button type="button" id="ntPopupClose" aria-label="Close advertisement" style="width:34px;height:34px;border:0;border-radius:50%;background:#edf4ee;color:#21442c;font-size:22px">×</button></div><p style="font-size:12px;color:#526557;margin:0 0 10px">Sponsored content helps support NAIJA TASK games.</p><div id="ntSponsoredPopupUnit" style="width:300px;max-width:100%;min-height:250px;margin:0 auto;display:flex;justify-content:center;overflow:hidden;background:#f6f9f6;border-radius:9px"></div><button type="button" id="ntPopupContinue" style="width:100%;margin-top:12px;padding:13px;border:0;border-radius:11px;background:#087f36;color:#fff;font-weight:800">Continue</button></div>';
-  const close=()=>wrap.remove();
-  document.body.appendChild(wrap);
-  wrap.querySelector("#ntPopupClose").addEventListener("click",close);
-  wrap.querySelector("#ntPopupContinue").addEventListener("click",close);
-  wrap.addEventListener("click",e=>{if(e.target===wrap)close();});
-  const slot=wrap.querySelector("#ntSponsoredPopupUnit");
-  window.atOptions={key:"d33fd661fe11e17cd12dc188cb8b8bd1",format:"iframe",height:250,width:300,params:{}};
-  const script=document.createElement("script");
-  script.async=true;
-  script.src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";
-  script.onerror=()=>{if(slot.isConnected)slot.innerHTML='<small style="padding:12px;color:#708176;font-size:11px">Advertisement is temporarily unavailable. You can continue playing.</small>';};
-  slot.appendChild(script);
-}
-
-function loadStarLife3DAd(){
-  const slot=$("ntStarLife3DAd");
-  if(!slot||slot.dataset.loaded==="1")return;
-  slot.dataset.loaded="1";
-  window.atOptions={key:"d33fd661fe11e17cd12dc188cb8b8bd1",format:"iframe",height:250,width:300,params:{}};
-  const script=document.createElement("script");
-  script.async=true;
-  script.src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1";
-  script.onerror=()=>{slot.dataset.loaded="";slot.innerHTML='<small style="color:#708176">Advertisement temporarily unavailable.</small>';};
-  slot.appendChild(script);
-}
 function toast(t, ms = 2400){
   const el = $("toast"); el.textContent = t; el.style.display = "block";
   clearTimeout(toast.t); toast.t = setTimeout(() => { el.style.display = "none"; }, ms);
@@ -2097,13 +2057,11 @@ async function init(){
         <p>Use the joystick to walk and drag on the right side of the screen to turn the camera. Go near a building, bus stop, house or person and tap the green button.</p>
         <p>💼 Work buildings pay coins. 🏠 Your home is in Surulere and restores energy. 💬 Talking to people starts story events. Walking into a new area costs a little energy.</p>
         <p>📱 Your phone shows needs, rent and jobs. Keep your hunger, hygiene and bladder up or you cannot work. 🎉 Venues in every area restore fun and social. 🍲 Restaurants restore energy. 📈 The Business Hub lets you invest for daily income. 🚗 Cars make you faster. ⭐ Famous (made-up) characters notice you as your fame grows.</p>
-        <section style="margin:12px 0;padding:10px;border:1px solid #dce9df;border-radius:13px;background:#f5faf6;color:#173326;text-align:center"><small style="display:block;margin-bottom:6px;font-weight:800;letter-spacing:1px">ADVERTISEMENT</small><div id="ntStarLife3DAd" style="width:300px;max-width:100%;min-height:250px;margin:auto;display:flex;justify-content:center;overflow:hidden"></div></section>
         <button class="btn" id="mClose">Start walking</button>`);
-      loadStarLife3DAd();
-      $("mClose").onclick = () => { try{ localStorage.setItem("slw3_help", "1"); }catch(e){} closeModal(); setTimeout(ntShowSponsoredPopup,700); };
+
+      $("mClose").onclick = () => { try{ localStorage.setItem("slw3_help", "1"); }catch(e){} closeModal();  };
     } else {
-      // Returning players: wait until the wake-up overlay has faded before showing the ad.
-      setTimeout(ntShowSponsoredPopup, wk.woke ? 4700 : 1800);
+
     }
     requestAnimationFrame(loop);
   }catch(e){
