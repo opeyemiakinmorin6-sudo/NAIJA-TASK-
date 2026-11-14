@@ -903,17 +903,19 @@ function labelSprite(text, bg, fg, wUnits){
 }
 
 function makeLeg(upperC, lowerC, shoeC, len){
-  const g = new THREE.Group();
-  const up = box(0.42, len * 0.5, 0.44, upperC); up.geometry.translate(0, -len * 0.25, 0); g.add(up);
-  const lo = box(0.38, len * 0.5, 0.42, lowerC); lo.geometry.translate(0, -len * 0.75, 0); g.add(lo);
-  const shoe = box(0.44, 0.2, 0.66, shoeC); shoe.position.set(0, -len + 0.1, 0.1); g.add(shoe);
+  const g=new THREE.Group();
+  const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.24,0.19,len*0.53,10),mat(upperC));upper.position.y=-len*0.25;g.add(upper);
+  const knee=new THREE.Mesh(new THREE.SphereGeometry(0.19,10,8),mat(lowerC));knee.position.y=-len*0.5;g.add(knee);
+  const lower=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.13,len*0.52,10),mat(lowerC));lower.position.y=-len*0.75;g.add(lower);
+  const shoe=new THREE.Mesh(new THREE.SphereGeometry(0.25,10,8),mat(shoeC));shoe.scale.set(1,0.48,1.5);shoe.position.set(0,-len+0.12,0.16);g.add(shoe);
   return g;
 }
 function makeArm(sleeveC, skinC, len, longSleeve){
-  const g = new THREE.Group();
-  const up = box(0.32, len * 0.5, 0.34, sleeveC); up.geometry.translate(0, -len * 0.25, 0); g.add(up);
-  const lo = box(0.28, len * 0.5, 0.3, longSleeve ? sleeveC : skinC); lo.geometry.translate(0, -len * 0.75, 0); g.add(lo);
-  const hand = new THREE.Mesh(new THREE.SphereGeometry(0.17, 8, 6), mat(skinC)); hand.position.y = -len - 0.05; g.add(hand);
+  const g=new THREE.Group();
+  const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.19,0.15,len*0.53,10),mat(sleeveC));upper.position.y=-len*0.25;g.add(upper);
+  const elbow=new THREE.Mesh(new THREE.SphereGeometry(0.145,9,7),mat(longSleeve?sleeveC:skinC));elbow.position.y=-len*0.5;g.add(elbow);
+  const lower=new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.115,len*0.52,10),mat(longSleeve?sleeveC:skinC));lower.position.y=-len*0.75;g.add(lower);
+  const hand=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),mat(skinC));hand.position.y=-len-0.05;g.add(hand);
   return g;
 }
 
@@ -927,7 +929,9 @@ function makePerson(shirt, skin, look){
   const long = topS === "agbada" || topS === "gown";
 
   // body and clothes
-  const torso = box(1.05, 1.25, 0.62, topC); torso.position.y = 1.62; g.add(torso);
+  const torso=new THREE.Mesh(new THREE.SphereGeometry(0.68,14,12),mat(topC));torso.scale.set(0.82,1.02,0.55);torso.position.y=1.62;g.add(torso);
+  const collar=new THREE.Mesh(new THREE.TorusGeometry(0.19,0.045,6,14),mat(skinC));collar.rotation.x=Math.PI/2;collar.position.set(0,2.22,0.02);g.add(collar);
+  const belt=box(0.78,0.09,0.42,botC);belt.position.set(0,1.12,0);g.add(belt);
   if (long){
     const robe = box(1.35, 1.0, 0.85, topC); robe.position.y = 1.0; g.add(robe);
     const trim = box(0.3, 2.1, 0.9, topS === "agbada" ? "#f5f5f5" : "#fbc02d"); trim.position.set(0, 1.35, 0); g.add(trim);
@@ -937,8 +941,10 @@ function makePerson(shirt, skin, look){
   if (botS === "wrapper"){ const skirt = box(1.25, 0.95, 0.8, botC); skirt.position.y = 0.98; g.add(skirt); }
 
   // head and face
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.2, 0.25, 8), mat(skinC)); neck.position.y = 2.35; g.add(neck);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.44, 12, 10), mat(skinC)); head.position.y = 2.85; g.add(head);
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.19,0.28,10),mat(skinC));neck.position.y=2.34;g.add(neck);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(0.44,18,14),mat(skinC));head.scale.set(0.92,1.08,0.9);head.position.y=2.86;g.add(head);
+  const cheekL=new THREE.Mesh(new THREE.SphereGeometry(0.13,10,8),mat(skinC));cheekL.position.set(-0.27,2.7,0.32);g.add(cheekL);
+  const cheekR=cheekL.clone();cheekR.position.x=0.27;g.add(cheekR);
   [-0.16, 0.16].forEach(x => {
     const w = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 6), mat("#ffffff")); w.position.set(x, 2.9, 0.38); g.add(w);
     const p = new THREE.Mesh(new THREE.SphereGeometry(0.042, 6, 5), mat("#111111")); p.position.set(x, 2.9, 0.44); g.add(p);
@@ -1012,37 +1018,66 @@ function makeCar(id){
 }
 
 function buildBuilding(s){
-  const g = new THREE.Group(), w = s.w * U, d = s.h * U;
-  let h, wall, roof, label = null, flat = false;
-  if (s.k === "work"){ h = 6; wall = "#f3e3b0"; roof = "#b5651d"; label = [s.label, "#064d25", "#ffffff"]; flat = true; }
-  else if (s.k === "shop"){
-    const cfg = ({ food:["#ffe0b2", "#e65100", "FOOD"], biz:["#d6e4ff", "#1a237e", "BUSINESS HUB"], cars:["#ffd6d6", "#b71c1c", "CAR DEALER"], venue:["#e8d9ff", "#6a1b9a", s.label || "VENUE"] }[s.kind]) || (PLACE_INFO[s.kind] ? [PLACE_INFO[s.kind].wall, PLACE_INFO[s.kind].roof, PLACE_INFO[s.kind].sign] : ["#dddddd", "#555555", "SHOP"]);
-    h = (s.w < 5 * T ? 4.8 : 6.5); wall = cfg[0]; roof = cfg[1]; label = [cfg[2], cfg[1], "#ffffff"]; flat = true;
+  const g=new THREE.Group(),w=s.w*U,d=s.h*U;let h,wall,roof,label=null,flat=false;
+  if(s.k==="work"){h=6;wall="#e8d7ad";roof="#8d4e28";label=[s.label,"#064d25","#fff"];flat=true;}
+  else if(s.k==="shop"){
+    const cfg=({food:["#f7d7a8","#b94d16","MAMA PUT"],biz:["#cbdaf0","#263c78","BUSINESS HUB"],cars:["#f1cccc","#9e2828","AUTO MART"],venue:["#dfc9ef","#57216f",s.label||"VENUE"]}[s.kind])||(PLACE_INFO[s.kind]?[PLACE_INFO[s.kind].wall,PLACE_INFO[s.kind].roof,PLACE_INFO[s.kind].sign]:["#ddd","#555","SHOP"]);
+    h=s.w<5*T?4.8:6.5;wall=cfg[0];roof=cfg[1];label=[cfg[2],cfg[1],"#fff"];flat=true;
+  }else if(s.k==="home"){h=5.5;wall="#e7d9c7";roof="#6e3430";label=["YOUR HOME","#6e3430","#fff"];}
+  else{h=3.6+((s.tint||0)%2)*1.2;wall=["#e8c7ad","#d6d6d2","#eee1b7","#c7ddc5"][(s.tint||0)%4];roof=["#9d3f2d","#66527f","#286246","#9b6b28"][(s.tint||0)%4];}
+  const body=box(w,h,d,wall);body.position.y=h/2;g.add(body);
+  if(flat){const slab=box(w+0.65,0.48,d+0.65,roof);slab.position.y=h+0.24;g.add(slab);}
+  else{const roofMesh=new THREE.Mesh(new THREE.ConeGeometry(Math.max(w,d)*0.72,2.6,4),mat(roof));roofMesh.rotation.y=Math.PI/4;roofMesh.position.y=h+1.3;g.add(roofMesh);}
+  const front=d/2+0.13,door=box(1.25,2.55,0.18,"#49312b");door.position.set(0,1.28,front);g.add(door);
+  const doorInset=box(0.92,2.2,0.035,"#754b37");doorInset.position.set(0,1.28,front+0.11);g.add(doorInset);
+  const knob=new THREE.Mesh(new THREE.SphereGeometry(0.07,8,6),mat("#d8b45c"));knob.position.set(0.42,1.28,front+0.16);g.add(knob);
+  [-1,1].forEach(side=>{
+    const x=side*w*0.29,y=h*0.62,frame=box(1.92,1.65,0.12,"#f4ead9");frame.position.set(x,y,front);g.add(frame);
+    const glass=box(1.62,1.35,0.07,"#70b7cf");glass.position.set(x,y,front+0.09);g.add(glass);
+    const mullion=box(0.09,1.35,0.04,"#e9e2d7");mullion.position.set(x,y,front+0.14);g.add(mullion);
+    const cross=box(1.62,0.08,0.04,"#e9e2d7");cross.position.set(x,y,front+0.14);g.add(cross);
+    for(let bar=-1;bar<=1;bar++){const grille=box(0.045,1.4,0.04,"#44484a");grille.position.set(x+bar*0.38,y,front+0.19);g.add(grille);}
+    const sill=box(2.08,0.13,0.28,"#d5c8b6");sill.position.set(x,y-0.86,front+0.12);g.add(sill);
+  });
+  if(s.k==="home"||s.k==="work"){
+    const balcony=box(w*0.78,0.12,0.95,"#555b5d");balcony.position.set(0,3.15,front+0.42);g.add(balcony);
+    for(let i=0;i<7;i++){const rail=box(0.055,0.82,0.055,"#555b5d");rail.position.set(-w*0.35+i*w*0.117,3.58,front+0.82);g.add(rail);}
+    const topRail=box(w*0.82,0.07,0.07,"#555b5d");topRail.position.set(0,3.98,front+0.82);g.add(topRail);
+    const ac=box(0.72,0.48,0.42,"#e7e9e8");ac.position.set(w*0.37,2.65,front+0.28);g.add(ac);
+    const vent=box(0.46,0.08,0.035,"#687579");vent.position.set(w*0.37,2.63,front+0.5);g.add(vent);
+    const tank=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.55,0.9,12),mat("#263e58"));tank.position.set(w*0.28,h+0.95,0);g.add(tank);
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.58,0.58,0.08,12),mat("#172b42"));cap.position.set(w*0.28,h+1.43,0);g.add(cap);
   }
-  else if (s.k === "home"){ h = 5.5; wall = "#dce8ff"; roof = "#2563a8"; label = ["YOUR HOME", "#2563a8", "#ffffff"]; }
-  else { h = 3.6 + ((s.tint || 0) % 2) * 1.2; wall = ["#f4d9c6", "#e6e6e6", "#f7efc9", "#d9ead3"][(s.tint || 0) % 4]; roof = ["#a8442c", "#6b5b95", "#2f6f4f", "#b07a2e"][(s.tint || 0) % 4]; }
-  const body = box(w, h, d, wall); body.position.y = h / 2; g.add(body);
-  if (flat){ const slab = box(w + 0.6, 0.5, d + 0.6, roof); slab.position.y = h + 0.25; g.add(slab); }
-  else { const cone = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * 0.72, 2.6, 4), mat(roof)); cone.rotation.y = Math.PI / 4; cone.position.y = h + 1.3; g.add(cone); }
-  const door = box(1.8, 2.6, 0.2, "#5d4037"); door.position.set(0, 1.3, d / 2 + 0.05); g.add(door);
-  [-1, 1].forEach(sx => { const win = box(1.6, 1.4, 0.15, "#8ecae6"); win.position.set(sx * w * 0.28, h * 0.58, d / 2 + 0.05); g.add(win); });  if (label){ const sp = labelSprite(label[0], label[1], label[2], 6.4); sp.position.set(0, h * 0.86, d / 2 + 0.4); g.add(sp); }
-  g.position.set((s.x + s.w / 2) * U, 0, (s.y + s.h / 2) * U);
-  if (s.k === "home" && s.mine){
-    beacon = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.4, 4), new THREE.MeshBasicMaterial({ color:"#ffd54f" }));
-    beacon.rotation.x = Math.PI; beacon.position.set(g.position.x, h + 5, g.position.z); scene.add(beacon);  }
+  if(s.k==="shop"){
+    const awning=box(w*0.94,0.22,1.35,s.kind==="food"?"#d44b2e":"#087f36");awning.position.set(0,h*0.58,front+0.65);g.add(awning);
+    const stripe=box(w*0.94,0.12,0.08,"#f4c430");stripe.position.set(0,h*0.58-0.18,front+1.31);g.add(stripe);
+    const shutter=box(w*0.34,1.6,0.08,"#8a8d8b");shutter.position.set(-w*0.29,1.3,front+0.2);g.add(shutter);
+  }
+  if(s.k==="home"){
+    const fenceZ=front+1.6;[-1,1].forEach(side=>{const seg=box(0.22,1.25,2.9,"#b6a998");seg.position.set(side*(w*0.52),0.72,fenceZ);g.add(seg);});
+    const gate=box(Math.max(1.2,w*0.42),1.15,0.12,"#3c4549");gate.position.set(0,0.8,fenceZ+1.35);g.add(gate);
+    for(let i=0;i<8;i++){const bar=box(0.045,1.05,0.06,"#b9c0c0");bar.position.set(-w*0.19+i*w*0.054,0.8,fenceZ+1.44);g.add(bar);}
+  }
+  if(label){const fascia=box(Math.max(2.5,w*0.86),0.72,0.16,label[1]);fascia.position.set(0,h*0.86,front+0.2);g.add(fascia);const sign=labelSprite(label[0],label[1],label[2],Math.max(3.4,w*0.82));sign.position.set(0,h*0.86,front+0.31);g.add(sign);}
+  const step=box(1.8,0.18,0.65,"#b5aaa0");step.position.set(0,0.09,front+0.32);g.add(step);
+  g.position.set((s.x+s.w/2)*U,0,(s.y+s.h/2)*U);
+  if(s.k==="home"&&s.mine){beacon=new THREE.Mesh(new THREE.ConeGeometry(0.7,1.4,4),new THREE.MeshBasicMaterial({color:"#ffd54f"}));beacon.rotation.x=Math.PI;beacon.position.set(g.position.x,h+5,g.position.z);scene.add(beacon);}
   return g;
 }
 
 function buildScene(){
   try{
-    renderer = new THREE.WebGLRenderer({ canvas, antialias:false, powerPreference:"low-power" });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias:false, powerPreference:"low-power", alpha:false });
+    renderer.outputEncoding=THREE.sRGBEncoding;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.08;
   }catch(e){ throw new Error("WEBGL"); }
   scene = new THREE.Scene();
-  scene.background = new THREE.Color("#8fd0f0");
-  scene.fog = new THREE.Fog("#8fd0f0", 60, 190);
-  camera = new THREE.PerspectiveCamera(55, 1, 0.5, 400);
-  hemi = new THREE.HemisphereLight(0xffffff, 0x6b8f5a, 0.9); scene.add(hemi);
-  sun = new THREE.DirectionalLight(0xffffff, 0.8); sun.position.set(40, 80, 30); scene.add(sun);
+  scene.background=new THREE.Color("#9acfe4");scene.fog=new THREE.Fog("#9acfe4",75,220);
+  camera=new THREE.PerspectiveCamera(48,1,0.35,420);
+  hemi=new THREE.HemisphereLight(0xfff4df,0x526c55,1.08);scene.add(hemi);
+  sun=new THREE.DirectionalLight(0xffe4bd,1.05);sun.position.set(-35,75,42);scene.add(sun);
+  const fillLight=new THREE.DirectionalLight(0xc7e4ff,0.28);fillLight.position.set(30,22,-45);scene.add(fillLight);
 
   DISTRICTS.forEach(d => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(DW * T * U, DH * T * U), mat(d.ground));
@@ -1200,7 +1235,8 @@ function updateSky(){
 function resize(){
   VW = window.innerWidth; VH = window.innerHeight;
   if (!renderer) return;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  const mobileLowEnd=/Android|iPhone|iPad/i.test(navigator.userAgent);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,mobileLowEnd?1.15:1.35));
   renderer.setSize(VW, VH, false);
   camera.aspect = VW / VH; camera.updateProjectionMatrix();
 }
