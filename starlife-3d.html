@@ -2,2441 +2,391 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4990178064824381" crossorigin="anonymous"></script>
-<meta name="theme-color" content="#064d25">
-<title>Naija Star Life 🌍 · 3D Open World</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#073d2a">
+<title>NAIJA STAR LIFE 3D · Lagos Open World</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script data-optional="1" src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script data-optional="1" src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/SkeletonUtils.js"></script>
 <style>
-:root{--green:#087f36;--dark:#042b1b;--light:#0b9b45;--lime:#c7f542;--text:#10251b;--muted:#65766b;--line:#cbd8ce;--red:#c62828}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-html,body{margin:0;height:100%;overflow:hidden;background:#0b2a17;font-family:Arial,Helvetica,sans-serif;touch-action:none;overscroll-behavior:none}
-canvas{display:block;width:100vw;height:100vh;touch-action:none}
-#hud{position:fixed;top:0;left:0;right:0;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;display:flex;gap:8px;align-items:center;pointer-events:none;z-index:5}
-.chip{background:rgba(6,77,37,.88);color:#fff;border-radius:12px;padding:7px 10px;font-size:12px;font-weight:700;white-space:nowrap}
-.chip b{color:var(--lime)}
-#bar{flex:1;min-width:50px;max-width:120px;height:10px;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden}
-#bar i{display:block;height:100%;width:100%;background:var(--lime)}
-.hbtn:first-of-type{margin-left:auto}
-.hbtn{pointer-events:auto;border:0;background:rgba(6,77,37,.88);color:#fff;border-radius:12px;padding:7px 10px;font-size:15px}
-#back{pointer-events:auto;background:rgba(6,77,37,.88);color:#fff;border-radius:12px;padding:8px 11px;font-size:12px;font-weight:800;text-decoration:none}
-#place{position:fixed;top:calc(52px + env(safe-area-inset-top));left:10px;background:rgba(255,255,255,.92);color:var(--dark);border-radius:10px;padding:5px 10px;font-size:12px;font-weight:800;z-index:5;pointer-events:none}
-#zoomBox{position:fixed;right:10px;top:44%;display:flex;flex-direction:column;gap:8px;z-index:6}
-#zoomBox .hbtn{font-size:20px;padding:9px 13px;margin:0}
-#joy{position:fixed;left:18px;bottom:calc(22px + env(safe-area-inset-bottom));width:124px;height:124px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.4);z-index:6;touch-action:none}
-#knob{position:absolute;left:34px;top:34px;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.65)}
-#act{position:fixed;right:20px;bottom:calc(34px + env(safe-area-inset-bottom));min-width:88px;height:88px;border-radius:44px;border:0;background:var(--lime);color:var(--dark);font-weight:900;font-size:13px;padding:0 14px;z-index:6;display:none;box-shadow:0 6px 18px rgba(0,0,0,.35)}
-#toast{z-index:60;position:fixed;left:50%;bottom:calc(160px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;max-width:86vw;text-align:center;z-index:8;display:none}
-#modal{position:fixed;inset:0;background:rgba(5,25,14,.6);z-index:20;display:none;align-items:flex-end;justify-content:center}
-#modal.show{display:flex}
-#box{background:#fff;color:var(--text);width:100%;max-width:560px;max-height:86vh;overflow-y:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));user-select:text;-webkit-user-select:text;touch-action:pan-y}
-#box h2{margin:0 0 8px;font-size:19px}#box p{margin:0 0 10px;color:var(--muted);font-size:14px;line-height:1.5}
-.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:800;font-size:14px;background:var(--green);color:#fff;margin-top:10px}
-.btn.alt{background:#e8f4eb;color:var(--dark)}.btn:disabled{opacity:.5}
-.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:13px;margin-top:9px;font:inherit;font-weight:700;color:var(--text)}
-.opt small{display:block;font-weight:400;color:var(--muted);margin-top:3px}
-.up{color:#17682e;font-weight:800}.down{color:var(--red);font-weight:800}
-.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
-#wake{position:fixed;top:calc(62px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(92vw,460px);max-height:22vh;overflow:hidden;background:rgba(4,43,27,.94);color:#fff;border:1px solid rgba(199,245,66,.55);border-radius:16px;display:none;align-items:center;justify-content:center;text-align:center;padding:12px 16px;font-size:14px;line-height:1.45;z-index:4;opacity:1;pointer-events:none;transition:opacity 1.2s}
-#needs{position:fixed;top:calc(84px + env(safe-area-inset-top));left:10px;display:flex;flex-direction:column;gap:5px;z-index:5;pointer-events:none}
-.nrow{display:flex;align-items:center;gap:6px;background:rgba(6,77,37,.8);border-radius:9px;padding:3px 7px;font-size:12px}
-.nrow i{display:block;width:64px;height:7px;background:rgba(255,255,255,.25);border-radius:5px;overflow:hidden}
-.nrow b{display:block;height:100%;width:50%;background:#b7ef43}
-.nrow.low b{background:#ff7043}
-#phoneBtn{position:fixed;top:calc(52px + env(safe-area-inset-top));right:10px;width:46px;height:46px;border-radius:14px;border:0;background:rgba(6,77,37,.9);color:#fff;font-size:22px;z-index:6}
-.meter{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}
-.meter span{width:92px}.meter i{flex:1;height:9px;background:#e7efe8;border-radius:6px;overflow:hidden}.meter b{display:block;height:100%;background:#0b9b45}
-.meter.low b{background:#ef5350}
-#msgScreen{position:fixed;inset:0;background:#0b2a17;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:30;font-size:15px;line-height:1.6}
-#msgScreen a{color:var(--lime);font-weight:800}
+:root{--green:#087f43;--deep:#062b20;--lime:#c9f45a;--cream:#fff9e9;--ink:#142b20;--muted:#6b7b70}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#86b9ce;font-family:Arial,Helvetica,sans-serif;touch-action:none}
+#world{position:fixed;inset:0;width:100%;height:100%;display:block;outline:0}
+#loading{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#073d2a,#0b7650);color:white;text-align:center;padding:24px}
+.load-card{width:min(90vw,360px)}.load-mark{font-size:46px}.load-title{font-size:23px;font-weight:900;letter-spacing:.5px;margin:12px 0 6px}.load-copy{font-size:13px;line-height:1.6;color:#d5ebdd}.load-track{height:6px;background:#ffffff35;border-radius:9px;overflow:hidden;margin:18px 0}.load-track i{display:block;width:35%;height:100%;background:var(--lime);animation:load 1.2s infinite ease-in-out alternate}@keyframes load{to{width:95%}}
+#hud{position:fixed;top:0;left:0;right:0;z-index:5;padding:calc(8px + env(safe-area-inset-top)) 9px 7px;display:none;align-items:center;gap:6px;pointer-events:none}
+.pill{min-width:0;background:#062e22eF;color:white;border:1px solid #ffffff22;border-radius:12px;padding:7px 9px;font-size:11px;font-weight:800;box-shadow:0 3px 12px #001b1233;white-space:nowrap}
+.pill strong{color:var(--lime);font-size:13px}
+#energy{width:56px;height:6px;border-radius:8px;background:#ffffff40;overflow:hidden;margin-top:4px}#energy i{display:block;height:100%;width:100%;background:var(--lime)}
+#district{position:fixed;z-index:5;top:calc(58px + env(safe-area-inset-top));left:10px;max-width:65vw;padding:6px 10px;border-radius:10px;background:#fffdf0eF;color:#163c2b;font-size:11px;font-weight:900;box-shadow:0 3px 12px #001b1222;pointer-events:none}
+#topActions{margin-left:auto;display:flex;gap:5px;pointer-events:auto}
+.icon-btn{width:38px;height:38px;border:1px solid #ffffff30;border-radius:12px;background:#063b2beF;color:#fff;font-size:17px;font-weight:800;box-shadow:0 3px 12px #001b1233}
+#joystick{position:fixed;z-index:6;left:17px;bottom:calc(20px + env(safe-area-inset-bottom));width:128px;height:128px;border:2px solid #ffffff88;border-radius:50%;background:#ffffff24;touch-action:none;display:none;box-shadow:0 4px 20px #001b1233}
+#stick{position:absolute;left:35px;top:35px;width:54px;height:54px;border-radius:50%;background:#ffffffb8;border:2px solid #ffffffd9;box-shadow:0 3px 12px #001b1244}
+#action{position:fixed;z-index:7;right:18px;bottom:calc(28px + env(safe-area-inset-bottom));width:88px;height:88px;border-radius:50%;border:3px solid #ffffffb0;background:var(--lime);color:#16351d;font-size:12px;font-weight:900;box-shadow:0 6px 20px #001b1255;display:none}
+#action small{display:block;font-size:19px;margin-bottom:2px}
+#quick{position:fixed;z-index:6;right:16px;bottom:calc(130px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:8px}
+#quick button{width:42px;height:42px;border:1px solid #ffffff55;border-radius:13px;background:#063b2beF;color:white;font-size:19px}
+#hint{position:fixed;z-index:5;left:50%;bottom:calc(160px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:80vw;background:#062e22dc;color:#fff;padding:8px 12px;border-radius:12px;font-size:11px;text-align:center;pointer-events:none;display:none}
+#toast{position:fixed;z-index:50;left:50%;bottom:calc(160px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:88vw;background:#102b20;color:white;padding:11px 15px;border-radius:13px;font-size:13px;text-align:center;box-shadow:0 5px 22px #0005;display:none}
+#modal{position:fixed;inset:0;z-index:20;background:#061d16a8;display:none;align-items:flex-end;justify-content:center;padding-top:25px}
+#modal.open{display:flex}
+#sheet{width:min(100%,560px);max-height:84vh;overflow:auto;background:#fffdf6;color:var(--ink);border-radius:22px 22px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));touch-action:pan-y;box-shadow:0 -12px 40px #00170f44}
+#sheet h2{font-size:20px;margin:0 40px 8px 0;color:#073d2a}#sheet p{font-size:13px;line-height:1.55;color:var(--muted);margin:0 0 12px}
+.sheet-close{float:right;width:34px;height:34px;border:0;border-radius:50%;background:#e8efe8;color:#1b3b2b;font-size:21px}
+.option{display:block;width:100%;text-align:left;border:1px solid #dce6dc;border-radius:13px;background:white;padding:13px;margin:8px 0;color:#163526;font-size:14px;font-weight:800}
+.option small{display:block;color:#748176;font-size:11px;font-weight:400;margin-top:4px;line-height:1.4}
+.primary,.secondary{display:block;width:100%;border:0;border-radius:13px;padding:14px;margin-top:9px;font-weight:900;font-size:14px}
+.primary{background:#087f43;color:white}.secondary{background:#e8f3e8;color:#17442b}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{padding:10px 5px;background:#edf5eb;border-radius:12px;text-align:center}.stat b{display:block;font-size:18px;color:#07512e}.stat span{font-size:10px;color:#708176}
+#err{display:none;position:fixed;inset:0;z-index:40;background:#082d20;color:#fff;padding:30px;align-items:center;justify-content:center;text-align:center;font-size:14px;line-height:1.7}#err a{color:var(--lime);font-weight:800}
+@media(min-width:700px){#joystick{left:28px;bottom:28px}#action{right:30px;bottom:35px}#quick{right:30px;bottom:140px}}
 </style>
-
 </head>
 <body>
-<canvas id="c"></canvas>
-
-<div id="hud" style="display:none">
-  <span class="chip">⚡ <span id="eTxt">100</span></span>
-  <div id="bar"><i id="eBar"></i></div>
-  <span class="chip">🪙 <b id="cTxt">0</b></span>
-  <span class="chip">⭐ <b id="fTxt">0</b></span>
-  <button id="lookBtn" type="button" class="hbtn" aria-label="Change look">🎨</button><button id="chatBtn" type="button" class="hbtn" aria-label="Friends and chat">💬</button><button id="placesBtn" type="button" class="hbtn" aria-label="Places">📍</button><button id="radioBtn" type="button" class="hbtn" aria-label="Radio">📻</button><button id="musicBtn" type="button" class="hbtn" aria-label="Music">🔇</button><button id="helpBtn" type="button" class="hbtn" aria-label="How to play" title="How to play">?</button><a id="back" href="starlife.html">🌍 Menu</a>
+<canvas id="world" aria-label="NAIJA STAR LIFE 3D world"></canvas>
+<div id="loading"><div class="load-card"><div class="load-mark">🇳🇬</div><div class="load-title">NAIJA STAR LIFE</div><div class="load-copy">Building your Lagos neighbourhood…<br>Getting the streets ready.</div><div class="load-track"><i></i></div></div></div>
+<div id="err"></div>
+<div id="hud">
+  <div class="pill">⚡ <strong id="energyText">100</strong><div id="energy"><i id="energyFill"></i></div></div>
+  <div class="pill">🪙 <strong id="coins">0</strong></div>
+  <div class="pill">⭐ <strong id="fame">0</strong></div>
+  <div id="topActions">
+    <button class="icon-btn" id="phone" aria-label="Player phone">📱</button>
+    <button class="icon-btn" id="map" aria-label="Travel map">🗺️</button>
+    <button class="icon-btn" id="menu" aria-label="Game menu">☰</button>
+  </div>
 </div>
-<div id="place"></div>
-<div id="needs"></div>
-<button id="phoneBtn" type="button" aria-label="Phone">📱</button>
-<div id="navBar" style="display:none;position:fixed;top:calc(96px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:7;background:rgba(6,77,37,.92);color:#fff;border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700;gap:10px;align-items:center;max-width:92vw"><span>🧭 Walking to <b id="navName"></b></span><button id="navCancel" type="button" style="border:0;border-radius:10px;padding:6px 10px;font-weight:800;background:#fff;color:#064d25">Cancel</button></div>
-<div id="zoomBox"><button id="zIn" type="button" class="hbtn" aria-label="Zoom in">＋</button><button id="zOut" type="button" class="hbtn" aria-label="Zoom out">－</button></div>
-<div id="joy"><div id="knob"></div></div>
-<button id="act" type="button"></button>
+<div id="district">📍 Loading neighbourhood…</div>
+<div id="joystick"><div id="stick"></div></div>
+<button id="action"><small>✋</small><span id="actionText">INTERACT</span></button>
+<div id="quick"><button id="zoomIn" aria-label="Zoom in">＋</button><button id="zoomOut" aria-label="Zoom out">－</button></div>
+<div id="hint">Move with the joystick · Drag the screen to look around</div>
 <div id="toast"></div>
-<div id="modal"><div id="box"></div></div>
-<div id="wake"></div>
-<div id="msgScreen">Loading Lagos in 3D...</div>
-
+<div id="modal"><div id="sheet"><button class="sheet-close" id="close" aria-label="Close">×</button><div id="sheetContent"></div></div></div>
 <script>
 "use strict";
-const $ = id => document.getElementById(id);
-const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
-function startupMessage(message){
-  const panel = $("msgScreen");
-  if(panel){ panel.style.display="flex"; panel.innerHTML=message; }
-}
-window.addEventListener("error", function(e){
-  if(e && e.target && e.target.tagName==="SCRIPT" && e.target.dataset.optional!=="1"){
-    startupMessage("A game service could not load. Check your internet connection, then refresh this page.<br><br><small>Failed resource: "+esc(e.target.src || "external script")+"</small><br><br><a href='starlife.html'>Return to Star Life menu</a>");
-  }else if(e && e.message){
-    console.error("Naija Star Life startup error:",e.message);
-  }
-}, true);
-window.addEventListener("unhandledrejection", function(e){
-  console.error("Naija Star Life background request failed:",e.reason);
-});
-if(!window.supabase || typeof window.supabase.createClient!=="function"){
-  startupMessage("The account connection service did not load, so the game cannot start.<br><br>Check your internet connection and refresh. If it continues, try again later.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
-  throw new Error("Supabase client library unavailable");
-}
-const db = window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co", "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");
-
-/* ============================ WORLD DEFINITION ============================ */
-const T = 40;                 // larger tile scale for a wider, more explorable Lagos map
-const DW = 24, DH = 18;       // district size in tiles
-const COLS = 3, ROWS = 3;     // districts across the world
-const WORLD_W = COLS * DW * T, WORLD_H = ROWS * DH * T;
-
-/* c,r = position in the 3x3 world grid. Lagoon water fills the bottom-left two cells. */
-const DISTRICTS = [
-  { id:"ikeja",    name:"Ikeja",           c:0, r:0, ground:"#d7ecc9", work:"Mall Shop" },
-  { id:"oshodi",   name:"Oshodi",          c:1, r:0, ground:"#e6e3c6", work:"Market" },
-  { id:"ikorodu",  name:"Ikorodu",         c:2, r:0, ground:"#cfe6c0", work:"Boat Dock" },
-  { id:"yaba",     name:"Yaba",            c:0, r:1, ground:"#d3e8d6", work:"Print Shop" },
-  { id:"surulere", name:"Surulere",        c:1, r:1, ground:"#d9ecc4", work:"Water Stand" },
-  { id:"vi",       name:"Victoria Island", c:2, r:1, ground:"#dfe9f0", work:"Office" },
-  { id:"lekki",    name:"Lekki",           c:2, r:2, ground:"#f2ead2", work:"Event Hall" }
+const $=id=>document.getElementById(id);
+const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+let db, state=null, places=[], homes=[], busy=false;
+let scene, camera, renderer, clock, player, playerGroup, yaw=0, cameraDistance=10;
+let joy={x:0,y:0}, keys={}, spots=[], colliders=[], people=[], cars=[], actionSpot=null;
+let lastToast=0, frame=0, touchLook=null, modalOpen=false;
+const WORLD={size:420,limit:198};
+const AREAS=[
+ {id:"ikeja",name:"Ikeja",x:-105,z:-105,tag:"BUSINESS DISTRICT",ground:0x9cbf85,wall:0xe7d5b4,roof:0x9c4937},
+ {id:"oshodi",name:"Oshodi",x:0,z:-105,tag:"TRANSPORT & MARKET",ground:0xc3b889,wall:0xe7c68c,roof:0xb95732},
+ {id:"ikorodu",name:"Ikorodu",x:105,z:-105,tag:"WATERFRONT TOWN",ground:0x8db78a,wall:0xd8c49e,roof:0x547d55},
+ {id:"yaba",name:"Yaba",x:-105,z:0,tag:"CAMPUS & TECH",ground:0x9fbea9,wall:0xd7dce1,roof:0x356c9b},
+ {id:"surulere",name:"Surulere",x:0,z:0,tag:"NEIGHBOURHOOD LIFE",ground:0xb1c78a,wall:0xe2c7a5,roof:0x9b573d},
+ {id:"vi",name:"Victoria Island",x:105,z:0,tag:"CITY & OFFICES",ground:0x9db6bf,wall:0xd9e2e5,roof:0x455e70},
+ {id:"lekki",name:"Lekki",x:105,z:105,tag:"COAST & LEISURE",ground:0xd4c398,wall:0xe8d5b7,roof:0x9b6d43}
 ];
-const WATER = [{c:0,r:2},{c:1,r:2}];
-let HOME_DISTRICT = null;
-
-/* Extra building lots (tile position, size, and the door spot) and what each district puts in them. */
-const LOTS = {
-  A:{ tx:16, ty:1,  w:6, h:4, dx:19,  dy:5.4  },
-  B:{ tx:16, ty:13, w:6, h:4, dx:19,  dy:17.4 },
-  C:{ tx:3,  ty:13, w:5, h:4, dx:5.5, dy:17.4 },
-  D:{ tx:0,  ty:3,  w:3, h:3, dx:1.5, dy:6.4 }
-};
-const VENUES = { lekki:"BEACH CLUB", vi:"NIGHT CLUB", ikeja:"CINEMA", yaba:"CAFE", surulere:"PITCH", oshodi:"BATH HOUSE", ikorodu:"BOAT DOCK" };
-
-/* More places: small landmark buildings in free corners of each area. */
-const LOTS2 = {
-  E:{ tx:0,  ty:13, w:3, h:3, dx:1.5, dy:16.4 },
-  F:{ tx:14, ty:1,  w:2, h:2, dx:15,  dy:3.4  },
-  G:{ tx:14, ty:13, w:2, h:3, dx:15,  dy:16.4 },
-  H:{ tx:9,  ty:13, w:2, h:3, dx:10,  dy:16.4 }
-};
-const PLACES = {
-  ikeja:{ E:"hospital", F:"fela_shrine", H:"bank" }, yaba:{ E:"school", H:"salon" },
-  surulere:{ E:"gym", F:"kiosk", G:"market" }, oshodi:{ E:"market", F:"kiosk" },
-  ikorodu:{ E:"kiosk", G:"salon" }, vi:{ E:"bank", F:"salon" }, lekki:{ E:"gym", G:"dangote_refinery", H:"salon" }
-};
-const PLACE_INFO = {
-  hospital:{ name:"Hospital", sign:"HOSPITAL", icon:"🏥", wall:"#ffffff", roof:"#c62828", blurb:"Look after your health or volunteer on the ward." },
-  school:  { name:"School", sign:"SCHOOL", icon:"🎓", wall:"#fff3c4", roof:"#1565c0", blurb:"Learn something new and grow your name." },
-  gym:     { name:"Gym", sign:"GYM", icon:"🏋️", wall:"#e0e0e0", roof:"#37474f", blurb:"Train hard and look sharp." },
-  market:  { name:"Market stalls", sign:"MARKET", icon:"🧺", wall:"#ffe0b2", roof:"#ef6c00", blurb:"Buy, sell and bargain like a pro." },
-  salon:   { name:"Salon and Barber", sign:"SALON", icon:"💈", wall:"#f8bbd0", roof:"#ad1457", blurb:"A fresh look can open doors." },
-  kiosk:   { name:"Kiosk", sign:"KIOSK", icon:"🛒", wall:"#c8e6c9", roof:"#2e7d32", blurb:"Snacks, drinks and the latest gist." },
-  bank:    { name:"Bank", sign:"BANK", icon:"🏦", wall:"#cfd8dc", roof:"#263238", blurb:"Meet the staff and pick up work." },
-  fela_shrine:{ name:"New Afrika Shrine", sign:"FELA SHRINE", icon:"🎷", wall:"#e6bd68", roof:"#8b2f1e", blurb:"Visit Ikeja’s legendary live-music and cultural venue. Explore Afrobeat history, the stage and community atmosphere." },
-  dangote_refinery:{ name:"Dangote Refinery Visitor Experience", sign:"DANGOTE REFINERY", icon:"🏭", wall:"#d8e2e8", roof:"#174d67", blurb:"Explore a visitor-style introduction to the Lekki industrial corridor, energy production, engineering and manufacturing. This is a fictional in-game tour, not access to the real facility." }
-};
-const SHOPS = {
-  surulere:{ A:"food" }, yaba:{ A:"food" }, oshodi:{ A:"food" }, ikorodu:{ A:"food" },
-  ikeja:{ A:"biz", B:"cars" }, vi:{ A:"biz", B:"food" }, lekki:{ A:"cars", B:"food" }
-};
-const SHOP_INFO = {
-  food:{ label:"Restaurant", sign:"FOOD",     spot:"🍲 Eat" },
-  biz: { label:"Business Hub", sign:"BUSINESS", spot:"📈 Business Hub" },
-  cars:{ label:"Car Dealer", sign:"CARS",     spot:"🚗 Car Dealer" }
-};
-/* All characters below are fictional. */
-const CELEB_POS = {
-  lade_sings:{ did:"oshodi", tx:4.5, ty:9.5 }, mama_nkechi:{ did:"oshodi", tx:21.5, ty:9.5 },
-  tolu_beats:{ did:"yaba", tx:4.5, ty:9.5 }, adaora_vale:{ did:"vi", tx:4.5, ty:9.5 },
-  baba_jide:{ did:"ikorodu", tx:4.5, ty:9.5 }, sade_stage:{ did:"surulere", tx:4.5, ty:9.5 },
-  kc_flow:{ did:"lekki", tx:4.5, ty:9.5 }, ayo_kicks:{ did:"ikeja", tx:4.5, ty:9.5 },
-  ife_marvelle:{ did:"ikeja", tx:9.8, ty:6.8 }, gov_eze:{ did:"ikeja", tx:19.5, ty:9.5 },
-  dj_kasa:{ did:"yaba", tx:9.8, ty:6.8 }, mama_put:{ did:"surulere", tx:9.8, ty:6.8 },
-  mr_laffs:{ did:"oshodi", tx:9.8, ty:6.8 }, star_ola:{ did:"lekki", tx:9.8, ty:6.8 },
-  chief_dike:{ did:"vi", tx:9.8, ty:6.8 }, coach_baba:{ did:"ikorodu", tx:9.8, ty:6.8 }
-};
-const NAMES = ["Tunde","Amaka","Chidi","Bisi","Emeka","Zainab","Kola","Ngozi","Ibrahim","Folake","Segun","Hauwa"];
-const SHIRTS = ["#e53935","#1e88e5","#8e24aa","#fb8c00","#00897b","#6d4c41","#d81b60","#3949ab"];
-
-function rng(seed){ let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-
-const solids = [];     // {x,y,w,h}
-const scenery = [];    // drawable things: {k,x,y,w,h,...}
-const spots = [];      // interactables: {kind,x,y,did}
-const npcs = [];
-
-function districtAt(px, py){
-  const c = Math.floor(px / (DW * T)), r = Math.floor(py / (DH * T));
-  return DISTRICTS.find(d => d.c === c && d.r === r) || null;
+const DISTRICT_ALIAS={victoria_island:"vi","victoria island":"vi",lagos_island:"vi","lagos island":"vi"};
+const COLORS={road:0x303b3c,sidewalk:0xb9b8a6,white:0xf8f2df,skin:0x754a32,shirt:0x0b7b48};
+const matCache=new Map();
+function material(color,roughness=.9){const key=String(color);if(!matCache.has(key))matCache.set(key,new THREE.MeshStandardMaterial({color,roughness}));return matCache.get(key);}
+function meshBox(w,h,d,color,x,y,z,parent=scene){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material(color));m.position.set(x,y+h/2,z);m.castShadow=false;m.receiveShadow=true;parent.add(m);return m;}
+function plane(w,d,color,x,z,y=0){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),material(color));m.rotation.x=-Math.PI/2;m.position.set(x,y,z);scene.add(m);return m;}
+function labelSprite(text,bg="#123d2b"){const c=document.createElement("canvas");c.width=512;c.height=128;const g=c.getContext("2d");g.fillStyle=bg;g.fillRect(0,0,512,128);g.fillStyle="#fff";g.font="bold 46px Arial";g.textAlign="center";g.textBaseline="middle";g.fillText(text,256,66,480);const tex=new THREE.CanvasTexture(c);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:false}));s.scale.set(12,3,1);return s;}
+function makeBuilding(area,x,z,w,d,h,name,type,index){
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ const wall=meshBox(w,h,d,area.wall,0,0,0,g);
+ meshBox(w+1.2,1.2,d+1.2,area.roof,-.6,h,-.6,g);
+ // Front entrance, windows and canopy create readable depth at street level.
+ meshBox(2.3,3.3,.28,0x4d3023,w/2-1.15,0,d-.16,g);
+ meshBox(3.8,.55,.8,0x164d38,w/2-1.9,3.35,d+.15,g);
+ for(let row=0;row<2;row++)for(let col=0;col<Math.max(2,Math.floor(w/5));col++){
+  const wx=2.2+col*4.6, wy=4.1+row*3.6;
+  if(wx<w-2.2&&wy<h-1)meshBox(1.7,1.8,.18,index%2?0x9ac8d0:0x83b4c4,wx,wy,d-.12,g);
+ }
+ const sign=labelSprite(name);sign.position.set(w/2,h+2,d+.1);g.add(sign);
+ colliders.push({x:x+w/2,z:z+d/2,w:w+1,d:d+1});
+ if(type){spots.push({kind:type,label:name,x:x+w/2,z:z+d+3,area:area.id,icon:({work:"💼",food:"🍲",home:"🏠",bus:"🚌",landmark:"🏛️",market:"🧺"})[type]||"📍"});}
+ return g;
 }
-
-function buildWorld(){
-  // lagoon
-  WATER.forEach(w => {
-    const rect = { x:w.c*DW*T, y:w.r*DH*T, w:DW*T, h:DH*T };
-    solids.push(rect); scenery.push({ k:"water", ...rect });
+function addTree(x,z,scale=1){
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.25*scale,.38*scale,2.5*scale,6),material(0x745037));trunk.position.y=1.25*scale;g.add(trunk);
+ const crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.5*scale,1),material(0x39784a));crown.position.y=3.1*scale;g.add(crown);
+}
+function addLamp(x,z){
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ const pole=new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,5,6),material(0x414c48));pole.position.y=2.5;g.add(pole);
+ const arm=meshBox(1.5,.12,.12,0x414c48,.0,4.8,0,g);arm.position.x=.6;
+ const bulb=new THREE.Mesh(new THREE.SphereGeometry(.22,8,6),new THREE.MeshBasicMaterial({color:0xffe6a0}));bulb.position.set(1.2,4.7,0);g.add(bulb);
+}
+function buildRoads(){
+ plane(440,440,0x9eae8a,0,0,-.15);
+ // Main road grid and pavements.
+ for(let p=-210;p<=210;p+=105){
+  plane(13,440,COLORS.road,p,0,.01);plane(440,13,COLORS.road,0,p,.01);
+  plane(3,440,COLORS.sidewalk,p-8.2,0,.025);plane(3,440,COLORS.sidewalk,p+8.2,0,.025);
+  plane(440,3,COLORS.sidewalk,0,p-8.2,.025);plane(440,3,COLORS.sidewalk,0,p+8.2,.025);
+ }
+ // Lane markings.
+ for(let p=-205;p<205;p+=12){meshBox(.18,.025,4,0xe8dcae,-6.5,.05,p);meshBox(.18,.025,4,0xe8dcae,6.5,.05,p);meshBox(4,.025,.18,0xe8dcae,p,.05,-6.5);meshBox(4,.025,.18,0xe8dcae,p,.05,6.5);}
+}
+function buildCity(){
+ buildRoads();
+ AREAS.forEach((a,i)=>{
+  plane(88,88,a.ground,a.x,a.z,.02);
+  const offsets=[[-31,-29],[7,-29],[-31,9],[7,9]];
+  const types=[["work","BUSINESS / OFFICE"],["food","MAMA PUT BUKA"],["home","YOUR HOME"],["market","MARKET SQUARE"]];
+  offsets.forEach((o,j)=>{
+   const w=j===0?23: j===1?25:22,d=j===2?23:20,h=(j===0&&a.id==="vi")?19:8+(i+j)%4*2;
+   const title=j===0?(a.id==="yaba"?"TECH HUB":a.id==="vi"?"OFFICE TOWER":"WORK CENTRE"):types[j][1];
+   makeBuilding(a,a.x+o[0],a.z+o[1],w,d,h,title,types[j][0],i+j);
   });
-
-  DISTRICTS.forEach((d, idx) => {
-    const ox = d.c * DW * T, oy = d.r * DH * T;
-    const rand = rng(1000 + idx * 77);
-    const taken = [];     // tile rects used (x,y,w,h in tiles)
-    const free = (x, y, w, h) => !taken.some(t => x < t.x + t.w + 1 && x + w + 1 > t.x && y < t.y + t.h + 1 && y + h + 1 > t.y);
-
-    // reserved: road bands + building lots
-    taken.push({ x:0, y:7, w:DW, h:5 });         // horizontal road band (with margin)
-    taken.push({ x:10, y:0, w:5, h:DH });        // vertical road band (with margin)
-
-    // roads (scenery only)
-    scenery.push({ k:"road", x:ox, y:oy + 8*T, w:DW*T, h:3*T });
-    scenery.push({ k:"road", x:ox + 11*T, y:oy, w:3*T, h:DH*T });
-    // Large, visible neighbourhood identity sign at the main road junction.
-    scenery.push({ k:"districtSign", did:d.id, x:ox + 14.2*T, y:oy + 9.1*T, w:1, h:1 });
-
-    // work building
-    const wb = { x:ox + 3*T, y:oy + 2*T, w:6*T, h:4*T };
-    solids.push(wb);
-    scenery.push({ k:"work", ...wb, label:d.work });
-    taken.push({ x:3, y:2, w:6, h:4 });
-    spots.push({ kind:"work", did:d.id, x:ox + 6*T, y:oy + 6.4*T, label:"💼 Work" });
-
-    // bus stop
-    scenery.push({ k:"bus", x:ox + 15*T, y:oy + 6*T, w:T, h:2*T });
-    // Nigerian public transport parked beside the bus stop (visual scenery).
-    scenery.push({ k:"danfo", x:ox + 16.2*T, y:oy + 5.6*T, w:2.4*T, h:1.2*T });
-    scenery.push({ k:"keke", x:ox + 19.0*T, y:oy + 6.0*T, w:1.3*T, h:1.2*T });
-    // A small roadside buka/market stall in each neighbourhood.
-    scenery.push({ k:"marketStall", did:d.id, x:ox + 16.2*T, y:oy + 12.2*T, w:2.6*T, h:1.8*T });
-    spots.push({ kind:"food", did:d.id, x:ox + 17.5*T, y:oy + 14.25*T, label:"🍲 Mama Put" });
-    spots.push({ kind:"bus", did:d.id, x:ox + 15.5*T, y:oy + 7.2*T, label:"🚌 Bus" });
-    if (d.id === "yaba" || d.id === "surulere") spots.push({ kind:"lagoon", did:d.id, x:ox + 12.5*T, y:oy + 17.3*T, label:"🌊 Look out" });
-    BB_POS.forEach((bp, slot) => {      scenery.push({ k:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, w:0, h:0 });      spots.push({ kind:"billboard", did:d.id, slot, x:ox + bp.tx*T, y:oy + bp.ty*T, label:"📢 Billboard" });
-    });
-
-    // every district has a house lot: it is YOUR home only in your home district
-    if (!(SHOPS[d.id] && SHOPS[d.id].C)){
-      const hb = { x:ox + 3*T, y:oy + 13*T, w:5*T, h:4*T };
-      const mine = (HOME_DISTRICT === d.id);
-      solids.push(hb);
-      scenery.push({ k:mine ? "home" : "house", ...hb, tint:idx % 4, mine });
-      taken.push({ x:3, y:13, w:5, h:4 });
-      spots.push(mine ? { kind:"home", did:d.id, x:ox + 5.5*T, y:oy + 17.4*T, label:"🏠 Home" }
-                      : { kind:"house", did:d.id, x:ox + 5.5*T, y:oy + 17.4*T, label:"🚪 Knock" });
-    }
-
-    // food, business hub and car dealer lots
-    const shops = SHOPS[d.id] || {};
-    Object.keys(shops).forEach(k => {
-      const L = LOTS[k], kind = shops[k];
-      const r = { x:ox + L.tx*T, y:oy + L.ty*T, w:L.w*T, h:L.h*T };
-      solids.push(r);
-      scenery.push({ k:"shop", ...r, kind });
-      taken.push({ x:L.tx, y:L.ty, w:L.w, h:L.h });
-      spots.push({ kind, did:d.id, x:ox + L.dx*T, y:oy + L.dy*T, label:SHOP_INFO[kind].spot });
-    });
-
-    // hangout venue: fun, social and clean-up activities
-    {
-      const L = LOTS.D, r = { x:ox + L.tx*T, y:oy + L.ty*T, w:L.w*T, h:L.h*T };
-      solids.push(r);
-      scenery.push({ k:"shop", ...r, kind:"venue", label:VENUES[d.id] || "VENUE" });
-      taken.push({ x:L.tx, y:L.ty, w:L.w, h:L.h });
-      spots.push({ kind:"venue", did:d.id, x:ox + L.dx*T, y:oy + L.dy*T, label:"🎉 " + (VENUES[d.id] || "Hang out") });
-    }
-
-    // extra landmark buildings
-    Object.keys(PLACES[d.id] || {}).forEach(k => {
-      const L = LOTS2[k], kind = PLACES[d.id][k];
-      const r = { x:ox + L.tx*T, y:oy + L.ty*T, w:L.w*T, h:L.h*T };
-      solids.push(r);
-      scenery.push({ k:"shop", ...r, kind });
-      taken.push({ x:L.tx, y:L.ty, w:L.w, h:L.h });
-      spots.push({ kind:"landmark", pk:kind, did:d.id, x:ox + L.dx*T, y:oy + L.dy*T, label:PLACE_INFO[kind].icon + " " + PLACE_INFO[kind].name });
-    });
-
-    // houses
-    for (let n = 0, tries = 0; n < 4 && tries < 80; tries++){
-      const x = 1 + Math.floor(rand() * (DW - 5)), y = 1 + Math.floor(rand() * (DH - 5));
-      if (!free(x, y, 3, 3)) continue;
-      taken.push({ x, y, w:3, h:3 });
-      const r = { x:ox + x*T, y:oy + y*T, w:3*T, h:3*T };
-      solids.push(r);
-      scenery.push({ k:"house", ...r, tint:Math.floor(rand() * 4) });
-      spots.push({ kind:"house", did:d.id, x:r.x + 1.5*T, y:r.y + 3.4*T, label:"🚪 Knock" });
-      n++;
-    }
-    // trees
-    for (let n = 0, tries = 0; n < 16 && tries < 120; tries++){
-      const x = Math.floor(rand() * DW), y = Math.floor(rand() * DH);
-      if (!free(x, y, 1, 1)) continue;
-      taken.push({ x, y, w:1, h:1 });
-      solids.push({ x:ox + x*T + 10, y:oy + y*T + 10, w:12, h:14 });
-      scenery.push({ k:"tree", x:ox + x*T, y:oy + y*T, w:T, h:T });
-      n++;
-    }
-    // people
-    for (let n = 0; n < 4; n++){
-      const onRoadX = rand() < 0.5;
-      const x = onRoadX ? ox + (11 + rand() * 3) * T : ox + (1 + rand() * (DW - 2)) * T;
-      const y = onRoadX ? oy + (1 + rand() * (DH - 2)) * T : oy + (8 + rand() * 3) * T;
-      npcs.push({ x, y, did:d.id, color:SHIRTS[Math.floor(rand() * SHIRTS.length)], name:NAMES[Math.floor(rand() * NAMES.length)],
-                  dx:0, dy:0, timer:rand() * 2, hs:7, mode:"idle", action:"looking around", goal:null,
-                  actionTime:2+rand()*4, seed:Math.floor(rand()*99999), facing:rand()*Math.PI*2, socialTarget:null });
-    }
-  });
+  // Local identity sign, street trees and public benches.
+  const sign=labelSprite(a.name.toUpperCase()+" · "+a.tag,"#075638");sign.position.set(a.x,7,a.z-42);sign.scale.set(23,5,1);scene.add(sign);
+  [[-42,-42],[42,-42],[-42,42],[42,42]].forEach((p,k)=>{if(k!==2)addTree(a.x+p[0],a.z+p[1],.8+(k%2)*.15);});
+  addLamp(a.x-8,a.z-39);addLamp(a.x+8,a.z+39);
+  meshBox(5,1.2,1.5,0x75543a,a.x-5,.1,a.z+36);
+  // Area-specific landmark marker.
+  const lm=({ikeja:"CULTURE & MUSIC",oshodi:"MAIN BUS PARK",ikorodu:"FERRY LANDING",yaba:"CAMPUS GATE",surulere:"COMMUNITY FIELD",vi:"CITY PLAZA",lekki:"COASTAL WALK"})[a.id];
+  const landmark=labelSprite(lm,"#174c67");landmark.position.set(a.x+28,5,a.z+4);landmark.scale.set(15,3.8,1);scene.add(landmark);
+  spots.push({kind:"landmark",label:lm,x:a.x+28,z:a.z+12,area:a.id,icon:"🏛️"});
+ });
+ // Lagoon at the lower edge and a visible bridge approach.
+ plane(145,35,0x4d9da9,-130,174,-.02);
+ for(let x=-194;x<-65;x+=8){const wave=meshBox(4,.03,.12,0x9bd4d3,x,.03,174);}
+ // Roadside kiosks and benches.
+ for(let i=0;i<14;i++){const x=-180+i*27;meshBox(4,2.8,3,0xe1a65b,x,0,18);meshBox(4.3,.35,3.3,0x8b492b,x,2.8,18);}
 }
-
-/* ============================ GAME STATE ============================ */
-let state = null, places = [], homes = [], busy = false, modalOpen = false;
-let taskNotificationChannel = null;
-const TASK_ALERT_PREF = "slw3_new_task_alerts";
-let carSpeeds = {}, celebData = {}, celebs = [];
-const player = { x:0, y:0, hs:8, dir:1, step:0, face:0, moving:false };
-let curDistrict = null, lastSafe = { x:0, y:0 }, walkingCheck = false;
-let nearest = null;
-const keys = {};
-let joy = { x:0, y:0, active:false, id:null };
-
-const canvas = $("c");
-let VW = 0, VH = 0;
-let camYaw = 0.6;
-window.addEventListener("resize", () => resize());
-
-/* ============================ HELPERS ============================ */
-
-function toast(t, ms = 2400){
-  const el = $("toast"); el.textContent = t; el.style.display = "block";
-  clearTimeout(toast.t); toast.t = setTimeout(() => { el.style.display = "none"; }, ms);
+function makePerson(shirt=0x16824a,skin=0x754a32){
+ const g=new THREE.Group();
+ const torso=new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,1.35,8),material(shirt));torso.position.y=1.45;g.add(torso);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.38,10,8),material(skin));head.position.y=2.42;g.add(head);
+ const hair=new THREE.Mesh(new THREE.SphereGeometry(.39,8,6),material(0x171513));hair.scale.y=.45;hair.position.set(0,2.66,-.03);g.add(hair);
+ for(const side of [-1,1]){
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.13,.16,.95,6),material(skin));arm.position.set(side*.57,1.48,0);arm.rotation.z=side*.13;g.add(arm);
+  const leg=new THREE.Mesh(new THREE.CylinderGeometry(.17,.19,.78,6),material(0x273b37));leg.position.set(side*.22,.43,0);g.add(leg);
+  const shoe=new THREE.Mesh(new THREE.BoxGeometry(.34,.16,.52),material(0x201f1d));shoe.position.set(side*.22,.12,.1);g.add(shoe);
+ }
+ g.userData.phase=Math.random()*6.28;return g;
 }
-const NEEDS = [["hunger", "🍗"], ["hygiene", "🚿"], ["bladder", "🚽"], ["fun", "🎉"], ["social", "👥"]];
-function renderNeeds(){
-  if (!state) return;
-  const box = $("needs");
-  if (!box.dataset.ready){
-    box.innerHTML = NEEDS.map(n => `<div class="nrow" id="nr_${n[0]}">${n[1]}<i><b id="nb_${n[0]}"></b></i></div>`).join("");
-    box.dataset.ready = "1";
+function buildPeople(){
+ const shirts=[0x18784a,0xc15b32,0x275f99,0x9a6a9c,0xd7a52d,0x4d7770,0xe0ddd0,0x873f35];
+ AREAS.forEach((a,i)=>{
+  for(let n=0;n<5;n++){
+   const p=makePerson(shirts[(i*3+n)%shirts.length], [0x754a32,0x603d2b,0x8b5b3d,0x4e3024][(i+n)%4]);
+   p.position.set(a.x-20+(n%3)*17,0,a.z-8+Math.floor(n/3)*17);scene.add(p);
+   people.push({mesh:p,homeX:p.position.x,homeZ:p.position.z,phase:n*1.7+i, speed:.45+(n%3)*.12});
   }
-  NEEDS.forEach(n => {
-    const v = Math.max(0, Math.min(100, Number(state[n[0]] ?? 0)));
-    const b = $("nb_" + n[0]), r = $("nr_" + n[0]);
-    if (b) b.style.width = v + "%";
-    if (r) r.classList.toggle("low", v < 25);
-  });
-}
-function setHud(){
-  if (!state) return;
-  renderNeeds();
-  if (typeof refreshLocks === "function") refreshLocks();
-  $("eTxt").textContent = state.energy;
-  $("eBar").style.width = Math.max(0, Math.min(100, state.energy)) + "%";
-  $("cTxt").textContent = state.coins;
-  $("fTxt").textContent = state.fame;
-  const d = DISTRICTS.find(x => x.id === state.location);
-  $("place").textContent = "📍 " + (d ? d.name : "Lagos");
-}
-function hits(x, y, hs){
-  if (inRoom) return hitsRoom(x, y, hs);
-  if (x - hs < 0 || y - hs < 0 || x + hs > WORLD_W || y + hs > WORLD_H) return true;
-  for (let i = 0; i < solids.length; i++){
-    const s = solids[i];
-    if (x + hs > s.x && x - hs < s.x + s.w && y + hs > s.y && y - hs < s.y + s.h) return true;
-  }
-  return false;
-}
-function tryMove(e, dx, dy){
-  if (!hits(e.x + dx, e.y, e.hs)) e.x += dx;
-  if (!hits(e.x, e.y + dy, e.hs)) e.y += dy;
-}
-function spawnAt(did){
-  const d = DISTRICTS.find(x => x.id === did) || DISTRICTS.find(x => x.id === "surulere");
-  player.x = d.c * DW * T + 12.5 * T;
-  player.y = d.r * DH * T + 9.5 * T;
-  curDistrict = d.id;
-  lastSafe = { x:player.x, y:player.y };
-}
-
-/* ============================ MODAL ============================ */
-function openModal(html){ $("box").innerHTML = html; $("modal").classList.add("show"); modalOpen = true; joy.x = joy.y = 0; }
-function closeModal(){ $("modal").classList.remove("show"); modalOpen = false; if (typeof chatTimer !== "undefined" && chatTimer){ clearInterval(chatTimer); chatTimer = null; } }
-let modalLocked = false;
-$("modal").addEventListener("pointerdown", e => { if (e.target === $("modal") && !modalLocked) closeModal(); });
-
-function delta(label, n){ return n === 0 ? "" : `<div class="row"><span>${label}</span><span class="${n > 0 ? "up" : "down"}">${n > 0 ? "+" : ""}${n}</span></div>`; }
-
-/* ============================ SERVER ACTIONS ============================ */
-async function rpc(name, args){
-  const { data, error } = await db.rpc(name, args);
-  if (error) throw error;
-  return data;
-}
-async function loadPlaces(){
-  if (places.length) return;
-  try{ places = await rpc("starlife_locations_list") || []; }catch(e){ console.warn(e); }
-}
-
-async function openWork(){
-  try{
-    const jobs = await rpc("starlife_jobs_here");
-    const d = DISTRICTS.find(x => x.id === state.location);
-    openModal(`<h2>💼 Work in ${esc(d ? d.name : "Lagos")}</h2>
-      <p>Take a shift to earn coins. Up to 2 shifts a day, and each uses energy.</p>
-      ${(jobs && jobs.length) ? jobs.map(j => `<button class="opt" data-j="${esc(j.id)}">${esc(j.name)} · +${esc(j.pay)} coins · -${esc(j.energy_cost)} energy<small>${esc(j.blurb || "")}</small></button>`).join("") : "<p>No jobs here yet. Grow your fame or try another area.</p>"}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-j]").forEach(b => b.onclick = () => doWork(b.dataset.j));
-  }catch(e){ toast(e.message || "Could not load jobs."); }
-}
-async function doWork(id){
-  if (busy) return; busy = true;
-  try{
-    const r = await rpc("starlife_work", { p_job_id:id });
-    state = r.state; setHud(); closeModal(); toast("Shift done. You earned " + r.earned + " coins.");
-  }catch(e){ toast(e.message || "Could not take the job."); }
-  finally{ busy = false; }
-}
-
-async function openHome(){
-  try{
-    if (!homes.length) homes = await rpc("starlife_homes_list") || [];
-    const cur = homes.find(h => h.id === state.home_id) || homes[0];
-    const ups = homes.filter(h => h.price > (cur ? cur.price : 0));
-    openModal(`<h2>🏠 ${esc(cur ? cur.name : "Home")}</h2>
-      <p>${esc(cur ? cur.blurb || "" : "")} Resting restores ${esc(cur ? cur.rest_energy : 10)} energy, once a day. Rent: ${esc(cur ? cur.rent : 0)} coins a week.</p>
-      <button class="btn alt" id="mFurn">🛋️ Furnish your home</button>
-      <button class="btn" id="mRest" ${state.rested_today ? "disabled" : ""}>${state.rested_today ? "You already rested today" : "😴 Rest at home"}</button>
-      <button class="btn alt" id="mShower">🚿 Take a shower</button>
-      <button class="btn alt" id="mToilet">🚽 Use the toilet</button>
-      <h2 style="margin-top:18px">Upgrade your home</h2>
-      ${ups.length ? ups.map(h => `<button class="opt" data-h="${esc(h.id)}">${esc(h.name)} · ${esc(h.price)} coins<small>${esc(h.blurb || "")} Rest: ${esc(h.rest_energy)} energy.</small></button>`).join("") : "<p>You live in the best home available. Well done!</p>"}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;    const care = (kind, msg) => async () => {
-      if (busy) return; busy = true;      try{ state = await rpc("starlife_home_care", { p_kind:kind }); setHud(); closeModal(); toast(msg); }
-      catch(e){ toast(e.message || "Could not do that."); }
-      finally{ busy = false; }
-    };
-    $("mShower").onclick = care("shower", "You feel fresh and clean.");
-    $("mToilet").onclick = care("toilet", "Much better.");
-    $("mFurn").onclick = openFurniture;
-    $("mRest").onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_rest"); setHud(); closeModal(); toast("You rested and feel better."); }
-      catch(e){ toast(e.message || "Could not rest."); }
-      finally{ busy = false; }
-    };
-    $("box").querySelectorAll("[data-h]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_buy_home", { p_home_id:b.dataset.h }); setHud(); closeModal(); toast("You moved into a better home!"); }
-      catch(e){ toast(e.message || "Could not upgrade."); }
-      finally{ busy = false; }
-    });
-  }catch(e){ toast(e.message || "Could not open your home."); }
-}
-
-async function openBus(){
-  try{
-    await loadPlaces();
-    openModal(`<h2>🚌 Bus stop</h2><p>Skip the walk. Each trip costs coins and a little energy.</p>
-      ${places.map(x => { const here = x.id === state.location;
-        return `<button class="opt" data-p="${esc(x.id)}" ${here ? "disabled" : ""}>${esc(x.name)} · ${here ? "you are here" : esc(x.travel_cost) + " coins"}<small>${esc(x.blurb || "")}</small></button>`; }).join("")}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-p]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_travel", { p_location:b.dataset.p }); spawnAt(state.location); setHud(); closeModal(); toast("You arrived."); }
-      catch(e){ toast(e.message || "Could not travel."); }
-      finally{ busy = false; }
-    });
-  }catch(e){ toast(e.message || "Could not open the bus stop."); }
-}
-
-async function talk(npc){
-  if (busy) return;
-  if (state.energy < 10){ toast("You are too tired to chat. Rest at home first."); return; }
-  busy = true;
-  try{
-    const ev = await rpc("starlife_next_event");
-    const greetings = ({
-      ikeja:["You don reach Ikeja o! How market?","This Ikeja traffic no be small. Where you dey go?","You look sharp today. How your hustle?"],
-      oshodi:["Oga, take am easy for Oshodi. Everywhere dey move!","You don chop? Market side get better food.","How far? You dey find bus or you just dey waka?"],
-      yaba:["How far, campus person? Wetin you dey build?","Yaba no dey sleep. You don finish your plans?","You get that tech or creative spirit. Keep pushing!"],
-      surulere:["You dey alright? Surulere people sabi enjoy life.","Which side you dey go? Stadium road or the junction?","No let today wahala spoil your mood o."],
-      ikorodu:["Welcome o! Ikorodu people get strong mind.","How journey? Ferry side fit busy today.","Small small, big dreams go come true."],
-      vi:["Good day! Big dreams fit start anywhere.","You get business plans? Plenty opportunities dey.","Keep your focus. Lagos no be sprint."],
-      lekki:["How far! You don see the new spots around here?","Enjoy the breeze, but no forget your goals.","You look like person wey get big plans."]
-    })[npc.did] || ["How far, my person? How your day dey go?","You dey alright? Make we catch up small."];
-    const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-    openModal(`<h2>${esc(npc.name)}</h2><p style="color:#087f36;font-weight:700">${esc(greeting)}</p><h3>${esc(ev.title)}</h3><p style="color:#173326">${esc(ev.body)}</p>
-      ${ev.choices.map((c, i) => `<button class="opt" data-i="${i}">${esc(c)}</button>`).join("")}`);
-    $("box").querySelectorAll("[data-i]").forEach(b => b.onclick = async () => {
-      $("box").querySelectorAll(".opt").forEach(x => x.disabled = true);
-      try{
-        const r = await rpc("starlife_resolve", { p_event_id:ev.id, p_choice:Number(b.dataset.i) });
-        state = r.state; setHud();
-        openModal(`<h2>What happened</h2><p style="color:#173326">${esc(r.text)}</p>${delta("Fame", r.fame)}${delta("Coins", r.coins)}${delta("Energy", r.energy)}<button class="btn" id="mClose">Continue</button>`);
-        $("mClose").onclick = closeModal;
-      }catch(e){ closeModal(); toast(e.message || "Could not save your choice."); }
-    });
-  }catch(e){ toast(e.message || "Nobody wants to talk right now."); }
-  finally{ busy = false; }
-}
-
-/* ============================ FOOD, BUSINESS, CARS, CELEBRITIES ============================ */
-async function openFood(){
-  try{
-    const foods = await rpc("starlife_foods_list");
-    openModal(`<h2>🍲 Restaurant</h2><p>Good food restores energy. You can eat up to 4 times a day.</p>
-      ${foods.map(f => `<button class="opt" data-f="${esc(f.id)}">${esc(f.name)} · ${esc(f.price)} coins<small>+${esc(f.energy)} energy${f.fame ? ", +" + esc(f.fame) + " fame" : ""}</small></button>`).join("")}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-f]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_eat", { p_food_id:b.dataset.f }); setHud(); closeModal(); toast("Tasty! You feel stronger."); }
-      catch(e){ toast(e.message || "Could not order."); }
-      finally{ busy = false; }
-    });
-  }catch(e){ toast(e.message || "Could not open the menu."); }
-}
-
-async function openBiz(){
-  try{
-    const [list, st] = await Promise.all([rpc("starlife_businesses_list"), rpc("starlife_income_status")]);
-    const info = Array.isArray(st) ? st[0] : st;
-    openModal(`<h2>📈 Business Hub</h2>
-      <p>Invest your coins in businesses. They earn coins every day, collected here (up to 3 days at a time). Coins are game coins, not naira.</p>
-      <div class="row"><span>Income per day</span><b>${esc(info.total_income)} coins</b></div>
-      <button class="btn" id="mCollect" ${info.pending > 0 ? "" : "disabled"}>${info.pending > 0 ? "Collect " + esc(info.pending) + " coins" : "Nothing to collect yet"}</button>
-      <h2 style="margin-top:18px">Businesses</h2>
-      ${list.map(b => {
-        const locked = state.fame < b.min_fame, maxed = b.level >= 5;
-        return `<button class="opt" data-b="${esc(b.id)}" ${locked || maxed ? "disabled" : ""}>${esc(b.name)}${b.level ? " · Level " + esc(b.level) : ""}
-          <small>${esc(b.blurb || "")} Earns ${esc(b.income)} coins/day per level.${locked ? " 🔒 Needs " + esc(b.min_fame) + " fame." : maxed ? " Max level." : " " + (b.level ? "Upgrade" : "Buy") + ": " + esc(b.next_cost) + " coins."}</small></button>`; }).join("")}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("mCollect").onclick = async () => {
-      if (busy) return; busy = true;
-      try{ const r = await rpc("starlife_collect_income"); state = r.state; setHud(); closeModal(); toast("You collected " + r.amount + " coins from your businesses."); }
-      catch(e){ toast(e.message || "Could not collect."); }
-      finally{ busy = false; }
-    };
-    $("box").querySelectorAll("[data-b]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ const r = await rpc("starlife_buy_business", { p_business_id:b.dataset.b }); state = r.state; setHud(); closeModal(); toast("Done! Level " + r.level + "."); }
-      catch(e){ toast(e.message || "Could not complete the purchase."); }
-      finally{ busy = false; }
-    });
-  }catch(e){ toast(e.message || "Could not open the Business Hub."); }
-}
-
-async function openCars(){
-  try{
-    const cars = await rpc("starlife_cars_list");
-    openModal(`<h2>🚗 Car Dealer</h2><p>Faster rides mean quicker walking and a bigger name on the street.</p>
-      ${cars.map(c => `<button class="opt" data-c="${esc(c.id)}" ${c.owned || c.worse ? "disabled" : ""}>${esc(c.name)} · ${esc(c.price)} coins${c.owned ? " · yours" : ""}
-        <small>${esc(c.blurb || "")} Speed x${esc(c.speed)}, +${esc(c.fame)} fame on purchase.${c.worse && !c.owned ? " You already have a faster ride." : ""}</small></button>`).join("")}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-c]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_buy_car", { p_car_id:b.dataset.c }); setHud(); closeModal(); toast("Nice ride!"); }
-      catch(e){ toast(e.message || "Could not buy the car."); }
-      finally{ busy = false; }
-    });
-  }catch(e){ toast(e.message || "Could not open the dealer."); }
-}
-
-async function meetCeleb(c){
-  const stars = n => "⭐".repeat(Math.min(5, Math.floor(n / 3))) || "New friend";
-  if (c.locked){
-    openModal(`<h2>🔒 ${esc(c.name)}</h2><p>${esc(c.role)}</p><p>${esc(c.blurb || "")}</p>${c.story ? `<p style="color:#173326"><b>Their story:</b> ${esc(c.story)}</p>` : ""}<p>Reach <b>${esc(c.min_fame)} fame</b> to be noticed by this person.</p><button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal; return;
-  }
-  openModal(`<h2>⭐ ${esc(c.name)}</h2><p>${esc(c.role)}</p><p>${esc(c.blurb || "")}</p>${c.story ? `<p style="color:#173326"><b>Their story:</b> ${esc(c.story)}</p>` : ""}
-    <div class="row"><span>Friendship</span><b>${stars(c.points)}</b></div>
-    <button class="btn" id="mMeet" ${c.met_today ? "disabled" : ""}>${c.met_today ? "You already met today" : "Chat (-5 energy)"}</button>
-    <button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  $("mMeet").onclick = async () => {
-    if (busy) return; busy = true;
-    try{
-      const r = await rpc("starlife_meet_celeb", { p_celeb_id:c.id });
-      state = r.state; c.points += 1; c.met_today = true; setHud();
-      openModal(`<h2>⭐ ${esc(c.name)} says</h2><p style="color:#173326;font-size:15px">"${esc(r.line)}"</p>${delta("Fame", r.fame)}${delta("Coins", r.coins)}<button class="btn" id="mClose">Thanks</button>`);
-      $("mClose").onclick = closeModal;
-    }catch(e){ toast(e.message || "They are busy right now."); }
-    finally{ busy = false; }
-  };
-}
-
-async function loadExtras(){
-  try{
-    const cars = await rpc("starlife_cars_list");
-    carSpeeds = {}; (cars || []).forEach(c => { carSpeeds[c.id] = Number(c.speed) || 1; });
-  }catch(e){ console.warn("Cars unavailable:", e.message); }
-  try{
-    const list = await rpc("starlife_celebs_list");
-    celebs = [];
-    (list || []).forEach(c => {
-      const pos = CELEB_POS[c.id]; if (!pos) return;
-      const d = DISTRICTS.find(x => x.id === pos.did); if (!d) return;
-      celebs.push({ ...c, x:d.c * DW * T + pos.tx * T, y:d.r * DH * T + pos.ty * T, locked:state.fame < c.min_fame });
-    });
-  }catch(e){ console.warn("Celebrities unavailable:", e.message); }
-}
-function refreshLocks(){ celebs.forEach(c => { c.locked = state.fame < c.min_fame; }); }
-/* ============================ VENUES AND PHONE ============================ */
-async function openVenue(){
-  try{
-    const list = await rpc("starlife_activities_here");
-    const d = DISTRICTS.find(x => x.id === state.location);
-    const eff = a => [["fun","🎉"],["social","👥"],["hunger","🍗"],["hygiene","🚿"],["bladder","🚽"],["energy","⚡"]]
-      .filter(k => a[k[0]]).map(k => k[1] + (a[k[0]] > 0 ? "+" : "") + a[k[0]]).join("  ");
-    openModal(`<h2>🎉 ${esc(VENUES[state.location] || "Hang out")}</h2><p>Look after your needs and have fun in ${esc(d ? d.name : "Lagos")}.</p>
-      ${list.map(a => `<button class="opt" data-a="${esc(a.id)}">${esc(a.name)} · ${a.price ? esc(a.price) + " coins" : "free"}<small>${esc(a.blurb || "")} ${eff(a)}</small></button>`).join("")}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-a]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_do_activity", { p_activity_id:b.dataset.a }); setHud(); closeModal(); toast("Done. You feel better."); }
-      catch(e){ toast(e.message || "Could not do that."); }
-      finally{ busy = false; }
-    });
-  }catch(e){ toast(e.message || "Could not open this place."); }
-}
-
-async function stopNewTaskAlerts(){
-  try{ if(taskNotificationChannel){ await db.removeChannel(taskNotificationChannel); taskNotificationChannel=null; } }catch(e){ console.warn("Could not stop task alerts:",e); }
-  try{ localStorage.setItem(TASK_ALERT_PREF,"0"); }catch(e){}
-}
-function taskIsAlertWorthy(task){
-  if(!task || task.active===false || task.active===0 || String(task.active).toLowerCase()==="false") return false;
-  const status=String(task.status||"").toLowerCase().replace(/[ _-]/g,"");
-  const moderation=String(task.moderation_status||"").toLowerCase();
-  const payment=String(task.payment_status||"").toLowerCase().replace(/[ _-]/g,"");
-  if(status && !["live","active","published"].includes(status)) return false;
-  if(["inactive","disabled","deleted","cancelled","canceled","rejected","expired","paused","draft","completed"].includes(status)) return false;
-  if(["rejected","declined","blocked","suspended"].includes(moderation)) return false;
-  if(["unfunded","paymentrequired","unpaid","failed","refunded","cancelled","canceled"].includes(payment)) return false;
-  if(task.expiry_date && new Date(task.expiry_date)<new Date()) return false;
-  const total=Number(task.max_total_completions??task.slots), done=Number(task.completed_count??task.total_completions??0);  if(Number.isFinite(total)&&total>0&&done>=total) return false;
-  return true;
-}async function startNewTaskAlerts(){
-  if(!("Notification" in window)){ toast("This browser does not support notifications. Open Jobs to check new tasks."); return false; }
-  let permission=Notification.permission;
-  if(permission!=="granted") permission=await Notification.requestPermission();
-  if(permission!=="granted"){ toast("Notifications were not allowed. Enable them in your browser site settings."); return false; }
-  const {data:userData,error:userError}=await db.auth.getUser();
-  if(userError||!userData?.user){ toast("Please sign in again to enable task alerts."); return false; }
-  if(taskNotificationChannel){ try{ await db.removeChannel(taskNotificationChannel); }catch(e){} taskNotificationChannel=null; }
-  taskNotificationChannel=db.channel("starlife-3d-new-task-alerts")
-    .on("postgres_changes",{event:"INSERT",schema:"public",table:"tasks"},payload=>{
-      const task=payload.new||{};
-      if(!taskIsAlertWorthy(task)) return;
-      const owner=task.user_id||task.poster_id||task.created_by;
-      if(owner && owner===userData.user.id) return;
-      const title=String(task.title||"A new task is available").slice(0,100);
-      try{
-        const notice=new Notification("🌍 Naija Star Life · New task",{body:title+" — open NAIJA TASK to view it.",icon:"/favicon.ico",tag:"nt-new-task-"+String(task.id||Date.now())});
-        notice.onclick=()=>{ window.focus(); location.href="task.html"+(task.id?"?task="+encodeURIComponent(task.id):""); notice.close(); };
-      }catch(e){ toast("🌍 New task available: "+title); }
-    })
-    .subscribe(status=>{
-      if(status==="SUBSCRIBED"){
-        try{ localStorage.setItem(TASK_ALERT_PREF,"1"); }catch(e){}
-        toast("🌍 New-task notifications are on while this game is open.");
-      }else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){
-        toast("Live task alerts could not connect. Check Supabase Realtime settings.");
-      }
-    });
-  return true;
-}
-async function openPhone(){
-  if (!state || modalOpen) return;
-  try{
-    if (!homes.length) homes = await rpc("starlife_homes_list") || [];
-    const jobs = await rpc("starlife_jobs_all") || [];
-    const cur = homes.find(h => h.id === state.home_id) || homes[0];
-    const rent = cur ? Number(cur.rent) : 0;
-    const days = state.rent_due ? Math.ceil((new Date(state.rent_due + "T23:59:59") - new Date()) / 86400000) : null;
-    const meter = (label, v) => `<div class="meter ${v < 25 ? "low" : ""}"><span>${label}</span><i><b style="width:${Math.max(0, Math.min(100, v))}%"></b></i><em style="font-style:normal;width:28px;text-align:right">${v}</em></div>`;
-    const place = id => (DISTRICTS.find(x => x.id === id) || { name:"Anywhere" }).name;
-    const car = state.car_id ? ({ okada:"Okada bike", tokunbo:"Tokunbo sedan", suv:"Family SUV", luxury:"Luxury car" }[state.car_id] || state.car_id) : "None";
-    openModal(`<h2>📱 Phone</h2>
-      <div class="row"><span>Coins</span><b>${esc(state.coins)}</b></div>
-      <div class="row"><span>Fame</span><b>${esc(state.fame)}</b></div>
-      <div class="row"><span>Vehicle</span><b>${esc(car)}</b></div>
-      <h2 style="margin-top:14px">Needs</h2>
-      ${meter("🍗 Hunger", state.hunger)}${meter("🚿 Hygiene", state.hygiene)}${meter("🚽 Bladder", state.bladder)}${meter("🎉 Fun", state.fun)}${meter("👥 Social", state.social)}${meter("⚡ Energy", state.energy)}
-      <h2 style="margin-top:14px">Rent</h2>
-      <p>${rent > 0 ? esc(rent) + " coins a week. " + (days === null ? "" : days < 0 ? "<b style='color:#c62828'>Overdue!</b> Pay to rest at home again." : "Due in " + esc(days) + " day" + (days === 1 ? "" : "s") + ".") : "No rent."}</p>
-      <button class="btn" id="mRent" ${rent > 0 ? "" : "disabled"}>Pay rent (${esc(rent)} coins)</button>
-      <h2 style="margin-top:14px">🔔 New task notifications</h2>
-      <p>Get an alert when a new NAIJA TASK job is published while this game is open.</p>
-      <button class="btn" id="mTaskAlerts">🔔 Turn on notifications</button>
-      <button class="btn alt" id="mTaskAlertsOff">Turn notifications off</button>
-      <h2 style="margin-top:14px">🇳🇬 Explore Nigeria</h2><p>Discover all 36 states and the FCT, collect travel memories and plan your next adventure.</p><button class="btn" id="mNigeriaExplorer">🧭 Open Nigeria Explorer</button>
-      <h2 style="margin-top:14px">Jobs in Lagos</h2>
-      ${jobs.map(j => `<div class="row"><span>${esc(j.name)}<br><small style="color:#708176">${esc(place(j.location))}${j.min_fame ? " · needs " + esc(j.min_fame) + " fame" : ""}</small></span><b>+${esc(j.pay)}</b></div>`).join("")}
-      <h2 style="margin-top:14px">Friends and messages</h2>
-      <p>Coming soon. They open to adults only, after blocking, reporting and moderation are ready.</p>
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("mTaskAlerts").onclick = async () => { await startNewTaskAlerts(); };
-    $("mTaskAlertsOff").onclick = async () => { await stopNewTaskAlerts(); toast("New-task notifications turned off."); };
-    $("mRent").onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_pay_rent"); setHud(); closeModal(); toast("Rent paid. Your landlord is happy."); }
-      catch(e){ toast(e.message || "Could not pay rent."); }
-      finally{ busy = false; }
-    };
-    $("mNigeriaExplorer").onclick=()=>openNigeriaExplorer();
-  }catch(e){ toast(e.message || "Could not open your phone."); }
-}
-$("phoneBtn").addEventListener("click", openPhone);
-
-const NIGERIA_DESTINATIONS=[
-"Abia|Umuahia|Aba|Ariaria Market|South East","Adamawa|Yola|Yola|Sukur Cultural Landscape|North East","Akwa Ibom|Uyo|Ibeno|Ibeno Beach|South South","Anambra|Awka|Onitsha|Onitsha Main Market|South East","Bauchi|Bauchi|Bauchi|Yankari National Park|North East","Bayelsa|Yenagoa|Brass|Brass Island|South South","Benue|Makurdi|Makurdi|River Benue waterfront|North Central","Borno|Maiduguri|Maiduguri|Lake Alau area|North East","Cross River|Calabar|Obudu|Obudu Mountain Resort|South South","Delta|Asaba|Warri|Nana Living History Museum|South South","Ebonyi|Abakaliki|Abakaliki|Rice fields|South East","Edo|Benin City|Benin City|Benin historic kingdom sites|South South","Ekiti|Ado-Ekiti|Ikogosi|Ikogosi Warm Springs|South West","Enugu|Enugu|Enugu|Ngwo Pine Forest|South East","Gombe|Gombe|Gombe|Tangale Hills|North East","Imo|Owerri|Oguta|Oguta Lake|South East","Jigawa|Dutse|Hadejia|Hadejia-Nguru wetlands|North West","Kaduna|Kaduna|Zaria|Zaria heritage sites|North West","Kano|Kano|Kano|Kurmi Market and ancient city walls|North West","Katsina|Katsina|Katsina|Gobarau Minaret|North West","Kebbi|Birnin Kebbi|Argungu|Argungu riverside|North West","Kogi|Lokoja|Lokoja|Niger-Benue confluence|North Central","Kwara|Ilorin|Ilorin|Owu Waterfall|North Central","Lagos|Ikeja|Lagos Island|Lekki Conservation Centre|South West","Nasarawa|Lafia|Wamba|Aso Hills|North Central","Niger|Minna|New Bussa|Kainji Lake National Park|North Central","Ogun|Abeokuta|Abeokuta|Olumo Rock|South West","Ondo|Akure|Idanre|Idanre Hills|South West","Osun|Osogbo|Osogbo|Osun-Osogbo Sacred Grove|South West","Oyo|Ibadan|Ibadan|Mapo Hall and Cocoa House|South West","Plateau|Jos|Jos|Shere Hills|North Central","Rivers|Port Harcourt|Port Harcourt|Port Harcourt waterfront|South South","Sokoto|Sokoto|Sokoto|Sultan's Palace area|North West","Taraba|Jalingo|Gembu|Mambilla Plateau|North East","Yobe|Damaturu|Gashua|Nguru wetlands|North East","Zamfara|Gusau|Gusau|Cultural heritage trail|North West","FCT|Abuja|Abuja|Aso Rock and Millennium Park|North Central"
-].map(x=>x.split("|"));
-let naijaPassport=null;
-function readNaijaPassport(){try{naijaPassport=JSON.parse(localStorage.getItem("slw3_naija_passport")||"null")||{visited:[],journal:[]};}catch(e){naijaPassport={visited:[],journal:[]};}if(!Array.isArray(naijaPassport.visited)||!Array.isArray(naijaPassport.journal))naijaPassport={visited:[],journal:[]};return naijaPassport;}
-function saveNaijaPassport(){try{localStorage.setItem("slw3_naija_passport",JSON.stringify(naijaPassport));}catch(e){toast("Could not save passport on this device.");}}
-function openNigeriaExplorer(q){const p=readNaijaPassport(),term=(q||"").toLowerCase(),rows=NIGERIA_DESTINATIONS.filter(d=>d.join(" ").toLowerCase().includes(term));const h='<small style="color:#087f36;font-weight:900">NATIONAL EXPEDITION</small><h2>🇳🇬 Nigeria Explorer</h2><p>Explore all 36 states and the FCT through destination stories, local-life challenges and a travel journal. These are guided discovery journeys, not separate 3D state maps yet.</p><div class="row"><span>Passport progress</span><b>'+p.visited.length+'/37</b></div><input id="ngSearch" placeholder="Search state, city or region..." value="'+esc(q||"")+'" style="width:100%;padding:12px;border:2px solid #dce8df;border-radius:12px;font:inherit;margin:8px 0"><div style="max-height:48vh;overflow:auto">'+rows.map(d=>'<button class="opt" data-ng="'+esc(d[0])+'"><b>'+esc(d[0])+' · '+esc(d[1])+'</b> '+(p.visited.includes(d[0])?'✅':'🧭')+'<small>'+esc(d[4])+' · '+esc(d[3])+'</small></button>').join("")+'</div><button class="btn alt" id="ngJournal">📔 Travel journal ('+p.journal.length+')</button><button class="btn alt" id="mClose">Close</button>';openModal(h);$("ngSearch").oninput=()=>{const v=$("ngSearch").value;openNigeriaExplorer(v);$("ngSearch").focus();};$("box").querySelectorAll("[data-ng]").forEach(b=>b.onclick=()=>showNigeriaDestination(b.dataset.ng));$("ngJournal").onclick=openNigeriaJournal;$("mClose").onclick=closeModal;}
-function showNigeriaDestination(n){const d=NIGERIA_DESTINATIONS.find(x=>x[0]===n);if(!d)return;const p=readNaijaPassport();openModal('<small style="color:#087f36;font-weight:900">'+esc(d[4])+'</small><h2>📍 '+esc(d[0])+'</h2><div class="row"><span>Capital</span><b>'+esc(d[1])+'</b></div><div class="row"><span>Explore</span><b>'+esc(d[2])+'</b></div><div class="row"><span>Landmark</span><b>'+esc(d[3])+'</b></div><p style="color:#173326">Discover local food, everyday life, culture and the stories behind this destination. Plan thoughtfully and respect local communities.</p><button class="btn" id="ngStart">'+(p.visited.includes(d[0])?'↻ Revisit destination':'🧭 Start journey')+'</button><button class="btn alt" id="ngBack">Back to states</button>');$("ngStart").onclick=()=>startNigeriaJourney(d);$("ngBack").onclick=()=>openNigeriaExplorer();}
-function startNigeriaJourney(d){const choices=[["Explore the landmark","You explore "+d[3]+" and learn its story."],["Meet local people","A friendly conversation introduces you to local food, customs and everyday life in "+d[2]+"."],["Try a local adventure","You plan a thoughtful day around "+d[3]+", learn something new and leave a positive footprint."]];openModal('<h2>🚍 Your journey to '+esc(d[2])+'</h2><p>Welcome to '+esc(d[0])+'. Choose how to begin.</p>'+choices.map((x,i)=>'<button class="opt" data-trip="'+i+'">'+esc(x[0])+'</button>').join("")+'<button class="btn alt" id="ngCancel">Not now</button>');$("ngCancel").onclick=()=>showNigeriaDestination(d[0]);$("box").querySelectorAll("[data-trip]").forEach(b=>b.onclick=()=>{const x=choices[Number(b.dataset.trip)],p=readNaijaPassport();if(!p.visited.includes(d[0]))p.visited.push(d[0]);p.journal.unshift({state:d[0],city:d[2],activity:x[0],memory:x[1],at:new Date().toISOString()});p.journal=p.journal.slice(0,100);saveNaijaPassport();openModal('<h2>🌍 Welcome to '+esc(d[0])+'!</h2><p style="color:#173326">'+esc(x[1])+'</p><div class="row"><span>Passport progress</span><b>'+p.visited.length+'/37</b></div><p>Memory saved on this device. No coins or fame were added.</p><button class="btn" id="ngContinue">Explore another destination</button><button class="btn alt" id="ngJournalNow">Travel journal</button>');$("ngContinue").onclick=()=>openNigeriaExplorer();$("ngJournalNow").onclick=openNigeriaJournal;});}
-function openNigeriaJournal(){const p=readNaijaPassport();openModal('<h2>📔 My Nigeria Travel Journal</h2><p>'+p.visited.length+' of 37 destinations explored on this device.</p>'+p.journal.map(j=>'<div class="row" style="display:block"><b>'+esc(j.state)+' · '+esc(j.city)+'</b><small style="display:block;color:#708176">'+esc(j.activity)+' · '+esc(new Date(j.at).toLocaleDateString())+'</small><p style="margin:5px 0;color:#173326">'+esc(j.memory)+'</p></div>').join("")+'<button class="btn alt" id="ngBack">Back to explorer</button><button class="btn alt" id="mClose">Close</button>');$("ngBack").onclick=()=>openNigeriaExplorer();$("mClose").onclick=closeModal;}
-
-/* ============================ CROSSING DISTRICTS ============================ */
-async function checkDistrict(){
-  if (walkingCheck || !state) return;
-  const d = districtAt(player.x, player.y);
-  if (!d){ return; }
-  if (d.id === state.location){ lastSafe = { x:player.x, y:player.y }; curDistrict = d.id; return; }
-  walkingCheck = true;
-  try{
-    state = await rpc("starlife_walk", { p_location:d.id });
-    curDistrict = d.id; lastSafe = { x:player.x, y:player.y };
-    setHud(); toast("You walked into " + d.name + " (-5 energy).");
-  }catch(e){
-    player.x = lastSafe.x; player.y = lastSafe.y;
-    toast(e.message || "You cannot go there right now.");
-  }finally{ walkingCheck = false; }
-}
-
-/* ============================ INPUT ============================ */
-window.addEventListener("keydown", e => { keys[e.key.toLowerCase()] = true; if (e.key === "f" || e.key === "Enter") doAct(); });
-window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
-
-const joyEl = $("joy"), knob = $("knob");
-function joyMove(e){
-  const r = joyEl.getBoundingClientRect();
-  let dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-  const m = Math.hypot(dx, dy), max = 46;
-  if (m > max){ dx = dx / m * max; dy = dy / m * max; }
-  knob.style.transform = `translate(${dx}px,${dy}px)`;
-  joy.x = dx / max; joy.y = dy / max;
-}
-joyEl.addEventListener("pointerdown", e => { joy.active = true; joy.id = e.pointerId; joyEl.setPointerCapture(e.pointerId); joyMove(e); e.preventDefault(); });
-joyEl.addEventListener("pointermove", e => { if (joy.active && e.pointerId === joy.id) joyMove(e); });
-const joyEnd = e => { if (e.pointerId !== joy.id) return; joy.active = false; joy.x = joy.y = 0; knob.style.transform = "translate(0,0)"; };
-joyEl.addEventListener("pointerup", joyEnd); joyEl.addEventListener("pointercancel", joyEnd);
-$("act").addEventListener("click", doAct);
-
-function doAct(){
-  if (modalOpen || !nearest || busy) return;
-  if (nearest.kind === "room"){ nearest.run(); return; }
-  if (nearest.kind === "work") openWork();
-  else if (nearest.kind === "home") fadeTo("🚪", () => enterRoom(false));
-  else if (nearest.kind === "bus") openBus();
-  else if (nearest.kind === "npc") talk(nearest.ref);
-  else if (nearest.kind === "food") openFood();
-  else if (nearest.kind === "biz") openBiz();
-  else if (nearest.kind === "cars") openCars();
-  else if (nearest.kind === "celeb") meetCeleb(nearest.ref);
-  else if (nearest.kind === "house") knock(nearest);
-  else if (nearest.kind === "lagoon") lagoon();
-  else if (nearest.kind === "billboard") openBillboard(nearest.spot);
-  else if (nearest.kind === "player") openPlayer(nearest.ref);
-  else if (nearest.kind === "venue") openVenue();
-  else if (nearest.kind === "landmark") openLandmark(nearest.spot);
-}
-
-/* ============================ UPDATE ============================ */
-function update(dt){
-  if (!state) return;
-  // player
-  if (!modalOpen){
-    let ix = (keys["arrowright"] || keys["d"] ? 1 : 0) - (keys["arrowleft"] || keys["a"] ? 1 : 0);
-    let iy = (keys["arrowdown"] || keys["s"] ? 1 : 0) - (keys["arrowup"] || keys["w"] ? 1 : 0);
-    if (joy.active){ ix = joy.x; iy = joy.y; }
-    player.moving = false;
-    if (keys["q"]) camYaw += dt * 1.8;
-    if (keys["e"]) camYaw -= dt * 1.8;
-    const m = sleeping ? 0 : Math.hypot(ix, iy);
-    if (m > 0.12){
-      const k = Math.min(1, m);
-      const sp = 120 * (carSpeeds[state.car_id] || 1) * dt * k;
-      const fx = -Math.sin(camYaw), fz = -Math.cos(camYaw), rx = Math.cos(camYaw), rz = -Math.sin(camYaw);
-      const mx = (rx * ix + fx * -iy) / m, mz = (rz * ix + fz * -iy) / m;
-      tryMove(player, mx * sp, mz * sp);
-      player.face = Math.atan2(mx, mz);
-      player.step += dt * 9;
-      player.moving = true;
-      checkDistrict();
-    }
-  }
-  // NPC daily-life state machine. Distant residents sleep in lightweight simulation.
-  const worldHour = new Date().getHours();
-  npcs.forEach(n => {
-    const near = Math.abs(n.x-player.x)<760 && Math.abs(n.y-player.y)<760;
-    if (!near){ n.dx=0; n.dy=0; return; }
-    n.actionTime -= dt;
-    const district = DISTRICTS.find(x => x.id === n.did);
-    if (!district) return;
-    const ox=district.c*DW*T, oy=district.r*DH*T;
-    const chooseDestination = () => {
-      const local = spots.filter(p => p.did===n.did && ["food","bus","work","venue","landmark"].includes(p.kind));
-      const candidates = local.length ? local : [
-        {x:ox+8*T,y:oy+9.5*T},{x:ox+16*T,y:oy+9.5*T},{x:ox+7*T,y:oy+14*T}
-      ];
-      const p=candidates[(Math.floor(Math.random()*candidates.length))];
-      n.goal={x:p.x+(Math.random()-.5)*22,y:p.y+(Math.random()-.5)*22};
-      n.mode="walk"; n.action="walking"; n.actionTime=8+Math.random()*8;
-    };
-    if (Math.hypot(n.x-player.x,n.y-player.y)<24 && !modalOpen){
-      n.mode="greet"; n.action="greeting"; n.goal=null; n.actionTime=Math.max(n.actionTime,1.8);
-      n.facing=Math.atan2(player.x-n.x,player.y-n.y);
-    } else if (n.mode==="greet"){
-      n.mode="idle"; n.action="looking around"; n.actionTime=2+Math.random()*3;
-    } else if (n.mode==="walk"){
-      if (!n.goal || n.actionTime<=0 || Math.hypot(n.goal.x-n.x,n.goal.y-n.y)<10){
-        n.goal=null; n.mode="idle";
-        const roll=Math.random();
-        n.action=roll<.34?"checking phone":roll<.58?"chatting nearby":roll<.78?"taking a break":"looking around";
-        n.actionTime=3+Math.random()*7;
-      } else {
-        const dx=n.goal.x-n.x, dy=n.goal.y-n.y, d=Math.hypot(dx,dy)||1;
-        const step=Math.min(d,24*dt);
-        const nx=n.x+dx/d*step, ny=n.y+dy/d*step;
-        const inside=nx>ox+8 && nx<ox+DW*T-8 && ny>oy+8 && ny<oy+DH*T-8;
-        if(inside && !hits(nx,ny,n.hs)){n.x=nx;n.y=ny;n.dx=dx/d;n.dy=dy/d;}
-        else {n.goal=null;n.mode="idle";n.action="looking around";n.actionTime=1.2;}
-      }
-    } else if(n.actionTime<=0){
-      if(Math.random()<.72) chooseDestination();
-      else { n.mode="idle"; n.action=worldHour>=18?"relaxing":"checking phone"; n.actionTime=3+Math.random()*5; }
-    }
-    if(n.mode!=="walk"){ n.dx=0;n.dy=0; }
-  });
-  // nearest interactable
-  let best = null, bd = 56;
-  spots.forEach(s => { const d = Math.hypot(s.x - player.x, s.y - player.y); if (d < bd){ bd = d; best = { kind:s.kind, label:s.label, spot:s }; } });
-  npcs.forEach(n => { const d = Math.hypot(n.x - player.x, n.y - player.y); if (d < Math.min(bd, 44)){ bd = d; best = { kind:"npc", ref:n, label:"💬 Talk to " + n.name }; } });
-  celebs.forEach(c => { const d = Math.hypot(c.x - player.x, c.y - player.y); if (d < Math.min(bd, 52)){ bd = d; best = { kind:"celeb", ref:c, label:(c.locked ? "🔒 " : "⭐ Meet ") + c.name }; } });
-  Object.keys(others).forEach(id => { const o = others[id]; const d = Math.hypot(o.x - player.x, o.y - player.y); if (d < Math.min(bd, 56)){ bd = d; best = { kind:"player", ref:o, label:"👋 " + o.name }; } });
-  if (inRoom) best = roomNearest();
-  nearest = modalOpen ? null : best;
-  const a = $("act");
-  if (nearest){ a.style.display = "block"; if (a.textContent !== nearest.label) a.textContent = nearest.label; } else a.style.display = "none";
-}
-
-/* ============================ BACKGROUNDS, WAKING UP, SMALL INTERACTIONS ============================ */
-const BACKGROUNDS = [
-  { id:"street_hustler", icon:"🧢", name:"Street Hustler", place:"Oshodi", perk:"+40 coins",
-    story:"You grew up around the market, learning to bargain before you learned to read.",
-    morning:"The market noise is already outside your window. Another day to hustle." },
-  { id:"campus_student", icon:"🎓", name:"Campus Student", place:"Yaba", perk:"+20 coins, +5 fame",
-    story:"You are juggling lectures, side gigs and big dreams in a shared room near campus.",
-    morning:"Your alarm rings between a pile of textbooks and an unfinished song. Class, then gigs." },
-  { id:"mainland_family", icon:"🏘️", name:"Mainland Family Kid", place:"Surulere", perk:"A rented room of your own",
-    story:"You come from a close family and a lively street, with a room of your own.",
-    morning:"You smell breakfast from the next room and hear football chatter outside." },
-  { id:"island_kid", icon:"🏝️", name:"Island Kid", place:"Lekki", perk:"+100 coins, +20 fame, own room",
-    story:"You grew up near the beach with good connections and a lot to prove.",
-    morning:"Sea breeze, soft light, and a phone full of messages. Time to make your own name." },
-  { id:"village_dreamer", icon:"🌾", name:"Village Dreamer", place:"Ikorodu", perk:"+10 coins",
-    story:"You came to Lagos from a quiet town with little money and a big dream.",
-    morning:"A rooster somewhere reminds you of home. Today you chase the dream again." }
-];
-
-function pickBackground(){
-  return new Promise(resolve => {    modalLocked = true;
-    openModal(`<h2>Who are you? 🌍</h2><p>Your background decides where you wake up and how your story starts. You can only choose once.</p>
-      ${BACKGROUNDS.map(b => `<button class="opt" data-b="${b.id}">${b.icon} ${esc(b.name)} · ${esc(b.place)}<small>${esc(b.story)} (${esc(b.perk)})</small></button>`).join("")}`);
-    $("box").querySelectorAll("[data-b]").forEach(btn => btn.onclick = async () => {      if (busy) return; busy = true;
-      try{
-        state = await rpc("starlife_choose_background", { p_bg:btn.dataset.b });
-        modalLocked = false; closeModal(); resolve();
-      }catch(e){ toast(e.message || "Could not save your choice."); }
-      finally{ busy = false; }
-    });
-  });
-}
-
-function showWake(){
-  const b = BACKGROUNDS.find(x => x.id === state.background) || BACKGROUNDS[2];
-  const d = DISTRICTS.find(x => x.id === state.home_district);
-  const w = $("wake");
-  w.innerHTML = `<div><b>${esc(b.icon)} ${esc(b.name)}</b><br>You wake up at home in <b>${esc(d ? d.name : "Lagos")}</b>.<br><span style="color:#b7ef43">${esc(b.morning)}</span></div>`;
-  // Keep the wake-up message as a small, non-blocking banner instead of covering the 3D world.
-  w.style.transition = "none"; w.style.opacity = "1"; w.style.display = "flex";
-  setTimeout(() => { w.style.transition = "opacity 1.2s"; w.style.opacity = "0"; }, 2400);
-  setTimeout(() => { w.style.display = "none"; }, 3600);
-}
-
-function spawnHome(){
-  const h = spots.find(x => x.kind === "home");
-  if (h){ player.x = h.x; player.y = h.y; curDistrict = h.did; lastSafe = { x:player.x, y:player.y }; }
-  else spawnAt(state.location);
-}
-
-const NEIGHBOUR_LINES = [
-  "Good morning! The generator man was here earlier. Light may not stay long today.",
-  "Ah, new face! If you need pure water, my brother sells it near the bus stop.",
-  "Please keep to your lane, my friend. Traffic here does not forgive.",
-  "I heard a talent scout was asking about young creators nearby. Keep working.",
-  "Come back tomorrow. I am baking and the oven is not ready.",
-  "Be careful where you park. The wahala is real.",
-  "If you want to rise in this city, learn to listen first.",
-  "My landlord is raising rent again. Make sure you save some coins!"
-];
-const LAGOON_LINES = [
-  "Boats drift slowly across the lagoon while the city hums behind you.",
-  "The water reflects the lights of the island. Somewhere out there, big deals are being made.",
-  "A fisherman waves from his canoe. The tide is calm tonight."
-];
-function knock(spot){
- const line=NEIGHBOUR_LINES[Math.floor(Math.random()*NEIGHBOUR_LINES.length)];
- const names=["Aunty Bisi","Uncle Chinedu","Mama Zainab","Mr Tunde","Aunty Ngozi","Baba Musa","Sister Amaka","Mr Ibrahim"];
- const resident=names[Math.floor(Math.random()*names.length)];
- let log=[];try{log=JSON.parse(localStorage.getItem("slw3_neighbour_log")||"[]");}catch(e){}
- const key=(spot&&spot.did||state.location)+":"+Math.round((spot&&spot.x||player.x)/16)+":"+Math.round((spot&&spot.y||player.y)/16);
- const old=log.find(x=>x.key===key),visits=old?old.visits:0;
- openModal('<small style="color:#087f36;font-weight:900">NEIGHBOURHOOD LIFE</small><h2>🚪 At the neighbour’s house</h2><p style="color:#173326"><b>'+esc(resident)+'</b> opens the door and welcomes you.</p><p style="color:#173326">"'+esc(line)+'"</p><div class="row"><span>Familiarity</span><b>'+(visits?"Returning visitor":"First meeting")+'</b></div><h3>What would you like to do?</h3><button class="opt" id="nhChat">🗣️ Have a friendly chat<small>Hear neighbourhood gist.</small></button><button class="opt" id="nhTea">☕ Accept a cup of tea<small>Spend time getting to know your neighbour.</small></button><button class="opt" id="nhTip">🧭 Ask for a local recommendation<small>Get a tip about food, transport or a nearby place.</small></button><button class="opt" id="nhEnter">🏠 Step inside for a visit<small>Enter a shared 3D neighbour interior and look around.</small></button><button class="btn alt" id="mClose">👋 Say goodbye</button>');
- const save=(action,message)=>{const item=log.find(x=>x.key===key)||{key:key,visits:0};item.visits++;item.last=action;item.name=resident;log=log.filter(x=>x.key!==key);log.unshift(item);try{localStorage.setItem("slw3_neighbour_log",JSON.stringify(log.slice(0,80)));}catch(e){}openModal('<h2>'+esc(action)+'</h2><p style="color:#173326">'+esc(message)+'</p><p>Your neighbour remembers you from this visit. Progress is saved on this device.</p><button class="btn" id="nhAgain">Continue conversation</button><button class="btn alt" id="mClose">Leave</button>');$("nhAgain").onclick=()=>knock(spot);$("mClose").onclick=closeModal;};
- $("nhChat").onclick=()=>save("A friendly conversation",resident+" tells you about the area. You listen and leave on good terms.");
- $("nhTea").onclick=()=>save("Tea with a neighbour","You sit for a while, enjoy a warm drink and hear stories about everyday life.");
- $("nhTip").onclick=()=>save("Local recommendation",["Try the food stall near the bus stop; the akara sells out early.","Ask keke drivers which roads are moving before setting off.","There is a busy market nearby. Compare prices before buying.","A community football game often brings neighbours together."][Math.floor(Math.random()*4)]);
- $("nhEnter").onclick=()=>{closeModal();enterNeighbourHome(resident,spot);};
- $("mClose").onclick=closeModal;
-}
-function lagoon(){
-  const line = LAGOON_LINES[Math.floor(Math.random() * LAGOON_LINES.length)];
-  openModal(`<h2>🌊 The lagoon</h2><p style="color:#173326;font-size:15px">${esc(line)}</p><button class="btn alt" id="mClose">Keep walking</button>`);
-  $("mClose").onclick = closeModal;
-}
-
-/* ============================ 3D SCENE ============================ */
-const U = 1 / 16;                 // pixels to world units: one tile is 2 units
-let renderer, scene, camera, hemi, sun, marker;
-const trafficCars = [];
-const matCache = {};
-const mat = c => matCache[c] || (matCache[c] = new THREE.MeshLambertMaterial({ color:c }));
-const box = (w, h, d, c) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c));
-const SKIN = ["#8d5a3b", "#6d4228", "#a8714b", "#5a3825"];
-let playerMesh, carGroup, beacon = null;
-const npcMeshes = [], celebMeshes = [];
-const PREMIUM_HUMANS = [
-  {id:"office",url:"https://gobkit.com/freebies/human015/OfficeWorker.glb"},
-  {id:"student",url:"https://gobkit.com/freebies/human015/Student.glb"},
-  {id:"rider",url:"https://gobkit.com/freebies/human015/DeliveryRider.glb"},
-  {id:"chef",url:"https://gobkit.com/freebies/human015/HeadChef.glb"},
-  {id:"market",url:"https://gobkit.com/freebies/human017/MarketVendor.glb"},
-  {id:"grandma",url:"https://gobkit.com/freebies/human001/GrandmaShopper.glb"},
-  {id:"engineer",url:"https://gobkit.com/freebies/human002/ItEngineer.glb"},
-  {id:"security",url:"https://gobkit.com/freebies/human002/SecurityGuard.glb"}
-];
-const premiumHumanCache=[];
-let premiumHumanLoading=false;
-
-function labelSprite(text, bg, fg, wUnits){
-  const cv = document.createElement("canvas"); cv.width = 256; cv.height = 64;
-  const g = cv.getContext("2d");
-  if (bg){ g.fillStyle = bg; g.fillRect(0, 0, 256, 64); }
-  g.fillStyle = fg; g.font = "bold 28px Arial"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(text, 128, 34);
-  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:new THREE.CanvasTexture(cv), transparent:true }));
-  sp.scale.set(wUnits, wUnits / 4, 1);
-  return sp;
-}
-
-function makeLeg(upperC, lowerC, shoeC, len){
-  const g=new THREE.Group();
-  const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.24,0.19,len*0.53,10),mat(upperC));upper.position.y=-len*0.25;g.add(upper);
-  const knee=new THREE.Mesh(new THREE.SphereGeometry(0.19,10,8),mat(lowerC));knee.position.y=-len*0.5;g.add(knee);
-  const lower=new THREE.Mesh(new THREE.CylinderGeometry(0.17,0.13,len*0.52,10),mat(lowerC));lower.position.y=-len*0.75;g.add(lower);
-  const shoe=new THREE.Mesh(new THREE.SphereGeometry(0.25,10,8),mat(shoeC));shoe.scale.set(1,0.48,1.5);shoe.position.set(0,-len+0.12,0.16);g.add(shoe);
-  return g;
-}
-function makeArm(sleeveC, skinC, len, longSleeve){
-  const g=new THREE.Group();
-  const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.19,0.15,len*0.53,10),mat(sleeveC));upper.position.y=-len*0.25;g.add(upper);
-  const elbow=new THREE.Mesh(new THREE.SphereGeometry(0.145,9,7),mat(longSleeve?sleeveC:skinC));elbow.position.y=-len*0.5;g.add(elbow);
-  const lower=new THREE.Mesh(new THREE.CylinderGeometry(0.14,0.115,len*0.52,10),mat(longSleeve?sleeveC:skinC));lower.position.y=-len*0.75;g.add(lower);
-  const hand=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),mat(skinC));hand.position.y=-len-0.05;g.add(hand);
-  return g;
-}
-
-function makePerson(shirt, skin, look){
-  look = look || {};
-  const g = new THREE.Group();
-  const topS = look.top || "tee", topC = look.topColor || look.shirt || shirt || "#1b8f3a";
-  const botS = look.bottom || "trousers", botC = look.bottomColor || "#2b3a55";
-  const shoeC = look.shoes || "#222222", skinC = skin || SKIN[0];
-  const hairC = look.hair || "#222222", hairS = look.style || "short", headS = look.head || "none";
-  const long = topS === "agbada" || topS === "gown";
-
-  // body and clothes
-  const torso=new THREE.Mesh(new THREE.SphereGeometry(0.68,14,12),mat(topC));torso.scale.set(0.82,1.02,0.55);torso.position.y=1.62;g.add(torso);
-  const collar=new THREE.Mesh(new THREE.TorusGeometry(0.19,0.045,6,14),mat(skinC));collar.rotation.x=Math.PI/2;collar.position.set(0,2.22,0.02);g.add(collar);
-  const belt=box(0.78,0.09,0.42,botC);belt.position.set(0,1.12,0);g.add(belt);
-  if (long){
-    const robe = box(1.35, 1.0, 0.85, topC); robe.position.y = 1.0; g.add(robe);
-    const trim = box(0.3, 2.1, 0.9, topS === "agbada" ? "#f5f5f5" : "#fbc02d"); trim.position.set(0, 1.35, 0); g.add(trim);
-  }
-  if (topS === "jersey"){ const st = box(0.22, 1.26, 0.64, "#ffffff"); st.position.set(0, 1.62, 0); g.add(st); }
-  if (topS === "hoodie"){ const hood = box(0.95, 0.4, 0.5, topC); hood.position.set(0, 2.3, -0.25); g.add(hood); }
-  if (botS === "wrapper"){ const skirt = box(1.25, 0.95, 0.8, botC); skirt.position.y = 0.98; g.add(skirt); }
-
-  // head and face
-  const neck=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.19,0.28,10),mat(skinC));neck.position.y=2.34;g.add(neck);
-  const head=new THREE.Mesh(new THREE.SphereGeometry(0.44,18,14),mat(skinC));head.scale.set(0.92,1.08,0.9);head.position.y=2.86;g.add(head);
-  const cheekL=new THREE.Mesh(new THREE.SphereGeometry(0.13,10,8),mat(skinC));cheekL.position.set(-0.27,2.7,0.32);g.add(cheekL);
-  const cheekR=cheekL.clone();cheekR.position.x=0.27;g.add(cheekR);
-  [-0.16, 0.16].forEach(x => {
-    const w = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 6), mat("#ffffff")); w.position.set(x, 2.9, 0.38); g.add(w);
-    const p = new THREE.Mesh(new THREE.SphereGeometry(0.042, 6, 5), mat("#111111")); p.position.set(x, 2.9, 0.44); g.add(p);
-    const br = box(0.18, 0.035, 0.04, hairC); br.position.set(x, 3.03, 0.4); g.add(br);
-    const ear = new THREE.Mesh(new THREE.SphereGeometry(0.09, 6, 5), mat(skinC)); ear.position.set(x * 2.7, 2.85, 0); g.add(ear);
-  });
-  const nose = box(0.08, 0.13, 0.09, "#6b4026"); nose.position.set(0, 2.78, 0.43); g.add(nose);
-  const mouth = box(0.2, 0.04, 0.04, "#7a1f1f"); mouth.position.set(0, 2.62, 0.41); g.add(mouth);
-
-  // hair
-  if (hairS === "afro" && headS === "none"){ const h = new THREE.Mesh(new THREE.SphereGeometry(0.64, 10, 8), mat(hairC)); h.position.set(0, 3.1, -0.05); g.add(h); }
-  else if (hairS === "short" || hairS === "braids" || hairS === "afro"){
-    const h = box(0.92, 0.22, 0.92, hairC); h.position.y = 3.22; g.add(h);
-    const back = box(0.92, 0.55, 0.2, hairC); back.position.set(0, 3.0, -0.38); g.add(back);
-  }
-  if (hairS === "braids"){
-    [-0.36, -0.18, 0, 0.18, 0.36].forEach(x => {
-      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 1.0, 5), mat(hairC)); b.position.set(x, 2.55, -0.4); g.add(b);
-    });
-  }
-  if (hairS === "twists"){
-    for (let i = 0; i < 9; i++){
-      const a = i / 9 * Math.PI * 2;
-      const t = new THREE.Mesh(new THREE.SphereGeometry(0.17, 6, 5), mat(hairC)); t.position.set(Math.sin(a) * 0.4, 3.22, Math.cos(a) * 0.4 - 0.05); g.add(t);
-    }
-    const top = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 6), mat(hairC)); top.position.set(0, 3.32, -0.05); g.add(top);
-  }
-
-  // headwear
-  if (headS === "cap"){
-    const crown = box(0.98, 0.26, 0.98, topC); crown.position.y = 3.3; g.add(crown);
-    const brim = box(0.9, 0.05, 0.5, topC); brim.position.set(0, 3.2, 0.62); g.add(brim);
-  } else if (headS === "fila"){
-    const fila = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.42, 0.5, 10), mat("#8d6e63")); fila.position.y = 3.35; g.add(fila);
-    const band = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 0.08, 10), mat("#fbc02d")); band.position.y = 3.15; g.add(band);
-  } else if (headS === "gele"){
-    const wrap = new THREE.Mesh(new THREE.SphereGeometry(0.62, 10, 8), mat(topC)); wrap.scale.set(1.15, 0.7, 1.0); wrap.position.y = 3.35; g.add(wrap);
-    const bow = box(0.45, 0.35, 0.3, topC); bow.position.set(0.55, 3.55, 0); g.add(bow);
-  }
-
-  // limbs
-  const legUp = botS === "wrapper" ? skinC : botC;
-  const legLow = botS === "trousers" ? botC : skinC;
-  const legL = makeLeg(legUp, legLow, shoeC, 1.35); legL.position.set(-0.28, 1.35, 0); g.add(legL);
-  const legR = makeLeg(legUp, legLow, shoeC, 1.35); legR.position.set(0.28, 1.35, 0); g.add(legR);
-  const armL = makeArm(topC, skinC, 1.1, long || topS === "hoodie"); armL.position.set(-0.72, 2.12, 0); g.add(armL);
-  const armR = makeArm(topC, skinC, 1.1, long || topS === "hoodie"); armR.position.set(0.72, 2.12, 0); g.add(armR);
-
-  g.userData = { legL, legR, armL, armR };
-  return g;
-}
-
-function animatePerson(g, step, moving){
-  const u=g.userData;
-  if(!u || u.premium) return;
-  const a=moving?Math.sin(step)*0.8:0;
-  u.legL.rotation.x=a;u.legR.rotation.x=-a;u.armL.rotation.x=-a;u.armR.rotation.x=a;
-}
-function applyPremiumHuman(target,modelIndex){
-  const template=premiumHumanCache[modelIndex%premiumHumanCache.length];
-  if(!target||!template||!THREE.SkeletonUtils)return false;
-  const keep=target.children.filter(ch=>ch.userData&&ch.userData.keepOnPremium);
-  target.children.slice().forEach(ch=>{if(!keep.includes(ch))target.remove(ch);});
-  const body=THREE.SkeletonUtils.clone(template.scene);
-  body.updateMatrixWorld(true);
-  const bounds=new THREE.Box3().setFromObject(body),size=bounds.getSize(new THREE.Vector3());
-  if(!isFinite(size.y)||size.y<=0)return false;
-  const scale=3.35/size.y;
-  body.scale.setScalar(scale);body.position.y=-bounds.min.y*scale;
-  body.traverse(o=>{if(o.isMesh){o.frustumCulled=true;o.castShadow=false;o.receiveShadow=false;}});
-  target.add(body);
-  target.userData.premium=true;target.userData.premiumBody=body;
-  target.userData.premiumMixer=new THREE.AnimationMixer(body);
-  target.userData.premiumActions={};
-  (template.animations||[]).forEach(clip=>{
-    const key=String(clip.name||"").toLowerCase();
-    if(key==="idle"||key==="walk"||key==="run"){
-      const action=target.userData.premiumMixer.clipAction(clip);
-      target.userData.premiumActions[key]=action;
-      if(key==="idle")action.play();
-    }
-  });
-  target.userData.premiumCurrent="idle";
-  return true;
-}
-function setPremiumMotion(target,moving,dt){
-  const u=target&&target.userData;if(!u||!u.premiumMixer)return;
-  const next=moving&&u.premiumActions.walk?"walk":"idle";
-  if(next!==u.premiumCurrent){
-    const from=u.premiumActions[u.premiumCurrent],to=u.premiumActions[next];
-    if(to){to.reset().fadeIn(.18).play();if(from)from.fadeOut(.18);u.premiumCurrent=next;}
-  }
-  u.premiumMixer.update(dt);
-}
-async function loadPremiumHumans(){
-  if(premiumHumanLoading||!THREE.GLTFLoader||!THREE.SkeletonUtils||!scene)return;
-  premiumHumanLoading=true;
-  const loader=new THREE.GLTFLoader();
-  for(const asset of PREMIUM_HUMANS){
-    try{
-      const gltf=await new Promise((resolve,reject)=>loader.load(asset.url,resolve,undefined,reject));
-      premiumHumanCache.push({scene:gltf.scene,animations:gltf.animations||[]});
-    }catch(err){console.warn("Optional character model unavailable:",asset.id,err&&err.message);}
-  }
-  if(premiumHumanCache.length){
-    npcMeshes.forEach((m,i)=>applyPremiumHuman(m,i));
-    celebMeshes.forEach((m,i)=>applyPremiumHuman(m,i+2));
-    if(playerMesh)applyPremiumHuman(playerMesh,0);
-    Object.keys(others).forEach((id,i)=>{const e=others[id];if(e&&e.mesh)applyPremiumHuman(e.mesh,i+1);});
-    console.info("Premium rigged human models ready:",premiumHumanCache.length);
-  }
-  premiumHumanLoading=false;
-}
-
-function makeCar(id){
-  const g = new THREE.Group();
-  const col = { okada:"#ef6c00", tokunbo:"#1565c0", suv:"#2e7d32", luxury:"#212121" }[id] || "#555555";
-  if (id === "okada"){
-    const b = box(0.7, 0.5, 3.2, col); b.position.y = 0.7; g.add(b);
-    [-1.2, 1.2].forEach(z => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.3, 10), mat("#111111")); w.rotation.z = Math.PI / 2; w.position.set(0, 0.5, z); g.add(w); });
-  } else {
-    const b = box(2.4, 0.9, 4.4, col); b.position.y = 0.9; g.add(b);
-    const c = box(2.0, 0.8, 2.2, col); c.position.set(0, 1.7, -0.2); g.add(c);
-    const gl = box(2.02, 0.5, 1.8, "#b3e5fc"); gl.position.set(0, 1.75, -0.2); g.add(gl);
-    [[-1.2, 1.4], [1.2, 1.4], [-1.2, -1.4], [1.2, -1.4]].forEach(p => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.4, 10), mat("#111111")); w.rotation.z = Math.PI / 2; w.position.set(p[0], 0.5, p[1]); g.add(w); });
-  }
-  return g;
-}
-
-function buildBuilding(s){
-  const g=new THREE.Group(),w=s.w*U,d=s.h*U;let h,wall,roof,label=null,flat=false;
-  if(s.k==="work"){h=6;wall="#e8d7ad";roof="#8d4e28";label=[s.label,"#064d25","#fff"];flat=true;}
-  else if(s.k==="shop"){
-    const cfg=({food:["#f7d7a8","#b94d16","MAMA PUT"],biz:["#cbdaf0","#263c78","BUSINESS HUB"],cars:["#f1cccc","#9e2828","AUTO MART"],venue:["#dfc9ef","#57216f",s.label||"VENUE"]}[s.kind])||(PLACE_INFO[s.kind]?[PLACE_INFO[s.kind].wall,PLACE_INFO[s.kind].roof,PLACE_INFO[s.kind].sign]:["#ddd","#555","SHOP"]);
-    h=s.w<5*T?4.8:6.5;wall=cfg[0];roof=cfg[1];label=[cfg[2],cfg[1],"#fff"];flat=true;
-  }else if(s.k==="home"){h=5.5;wall="#e7d9c7";roof="#6e3430";label=["YOUR HOME","#6e3430","#fff"];}
-  else{h=3.6+((s.tint||0)%2)*1.2;wall=["#e8c7ad","#d6d6d2","#eee1b7","#c7ddc5"][(s.tint||0)%4];roof=["#9d3f2d","#66527f","#286246","#9b6b28"][(s.tint||0)%4];}
-  const body=box(w,h,d,wall);body.position.y=h/2;g.add(body);
-  if(flat){const slab=box(w+0.65,0.48,d+0.65,roof);slab.position.y=h+0.24;g.add(slab);}
-  else{const roofMesh=new THREE.Mesh(new THREE.ConeGeometry(Math.max(w,d)*0.72,2.6,4),mat(roof));roofMesh.rotation.y=Math.PI/4;roofMesh.position.y=h+1.3;g.add(roofMesh);}
-  const front=d/2+0.13,door=box(1.25,2.55,0.18,"#49312b");door.position.set(0,1.28,front);g.add(door);
-  const doorInset=box(0.92,2.2,0.035,"#754b37");doorInset.position.set(0,1.28,front+0.11);g.add(doorInset);
-  const knob=new THREE.Mesh(new THREE.SphereGeometry(0.07,8,6),mat("#d8b45c"));knob.position.set(0.42,1.28,front+0.16);g.add(knob);
-  [-1,1].forEach(side=>{
-    const x=side*w*0.29,y=h*0.62,frame=box(1.92,1.65,0.12,"#f4ead9");frame.position.set(x,y,front);g.add(frame);
-    const glass=box(1.62,1.35,0.07,"#70b7cf");glass.position.set(x,y,front+0.09);g.add(glass);
-    const mullion=box(0.09,1.35,0.04,"#e9e2d7");mullion.position.set(x,y,front+0.14);g.add(mullion);
-    const cross=box(1.62,0.08,0.04,"#e9e2d7");cross.position.set(x,y,front+0.14);g.add(cross);
-    for(let bar=-1;bar<=1;bar++){const grille=box(0.045,1.4,0.04,"#44484a");grille.position.set(x+bar*0.38,y,front+0.19);g.add(grille);}
-    const sill=box(2.08,0.13,0.28,"#d5c8b6");sill.position.set(x,y-0.86,front+0.12);g.add(sill);
-  });
-  if(s.k==="home"||s.k==="work"){
-    const balcony=box(w*0.78,0.12,0.95,"#555b5d");balcony.position.set(0,3.15,front+0.42);g.add(balcony);
-    for(let i=0;i<7;i++){const rail=box(0.055,0.82,0.055,"#555b5d");rail.position.set(-w*0.35+i*w*0.117,3.58,front+0.82);g.add(rail);}
-    const topRail=box(w*0.82,0.07,0.07,"#555b5d");topRail.position.set(0,3.98,front+0.82);g.add(topRail);
-    const ac=box(0.72,0.48,0.42,"#e7e9e8");ac.position.set(w*0.37,2.65,front+0.28);g.add(ac);
-    const vent=box(0.46,0.08,0.035,"#687579");vent.position.set(w*0.37,2.63,front+0.5);g.add(vent);
-    const tank=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.55,0.9,12),mat("#263e58"));tank.position.set(w*0.28,h+0.95,0);g.add(tank);
-    const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.58,0.58,0.08,12),mat("#172b42"));cap.position.set(w*0.28,h+1.43,0);g.add(cap);
-  }
-  if(s.k==="shop"){
-    const awning=box(w*0.94,0.22,1.35,s.kind==="food"?"#d44b2e":"#087f36");awning.position.set(0,h*0.58,front+0.65);g.add(awning);
-    const stripe=box(w*0.94,0.12,0.08,"#f4c430");stripe.position.set(0,h*0.58-0.18,front+1.31);g.add(stripe);
-    const shutter=box(w*0.34,1.6,0.08,"#8a8d8b");shutter.position.set(-w*0.29,1.3,front+0.2);g.add(shutter);
-  }
-  if(s.k==="home"){
-    const fenceZ=front+1.6;[-1,1].forEach(side=>{const seg=box(0.22,1.25,2.9,"#b6a998");seg.position.set(side*(w*0.52),0.72,fenceZ);g.add(seg);});
-    const gate=box(Math.max(1.2,w*0.42),1.15,0.12,"#3c4549");gate.position.set(0,0.8,fenceZ+1.35);g.add(gate);
-    for(let i=0;i<8;i++){const bar=box(0.045,1.05,0.06,"#b9c0c0");bar.position.set(-w*0.19+i*w*0.054,0.8,fenceZ+1.44);g.add(bar);}
-  }
-  if(label){const fascia=box(Math.max(2.5,w*0.86),0.72,0.16,label[1]);fascia.position.set(0,h*0.86,front+0.2);g.add(fascia);const sign=labelSprite(label[0],label[1],label[2],Math.max(3.4,w*0.82));sign.position.set(0,h*0.86,front+0.31);g.add(sign);}
-  const step=box(1.8,0.18,0.65,"#b5aaa0");step.position.set(0,0.09,front+0.32);g.add(step);
-  g.position.set((s.x+s.w/2)*U,0,(s.y+s.h/2)*U);
-  if(s.k==="home"&&s.mine){beacon=new THREE.Mesh(new THREE.ConeGeometry(0.7,1.4,4),new THREE.MeshBasicMaterial({color:"#ffd54f"}));beacon.rotation.x=Math.PI;beacon.position.set(g.position.x,h+5,g.position.z);scene.add(beacon);}
-  return g;
-}
-
-function buildScene(){
-  try{
-    renderer = new THREE.WebGLRenderer({ canvas, antialias:false, powerPreference:"low-power", alpha:false });
-    renderer.outputEncoding=THREE.sRGBEncoding;
-    renderer.toneMapping=THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure=0.88;
-  }catch(e){ throw new Error("WEBGL"); }
-  scene = new THREE.Scene();
-  scene.background=new THREE.Color("#75b6d4");scene.fog=new THREE.Fog("#75b6d4",105,310);
-  camera=new THREE.PerspectiveCamera(48,1,0.35,420);
-  hemi=new THREE.HemisphereLight(0xffe2b8,0x253d2c,0.82);scene.add(hemi);
-  sun=new THREE.DirectionalLight(0xffd08a,1.0);sun.position.set(-35,75,42);scene.add(sun);
-  const fillLight=new THREE.DirectionalLight(0x8fc9e8,0.16);fillLight.position.set(30,22,-45);scene.add(fillLight);
-
-  DISTRICTS.forEach(d => {
-    const m = new THREE.Mesh(new THREE.PlaneGeometry(DW * T * U, DH * T * U), mat(({ikeja:"#a9c68b",oshodi:"#c1ad78",ikorodu:"#8fb57e",yaba:"#91b89b",surulere:"#b0c77d",vi:"#8baab5",lekki:"#c9ae78"})[d.id] || "#9eb889"));
-    m.rotation.x = -Math.PI / 2; m.position.set((d.c + 0.5) * DW * T * U, 0, (d.r + 0.5) * DH * T * U); scene.add(m);
-  });
-
-  const dashes = [], trees = [];
-  scenery.forEach(s => {
-    const w = s.w * U, dpt = s.h * U, cx = (s.x + s.w / 2) * U, cz = (s.y + s.h / 2) * U;
-    if (s.k === "road"){
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, dpt), mat("#303941"));
-      m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.03, cz); scene.add(m);
-      if (s.w > s.h){ for (let x = s.x + 16; x < s.x + s.w; x += 48) dashes.push([ (x + 10) * U, cz, 0 ]); }
-      else { for (let y = s.y + 16; y < s.y + s.h; y += 48) dashes.push([ cx, (y + 10) * U, Math.PI / 2 ]); }
-    } else if (s.k === "water"){
-      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, dpt), new THREE.MeshLambertMaterial({ color:"#3b8ed0", transparent:true, opacity:0.92 }));
-      m.rotation.x = -Math.PI / 2; m.position.set(cx, 0.06, cz); scene.add(m);
-    } else if (s.k === "tree"){
-      trees.push([(s.x + 16) * U, (s.y + 16) * U]);
-    } else if (s.k === "districtSign"){
-      const g = new THREE.Group();
-      const postMat = mat("#37474f"), boardMat = mat("#087f36");
-      [-1.05,1.05].forEach(x=>{
-        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.12,3.6,6),postMat);
-        post.position.set(x,1.8,0); g.add(post);
-      });
-      const board = box(5.1,2.0,0.22,"#087f36"); board.position.set(0,3.0,0); g.add(board);
-      const stripe = box(5.1,0.22,0.25,"#b7ef43"); stripe.position.set(0,2.0,0); g.add(stripe);
-      const district = DISTRICTS.find(d=>d.id===s.did);
-      const title = labelSprite(district ? district.name.toUpperCase() : "LAGOS", "#087f36", "#ffffff", 5.0);
-      title.position.set(0,3.12,0.18); g.add(title);
-      const subtitle = labelSprite("WELCOME TO LAGOS", "#064d25", "#b7ef43", 3.2);
-      subtitle.position.set(0,2.48,0.18); g.add(subtitle);
-      g.position.set((s.x+0.5)*U,0,(s.y+0.5)*U); scene.add(g);
-    } else if (s.k === "bus"){
-      const g = new THREE.Group();
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 3.4, 6), mat("#555555")); pole.position.y = 1.7; g.add(pole);
-      const sign = box(1.8, 0.9, 0.12, "#fbc02d"); sign.position.y = 3.3; g.add(sign);
-      const sp = labelSprite("BUS", null, "#222222", 1.7); sp.position.set(0, 3.3, 0.2); g.add(sp);
-      g.position.set((s.x + 16) * U, 0, (s.y + 32) * U); scene.add(g);
-    } else if (s.k === "danfo" || s.k === "keke"){
-      // Parked Lagos-style danfo minibus and keke tricycle.
-      const g = new THREE.Group();
-      const isDanfo = s.k === "danfo";
-      const bodyColor = isDanfo ? "#f4c430" : "#159447";
-      const body = box(isDanfo ? 4.4 : 2.25, isDanfo ? 1.55 : 1.35, isDanfo ? 2.0 : 2.25, bodyColor);
-      body.position.y = isDanfo ? 1.05 : 0.92; g.add(body);
-      const cabin = box(isDanfo ? 2.7 : 1.35, isDanfo ? 1.15 : 1.0, isDanfo ? 1.82 : 1.85, isDanfo ? "#f7f7f7" : "#f5f5f5");
-      cabin.position.set(isDanfo ? -0.35 : -0.12, isDanfo ? 2.0 : 1.72, 0); g.add(cabin);
-      const glass = box(isDanfo ? 2.25 : 1.05, 0.62, 0.05, "#75c9e8");
-      glass.position.set(isDanfo ? -0.35 : -0.12, isDanfo ? 2.08 : 1.78, 0.94); g.add(glass);
-      const wheelPositions = isDanfo ? [[-1.35,-0.9],[-1.35,0.9],[1.35,-0.9],[1.35,0.9]] : [[-0.65,-0.95],[-0.65,0.95],[0.85,0]];
-      wheelPositions.forEach(p=>{
-        const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.38,0.38,0.22,10),mat("#202124"));
-        wheel.rotation.z = Math.PI/2; wheel.position.set(p[0],0.48,p[1]); g.add(wheel);
-      });
-      const route = labelSprite(isDanfo ? "LAGOS DANFO" : "KEKE NAPEP", isDanfo ? "#087f36" : "#064d25", "#ffffff", isDanfo ? 2.5 : 2.1);
-      route.position.set(0,isDanfo ? 1.55 : 1.35, isDanfo ? 1.04 : 1.16); g.add(route);
-      g.position.set(cx,0,cz); scene.add(g);
-    } else if (s.k === "marketStall"){
-      // Roadside Nigerian market/buka kiosk with canopy, counter, produce and sign.
-      const g = new THREE.Group();
-      const postMat = mat("#6d4c41");
-      const counter = box(4.8,1.25,2.5,"#9b6a3c"); counter.position.y=0.72; g.add(counter);
-      const canopy = box(5.4,0.28,3.1,"#087f36"); canopy.position.y=3.05; g.add(canopy);
-      const canopyTrim = box(5.45,0.18,0.18,"#f4c430"); canopyTrim.position.set(0,2.82,1.52); g.add(canopyTrim);
-      [[-2.35, -1.15],[2.35,-1.15],[-2.35,1.15],[2.35,1.15]].forEach(p=>{
-        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,2.9,6),postMat);
-        post.position.set(p[0],1.45,p[1]); g.add(post);
-      });
-      const sign = labelSprite("MAMA PUT  •  MARKET","#064d25","#ffffff",2.5);
-      sign.position.set(0,3.45,1.62); g.add(sign);
-      const produceColors=["#e53935","#f9a825","#43a047","#ff7043","#8e24aa","#fdd835"];
-      produceColors.forEach((c,i)=>{
-        const item = new THREE.Mesh(new THREE.SphereGeometry(0.22,7,6),mat(c));
-        item.position.set(-1.75+(i%3)*1.65,1.55,0.55+Math.floor(i/3)*0.5); g.add(item);
-      });
-      const crate1=box(0.9,0.65,0.8,"#c17b3a"); crate1.position.set(-2.8,0.36,-0.2); g.add(crate1);
-      const crate2=box(0.9,0.65,0.8,"#c17b3a"); crate2.position.set(2.8,0.36,-0.2); g.add(crate2);
-      g.position.set(cx,0,cz); scene.add(g);
-    } else if (s.k === "billboard"){
-      makeBillboard(s);
-    } else {
-      scene.add(buildBuilding(s));
-    }
-  });
-
-  // road dashes (one draw call)
-  if (dashes.length){
-    const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1.4, 0.02, 0.16), new THREE.MeshBasicMaterial({ color:"#f5d76e" }), dashes.length);
-    const dm = new THREE.Object3D();
-    dashes.forEach((p, i) => { dm.position.set(p[0], 0.05, p[1]); dm.rotation.y = p[2]; dm.updateMatrix(); im.setMatrixAt(i, dm.matrix); });
-    scene.add(im);
-  }
-  // trees (two draw calls)
-  if (trees.length){
-    const trunks = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.25, 0.32, 1.8, 6), mat("#6d4c41"), trees.length);
-    const leaves = new THREE.InstancedMesh(new THREE.ConeGeometry(1.5, 3.4, 7), mat("#2e7d32"), trees.length);
-    const dm = new THREE.Object3D();
-    trees.forEach((p, i) => {
-      const k = 0.85 + ((p[0] * 7 + p[1] * 3) % 5) / 12;
-      dm.rotation.set(0, 0, 0); dm.scale.set(k, k, k);
-      dm.position.set(p[0], 0.9 * k, p[1]); dm.updateMatrix(); trunks.setMatrixAt(i, dm.matrix);
-      dm.position.set(p[0], 3.3 * k, p[1]); dm.updateMatrix(); leaves.setMatrixAt(i, dm.matrix);
-    });
-    scene.add(trunks); scene.add(leaves);
-  }
-
-  // Moving Lagos traffic on each district main road. Keep the count modest for older phones.
-  DISTRICTS.forEach((d, di) => {
-    const roadZ = (d.r * DH * T + 9.5 * T) * U;
-    [0,1].forEach(lane => {
-      const vehicle = makeCar(lane === 0 ? "suv" : "tokunbo");
-      vehicle.rotation.y = lane === 0 ? Math.PI / 2 : -Math.PI / 2;
-      vehicle.position.set((d.c * DW * T + (lane ? 18 : 5) * T) * U, 0, roadZ + (lane ? 1.25 : -1.25));
-      vehicle.userData = { district:d, lane, speed:(lane ? -1 : 1) * (7.5 + (di % 3) * 1.2), start:d.c * DW * T, length:DW * T };
-      scene.add(vehicle); trafficCars.push(vehicle);
-    });
-  });
-
-  // people
-  npcs.forEach(n => {
-    const m = makePerson(n.color, SKIN[Math.floor((n.x + n.y) % SKIN.length)]);
-    const tag = labelSprite(n.name, "rgba(0,0,0,0.65)", "#ffffff", 3.4); tag.position.y = 3.9; tag.visible = false; m.add(tag);
-    tag.userData.keepOnPremium=true;
-    m.userData.tag = tag; scene.add(m); npcMeshes.push(m);
-  });
-  celebs.forEach(c => {
-    const m = makePerson(c.locked ? "#78909c" : "#f9a825", SKIN[1]);
-    const star = labelSprite(c.locked ? "🔒" : "⭐", null, "#000000", 2.2); star.position.y = 4.6; m.add(star);
-    const tag = labelSprite(c.name, "rgba(0,0,0,0.75)", "#ffd54f", 4.2); tag.position.y = 3.9; tag.visible = false; m.add(tag);
-    tag.userData.keepOnPremium=true; star.userData.keepOnPremium=true;
-    m.userData.tag = tag; m.userData.star = star; m.position.set(c.x * U, 0, c.y * U); scene.add(m); celebMeshes.push(m);
-  });
-
-  // player and car
-  playerMesh = buildPlayerMesh();
-  scene.add(playerMesh);
-  carGroup = null;
-  loadPremiumHumans();
-
-  marker = new THREE.Mesh(new THREE.RingGeometry(1.1, 1.5, 24), new THREE.MeshBasicMaterial({ color:"#ffd54f", side:THREE.DoubleSide, transparent:true, opacity:0.9 }));
-  marker.rotation.x = -Math.PI / 2; marker.visible = false; scene.add(marker);
-
-  updateSky();
-}
-
-let lastCar = "__none__";
-function syncCar(){
-  const id = state && state.car_id ? state.car_id : null;
-  if (id === lastCar) return;
-  lastCar = id;
-  if (carGroup){ playerMesh.remove(carGroup); carGroup = null; }
-  const u = playerMesh.userData;
-  if (id){
-    carGroup = makeCar(id); playerMesh.add(carGroup);
-    if(u.premiumBody)u.premiumBody.visible=false;
-    if(u.legL)u.legL.visible=u.legR.visible=false;
-  } else {
-    if(u.premiumBody)u.premiumBody.visible=true;
-    if(u.legL)u.legL.visible=u.legR.visible=true;
-  }
-}
-
-function updateSky(){
-  const t = new Date(), h = t.getHours() + t.getMinutes() / 60;
-  let d;
-  if (h < 5 || h >= 19.5) d = 0; else if (h < 6.5) d = (h - 5) / 1.5; else if (h < 18) d = 1; else d = (19.5 - h) / 1.5;
-  const col = new THREE.Color("#07182d").lerp(new THREE.Color("#66b4df"), d);
-  scene.background = col; scene.fog.color = col;
-  hemi.intensity = 0.22 + 0.56 * d; sun.intensity = 0.04 + 0.76 * d;
-}
-
-function resize(){
-  VW = window.innerWidth; VH = window.innerHeight;
-  if (!renderer) return;
-  const mobileLowEnd=/Android|iPhone|iPad/i.test(navigator.userAgent);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,mobileLowEnd?1.15:1.35));
-  renderer.setSize(VW, VH, false);
-  camera.aspect = VW / VH; camera.updateProjectionMatrix();
-}
-
-
-function camTarget(){
-  return new THREE.Vector3(player.x * U + Math.sin(camYaw) * camR(), camR() * 0.8, player.y * U + Math.cos(camYaw) * camR());
-}
-function snapCamera(){ if(!camera)return; camera.position.copy(camTarget()); camera.lookAt(player.x * U, inRoom ? 1.35 : 1.5, player.y * U); camera.updateMatrixWorld(true); }
-
-function angleLerp(a, b, t){ let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; return a + d * t; }
-
-function draw(dt){
-  syncCar();
-  trafficCars.forEach(v => {
-    const u = v.userData;
-    if (inRoom){ v.visible = false; return; }
-    v.visible = true;
-    const x0 = u.start * U, x1 = (u.start + u.length) * U;
-    let x = v.position.x + u.speed * dt;
-    if (x > x1) x = x0 - 4;
-    if (x < x0 - 4) x = x1;
-    v.position.x = x;
-  });
-  // player
-  playerMesh.position.set(player.x * U, carGroup ? 0.2 : 0, player.y * U);
-  playerMesh.rotation.y = angleLerp(playerMesh.rotation.y, player.face, Math.min(1, dt * 12));
-  if(playerMesh.userData.premium) setPremiumMotion(playerMesh,player.moving&&!carGroup,dt);
-  else animatePerson(playerMesh,player.step,player.moving&&!carGroup);
-  if (carGroup) carGroup.visible = !inRoom;
-  if (sleeping){ playerMesh.rotation.x = -Math.PI / 2; playerMesh.rotation.y = 0; playerMesh.position.y = 1.4; }
-  else if (playerMesh.rotation.x !== 0) playerMesh.rotation.x = 0;
-
-  // people
-  npcs.forEach((n, i) => {
-    const m = npcMeshes[i]; if (!m) return;
-    m.position.set(n.x * U, 0, n.y * U);
-    const mv = n.dx !== 0 || n.dy !== 0;
-    if (mv) m.rotation.y = angleLerp(m.rotation.y, Math.atan2(n.dx, n.dy), Math.min(1, dt * 8));
-    if(m.userData.premium)setPremiumMotion(m,mv,dt);
-    else animatePerson(m,performance.now()/150+i,mv);
-    if(n.mode==="greet"){
-      m.rotation.y=angleLerp(m.rotation.y,n.facing,Math.min(1,dt*5));
-      m.userData.tag.visible=true;
-    } else {
-      m.userData.tag.visible = Math.hypot(n.x - player.x, n.y - player.y) < 150;
-    }
-    m.userData.tag.material.opacity=1;
-  });
-  const tms = performance.now() / 300;
-  celebs.forEach((c, i) => {
-    const m = celebMeshes[i]; if (!m) return;
-    if(m.userData.premium)setPremiumMotion(m,false,dt);
-    m.userData.star.position.y = 4.6 + Math.sin(tms + i) * 0.2;
-    m.userData.tag.visible = Math.hypot(c.x - player.x, c.y - player.y) < 190;
-    m.rotation.y = Math.atan2(player.x - c.x, player.y - c.y) * (Math.hypot(c.x - player.x, c.y - player.y) < 190 ? 1 : 0);
-  });
-  if (beacon) { beacon.rotation.y += dt * 2; beacon.position.y = 11 + Math.sin(tms) * 0.4; }
-
-  // interaction marker
-  if (nearest){
-    const ref = nearest.ref || nearest;
-    let tx, ty;
-    if (nearest.kind === "npc" || nearest.kind === "celeb" || nearest.kind === "player" || nearest.kind === "room"){ tx = ref.x; ty = ref.y; }
-    else { const sp = spots.find(s => s.kind === nearest.kind && Math.hypot(s.x - player.x, s.y - player.y) < 60); if (sp){ tx = sp.x; ty = sp.y; } }
-    if (tx !== undefined){ marker.visible = true; marker.position.set(tx * U, 0.1, ty * U); marker.scale.setScalar(1 + Math.sin(tms * 2) * 0.08); } else marker.visible = false;
-  } else marker.visible = false;
-
-  updateOthers(dt);
-
-  // camera follow
-  camera.position.lerp(camTarget(), 1 - Math.pow(0.0005, dt));
-  camera.lookAt(player.x * U, inRoom ? 1.35 : 1.5, player.y * U);
-  renderer.render(scene, camera);
-}
-
-/* turn the camera by dragging anywhere outside the joystick */
-let dragCam = null;
-canvas.addEventListener("pointerdown", e => { dragCam = { id:e.pointerId, x:e.clientX }; canvas.setPointerCapture(e.pointerId); });
-canvas.addEventListener("pointermove", e => { if (dragCam && !pinching && e.pointerId === dragCam.id){ camYaw -= (e.clientX - dragCam.x) * 0.008; dragCam.x = e.clientX; } });
-["pointerup", "pointercancel"].forEach(t => canvas.addEventListener(t, e => { if (dragCam && e.pointerId === dragCam.id) dragCam = null; }));
-
-let last = performance.now(), skyTimer = 0;
-function loop(now){
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  update(dt); autoWalkStep(dt);
-  skyTimer -= dt; if (skyTimer <= 0){ skyTimer = 5; updateSky(); }
-  draw(dt);
-  requestAnimationFrame(loop);
-}
-
-/* ============================ ADULT CHECK, LOOK, FURNITURE, BILLBOARDS, MUSIC ============================ */
-const SKIN_OPTS = ["#8d5a3b", "#6d4228", "#a8714b", "#5a3825"];
-const SHIRT_OPTS = ["#1b8f3a", "#e53935", "#1e88e5", "#8e24aa", "#fb8c00", "#00897b", "#d81b60", "#3949ab"];
-const HAIR_OPTS = ["#222222", "#4e342e", "#b8860b", "#b71c1c", "#6a1b9a"];
-const STYLE_OPTS = [["short", "Short"], ["afro", "Afro"], ["cap", "Cap"]];
-const isMissingFn = e => /could not find the function|schema cache/i.test((e && e.message) || "");const LABEL = "font-size:12px;color:#708176;margin-top:8px";
-
-/* ---- 18+ date of birth check (we keep only a yes/no, not the date) ---- */
-function confirmAdult(){
-  return new Promise(resolve => {
-    modalLocked = true;    const yMax = new Date().getFullYear();
-    const sel = "width:32%;padding:13px;border:2px solid #e0eae3;border-radius:12px;font:inherit;background:#fff";
-    const days = Array.from({ length:31 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("");
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => `<option value="${i + 1}">${m}</option>`).join("");
-    const years = Array.from({ length:90 }, (_, i) => `<option value="${yMax - i}">${yMax - i}</option>`).join("");
-    openModal(`<h2>Quick check 🔞</h2>
-      <p>Naija Star Life has player-made billboards and chat between real players, so it is for people aged <b>18 or older</b>. Enter your date of birth once. We only save whether you are 18+.</p>
-      <div style="display:flex;gap:6px">
-        <select id="dobD" style="${sel}"><option value="">Day</option>${days}</select>
-        <select id="dobM" style="${sel}"><option value="">Month</option>${months}</select>
-        <select id="dobY" style="${sel}"><option value="">Year</option>${years}</select>
-      </div>
-      <label style="display:flex;gap:8px;margin-top:12px;align-items:flex-start;font-size:13px;color:#173326"><input type="checkbox" id="dobOk" style="margin-top:3px"> I confirm my date of birth is correct and I am 18 or older.</label>
-      <button class="btn" id="mAdult">Continue to Lagos</button>
-      <button class="btn alt" id="mLeave">Leave</button>`);
-    $("mLeave").onclick = () => { location.href = "dashboard.html"; };
-    $("mAdult").onclick = async () => {
-      if (busy) return;
-      const d = Number($("dobD").value), m = Number($("dobM").value), y = Number($("dobY").value);
-      if (!d || !m || !y){ toast("Choose your day, month and year."); return; }
-      if (!$("dobOk").checked){ toast("Please tick the box to continue."); return; }
-      busy = true;
-      try{
-        const r = await rpc("starlife_confirm_adult_dob", { p_year:y, p_month:m, p_day:d });
-        if (r && r.blocked){ toast("Naija Star Life is for adults aged 18 or older.", 4000); setTimeout(() => { location.href = "dashboard.html"; }, 2500); busy = false; return; }
-        state = r; modalLocked = false; closeModal(); resolve();
-      }catch(e){
-        if (isMissingFn(e)){
-          const age = (Date.now() - new Date(y, m - 1, d).getTime()) / 31557600000;
-          if (age < 18){ toast("Naija Star Life is for adults aged 18 or older.", 4000); setTimeout(() => { location.href = "dashboard.html"; }, 2500); }
-          else { try{ state = await rpc("starlife_confirm_adult"); }catch(e2){ console.warn("Run the new SQL to save this."); } modalLocked = false; closeModal(); resolve(); }
-        } else toast(e.message || "Could not save your answer.");
-      }
-      finally{ busy = false; }
-    };
-  });
-}
-
-/* ---- Character look (face, hair, clothes) ---- */
-const SKIN2 = ["#8d5a3b", "#6d4228", "#a8714b", "#5a3825", "#c68a62"];
-const COLORS2 = ["#1b8f3a", "#e53935", "#1e88e5", "#8e24aa", "#fb8c00", "#00897b", "#d81b60", "#3949ab", "#212121", "#f5f5f5", "#fbc02d", "#6d4c41"];
-const HAIR2 = ["#222222", "#4e342e", "#b8860b", "#b71c1c", "#6a1b9a", "#f5f5f5"];
-const HSTYLE2 = [["short", "Short"], ["afro", "Afro"], ["braids", "Braids"], ["twists", "Twists"], ["bald", "Bald"]];
-const TOPS2 = [["tee", "T-shirt"], ["jersey", "Jersey"], ["hoodie", "Hoodie"], ["agbada", "Agbada"], ["gown", "Gown"]];
-const BOTTOMS2 = [["trousers", "Trousers"], ["shorts", "Shorts"], ["wrapper", "Wrapper"]];
-const HEADS2 = [["none", "No cap"], ["cap", "Cap"], ["fila", "Fila"], ["gele", "Gele"]];
-const SHOES2 = ["#222222", "#f5f5f5", "#6d4c41", "#e53935"];
-
-function swatchRow(list, key, sel){
-  return list.map(c => `<button type="button" data-k="${key}" data-v="${c}" style="width:38px;height:38px;border-radius:50%;border:3px solid ${c === sel ? "#064d25" : "#fff"};background:${c};margin:3px;box-shadow:0 0 0 1px #ccc"></button>`).join("");
-}
-function optRow(list, key, sel){
-  return list.map(x => `<button class="opt" type="button" data-k="${key}" data-v="${x[0]}" style="display:inline-block;width:auto;margin:3px;padding:8px 12px;${sel === x[0] ? "border-color:#087f36;background:#eaf7ee" : ""}">${x[1]}</button>`).join("");
-}
-function openLook(first){
-  return new Promise(resolve => {
-    const orig = state.look ? Object.assign({}, state.look) : null;
-    const old = state.look || {};
-    const cur = Object.assign({ skin:SKIN2[0], hair:HAIR2[0], style:"short", top:"tee", topColor:old.shirt || COLORS2[0], bottom:"trousers", bottomColor:"#212121", shoes:SHOES2[0], head:"none" }, old);
-    if (first) modalLocked = true;
-    const preview = () => { state.look = Object.assign({}, cur); if (playerMesh) rebuildPlayer(); };
-    const draw = () => {
-      openModal(`<h2>Your look 🎨</h2><p>Choose your face, hair and clothes. Everyone online sees this.</p>
-        <div style="${LABEL}">Skin</div>${swatchRow(SKIN2, "skin", cur.skin)}
-        <div style="${LABEL}">Hair colour</div>${swatchRow(HAIR2, "hair", cur.hair)}
-        <div style="${LABEL}">Hair style</div>${optRow(HSTYLE2, "style", cur.style)}
-        <div style="${LABEL}">Headwear</div>${optRow(HEADS2, "head", cur.head)}
-        <div style="${LABEL}">Top</div>${optRow(TOPS2, "top", cur.top)}
-        <div style="${LABEL}">Top colour</div>${swatchRow(COLORS2, "topColor", cur.topColor)}
-        <div style="${LABEL}">Bottom</div>${optRow(BOTTOMS2, "bottom", cur.bottom)}
-        <div style="${LABEL}">Bottom colour</div>${swatchRow(COLORS2, "bottomColor", cur.bottomColor)}
-        <div style="${LABEL}">Shoes</div>${swatchRow(SHOES2, "shoes", cur.shoes)}
-        <button class="btn" id="lkSave">Save look</button>
-        ${first ? "" : '<button class="btn alt" id="lkCancel">Cancel</button>'}`);
-      $("box").querySelectorAll("[data-k]").forEach(b => b.onclick = () => { cur[b.dataset.k] = b.dataset.v; preview(); draw(); });
-      $("lkSave").onclick = async () => {
-        if (busy) return; busy = true;
-        try{
-          state = await rpc("starlife_set_look2", { p_look:cur });
-        }catch(e){
-          if (isMissingFn(e)){ state.look = Object.assign({}, cur); toast("Run the new SQL to keep your look next time."); }
-          else { toast(e.message || "Could not save your look."); busy = false; return; }
-        }
-        busy = false; modalLocked = false; closeModal();
-        if (playerMesh) rebuildPlayer();
-        resolve();
-      };
-      if (!first) $("lkCancel").onclick = () => { state.look = orig; if (playerMesh) rebuildPlayer(); closeModal(); resolve(); };
-    };
-    draw();
-  });
-}
-function buildPlayerMesh(){
-  const L = state.look || {};
-  const m = makePerson(L.topColor || L.shirt || "#1b8f3a", L.skin || SKIN[0], L);
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.75, 0.95, 20), new THREE.MeshBasicMaterial({ color:"#b7ef43", side:THREE.DoubleSide }));
-  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.08; ring.userData.keepOnPremium=true; m.add(ring);
-  return m;
-}
-function rebuildPlayer(){
-  if (!playerMesh || !scene) return;
-  const pos = playerMesh.position.clone(), ry = playerMesh.rotation.y;
-  scene.remove(playerMesh);
-  playerMesh = buildPlayerMesh();
-  playerMesh.position.copy(pos); playerMesh.rotation.y = ry;
-  scene.add(playerMesh);
-  if(premiumHumanCache.length)applyPremiumHuman(playerMesh,0);
-  carGroup = null; lastCar = "__none__";
-}
-
-/* ---- Furniture ---- */
-async function openFurniture(){
-  try{
-    const items = await rpc("starlife_furniture_list");
-    const style = items.filter(i => i.owned).reduce((a, i) => a + i.style, 0);
-    openModal(`<h2>🛋️ Furnish your home</h2>
-      <p>Make your place yours. Each item adds style and a little fame. Home style: <b>${style}</b></p>
-      ${items.map(i => `<button class="opt" data-f="${esc(i.id)}" ${i.owned ? "disabled" : ""}>${esc(i.name)} · ${i.owned ? "owned" : esc(i.price) + " coins"}<small>+${esc(i.style)} style${i.fame ? ", +" + esc(i.fame) + " fame" : ""}</small></button>`).join("")}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-f]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_buy_furniture", { p_item_id:b.dataset.f }); setHud(); closeModal(); toast("Your home looks better!"); }
-      catch(e){ toast(e.message || "Could not buy that."); }
-      finally{ busy = false; }
-    });
-  }catch(e){ toast(isMissingFn(e) ? "Furniture is not set up yet." : (e.message || "Could not open the shop.")); }
-}
-
-/* ---- Billboards ---- */
-const BB_POS = [{ tx:9.5, ty:1.5 }, { tx:21.5, ty:6.3 }];
-const billboardMap = {};
-let billboardData = [];
-
-function paintBillboard(key, text, sub, bg){
-  const b = billboardMap[key]; if (!b) return;
-  const g = b.cv.getContext("2d");
-  g.fillStyle = bg; g.fillRect(0, 0, 512, 256);
-  g.fillStyle = "#ffffff"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = "bold 44px Arial";
-  const words = String(text).split(" "), lines = []; let cur = "";
-  words.forEach(w => { const t = cur ? cur + " " + w : w; if (g.measureText(t).width > 470 && cur){ lines.push(cur); cur = w; } else cur = t; });
-  if (cur) lines.push(cur);
-  const shown = lines.slice(0, 3), y0 = 118 - (shown.length - 1) * 26;
-  shown.forEach((ln, i) => g.fillText(ln, 256, y0 + i * 52));
-  g.font = "22px Arial"; g.fillStyle = "rgba(255,255,255,0.8)"; g.fillText(sub, 256, 232);
-  b.tex.needsUpdate = true;
-}
-function makeBillboard(s){
-  const g = new THREE.Group();
-  [-2.6, 2.6].forEach(x => { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 6, 6), mat("#555555")); post.position.set(x, 3, 0); g.add(post); });
-  const frame = box(6.8, 3.4, 0.3, "#263238"); frame.position.y = 6.2; g.add(frame);
-  const cv = document.createElement("canvas"); cv.width = 512; cv.height = 256;
-  const tex = new THREE.CanvasTexture(cv);
-  const face = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 3.0), new THREE.MeshBasicMaterial({ map:tex }));
-  face.position.set(0, 6.2, 0.18); g.add(face);
-  g.position.set(s.x * U, 0, s.y * U);
-  scene.add(g);
-  billboardMap[s.did + ":" + s.slot] = { cv, tex };
-  paintBillboard(s.did + ":" + s.slot, "YOUR AD HERE", "Rent this billboard", "#455a64");
-}
-async function loadBillboards(){
-  try{
-    billboardData = await rpc("starlife_billboards_list") || [];
-  }catch(e){ billboardData = []; if (!isMissingFn(e)) console.warn(e.message); }
-  Object.keys(billboardMap).forEach(k => paintBillboard(k, "YOUR AD HERE", "Rent this billboard", "#455a64"));
-  const latest = {};
-  billboardData.forEach(b => { const k = b.district + ":" + b.slot; if (!latest[k] || b.id > latest[k].id) latest[k] = b; });
-  Object.keys(latest).forEach(k => { const b = latest[k]; paintBillboard(k, b.text, b.sponsored ? "Sponsored" : "by " + b.owner_name, b.sponsored ? "#6a1b9a" : "#1a237e"); });
-}
-async function openBillboard(spot){
-  await loadBillboards();
-  const ad = billboardData.filter(b => b.district === spot.did && b.slot === spot.slot).sort((a, b) => b.id - a.id)[0];
-  const d = DISTRICTS.find(x => x.id === spot.did);
-  if (ad){
-    openModal(`<h2>📢 Billboard · ${esc(d ? d.name : "")}</h2>
-      <p style="color:#173326;font-size:17px"><b>${esc(ad.text)}</b></p>
-      <p>${ad.sponsored ? "Sponsored message." : "Rented by " + esc(ad.owner_name) + "."} Runs until ${esc(new Date(ad.expires_at).toLocaleString())}.</p>
-      ${ad.mine || ad.sponsored ? "" : '<button class="btn alt" id="bbReport">Report this billboard</button>'}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    const rb = $("bbReport");
-    if (rb) rb.onclick = async () => {
-      try{ await rpc("starlife_report_billboard", { p_id:ad.id }); closeModal(); toast("Thanks. We will review it."); }
-      catch(e){ toast(e.message || "Could not send the report."); }
-    };
-  } else {
-    openModal(`<h2>📢 Rent this billboard</h2>
-      <p>Show a short message to every player in ${esc(d ? d.name : "this area")}. 100 coins per day, up to 3 days. You need 20 fame and must be 18+. No links or phone numbers.</p>
-      <input id="bbText" maxlength="40" placeholder="Your message (3 to 40 characters)" style="width:100%;padding:13px;border:2px solid #e0eae3;border-radius:12px;font:inherit;margin-top:6px">
-      <select id="bbDays" style="width:100%;padding:13px;border:2px solid #e0eae3;border-radius:12px;font:inherit;margin-top:8px;background:#fff">
-        <option value="1">1 day · 100 coins</option><option value="2">2 days · 200 coins</option><option value="3">3 days · 300 coins</option>
-      </select>
-      <button class="btn" id="bbRent">Rent billboard</button>
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;    $("bbRent").onclick = async () => {
-      if (busy) return; busy = true;
-      try{
-        const r = await rpc("starlife_rent_billboard", { p_district:spot.did, p_slot:spot.slot, p_text:$("bbText").value, p_days:Number($("bbDays").value) });
-        state = r; setHud(); closeModal(); toast("Your billboard is live!"); loadBillboards();
-      }catch(e){ toast(e.message || "Could not rent the billboard."); }
-      finally{ busy = false; }    };
-  }
-}
-
-/* ---- Original background music (generated in the browser, no copyrighted audio) ---- */
-let audioCtx = null, musicOn = false, musicTimer = null, musicStep = 0, noiseBuf = null, masterGain = null, musicStyle = -1;
-const MUSIC_STYLES = [
-  { name:"Afrobeat",  ms:150, bass:[55,0,0,55,0,0,65.4,0,73.4,0,82.4,0,65.4,0,55,0], lead:[440,0,523.3,0,587.3,0,0,523.3,0,440,0,0,659.3,0,587.3,0], hat:2, snare:[4,12] },
-  { name:"Highlife",  ms:135, bass:[55,0,65.4,0,73.4,0,65.4,0,55,0,82.4,0,73.4,0,65.4,0], lead:[0,659.3,0,587.3,0,523.3,0,587.3,0,659.3,0,784,0,659.3,0,587.3], hat:1, snare:[4,12] },
-  { name:"Amapiano",  ms:128, bass:[55,0,0,55,0,55,0,0,73.4,0,0,73.4,0,65.4,0,0], lead:[0,0,0,0,523.3,0,0,0,0,0,0,0,587.3,0,0,0], hat:1, snare:[8] }
-];
-function makeNoise(){
-  const len = audioCtx.sampleRate * 0.3, buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate), data = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
-  return buf;
-}
-function envGain(t, a, d, peak){
-  const g = audioCtx.createGain();
-  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
-  g.connect(masterGain); return g;
-}
-function tone(type, freq, t, a, d, peak){
-  const o = audioCtx.createOscillator(); o.type = type; o.frequency.setValueAtTime(freq, t);
-  o.connect(envGain(t, a, d, peak)); o.start(t); o.stop(t + a + d + 0.05);
-}
-function noiseHit(t, d, peak, hp){
-  const n = audioCtx.createBufferSource(); n.buffer = noiseBuf;
-  const f = audioCtx.createBiquadFilter(); f.type = "highpass"; f.frequency.value = hp;
-  n.connect(f); f.connect(envGain(t, 0.002, d, peak)); n.start(t); n.stop(t + d + 0.05);
-}
-function musicTick(){
-  const st = MUSIC_STYLES[musicStyle]; if (!st) return;
-  const t = audioCtx.currentTime + 0.02, s = musicStep % 16;
-  if (s % 4 === 0){ const o = audioCtx.createOscillator(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.12);
-    o.connect(envGain(t, 0.005, 0.18, 0.7)); o.start(t); o.stop(t + 0.25); }
-  if (st.snare.indexOf(s) >= 0) noiseHit(t, 0.12, 0.35, 1200);
-  if (s % st.hat === 0) noiseHit(t, 0.04, 0.12, 7000);
-  if (st.bass[s]) tone(musicStyle === 2 ? "sine" : "triangle", st.bass[s], t, 0.01, musicStyle === 2 ? 0.2 : 0.28, 0.55);
-  if (st.lead[s]) tone("sine", st.lead[s], t, 0.01, 0.3, 0.16);
-  musicStep++;
-}
-function toggleMusic(){
-  if (!audioCtx){
-    try{
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = audioCtx.createGain(); masterGain.gain.value = 0.22; masterGain.connect(audioCtx.destination);
-      noiseBuf = makeNoise();
-    }catch(e){ audioCtx = null; toast("Sound is not available on this device."); return; }
-  }
-  if (audioCtx.state === "suspended") audioCtx.resume();
-  musicStyle++;
-  clearInterval(musicTimer);
-  if (musicStyle >= MUSIC_STYLES.length){ musicStyle = -1; musicOn = false; $("musicBtn").textContent = "🔇"; return; }
-  musicOn = true; musicStep = 0; musicTimer = setInterval(musicTick, MUSIC_STYLES[musicStyle].ms);
-  $("musicBtn").textContent = "🔊"; toast("♪ " + MUSIC_STYLES[musicStyle].name);
-}
-$("musicBtn").addEventListener("click", toggleMusic);
-$("lookBtn").addEventListener("click", () => { if (!modalOpen) openLook(false); });
-
-/* ---- Story text for the made-up famous characters ---- */
-async function loadCelebStories(){
-  try{
-    const rows = await rpc("starlife_celeb_stories");
-    const m = {}; (rows || []).forEach(r => { m[r.celeb_id] = r.story; });
-    celebs.forEach(c => { if (m[c.id]) c.story = m[c.id]; });
-  }catch(e){ if (!isMissingFn(e)) console.warn(e.message); }
-}
-
-/* ---- Other real players: presence, friends and chat (18+ only) ---- */
-let others = {}, syncing = false, chatTimer = null;
-
-async function syncPresence(){
-  if (syncing || inRoom || !state || !state.adult_confirmed || !scene) return;
-  syncing = true;
-  try{
-    const list = await rpc("starlife_presence_sync", { p_x:Math.round(player.x), p_y:Math.round(player.y) });
-    applyOthers(Array.isArray(list) ? list : []);
-  }catch(e){ if (!isMissingFn(e)) console.warn(e.message); }
-  finally{ syncing = false; }
-}
-function applyOthers(list){
-  const seen = {};
-  list.forEach(o => {
-    seen[o.id] = true;
-    let e = others[o.id];
-    if (!e){
-      const L = o.look || {};
-      const mesh = makePerson(L.topColor || L.shirt || "#1e88e5", L.skin || SKIN[0], L);
-      const tag = labelSprite(o.name, "rgba(0,0,0,0.65)", "#ffffff", 3.8); tag.position.y = 4.5; mesh.add(tag);
-      scene.add(mesh);
-      e = others[o.id] = { id:o.id, name:o.name, friend:!!o.friend, x:Number(o.x), y:Number(o.y), tx:Number(o.x), ty:Number(o.y), mesh, moving:false, step:0 };
-    }
-    e.name = o.name; e.friend = !!o.friend; e.tx = Number(o.x); e.ty = Number(o.y);
-  });
-  Object.keys(others).forEach(id => { if (!seen[id]){ scene.remove(others[id].mesh); delete others[id]; } });
-}
-function updateOthers(dt){
-  Object.keys(others).forEach(id => {
-    const e = others[id], dx = e.tx - e.x, dy = e.ty - e.y, d = Math.hypot(dx, dy);
-    e.moving = d > 2;
-    if (e.moving){
-      const st = Math.min(d, 90 * dt); e.x += dx / d * st; e.y += dy / d * st; e.step += dt * 9;
-      e.mesh.rotation.y = angleLerp(e.mesh.rotation.y, Math.atan2(dx, dy), Math.min(1, dt * 8));
-    }
-    e.mesh.position.set(e.x * U, 0, e.y * U);
-    if(e.mesh.userData.premium)setPremiumMotion(e.mesh,e.moving,dt);
-    else animatePerson(e.mesh,e.step,e.moving);
-  });
-}
-
-function openPlayer(e){
-  openModal(`<h2>👤 ${esc(e.name)}</h2>
-    <p>${e.friend ? "You are friends." : "Add them as a friend to chat."}</p>
-    ${e.friend ? '<button class="btn" id="plChat">💬 Message</button>' : '<button class="btn" id="plAdd">➕ Add friend</button>'}
-    <button class="btn alt" id="plBlock">🚫 Block</button>
-    <button class="btn alt" id="plReport">⚠️ Report</button>
-    <button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  if ($("plChat")) $("plChat").onclick = () => openChat(e.id, e.name);
-  if ($("plAdd")) $("plAdd").onclick = async () => {
-    try{ const r = await rpc("starlife_friend_request", { p_user:e.id }); closeModal(); toast(r && r.status === "friends" ? "You are now friends!" : "Friend request sent."); }
-    catch(er){ toast(er.message || "Could not send the request."); }
-  };
-  $("plBlock").onclick = async () => {
-    try{ await rpc("starlife_block", { p_user:e.id }); closeModal(); toast("Blocked. You will not see each other."); syncPresence(); }
-    catch(er){ toast(er.message || "Could not block."); }
-  };
-  $("plReport").onclick = async () => {
-    try{ await rpc("starlife_report_chat", { p_user:e.id, p_message:null, p_reason:"player behaviour" }); closeModal(); toast("Thanks. We will review it."); }
-    catch(er){ toast(er.message || "Could not send the report."); }
-  };
-}
-
-async function openFriends(){
-  if (!state || !state.adult_confirmed){ toast("Chat is for adults. Confirm your age first."); return; }
-  try{
-    const list = await rpc("starlife_friends_list") || [];
-    const inc = list.filter(f => f.status === "incoming"), fr = list.filter(f => f.status === "friend"), out = list.filter(f => f.status === "outgoing");
-    const small = "display:inline-block;width:auto;margin:0 0 0 6px;padding:6px 10px";
-    openModal(`<h2>💬 Friends</h2>
-      <p style="font-size:12px">Never share phone numbers, bank details or passwords. NAIJA TASK staff will never ask for them.</p>
-      ${inc.length ? "<b>Requests</b>" + inc.map(f => `<div class="row"><span>${esc(f.name)}</span><span><button class="opt" style="${small}" data-acc="${esc(f.user_id)}">Accept</button><button class="opt" style="${small}" data-dec="${esc(f.user_id)}">Decline</button></span></div>`).join("") : ""}
-      <b>Friends</b>
-      ${fr.length ? fr.map(f => `<button class="opt" data-chat="${esc(f.user_id)}" data-name="${esc(f.name)}">${esc(f.name)}${f.unread ? ` · <b style="color:#c62828">${esc(f.unread)} new</b>` : ""}<small>${esc(f.last_body || "Say hello 👋")}</small></button>`).join("") : "<p>No friends yet. Walk up to another player and tap Add friend.</p>"}
-      ${out.length ? `<p style="font-size:12px">Waiting for a reply: ${out.map(f => esc(f.name)).join(", ")}</p>` : ""}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-acc]").forEach(b => b.onclick = async () => {
-      try{ await rpc("starlife_friend_accept", { p_user:b.dataset.acc }); openFriends(); }catch(er){ toast(er.message || "Could not accept."); }
-    });
-    $("box").querySelectorAll("[data-dec]").forEach(b => b.onclick = async () => {
-      try{ await rpc("starlife_friend_decline", { p_user:b.dataset.dec }); openFriends(); }catch(er){ toast(er.message || "Could not decline."); }
-    });
-    $("box").querySelectorAll("[data-chat]").forEach(b => b.onclick = () => openChat(b.dataset.chat, b.dataset.name));
-  }catch(e){ toast(isMissingFn(e) ? "Chat is not set up yet." : (e.message || "Could not open friends.")); }
-}
-
-async function openChat(uid, name){
-  let lastId = 0, theirLast = null;
-  openModal(`<h2>💬 ${esc(name)}</h2>
-    <div id="chatLog" style="height:40vh;overflow-y:auto;background:#f5faf6;border-radius:12px;padding:10px;margin-bottom:8px"></div>
-    <div style="display:flex;gap:6px">
-      <input id="chatInput" maxlength="200" placeholder="Say something nice..." style="flex:1;padding:12px;border:2px solid #e0eae3;border-radius:12px;font:inherit">
-      <button class="btn" id="chatSend" style="width:auto;margin:0;padding:12px 18px">Send</button>
-    </div>
-    <div style="display:flex;gap:6px">
-      <button class="btn alt" id="chatReport" style="margin-top:8px">Report</button>
-      <button class="btn alt" id="chatBlock" style="margin-top:8px">Block</button>
-      <button class="btn alt" id="mClose" style="margin-top:8px">Back</button>
-    </div>`);
-  const log = $("chatLog");
-  const load = async () => {
-    try{
-      const rows = await rpc("starlife_messages_with", { p_user:uid, p_after:lastId });
-      (rows || []).forEach(m => {
-        lastId = Math.max(lastId, m.id); if (!m.mine) theirLast = m.id;
-        const d = document.createElement("div");
-        d.style.cssText = "margin:4px 0;display:flex;justify-content:" + (m.mine ? "flex-end" : "flex-start");
-        d.innerHTML = `<span style="max-width:80%;padding:8px 12px;border-radius:14px;background:${m.mine ? "#b7ef43" : "#fff"};color:#173326;overflow-wrap:anywhere">${esc(m.body)}</span>`;
-        log.appendChild(d);
-      });
-      if (rows && rows.length) log.scrollTop = log.scrollHeight;
-    }catch(e){ console.warn(e.message); }
-  };
-  const send = async () => {
-    const input = $("chatInput"), text = input.value.trim();
-    if (!text) return;
-    try{ await rpc("starlife_send_message", { p_to:uid, p_body:text }); input.value = ""; await load(); }
-    catch(e){ toast(e.message || "Could not send."); }
-  };
-  $("chatSend").onclick = send;
-  $("chatInput").onkeydown = ev => { if (ev.key === "Enter") send(); };
-  $("mClose").onclick = () => { closeModal(); openFriends(); };
-  $("chatBlock").onclick = async () => {    try{ await rpc("starlife_block", { p_user:uid }); closeModal(); toast("Blocked."); syncPresence(); }catch(e){ toast(e.message || "Could not block."); }
-  };
-  $("chatReport").onclick = async () => {
-    try{ await rpc("starlife_report_chat", { p_user:uid, p_message:theirLast, p_reason:"chat message" }); toast("Thanks. We will review it."); }
-    catch(e){ toast(e.message || "Could not send the report."); }
-  };
-  if (chatTimer) clearInterval(chatTimer);
-  chatTimer = setInterval(load, 4000);  await load();
-}
-$("chatBtn").addEventListener("click", () => { if (!modalOpen) openFriends(); });
-
-/* ---- Radio: songs added by the admin (only tracks you have the right to play) ---- */
-let radioAudio = null, radioId = null;
-function stopBeat(){ clearInterval(musicTimer); musicStyle = -1; musicOn = false; $("musicBtn").textContent = "🔇"; }
-function stopRadio(){
-  if (radioAudio){ try{ radioAudio.pause(); radioAudio.removeAttribute("src"); radioAudio.load(); }catch(e){} }
-  radioAudio = null; radioId = null; $("radioBtn").textContent = "📻";
-}
-function playRadio(t){
-  stopRadio(); stopBeat();
-  const a = new Audio();
-  a.preload = "none"; a.volume = 0.7; a.src = t.url;
-  a.onended = () => { stopRadio(); };
-  a.onerror = () => { stopRadio(); toast("This song could not be played right now."); };
-  radioAudio = a; radioId = t.id;
-  a.play().then(() => { $("radioBtn").textContent = "⏹"; toast("♪ " + t.title + " · " + t.artist); })
-          .catch(() => { stopRadio(); toast("Tap the radio again to allow sound."); });
-}
-async function openRadio(){
-  if (modalOpen) return;
-  let tracks = [];
-  try{ tracks = await rpc("starlife_tracks_list") || []; }
-  catch(e){ if (!isMissingFn(e)) toast(e.message || "The radio is unavailable."); }
-  openModal(`<h2>📻 Radio</h2>
-    <p>Songs added by the Naija Star Life team. The 🔇 button still plays the original beat.</p>
-    ${tracks.length ? tracks.map(t => `<button class="opt" data-t="${esc(t.id)}">${radioId === t.id ? "⏹ Stop" : "▶ Play"} · ${esc(t.title)}<small>${esc(t.artist)}${t.license_note ? " · " + esc(t.license_note) : ""}</small></button>`).join("") : "<p>No songs have been added yet.</p>"}
-    ${radioId ? '<button class="btn alt" id="radioStop">⏹ Stop the radio</button>' : ""}
-    <button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  const rs = $("radioStop"); if (rs) rs.onclick = () => { stopRadio(); closeModal(); };
-  $("box").querySelectorAll("[data-t]").forEach(b => b.onclick = () => {
-    const t = tracks.find(x => String(x.id) === b.dataset.t); if (!t) return;
-    if (radioId === t.id){ stopRadio(); closeModal(); return; }
-    closeModal(); playRadio(t);
-  });
-}
-$("radioBtn").addEventListener("click", openRadio);
-$("musicBtn").addEventListener("click", () => { if (radioId) stopRadio(); }, true);
-
-/* ============================ YOUR ROOM, WAKING UP, ZOOM ============================ */
-const ROOM = { x:-4000, y:-4000 };      // pixels, far away from the city (20 x 20 world units)
-let inRoom = false, sleeping = false, roomGroup = null, roomSolids = [], roomSpots = [], roomSig = "";
-let camDist = 19, pinching = false, cityPos = null;
-const rpx = lx => ROOM.x + lx * 16, rpz = lz => ROOM.y + lz * 16;
-const WALL_BY_HOME = { shared_room:"#b0bec5", rented_room:"#f1e3c8", one_bed:"#cfe8f7", nice_flat:"#f6d9b8" };
-const FLOOR_BY_HOME = { shared_room:"#8d6e63", rented_room:"#b08a5b", one_bed:"#c9a66b", nice_flat:"#d7b98a" };
-
-function hitsRoom(x, y, hs){
-  if (x - hs < ROOM.x + 14 || y - hs < ROOM.y + 14 || x + hs > ROOM.x + 320 - 14 || y + hs > ROOM.y + 320 - 14) return true;
-  for (let i = 0; i < roomSolids.length; i++){
-    const s = roomSolids[i];
-    if (x + hs > s.x && x - hs < s.x + s.w && y + hs > s.y && y - hs < s.y + s.h) return true;
-  }
-  return false;
-}
-
-/* ---- zoom: buttons, mouse wheel and two-finger pinch ---- */
-function setZoom(v){ camDist = Math.max(6, Math.min(34, v)); }
-function camR(){ return inRoom ? Math.min(camDist, 13) : camDist; }
-$("zIn").addEventListener("click", () => setZoom(camDist - 3));
-$("zOut").addEventListener("click", () => setZoom(camDist + 3));
-canvas.addEventListener("wheel", e => { e.preventDefault(); setZoom(camDist + e.deltaY * 0.02); }, { passive:false });
-let pinchLast = null;
-const touchDist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-canvas.addEventListener("touchstart", e => { if (e.touches.length === 2){ pinching = true; pinchLast = touchDist(e.touches); } }, { passive:true });
-canvas.addEventListener("touchmove", e => {
-  if (pinching && e.touches.length === 2){ const d = touchDist(e.touches); setZoom(camDist - (d - pinchLast) * 0.06); pinchLast = d; }
-}, { passive:true });
-canvas.addEventListener("touchend", e => { if (e.touches.length < 2){ pinchLast = null; setTimeout(() => { pinching = false; }, 150); } }, { passive:true });
-
-/* ---- building the room ---- */
-async function buildRoom(){
-  let owned = [];
-  try{ const items = await rpc("starlife_furniture_list"); owned = (items || []).filter(i => i.owned).map(i => i.id); }catch(e){ console.warn("Furniture list unavailable:", e.message); }
-  const sig = (state.home_id || "") + "|" + owned.join(",");
-  if (roomGroup && sig === roomSig) return;
-  if (roomGroup) scene.remove(roomGroup);
-  roomSig = sig; roomSolids = []; roomSpots = [];
-  const has = id => owned.includes(id);
-  const g = new THREE.Group(); roomGroup = g; scene.add(g);
-  const ox = ROOM.x * U, oz = ROOM.y * U, W = 20;
-  const fb = (lx, lz, w, d, h, c, solid, y0) => {
-    const m = box(w, h, d, c); m.position.set(ox + lx + w / 2, (y0 || 0) + h / 2, oz + lz + d / 2); g.add(m);
-    if (solid) roomSolids.push({ x:rpx(lx), y:rpz(lz), w:w * 16, h:d * 16 });
-    return m;
-  };
-  const spot = (lx, lz, label, run) => roomSpots.push({ x:rpx(lx), y:rpz(lz), label, run });
-
-  // floor and the two back walls (single-sided, so they vanish when seen from outside)
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, W), mat(FLOOR_BY_HOME[state.home_id] || "#c9a66b"));
-  floor.rotation.x = -Math.PI / 2; floor.position.set(ox + W / 2, 0, oz + W / 2); g.add(floor);
-  const wm = new THREE.MeshLambertMaterial({ color:WALL_BY_HOME[state.home_id] || "#cfd8dc" });
-  const north = new THREE.Mesh(new THREE.PlaneGeometry(W, 8), wm); north.position.set(ox + W / 2, 4, oz); g.add(north);
-  const west = new THREE.Mesh(new THREE.PlaneGeometry(W, 8), wm); west.rotation.y = Math.PI / 2; west.position.set(ox, 4, oz + W / 2); g.add(west);
-  const light = new THREE.PointLight(0xfff1d0, 0.9, 45); light.position.set(ox + 10, 7, oz + 10); g.add(light);
-
-  // window, door
-  fb(13.3, 0.02, 4.4, 0.08, 3.4, "#ffffff", false, 3.0);
-  fb(13.5, 0.05, 4.0, 0.1, 3.0, "#9fd3f0", false, 3.2);
-  fb(0.02, 15.4, 0.15, 3.0, 6.2, "#5d4037", false);
-  spot(1.8, 17.0, "🚪 Go outside", () => fadeTo("🚪", exitRoom));
-
-  // bed
-  fb(1.2, 1.2, 5.6, 7.4, 1.1, "#6d4c41", true);
-  fb(1.4, 1.4, 5.2, 7.0, 0.5, "#e3f2fd", false, 1.1);
-  fb(2.2, 1.6, 3.0, 1.4, 0.35, "#ffffff", false, 1.6);
-  fb(1.4, 3.4, 5.2, 5.0, 0.35, has("bed") ? "#1565c0" : "#78909c", false, 1.55);
-  spot(4.0, 9.6, "😴 Bed", roomBed);
-
-  // wardrobe, mirror
-  fb(8.8, 0.3, 4.0, 2.2, 6.5, "#8d6e63", true);
-  spot(10.8, 3.6, "👕 Wardrobe", () => openLook(false));
-  fb(0.05, 12.0, 0.1, 2.4, 4.0, "#b3e5fc", false, 1.6);
-  spot(1.8, 13.0, "🪞 Mirror", roomMirror);
-
-  // desk with chair, furniture catalogue
-  fb(10.0, 8.2, 3.0, 2.0, 1.8, "#a1887f", true);
-  fb(10.9, 10.6, 1.2, 1.2, 1.4, "#e53935", true);
-  spot(11.5, 7.4, "📋 Home & bills", openHome);
-  fb(8.0, 14.0, 1.4, 1.0, 2.2, "#26a69a", true);
-  spot(8.7, 13.2, "🛋️ Furnish", openFurniture);
-
-  // TV (old one until you buy a flat screen)
-  fb(14.2, 0.3, 5.0, 2.0, 1.3, "#6d4c41", true);
-  if (has("tv")){ fb(14.9, 0.5, 3.8, 0.3, 2.4, "#111111", false, 1.3); fb(15.1, 0.8, 3.4, 0.05, 2.0, "#4fc3f7", false, 1.45); }
-  else fb(16.0, 0.7, 1.8, 1.2, 1.4, "#37474f", false, 1.3);
-  spot(16.6, 3.6, "📺 TV", roomTV);
-
-  // bathroom corner
-  fb(17.2, 16.8, 1.6, 2.0, 1.6, "#eceff1", true);
-  fb(15.8, 17.6, 1.0, 1.0, 1.0, "#1e88e5", true);
-  fb(16.4, 14.2, 3.0, 2.4, 0.12, "#b0bec5", false);
-  spot(16.8, 15.6, "🚿 Bathroom", roomBathroom);
-
-  // things you bought
-  if (has("rug")){ const r = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), mat("#8e24aa")); r.rotation.x = -Math.PI / 2; r.position.set(ox + 10.5, 0.04, oz + 12.5); g.add(r); }
-  if (has("plant")){ fb(18.2, 6.0, 1.1, 1.1, 1.1, "#8d5e3b", true); const l = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), mat("#2e7d32")); l.position.set(ox + 18.75, 2.1, oz + 6.55); g.add(l); }
-  if (has("fan")){ fb(13.2, 12.0, 0.4, 0.4, 3.4, "#cfd8dc", true); fb(12.4, 11.9, 2.0, 0.1, 0.5, "#90a4ae", false, 3.2); }
-  if (has("art")){ fb(4.5, 0.04, 3.0, 0.05, 2.0, "#ff7043", false, 3.5); fb(5.0, 0.06, 2.0, 0.05, 1.2, "#ffd54f", false, 3.9); }
-  if (has("sofa")){ fb(9.5, 15.2, 6.5, 2.6, 1.1, "#5e35b1", true); fb(9.5, 17.4, 6.5, 0.5, 2.2, "#4527a0", true); }
-  if (has("fridge")){ fb(17.6, 9.0, 2.0, 2.0, 5.2, "#eceff1", true); spot(16.6, 10.0, "🧊 Fridge", roomFridge); }
-  if (has("generator")) fb(5.5, 17.2, 2.4, 1.8, 1.8, "#fdd835", true);
-  if (has("ac")) fb(3.0, 0.05, 4.0, 0.5, 1.4, "#fafafa", false, 5.8);
-  g.visible = false;
-}
-
-/* ---- room actions ---- */
-function roomBed(){
-  openModal(`<h2>😴 Your bed</h2><p>Rest to recover energy. You can rest once a day.</p>
-    <button class="btn" id="rbRest" ${state.rested_today ? "disabled" : ""}>${state.rested_today ? "You already rested today" : "Rest"}</button>
-    <button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  $("rbRest").onclick = async () => {
-    if (busy) return; busy = true;
-    try{ state = await rpc("starlife_rest"); setHud(); closeModal(); toast("You rested and feel better."); }
-    catch(e){ toast(e.message || "Could not rest."); }
-    finally{ busy = false; }
-  };
-}
-function roomMirror(){
-  openModal(`<h2>🪞 Mirror</h2><p style="color:#173326;font-size:15px">Looking good. Ready to face Lagos?</p>
-    <button class="btn" id="rmLook">🎨 Change my look</button><button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  $("rmLook").onclick = () => { closeModal(); openLook(false); };
-}
-const TV_CHANNELS = [
-  ["📰 News", "A new tech hub is opening in Yaba this weekend, and young founders are lining up."],
-  ["⚽ Football", "A street tournament ends 2-2 and the whole neighbourhood sings until midnight."],
-  ["🎬 Nollywood", "A family drama keeps the entire street glued to the screen. Nobody answers the door."],
-  ["🎵 Music", "A new Afrobeats single is climbing the charts. It is by a made-up artist, but you will still hum it."]
-];
-function roomTV(){
-  openModal(`<h2>📺 TV</h2><p>Pick a channel. Watching TV is just for fun and does not change your coins or fame.</p>
-    ${TV_CHANNELS.map((c, i) => `<button class="opt" data-c="${i}">${esc(c[0])}</button>`).join("")}
-    <button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  $("box").querySelectorAll("[data-c]").forEach(b => b.onclick = () => {
-    const c = TV_CHANNELS[Number(b.dataset.c)];
-    openModal(`<h2>${esc(c[0])}</h2><p style="color:#173326;font-size:15px">${esc(c[1])}</p><button class="btn alt" id="mClose">Turn it off</button>`);
-    $("mClose").onclick = closeModal;
-  });
-}
-async function careAct(kind, msg){
-  if (busy) return; busy = true;
-  try{ state = await rpc("starlife_home_care", { p_kind:kind }); setHud(); closeModal(); toast(msg); }
-  catch(e){ toast(e.message || "Could not do that."); }
-  finally{ busy = false; }
-}
-function roomBathroom(){  openModal(`<h2>🚿 Bathroom</h2><button class="btn" id="rbShower">🚿 Take a shower</button><button class="btn alt" id="rbToilet">🚽 Use the toilet</button><button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  $("rbShower").onclick = () => careAct("shower", "You feel fresh and clean.");
-  $("rbToilet").onclick = () => careAct("toilet", "Much better.");
-}
-function roomFridge(){
-  openModal(`<h2>🧊 Fridge</h2><p>A quick snack from your own kitchen.</p>
-    <button class="opt" data-s="puff_puff">Puff puff · 5 coins</button><button class="opt" data-s="jollof">Jollof rice · 20 coins</button>
-    <button class="btn alt" id="mClose">Close</button>`);  $("mClose").onclick = closeModal;
-  $("box").querySelectorAll("[data-s]").forEach(b => b.onclick = async () => {
-    if (busy) return; busy = true;
-    try{ state = await rpc("starlife_eat", { p_food_id:b.dataset.s }); setHud(); closeModal(); toast("Tasty!"); }
-    catch(e){ toast(e.message || "Could not eat."); }
-    finally{ busy = false; }
-  });
-}
-
-/* ---- going in and out, waking up ---- */
-function fadeTo(text, fn){
-  const w = $("wake");
-  w.innerHTML = `<div style="font-size:34px">${text}</div>`; w.style.transition = "none"; w.style.opacity = "1"; w.style.display = "flex";
-  setTimeout(async () => {
-    try{ await fn(); }catch(e){ console.warn(e); }
-    w.style.transition = "opacity .7s"; w.style.opacity = "0";
-    setTimeout(() => { w.style.display = "none"; }, 800);
-  }, 250);
-}
-async function enterRoom(asleep){
-  if (inRoom) return;
-  await buildRoom();
-  cityPos = { x:player.x, y:player.y };
-  inRoom = true; sleeping = !!asleep; joy.x = joy.y = 0;
-  roomGroup.visible = true;
-  if (asleep){ player.x = rpx(4.0); player.y = rpz(5.4); }
-  else { player.x = rpx(3.0); player.y = rpz(15.0); }
-  player.face = 0;
-  snapCamera();
-}
-let visitorInterior=false,visitorInteriorGroup=null;
-function enterNeighbourHome(resident,spot){
- if(inRoom||!scene)return;cityPos={x:player.x,y:player.y};visitorInterior=true;inRoom=true;sleeping=false;joy.x=joy.y=0;
- if(roomGroup){scene.remove(roomGroup);roomGroup=null;}roomSig="";roomSolids=[];roomSpots=[];
- const g=new THREE.Group();visitorInteriorGroup=g;roomGroup=g;scene.add(g);const ox=ROOM.x*U,oz=ROOM.y*U,W=20;
- const add=(x,y,z,w,h,d,c)=>{const m=box(w,h,d,c);m.position.set(ox+x+w/2,y+h/2,oz+z+d/2);g.add(m);return m;};
- const floor=new THREE.Mesh(new THREE.PlaneGeometry(W,W),mat("#b98e62"));floor.rotation.x=-Math.PI/2;floor.position.set(ox+10,0,oz+10);g.add(floor);
- const wm=mat("#d9c7a9");const back=new THREE.Mesh(new THREE.PlaneGeometry(W,7),wm);back.position.set(ox+10,3.5,oz);g.add(back);
- const left=new THREE.Mesh(new THREE.PlaneGeometry(W,7),wm);left.rotation.y=Math.PI/2;left.position.set(ox,3.5,oz+10);g.add(left);
- const right=new THREE.Mesh(new THREE.PlaneGeometry(W,7),wm);right.rotation.y=-Math.PI/2;right.position.set(ox+20,3.5,oz+10);g.add(right);
- const light=new THREE.PointLight(0xffdca8,0.85,34);light.position.set(ox+10,6,oz+9);g.add(light);
- add(1.2,0,2,7,1.2,3,"#754b3a");add(1.6,1.2,2.4,6.2,.45,2.3,"#c18b68");
- add(9.5,0,2,3.6,1.4,2,"#5d4037");add(10.1,1.4,2,2.4,.15,1.8,"#c89b65");
- add(14,0,1,4.2,2.4,.45,"#34383c");add(14.3,.5,1.25,3.6,1.5,.08,"#2d5b72");
- add(2,0,10,4.5,2.4,2.2,"#9b6a48");add(7,0,12,3,1.1,2,"#694a36");add(13,0,12,4.2,1,3,"#b9b0a1");
- const residentMesh=makePerson("#b44b31","#8d5a3b",{top:"tee",topColor:"#b44b31",bottomColor:"#263b50",style:"short"});residentMesh.position.set(ox+8.8,0,oz+7.8);residentMesh.rotation.y=Math.PI/2;g.add(residentMesh);
- const tag=labelSprite(resident,"#064d25","#ffffff",5.2);tag.position.set(ox+8.8,3.6,oz+7.8);g.add(tag);
- const addSpot=(x,z,label,run)=>roomSpots.push({x:rpx(x),y:rpz(z),label,run});
- addSpot(2,16.5,"🚪 Leave neighbour’s house",exitRoom);
- addSpot(8.8,10,"🗣️ Talk with "+resident,()=>openNeighbourInteriorAction("Conversation",resident+" welcomes you into the sitting room and shares family and neighbourhood gist."));
- addSpot(11,5.5,"📺 Watch a little TV",()=>openNeighbourInteriorAction("Living room","You sit down for a moment. The television is on and the room feels warm and lived in."));
- addSpot(15,14.5,"🍵 Visit the dining area",()=>openNeighbourInteriorAction("A little hospitality","Your host offers you a drink and tells you about a favourite local meal."));
- player.x=rpx(3);player.y=rpz(16);player.face=0;snapCamera();
-}
-function openNeighbourInteriorAction(title,body){openModal("<h2>"+esc(title)+"</h2><p style='color:#173326'>"+esc(body)+"</p><button class='btn alt' id='mClose'>Continue exploring</button>");$("mClose").onclick=closeModal;}
-function exitRoom(){
-  if (!inRoom) return;
-  inRoom = false; sleeping = false;
-  if(visitorInterior){if(visitorInteriorGroup&&scene)scene.remove(visitorInteriorGroup);visitorInteriorGroup=null;visitorInterior=false;roomGroup=null;roomSig="";roomSpots=[];roomSolids=[];if(cityPos){player.x=cityPos.x;player.y=cityPos.y;}}
-  else{if(roomGroup)roomGroup.visible=false;const h=spots.find(x=>x.kind==="home");if(h){player.x=h.x;player.y=h.y;}else if(cityPos){player.x=cityPos.x;player.y=cityPos.y;}}
-  lastSafe = { x:player.x, y:player.y };
-  snapCamera();
-}
-function wakeUp(){
-  sleeping = false; player.x = rpx(4.0); player.y = rpz(9.9);
-  const b = BACKGROUNDS.find(x => x.id === state.background);
-  openModal(`<h2>☀️ Good morning</h2><p style="color:#173326">${esc(b ? b.morning : "A new day in Lagos begins.")}</p>
-    <p>Check the mirror, eat something, then step out. The day is yours.</p><button class="btn" id="mClose">Start my day</button>`);
-  $("mClose").onclick = closeModal;
-}
-function roomNearest(){
-  if (sleeping) return { kind:"room", label:"⏰ Wake up", x:player.x, y:player.y, run:wakeUp };
-  let best = null, bd = 56;
-  roomSpots.forEach(s => { const d = Math.hypot(s.x - player.x, s.y - player.y); if (d < bd){ bd = d; best = { kind:"room", label:s.label, x:s.x, y:s.y, run:s.run }; } });
-  return best;
-}
-
-/* ============================ PLACES LIST, WALK-THERE DIRECTIONS AND LANDMARKS ============================ */
-const NAV_STEP = 16;
-let navPath = null, navName = "", navLine = null, navStuck = 0, navTick = 0;
-
-const KIND_ICON = { work:"💼", food:"🍲", biz:"📈", cars:"🚗", venue:"🎉", home:"🏠", bus:"🚌", landmark:"📍" };
-function placeLabel(s){
-  const d = DISTRICTS.find(x => x.id === s.did);
-  if (s.kind === "work") return (d ? d.work : "Work");
-  if (s.kind === "food") return "Restaurant";
-  if (s.kind === "biz") return "Business Hub";
-  if (s.kind === "cars") return "Car Dealer";
-  if (s.kind === "venue") return VENUES[s.did] || "Hangout";
-  if (s.kind === "home") return "Your home";
-  if (s.kind === "bus") return "Bus stop";
-  if (s.kind === "landmark") return PLACE_INFO[s.pk].name;
-  return s.label || "Place";
-}
-function placeEntries(did){
-  const list = [];
-  spots.forEach(s => {
-    if (s.did !== did || !KIND_ICON[s.kind]) return;
-    list.push({ name:placeLabel(s), icon:s.kind === "landmark" ? PLACE_INFO[s.pk].icon : KIND_ICON[s.kind], x:s.x, y:s.y });
-  });
-  celebs.forEach(c => {
-    const d = districtAt(c.x, c.y);
-    if (d && d.id === did) list.push({ name:c.name + (c.locked ? " (locked)" : ""), icon:c.locked ? "🔒" : "⭐", x:c.x, y:c.y });
-  });
-  return list.map(p => Object.assign(p, { dist:Math.hypot(p.x - player.x, p.y - player.y) })).sort((a, b) => a.dist - b.dist);
-}
-
-function openPlaces(did){
-  if (inRoom){ toast("Go outside first to see places."); return; }
-  did = did || state.location;
-  const list = placeEntries(did), speed = 120 * (carSpeeds[state.car_id] || 1);
-  openModal(`<h2>📍 Places</h2>
-    <select id="plArea" style="width:100%;padding:12px;border:2px solid #e0eae3;border-radius:12px;font:inherit;background:#fff;margin-bottom:6px">
-      ${DISTRICTS.map(d => `<option value="${d.id}" ${d.id === did ? "selected" : ""}>${esc(d.name)}${d.id === state.location ? " (you are here)" : ""}</option>`).join("")}
-    </select>
-    ${list.map((p, i) => `<button class="opt" data-pi="${i}">${p.icon} ${esc(p.name)}<small>${Math.round(p.dist / 8)} m away · about ${Math.max(1, Math.round(p.dist / speed))} s on foot${did !== state.location ? " · crossing areas costs energy" : ""}</small></button>`).join("") || "<p>Nothing listed here.</p>"}
-    <button class="btn alt" id="mClose">Close</button>`);
-  $("mClose").onclick = closeModal;
-  $("plArea").onchange = () => openPlaces($("plArea").value);
-  $("box").querySelectorAll("[data-pi]").forEach(b => b.onclick = () => { const p = list[Number(b.dataset.pi)]; if (p) startNav(p); });
-}
-
-/* shortest walkable route on a 16-pixel grid, then straightened */
-function findPath(sx, sy, tx, ty){
-  const W = Math.floor(WORLD_W / NAV_STEP), H = Math.floor(WORLD_H / NAV_STEP);
-  const cell = (x, y) => [Math.min(W - 1, Math.max(0, Math.floor(x / NAV_STEP))), Math.min(H - 1, Math.max(0, Math.floor(y / NAV_STEP)))];
-  const s = cell(sx, sy), t = cell(tx, ty), start = s[1] * W + s[0], goal = t[1] * W + t[0];
-  const prev = new Int32Array(W * H).fill(-1); prev[start] = start;
-  const queue = [start]; let head = 0;
-  while (head < queue.length){
-    const cur = queue[head++]; if (cur === goal) break;
-    const cx = cur % W, cy = (cur / W) | 0;
-    for (const d of [[1, 0], [-1, 0], [0, 1], [0, -1]]){
-      const nx = cx + d[0], ny = cy + d[1];
-      if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
-      const id = ny * W + nx; if (prev[id] !== -1) continue;
-      if (id !== goal && hits(nx * NAV_STEP + 8, ny * NAV_STEP + 8, 8)) continue;
-      prev[id] = cur; queue.push(id);
-    }
-  }
-  if (prev[goal] === -1) return null;
-  const cells = []; for (let c = goal; c !== start; c = prev[c]) cells.push(c); cells.reverse();
-  const pts = [{ x:sx, y:sy }].concat(cells.map(c => ({ x:(c % W) * NAV_STEP + 8, y:((c / W) | 0) * NAV_STEP + 8 })));
-  pts[pts.length - 1] = { x:tx, y:ty };
-  const clear = (a, b) => { const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 8); for (let i = 1; i < n; i++){ const k = i / n; if (hits(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k, 8)) return false; } return true; };
-  const out = []; let i = 0;
-  while (i < pts.length - 1){ let j = pts.length - 1; while (j > i + 1 && !clear(pts[i], pts[j])) j--; out.push(pts[j]); i = j; }
-  return out;
-}
-
-function startNav(p){
-  closeModal();
-  const path = findPath(player.x, player.y, p.x, p.y);
-  if (!path || !path.length){ toast("No walkable route found."); return; }
-  navPath = path; navName = p.name; navStuck = 0;
-  $("navName").textContent = p.name; $("navBar").style.display = "flex";
-  drawNavLine();
-}
-function cancelNav(){
-  navPath = null; $("navBar").style.display = "none";
-  if (navLine && scene){ scene.remove(navLine); navLine.geometry.dispose(); navLine = null; }
-}
-function drawNavLine(){
-  if (!scene || typeof THREE === "undefined") return;
-  if (navLine){ scene.remove(navLine); navLine.geometry.dispose(); navLine = null; }
-  if (!navPath || !navPath.length) return;
-  const pts = [new THREE.Vector3(player.x * U, 0.35, player.y * U)].concat(navPath.map(q => new THREE.Vector3(q.x * U, 0.35, q.y * U)));
-  navLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color:0xb7ef43 }));
-  scene.add(navLine);
-}
-function autoWalkStep(dt){
-  if (!navPath) return;
-  if (inRoom || modalOpen || joy.active || keys["w"] || keys["a"] || keys["s"] || keys["d"] || keys["arrowup"] || keys["arrowdown"] || keys["arrowleft"] || keys["arrowright"]){ cancelNav(); return; }
-  const t = navPath[0], dx = t.x - player.x, dy = t.y - player.y, d = Math.hypot(dx, dy);
-  const sp = 120 * (carSpeeds[state.car_id] || 1) * dt;
-  if (d <= Math.max(6, sp)){
-    player.x = t.x; player.y = t.y; navPath.shift();
-    if (!navPath.length){ const n = navName; cancelNav(); toast("You arrived at " + n + "."); }
-    else drawNavLine();
-    return;
-  }
-  const nd = districtAt(player.x + dx / d * 24, player.y + dy / d * 24);
-  if (nd && nd.id !== state.location && state.energy < 5){ cancelNav(); toast("Too tired to walk into the next area. Rest at home."); return; }
-  const bx = player.x, by = player.y;
-  tryMove(player, dx / d * sp, dy / d * sp);
-  if (Math.hypot(player.x - bx, player.y - by) < sp * 0.3){ navStuck += dt; if (navStuck > 0.7){ cancelNav(); toast("The way is blocked. Try again."); return; } } else navStuck = 0;
-  player.face = Math.atan2(dx, dy); player.step += dt * 9; player.moving = true;
-  checkDistrict();
-  navTick += dt; if (navTick > 0.4){ navTick = 0; drawNavLine(); }
-}
-$("navCancel").addEventListener("click", cancelNav);
-$("placesBtn").addEventListener("click", () => { if (!modalOpen) openPlaces(); });
-
-/* ---- landmarks: hospital, school, gym, market, salon, kiosk, bank ---- */
-async function openLandmark(spot){
-  const info = PLACE_INFO[spot.pk];
-  try{
-    const acts = await rpc("starlife_landmark_actions_list", { p_kind:spot.pk });
-    const fx = a => [a.energy ? "⚡" + (a.energy > 0 ? "+" : "") + a.energy : "", a.fame ? "⭐+" + a.fame : "", a.coins_gain ? "🪙+" + a.coins_gain : ""].filter(Boolean).join("  ");
-    openModal(`<h2>${info.icon} ${esc(info.name)}</h2><p>${esc(info.blurb)}</p>
-      ${acts.map(a => `<button class="opt" data-la="${esc(a.id)}" ${a.uses_today >= a.daily_limit || state.fame < a.min_fame ? "disabled" : ""}>${esc(a.name)} · ${a.price ? esc(a.price) + " coins" : "free"}
-        <small>${esc(a.blurb || "")} ${fx(a)} · ${esc(a.uses_today)}/${esc(a.daily_limit)} today${state.fame < a.min_fame ? " · needs " + esc(a.min_fame) + " fame" : ""}</small></button>`).join("") || "<p>Nothing to do here yet.</p>"}
-      <button class="btn alt" id="mClose">Close</button>`);
-    $("mClose").onclick = closeModal;
-    $("box").querySelectorAll("[data-la]").forEach(b => b.onclick = async () => {
-      if (busy) return; busy = true;
-      try{ state = await rpc("starlife_landmark_do", { p_action_id:b.dataset.la }); setHud(); closeModal(); toast("Done."); }
-      catch(e){ toast(e.message || "Could not do that."); }
-      finally{ busy = false; }
-    });
-  }catch(e){
-    if(spot.pk==="fela_shrine"||spot.pk==="dangote_refinery"){openLocalLandmark(spot,info);return;}
-    toast(isMissingFn(e) ? "This place is not set up yet. Ask the admin to run the places SQL." : (e.message || "Could not open this place."));
-  }
-}
-function openLocalLandmark(spot,info){
- const fela=spot.pk==="fela_shrine";
- const actions=fela?[
-  ["🎷 Explore Afrobeat history","Discover the music, creativity and cultural influence associated with Fela Kuti and the Shrine."],
-  ["🎤 Visit the performance stage","Imagine a live band warming up while the crowd gathers for music."],
-  ["🍲 Visit the food and hangout area","Discover the social side of the venue and the food culture around a night out."],
-  ["🤝 Learn about the community","Explore how music venues support artists, crews and creative businesses."]
- ]:[
-  ["🏭 Take the industrial orientation","Learn how refining, logistics, safety systems and engineering fit together in a large industrial project."],
-  ["🦺 Visit the safety briefing centre","Review protective equipment, restricted zones and why industrial safety rules matter."],
-  ["⚙️ Explore engineering careers","Discover mechanical, electrical, process, logistics and operations career paths."],
-  ["🌍 Learn about the Lekki industrial corridor","Explore how ports, roads, suppliers and factories connect around the area."]
- ];
- openModal('<small style="color:#087f36;font-weight:900">SPECIAL DESTINATION</small><h2>'+info.icon+" "+esc(info.name)+'</h2><p style="color:#173326">'+esc(info.blurb)+'</p><p style="font-size:12px;color:#66766d">'+(fela?"A respectful in-game visit inspired by the public cultural identity of the New Afrika Shrine.":"A fictional visitor-centre experience inspired by the real industrial project. It does not depict or grant entry to the private operating facility.")+'</p><h3>Choose an experience</h3>'+actions.map((a,i)=>'<button class="opt" data-local-landmark="'+i+'">'+esc(a[0])+'<small>Explore this activity</small></button>').join("")+'<button class="btn alt" id="mClose">Close</button>');
- $("mClose").onclick=closeModal;
- $("box").querySelectorAll("[data-local-landmark]").forEach(b=>b.onclick=()=>{
-  const a=actions[Number(b.dataset.localLandmark)];let journal=[];try{journal=JSON.parse(localStorage.getItem("slw3_landmark_journal")||"[]");}catch(e){}
-  journal.unshift({place:info.name,activity:a[0],date:new Date().toISOString()});try{localStorage.setItem("slw3_landmark_journal",JSON.stringify(journal.slice(0,60)));}catch(e){}
-  openModal('<h2>'+esc(a[0])+'</h2><p style="color:#173326">'+esc(a[1])+'</p><p>Your visit is saved in your local landmark journal. No coins, fame or real-world access have been granted.</p><button class="btn" id="lmAgain">Choose another activity</button><button class="btn alt" id="mClose">Leave destination</button>');
-  $("lmAgain").onclick=()=>openLocalLandmark(spot,info);$("mClose").onclick=closeModal;
  });
 }
-
-/* ============================ START ============================ */
-function screen(html){ const m = $("msgScreen"); m.innerHTML = html; m.style.display = "flex"; }
-function openWorldGuide(firstRun){
-  openModal(`<div style="text-align:left">
-    <div style="font-size:11px;font-weight:900;letter-spacing:1px;color:#087f36">NAIJA STAR LIFE 3D · PLAYER GUIDE</div>
-    <h2 style="margin-top:7px">Welcome to your Lagos life 🌍</h2>
-    <p style="color:#173326">Build your life, meet people, explore neighbourhoods, find work and grow your reputation. Take it one step at a time.</p>
-    <div class="row"><b>1. Move around</b><span>🕹️</span></div>
-    <p style="color:#52665a">Hold the joystick at the bottom-left to walk. Drag the open screen to turn your view. Use + and − to zoom.</p>
-    <div class="row"><b>2. Interact with the city</b><span>📍</span></div>
-    <p style="color:#52665a">Walk close to a building, person, bus stop or sign. When the green action button appears, tap it to see what you can do.</p>    <div class="row"><b>3. Build your life</b><span>💼</span></div>
-    <p style="color:#52665a">Work to earn game coins. Visit restaurants, your home and venues to manage your needs. Use the phone for jobs, rent, your needs and notifications. Fame unlocks more opportunities.</p>
-    <div class="row"><b>Explore Lagos — choose your neighbourhood</b><span>🇳🇬</span></div>
-    <div id="districtGuide" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0">
-      <button class="opt" data-district="ikeja" style="margin:0">🏙️ Ikeja<small>Business, cinema and city life</small></button>
-      <button class="opt" data-district="oshodi" style="margin:0">🚏 Oshodi<small>Busy transport and market energy</small></button>
-      <button class="opt" data-district="yaba" style="margin:0">💻 Yaba<small>Learning, tech and creative culture</small></button>
-      <button class="opt" data-district="surulere" style="margin:0">⚽ Surulere<small>Sports, food and neighbourhood fun</small></button>
-      <button class="opt" data-district="ikorodu" style="margin:0">🛶 Ikorodu<small>Waterfront and community life</small></button>
-      <button class="opt" data-district="vi" style="margin:0">🏢 Victoria Island<small>Offices and nightlife</small></button>
-      <button class="opt" data-district="lekki" style="margin:0;grid-column:1/-1">🌴 Lekki<small>Beach, events and modern leisure</small></button>
-    </div>
-    <div id="districtDetail" style="padding:11px;border-radius:12px;background:#edf7ef;color:#173326;font-size:13px;line-height:1.5">Tap a neighbourhood to see what you can discover there.</div>
-    <div style="padding:10px;border-radius:12px;background:#fff7df;color:#72531b;font-size:12px;margin-top:10px">Game coins and fame are virtual game points. They are not Naira and cannot be withdrawn as task earnings.</div>
-    <button class="btn" id="worldGuideClose" style="margin-top:14px">Got it — let's explore</button>
-  </div>`);
-  const districtDetails = {
-    ikeja:"Ikeja is the capital-side city hub. Visit the mall shop, cinema, hospital and bank; look for work and build your career.",
-    oshodi:"Oshodi is lively and busy. Explore the market, food spots, kiosk and transport stop; meet people and experience the rush of the city.",
-    yaba:"Yaba is a centre for students, ideas and creativity. Visit the school, cafe, salon and print shop; grow your skills and reputation.",
-    surulere:"Surulere is built around neighbourhood fun and sport. Find the pitch, gym, market, food and hangout spots.",
-    ikorodu:"Ikorodu brings a community feel and a waterfront touch. Explore the boat dock, local shops and places to meet neighbours.",
-    vi:"Victoria Island is the business district. Find offices, the bank, salon and night-life venue; it is a place for career and social connections.",
-    lekki:"Lekki is the leisure side of the city. Explore the beach club, event hall, gym, salon and car dealer."
-  };
-  $("districtGuide").querySelectorAll("[data-district]").forEach(b=>b.onclick=()=>{
-    const d=DISTRICTS.find(x=>x.id===b.dataset.district);
-    $("districtDetail").innerHTML="<b>"+esc(d.name)+"</b><br>"+esc(districtDetails[d.id]);
-  });
-  $("worldGuideClose").onclick=()=>{
-    if(firstRun){ try{localStorage.setItem("slw3_help","1");}catch(e){} }
-    closeModal();
-  };
+function buildTraffic(){
+ const colors=[0xd7b43a,0x1d6d9b,0xc9d4d0,0x9d372d,0x222c2c];
+ for(let i=0;i<8;i++){
+  const g=new THREE.Group();const body=meshBox(3.8,1.25,6.2,colors[i%colors.length],0,0,0,g);body.position.y=.75;
+  meshBox(2.8,1.0,2.8,0x8db7c4,.5,1.35,-.2,g);
+  for(const x of [-1.4,1.4])for(const z of [-2,2]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.25,8),material(0x181b1b));w.rotation.z=Math.PI/2;w.position.set(x,.45,z);g.add(w);}
+  g.position.set(-200+i*48,.0,-7);scene.add(g);cars.push({mesh:g,speed:5+(i%4)*1.7,start:-205+(i*29)%100,end:205});
+ }
 }
-$("helpBtn").addEventListener("click",()=>{if(!modalOpen)openWorldGuide(false);});
-
+function makePlayer(){
+ playerGroup=makePerson(0x087f43,0x754a32);playerGroup.scale.set(1.12,1.12,1.12);scene.add(playerGroup);
+}
+function canonicalArea(id){
+ const raw=String(id||"surulere").toLowerCase().replace(/[\s-]+/g,"_");
+ if(DISTRICT_ALIAS[raw])return DISTRICT_ALIAS[raw];
+ return AREAS.some(a=>a.id===raw)?raw:"surulere";
+}
+function areaForState(){return AREAS.find(a=>a.id===canonicalArea(state?.location))||AREAS[4];}
+function spawnAtState(){const a=areaForState();player={x:a.x,z:a.z+22,angle:Math.PI};playerGroup.position.set(player.x,0,player.z);$("district").textContent="📍 "+a.name+" · "+a.tag;}
+function nearestSpot(){
+ if(!player)return null;let best=null,dist=Infinity;
+ for(const s of spots){const d=Math.hypot(s.x-player.x,s.z-player.z);if(d<dist){best=s;dist=d;}}
+ return dist<13?best:null;
+}
+function updateAction(){
+ actionSpot=nearestSpot();const btn=$("action");
+ if(actionSpot&&!modalOpen){btn.style.display="block";$("actionText").textContent=actionSpot.label.length>13?actionSpot.label.slice(0,12)+"…":actionSpot.label;btn.querySelector("small").textContent=actionSpot.icon;}
+ else btn.style.display="none";
+}
+function collides(x,z){
+ if(Math.abs(x)>WORLD.limit||Math.abs(z)>WORLD.limit)return true;
+ return colliders.some(c=>x>c.x-c.w/2-1.3&&x<c.x+c.w/2+1.3&&z>c.z-c.d/2-1.3&&z<c.z+c.d/2+1.3);
+}
+function movePlayer(dt){
+ if(!player||modalOpen)return;
+ let forward=-joy.y,side=joy.x;
+ if(keys.ArrowUp||keys.w)forward=1;if(keys.ArrowDown||keys.s)forward=-1;if(keys.ArrowLeft||keys.a)side=-1;if(keys.ArrowRight||keys.d)side=1;
+ const mag=Math.hypot(forward,side);if(mag<.08)return;
+ forward/=Math.max(1,mag);side/=Math.max(1,mag);
+ const speed=13,dx=(Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt,dz=(Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
+ const nx=player.x+dx,nz=player.z+dz;
+ if(!collides(nx,player.z))player.x=nx;if(!collides(player.x,nz))player.z=nz;
+ player.angle=Math.atan2(dx,dz);playerGroup.rotation.y=player.angle;
+}
+function cameraUpdate(dt){
+ const target=new THREE.Vector3(player.x+Math.sin(yaw)*cameraDistance,6.2,player.z+Math.cos(yaw)*cameraDistance);
+ camera.position.lerp(target,1-Math.pow(.001,dt));camera.lookAt(player.x,1.55,player.z);
+}
+function updateWorld(dt){
+ movePlayer(dt);
+ people.forEach(p=>{p.phase+=dt*p.speed;p.mesh.position.x=p.homeX+Math.sin(p.phase)*2.8;p.mesh.position.z=p.homeZ+Math.cos(p.phase*.7)*2.3;p.mesh.rotation.y=Math.atan2(Math.cos(p.phase*.7),Math.cos(p.phase));});
+ cars.forEach(c=>{c.mesh.position.x+=c.speed*dt;if(c.mesh.position.x>c.end)c.mesh.position.x=c.start;});
+ cameraUpdate(dt);updateAction();
+}
+function updateHud(){
+ if(!state)return;
+ $("coins").textContent=Number(state.coins||0).toLocaleString();$("fame").textContent=Number(state.fame||0).toLocaleString();
+ $("energyText").textContent=Math.round(state.energy??100);$("energyFill").style.width=Math.max(0,Math.min(100,Number(state.energy??100)))+"%";
+ const a=areaForState();$("district").textContent="📍 "+a.name+" · "+a.tag;
+}
+function toast(msg){const t=$("toast");t.textContent=String(msg||"");t.style.display="block";clearTimeout(lastToast);lastToast=setTimeout(()=>t.style.display="none",2600);}
+function openModal(content){$("sheetContent").innerHTML=content; $("modal").classList.add("open");modalOpen=true;joy.x=joy.y=0;updateAction();}
+function closeModal(){ $("modal").classList.remove("open");modalOpen=false;updateAction();}
+function safeText(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+async function rpc(name,args){const {data,error}=await db.rpc(name,args);if(error)throw error;return data;}
+function setState(next){if(next&&typeof next==="object")state=next;updateHud();}
+async function withBusy(fn){if(busy)return;busy=true;try{await fn();}catch(e){toast(e.message||"That action could not be completed.");}finally{busy=false;}}
+function openWelcome(){
+ openModal('<div style="font-size:11px;font-weight:900;color:#087f43;letter-spacing:1px">YOUR LAGOS STORY STARTS HERE</div><h2>Welcome to the neighbourhood 🇳🇬</h2><p>Explore the streets, meet people, find work and build your life. Use the joystick to walk and drag the open screen to turn the camera. Walk close to a place and tap the green action button.</p><div class="stat-grid"><div class="stat"><b>🚶</b><span>Explore</span></div><div class="stat"><b>💼</b><span>Work</span></div><div class="stat"><b>🤝</b><span>Meet people</span></div></div><button class="primary" id="welcomeGo">Enter Lagos</button>');
+ $("welcomeGo").onclick=closeModal;
+}
+async function openWork(){
+ await withBusy(async()=>{
+  const jobs=await rpc("starlife_jobs_here");
+  openModal('<h2>💼 Work opportunities</h2><p>Choose a shift in '+safeText(areaForState().name)+'. Your game rewards and energy use are controlled by the game server.</p>'+
+   ((jobs||[]).length?jobs.map(j=>'<button class="option" data-job="'+safeText(j.id)+'">'+safeText(j.name)+' · +'+safeText(j.pay)+' coins<small>'+safeText(j.blurb||"A shift in your neighbourhood.")+' · Energy cost '+safeText(j.energy_cost)+'</small></button>').join(""):'<p>No shifts are available here right now.</p>')+
+   '<button class="secondary" id="dismiss">Close</button>');
+  document.querySelectorAll("[data-job]").forEach(b=>b.onclick=()=>withBusy(async()=>{const r=await rpc("starlife_work",{p_job_id:b.dataset.job});setState(r.state);closeModal();toast("Shift complete · +"+r.earned+" game coins");}));
+  $("dismiss").onclick=closeModal;
+ });
+}
+async function openFood(){
+ await withBusy(async()=>{
+  const foods=await rpc("starlife_foods_list");
+  openModal('<h2>🍲 Mama Put</h2><p>Choose a meal. Prices and energy restoration come from the game.</p>'+
+  (foods||[]).map(f=>'<button class="option" data-food="'+safeText(f.id)+'">'+safeText(f.name)+' · '+safeText(f.price)+' coins<small>Restore '+safeText(f.energy)+' energy</small></button>').join("")+
+  '<button class="secondary" id="dismiss">Close</button>');
+  document.querySelectorAll("[data-food]").forEach(b=>b.onclick=()=>withBusy(async()=>{const next=await rpc("starlife_eat",{p_food_id:b.dataset.food});setState(next);closeModal();toast("Meal enjoyed. Take care of yourself!");}));
+  $("dismiss").onclick=closeModal;
+ });
+}
+async function openTravel(){
+ await withBusy(async()=>{
+  if(!places.length){try{places=await rpc("starlife_locations_list")||[];}catch(e){places=[];}}
+  const list=places.length?places:AREAS.map(a=>({id:a.id,name:a.name,travel_cost:"",blurb:a.tag}));
+  openModal('<h2>🚌 Explore Lagos</h2><p>Travel to another neighbourhood. Your existing game travel rules and costs still apply.</p>'+
+  list.map(p=>'<button class="option" data-place="'+safeText(p.id)+'" '+(canonicalArea(p.id)===canonicalArea(state.location)?"disabled":"")+'>'+safeText(p.name)+'<small>'+safeText(p.blurb||"Explore a new part of Lagos.")+(p.travel_cost?" · "+safeText(p.travel_cost)+" coins":"")+'</small></button>').join("")+
+  '<button class="secondary" id="dismiss">Close</button>');
+  document.querySelectorAll("[data-place]").forEach(b=>b.onclick=()=>withBusy(async()=>{const next=await rpc("starlife_travel",{p_location:b.dataset.place});setState(next);spawnAtState();closeModal();toast("You arrived in "+areaForState().name+".");}));
+  $("dismiss").onclick=closeModal;
+ });
+}
+async function openHome(){
+ await withBusy(async()=>{
+  if(!homes.length){try{homes=await rpc("starlife_homes_list")||[];}catch(e){homes=[];}}
+  const home=homes.find(h=>h.id===state.home_id)||homes[0];
+  openModal('<h2>🏠 Your home</h2><p>'+safeText(home?.blurb||"Your place to rest and plan your next move.")+'</p>'+
+   '<div class="stat-grid"><div class="stat"><b>⚡ '+safeText(home?.rest_energy??"—")+'</b><span>Rest energy</span></div><div class="stat"><b>🪙 '+safeText(home?.rent??0)+'</b><span>Weekly rent</span></div><div class="stat"><b>🏡</b><span>'+safeText(home?.name||"Home")+'</span></div></div>'+
+   '<button class="primary" id="rest" '+(state.rested_today?"disabled":"")+'>'+(state.rested_today?"Already rested today":"😴 Rest and recover")+'</button>'+
+   '<button class="secondary" id="shower">🚿 Take a shower</button><button class="secondary" id="toilet">🚽 Use the toilet</button><button class="secondary" id="dismiss">Close</button>');
+  $("rest").onclick=()=>withBusy(async()=>{const next=await rpc("starlife_rest");setState(next);closeModal();toast("You feel rested. Ready for the day.");});
+  $("shower").onclick=()=>withBusy(async()=>{const next=await rpc("starlife_home_care",{p_kind:"shower"});setState(next);closeModal();toast("Fresh and ready.");});
+  $("toilet").onclick=()=>withBusy(async()=>{const next=await rpc("starlife_home_care",{p_kind:"toilet"});setState(next);closeModal();toast("All sorted.");});
+  $("dismiss").onclick=closeModal;
+ });
+}
+async function openConversation(){
+ await withBusy(async()=>{
+  const event=await rpc("starlife_next_event");
+  const greetings=["How far, my person? Lagos is moving today!","You dey alright? Keep your head up. Better days ahead.","Welcome o! How your hustle dey go?"];
+  openModal('<h2>🤝 '+safeText("Neighbour")+'</h2><p>'+greetings[Math.floor(Math.random()*greetings.length)]+'</p><h2>'+safeText(event.title)+'</h2><p>'+safeText(event.body)+'</p>'+
+   (event.choices||[]).map((c,i)=>'<button class="option" data-choice="'+i+'">'+safeText(c)+'</button>').join(""));
+  document.querySelectorAll("[data-choice]").forEach(b=>b.onclick=()=>withBusy(async()=>{const result=await rpc("starlife_resolve",{p_event_id:event.id,p_choice:Number(b.dataset.choice)});setState(result.state);openModal('<h2>What happened</h2><p>'+safeText(result.text)+'</p><div class="stat-grid"><div class="stat"><b>'+safeText(result.fame||0)+'</b><span>Fame</span></div><div class="stat"><b>'+safeText(result.coins||0)+'</b><span>Coins</span></div><div class="stat"><b>'+safeText(result.energy||0)+'</b><span>Energy</span></div></div><button class="primary" id="done">Continue</button>');$("done").onclick=closeModal;}));
+ });
+}
+async function openPhone(){
+ const meter=(name,value)=>'<div style="display:flex;align-items:center;gap:9px;margin:9px 0;font-size:12px"><span style="width:95px">'+name+'</span><div style="height:8px;background:#e4ece4;border-radius:8px;flex:1;overflow:hidden"><i style="display:block;width:'+Math.max(0,Math.min(100,Number(value||0)))+'%;height:100%;background:#0b9651"></i></div><b>'+safeText(value??0)+'</b></div>';
+ openModal('<h2>📱 Your phone</h2><div class="stat-grid"><div class="stat"><b>'+safeText(state.coins)+'</b><span>Game coins</span></div><div class="stat"><b>'+safeText(state.fame)+'</b><span>Fame</span></div><div class="stat"><b>'+safeText(state.energy)+'</b><span>Energy</span></div></div><h2>Your needs</h2>'+
+ meter("🍗 Hunger",state.hunger)+meter("🚿 Hygiene",state.hygiene)+meter("🚽 Bladder",state.bladder)+meter("🎉 Fun",state.fun)+meter("👥 Social",state.social)+
+ '<button class="option" id="phoneWork">💼 Find a job</button><button class="option" id="phoneFood">🍲 Order food</button><button class="option" id="phoneTravel">🚌 Travel around Lagos</button><button class="option" id="phoneHome">🏠 Manage your home</button><button class="secondary" id="dismiss">Close phone</button>');
+ $("phoneWork").onclick=openWork;$("phoneFood").onclick=openFood;$("phoneTravel").onclick=openTravel;$("phoneHome").onclick=openHome;$("dismiss").onclick=closeModal;
+}
+function interact(){
+ const s=actionSpot;if(!s)return;
+ if(s.kind==="work")openWork();
+ else if(s.kind==="food")openFood();
+ else if(s.kind==="home")openHome();
+ else if(s.kind==="bus")openTravel();
+ else if(s.kind==="market")openFood();
+ else if(s.kind==="landmark"){
+  const a=AREAS.find(x=>x.id===s.area);
+  openModal('<h2>🏛️ '+safeText(s.label)+'</h2><p>You are exploring '+safeText(a?.name||"Lagos")+'. Walk around the landmark, meet people and discover the character of this neighbourhood.</p><button class="primary" id="meet">🤝 Meet someone nearby</button><button class="secondary" id="dismiss">Close</button>');
+  $("meet").onclick=openConversation;$("dismiss").onclick=closeModal;
+ }
+}
+function bindJoystick(){
+ const pad=$("joystick"),stick=$("stick");let active=false,pid=null;
+ function set(e){const r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=39,d=Math.hypot(dx,dy);if(d>max){dx=dx/d*max;dy=dy/d*max;}joy.x=dx/max;joy.y=dy/max;stick.style.transform="translate("+dx+"px,"+dy+"px)";}
+ pad.addEventListener("pointerdown",e=>{active=true;pid=e.pointerId;pad.setPointerCapture(pid);set(e);});
+ pad.addEventListener("pointermove",e=>{if(active&&e.pointerId===pid)set(e);});
+ const reset=()=>{active=false;pid=null;joy.x=joy.y=0;stick.style.transform="translate(0,0)";};
+ pad.addEventListener("pointerup",reset);pad.addEventListener("pointercancel",reset);pad.addEventListener("lostpointercapture",reset);
+}
+function bindLook(){
+ const c=$("world");
+ c.addEventListener("pointerdown",e=>{if(modalOpen||e.pointerType==="mouse"&&e.button!==0)return;touchLook={id:e.pointerId,x:e.clientX,y:e.clientY};});
+ c.addEventListener("pointermove",e=>{if(!touchLook||touchLook.id!==e.pointerId)return;const dx=e.clientX-touchLook.x;touchLook.x=e.clientX;touchLook.y=e.clientY;yaw-=dx*.006;});
+ c.addEventListener("pointerup",()=>touchLook=null);c.addEventListener("pointercancel",()=>touchLook=null);
+}
+function resize(){if(!renderer||!camera)return;const w=window.innerWidth,h=window.innerHeight;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.35));renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+function animate(){
+ requestAnimationFrame(animate);if(!renderer||!scene)return;const dt=Math.min(clock.getDelta(),.04);frame++;
+ if(player){updateWorld(dt);if(frame%4===0)updateAction();}
+ renderer.render(scene,camera);
+}
+function startRenderer(){
+ renderer=new THREE.WebGLRenderer({canvas:$("world"),antialias:false,alpha:false,powerPreference:"low-power"});
+ renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.25));renderer.setSize(innerWidth,innerHeight,false);
+ renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x91c4d8);scene.fog=new THREE.Fog(0x91c4d8,115,330);
+ camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,600);
+ const hemi=new THREE.HemisphereLight(0xfff0d5,0x435847,1.35);scene.add(hemi);
+ const sun=new THREE.DirectionalLight(0xffe1b1,1.5);sun.position.set(-80,120,60);scene.add(sun);
+ buildCity();buildPeople();buildTraffic();makePlayer();clock=new THREE.Clock();resize();spawnAtState();
+ camera.position.set(player.x,8,player.z+cameraDistance);camera.lookAt(player.x,1.5,player.z);
+ window.addEventListener("resize",resize);
+}
+function showError(message){
+ $("loading").style.display="none";$("hud").style.display="none";$("joystick").style.display="none";
+ $("err").style.display="flex";$("err").innerHTML='<div><div style="font-size:32px">🌍</div><h2>Could not open Star Life</h2><p>'+safeText(message)+'</p><p>Check your connection and try again.</p><a href="starlife.html">Return to Star Life menu</a></div>';
+}
 async function init(){
-  if (typeof THREE === "undefined"){
-    screen("The 3D engine could not load. Check your internet and refresh.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
-    return;
-  }
-  setTimeout(() => {
-    if ($("msgScreen").style.display !== "none" && !modalLocked)
-      screen("Taking too long to load. Check your internet, then refresh.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
-  }, 25000);
-  try{
-    const { data: u } = await db.auth.getUser();
-    if (!u?.user){ location.replace("login.html"); return; }
-    let alertsSaved=false; try{ alertsSaved=localStorage.getItem(TASK_ALERT_PREF)==="1"; }catch(e){}
-    if(alertsSaved && "Notification" in window && Notification.permission==="granted"){
-      startNewTaskAlerts().catch(e=>console.warn("Task notification setup failed:",e));
-    }
-    const { data: flag, error } = await db.from("platform_feature_flags").select("enabled").eq("key", "starlife").maybeSingle();
-    if (error || !flag || flag.enabled !== true){ screen("Naija Star Life is not open yet.<br><a href='dashboard.html'>Back to dashboard</a>"); return; }
-    state = await rpc("starlife_state");
-    if (!state.career){ screen("Choose your career first.<br><br><a href='starlife.html'>Open Star Life</a>"); return; }
-    if (!state.adult_confirmed){
-      $("msgScreen").style.display = "none";
-      await confirmAdult();
-      $("msgScreen").style.display = "flex"; $("msgScreen").textContent = "Loading Lagos in 3D...";
-    }
-    if (!state.background){
-      $("msgScreen").style.display = "none";          // let the player see the choice
-      await pickBackground();
-      $("msgScreen").style.display = "flex"; $("msgScreen").textContent = "Loading Lagos in 3D...";
-    }
-    if (!state.look){
-      $("msgScreen").style.display = "none";
-      await openLook(true);
-      $("msgScreen").style.display = "flex"; $("msgScreen").textContent = "Loading Lagos in 3D...";
-    }
-    const wk = await rpc("starlife_wake");
-    state = wk.state; HOME_DISTRICT = state.home_district;
-    await loadPlaces();
-    buildWorld();
-    await loadExtras();
-    await loadCelebStories();
-    buildScene();
-    resize();
-    if (wk.woke){ spawnHome(); await enterRoom(true); } else spawnAt(state.location);
-    snapCamera();
-    setHud();
-    loadBillboards();
-    setInterval(loadBillboards, 300000);
-    syncPresence(); setInterval(syncPresence, 4000);
-    $("hud").style.display = "flex";
-    $("msgScreen").style.display = "none";
-    if (wk.woke) showWake();
-    let seen = false; try{ seen = localStorage.getItem("slw3_help") === "1"; }catch(e){}
-    if (!seen) openWorldGuide(true);
-    requestAnimationFrame(loop);
-  }catch(e){
-    console.error("Naija Star Life startup failed:", e);
-    const detail = e && e.message ? e.message : "Unknown startup error";
-    if (detail === "WEBGL"){
-      screen("Your browser could not start 3D graphics. Close other tabs, enable hardware acceleration if available, then try again.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
-    }else{
-      screen("Naija Star Life could not finish loading.<br><br><small>" + esc(detail) + "</small><br><br>Check your connection and try again. If it continues, send this error to support.<br><br><a href='starlife.html'>Return to Star Life menu</a>");
-    }
-  }
+ try{
+  if(!window.supabase||!window.THREE)throw new Error("A game service did not load. Please refresh with a stable internet connection.");
+  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const {data:{user},error:authError}=await db.auth.getUser();if(authError)throw authError;if(!user){location.replace("login.html");return;}
+  const {data:flag,error:flagError}=await db.from("platform_feature_flags").select("enabled").eq("key","starlife").maybeSingle();
+  if(flagError||!flag||flag.enabled!==true)throw new Error("Naija Star Life is not currently open. Please return to the game menu.");
+  const {data:gameState,error:stateError}=await db.rpc("starlife_state");if(stateError)throw stateError;state=gameState;
+  if(!state||!state.career){location.replace("starlife.html");return;}
+  if(!state.adult_confirmed||!state.background||!state.look){location.replace("starlife.html");return;}
+  const {data:wakeData,error:wakeError}=await db.rpc("starlife_wake");if(wakeError)throw wakeError;if(wakeData?.state)state=wakeData.state;
+  try{const {data:p}=await db.rpc("starlife_locations_list");places=p||[];}catch(e){console.warn("Locations list unavailable",e);}
+  startRenderer();bindJoystick();bindLook();updateHud();
+  $("loading").style.display="none";$("hud").style.display="flex";$("joystick").style.display="block";$("quick").style.display="flex";$("hint").style.display="block";
+  setTimeout(()=>$("hint").style.display="none",6500);
+  $("action").addEventListener("click",interact);$("phone").onclick=openPhone;$("map").onclick=openTravel;
+  $("menu").onclick=()=>openModal('<h2>🌍 Game menu</h2><p>Take a break, change your plans or return to the Star Life hub.</p><button class="option" id="menuPhone">📱 Player phone</button><button class="option" id="menuWork">💼 Find work</button><button class="option" id="menuTravel">🚌 Travel</button><button class="secondary" id="exitGame">Return to Star Life hub</button>');
+  $("zoomIn").onclick=()=>cameraDistance=Math.max(6,cameraDistance-1.5);$("zoomOut").onclick=()=>cameraDistance=Math.min(18,cameraDistance+1.5);
+  $("close").onclick=closeModal;$("modal").addEventListener("pointerdown",e=>{if(e.target===$("modal"))closeModal();});
+  document.addEventListener("keydown",e=>{keys[e.key]=true;if(e.key==="Escape")closeModal();});
+  document.addEventListener("keyup",e=>{keys[e.key]=false;});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){joy.x=joy.y=0;}});
+  $("sheetContent").addEventListener("click",e=>{
+   if(e.target.id==="menuPhone")openPhone();if(e.target.id==="menuWork")openWork();if(e.target.id==="menuTravel")openTravel();
+   if(e.target.id==="exitGame")location.href="starlife.html";
+  });
+  openWelcome();animate();
+ }catch(e){console.error("Star Life fresh build startup:",e);showError(e.message||"Unexpected startup error.");}
 }
-window.addEventListener("unhandledrejection", function(e){
-  console.error("Naija Star Life background request failed:", e.reason);
-});
 init();
 </script>
 </body>
