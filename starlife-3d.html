@@ -71,7 +71,7 @@ const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
 const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 let db, state=null, places=[], homes=[], busy=false;
 let scene, camera, renderer, clock, player, playerGroup, yaw=Math.PI, cameraDistance=10;
-let joy={x:0,y:0}, keys={}, spots=[], colliders=[], people=[], cars=[], actionSpot=null;
+let joy={x:0,y:0}, keys={}, spots=[], colliders=[], people=[], cars=[], driveVehicles=[], actionSpot=null, activeVehicle=null, driveSpeed=0;
 let lastToast=0, frame=0, touchLook=null, modalOpen=false, interiorGroup=null, currentInterior=null, exteriorPosition=null, exteriorYaw=Math.PI, exteriorCameraDistance=10, interiorExitSpot=null;
 const WORLD={size:420,limit:198};
 const AREAS=[
@@ -177,6 +177,54 @@ function buildPeople(){
   }
  });
 }
+function buildDriveVehicles(){
+ const types=["sedan","danfo","okada"];
+ AREAS.forEach((a,i)=>{
+  const type=types[i%types.length],g=new THREE.Group();
+  if(type==="okada"){
+   const frame=meshBox(.65,.55,2.1,0x1e6c43,0,.9,0,g);frame.position.y=.9;
+   const seat=meshBox(.9,.3,.8,0x242424,0,1.35,-.1,g);
+   const tank=new THREE.Mesh(new THREE.SphereGeometry(.48,10,8),material(0xd6a62f));tank.scale.set(1,.65,1.1);tank.position.set(0,1.45,.45);g.add(tank);
+   for(const z of [-.85,.85]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,.2,12),material(0x171717));w.rotation.z=Math.PI/2;w.position.set(0,.48,z);g.add(w);}
+   const handle=meshBox(1.35,.12,.12,0x333333,0,1.75,1.05,g);
+  }else{
+   const color=type==="danfo"?0xd8b42e:[0x286b9a,0xb7c8c8,0x9b4235,0x2f754b][i%4];
+   meshBox(type==="danfo"?2.8:2.25,1.05,type==="danfo"?5.4:4.1,color,0,.55,0,g);
+   meshBox(type==="danfo"?2.45:1.95,1.05,type==="danfo"?3.2:2.2,0x83b6c5,0,1.55,-.15,g);
+   meshBox(type==="danfo"?2.9:.12,.18,.22,0x262626,0,2.12,1.7,g);
+   for(const x of [-1,1])for(const z of [-1.35,1.35]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.43,.43,.24,10),material(0x171717));w.rotation.z=Math.PI/2;w.position.set(x,.43,z);g.add(w);}
+   if(type==="danfo"){const sign=labelSprite("LAGOS DANFO","#075638");sign.position.set(0,2.65,.8);sign.scale.set(4.2,1,1);g.add(sign);}
+  }
+  g.position.set(a.x+4,.05,a.z+5);g.rotation.y=Math.PI;scene.add(g);
+  const v={mesh:g,type,x:g.position.x,z:g.position.z,angle:Math.PI,speed:0,maxSpeed:type==="okada"?22:type==="danfo"?17:25,spot:null};
+  v.spot={kind:"driveVehicle",label:type==="danfo"?"DRIVE DANFO":type==="okada"?"RIDE OKADA":"DRIVE CAR",x:v.x,z:v.z+4,area:a.id,icon:type==="danfo"?"🚌":type==="okada"?"🏍️":"🚗",vehicle:v};
+  spots.push(v.spot);driveVehicles.push(v);
+ });
+}
+function enterDriveVehicle(v){
+ if(!v||activeVehicle)return;
+ activeVehicle=v;driveSpeed=0;v.speed=0;player.x=v.mesh.position.x;player.z=v.mesh.position.z;player.angle=v.angle;
+ playerGroup.visible=false;v.mesh.visible=true;cameraDistance=11;toast("Vehicle ready · push the joystick up to drive, left/right to steer. Tap EXIT to get out.");
+}
+function exitDriveVehicle(){
+ if(!activeVehicle)return;
+ const v=activeVehicle;const side=2.8;const nx=v.mesh.position.x+Math.cos(v.angle)*side,nz=v.mesh.position.z-Math.sin(v.angle)*side;
+ if(collides(nx,nz)){toast("There is no safe space to get out here.");return;}
+ player.x=nx;player.z=nz;player.angle=v.angle;playerGroup.position.set(player.x,0,player.z);playerGroup.rotation.y=player.angle;playerGroup.visible=true;
+ activeVehicle=null;driveSpeed=0;cameraDistance=10;toast("You stepped out safely.");updateAction();
+}
+function driveVehicleUpdate(dt){
+ if(!activeVehicle||modalOpen)return;
+ let forward=-joy.y,steer=joy.x;
+ if(keys.ArrowUp||keys.w)forward=1;if(keys.ArrowDown||keys.s)forward=-1;if(keys.ArrowLeft||keys.a)steer=-1;if(keys.ArrowRight||keys.d)steer=1;
+ const v=activeVehicle,target=forward*v.maxSpeed;
+ driveSpeed+=(target-driveSpeed)*Math.min(1,dt*(forward===0?3.8:2.2));
+ if(Math.abs(driveSpeed)<.08)driveSpeed=0;
+ if(Math.abs(driveSpeed)>.2)v.angle+=steer*dt*1.65*(driveSpeed<0?-1:1);
+ const nx=v.mesh.position.x+Math.sin(v.angle)*driveSpeed*dt,nz=v.mesh.position.z+Math.cos(v.angle)*driveSpeed*dt;
+ if(!collides(nx,nz)){v.mesh.position.x=nx;v.mesh.position.z=nz;}else{driveSpeed=0;toast("Obstacle ahead · steer around it.");}
+ v.mesh.rotation.y=v.angle;player.x=v.mesh.position.x;player.z=v.mesh.position.z;player.angle=v.angle;
+}
 function buildTraffic(){
  const colors=[0xd7b43a,0x1d6d9b,0xc9d4d0,0x9d372d,0x222c2c];
  for(let i=0;i<8;i++){
@@ -197,12 +245,13 @@ function canonicalArea(id){
 function areaForState(){return AREAS.find(a=>a.id===canonicalArea(state?.location))||AREAS[4];}
 function spawnAtState(){const a=areaForState();player={x:a.x,z:a.z+22,angle:Math.PI};playerGroup.position.set(player.x,0,player.z);$("district").textContent="📍 "+a.name+" · "+a.tag;}
 function nearestSpot(){
- if(!player)return null;let best=null,dist=Infinity;
+ if(!player)return null;if(activeVehicle)return null;let best=null,dist=Infinity;
  for(const s of spots){const d=Math.hypot(s.x-player.x,s.z-player.z);if(d<dist){best=s;dist=d;}}
  return dist<13?best:null;
 }
 function updateAction(){
  actionSpot=nearestSpot();const btn=$("action");
+ if(activeVehicle&&!modalOpen){btn.style.display="block";$("actionText").textContent="EXIT";btn.querySelector("small").textContent="🚪";return;}
  if(actionSpot&&!modalOpen){btn.style.display="block";$("actionText").textContent=actionSpot.label.length>13?actionSpot.label.slice(0,12)+"…":actionSpot.label;btn.querySelector("small").textContent=actionSpot.icon;}
  else btn.style.display="none";
 }
@@ -212,7 +261,7 @@ function collides(x,z){
  return colliders.some(c=>x>c.x-c.w/2-1.3&&x<c.x+c.w/2+1.3&&z>c.z-c.d/2-1.3&&z<c.z+c.d/2+1.3);
 }
 function movePlayer(dt){
- if(!player||modalOpen)return;
+ if(!player||modalOpen||activeVehicle)return;
  let forward=-joy.y,side=joy.x;
  if(keys.ArrowUp||keys.w)forward=1;if(keys.ArrowDown||keys.s)forward=-1;if(keys.ArrowLeft||keys.a)side=-1;if(keys.ArrowRight||keys.d)side=1;
  const mag=Math.hypot(forward,side);if(mag<.08)return;
@@ -223,11 +272,12 @@ function movePlayer(dt){
  player.angle=Math.atan2(dx,dz);playerGroup.position.set(player.x,0,player.z);playerGroup.rotation.y=player.angle;
 }
 function cameraUpdate(dt){
- const target=new THREE.Vector3(player.x+Math.sin(yaw)*cameraDistance,6.2,player.z+Math.cos(yaw)*cameraDistance);
+ const followAngle=activeVehicle?activeVehicle.angle:yaw;
+ const target=new THREE.Vector3(player.x+Math.sin(followAngle)*cameraDistance,activeVehicle?7.5:6.2,player.z+Math.cos(followAngle)*cameraDistance);
  camera.position.lerp(target,1-Math.pow(.001,dt));camera.lookAt(player.x,1.55,player.z);
 }
 function updateWorld(dt){
- movePlayer(dt);
+ if(activeVehicle)driveVehicleUpdate(dt);else movePlayer(dt);
  people.forEach(p=>{p.phase+=dt*p.speed;p.mesh.position.x=p.homeX+Math.sin(p.phase)*2.8;p.mesh.position.z=p.homeZ+Math.cos(p.phase*.7)*2.3;p.mesh.rotation.y=Math.atan2(Math.cos(p.phase*.7),Math.cos(p.phase));});
  cars.forEach(c=>{c.mesh.position.x+=c.speed*dt;if(c.mesh.position.x>c.end)c.mesh.position.x=c.start;});
  cameraUpdate(dt);updateAction();
@@ -312,6 +362,8 @@ async function openPhone(){
 }
 function interact(){
  const s=actionSpot;if(!s)return;
+ if(activeVehicle){exitDriveVehicle();return;}
+ if(s.kind==="driveVehicle"){enterDriveVehicle(s.vehicle);return;}
  if(s.kind==="interiorExit"){exitBuildingInterior();return;}
  if(s.kind==="work"||s.kind==="food"||s.kind==="home"||s.kind==="market"){enterBuildingInterior(s);return;}
  if(s.kind==="landmark"){
@@ -390,7 +442,7 @@ function startRenderer(){
  camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,600);
  const hemi=new THREE.HemisphereLight(0xfff0d5,0x435847,1.35);scene.add(hemi);
  const sun=new THREE.DirectionalLight(0xffe1b1,1.5);sun.position.set(-80,120,60);scene.add(sun);
- buildCity();buildPeople();buildTraffic();makePlayer();clock=new THREE.Clock();resize();spawnAtState();
+ buildCity();buildDriveVehicles();buildPeople();buildTraffic();makePlayer();clock=new THREE.Clock();resize();spawnAtState();
  camera.position.set(player.x,8,player.z+cameraDistance);camera.lookAt(player.x,1.5,player.z);
  window.addEventListener("resize",resize);
 }
