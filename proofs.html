@@ -177,7 +177,7 @@ async function load(){
     const ids=[...new Set(submissions.map(s=>s.task_id).filter(v=>v!==null&&v!==undefined))];
     taskTitles={};
     if(ids.length){
-      const tasks=await db.from("tasks").select("id,title").in("id",ids);
+      const tasks=await db.from("tasker_tasks_view").select("id,title").in("id",ids);
       if(!tasks.error){
         (tasks.data||[]).forEach(t=>taskTitles[String(t.id)]=t.title||("Task #"+t.id));
       }else{
