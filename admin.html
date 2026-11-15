@@ -792,6 +792,17 @@ td,th{padding:13px 11px}
 @media(max-width:600px){.login-card{padding:25px 21px}.grid-2,.grid-3,.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:14px}.stat-value{font-size:22px}.page-header{align-items:stretch}}
 @media(max-width:370px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
 </style>
+<style id="naija-proof-review-layout">
+#page-submissions .review-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+#page-submissions .review-guide>div{padding:13px;border:1px solid #deebe1;border-radius:13px;background:#f8fcf9;min-width:0}
+#page-submissions .review-guide strong{display:block;color:#075b2d;font-size:13px;margin-bottom:4px}
+#page-submissions .review-guide span{display:block;color:#647568;font-size:12px;line-height:1.5}
+#page-submissions .table-wrap{border:1px solid #e4ece6;border-radius:13px}
+#page-submissions table{min-width:650px}
+#proofModal .proof-review-confirm{line-height:1.5;cursor:pointer}
+#proofModal .modal-footer button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:600px){#page-submissions .review-guide{grid-template-columns:1fr}#page-submissions .page-header{gap:8px}#page-submissions .card{padding:12px}}
+</style>
 </head>
 
 <body>
@@ -1522,7 +1533,7 @@ td,th{padding:13px 11px}
       </h2>
 
       <p>
-        Review submitted work before releasing rewards.
+        Check each Tasker submission, compare it with the original job, then approve or reject it.
       </p>
 
     </div>
@@ -1597,6 +1608,10 @@ td,th{padding:13px 11px}
   </div>
 
 
+  <div class="notice" style="margin-top:14px">
+    <strong>How proof review works:</strong> Open a submission, inspect the original task link and evidence, then tick the confirmation box before approving. Approval credits the Tasker through the secure database function exactly once. Rejection requires a reason and does not credit the reward. Poster feedback is guidance only; it does not approve or reject a submission.
+  </div>
+
   <div
     class="card"
     style="margin-top:14px">
@@ -1615,7 +1630,15 @@ td,th{padding:13px 11px}
         </option>
 
         <option value="pending">
-          Pending
+          Pending / Awaiting review
+        </option>
+
+        <option value="under_review">
+          Under review
+        </option>
+
+        <option value="submitted">
+          Submitted
         </option>
 
         <option value="approved">
@@ -6530,7 +6553,7 @@ async function loadSubmissions() {
   if (body) {
     body.innerHTML = `
       <tr>
-        <td colspan="9" class="loading-row">
+        <td colspan="7" class="loading-row">
           Loading submissions...
         </td>
       </tr>
@@ -6567,7 +6590,7 @@ async function loadSubmissions() {
     if (body) {
       body.innerHTML = `
         <tr>
-          <td colspan="9" class="empty-row">
+          <td colspan="7" class="empty-row">
             Unable to load submissions.
           </td>
         </tr>
@@ -6586,41 +6609,22 @@ async function loadSubmissions() {
 
 
 function updateSubmissionStats(rows) {
-  const pending =
-    rows.filter(
-      row =>
-        String(row.status || "")
-          .toLowerCase() === "pending"
-    ).length;
+  const pending = rows.filter(row =>
+    ["PENDING", "SUBMITTED", "UNDER_REVIEW"].includes(String(row.status || "").trim().toUpperCase())
+  ).length;
 
-  const approved =
-    rows.filter(
-      row =>
-        String(row.status || "")
-          .toLowerCase() === "approved"
-    ).length;
+  const approved = rows.filter(row =>
+    ["APPROVED", "COMPLETED", "SUCCESS"].includes(String(row.status || "").trim().toUpperCase())
+  ).length;
 
-  const rejected =
-    rows.filter(
-      row =>
-        String(row.status || "")
-          .toLowerCase() === "rejected"
-    ).length;
+  const rejected = rows.filter(row =>
+    String(row.status || "").trim().toUpperCase() === "REJECTED"
+  ).length;
 
-  setText(
-    "pendingProofCount",
-    pending
-  );
-
-  setText(
-    "approvedProofCount",
-    approved
-  );
-
-  setText(
-    "rejectedProofCount",
-    rejected
-  );
+  setText("submissionPending", pending);
+  setText("submissionApproved", approved);
+  setText("submissionRejected", rejected);
+  setText("submissionTotal", rows.length);
 }
 
 
@@ -6727,7 +6731,9 @@ function filterSubmissions() {
   const query = $("submissionSearch")?.value.trim().toLowerCase() || "";
   const status = ($("submissionStatusFilter")?.value || "all").toLowerCase();
   const filtered = allSubmissions.filter(row => {
-    if (status !== "all" && String(row.status || "").toLowerCase() !== status) return false;
+    const rowStatus = String(row.status || "").trim().toLowerCase();
+    if (status === "pending" && !["pending", "submitted", "under_review"].includes(rowStatus)) return false;
+    if (status !== "all" && status !== "pending" && rowStatus !== status) return false;
     if (!query) return true;
     const task = getSubmissionTask(row);
     const searchable = [
@@ -6966,7 +6972,7 @@ async function openProofModal(submissionId) {
       const sameTitle = String(otherTask.title || "").trim().toLowerCase().replace(/\s+/g, " ") === String(task?.title || "").trim().toLowerCase().replace(/\s+/g, " ");
       return sameType && sameTitle && otherTarget === currentTarget;
     });
-    const isPending = String(row.status || "").toLowerCase() === "pending";
+    const isPending = ["PENDING", "SUBMITTED", "UNDER_REVIEW"].includes(String(row.status || "").trim().toUpperCase());
     const actions = $("proofModalActions");
     if (actions) actions.style.display = isPending ? "" : "none";
 
@@ -7168,8 +7174,8 @@ async function approveCurrentProof() {
       "Approving proof securely..."
     );
 
-    if (String(currentProof.status || "").toLowerCase() !== "pending") {
-      throw new Error("This submission has already been processed.");
+    if (!["PENDING", "SUBMITTED", "UNDER_REVIEW"].includes(String(currentProof.status || "").trim().toUpperCase())) {
+      throw new Error("This submission is no longer awaiting review.");
     }
     if (currentProof._reviewEvidenceVisible === false) {
       throw new Error("This task requires viewable screenshot evidence. Approval is blocked until the image can be reviewed.");
