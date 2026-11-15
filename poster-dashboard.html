@@ -1089,11 +1089,11 @@ async function loadPosterProofs(user){
 }
 async function sendPosterProofFeedback(submissionId,taskId,decision){
  const allowed=["ACCEPT_RECOMMENDED","NEED_CLEARER_PROOF","REPORT_PROBLEM"];if(!allowed.includes(decision))return;
- let message="";if(decision!=="ACCEPT_RECOMMENDED"){message=prompt(decision==="NEED_CLEARER_PROOF"?"What evidence is unclear or missing?":"Describe the problem for admin review:")||"";if(!message.trim()){alert("Please enter an explanation.");return;}}else message=prompt("Optional note for admin:")||"";
+ let message="";if(decision!=="ACCEPT_RECOMMENDED"){message=prompt(decision==="NEED_CLEARER_PROOF"?"Name the exact task requirement that is unclear or missing, and what evidence would satisfy it:":"Describe the exact requirement not met and the evidence you checked. Do not use this to cancel or punish a Tasker:")||"";if(!message.trim()){alert("Please enter an explanation.");return;}}else message=prompt("Optional note for admin:")||"";
  const {data:a}=await supabaseClient.auth.getUser();if(!a?.user){alert("Please sign in again.");return;}
  const {error}=await supabaseClient.from("poster_submission_feedback").insert({submission_id:submissionId,task_id:taskId,poster_id:a.user.id,decision,message:message.trim()||null});
  if(error){alert("Could not save feedback: "+error.message);return;}
- alert("Feedback sent. This does not approve, reject or release payment; admin review remains in control.");
+ alert("Your one-time review has been locked for this submission. It has been sent to admin. You cannot directly reject, cancel or withhold a Tasker's reward.");
  await loadPosterProofs(a.user);
 }
 
