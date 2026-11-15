@@ -590,7 +590,8 @@ function openTask(task){
   hideNotice();
   const cat = getTaskCategory(task);
   const safeUrl = getSafeHttpUrl(task.task_link || task.post_link || task.url || "");
-  const submitted = currentSubmissionIds.has(taskId(task));
+  const taskTarget = taskTargetKey(task);
+  const submitted = currentSubmissionIds.has(taskId(task)) || (!!taskTarget && currentSubmissionTargets.has(taskTarget));
   const photo = needsPhotoProof(task);
 
   $("selectedTaskDetails").innerHTML = `
@@ -708,6 +709,12 @@ async function submitProof(){
   const button = $("submitProofBtn");
   if (currentSubmissionIds.has(id)){
     showNotice("You already submitted this task.", "error");
+    button.disabled = true; button.textContent = "Already submitted";
+    return;
+  }
+  const targetKey = taskTargetKey(selectedTask);
+  if (targetKey && currentSubmissionTargets.has(targetKey)){
+    showNotice("You already submitted this same action for this target under another task listing. You can only earn once.", "error");
     button.disabled = true; button.textContent = "Already submitted";
     return;
   }
