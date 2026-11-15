@@ -68,42 +68,94 @@ async function start(){
  const memberRole=String(roleMeta.role||roleMeta.user_type||roleMeta.account_type||"").toLowerCase();
  const taskerOnlyModules=["more","applied-jobs","approved","retry","cancelled","airtime-data","arena","ai-care","appeals","community","ai-assistant"];
  if(taskerOnlyModules.includes(moduleName)&&["task_poster","poster","task poster"].includes(memberRole)){location.replace("poster-dashboard.html");return}
- if(moduleName==="support"||moduleName==="appeals"){
- const isAppeal=moduleName==="appeals",table=isAppeal?"appeals":"support_tickets",title=isAppeal?"Submit an appeal":"Contact support";
- const q=await sb.from(table).select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40);
- let referenceOptions='<option value="">General account appeal (optional)</option>';
- let referenceNotice="";
- if(isAppeal){
-   const [submissionsResult,withdrawalsResult]=await Promise.all([
-     sb.from("task_submissions").select("id,task_id,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60),
+
+ if(moduleName==="appeals"){
+   const [submissionsResult,taskAppealsResult,generalAppealsResult,withdrawalsResult]=await Promise.all([
+     sb.from("task_submissions").select("id,task_id,status,created_at,rejection_reason").eq("user_id",user.id).eq("status","REJECTED").order("created_at",{ascending:false}).limit(100),
+     sb.from("task_submission_appeals").select("id,submission_id,task_id,reason_code,explanation,status,admin_response,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
+     sb.from("appeals").select("id,subject,message,status,admin_response,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40),
      sb.from("withdrawals").select("id,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60)
    ]);
-   const submissions=submissionsResult.error?[]:(submissionsResult.data||[]);
-   const withdrawals=withdrawalsResult.error?[]:(withdrawalsResult.data||[]);
-   referenceOptions+='<optgroup label="Task submissions">'+submissions.map(x=>'<option value="submission:'+esc(x.id)+'">Task submission #'+esc(x.id)+' · '+esc(x.status||"Submitted")+'</option>').join("")+'</optgroup>';
-   referenceOptions+='<optgroup label="Withdrawals">'+withdrawals.map(x=>'<option value="withdrawal:'+esc(x.id)+'">Withdrawal #'+esc(x.id)+' · '+money(x.amount)+' · '+esc(x.status||"Pending")+'</option>').join("")+'</optgroup>';
-   if(submissionsResult.error||withdrawalsResult.error)referenceNotice=note("Some reference records could not be loaded. You can still submit a general appeal.",true);
+   const submissions=submissionsResult.data||[], taskAppeals=taskAppealsResult.data||[];
+   const existing=new Set(taskAppeals.map(x=>String(x.submission_id)));
+   const eligible=submissions.filter(x=>!existing.has(String(x.id)));
+   const taskIds=[...new Set(submissions.map(x=>x.task_id))];
+   const tasksResult=taskIds.length?await sb.from("tasks").select("id,title").in("id",taskIds):{data:[],error:null};
+   const taskNames=Object.fromEntries((tasksResult.data||[]).map(x=>[String(x.id),x.title]));
+   const appealOptions=eligible.map(x=>'<option value="'+esc(x.id)+'">Submission #'+esc(x.id)+' · '+esc(taskNames[String(x.task_id)]||("Task #"+x.task_id))+' · '+esc(x.rejection_reason||"Rejected")+'</option>').join("");
+   const generalRows=generalAppealsResult.data||[];
+   const withdrawalOptions=(withdrawalsResult.data||[]).map(x=>'<option value="withdrawal:'+esc(x.id)+'">Withdrawal #'+esc(x.id)+' · '+money(x.amount)+' · '+esc(x.status||"Pending")+'</option>').join("");
+   const taskAppealList=taskAppeals.map(x=>row("Task submission #"+x.submission_id,
+     esc(String(x.reason_code||"").replaceAll("_"," "))+" · "+esc(x.explanation)+" · "+date(x.created_at),
+     x.status,x.admin_response||"Awaiting admin review")).join("")||'<div class="empty">You have not submitted a task rejection appeal.</div>';
+   app.innerHTML=
+    '<section class="panel"><h2>⚖️ Appeal a rejected task</h2><p class="muted">If you completed the task honestly and believe the rejection was wrong, explain the facts and upload clear supporting evidence. You can submit one appeal per rejected submission. False claims or altered evidence may lead to account restrictions.</p>'+
+    (submissionsResult.error||taskAppealsResult.error||tasksResult.error?note("Some task appeal records could not be loaded. Refresh and try again.",true):"")+
+    (eligible.length?
+      '<form id="taskAppealForm"><label>Rejected submission</label><select name="submission" required><option value="">Choose the rejected task</option>'+appealOptions+'</select>'+
+      '<label>Why are you appealing?</label><select name="reason" required><option value="">Choose a reason</option><option value="PROOF_WAS_MISUNDERSTOOD">My proof may have been misunderstood</option><option value="TASK_REQUIREMENT_MET">I completed the stated requirement</option><option value="WRONG_REJECTION_REASON">The rejection reason is incorrect</option><option value="TECHNICAL_OR_UPLOAD_ISSUE">There was a technical or upload issue</option><option value="OTHER">Other genuine reason</option></select>'+
+      '<label>Explain what happened</label><textarea name="explanation" minlength="30" maxlength="3000" required placeholder="Explain the task, what you completed, and why the rejection should be reviewed."></textarea>'+
+      '<label>Supporting screenshots or photos (1–5)</label><input name="evidence" type="file" accept="image/*" multiple required><small class="muted">Use genuine, unedited evidence. Maximum 5 images, 5 MB each. Do not upload passwords, OTPs or private account details.</small>'+
+      '<button class="btn" type="submit">Submit task appeal</button></form>'
+      :'<div class="note">No rejected submissions are currently eligible for a new appeal. A submission can only be appealed once.</div>')+
+    '<div id="taskAppealResult"></div></section>'+
+    '<section class="panel"><h2>Your task appeals</h2>'+taskAppealList+'</section>'+
+    '<section class="panel"><h2>Other account or withdrawal appeal</h2><p class="muted">Use this for account or withdrawal matters, not rejected task submissions.</p>'+
+    '<form id="sendForm"><label>Related withdrawal (optional)</label><select name="reference"><option value="">General account appeal</option>'+withdrawalOptions+'</select><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit general appeal</button></form><div id="result"></div>'+
+    (generalAppealsResult.error?note(generalAppealsResult.error.message,true):list(generalRows,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,x.admin_response||"")))+'</section>';
+   const taskForm=document.getElementById("taskAppealForm");
+   if(taskForm)taskForm.onsubmit=async e=>{
+     e.preventDefault();
+     const fd=new FormData(taskForm),button=taskForm.querySelector("button"),submissionId=String(fd.get("submission")||"");
+     const files=[...(taskForm.querySelector('[name="evidence"]').files||[])];
+     if(files.length<1||files.length>5){document.getElementById("taskAppealResult").innerHTML=note("Upload between 1 and 5 supporting images.",true);return;}
+     if(files.some(file=>!file.type.startsWith("image/")||file.size>5*1024*1024)){document.getElementById("taskAppealResult").innerHTML=note("Every file must be an image no larger than 5 MB.",true);return;}
+     const explanation=String(fd.get("explanation")||"").trim();
+     if(explanation.length<30){document.getElementById("taskAppealResult").innerHTML=note("Please provide at least 30 characters explaining your genuine reason.",true);return;}
+     button.disabled=true;button.textContent="Uploading evidence…";
+     const uploaded=[];
+     try{
+       for(let index=0;index<files.length;index++){
+         const file=files[index],ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+         const path=user.id+"/appeals/"+submissionId+"/"+Date.now()+"-"+index+"-"+Math.random().toString(36).slice(2,8)+"."+ext;
+         const {error:uploadError}=await sb.storage.from("task-proofs").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});
+         if(uploadError)throw uploadError;
+         uploaded.push({path,name:file.name,mime:file.type,size:file.size});
+       }
+       button.textContent="Submitting appeal…";
+       const {error:insertError}=await sb.from("task_submission_appeals").insert({
+         submission_id:Number(submissionId),
+         task_id:Number(submissions.find(x=>String(x.id)===submissionId)?.task_id),
+         user_id:user.id,
+         reason_code:String(fd.get("reason")||""),
+         explanation,
+         evidence:uploaded
+       });
+       if(insertError)throw insertError;
+       document.getElementById("taskAppealResult").innerHTML=note("Your appeal and supporting evidence have been submitted. The admin will review the evidence and send a decision here.");
+       start();
+     }catch(error){
+       if(uploaded.length)await sb.storage.from("task-proofs").remove(uploaded.map(x=>x.path));
+       document.getElementById("taskAppealResult").innerHTML=note(error.message||"Could not submit the appeal. Please try again.",true);
+       button.disabled=false;button.textContent="Submit task appeal";
+     }
+   };
+   const generalForm=document.getElementById("sendForm");
+   if(generalForm)generalForm.onsubmit=async e=>{
+     e.preventDefault();const fd=new FormData(generalForm),button=generalForm.querySelector("button");button.disabled=true;
+     const payload={user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()};
+     const ref=String(fd.get("reference")||"");if(ref.startsWith("withdrawal:"))payload.message="Related record: Withdrawal #"+ref.slice(11)+"\n\n"+payload.message;
+     const {error}=await sb.from("appeals").insert(payload);
+     document.getElementById("result").innerHTML=error?note(error.message,true):note("Your general appeal has been submitted.");
+     if(!error){generalForm.reset();start()}else button.disabled=false;
+   };
+   return;
  }
- app.innerHTML='<section class="panel"><h2>'+title+'</h2><p class="muted">'+(isAppeal?"Choose the task or withdrawal if your appeal concerns a specific record. Include the facts and why you believe the decision should be reviewed.":"Describe the issue clearly. Never include your password, PIN, OTP or full bank details.")+'</p>'+(isAppeal?referenceNotice:"")+'<form id="sendForm">'+(isAppeal?'<label>Related record</label><select name="reference">'+referenceOptions+'</select>':"")+'<label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your '+(isAppeal?"appeals":"requests")+'</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,(isAppeal?x.admin_response:x.admin_reply)||"")))+'</section>';
- document.getElementById("sendForm").onsubmit=async e=>{
-   e.preventDefault();
-   const f=e.currentTarget,fd=new FormData(f),b=f.querySelector("button");
-   b.disabled=true;
-   const payload={user_id:user.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()};
-   if(isAppeal){
-     const ref=String(fd.get("reference")||"");
-     let label="";
-     if(ref.startsWith("submission:"))label="Task submission #"+ref.slice(11);
-     else if(ref.startsWith("withdrawal:"))label="Withdrawal #"+ref.slice(11);
-     if(label)payload.message="Related record: "+label+"\n\n"+payload.message;
-     // The legacy appeal reference columns are UUIDs, while current submission/withdrawal IDs are numeric.
-     // Keep the reference in the message until a compatible relationship is deliberately migrated.
-   }
-   const {error}=await sb.from(table).insert(payload);
-   document.getElementById("result").innerHTML=error?note(error.message,true):note(isAppeal?"Your appeal has been submitted for review.":"Your support request has been submitted.");
-   if(!error){f.reset();start()}else b.disabled=false;
- };
- return;
+ if(moduleName==="support"){
+   const q=await sb.from("support_tickets").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40);
+   app.innerHTML='<section class="panel"><h2>Contact support</h2><p class="muted">Describe the issue clearly. Never include your password, PIN, OTP or full bank details.</p><form id="sendForm"><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit</button></form><div id="result"></div></section><section class="panel"><h2>Your requests</h2>'+(q.error?note(q.error.message,true):list(q.data,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,x.admin_reply||"")))+'</section>';
+   document.getElementById("sendForm").onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.currentTarget),button=e.currentTarget.querySelector("button");button.disabled=true;const {data:{user:current}}=await sb.auth.getUser();const {error}=await sb.from("support_tickets").insert({user_id:current.id,subject:String(fd.get("subject")).trim(),message:String(fd.get("message")).trim()});document.getElementById("result").innerHTML=error?note(error.message,true):note("Your support request has been submitted.");if(!error){e.currentTarget.reset();start()}else button.disabled=false;};
+   return;
  }
  if(["applied-jobs","approved","retry","cancelled"].includes(moduleName)){
  const q=await sb.from("task_submissions").select("id,task_id,status,created_at,rejection_reason").eq("user_id",user.id).order("created_at",{ascending:false}).limit(250);
