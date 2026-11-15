@@ -1243,8 +1243,8 @@ async function fetchTasks(){
   const rpc = await withTimeout(supabaseClient.rpc("get_available_tasks_for_tasker"));
   if (!rpc.error && Array.isArray(rpc.data)) return { rows: rpc.data.filter(isTaskLive), source: "rpc" };
 
-  console.warn("get_available_tasks_for_tasker failed, using the tasker-safe view:", rpc.error);
-  const q = await withTimeout(supabaseClient.from("tasker_tasks_view").select("*").order("created_at", {ascending:false}).limit(300));
+  console.warn("get_available_tasks_for_tasker failed, using the protected Tasker RPC:", rpc.error);
+  const q = await withTimeout(supabaseClient.rpc("get_tasker_tasks"));
   if (q.error) throw q.error;
   return { rows: (q.data || []).filter(isTaskAvailable), source: "query" };
 }
