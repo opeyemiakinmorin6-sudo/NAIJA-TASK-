@@ -286,6 +286,7 @@ const $ = id => document.getElementById(id);
 
 let currentUser = null, allTasks = [], currentFilter = "all", selectedTask = null, isSubmitting = false;
 let currentSubmissionIds = new Set();
+let currentSubmissionTargets = new Set();
 
 /* Brand logos (inline SVG, no external images) */
 const LOGOS = {
@@ -394,6 +395,8 @@ function getFilteredTasks(){
   const q = $("taskSearch").value.trim().toLowerCase();
   let list = allTasks.filter(t => {
     if (currentSubmissionIds.has(taskId(t))) return false;
+    const targetKey = taskTargetKey(t);
+    if (targetKey && currentSubmissionTargets.has(targetKey)) return false;
     if (currentFilter !== "all" && getTaskCategory(t) !== currentFilter) return false;
     if (!q) return true;
     return [t.title,t.description,t.requirements,t.task_type,t.category,t.platform,t.uploader_username].filter(Boolean).join(" ").toLowerCase().includes(q);
@@ -403,7 +406,10 @@ function getFilteredTasks(){
 }
 
 function updateStats(){
-  $("stTasks").textContent = allTasks.filter(t => !currentSubmissionIds.has(taskId(t))).length;
+  $("stTasks").textContent = allTasks.filter(t => {
+    const key = taskTargetKey(t);
+    return !currentSubmissionIds.has(taskId(t)) && !(key && currentSubmissionTargets.has(key));
+  }).length;
   $("stDone").textContent = currentUser ? currentSubmissionIds.size : "–";
 }
 
@@ -534,13 +540,33 @@ function openFromLink(){
   if (t) askStart(t); else showNotice("That task is no longer available.", "info");
 }
 
+function taskTargetKey(t){
+  if (!t) return "";
+  const target = String(t.task_link || t.post_link || "").trim().split("?")[0].replace(/\/+$/, "").toLowerCase();
+  if (!target) return "";
+  const type = String(t.task_type || "").trim().toLowerCase();
+  const title = String(t.title || "").trim().toLowerCase().replace(/\s+/g, " ");
+  return [type, title, target].join("|");
+}
+
 async function loadUserSubmissions(){
   currentSubmissionIds = new Set();
+  currentSubmissionTargets = new Set();
   if (!currentUser) return;
   try{
     const { data, error } = await db.from("task_submissions").select("task_id").eq("user_id", currentUser.id).limit(1000);
     if (error){ console.warn("Could not load previous submissions:", error.message); return; }
     (data || []).forEach(r => { if (r.task_id !== null && r.task_id !== undefined) currentSubmissionIds.add(String(r.task_id)); });
+    const ids = [...currentSubmissionIds];
+    if (ids.length){
+      const { data: submittedTasks, error: taskError } = await db.from("tasks")
+        .select("id,title,task_type,task_link,post_link").in("id", ids);
+      if (taskError) throw taskError;
+      (submittedTasks || []).forEach(t => {
+        const key = taskTargetKey(t);
+        if (key) currentSubmissionTargets.add(key);
+      });
+    }
   }catch(e){ console.warn("Submission lookup failed:", e); }
 }
 
