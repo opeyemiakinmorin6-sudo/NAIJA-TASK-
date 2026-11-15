@@ -829,9 +829,9 @@ let posterPricing = {minimumSlots:10,posterFee:500,fastFee:500,priorityFee:1000}
 let servicePricing = {social:{},business:{},commission_percent:30,tasker_share_percent:70,min_slots:10,max_price:999,fast_fee:500,priority_fee:1000};
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"app_testing",survey:"survey_task"})[category] || category;}
-function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,tasker_reward:0,enabled:false};const poster=Number(item.poster_price)||0,worker=Number(item.tasker_reward)||0;return {poster_price:poster,tasker_reward:worker,enabled:item.enabled===true&&poster>=1&&worker>=1&&worker<=poster};}
+function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,enabled:false};const poster=Number(item.poster_price)||0;return {poster_price:poster,enabled:item.enabled===true&&poster>=1};}
 function selectedSocialItem(){return priceItem("social",socialPriceKey(document.getElementById("category").value));}
-function socialServiceIsConfigured(){const item=selectedSocialItem();return item.enabled&&item.poster_price>=1&&item.tasker_reward>=1&&item.tasker_reward<=item.poster_price;}
+function socialServiceIsConfigured(){const item=selectedSocialItem();return item.enabled&&item.poster_price>=1;}
 function selectedBusinessItem(){return priceItem("business",document.getElementById("businessService").value);}
 function selectedPromotionFee(){const tier=document.getElementById("promotionTier").value;return tier==="fast"?Number(servicePricing.fast_fee||0):tier==="priority"?Number(servicePricing.priority_fee||0):0;}
 function refreshServiceOptions(){
@@ -849,13 +849,11 @@ function refreshServiceOptions(){
 function calculateFunding(){
  const slots=Number(document.getElementById("slots").value)||0;
  const item=selectedTaskKind()==="business_job"?selectedBusinessItem():selectedSocialItem();
- const reward=item.enabled?item.tasker_reward/10:0,posterRate=item.enabled?item.poster_price:0;
- document.getElementById("reward").value=reward||"";
+ const posterRate=item.enabled?item.poster_price:0;
+ document.getElementById("reward").value="1";
  const promotionFee=selectedPromotionFee();
  const serviceCharge=item.enabled?posterRate*slots/10:0;
- const total=item.enabled&&slots>=posterPricing.minimumSlots
-   ? serviceCharge+promotionFee
-   : 0;
+ const total=item.enabled&&slots>=posterPricing.minimumSlots?serviceCharge+promotionFee:0;
  document.getElementById("calcSlots").textContent=slots.toLocaleString();
  document.getElementById("calcServiceCharge").textContent=serviceCharge.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("calcPromotionFee").textContent=promotionFee.toLocaleString("en-NG",{maximumFractionDigits:2});
@@ -868,7 +866,7 @@ function calculateFunding(){
   if(item.enabled){
    const perTen=posterRate.toLocaleString("en-NG",{maximumFractionDigits:2});
    const selectedKey=socialPriceKey(document.getElementById("category").value);
-   const isWhatsApp=selectedTaskKind()==="normal_task" && selectedKey.startsWith("whatsapp_");
+   const isWhatsApp=selectedTaskKind()==="normal_task"&&selectedKey.startsWith("whatsapp_");
    const serviceName=document.getElementById("category").selectedOptions[0]?.textContent?.trim()||"Selected service";
    const totalText=total>0?"Total for "+slots.toLocaleString()+" slots: ₦"+total.toLocaleString("en-NG",{maximumFractionDigits:2}):
     "Enter at least "+posterPricing.minimumSlots+" slots to calculate your total.";
@@ -882,46 +880,14 @@ function calculateFunding(){
 }
 
 function validateReward(){
-
-  const rewardInput =
-    document.getElementById("reward");
-
-  const reward =
-    Number(rewardInput.value);
-
-  const limits =
-    getRewardLimits();
-
-  if(!reward){
-
-    rewardInput.setCustomValidity("");
-
-    return false;
-  }
-
-  if(
-    reward < limits.min ||
-    reward > limits.max
-  ){
-
-    rewardInput.setCustomValidity(
-      "Reward must be between ₦" +
-      limits.min +
-      " and ₦" +
-      limits.max +
-      "."
-    );
-
-    return false;
-  }
-
-  rewardInput.setCustomValidity("");
-
+  const rewardInput=document.getElementById("reward");
+  if(rewardInput){rewardInput.value="1";rewardInput.setCustomValidity("");}
   return true;
 }
 
 
 /* =========================================
+   SUMMARY/* =========================================
    SUMMARY
 ========================================= */
 
@@ -1233,14 +1199,7 @@ publishBtn.addEventListener(
       showMessage("This service is not currently available. Choose an enabled service.", "error");
       return;
     }
-
-    if(!Number.isFinite(reward) || Math.abs(reward - selectedItem.tasker_reward/10) > 0.0001){
-      showMessage("Service pricing could not be verified. Refresh the page and try again.", "error");
-      return;
-    }
-
-
-    if(
+if(
       !Number.isInteger(slots) ||
       slots < posterPricing.minimumSlots
     ){
@@ -1354,7 +1313,7 @@ publishBtn.addEventListener(
       return;
     }
     if(socialService&&!socialServiceIsConfigured()){
-      showMessage("This social task is selectable, but its price is not active yet. Ask Admin to enable and set its poster price and tasker reward.","error");
+      showMessage("This social task is selectable, but its price is not active yet. Ask Admin to enable and set its poster price and poster price.","error");
       return;
     }
     const taskDescription=socialService
@@ -1552,28 +1511,35 @@ document.getElementById("businessService")?.addEventListener("change",calculateF
 
 async function loadPosterPricing(){
  try{
-  const {data,error}=await supabaseClient.from("platform_settings").select("minimum_poster_task_slots,poster_task_fee,service_pricing,business_job_enabled").limit(1).maybeSingle();
+  const {data,error}=await supabaseClient.rpc("get_poster_task_pricing");
   if(error)throw error;
-  if(data){
-   const saved=data.service_pricing||{};
-   servicePricing={social:saved.social||{},business:saved.business||{},min_slots:Math.max(10,Number(saved.min_slots)||10),max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)};
-   posterPricing.minimumSlots=Math.max(10,Number(data.minimum_poster_task_slots)||servicePricing.min_slots||10);
-   posterPricing.posterFee=0;
-   posterPricing.fastFee=servicePricing.fast_fee;posterPricing.priorityFee=servicePricing.priority_fee;posterPricing.businessEnabled=data.business_job_enabled!==false;
-   const slotsInput=document.getElementById("slots");
-   slotsInput.min=posterPricing.minimumSlots;
-   slotsInput.placeholder="Minimum "+posterPricing.minimumSlots+" slots";
-   if(!Number.isInteger(Number(slotsInput.value)) || Number(slotsInput.value)<posterPricing.minimumSlots){
-     slotsInput.value=String(posterPricing.minimumSlots);
-   }
-   const promo=document.getElementById("promotionTier");
-   promo.options[1].text="Fast Promotion — ₦"+posterPricing.fastFee.toLocaleString();
-   promo.options[2].text="Priority Promotion — ₦"+posterPricing.priorityFee.toLocaleString();
-   refreshServiceOptions();
-   document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
-   calculateFunding();
-  }
- }catch(error){console.warn("Poster pricing settings could not be loaded.",error);showMessage("Service prices could not load. Refresh before creating a job.","error");publishBtn.disabled=true;}
+  const saved=data||{};
+  servicePricing={
+   social:saved.social||{},business:saved.business||{},
+   min_slots:Math.max(10,Number(saved.min_slots)||10),
+   max_price:Math.min(999,Math.max(1,Number(saved.max_price)||999)),
+   fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)
+  };
+  posterPricing.minimumSlots=Math.max(10,Number(saved.minimum_poster_task_slots)||servicePricing.min_slots||10);
+  posterPricing.posterFee=0;
+  posterPricing.fastFee=servicePricing.fast_fee;
+  posterPricing.priorityFee=servicePricing.priority_fee;
+  posterPricing.businessEnabled=saved.business_job_enabled!==false;
+  const slotsInput=document.getElementById("slots");
+  slotsInput.min=posterPricing.minimumSlots;
+  slotsInput.placeholder="Minimum "+posterPricing.minimumSlots+" slots";
+  if(!Number.isInteger(Number(slotsInput.value))||Number(slotsInput.value)<posterPricing.minimumSlots)slotsInput.value=String(posterPricing.minimumSlots);
+  const promo=document.getElementById("promotionTier");
+  promo.options[1].text="Fast Promotion — ₦"+posterPricing.fastFee.toLocaleString();
+  promo.options[2].text="Priority Promotion — ₦"+posterPricing.priorityFee.toLocaleString();
+  refreshServiceOptions();
+  document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
+  calculateFunding();
+ }catch(error){
+  console.warn("Poster pricing settings could not be loaded.",error);
+  showMessage("Service prices could not load. Refresh before creating a job.","error");
+  publishBtn.disabled=true;
+ }
 }
 
 /* =========================================
