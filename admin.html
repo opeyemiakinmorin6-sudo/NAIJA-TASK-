@@ -6932,31 +6932,63 @@ async function openProofModal(submissionId) {
     const proofRecord = parseProofRecord(row.proof);
     const task = getSubmissionTask(row);
     const username = getProofUsername(row);
-    const submittedText = row.submitted_text || row.description || proofRecord?.worker_comment || "";
-    const link = validExternalLink(row.link || row.url || proofRecord?.worker_link || task?.task_link || task?.post_link || task?.url || "");
+    const submittedText = row.submitted_text || row.description || proofRecord?.worker_comment || proofRecord?.text || "";
+    const taskLink = validExternalLink(task?.task_link || task?.post_link || task?.url || "");
+    const workerLink = validExternalLink(row.link || row.url || proofRecord?.worker_link || "");
+    const requirementList = Array.isArray(task?.requirements)
+      ? task.requirements.map(x => String(x)).filter(Boolean)
+      : (task?.requirements ? [String(task.requirements)] : []);
+    const requirementText = requirementList.join(" · ");
+    const photoRequired = !!(task && (
+      task.upload_required === true ||
+      /photo|image|screenshot/i.test(String(task.proof_type || "")) ||
+      /photo|image|screenshot/i.test(String(task.required_proof || "")) ||
+      /photo|image|screenshot/i.test(requirementText)
+    ));
+    const photoVisible = media.items.length > 0;
+    currentProof._reviewEvidenceVisible = !photoRequired || photoVisible;
+    const proofPath = String(proofRecord?.photo_path || proofRecord?.image_path || proofRecord?.screenshot_path || "");
+    const proofUrl = String(proofRecord?.photo_url || proofRecord?.image_url || proofRecord?.screenshot_url || "");
+    const reusedEvidence = allSubmissions.some(other => {
+      if (String(other.id) === String(row.id)) return false;
+      const otherProof = parseProofRecord(other.proof);
+      const otherPath = String(otherProof?.photo_path || otherProof?.image_path || otherProof?.screenshot_path || "");
+      const otherUrl = String(otherProof?.photo_url || otherProof?.image_url || otherProof?.screenshot_url || "");
+      return (proofPath && otherPath === proofPath) || (proofUrl && otherUrl === proofUrl);
+    });
     const isPending = String(row.status || "").toLowerCase() === "pending";
     const actions = $("proofModalActions");
     if (actions) actions.style.display = isPending ? "" : "none";
-    const reference = row.reference_id || row.reference || "";
 
     content.innerHTML = `
       <div class="proof-header">
-        <div><strong>${escapeHTML(task?.title || "Task " + (row.task_id ?? ""))}</strong><span>Submission #${escapeHTML(row.id)}</span></div>
+        <div><strong>${escapeHTML(task?.title || "Task " + (row.task_id ?? ""))}</strong><span>Submission #${escapeHTML(row.id)} · ${escapeHTML(formatDate(row.created_at))}</span></div>
         <div>${badge(row.status || "pending")}</div>
       </div>
-      <h4 style="margin:12px 0">Photo / Screenshot Evidence</h4>
-      <div class="proof-preview">${proofMediaHtml(media)}</div>
       <div class="detail-grid">
-        <div><span>User ID</span><strong>${escapeHTML(row.user_id || "—")}</strong></div>
-        <div><span>Task</span><strong>${escapeHTML(task?.title || row.task_id || "—")}</strong></div>
-        <div><span>Reward</span><strong>${escapeHTML(task ? "₦" + Number(task.reward_per_worker ?? task.reward ?? 0).toLocaleString("en-NG") : "—")}</strong></div>
-        <div><span>Username</span><strong>${escapeHTML(username || "—")}</strong></div>
-        <div><span>Task link</span><strong>${link ? `<a href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer">Open link</a>` : "—"}</strong></div>
-        <div><span>Submitted</span><strong>${formatDate(row.created_at)}</strong></div>
+        <div><span>Tasker user ID</span><strong>${escapeHTML(row.user_id || "—")}</strong></div>
+        <div><span>Task reward</span><strong>${escapeHTML(task ? "₦" + Number(task.reward_per_worker ?? task.reward ?? 0).toLocaleString("en-NG") : "—")}</strong></div>
+        <div><span>Submitted username</span><strong>${escapeHTML(username || "Not supplied")}</strong></div>
+        <div><span>Proof requirement</span><strong>${photoRequired ? "Screenshot/photo required" : "Written proof accepted"}</strong></div>
+      </div>
+      <h4 style="margin:16px 0 7px">Poster’s task instructions</h4>
+      <div class="proof-text-box"><p style="white-space:pre-wrap;overflow-wrap:anywhere">${escapeHTML(task?.description || "No task description was saved.")}</p>
+        ${task?.uploader_username ? `<p><strong>Account to engage:</strong> ${escapeHTML(task.uploader_username)}</p>` : ""}
+        ${task?.copy_text ? `<p><strong>Required text:</strong> ${escapeHTML(task.copy_text)}</p>` : ""}
+        ${requirementText ? `<p><strong>Evidence checklist:</strong> ${escapeHTML(requirementText)}</p>` : ""}
+      </div>
+      <h4 style="margin:16px 0 7px">Photo / screenshot evidence</h4>
+      <div class="proof-preview">${proofMediaHtml(media)}</div>
+      ${photoRequired && !photoVisible ? '<div class="notice danger-box" style="margin-top:10px">BLOCKED: This task requires a screenshot/photo, but no viewable image evidence is available. Do not approve.</div>' : ""}
+      ${reusedEvidence ? '<div class="notice danger-box" style="margin-top:10px">FRAUD WARNING: This exact proof URL or storage path is also attached to another submission. Compare both records before taking action.</div>' : ""}
+      <div class="detail-grid">
+        <div><span>Poster task link</span><strong>${taskLink ? `<a href="${escapeHTML(taskLink)}" target="_blank" rel="noopener noreferrer">Open original task</a>` : "—"}</strong></div>
+        <div><span>Worker submitted link</span><strong>${workerLink ? `<a href="${escapeHTML(workerLink)}" target="_blank" rel="noopener noreferrer">Open submitted link</a>` : "Not supplied"}</strong></div>
       </div>
       ${submittedText ? `<div class="proof-text-box"><strong>Worker's comment / report</strong><p style="white-space:pre-wrap;overflow-wrap:anywhere">${escapeHTML(submittedText)}</p></div>` : ""}
       ${row.rejection_reason ? `<div class="proof-text-box danger-box"><strong>Rejection reason</strong><p>${escapeHTML(row.rejection_reason)}</p></div>` : ""}
       ${media.errors.length ? `<div class="notice warning" style="white-space:pre-wrap;margin-top:12px">Storage diagnostics:\n${escapeHTML(media.errors.join("\n"))}</div>` : ""}
+      ${isPending ? '<label class="proof-review-confirm" style="display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:13px;border:1px solid #dce8df;border-radius:12px;background:#f7fbf8;font-weight:700;font-size:13px"><input id="proofReviewConfirm" type="checkbox" style="width:18px;height:18px;flex:0 0 18px;margin:0"> I checked the original task instructions, the submitted evidence and the tasker details. The proof is genuine and matches the requested work.</label>' : ""}
     `;
   } catch (error) {
     reportError("openProofModal", error);
@@ -7127,6 +7159,13 @@ async function approveCurrentProof() {
 
     if (String(currentProof.status || "").toLowerCase() !== "pending") {
       throw new Error("This submission has already been processed.");
+    }
+    if (currentProof._reviewEvidenceVisible === false) {
+      throw new Error("This task requires viewable screenshot evidence. Approval is blocked until the image can be reviewed.");
+    }
+    const reviewConfirmation = $("proofReviewConfirm");
+    if (!reviewConfirmation || !reviewConfirmation.checked) {
+      throw new Error("Complete the proof-review confirmation before approving this submission.");
     }
     const {
       data,
