@@ -283,14 +283,9 @@ async function loadTask(taskId) {
     throw new Error("The task ID in this link is invalid. Return to your poster dashboard and open the payment page again.");
   }
 
-  const { data, error } = await db
-    .from("poster_tasks_view")
-    .select("*")
-    .eq("id", String(taskId))
-    .eq("created_by", currentUser.id)
-    .maybeSingle();
-
+  const { data: posterTasks, error } = await db.rpc("get_poster_tasks");
   if (error) throw error;
+  const data = (posterTasks || []).find(task => String(task.id) === String(taskId));
   if (!data) throw new Error("Task not found, or you do not have permission to access this task.");
 
   currentTask = data;
