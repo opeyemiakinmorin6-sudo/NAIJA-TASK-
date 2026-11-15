@@ -6956,6 +6956,16 @@ async function openProofModal(submissionId) {
       const otherUrl = String(otherProof?.photo_url || otherProof?.image_url || otherProof?.screenshot_url || "");
       return (proofPath && otherPath === proofPath) || (proofUrl && otherUrl === proofUrl);
     });
+    const currentTarget = String(task?.task_link || task?.post_link || "").trim().split("?")[0].replace(/\\/+$/, "").toLowerCase();
+    const duplicateListings = allSubmissions.filter(other => {
+      if (String(other.id) === String(row.id) || String(other.user_id) !== String(row.user_id) || String(other.task_id) === String(row.task_id)) return false;
+      const otherTask = getSubmissionTask(other);
+      if (!otherTask || !currentTarget) return false;
+      const otherTarget = String(otherTask.task_link || otherTask.post_link || "").trim().split("?")[0].replace(/\\/+$/, "").toLowerCase();
+      const sameType = String(otherTask.task_type || "").trim().toLowerCase() === String(task?.task_type || "").trim().toLowerCase();
+      const sameTitle = String(otherTask.title || "").trim().toLowerCase().replace(/\\s+/g, " ") === String(task?.title || "").trim().toLowerCase().replace(/\\s+/g, " ");
+      return sameType && sameTitle && otherTarget === currentTarget;
+    });
     const isPending = String(row.status || "").toLowerCase() === "pending";
     const actions = $("proofModalActions");
     if (actions) actions.style.display = isPending ? "" : "none";
@@ -6981,6 +6991,7 @@ async function openProofModal(submissionId) {
       <div class="proof-preview">${proofMediaHtml(media)}</div>
       ${photoRequired && !photoVisible ? '<div class="notice danger-box" style="margin-top:10px">BLOCKED: This task requires a screenshot/photo, but no viewable image evidence is available. Do not approve.</div>' : ""}
       ${reusedEvidence ? '<div class="notice danger-box" style="margin-top:10px">FRAUD WARNING: This exact proof URL or storage path is also attached to another submission. Compare both records before taking action.</div>' : ""}
+      ${duplicateListings.length ? `<div class="notice danger-box" style="margin-top:10px">DUPLICATE TASK WARNING: This tasker also submitted the same action and target under another task listing: ${duplicateListings.map(x => "#" + escapeHTML(x.id) + " (" + escapeHTML(x.status || "unknown") + ")").join(", ")}. Review the other submission before approving either reward.</div>` : ""}
       <div class="detail-grid">
         <div><span>Poster task link</span><strong>${taskLink ? `<a href="${escapeHTML(taskLink)}" target="_blank" rel="noopener noreferrer">Open original task</a>` : "—"}</strong></div>
         <div><span>Worker submitted link</span><strong>${workerLink ? `<a href="${escapeHTML(workerLink)}" target="_blank" rel="noopener noreferrer">Open submitted link</a>` : "Not supplied"}</strong></div>
