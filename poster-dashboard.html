@@ -879,35 +879,22 @@ async function checkPoster(){
 
   }
 
-  const metadata =
-    user.user_metadata || {};
+  const {data:profile,error:profileError}=await supabaseClient
+    .from("profiles").select("role").eq("id",user.id).maybeSingle();
 
-  const role = String(
-    metadata.role ||
-    metadata.user_type ||
-    metadata.account_type ||
-    ""
-  ).toLowerCase().replace(/[\s-]+/g, "_");
-
-  /*
-     Poster accounts use task_poster.
-  */
-
-  if(
-    !["task_poster","poster","task_poster_account"].includes(role)
-  ){
-
-    await supabaseClient.auth.signOut();
-
-    alert(
-      "This account is not registered as a Poster."
-    );
-
-    window.location.href =
-      "index.html";
-
+  if(profileError||!profile){
+    showError(profileError?.message||"Your account role could not be verified.");
     return null;
+  }
 
+  const role=String(profile.role||"").toLowerCase();
+  if(role!=="task_poster"){
+    await supabaseClient.auth.signOut();
+    alert(role==="tasker"||role==="user"
+      ? "This is a Tasker account. Use the Tasker workspace."
+      : "This account does not have Poster access.");
+    window.location.href=role==="admin"?"admin.html":"index.html";
+    return null;
   }
 
   return user;
