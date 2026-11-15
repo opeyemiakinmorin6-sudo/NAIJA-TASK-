@@ -49,6 +49,8 @@ button{border:0;background:var(--green);color:#fff;font-weight:800}
 .bottomnav a b{display:block;font-size:20px;margin-bottom:4px}
 .bottomnav a.active{color:var(--green);font-weight:800}
 @media(min-width:600px){.list{grid-template-columns:1fr 1fr}}
+
+.appealbox{margin-top:13px;padding:13px;border:1px solid #d6e7d9;border-radius:13px;background:#f8fcf8}.appealbox summary{cursor:pointer;color:var(--dark);font-weight:900;font-size:13px}.appealbox label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px}.appealbox select,.appealbox textarea,.appealbox input[type=file]{width:100%;max-width:none;border:1px solid var(--border);border-radius:9px;background:#fff;padding:10px;font:inherit;font-size:13px}.appealbox textarea{min-height:95px;resize:vertical}.appealbox button{margin-top:11px;width:100%}.appealstate{margin-top:12px;padding:12px;border-radius:10px;background:#fff8e7;color:#705000;font-size:12px;line-height:1.6}.appealstate.resolved{background:#e9f5ed;color:#155c2c}.appealresponse{margin-top:7px;white-space:pre-wrap;overflow-wrap:anywhere}.appealhint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:6px}
 </style>
 </head>
 <body>
@@ -100,6 +102,8 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 let submissions=[];
 let taskTitles={};
+let appealsBySubmission={};
+let currentUser=null;
 
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function norm(v){return String(v??"").trim().toLowerCase().replace(/[\s-]+/g,"_");}
@@ -146,6 +150,22 @@ function render(){
     const proofText=typeof proof.text==="string"?proof.text:"";
     const photo=validWebURL(proof.photo_url||proof.image_url||proof.screenshot_url||"");
     const reason=String(row.rejection_reason||"").trim();
+    const appeal=appealsBySubmission[String(row.id)];
+    let appealHTML="";
+    if(appeal){
+      const appealStatus=String(appeal.status||"PENDING").toUpperCase();
+      const resolved=["REOPENED","UPHELD"].includes(appealStatus);
+      appealHTML='<div class="appealstate '+(resolved?'resolved':'')+'"><strong>Appeal status: '+esc(appealStatus.replace(/_/g," "))+'</strong>'+
+        (appeal.admin_response?'<div class="appealresponse"><strong>Admin response:</strong> '+esc(appeal.admin_response)+'</div>':'<div>Your appeal has been submitted and is awaiting an administrator decision.</div>')+
+        '</div>';
+    }else if(st==="rejected"){
+      appealHTML='<details class="appealbox"><summary>Appeal this rejection</summary>'+
+        '<form data-appeal="'+esc(row.id)+'" data-task="'+esc(row.task_id)+'">'+
+        '<label>Reason for appeal</label><select name="reason_code" required><option value="">Choose a reason</option><option value="PROOF_WAS_MISUNDERSTOOD">My proof was misunderstood</option><option value="TASK_REQUIREMENT_MET">I completed the task requirements</option><option value="WRONG_REJECTION_REASON">The rejection reason is incorrect</option><option value="TECHNICAL_OR_UPLOAD_ISSUE">Technical or upload issue</option><option value="OTHER">Other genuine reason</option></select>'+
+        '<label>Explain what happened</label><textarea name="explanation" minlength="30" maxlength="3000" required placeholder="Explain clearly why you believe this rejection should be reviewed (30–3000 characters)."></textarea>'+
+        '<label>Supporting photo evidence (1–5 images)</label><input name="evidence" type="file" accept="image/*" multiple required><div class="appealhint">Images only. Maximum 5 images, 5MB each. Do not upload unrelated or misleading evidence.</div>'+
+        '<button type="submit">Submit appeal for admin review</button></form></details>';
+    }
     const taskLink="task.html?task_id="+encodeURIComponent(row.task_id);
     let proofHTML="";
     if(proofText)proofHTML+='<div><strong>Details:</strong><br>'+esc(proofText)+'</div>';
@@ -157,6 +177,7 @@ function render(){
       '<div class="proofbox">'+proofHTML+'</div>'+
       (reason?'<div class="reason"><strong>Review reason:</strong><br>'+esc(reason)+'</div>':'')+
       '<div class="actions"><a href="'+esc(taskLink)+'">Open task page</a></div>'+
+      appealHTML+
       '</article>';
   }).join("");
 }
@@ -167,6 +188,7 @@ async function load(){
     const {data:auth,error:authError}=await db.auth.getUser();
     if(authError)throw authError;
     if(!auth.user){location.href="login.html";return;}
+    currentUser=auth.user;
     let result=await db.from("task_submissions")
       .select("id,task_id,user_id,proof,status,created_at,reviewed_by,reviewed_at,rejection_reason")
       .eq("user_id",auth.user.id)
@@ -174,6 +196,18 @@ async function load(){
       .limit(300);
     if(result.error)throw result.error;
     submissions=result.data||[];
+    appealsBySubmission={};
+    const submissionIds=submissions.map(s=>s.id).filter(v=>v!==null&&v!==undefined);
+    if(submissionIds.length){
+      const appealResult=await db.from("task_submission_appeals")
+        .select("id,submission_id,status,admin_response,created_at,reviewed_at")
+        .in("submission_id",submissionIds);
+      if(appealResult.error){
+        console.warn("Appeal status could not be loaded:",appealResult.error.message);
+      }else{
+        (appealResult.data||[]).forEach(a=>appealsBySubmission[String(a.submission_id)]=a);
+      }
+    }
     const ids=[...new Set(submissions.map(s=>s.task_id).filter(v=>v!==null&&v!==undefined))];
     taskTitles={};
     if(ids.length){
@@ -192,6 +226,55 @@ async function load(){
     showMessage("Could not load your submissions: "+(error.message||"Unknown database error"),"error");
   }finally{$("refreshBtn").disabled=false;}
 }
+async function submitAppeal(form){
+  const submit=form.querySelector('button[type="submit"]');
+  const submissionId=String(form.dataset.appeal||"");
+  const taskId=String(form.dataset.task||"");
+  const reasonCode=form.querySelector('[name="reason_code"]').value;
+  const explanation=form.querySelector('[name="explanation"]').value.trim();
+  const files=Array.from(form.querySelector('[name="evidence"]').files||[]);
+  if(!currentUser){showMessage("Please sign in again before submitting an appeal.","error");return;}
+  if(!/^\\d+$/.test(submissionId)||!/^\\d+$/.test(taskId)){showMessage("Invalid submission reference. Refresh and try again.","error");return;}
+  if(!reasonCode||explanation.length<30||explanation.length>3000){showMessage("Choose an appeal reason and provide an explanation of 30–3000 characters.","error");return;}
+  if(files.length<1||files.length>5){showMessage("Attach between 1 and 5 supporting images.","error");return;}
+  if(files.some(file=>!file.type.startsWith("image/")||file.size>5242880)){showMessage("Each evidence file must be an image no larger than 5MB.","error");return;}
+  submit.disabled=true;submit.textContent="Uploading evidence…";
+  const uploaded=[];
+  try{
+    for(let i=0;i<files.length;i++){
+      const file=files[i];
+      const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,8)||"jpg";
+      const token=Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,12)+"-"+i;
+      const path=currentUser.id+"/appeals/"+submissionId+"/"+token+"."+ext;
+      const up=await db.storage.from("task-proofs").upload(path,file,{contentType:file.type,upsert:false});
+      if(up.error)throw up.error;
+      uploaded.push({path,name:file.name,type:file.type,size:file.size});
+    }
+    submit.textContent="Submitting appeal…";
+    const payload={submission_id:Number(submissionId),task_id:Number(taskId),user_id:currentUser.id,reason_code:reasonCode,explanation,evidence:uploaded,status:"PENDING"};
+    const inserted=await db.from("task_submission_appeals").insert(payload);
+    if(inserted.error)throw inserted.error;
+    showMessage("Your appeal and supporting evidence have been submitted to the NAIJA TASK admin team.","info");
+    form.closest("details").open=false;
+    await load();
+  }catch(error){
+    console.error("Appeal submission failed:",error);
+    if(uploaded.length){
+      const paths=uploaded.map(item=>item.path);
+      const cleanup=await db.storage.from("task-proofs").remove(paths);
+      if(cleanup.error)console.warn("Evidence cleanup needs review:",cleanup.error.message);
+    }
+    showMessage("Appeal could not be submitted: "+(error.message||"Please refresh and try again."),"error");
+  }finally{
+    if(document.body.contains(submit)){submit.disabled=false;submit.textContent="Submit appeal for admin review";}
+  }
+}
+$("submissionList").addEventListener("submit",event=>{
+  const form=event.target;
+  if(form instanceof HTMLFormElement&&form.matches("form[data-appeal]")){
+    event.preventDefault();submitAppeal(form);
+  }
+});
 $("refreshBtn").addEventListener("click",load);
 $("statusFilter").addEventListener("change",render);
 load();
