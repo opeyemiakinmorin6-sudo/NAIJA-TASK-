@@ -50,7 +50,7 @@ loginForm.addEventListener("submit",async event=>{
   const {data,error}=await db.auth.signInWithPassword({email,password});
   if(error)throw error;if(!data.user)throw new Error("Supabase did not return a signed-in user.");
   const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
-  if(profileError||!profile){await db.auth.signOut();throw new Error("Your account role could not be verified. Contact support if this continues.");}
+  if(profileError){console.error("Profile lookup failed:",profileError);await db.auth.signOut();throw new Error("Your password was accepted, but your account profile could not be loaded. Please retry once. If it continues, contact naijataskofficia@gmail.com and include the code PROFILE_LOOKUP_FAILED.");}if(!profile){await db.auth.signOut();throw new Error("Your login exists, but its NAIJA TASK profile record is missing. Your account and balance have not been deleted. Please contact naijataskofficia@gmail.com and include the code PROFILE_MISSING so support can restore the correct account role.");}
   const role=String(profile.role||"user").toLowerCase();
   if(!["tasker","user"].includes(role)){await db.auth.signOut();throw new Error(role==="task_poster"?"This is a Poster account. Use Poster Login instead.":"This account does not have Tasker access.");}
   msg("successMessage","Password accepted. Your Tasker session is active. Opening dashboard…","success");
@@ -58,7 +58,7 @@ loginForm.addEventListener("submit",async event=>{
  }catch(error){
   console.error("Tasker login error:",error);
   const code=error.code||"";let text=error.message||"Unable to log in. Please try again.";
-  if(code==="invalid_credentials"||/invalid login credentials/i.test(text))text="Email or password is incorrect. Check both and try again, or use Forgot Password.";
+  if(code==="invalid_credentials"||/invalid login credentials/i.test(text))text="We could not sign you in with those details. Check that you are using the exact email address registered on NAIJA TASK and re-enter your password. If you forgot it, use Forgot Password. For privacy, the login service does not reveal whether an email is registered.";else if(code==="user_not_found"||code==="email_not_found"||/user not found|email not found|no user found/i.test(text))text="No matching login was found. Check the email address and make sure you are using the correct login page. If you already registered, try Forgot Password before creating another account.";
   else if(code==="email_not_confirmed"||/email not confirmed/i.test(text))text="Your email is not confirmed yet. Open the confirmation email first, then log in.";
   else if(code==="user_banned")text="This account is temporarily restricted. Contact NAIJA TASK support.";
   else if(/failed to fetch|network/i.test(text))text="Could not connect to Supabase. Check your internet connection and retry.";
