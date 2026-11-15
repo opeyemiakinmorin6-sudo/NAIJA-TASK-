@@ -3692,6 +3692,14 @@ td,th{padding:13px 11px}
       <tbody id="taskSubmissionAppealsBody"><tr><td colspan="8" class="loading-row">Loading task appeals…</td></tr></tbody>
     </table></div>
   </div>
+  <div class="card" style="margin-top:16px">
+    <div class="page-header"><div><h3>Poster review fairness monitor</h3><p>Spot unusual rejection patterns and repeated appeal reversals.</p></div><button class="primary" onclick="loadPosterReviewIntegrity()">Refresh monitor</button></div>
+    <div class="notice">These are investigation signals, not automatic penalties. Review the original task instructions, evidence and appeal outcomes before taking action against any poster.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Poster</th><th>Decisions</th><th>Approved</th><th>Rejected</th><th>Escalated</th><th>Appeals</th><th>Reopened</th><th>Rejection rate</th><th>Signal</th></tr></thead>
+      <tbody id="posterReviewIntegrityBody"><tr><td colspan="9" class="loading-row">Loading poster fairness data…</td></tr></tbody>
+    </table></div>
+  </div>
 </section>
 
 
@@ -9981,6 +9989,72 @@ async function moderateMemberReview(id, status) {
 }
 
 
+async function loadPosterReviewIntegrity() {
+  const body = $("posterReviewIntegrityBody");
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="9" class="loading-row">Checking poster decisions…</td></tr>';
+  try {
+    const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+    const [feedbackResult, appealsResult] = await Promise.all([
+      withTimeout(supabaseClient.from("poster_submission_feedback")
+        .select("submission_id,poster_id,decision,created_at")
+        .gte("created_at", since).order("created_at", { ascending: false }).limit(3000), 15000, "Poster decision history"),
+      withTimeout(supabaseClient.from("task_submission_appeals")
+        .select("submission_id,status,created_at")
+        .gte("created_at", since).limit(3000), 15000, "Task appeal history")
+    ]);
+    if (feedbackResult.error) throw feedbackResult.error;
+    if (appealsResult.error) throw appealsResult.error;
+    const feedback = safeArray(feedbackResult.data);
+    const appeals = safeArray(appealsResult.data);
+    const appealBySubmission = Object.fromEntries(appeals.map(x => [String(x.submission_id), x]));
+    const stats = new Map();
+    for (const item of feedback) {
+      const id = String(item.poster_id || "");
+      if (!id) continue;
+      if (!stats.has(id)) stats.set(id, { id, total: 0, approved: 0, rejected: 0, escalated: 0, appeals: 0, reopened: 0, upheld: 0 });
+      const st = stats.get(id);
+      st.total++;
+      if (item.decision === "POSTER_APPROVED") st.approved++;
+      if (item.decision === "POSTER_REJECTED") {
+        st.rejected++;
+        const appeal = appealBySubmission[String(item.submission_id)];
+        if (appeal) {
+          st.appeals++;
+          if (appeal.status === "REOPENED") st.reopened++;
+          if (appeal.status === "UPHELD") st.upheld++;
+        }
+      }
+      if (item.decision === "REPORT_PROBLEM") st.escalated++;
+    }
+    if (!stats.size) {
+      body.innerHTML = '<tr><td colspan="9" class="empty-row">No poster decisions have been recorded yet.</td></tr>';
+      return;
+    }
+    const ids = [...stats.keys()];
+    let names = {};
+    try {
+      const { data, error } = await supabaseClient.from("profiles").select("id,full_name").in("id", ids);
+      if (!error) names = Object.fromEntries(safeArray(data).map(x => [String(x.id), x.full_name]));
+    } catch (_) {}
+    const rows = [...stats.values()].sort((a,b) => (b.rejected / Math.max(1,b.total)) - (a.rejected / Math.max(1,a.total)));
+    body.innerHTML = rows.map(st => {
+      const rate = st.total ? Math.round(st.rejected / st.total * 100) : 0;
+      const reversalRate = st.appeals ? st.reopened / st.appeals : 0;
+      let signal = "No unusual pattern detected";
+      if (st.total >= 5 && rate >= 70) signal = "High rejection rate — investigate";
+      if (st.appeals >= 3 && reversalRate >= 0.5) signal = "Frequent appeal reopenings — investigate";
+      if (st.rejected >= 10 && st.total < 5) signal = "High rejection volume — investigate";
+      return '<tr><td>' + escapeHTML(names[st.id] || st.id) + '</td>' +
+        '<td>' + st.total + '</td><td>' + st.approved + '</td><td>' + st.rejected + '</td><td>' + st.escalated + '</td>' +
+        '<td>' + st.appeals + '</td><td>' + st.reopened + '</td><td>' + rate + '%</td><td>' + escapeHTML(signal) + '</td></tr>';
+    }).join("");
+  } catch (error) {
+    reportError("loadPosterReviewIntegrity", error);
+    body.innerHTML = '<tr><td colspan="9" class="empty-row">Poster fairness data could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
+  }
+}
+
 async function loadTaskSubmissionAppeals() {
   const body = $("taskSubmissionAppealsBody");
   if (!body) return;
@@ -10091,6 +10165,7 @@ async function reviewTaskSubmissionAppeal(id) {
 
 async function loadAppeals() {
   loadTaskSubmissionAppeals();
+  loadPosterReviewIntegrity();
   const body = $("appealsBody");
   if (!body) return;
   body.innerHTML = '<tr><td colspan="8" class="loading-row">Loading appeals…</td></tr>';
