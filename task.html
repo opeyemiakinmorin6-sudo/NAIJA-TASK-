@@ -510,7 +510,7 @@ async function loadTasks(){
     if (!rpc.error && Array.isArray(rpc.data)){ tasks = rpc.data; usedRpc = true; } else rpcError = rpc.error;
 
     if (!tasks){
-      const q = await db.from("tasker_tasks_view").select("*").order("created_at", {ascending:false}).limit(300);
+      const q = await db.rpc("get_tasker_tasks");
       if (q.error){
         console.error("Task loading error:", q.error, "RPC error:", rpcError);
         renderLoadError("Refresh and try again. If this continues, the task database permissions or the get_available_tasks function need repair.");
@@ -559,8 +559,7 @@ async function loadUserSubmissions(){
     (data || []).forEach(r => { if (r.task_id !== null && r.task_id !== undefined) currentSubmissionIds.add(String(r.task_id)); });
     const ids = [...currentSubmissionIds];
     if (ids.length){
-      const { data: submittedTasks, error: taskError } = await db.from("tasker_tasks_view")
-        .select("id,title,task_type,task_link,post_link").in("id", ids);
+      const { data: submittedTasks, error: taskError } = await db.rpc("get_tasker_task_titles", { p_task_ids: ids });
       if (taskError) throw taskError;
       (submittedTasks || []).forEach(t => {
         const key = taskTargetKey(t);
