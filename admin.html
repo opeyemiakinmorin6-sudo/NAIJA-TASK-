@@ -6956,14 +6956,14 @@ async function openProofModal(submissionId) {
       const otherUrl = String(otherProof?.photo_url || otherProof?.image_url || otherProof?.screenshot_url || "");
       return (proofPath && otherPath === proofPath) || (proofUrl && otherUrl === proofUrl);
     });
-    const currentTarget = String(task?.task_link || task?.post_link || "").trim().split("?")[0].replace(/\\/+$/, "").toLowerCase();
+    const currentTarget = String(task?.task_link || task?.post_link || "").trim().split("?")[0].replace(/\/+$/, "").toLowerCase();
     const duplicateListings = allSubmissions.filter(other => {
       if (String(other.id) === String(row.id) || String(other.user_id) !== String(row.user_id) || String(other.task_id) === String(row.task_id)) return false;
       const otherTask = getSubmissionTask(other);
       if (!otherTask || !currentTarget) return false;
-      const otherTarget = String(otherTask.task_link || otherTask.post_link || "").trim().split("?")[0].replace(/\\/+$/, "").toLowerCase();
+      const otherTarget = String(otherTask.task_link || otherTask.post_link || "").trim().split("?")[0].replace(/\/+$/, "").toLowerCase();
       const sameType = String(otherTask.task_type || "").trim().toLowerCase() === String(task?.task_type || "").trim().toLowerCase();
-      const sameTitle = String(otherTask.title || "").trim().toLowerCase().replace(/\\s+/g, " ") === String(task?.title || "").trim().toLowerCase().replace(/\\s+/g, " ");
+      const sameTitle = String(otherTask.title || "").trim().toLowerCase().replace(/\s+/g, " ") === String(task?.title || "").trim().toLowerCase().replace(/\s+/g, " ");
       return sameType && sameTitle && otherTarget === currentTarget;
     });
     const isPending = String(row.status || "").toLowerCase() === "pending";
