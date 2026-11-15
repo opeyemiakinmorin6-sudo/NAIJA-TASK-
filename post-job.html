@@ -418,8 +418,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
       placeholder="Paste the relevant social post, profile, video, channel or app link"
     >
 
-    <div class="help">
-      Taskers will be able to open this link directly.
+    <div class="help" id="taskLinkHelp">
+      Required for social tasks. Paste the exact profile, post, video, channel, group or page URL where the Tasker must complete the action. Use the real destination link, not a search-results page.
     </div>
 
     <label for="copyText">
@@ -1205,18 +1205,27 @@ publishBtn.addEventListener(
     }
 
 
-    if(
-      link &&
-      !link.startsWith("http://") &&
-      !link.startsWith("https://")
-    ){
+    const socialService = selectedTaskKind() === "normal_task";
 
-      showMessage(
-        "Please enter a complete link beginning with https://",
-        "error"
-      );
-
+    if(socialService && !link){
+      showMessage("Add the target link for this social task. Taskers need the exact page, profile, post, video or channel.", "error");
+      document.getElementById("taskLink").focus();
       return;
+    }
+
+    if(link){
+      let targetUrl;
+      try{ targetUrl = new URL(link); }
+      catch(_){
+        showMessage("Enter a valid full target link, including https://", "error");
+        document.getElementById("taskLink").focus();
+        return;
+      }
+      if(!["https:","http:"].includes(targetUrl.protocol) || !targetUrl.hostname || targetUrl.username || targetUrl.password){
+        showMessage("Target link must be a normal http:// or https:// web address. Links containing login details are not allowed.", "error");
+        document.getElementById("taskLink").focus();
+        return;
+      }
     }
 
 
@@ -1339,7 +1348,6 @@ publishBtn.addEventListener(
          TASK DATA
       ===================================== */
 
-      const socialService=selectedTaskKind()==="normal_task";
     const socialPlatform=socialService?document.getElementById("socialPlatform").value:"";
     if(socialService&&(!socialPlatform||!(PLATFORM_SERVICE_TYPES[socialPlatform]||[]).includes(category))){
       showMessage("Choose a valid task type for the selected social platform.","error");
