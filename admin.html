@@ -9988,7 +9988,7 @@ async function loadTaskSubmissionAppeals() {
   try {
     const { data, error } = await withTimeout(
       supabaseClient.from("task_submission_appeals")
-        .select("id,submission_id,task_id,user_id,reason_code,explanation,evidence,original_rejection_reason,status,admin_response,created_at")
+        .select("id,submission_id,task_id,user_id,reason_code,explanation,evidence,original_rejection_reason,original_rejected_by,original_rejected_at,status,admin_response,created_at")
         .order("created_at", { ascending: false }).limit(200),
       15000, "Task submission appeals request"
     );
@@ -10003,7 +10003,7 @@ async function loadTaskSubmissionAppeals() {
       '<td>#' + escapeHTML(row.submission_id) + ' / Task #' + escapeHTML(row.task_id) + '</td>' +
       '<td>' + escapeHTML(String(row.reason_code || "").replaceAll("_"," ")) + '</td>' +
       '<td style="min-width:220px;white-space:pre-wrap">' + escapeHTML(row.explanation || "") + '</td>' +
-      '<td style="min-width:180px;white-space:pre-wrap">' + escapeHTML(row.original_rejection_reason || "No reason recorded") + '</td>' +
+      '<td style="min-width:180px;white-space:pre-wrap">' + escapeHTML(row.original_rejection_reason || "No reason recorded") + '<br><small>Original decision: ' + escapeHTML(formatDate(row.original_rejected_at)) + '</small></td>' +
       '<td>' + badge(row.status || "PENDING") + '</td>' +
       '<td>' + formatDate(row.created_at) + '</td>' +
       '<td><button class="small-btn" ' + (["PENDING","UNDER_REVIEW"].includes(String(row.status).toUpperCase()) ? '' : 'disabled') +
@@ -10024,7 +10024,7 @@ async function reviewTaskSubmissionAppeal(id) {
   try {
     const { data: appeal, error } = await withTimeout(
       supabaseClient.from("task_submission_appeals")
-        .select("id,submission_id,task_id,user_id,reason_code,explanation,evidence,original_rejection_reason,status")
+        .select("id,submission_id,task_id,user_id,reason_code,explanation,evidence,original_rejection_reason,original_rejected_by,original_rejected_at,status")
         .eq("id", id).maybeSingle(),
       15000, "Read task appeal"
     );
