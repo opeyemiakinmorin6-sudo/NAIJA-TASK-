@@ -72,7 +72,7 @@ async function start(){
  if(moduleName==="appeals"){
    const [submissionsResult,taskAppealsResult,generalAppealsResult,withdrawalsResult]=await Promise.all([
      sb.from("task_submissions").select("id,task_id,status,created_at,rejection_reason").eq("user_id",user.id).eq("status","REJECTED").order("created_at",{ascending:false}).limit(100),
-     sb.from("task_submission_appeals").select("id,submission_id,task_id,reason_code,explanation,evidence,original_rejection_reason,status,admin_response,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
+     sb.from("task_submission_appeals").select("id,submission_id,task_id,reason_code,explanation,evidence,original_rejection_reason,original_rejected_at,status,admin_response,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
      sb.from("appeals").select("id,subject,message,status,admin_response,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(40),
      sb.from("withdrawals").select("id,amount,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(60)
    ]);
@@ -86,7 +86,7 @@ async function start(){
    const generalRows=generalAppealsResult.data||[];
    const withdrawalOptions=(withdrawalsResult.data||[]).map(x=>'<option value="withdrawal:'+esc(x.id)+'">Withdrawal #'+esc(x.id)+' · '+money(x.amount)+' · '+esc(x.status||"Pending")+'</option>').join("");
    const taskAppealList=taskAppeals.map(x=>row("Task submission #"+x.submission_id,
-     "Original rejection: "+(x.original_rejection_reason||"Not recorded")+" · Appeal reason: "+String(x.reason_code||"").replaceAll("_"," ")+" · "+(x.explanation||"")+" · "+((x.evidence||[]).length)+" evidence image(s) · "+date(x.created_at),
+     "Original rejection: "+(x.original_rejection_reason||"Not recorded")+" · Appeal reason: "+String(x.reason_code||"").replaceAll("_"," ")+" · "+(x.explanation||"")+" · "+((x.evidence||[]).length)+" evidence image(s) · Original decision: "+date(x.original_rejected_at)+" · Appeal sent: "+date(x.created_at),
      x.status,x.admin_response||"Awaiting admin review")).join("")||'<div class="empty">You have not submitted a task rejection appeal.</div>';
    app.innerHTML=
     '<section class="panel"><h2>⚖️ Appeal a rejected task</h2><p class="muted">If you completed the task honestly and believe the rejection was wrong, explain the facts and upload clear supporting evidence. You can submit one appeal per rejected submission. False claims or altered evidence may lead to account restrictions.</p>'+
