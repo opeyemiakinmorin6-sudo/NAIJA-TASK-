@@ -475,11 +475,7 @@ function renderSection(items,title,emptyText){
 }
 
 async function loadJobs(){
-  const result=await db.from("poster_tasks_view")
-    .select("id,title,description,total_funding_required,slots,status,active,created_at,expiry_date,created_by,task_type,task_kind")
-    .eq("created_by",currentUser.id)
-    .order("created_at",{ascending:false})
-    .limit(300);
+  const result=await db.rpc("get_poster_tasks");
 
   if(result.error)throw result.error;
   jobs=result.data||[];
