@@ -677,6 +677,9 @@ main{max-width:980px;padding-top:22px}
     🗂️ My Social Tasks & Business Jobs
   </div>
 
+  <div class="section-title">🧾 Task Proof Review</div>
+  <section id="posterProofList" class="jobs"><div class="loading">Loading submissions for your tasks...</div></section>
+
   <section id="jobsList" class="jobs">
 
     <div class="loading">
@@ -1039,6 +1042,40 @@ async function loadJobs(user){
 }
 
 /* =========================================================
+   POSTER PROOF REVIEW — FEEDBACK ONLY; ADMIN CONTROLS PAYOUT
+   ========================================================= */
+async function loadPosterProofs(user){
+ const box=document.getElementById("posterProofList");if(!box)return;
+ box.innerHTML='<div class="loading">Loading task submissions...</div>';
+ const {data:tasks,error:te}=await supabaseClient.from("tasks").select("id,title").eq("created_by",user.id);
+ if(te){box.innerHTML='<div class="empty">Could not load your tasks: '+escapeHtml(te.message)+'</div>';return;}
+ const ids=(tasks||[]).map(t=>t.id);if(!ids.length){box.innerHTML='<div class="empty">No submissions for your jobs yet.</div>';return;}
+ const {data:subs,error}=await supabaseClient.from("task_submissions").select("id,task_id,user_id,proof,status,created_at").in("task_id",ids).order("created_at",{ascending:false}).limit(100);
+ if(error){box.innerHTML='<div class="empty">Could not load submissions: '+escapeHtml(error.message)+'</div>';return;}
+ if(!subs?.length){box.innerHTML='<div class="empty">No workers have submitted proof yet.</div>';return;}
+ const tm=Object.fromEntries((tasks||[]).map(t=>[String(t.id),t]));
+ const html=await Promise.all(subs.map(async s=>{
+  let p={};try{p=typeof s.proof==="string"?JSON.parse(s.proof):s.proof||{};}catch(_){p={text:s.proof||""};}
+  const path=p.photo_path||p.image_path||p.screenshot_path||"";let ev='<span class="info">No screenshot path found</span>';
+  if(path){const {data:d,error:e}=await supabaseClient.storage.from(p.bucket||"task-proofs").createSignedUrl(path,600);ev=!e&&d?.signedUrl?'<a href="'+escapeHtml(d.signedUrl)+'" target="_blank" rel="noopener">Open screenshot</a>':'<span class="info">Evidence is not accessible</span>';}
+  else {const url=p.photo_url||p.image_url||p.screenshot_url;if(url)ev='<a href="'+escapeHtml(url)+'" target="_blank" rel="noopener">Open evidence</a>';}
+  const pending=String(s.status||"").toUpperCase()==="PENDING";
+  const actions=pending?'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'ACCEPT_RECOMMENDED\')">Looks complete</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'NEED_CLEARER_PROOF\')">Need clearer proof</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'REPORT_PROBLEM\')">Report problem</button></div>':'';
+  return '<article style="background:#fff;border:1px solid #dce9de;border-radius:14px;padding:14px;margin:10px 0"><strong>'+escapeHtml(tm[String(s.task_id)]?.title||("Task #"+s.task_id))+'</strong><div class="job-info"><span class="info">Submission #'+s.id+'</span><span class="info">'+escapeHtml(s.status||"pending")+'</span><span class="info">'+escapeHtml(new Date(s.created_at).toLocaleString("en-NG"))+'</span></div><div style="margin-top:10px">'+ev+'</div>'+(p.text?'<p style="margin-top:8px;white-space:pre-wrap">'+escapeHtml(p.text)+'</p>':'')+actions+'</article>';
+ }));
+ box.innerHTML=html.join("");
+}
+async function sendPosterProofFeedback(submissionId,taskId,decision){
+ const allowed=["ACCEPT_RECOMMENDED","NEED_CLEARER_PROOF","REPORT_PROBLEM"];if(!allowed.includes(decision))return;
+ let message="";if(decision!=="ACCEPT_RECOMMENDED"){message=prompt(decision==="NEED_CLEARER_PROOF"?"What evidence is unclear or missing?":"Describe the problem for admin review:")||"";if(!message.trim()){alert("Please enter an explanation.");return;}}else message=prompt("Optional note for admin:")||"";
+ const {data:a}=await supabaseClient.auth.getUser();if(!a?.user){alert("Please sign in again.");return;}
+ const {error}=await supabaseClient.from("poster_submission_feedback").insert({submission_id:submissionId,task_id:taskId,poster_id:a.user.id,decision,message:message.trim()||null});
+ if(error){alert("Could not save feedback: "+error.message);return;}
+ alert("Feedback sent. This does not approve, reject or release payment; admin review remains in control.");
+ await loadPosterProofs(a.user);
+}
+
+/* =========================================================
    FORMAT STATUS
    ========================================================= */
 
@@ -1122,6 +1159,7 @@ async function startDashboard(){
   await loadProfile(user);
 
   await loadJobs(user);
+  await loadPosterProofs(user);
 
 }
 
