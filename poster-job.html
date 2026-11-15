@@ -365,7 +365,7 @@ function progressFor(job){
 function jobAmount(job){
   const p=paymentFor(job.id);
   if(p&&Number.isFinite(Number(p.amount))&&Number(p.amount)>0)return Number(p.amount);
-  return Math.max(0,Number(job.reward)||0)*slotsFor(job);
+  return Math.max(0,Number(job.total_funding_required)||0);
 }
 function waitingJob(job){
   return ["PAYMENT","APPROVAL"].includes(jobGroup(job));
@@ -475,8 +475,8 @@ function renderSection(items,title,emptyText){
 }
 
 async function loadJobs(){
-  const result=await db.from("tasks")
-    .select("id,title,description,reward,slots,status,active,created_at,expiry_date,created_by,task_type,task_kind")
+  const result=await db.from("poster_tasks_view")
+    .select("id,title,description,total_funding_required,slots,status,active,created_at,expiry_date,created_by,task_type,task_kind")
     .eq("created_by",currentUser.id)
     .order("created_at",{ascending:false})
     .limit(300);
