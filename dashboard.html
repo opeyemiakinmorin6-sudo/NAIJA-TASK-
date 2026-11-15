@@ -1231,7 +1231,7 @@ async function loadPlatformSettings(){
   settingsVerified = false;
   platformSettings = null;
   hideMembershipOffers();
-  const { data, error } = await withTimeout(supabaseClient.from("platform_settings").select("vip_enabled, vip_price").limit(1).maybeSingle());
+  const { data, error } = await withTimeout(supabaseClient.from("platform_settings_public").select("vip_enabled, vip_price").limit(1).maybeSingle());
   if (error || !data){ console.warn("Platform settings unavailable:", error); renderMembershipOffers(); return; }
   platformSettings = data;
   settingsVerified = true;
