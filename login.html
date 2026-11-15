@@ -48,8 +48,10 @@ loginForm.addEventListener("submit",async event=>{
  try{
   const {data,error}=await db.auth.signInWithPassword({email,password});
   if(error)throw error;if(!data.user)throw new Error("Supabase did not return a signed-in user.");
-  const m=data.user.user_metadata||{},role=String(m.role||m.user_type||m.account_type||"").toLowerCase();
-  if(["task_poster","poster","task poster"].includes(role)){await db.auth.signOut();throw new Error("This is a Poster account. Use Poster Login instead.");}
+  const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
+  if(profileError||!profile){await db.auth.signOut();throw new Error("Your account role could not be verified. Contact support if this continues.");}
+  const role=String(profile.role||"user").toLowerCase();
+  if(!["tasker","user"].includes(role)){await db.auth.signOut();throw new Error(role==="task_poster"?"This is a Poster account. Use Poster Login instead.":"This account does not have Tasker access.");}
   msg("successMessage","Password accepted. Your Tasker session is active. Opening dashboard…","success");
   loginBtn.textContent="Opening dashboard…";location.replace("dashboard.html");
  }catch(error){
