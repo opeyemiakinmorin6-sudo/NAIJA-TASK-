@@ -234,7 +234,7 @@ async function submitAppeal(form){
   const explanation=form.querySelector('[name="explanation"]').value.trim();
   const files=Array.from(form.querySelector('[name="evidence"]').files||[]);
   if(!currentUser){showMessage("Please sign in again before submitting an appeal.","error");return;}
-  if(!/^\\d+$/.test(submissionId)||!/^\\d+$/.test(taskId)){showMessage("Invalid submission reference. Refresh and try again.","error");return;}
+  if(!/^\d+$/.test(submissionId)||!/^\d+$/.test(taskId)){showMessage("Invalid submission reference. Refresh and try again.","error");return;}
   if(!reasonCode||explanation.length<30||explanation.length>3000){showMessage("Choose an appeal reason and provide an explanation of 30–3000 characters.","error");return;}
   if(files.length<1||files.length>5){showMessage("Attach between 1 and 5 supporting images.","error");return;}
   if(files.some(file=>!file.type.startsWith("image/")||file.size>5242880)){showMessage("Each evidence file must be an image no larger than 5MB.","error");return;}
