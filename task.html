@@ -741,8 +741,13 @@ async function submitProof(){
       if (uploaded?.path) console.warn("Submission failed after upload; image may need cleanup:", uploaded.path);
       if (error.code === "23505" || /duplicate|unique/i.test(error.message || "")){
         currentSubmissionIds.add(id);
+        const duplicateTargetKey = taskTargetKey(selectedTask);
+        if (duplicateTargetKey) currentSubmissionTargets.add(duplicateTargetKey);
         button.textContent = "Already submitted";
-        showNotice("A submission for this task already exists on your account.", "error");
+        const duplicateTarget = /DUPLICATE_TASK_TARGET/i.test(error.message || "");
+        showNotice(duplicateTarget
+          ? "You already submitted this same action for this target under another task listing. You can only earn once."
+          : "A submission for this task already exists on your account.", "error");
         renderTasks();
         return;
       }
@@ -751,6 +756,8 @@ async function submitProof(){
     }
 
     currentSubmissionIds.add(id);
+    const completedTargetKey = taskTargetKey(selectedTask);
+    if (completedTargetKey) currentSubmissionTargets.add(completedTargetKey);
     resetProofForm();
     buildFilters();
     renderTasks();
