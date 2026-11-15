@@ -3684,6 +3684,14 @@ td,th{padding:13px 11px}
       <tbody id="appealsBody"><tr><td colspan="8" class="loading-row">Loading appeals…</td></tr></tbody>
     </table></div>
   </div>
+  <div class="card" style="margin-top:16px">
+    <div class="page-header"><div><h3>Task rejection appeals</h3><p>Taskers can challenge a rejected submission once, with a reason and supporting images. Review evidence before deciding.</p></div><button class="primary" onclick="loadTaskSubmissionAppeals()">Refresh task appeals</button></div>
+    <div class="notice">Reopen for review sends the submission back to the admin proof queue. It does not automatically approve or pay the Tasker. Uphold rejection keeps the original rejection in place. Every decision requires an explanation.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tasker</th><th>Submission</th><th>Appeal reason</th><th>Tasker explanation</th><th>Original rejection</th><th>Status</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody id="taskSubmissionAppealsBody"><tr><td colspan="8" class="loading-row">Loading task appeals…</td></tr></tbody>
+    </table></div>
+  </div>
 </section>
 
 
@@ -9966,7 +9974,104 @@ async function moderateMemberReview(id, status) {
 }
 
 
+async function loadTaskSubmissionAppeals() {
+  const body = $("taskSubmissionAppealsBody");
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="8" class="loading-row">Loading task appeals…</td></tr>';
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.from("task_submission_appeals")
+        .select("id,submission_id,task_id,user_id,reason_code,explanation,evidence,original_rejection_reason,status,admin_response,created_at")
+        .order("created_at", { ascending: false }).limit(200),
+      15000, "Task submission appeals request"
+    );
+    if (error) throw error;
+    const rows = safeArray(data);
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="8" class="empty-row">No task rejection appeals have been submitted.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(row =>
+      '<tr><td class="mono">' + escapeHTML(row.user_id || "—") + '</td>' +
+      '<td>#' + escapeHTML(row.submission_id) + ' / Task #' + escapeHTML(row.task_id) + '</td>' +
+      '<td>' + escapeHTML(String(row.reason_code || "").replaceAll("_"," ")) + '</td>' +
+      '<td style="min-width:220px;white-space:pre-wrap">' + escapeHTML(row.explanation || "") + '</td>' +
+      '<td style="min-width:180px;white-space:pre-wrap">' + escapeHTML(row.original_rejection_reason || "No reason recorded") + '</td>' +
+      '<td>' + badge(row.status || "PENDING") + '</td>' +
+      '<td>' + formatDate(row.created_at) + '</td>' +
+      '<td><button class="small-btn" ' + (["PENDING","UNDER_REVIEW"].includes(String(row.status).toUpperCase()) ? '' : 'disabled') +
+      ' onclick="reviewTaskSubmissionAppeal(\'' + escapeHTML(row.id) + '\')">Review appeal</button></td></tr>'
+    ).join("");
+  } catch (error) {
+    reportError("loadTaskSubmissionAppeals", error);
+    body.innerHTML = '<tr><td colspan="8" class="empty-row">Task appeals could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
+  }
+}
+
+async function reviewTaskSubmissionAppeal(id) {
+  const evidenceTab = window.open("about:blank", "_blank");
+  try {
+    const { data: appeal, error } = await withTimeout(
+      supabaseClient.from("task_submission_appeals")
+        .select("id,submission_id,task_id,user_id,reason_code,explanation,evidence,original_rejection_reason,status")
+        .eq("id", id).maybeSingle(),
+      15000, "Read task appeal"
+    );
+    if (error) throw error;
+    if (!appeal) throw new Error("Appeal not found.");
+    const evidence = Array.isArray(appeal.evidence) ? appeal.evidence : [];
+    const signed = [];
+    for (const item of evidence) {
+      const path = String(item?.path || "");
+      if (!path || !path.startsWith(String(appeal.user_id) + "/appeals/" + String(appeal.submission_id) + "/")) continue;
+      const { data, error: signError } = await supabaseClient.storage.from("task-proofs").createSignedUrl(path, 300);
+      if (!signError && data?.signedUrl) signed.push(data.signedUrl);
+    }
+    if (evidenceTab) {
+      if (signed.length) evidenceTab.location.href = signed[0];
+      else evidenceTab.close();
+    }
+    const decision = window.prompt(
+      "TASK SUBMISSION APPEAL #" + appeal.submission_id +
+      "\nReason: " + appeal.reason_code +
+      "\nTasker explanation: " + appeal.explanation +
+      "\nOriginal rejection: " + (appeal.original_rejection_reason || "Not recorded") +
+      "\nSupporting images: " + signed.length + " (first image opened in a new tab)" +
+      "\n\nType exactly REOPEN_FOR_REVIEW or UPHOLD_REJECTION:"
+    );
+    if (decision === null) return;
+    const normalized = String(decision).trim().toUpperCase();
+    if (!["REOPEN_FOR_REVIEW","UPHOLD_REJECTION"].includes(normalized)) {
+      toast("Decision not saved. Enter one of the two exact decision names.", "warning");
+      return;
+    }
+    const response = await uiPrompt("Write the reason for this appeal decision (at least 15 characters). The Tasker will see it.");
+    if (response === null || String(response).trim().length < 15) {
+      toast("A clear decision explanation is required.", "warning");
+      return;
+    }
+    const { data: result, error: resolveError } = await withTimeout(
+      supabaseClient.rpc("admin_resolve_task_submission_appeal", {
+        p_appeal_id: id,
+        p_decision: normalized,
+        p_response: String(response).trim()
+      }),
+      15000, "Resolve task submission appeal"
+    );
+    if (resolveError) throw resolveError;
+    if (!result?.success) throw new Error("The appeal decision was not confirmed by the database.");
+    toast(normalized === "REOPEN_FOR_REVIEW" ? "Appeal accepted. Submission returned to the admin proof queue; no payment was made." : "Rejection upheld. The Tasker will see your explanation.", "success");
+    await loadTaskSubmissionAppeals();
+    await loadSubmissions();
+  } catch (error) {
+    if (evidenceTab && !evidenceTab.closed && evidenceTab.location.href === "about:blank") evidenceTab.close();
+    reportError("reviewTaskSubmissionAppeal", error);
+    toast(errorMessage(error, "Unable to review this task appeal."), "danger");
+  }
+}
+
 async function loadAppeals() {
+  loadTaskSubmissionAppeals();
   const body = $("appealsBody");
   if (!body) return;
   body.innerHTML = '<tr><td colspan="8" class="loading-row">Loading appeals…</td></tr>';
