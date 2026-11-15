@@ -1533,10 +1533,21 @@ async function startDashboard(){
     if (!data?.session?.user){ window.location.replace("login.html"); return; }
 
     currentUser = data.session.user;
-    const dashboardMetadata = currentUser.user_metadata || {};
-    const dashboardRole = String(dashboardMetadata.role || dashboardMetadata.user_type || dashboardMetadata.account_type || "").toLowerCase();
-    if (["task_poster", "poster", "task poster"].includes(dashboardRole)) {
+    const { data: roleProfile, error: roleError } = await supabaseClient
+      .from("profiles").select("role").eq("id", currentUser.id).maybeSingle();
+    if (roleError || !roleProfile) throw roleError || new Error("Your account role could not be verified.");
+    const dashboardRole = String(roleProfile.role || "user").toLowerCase();
+    if (dashboardRole === "task_poster") {
       window.location.replace("poster-dashboard.html");
+      return;
+    }
+    if (dashboardRole === "admin") {
+      window.location.replace("admin.html");
+      return;
+    }
+    if (!["tasker", "user"].includes(dashboardRole)) {
+      await supabaseClient.auth.signOut();
+      window.location.replace("login.html");
       return;
     }
     subscribeToChanges();
