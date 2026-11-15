@@ -6945,7 +6945,13 @@ async function openProofModal(submissionId) {
 
   try {
     const row = currentProof;
-    const media = await resolveProofMedia(row);
+    const [media, posterFeedbackResult] = await Promise.all([
+      resolveProofMedia(row),
+      supabaseClient.from("poster_submission_feedback")
+        .select("decision,message,created_at,poster_id")
+        .eq("submission_id", row.id).maybeSingle()
+    ]);
+    const posterFeedback = posterFeedbackResult.error ? null : posterFeedbackResult.data;
     // Avoid rendering the wrong image if the admin opened another submission while this one was loading.
     if (!currentProof || String(currentProof.id) !== String(row.id)) return;
 
@@ -7001,6 +7007,7 @@ async function openProofModal(submissionId) {
         <div><span>Submitted username</span><strong>${escapeHTML(username || "Not supplied")}</strong></div>
         <div><span>Proof requirement</span><strong>${photoRequired ? "Screenshot/photo required" : "Written proof accepted"}</strong></div>
       </div>
+      ${posterFeedback ? '<div class="notice" style="margin-top:12px"><strong>Poster review (one-time feedback)</strong><p style="margin:5px 0">' + escapeHTML(String(posterFeedback.decision || "").replaceAll("_"," ")) + '</p>' + (posterFeedback.message ? '<p style="white-space:pre-wrap">' + escapeHTML(posterFeedback.message) + '</p>' : '<small>No additional note supplied.</small>') + '<small>Submitted ' + escapeHTML(formatDate(posterFeedback.created_at)) + '</small><p><strong>This is a recommendation only, not a final rejection or approval.</strong></p></div>' : '<div class="notice" style="margin-top:12px">The poster has not submitted review feedback for this proof.</div>'}
       <h4 style="margin:16px 0 7px">Poster’s task instructions</h4>
       <div class="proof-text-box"><p style="white-space:pre-wrap;overflow-wrap:anywhere">${escapeHTML(task?.description || "No task description was saved.")}</p>
         ${task?.uploader_username ? `<p><strong>Account to engage:</strong> ${escapeHTML(task.uploader_username)}</p>` : ""}
