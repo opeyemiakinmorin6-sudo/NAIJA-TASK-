@@ -428,6 +428,11 @@ main{max-width:980px;padding-top:22px}
 #posterProofList article{overflow-wrap:anywhere;box-shadow:0 4px 13px #12351b08}
 #posterProofList article button{min-height:40px;padding:9px 12px;border:1px solid #d6e6d6;border-radius:9px;background:#f8fcf5;color:#174a27;font-weight:800}
 @media(max-width:480px){.proof-review-intro{padding:12px}#posterProofList article button{flex:1 1 100%}}
+</style><style id="poster-review-limits">
+.poster-review-rules,.poster-review-saved{margin-top:12px;padding:11px 12px;border-radius:11px;background:#fff8e8;border:1px solid #f0dfb7}
+.poster-review-rules strong,.poster-review-saved strong{display:block;color:#674700;font-size:12px;margin-bottom:3px}
+.poster-review-rules span,.poster-review-saved span{display:block;color:#6f6247;font-size:11px;line-height:1.5}
+.poster-review-saved{background:#eff8f0;border-color:#d6e8d8}.poster-review-saved strong{color:#075b2d}.poster-review-saved span{color:#315c3c}.poster-review-saved p{font-size:12px;margin:5px 0}.poster-review-saved small{font-size:10px;color:#6c7d70}
 </style></head>
 
 <body>
@@ -1059,9 +1064,15 @@ async function loadPosterProofs(user){
  const {data:tasks,error:te}=await supabaseClient.from("tasks").select("id,title").eq("created_by",user.id);
  if(te){box.innerHTML='<div class="empty">Could not load your tasks: '+escapeHtml(te.message)+'</div>';return;}
  const ids=(tasks||[]).map(t=>t.id);if(!ids.length){box.innerHTML='<div class="empty">No submissions for your jobs yet.</div>';return;}
- const {data:subs,error}=await supabaseClient.from("task_submissions").select("id,task_id,user_id,proof,status,created_at").in("task_id",ids).order("created_at",{ascending:false}).limit(100);
- if(error){box.innerHTML='<div class="empty">Could not load submissions: '+escapeHtml(error.message)+'</div>';return;}
- if(!subs?.length){box.innerHTML='<div class="empty">No workers have submitted proof yet.</div>';return;}
+ const [subsResult,feedbackResult]=await Promise.all([
+  supabaseClient.from("task_submissions").select("id,task_id,user_id,proof,status,created_at").in("task_id",ids).order("created_at",{ascending:false}).limit(100),
+  supabaseClient.from("poster_submission_feedback").select("submission_id,decision,message,created_at").in("task_id",ids)
+ ]);
+ const subs=subsResult.data||[], feedbackRows=feedbackResult.data||[];
+ if(subsResult.error){box.innerHTML='<div class="empty">Could not load submissions: '+escapeHtml(subsResult.error.message)+'</div>';return;}
+ if(feedbackResult.error){box.innerHTML='<div class="empty">Could not load your review history: '+escapeHtml(feedbackResult.error.message)+'</div>';return;}
+ if(!subs.length){box.innerHTML='<div class="empty">No workers have submitted proof yet.</div>';return;}
+ const feedbackBySubmission=Object.fromEntries(feedbackRows.map(x=>[String(x.submission_id),x]));
  const tm=Object.fromEntries((tasks||[]).map(t=>[String(t.id),t]));
  const html=await Promise.all(subs.map(async s=>{
   let p={};try{p=typeof s.proof==="string"?JSON.parse(s.proof):s.proof||{};}catch(_){p={text:s.proof||""};}
@@ -1069,8 +1080,10 @@ async function loadPosterProofs(user){
   if(path){const {data:d,error:e}=await supabaseClient.storage.from(p.bucket||"task-proofs").createSignedUrl(path,600);ev=!e&&d?.signedUrl?'<a href="'+escapeHtml(d.signedUrl)+'" target="_blank" rel="noopener">Open screenshot</a>':'<span class="info">Evidence is not accessible</span>';}
   else {const url=p.photo_url||p.image_url||p.screenshot_url;if(url)ev='<a href="'+escapeHtml(url)+'" target="_blank" rel="noopener">Open evidence</a>';}
   const pending=["PENDING","SUBMITTED","UNDER_REVIEW"].includes(String(s.status||"").trim().toUpperCase());
-  const actions=pending?'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'ACCEPT_RECOMMENDED\')">Looks complete</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'NEED_CLEARER_PROOF\')">Need clearer proof</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'REPORT_PROBLEM\')">Report problem</button></div>':'';
-  return '<article style="background:#fff;border:1px solid #dce9de;border-radius:14px;padding:14px;margin:10px 0"><strong>'+escapeHtml(tm[String(s.task_id)]?.title||("Task #"+s.task_id))+'</strong><div class="job-info"><span class="info">Submission #'+s.id+'</span><span class="info">'+escapeHtml(s.status||"pending")+'</span><span class="info">'+escapeHtml(new Date(s.created_at).toLocaleString("en-NG"))+'</span></div><div style="margin-top:10px">'+ev+'</div>'+(p.text?'<p style="margin-top:8px;white-space:pre-wrap">'+escapeHtml(p.text)+'</p>':'')+actions+'</article>';
+  const prior=feedbackBySubmission[String(s.id)];
+  const actions=pending&&!prior?'<div class="poster-review-rules"><strong>One review only</strong><span>Choose carefully. You cannot cancel a submission, directly reject a Tasker or release/withhold their reward. Admin makes the final decision.</span></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'ACCEPT_RECOMMENDED\')">Recommend approval</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'NEED_CLEARER_PROOF\')">Flag unclear proof</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'REPORT_PROBLEM\')">Report specific issue</button></div>':'';
+  const priorHtml=prior?'<div class="poster-review-saved"><strong>Review already submitted</strong><span>'+escapeHtml(String(prior.decision).replaceAll("_"," "))+'</span>'+(prior.message?'<p>'+escapeHtml(prior.message)+'</p>':'')+'<small>'+escapeHtml(new Date(prior.created_at).toLocaleString("en-NG"))+'</small></div>':'';
+  return '<article style="background:#fff;border:1px solid #dce9de;border-radius:14px;padding:14px;margin:10px 0"><strong>'+escapeHtml(tm[String(s.task_id)]?.title||("Task #"+s.task_id))+'</strong><div class="job-info"><span class="info">Submission #'+s.id+'</span><span class="info">'+escapeHtml(s.status||"pending")+'</span><span class="info">'+escapeHtml(new Date(s.created_at).toLocaleString("en-NG"))+'</span></div><div style="margin-top:10px">'+ev+'</div>'+(p.text?'<p style="margin-top:8px;white-space:pre-wrap">'+escapeHtml(p.text)+'</p>':'')+priorHtml+actions+'</article>';
  }));
  box.innerHTML=html.join("");
 }
