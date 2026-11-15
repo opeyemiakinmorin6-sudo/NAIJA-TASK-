@@ -10017,6 +10017,10 @@ async function loadTaskSubmissionAppeals() {
 
 async function reviewTaskSubmissionAppeal(id) {
   const evidenceTab = window.open("about:blank", "_blank");
+  if (!evidenceTab) {
+    toast("Allow pop-ups for this admin page so you can inspect the private appeal evidence before deciding.", "warning");
+    return;
+  }
   try {
     const { data: appeal, error } = await withTimeout(
       supabaseClient.from("task_submission_appeals")
@@ -10033,6 +10037,9 @@ async function reviewTaskSubmissionAppeal(id) {
       if (!path || !path.startsWith(String(appeal.user_id) + "/appeals/" + String(appeal.submission_id) + "/")) continue;
       const { data, error: signError } = await supabaseClient.storage.from("task-proofs").createSignedUrl(path, 300);
       if (!signError && data?.signedUrl) signed.push(data.signedUrl);
+    }
+    if (signed.length !== evidence.length) {
+      throw new Error("Not all appeal images could be opened securely. Do not decide until the evidence is accessible.");
     }
     if (evidenceTab) {
       if (signed.length) {
