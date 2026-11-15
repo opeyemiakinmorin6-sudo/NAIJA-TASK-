@@ -691,7 +691,7 @@ main{max-width:980px;padding-top:22px}
   </div>
 
   <div class="section-title">🧾 Task Proof Review</div>
-  <div class="proof-review-intro"><strong>Review the work submitted for your jobs</strong><span>Open the evidence and send feedback to NAIJA TASK. “Looks complete” recommends approval; “Need clearer proof” or “Report problem” flags it for the admin. Only the admin can make the final approve/reject decision and release a Tasker's reward.</span></div>
+  <div class="proof-review-intro"><strong>Review the work submitted for your jobs</strong><span>Open the proof and compare it with your exact task instructions. You may approve and pay for genuine work, reject it with a specific reason, or escalate a concern to admin. You get one decision per submission. Rejected Taskers can appeal with evidence; admin handles those disputes.</span></div>
   <section id="posterProofList" class="jobs"><div class="loading">Loading submissions for your tasks...</div></section>
 
   <section id="jobsList" class="jobs">
@@ -1081,19 +1081,33 @@ async function loadPosterProofs(user){
   else {const url=p.photo_url||p.image_url||p.screenshot_url;if(url)ev='<a href="'+escapeHtml(url)+'" target="_blank" rel="noopener">Open evidence</a>';}
   const pending=["PENDING","SUBMITTED","UNDER_REVIEW"].includes(String(s.status||"").trim().toUpperCase());
   const prior=feedbackBySubmission[String(s.id)];
-  const actions=pending&&!prior?'<div class="poster-review-rules"><strong>One review only</strong><span>Choose carefully. You cannot cancel a submission, directly reject a Tasker or release/withhold their reward. Admin makes the final decision.</span></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'ACCEPT_RECOMMENDED\')">Recommend approval</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'NEED_CLEARER_PROOF\')">Flag unclear proof</button><button type="button" onclick="sendPosterProofFeedback('+Number(s.id)+','+Number(s.task_id)+',\'REPORT_PROBLEM\')">Report specific issue</button></div>':'';
-  const priorHtml=prior?'<div class="poster-review-saved"><strong>Review already submitted</strong><span>'+escapeHtml(String(prior.decision).replaceAll("_"," "))+'</span>'+(prior.message?'<p>'+escapeHtml(prior.message)+'</p>':'')+'<small>'+escapeHtml(new Date(prior.created_at).toLocaleString("en-NG"))+'</small></div>':'';
+  const actions=pending&&!prior?'<div class="poster-review-rules"><strong>One decision only — choose carefully</strong><span>Approving pays the Tasker from your funded task budget immediately. Rejecting requires a clear reason and gives the Tasker appeal rights. Escalation sends the case to admin. You cannot reverse a decision, cancel the Tasker or exceed funded slots.</span></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px"><button type="button" onclick="sendPosterProofDecision('+Number(s.id)+','+Number(s.task_id)+',\'APPROVE\')">Approve &amp; pay</button><button type="button" onclick="sendPosterProofDecision('+Number(s.id)+','+Number(s.task_id)+',\'REJECT\')">Reject with reason</button><button type="button" onclick="sendPosterProofDecision('+Number(s.id)+','+Number(s.task_id)+',\'ESCALATE\')">Escalate to admin</button></div>':'';
+  const decisionLabel={POSTER_APPROVED:"Approved — reward paid",POSTER_REJECTED:"Rejected — Tasker may appeal",REPORT_PROBLEM:"Escalated to admin",ACCEPT_RECOMMENDED:"Legacy recommendation",NEED_CLEARER_PROOF:"Legacy proof flag"};
+  const priorHtml=prior?'<div class="poster-review-saved"><strong>Decision already submitted — locked</strong><span>'+escapeHtml(decisionLabel[prior.decision]||String(prior.decision).replaceAll("_"," "))+'</span>'+(prior.message?'<p>'+escapeHtml(prior.message)+'</p>':'')+'<small>'+escapeHtml(new Date(prior.created_at).toLocaleString("en-NG"))+'</small></div>':'';
   return '<article style="background:#fff;border:1px solid #dce9de;border-radius:14px;padding:14px;margin:10px 0"><strong>'+escapeHtml(tm[String(s.task_id)]?.title||("Task #"+s.task_id))+'</strong><div class="job-info"><span class="info">Submission #'+s.id+'</span><span class="info">'+escapeHtml(s.status||"pending")+'</span><span class="info">'+escapeHtml(new Date(s.created_at).toLocaleString("en-NG"))+'</span></div><div style="margin-top:10px">'+ev+'</div>'+(p.text?'<p style="margin-top:8px;white-space:pre-wrap">'+escapeHtml(p.text)+'</p>':'')+priorHtml+actions+'</article>';
  }));
  box.innerHTML=html.join("");
 }
-async function sendPosterProofFeedback(submissionId,taskId,decision){
- const allowed=["ACCEPT_RECOMMENDED","NEED_CLEARER_PROOF","REPORT_PROBLEM"];if(!allowed.includes(decision))return;
- let message="";if(decision!=="ACCEPT_RECOMMENDED"){message=prompt(decision==="NEED_CLEARER_PROOF"?"Name the exact task requirement that is unclear or missing, and what evidence would satisfy it:":"Describe the exact requirement not met and the evidence you checked. Do not use this to cancel or punish a Tasker:")||"";if(!message.trim()){alert("Please enter an explanation.");return;}}else message=prompt("Optional note for admin:")||"";
+async function sendPosterProofDecision(submissionId,taskId,decision){
+ const allowed=["APPROVE","REJECT","ESCALATE"];if(!allowed.includes(decision))return;
  const {data:a}=await supabaseClient.auth.getUser();if(!a?.user){alert("Please sign in again.");return;}
- const {error}=await supabaseClient.from("poster_submission_feedback").insert({submission_id:submissionId,task_id:taskId,poster_id:a.user.id,decision,message:message.trim()||null});
- if(error){alert("Could not save feedback: "+error.message);return;}
- alert("Your one-time review has been locked for this submission. It has been sent to admin. You cannot directly reject, cancel or withhold a Tasker's reward.");
+ let rpcName,args;
+ if(decision==="APPROVE"){
+  if(!confirm("Approve this completed task and immediately credit the Tasker from the funded task budget? This decision cannot be reversed."))return;
+  rpcName="poster_approve_task_submission_safe";args={p_submission_id:String(submissionId)};
+ }else{
+  const promptText=decision==="REJECT"
+   ?"Give a specific, factual reason the Tasker did not meet the task requirements. The Tasker can appeal with evidence (minimum 20 characters):"
+   :"Describe the exact concern and evidence. This sends the submission to admin review without rejecting or paying it (minimum 20 characters):";
+  const reason=prompt(promptText);if(reason===null)return;
+  if(reason.trim().length<20||reason.trim().length>1200){alert("Your explanation must be between 20 and 1,200 characters.");return;}
+  rpcName=decision==="REJECT"?"poster_reject_task_submission_safe":"poster_flag_task_submission_safe";
+  args={p_submission_id:String(submissionId),p_reason:reason.trim()};
+ }
+ const {data,error}=await supabaseClient.rpc(rpcName,args);
+ if(error){alert("Could not save your decision: "+error.message);return;}
+ if(!data?.success){alert(data?.message||"The decision was not completed. Refresh and check the submission.");return;}
+ alert(decision==="APPROVE"?"Task approved. The Tasker's reward has been credited.":decision==="REJECT"?"Task rejected with your reason recorded. The Tasker can appeal with supporting evidence.":"Submission escalated to NAIJA TASK admin. It remains unpaid and will be reviewed.");
  await loadPosterProofs(a.user);
 }
 
