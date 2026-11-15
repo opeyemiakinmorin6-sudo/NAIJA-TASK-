@@ -574,8 +574,10 @@ function getSafeHttpUrl(v){
   if (!v) return "";
   try{
     const u = new URL(String(v).trim());
-    return (u.protocol === "https:" || u.protocol === "http:") ? u.href : "";
-  }catch{ return ""; }
+    if (!["https:","http:"].includes(u.protocol) || !u.hostname || u.username || u.password) return "";
+    if (u.hostname === "localhost" || u.hostname.endsWith(".localhost") || u.hostname === "127.0.0.1" || u.hostname === "::1") return "";
+    return u.href;
+  }catch(_){ return ""; }
 }
 
 function resetProofForm(){
@@ -604,8 +606,8 @@ function openTask(task){
       <div class="box">${escapeHtml(task.description || "Open the task link, complete the task, then upload your screenshot.")}</div></div>
     ${task.uploader_username ? `<div class="field"><div class="lab">Account to use</div><div class="box">${escapeHtml(task.uploader_username)}</div></div>` : ""}
     ${task.copy_text ? `<div class="field"><div class="lab">Text to use</div><div class="box">${escapeHtml(task.copy_text)}</div><button type="button" class="btn s sm" style="margin-top:8px" id="copyTaskTextBtn">Copy text</button></div>` : ""}
-    ${safeUrl ? `<div class="field"><div class="lab" style="font-size:14px">Task link</div>
-      <div class="linkrow"><div class="linkbox">${escapeHtml(safeUrl)}</div><a class="btn p" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">Open</a></div></div>` : ""}
+    ${safeUrl ? `<div class="field"><div class="lab" style="font-size:14px">Target link</div>
+      <div class="linkrow"><div class="linkbox">${escapeHtml(safeUrl)}</div><a class="btn p" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">Open Target</a></div><div class="help">Complete the requested action on this exact destination, then return here to submit your proof.</div></div>` : ""}
     ${submitted ? '<div class="notice show info">You already submitted this task. It cannot be submitted again.</div>' : ""}`;
 
   const isBusinessTask = String(task.task_type || "").startsWith("business_");
