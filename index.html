@@ -3,6 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+/* Route password-recovery callbacks back to the dedicated reset screen.
+   Some Supabase email templates redirect to the project Site URL (the homepage)
+   instead of the per-request redirectTo URL. Preserve the one-time code/tokens. */
+(function(){
+  try{
+    const query=new URLSearchParams(window.location.search);
+    const hash=new URLSearchParams(window.location.hash.replace(/^#/,""));
+    const isRecovery=query.has("code") || hash.get("type")==="recovery";
+    if(!isRecovery) return;
+    const roleValue=(query.get("role")||"tasker").toLowerCase();
+    const role=["tasker","poster","admin"].includes(roleValue)?roleValue:"tasker";
+    const target=new URL("/reset-password.html",window.location.origin);
+    query.forEach((value,key)=>target.searchParams.set(key,value));
+    target.searchParams.set("role",role);
+    target.hash=window.location.hash;
+    window.location.replace(target.href);
+  }catch(error){
+    console.error("Password recovery redirect could not be completed:",error);
+  }
+})();
+</script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4990178064824381" crossorigin="anonymous"></script>
   <meta name="theme-color" content="#0B3D2E">
   <title>NAIJA TASK — Complete Tasks. Earn Naira.</title>
