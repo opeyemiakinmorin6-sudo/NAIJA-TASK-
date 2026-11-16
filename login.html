@@ -38,7 +38,7 @@
 
 <!-- Supabase SDK is loaded with a timed primary/backup CDN loader below. -->
 <script>
-const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co",SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D",ROLE="tasker",CALLBACK=location.origin+"/auth-callback.html?role=tasker%26flow=signup";
+const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co",SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D",ROLE="tasker",CALLBACK=location.origin+"/auth-callback.html?role=tasker&flow=signup";
 let db=null,dbPromise=null;
 function loadSupabaseScript(src){return new Promise((resolve,reject)=>{const s=document.createElement("script");s.src=src;s.async=true;const t=setTimeout(()=>{s.remove();reject(new Error("Timed out loading the secure login service."));},12000);s.onload=()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("The secure login service loaded incorrectly."));};s.onerror=()=>{clearTimeout(t);s.remove();reject(new Error("Could not load the secure login service. Check your connection and retry."));};document.head.appendChild(s);});}
 async function ensureDb(){if(db)return db;if(!dbPromise)dbPromise=(async()=>{if(!window.supabase?.createClient){try{await loadSupabaseScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}catch(e){await loadSupabaseScript("https://unpkg.com/@supabase/supabase-js@2");}}if(!window.supabase?.createClient)throw new Error("Secure login service is unavailable.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});return db;})();try{return await dbPromise;}catch(e){dbPromise=null;throw e;}}
