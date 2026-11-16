@@ -1092,7 +1092,7 @@ async function loadPosterRetentionChecks(user){
   return '<article class="job"><div class="job-top"><strong>'+escapeHtml(String(r.platform||"social").toUpperCase())+' · '+escapeHtml(r.action_type)+'</strong><span class="status '+(isDue?"review":"")+'">'+escapeHtml(status)+'</span></div><div class="job-info"><span class="info">Task #'+Number(r.task_id)+'</span><span class="info">Approved: '+escapeHtml(new Date(r.approved_at).toLocaleString("en-NG"))+'</span><span class="info">'+(isDue?"Due now":"Check due: "+escapeHtml(due.toLocaleString("en-NG")))+'</span></div><div style="margin-top:9px">'+link+'</div>'+actions+'</article>';
  }).join("");
  box.querySelectorAll("[data-retention-confirm]").forEach(btn=>btn.addEventListener("click",()=>confirmPosterRetention(Number(btn.dataset.retentionConfirm),user)));
- box.querySelectorAll("[data-retention-report]").forEach(btn=>btn.addEventListener("click",()=>reportTaskerSubmission(btn.dataset.tasker,Number(btn.dataset.submission),Number(btn.dataset.task),"TASKER_REVERSAL")));
+ box.querySelectorAll("[data-retention-report]").forEach(btn=>btn.addEventListener("click",()=>reportTaskerSubmission(btn.dataset.tasker,Number(btn.dataset.submission),Number(btn.dataset.task),"TASKER_REVERSAL",Number(btn.dataset.retentionReport))));
 }
 async function confirmPosterRetention(checkId,user){
  if(!confirm("Confirm that you checked the public profile or channel and the follow/subscription is still present?"))return;
@@ -1147,7 +1147,7 @@ async function loadPosterProofs(user){
   ));
  });
 }
-async function reportTaskerSubmission(taskerId,submissionId,taskId,eventType){
+async function reportTaskerSubmission(taskerId,submissionId,taskId,eventType,retentionCheckId=null){
  if(!/^[0-9a-f-]{36}$/i.test(String(taskerId||"")))return;
  if(!["TASKER_REVERSAL","FRAUDULENT_PROOF"].includes(eventType))return;
  const reversal=eventType==="TASKER_REVERSAL";
@@ -1171,9 +1171,17 @@ async function reportTaskerSubmission(taskerId,submissionId,taskId,eventType){
   }
  });
  if(error){alert("Could not submit report: "+error.message);return;}
+ if(reversal&&Number.isFinite(Number(retentionCheckId))&&Number(retentionCheckId)>0){
+  const marked=await supabaseClient.rpc("poster_mark_retention_reversal_reported",{p_check_id:Number(retentionCheckId)});
+  if(marked.error){alert("Your report was submitted, but the retention queue could not be updated: "+marked.error.message);return;}
+ }
  alert(reversal
   ?"Your post-completion reversal report has been sent to NAIJA TASK Trust & Safety. It will be checked against the task record and evidence; a report alone does not automatically penalize the Tasker."
   :"Your proof concern has been sent to NAIJA TASK Trust & Safety. A report alone does not automatically penalize the Tasker.");
+ if(reversal&&Number.isFinite(Number(retentionCheckId))&&Number(retentionCheckId)>0){
+  const current=await supabaseClient.auth.getUser();
+  if(current.data?.user)await loadPosterRetentionChecks(current.data.user);
+ }
 }
 
 async function sendPosterProofDecision(submissionId,taskId,decision){
