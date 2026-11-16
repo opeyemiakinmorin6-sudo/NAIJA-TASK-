@@ -5270,45 +5270,96 @@ async function logout() {
    ========================================================= */
 
 let adminAuthListenerRegistered = false;
+let adminAuthCheckSequence = 0;
+
+async function handleAdminAuthSession(session) {
+  const sequence = ++adminAuthCheckSequence;
+  const user = session?.user;
+
+  if (!user) {
+    currentUser = null;
+    appShownForUser = null;
+    showLogin("Sign in with an active administrator account to continue.");
+    setLoading(false);
+    return;
+  }
+
+  if (appShownForUser === user.id && $("app") && !$("app").classList.contains("hidden")) {
+    currentUser = user;
+    setLoading(false);
+    return;
+  }
+
+  currentUser = user;
+  setLoading(true, "Verifying administrator access...");
+
+  try {
+    const isAdmin = await verifyAdmin(user.id);
+    if (sequence !== adminAuthCheckSequence) return;
+
+    if (!isAdmin) {
+      currentUser = null;
+      appShownForUser = null;
+      showLogin("This account does not have administrator access.");
+      // Sign out outside Supabase's auth-state callback to avoid auth-lock deadlocks.
+      try { await supabaseClient.auth.signOut(); } catch (signOutError) {
+        console.warn("Could not clear non-admin session:", signOutError);
+      }
+      return;
+    }
+
+    currentUser = user;
+    showAdminApp();
+  } catch (error) {
+    if (sequence !== adminAuthCheckSequence) return;
+    console.error("Admin session verification failed:", error);
+    currentUser = null;
+    appShownForUser = null;
+    showLogin("We could not verify administrator access. Please retry. " + (error?.message || ""));
+  } finally {
+    if (sequence === adminAuthCheckSequence) setLoading(false);
+  }
+}
 
 function registerAdminAuthStateListener() {
   if (adminAuthListenerRegistered || !supabaseClient?.auth) return;
   adminAuthListenerRegistered = true;
 
-  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  // Never await Supabase/database work inside onAuthStateChange: doing so can
+  // hold Supabase's internal auth lock and leave the admin page spinning.
+  supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_OUT") {
+      adminAuthCheckSequence++;
       currentUser = null;
       appShownForUser = null;
-      showLogin();
+      showLogin("You have been signed out.");
+      setLoading(false);
       return;
     }
 
-    // Supabase re-sends SIGNED_IN when the tab regains focus. Ignore the
-    // event if this exact administrator is already on the admin screen.
-    if (event === "SIGNED_IN" && session?.user && appShownForUser === session.user.id) {
-      currentUser = session.user;
-      return;
-    }
-
-    if (event === "SIGNED_IN" && session?.user) {
-      currentUser = session.user;
-      try {
-        const isAdmin = await verifyAdmin(currentUser.id);
-        if (isAdmin) {
-          showAdminApp();
-        } else {
-          await supabaseClient.auth.signOut();
-          currentUser = null;
-          showLogin("This account does not have administrator access.");
-        }
-      } catch (error) {
-        console.error("Admin session verification failed:", error);
-        await supabaseClient.auth.signOut();
-        currentUser = null;
-        showLogin("We could not verify administrator access. Please sign in again.");
-      }
+    if (["INITIAL_SESSION", "SIGNED_IN", "TOKEN_REFRESHED", "USER_UPDATED"].includes(event)) {
+      window.setTimeout(() => {
+        handleAdminAuthSession(session).catch(error => {
+          console.error("Admin auth handling failed:", error);
+          showLogin("Administrator session could not be checked. Please sign in again.");
+          setLoading(false);
+        });
+      }, 0);
     }
   });
+
+  // Explicitly read the persisted session as a fallback in case the initial
+  // auth event was emitted before the listener finished registering.
+  withTimeout(supabaseClient.auth.getSession(), 12000, "Restore administrator session")
+    .then(({ data, error }) => {
+      if (error) throw error;
+      return handleAdminAuthSession(data?.session || null);
+    })
+    .catch(error => {
+      console.error("Could not restore admin session:", error);
+      showLogin("Could not restore your administrator session. Please sign in again. " + (error?.message || ""));
+      setLoading(false);
+    });
 }
 
 
