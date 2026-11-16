@@ -9807,9 +9807,12 @@ async function loadSecurity() {
       return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere">' +
         '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>Appeal ' + escapeHTML(a.id) + ' · Decision #' + escapeHTML(a.security_event_id) + '</strong>' + badge(a.status) + '</div>' +
         '<div style="font-size:12px;line-height:1.8;margin-top:8px"><div>Member: ' + escapeHTML(a.user_id) + '</div><div>Submitted: ' + escapeHTML(formatDate(a.created_at)) + '</div><div>Explanation: ' + escapeHTML(a.explanation) + '</div><div>Evidence: ' + escapeHTML(evidence) + '</div></div>' +
-        (pending ? '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px"><button class="success" onclick="adminReviewSecurityAppeal(\\'' + escapeHTML(a.id) + '\\',\\'OVERTURNED\\')">Accept appeal</button><button class="warning" onclick="adminReviewSecurityAppeal(\\'' + escapeHTML(a.id) + '\\',\\'UPHELD\\')">Uphold decision</button></div>' : '') +
+        (pending ? '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px"><button class="success" data-security-appeal-id="'+escapeHTML(a.id)+'" data-security-appeal-decision="OVERTURNED">Accept appeal</button><button class="warning" data-security-appeal-id="'+escapeHTML(a.id)+'" data-security-appeal-decision="UPHELD">Uphold decision</button></div>' : '') +
         '</article>';
     }).join("") : '<div class="empty">No account security appeals have been submitted.</div>';
+    if (appealBody) appealBody.querySelectorAll("[data-security-appeal-id]").forEach(button => {
+      button.addEventListener("click", () => adminReviewSecurityAppeal(button.dataset.securityAppealId, button.dataset.securityAppealDecision));
+    });
 
     const result = await withTimeout(
       supabaseClient.from("security_events")
