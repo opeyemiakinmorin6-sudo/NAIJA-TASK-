@@ -78,7 +78,7 @@ form.addEventListener("submit",async event=>{
     const metadata={full_name:fullName,user_type:"task_poster",role:"task_poster"};
     
     
-    const {data,error}=await db.auth.signUp({email,password,options:{data:metadata}});
+    const {data,error}=await db.auth.signUp({email,password,options:{data:metadata,emailRedirectTo:location.origin + "/poster-login.html"}});
     if(error)throw error;
     if(!data.user)throw new Error("The authentication service did not return an account. Please try again.");
     if(data.user.identities&&data.user.identities.length===0){
