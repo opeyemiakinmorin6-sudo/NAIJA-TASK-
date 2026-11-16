@@ -471,6 +471,11 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
       </div>
 
       <div class="money-row price-visible">
+        <span>Posting fee</span>
+        <strong>₦<span id="calcPosterFee">500</span></strong>
+      </div>
+
+      <div class="money-row price-visible">
         <span>Promotion charge</span>
         <strong>₦<span id="calcPromotionFee">0</span></strong>
       </div>
@@ -750,37 +755,46 @@ async function getAuthenticatedUser(){
 
 async function checkPoster(){
 
-  const user =
-    await getAuthenticatedUser();
+  const user = await getAuthenticatedUser();
 
   if(!user){
-
-    window.location.href =
-      "poster-login.html";
-
+    window.location.replace("poster-login.html");
     return null;
   }
 
-  const metadata =
-    user.user_metadata || {};
+  const {data:profile,error:profileError} = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id",user.id)
+    .maybeSingle();
 
-  const posterRoles = ["task_poster", "poster", "task poster"];
-  const isPoster =
-    posterRoles.includes(String(metadata.user_type || "").toLowerCase()) ||
-    posterRoles.includes(String(metadata.role || "").toLowerCase()) ||
-    posterRoles.includes(String(metadata.account_type || "").toLowerCase());
-
-  if(!isPoster){
-
-    await supabaseClient.auth.signOut();
-
-    window.location.href =
-      "poster-login.html";
-
+  if(profileError){
+    console.error("Poster profile lookup failed:",profileError);
     return null;
   }
 
-  return user;
+  if(!profile){
+    console.error("Poster profile is missing for the signed-in account.");
+    return null;
+  }
+
+  const role=String(profile.role||"").trim().toLowerCase();
+
+  if(role==="task_poster"||role==="poster") return user;
+
+  if(role==="tasker"||role==="user"){
+    window.location.replace("dashboard.html");
+    return null;
+  }
+
+  if(role==="admin"){
+    window.location.replace("admin.html");
+    return null;
+  }
+
+  await supabaseClient.auth.signOut();
+  window.location.replace("poster-login.html");
+  return null;
 }
 
 
@@ -854,9 +868,11 @@ function calculateFunding(){
  document.getElementById("reward").value="1";
  const promotionFee=selectedPromotionFee();
  const serviceCharge=item.enabled?posterRate*slots/10:0;
- const total=item.enabled&&slots>=posterPricing.minimumSlots?serviceCharge+promotionFee:0;
+ const postingFee=Math.max(0,Number(posterPricing.posterFee)||0);
+ const total=item.enabled&&slots>=posterPricing.minimumSlots?serviceCharge+postingFee+promotionFee:0;
  document.getElementById("calcSlots").textContent=slots.toLocaleString();
  document.getElementById("calcServiceCharge").textContent=serviceCharge.toLocaleString("en-NG",{maximumFractionDigits:2});
+ document.getElementById("calcPosterFee").textContent=postingFee.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("calcPromotionFee").textContent=promotionFee.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("calcTotal").textContent=total.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("summaryFunding").textContent=total.toLocaleString();
@@ -1520,7 +1536,7 @@ async function loadPosterPricing(){
    fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)
   };
   posterPricing.minimumSlots=Math.max(10,Number(saved.minimum_poster_task_slots)||servicePricing.min_slots||10);
-  posterPricing.posterFee=0;
+  posterPricing.posterFee=Math.max(0,Number(saved.poster_task_fee??500));
   posterPricing.fastFee=servicePricing.fast_fee;
   posterPricing.priorityFee=servicePricing.priority_fee;
   posterPricing.businessEnabled=saved.business_job_enabled!==false;
