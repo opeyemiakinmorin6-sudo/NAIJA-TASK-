@@ -3064,6 +3064,12 @@ td,th{padding:13px 11px}
   </div>
 
   <div class="card" style="margin-top:18px">
+    <div class="page-header" style="margin-bottom:8px"><div><h3>Follow &amp; Subscribe Retention Reversals</h3><p>Only confirm a reward reversal after checking the specific public account and the linked task evidence. A follower-count drop or report alone is not proof.</p></div><button class="secondary" onclick="loadRetentionReversalQueue()">Refresh checks</button></div>
+    <div id="retentionReversalStatus" class="notice">Loading retention checks…</div>
+    <div id="retentionReversalBody"><div class="empty">Loading checks…</div></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
     <div class="page-header" style="margin-bottom:8px">
       <div><h3>Account Security Appeals</h3><p>Review members' appeals against Trust &amp; Safety decisions. Overturning an appeal records the decision; restore access separately when appropriate.</p></div>
       <button class="secondary" onclick="loadSecurity()">Refresh appeals</button>
@@ -9913,6 +9919,7 @@ async function loadSecurity() {
           '</div><div id="trustSafetyThread-' + Number(row.id) + '" style="margin-top:10px"></div></article>';
       }).join("") : '<div class="empty">No incident reports found. No sample or fake records are shown.</div>';
     }
+    await loadRetentionReversalQueue();
   } catch (error) {
     reportError("loadSecurity", error);
     const queueStatus = $("securityEventsStatus");
@@ -9926,6 +9933,76 @@ async function loadSecurity() {
 /* =========================================================
    ADS
    ========================================================= */
+
+
+async function loadRetentionReversalQueue() {
+  const status = $("retentionReversalStatus");
+  const body = $("retentionReversalBody");
+  if (!body) return;
+  if (status) { status.textContent = "Loading retention checks…"; status.className = "notice"; }
+  body.innerHTML = '<div class="empty">Loading checks…</div>';
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_get_task_retention_reversal_queue"),
+      15000,
+      "Retention reversal queue"
+    );
+    if (error) throw error;
+    const rows = safeArray(data);
+    if (status) {
+      const pending = rows.filter(r => String(r.status).toUpperCase() === "REVERSAL_REPORTED").length;
+      status.textContent = rows.length + " retention record(s); " + pending + " reversal report(s) awaiting admin review.";
+      status.className = "notice " + (pending ? "warning" : "success");
+    }
+    body.innerHTML = rows.length ? rows.map(r => {
+      const evidence = r.evidence && typeof r.evidence === "object" ? JSON.stringify(r.evidence) : "{}";
+      const reported = String(r.status).toUpperCase() === "REVERSAL_REPORTED";
+      return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere">' +
+        '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>Check #' + escapeHTML(r.check_id) + ' · ' + escapeHTML(String(r.platform || "social").toUpperCase()) + ' ' + escapeHTML(r.action_type || "") + '</strong>' + badge(r.status) + '</div>' +
+        '<div style="font-size:12px;line-height:1.8;margin-top:8px">' +
+        '<div>Task: #' + escapeHTML(r.task_id) + ' · Submission: #' + escapeHTML(r.submission_id) + '</div>' +
+        '<div>Tasker: ' + escapeHTML(r.tasker_id) + '</div><div>Poster: ' + escapeHTML(r.poster_id) + '</div>' +
+        '<div>Approved: ' + escapeHTML(formatDate(r.approved_at)) + ' · Check due: ' + escapeHTML(formatDate(r.check_due_at)) + '</div>' +
+        '<div>Reported: ' + escapeHTML(formatDate(r.reversal_reported_at)) + ' · Reward: ₦' + escapeHTML(Number(r.reward || 0).toLocaleString("en-NG")) + '</div>' +
+        (r.target_url && /^https?:\/\//i.test(String(r.target_url)) ? '<div><a href="' + escapeHTML(r.target_url) + '" target="_blank" rel="noopener noreferrer">Open public target</a></div>' : '') +
+        '<div>Submitted evidence: ' + escapeHTML(evidence) + '</div></div>' +
+        (reported ? '<button class="danger" style="margin-top:12px" onclick="confirmRetentionRewardReversal(' + Number(r.check_id) + ')">Confirm verified reversal &amp; reverse reward</button>' : '') +
+        '</article>';
+    }).join("") : '<div class="empty">No follow/subscribe retention records are awaiting review.</div>';
+  } catch (error) {
+    if (status) { status.textContent = errorMessage(error, "Could not load retention checks."); status.className = "notice warning"; }
+    body.innerHTML = '<div class="empty">Retention reversal queue unavailable. Check administrator access and database permissions.</div>';
+    reportError("loadRetentionReversalQueue", error);
+  }
+}
+
+async function confirmRetentionRewardReversal(checkId) {
+  const note = window.prompt("Enter the evidence you personally checked (minimum 20 characters). Include the public profile/channel URL, date/time checked, and why it confirms this specific tasker reversed the action. Do not include passwords or private data:");
+  if (note === null) return;
+  if (note.trim().length < 20 || note.trim().length > 2000) {
+    toast("Evidence note must be between 20 and 2,000 characters.", "warning");
+    return;
+  }
+  if (!confirm("Confirm only if the evidence proves this specific approved follow/subscribe task was reversed. This will deduct the original reward from the Tasker's available wallet balance, record the reversal, and add a warning. A second verified violation restricts the account for 7 days. Continue?")) return;
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_confirm_task_retention_reversal", {
+        p_check_id: Number(checkId),
+        p_evidence: { admin_review_note: note.trim(), evidence_reviewed_at: new Date().toISOString(), evidence_source: "admin_manual_verification" }
+      }),
+      15000,
+      "Confirm retention reward reversal"
+    );
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error("The server did not confirm the reversal.");
+    toast("Verified reversal recorded. ₦" + Number(data.amount_reversed || 0).toLocaleString("en-NG") + " reversed; warning count: " + Number(data.warning_count || 0) + (data.restricted ? ". Account restricted for 7 days." : "."), "success");
+    await loadRetentionReversalQueue();
+    await loadSecurity();
+  } catch (error) {
+    toast(errorMessage(error, "Reward reversal failed. No success was confirmed."), "warning");
+    reportError("confirmRetentionRewardReversal", error);
+  }
+}
 
 async function loadAds() {
  const body=$("adsBody"),status=$("adsStatus"),pb=$("adPaymentsBody"),eb=$("adEventsBody"),es=$("adEventsStatus");
