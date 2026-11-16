@@ -969,6 +969,19 @@ async function loadJobs(user){
   }
 
   const list = jobs || [];
+  let verifiedPaymentIds = new Set();
+  const {data:posterPayments,error:posterPaymentsError}=await supabaseClient
+    .from("poster_payments")
+    .select("task_id,status,payment_status")
+    .eq("poster_id",user.id)
+    .limit(500);
+  if(posterPaymentsError){
+    console.warn("Poster payment statuses could not be loaded:",posterPaymentsError.message);
+  }else{
+    verifiedPaymentIds=new Set((posterPayments||[])
+      .filter(p=>String(p.payment_status||"").toLowerCase()==="paid"||String(p.status||"").toUpperCase()==="APPROVED")
+      .map(p=>String(p.task_id)));
+  }
   const socialJobs = list.filter(job => job.task_kind !== "business_job");
   const businessJobs = list.filter(job => job.task_kind === "business_job");
 
@@ -977,7 +990,8 @@ async function loadJobs(user){
     String(job.status || "").toUpperCase() === "LIVE" && job.active === true
   ).length;
   document.getElementById("reviewJobs").textContent = list.filter(job =>
-    String(job.status || "").toUpperCase() === "UNDER_REVIEW"
+    String(job.status || "").toUpperCase() === "UNDER_REVIEW" ||
+    (verifiedPaymentIds.has(String(job.id)) && ["PENDING","PENDING_REVIEW","UNDER_REVIEW"].includes(String(job.moderation_status||"").toUpperCase()))
   ).length;
   document.getElementById("completedJobs").textContent = list.filter(job =>
     String(job.status || "").toUpperCase() === "COMPLETED"
@@ -986,7 +1000,8 @@ async function loadJobs(user){
   const paymentRequired = list.filter(job => {
     const status = String(job.status || "").toUpperCase();
     const payment = String(job.payment_status || "").toUpperCase();
-    return status === "PAYMENT_REQUIRED" || ["PENDING", "PENDING_PAYMENT", "PAYMENT_REQUIRED"].includes(payment);
+    const verified = verifiedPaymentIds.has(String(job.id)) || ["PAID","SUCCESS","SUCCESSFUL"].includes(payment);
+    return !verified && (status === "PAYMENT_REQUIRED" || ["PENDING", "PENDING_PAYMENT", "PAYMENT_REQUIRED"].includes(payment));
   }).length;
   document.getElementById("paymentRequiredJobs").textContent = paymentRequired;
 
@@ -994,7 +1009,7 @@ async function loadJobs(user){
     const status = String(job.status || "").toUpperCase();
     const moderation = String(job.moderation_status || "").toUpperCase();
     const payment = String(job.payment_status || "").toUpperCase();
-    const funded = ["PAID", "NOT_REQUIRED", "SUCCESS", "SUCCESSFUL"].includes(payment);
+    const funded = verifiedPaymentIds.has(String(job.id)) || ["PAID", "NOT_REQUIRED", "SUCCESS", "SUCCESSFUL"].includes(payment);
     return status === "UNDER_REVIEW" || (funded && ["PENDING", "PENDING_REVIEW", "UNDER_REVIEW"].includes(moderation));
   }).length;
   document.getElementById("moderationPendingJobs").textContent = moderationPending;
@@ -1028,14 +1043,16 @@ async function loadJobs(user){
     return '<div class="job-group"><h3 class="job-group-title">' + heading +
       '</h3>' + recent.map(job => {
         const status = String(job.status || "UNKNOWN").toUpperCase();
+        const paymentVerified=verifiedPaymentIds.has(String(job.id));
+        const displayLabel=paymentVerified&&status!=="LIVE"?"PAYMENT VERIFIED · AWAITING REVIEW":formatStatus(status);
         let statusClass = "";
         if(status === "LIVE") statusClass = "live";
-        if(status === "UNDER_REVIEW") statusClass = "review";
-        if(status === "PAYMENT_REQUIRED") statusClass = "payment";
+        if(status === "UNDER_REVIEW"||paymentVerified) statusClass = "review";
+        if(status === "PAYMENT_REQUIRED"&&!paymentVerified) statusClass = "payment";
         const date = job.created_at ? new Date(job.created_at).toLocaleDateString() : "—";
         return '<div class="job"><div class="job-top"><div class="job-title">' +
           escapeHtml(job.title || "Untitled Job") + '</div><div class="status ' +
-          statusClass + '">' + formatStatus(status) + '</div></div><div class="job-info">' +
+          statusClass + '">' + escapeHtml(displayLabel) + '</div></div><div class="job-info">' +
           '<span class="info">Task: ' + escapeHtml(socialTaskTypeLabel(job.task_type)) + '</span>' + '<span class="info">Slots: ' + Number(job.slots || 0).toLocaleString() + '</span>' +
           '<span class="info">Posted: ' + escapeHtml(date) + '</span>' +
           '</div></div>';
