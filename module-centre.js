@@ -83,6 +83,9 @@ async function start(){
    const tasksResult=taskIds.length?await sb.from("tasks").select("id,title").in("id",taskIds):{data:[],error:null};
    const taskNames=Object.fromEntries((tasksResult.data||[]).map(x=>[String(x.id),x.title]));
    const appealOptions=eligible.map(x=>'<option value="'+esc(x.id)+'">Submission #'+esc(x.id)+' · '+esc(taskNames[String(x.task_id)]||("Task #"+x.task_id))+' · '+esc(x.rejection_reason||"Rejected")+'</option>').join("");
+   const securityEventsResult=await sb.rpc("get_my_security_appealable_events");
+   const securityEvents=securityEventsResult.data||[];
+   const securityEventOptions=securityEvents.map(x=>'<option value="'+esc(x.id)+'">Decision #'+esc(x.id)+' · '+esc(String(x.event_type||"").replaceAll("_"," "))+' · '+esc(date(x.created_at))+'</option>').join("");
    const generalRows=generalAppealsResult.data||[];
    const withdrawalOptions=(withdrawalsResult.data||[]).map(x=>'<option value="withdrawal:'+esc(x.id)+'">Withdrawal #'+esc(x.id)+' · '+money(x.amount)+' · '+esc(x.status||"Pending")+'</option>').join("");
    const taskAppealList=taskAppeals.map(x=>row("Task submission #"+x.submission_id,
@@ -102,7 +105,9 @@ async function start(){
     '<section class="panel"><h2>Your task appeals</h2>'+taskAppealList+'</section>'+
     '<section class="panel"><h2>Other account or withdrawal appeal</h2><p class="muted">Use this for account or withdrawal matters, not rejected task submissions.</p>'+
     '<form id="sendForm"><label>Related withdrawal (optional)</label><select name="reference"><option value="">General account appeal</option>'+withdrawalOptions+'</select><label>Subject</label><input name="subject" required maxlength="120"><label>Message</label><textarea name="message" required maxlength="3000"></textarea><button class="btn">Submit general appeal</button></form><div id="result"></div>'+
-    (generalAppealsResult.error?note(generalAppealsResult.error.message,true):list(generalRows,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,x.admin_response||"")))+'</section>';
+    (generalAppealsResult.error?note(generalAppealsResult.error.message,true):list(generalRows,x=>row(x.subject,x.message+" · "+date(x.created_at),x.status,x.admin_response||"")))+'</section>'+
+    '<section class="panel"><h2>🛡️ Appeal an account safety decision</h2><p class="muted">Choose a reviewed Trust & Safety decision if you believe it was incorrect. Explain the facts clearly. One pending appeal is allowed per decision; submitting an appeal does not automatically remove a restriction.</p>'+
+    (securityEventsResult.error?note("Account safety decisions could not be loaded: "+securityEventsResult.error.message,true):securityEventOptions?'<form id="securityAppealForm"><label>Decision to appeal</label><select name="event_id" required><option value="">Choose a reviewed decision</option>'+securityEventOptions+'</select><label>Explain why the decision is incorrect (30–2,000 characters)</label><textarea name="explanation" minlength="30" maxlength="2000" required></textarea><button class="btn">Submit security appeal</button></form><div id="securityAppealResult"></div>':'<div class="note">There are no reviewed security decisions currently eligible for appeal.</div>')+'</section>';
    const taskForm=document.getElementById("taskAppealForm");
    if(taskForm)taskForm.onsubmit=async e=>{
      e.preventDefault();
@@ -148,6 +153,15 @@ async function start(){
      const {error}=await sb.from("appeals").insert(payload);
      document.getElementById("result").innerHTML=error?note(error.message,true):note("Your general appeal has been submitted.");
      if(!error){generalForm.reset();start()}else button.disabled=false;
+   };
+   const securityAppealForm=document.getElementById("securityAppealForm");
+   if(securityAppealForm)securityAppealForm.onsubmit=async e=>{
+     e.preventDefault();const fd=new FormData(securityAppealForm),button=securityAppealForm.querySelector("button"),explanation=String(fd.get("explanation")||"").trim();
+     if(explanation.length<30||explanation.length>2000){document.getElementById("securityAppealResult").innerHTML=note("Your explanation must be between 30 and 2,000 characters.",true);return;}
+     button.disabled=true;button.textContent="Submitting…";
+     const {data,error}=await sb.rpc("submit_account_security_appeal",{p_security_event_id:Number(fd.get("event_id")),p_explanation:explanation,p_evidence:{}});
+     document.getElementById("securityAppealResult").innerHTML=error?note(error.message,true):note("Your security appeal has been submitted. Reference: "+esc(data)+". It is awaiting review.");
+     if(!error){securityAppealForm.reset();button.textContent="Appeal submitted";}else{button.disabled=false;button.textContent="Submit security appeal";}
    };
    return;
  }
