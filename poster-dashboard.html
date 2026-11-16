@@ -892,16 +892,21 @@ async function checkPoster(){
   }
 
   const role=String(profile.role||"").trim().toLowerCase();
-  if(!["task_poster","poster"].includes(role)){
-    await supabaseClient.auth.signOut();
-    alert(role==="tasker"||role==="user"
-      ? "This is a Tasker account. Use the Tasker workspace."
-      : "This account does not have Poster access.");
-    window.location.href=role==="admin"?"admin.html":"index.html";
+  if(["task_poster","poster"].includes(role)) return user;
+
+  if(role==="tasker"||role==="user"){
+    window.location.replace("dashboard.html");
     return null;
   }
 
-  return user;
+  if(role==="admin"){
+    window.location.replace("admin.html");
+    return null;
+  }
+
+  await supabaseClient.auth.signOut();
+  showError("This account does not have Poster access. Please sign in with a registered Poster account.");
+  return null;
 
 }
 
