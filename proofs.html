@@ -190,6 +190,12 @@ async function load(){
     if(authError)throw authError;
     if(!auth.user){location.href="login.html";return;}
     currentUser=auth.user;
+    const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",auth.user.id).maybeSingle();
+    if(profileError)throw profileError;
+    const role=String(profile?.role||"").trim().toLowerCase();
+    if(role==="task_poster"||role==="poster"){location.replace("poster-dashboard.html");return;}
+    if(role==="admin"){location.replace("admin.html");return;}
+    if(!["tasker","user"].includes(role)){await db.auth.signOut();location.replace("login.html");return;}
     let result=await db.from("task_submissions")
       .select("id,task_id,user_id,proof,status,created_at,reviewed_by,reviewed_at,rejection_reason")
       .eq("user_id",auth.user.id)
@@ -219,6 +225,14 @@ async function load(){
         console.warn("Task titles could not be loaded:",tasks.error.message);
       }
     }
+    await Promise.all(submissions.map(async row=>{
+      const proof=parseProof(row.proof);
+      const path=String(proof.photo_path||proof.image_path||proof.screenshot_path||"").trim();
+      if(!path||proof.photo_url||proof.image_url||proof.screenshot_url)return;
+      const {data:signed,error:signedError}=await db.storage.from("task-proofs").createSignedUrl(path,3600);
+      if(signedError){console.warn("Private proof image could not be opened:",signedError.message);return;}
+      if(signed?.signedUrl){proof.photo_url=signed.signedUrl;row.proof=JSON.stringify(proof);}
+    }));
     render();
     hideMessage();
   }catch(error){
