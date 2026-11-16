@@ -56,6 +56,10 @@ loginForm.addEventListener("submit",async event=>{
   const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
   if(profileError){console.error("Profile lookup failed:",profileError);await db.auth.signOut();throw new Error("Your password was accepted, but your account profile could not be loaded. Please retry once. If it continues, contact naijataskofficia@gmail.com and include the code PROFILE_LOOKUP_FAILED.");}if(!profile){await db.auth.signOut();throw new Error("Your login exists, but its NAIJA TASK profile record is missing. Your account and balance have not been deleted. Please contact naijataskofficia@gmail.com and include the code PROFILE_MISSING so support can restore the correct account role.");}
   const role=String(profile.role||"").trim().toLowerCase();
+  if(role==="admin"){
+   msg("message","Administrator account verified. Opening the admin dashboard…","success");
+   loginBtn.textContent="Opening admin dashboard…";location.replace("admin.html");return;
+  }
   if(!["task_poster","poster"].includes(role)){await db.auth.signOut();throw new Error(role==="tasker"||role==="user"?"This is a Tasker account. Use Tasker Login instead.":"This account does not have Poster access.");}
   msg("message","Password accepted. Your Poster session is active. Opening workspace…","success");
   loginBtn.textContent="Opening dashboard…";location.replace("poster-dashboard.html");
