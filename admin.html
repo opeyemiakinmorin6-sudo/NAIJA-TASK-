@@ -3063,6 +3063,14 @@ td,th{padding:13px 11px}
     <div id="securityEventsBody"><div class="empty">Loading reports…</div></div>
   </div>
 
+  <div class="card" style="margin-top:18px">
+    <div class="page-header" style="margin-bottom:8px">
+      <div><h3>Account Security Appeals</h3><p>Review members' appeals against Trust &amp; Safety decisions. Overturning an appeal records the decision; restore access separately when appropriate.</p></div>
+      <button class="secondary" onclick="loadSecurity()">Refresh appeals</button>
+    </div>
+    <div id="securityAppealsStatus" class="notice">Loading security appeals…</div>
+    <div id="securityAppealsBody"><div class="empty">Loading appeals…</div></div>
+  </div>
 </section>
 
 
@@ -9731,6 +9739,31 @@ async function adminTrustSafetyAction(eventId, action) {
   }
 }
 
+async function adminReviewSecurityAppeal(appealId, decision) {
+  if (!["UPHELD","OVERTURNED"].includes(decision)) return;
+  const response = window.prompt((decision === "OVERTURNED" ? "Explain why this appeal is accepted:" : "Explain why the original decision stands:") + "\n\nEnter at least 15 characters:");
+  if (response === null) return;
+  if (response.trim().length < 15 || response.trim().length > 1500) {
+    toast("Response must be between 15 and 1,500 characters.", "danger");
+    return;
+  }
+  if (!window.confirm("Record this appeal decision? It will be added to the Admin audit log and sent to the member.")) return;
+  try {
+    const result = await withTimeout(supabaseClient.rpc("admin_review_account_security_appeal", {
+      p_appeal_id: appealId,
+      p_decision: decision,
+      p_response: response.trim()
+    }), 20000, "Security appeal review");
+    if (result.error) throw result.error;
+    if (!result.data || result.data.success !== true) throw new Error("The server did not confirm the appeal decision.");
+    toast("Appeal decision saved and member notified.", "success");
+    await loadSecurity();
+  } catch (error) {
+    reportError("adminReviewSecurityAppeal", error);
+    toast(errorMessage(error, "Could not save the appeal decision."), "danger");
+  }
+}
+
 async function loadSecurity() {
   try {
     if (!platformSettings) {
@@ -9755,6 +9788,28 @@ async function loadSecurity() {
     const queueBody = $("securityEventsBody");
     if (queueStatus) { queueStatus.textContent = "Loading the latest incident reports…"; queueStatus.className = "notice"; }
     if (queueBody) queueBody.innerHTML = '<div class="empty">Loading reports…</div>';
+
+    const appealsResult = await withTimeout(
+      supabaseClient.from("account_security_appeals")
+        .select("id,user_id,security_event_id,explanation,evidence,status,created_at")
+        .order("created_at", { ascending: false }).limit(100),
+      15000,
+      "Trust & Safety appeals queue"
+    );
+    if (appealsResult.error) throw appealsResult.error;
+    const appealRows = safeArray(appealsResult.data);
+    const appealStatus = $("securityAppealsStatus");
+    const appealBody = $("securityAppealsBody");
+    if (appealStatus) { appealStatus.textContent = appealRows.length + " account security appeal(s). Review each explanation and evidence before deciding."; appealStatus.className = "notice success"; }
+    if (appealBody) appealBody.innerHTML = appealRows.length ? appealRows.map(a => {
+      const evidence = a.evidence && typeof a.evidence === "object" ? JSON.stringify(a.evidence) : "{}";
+      const pending = String(a.status).toUpperCase() === "PENDING";
+      return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere">' +
+        '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>Appeal ' + escapeHTML(a.id) + ' · Decision #' + escapeHTML(a.security_event_id) + '</strong>' + badge(a.status) + '</div>' +
+        '<div style="font-size:12px;line-height:1.8;margin-top:8px"><div>Member: ' + escapeHTML(a.user_id) + '</div><div>Submitted: ' + escapeHTML(formatDate(a.created_at)) + '</div><div>Explanation: ' + escapeHTML(a.explanation) + '</div><div>Evidence: ' + escapeHTML(evidence) + '</div></div>' +
+        (pending ? '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px"><button class="success" onclick="adminReviewSecurityAppeal(\\'' + escapeHTML(a.id) + '\\',\\'OVERTURNED\\')">Accept appeal</button><button class="warning" onclick="adminReviewSecurityAppeal(\\'' + escapeHTML(a.id) + '\\',\\'UPHELD\\')">Uphold decision</button></div>' : '') +
+        '</article>';
+    }).join("") : '<div class="empty">No account security appeals have been submitted.</div>';
 
     const result = await withTimeout(
       supabaseClient.from("security_events")
