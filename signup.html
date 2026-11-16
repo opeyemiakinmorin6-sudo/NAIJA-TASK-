@@ -45,94 +45,27 @@
 <div class="switch">Already registered? <a href="login.html">Log in as a Tasker</a><br>Want to publish jobs instead? <a href="poster-signup.html">Create a Poster account</a><br><a href="poster-login.html">Poster login</a></div><div class="legal">We only ask for details needed to create your account. Your home address and precise location are not requested during sign-up.</div></section></main><footer class="footer">© 2026 NAIJA TASK · Complete Tasks. Earn Naira.</footer>
 
 <script>
-const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
-const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-const form=document.getElementById("signupForm"),button=document.getElementById("signupBtn"),message=document.getElementById("message");
+const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co",SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D",ROLE="tasker",CALLBACK=location.origin+"/auth-callback.html?role=tasker%26flow=signup";
 let db=null,dbPromise=null;
-function loadSupabaseScript(src){
- return new Promise((resolve,reject)=>{
-  const script=document.createElement("script");script.src=src;script.async=true;
-  const timer=setTimeout(()=>{script.remove();reject(new Error("Timed out loading the secure login library from "+(src.includes("jsdelivr")?"jsDelivr":"unpkg")));},12000);
-  script.onload=()=>{clearTimeout(timer);if(window.supabase?.createClient)resolve();else{script.remove();reject(new Error("The secure login library loaded without its client API."));}};
-  script.onerror=()=>{clearTimeout(timer);script.remove();reject(new Error("Could not download the secure login library from "+(src.includes("jsdelivr")?"jsDelivr":"unpkg")));};
-  document.head.appendChild(script);
- });
-}
-async function ensureDb(){
- if(db)return db;
- if(!dbPromise)dbPromise=(async()=>{
-  if(!window.supabase?.createClient){
-   try{await loadSupabaseScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}
-   catch(primaryError){console.warn("Primary Supabase CDN failed; trying backup CDN.",primaryError);await loadSupabaseScript("https://unpkg.com/@supabase/supabase-js@2");}
-  }
-  if(!window.supabase?.createClient)throw new Error("Secure login library is unavailable from both approved CDNs. Check that your browser or network allows jsDelivr and unpkg, then retry.");
-  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-  return db;
- })();
- try{return await dbPromise;}catch(error){dbPromise=null;throw error;}
-}
-
-const byId=id=>document.getElementById(id);
-const referralFromUrl=new URLSearchParams(location.search).get("ref");
-if(byId("referralCode")&&referralFromUrl) byId("referralCode").value=referralFromUrl;
+function loadSupabaseScript(src){return new Promise((resolve,reject)=>{const s=document.createElement("script");s.src=src;s.async=true;const t=setTimeout(()=>{s.remove();reject(new Error("Timed out loading the secure login service."));},12000);s.onload=()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("The secure login service loaded incorrectly."));};s.onerror=()=>{clearTimeout(t);s.remove();reject(new Error("Could not load the secure login service. Check your connection and retry."));};document.head.appendChild(s);});}
+async function ensureDb(){if(db)return db;if(!dbPromise)dbPromise=(async()=>{if(!window.supabase?.createClient){try{await loadSupabaseScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}catch(e){await loadSupabaseScript("https://unpkg.com/@supabase/supabase-js@2");}}if(!window.supabase?.createClient)throw new Error("Secure login service is unavailable.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});return db;})();try{return await dbPromise;}catch(e){dbPromise=null;throw e;}}
+function friendlyAuthError(error){const code=error?.code||"",raw=error?.message||"Please try again.";if(code==="email_not_confirmed"||/email not confirmed/i.test(raw))return "Your email is not verified yet. Use the verification email or request a new one from the signup page.";if(code==="invalid_credentials"||/invalid login credentials/i.test(raw))return "We could not sign you in. Check the email address and password, and make sure you are using the correct "+(ROLE==="poster"?"Poster":"Tasker")+" login page. If you forgot your password, use Forgot Password. For security, we cannot disclose whether an email is registered.";if(code==="over_email_send_rate_limit")return "Too many emails were requested. Wait a little before trying again.";if(code==="user_already_exists"||code==="email_exists"||/already registered|user already exists|email already exists/i.test(raw))return "This email already has an account. Please log in instead of registering again, or use Forgot Password.";if(/failed to fetch|network/i.test(raw))return "We could not connect to NAIJA TASK securely. Check your internet connection and retry.";return raw;}
+const byId=id=>document.getElementById(id),form=byId("signupForm"),button=byId("signupBtn"),message=byId("message");let resendEmail="",countdownTimer=null;
 function showMessage(text,type){message.textContent=text;message.className="message "+type;}
-function passwordFeedback(){
-  const p=byId("password").value, c=byId("confirmPassword").value;
-  const checks=[p.length>=8,/[a-z]/.test(p),/[A-Z]/.test(p),/[0-9]/.test(p)];
-  const score=checks.filter(Boolean).length;
-  const strength=byId("passwordStrength"),fill=byId("strengthFill"),match=byId("passwordMatch");
-  const label=score===4?"Strong password":score>=2?"Getting stronger":"Weak password";
-  strength.textContent=p?label:"Use 8+ characters, upper/lowercase and a number";
-  strength.style.color=score===4?"#187a39":score>=2?"#a36a00":"#a32921";
-  fill.style.width=(score*25)+"%";
-  fill.style.background=score===4?"#187a39":score>=2?"#e0a323":"#d9534f";
-  if(match){match.textContent=c?(p===c?"Passwords match":"Passwords do not match"):"";match.style.color=p===c&&c?"#187a39":"#a32921";}
-}
-byId("showPassword").addEventListener("click",function(){const p=byId("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide";});
-byId("password").addEventListener("input",passwordFeedback);
-byId("confirmPassword").addEventListener("input",passwordFeedback);
-form.addEventListener("submit",async event=>{
-  event.preventDefault();
-  const fullName=byId("fullName").value.trim(),email=byId("email").value.trim().toLowerCase(),password=byId("password").value,confirm=byId("confirmPassword").value;
-  if(password.length<8||!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password)){showMessage("Choose a stronger password: at least 8 characters with uppercase, lowercase and a number.","error");return;}
-  if(password!==confirm){showMessage("Your passwords do not match. Check both fields.","error");byId("confirmPassword").focus();return;}
-  button.disabled=true;button.textContent="Creating your account…";showMessage("Connecting securely to NAIJA TASK…","info");
-  try{
-    const client=await ensureDb();
-    const metadata={full_name:fullName,user_type:"tasker",role:"tasker"};
-    if(byId("phone"))metadata.phone=byId("phone").value.trim();
-    if(byId("referralCode")?.value.trim())metadata.referral_code=byId("referralCode").value.trim();
-    const {data,error}=await client.auth.signUp({email,password,options:{data:metadata,emailRedirectTo:location.origin + "/login.html"}});
-    if(error)throw error;
-    if(!data.user)throw new Error("The authentication service did not return an account. Please try again.");
-    if(data.user.identities&&data.user.identities.length===0){
-      showMessage("This email is already registered or cannot be used for a new signup. Do not create another account. Go to Tasker Login and use the visible Forgot Password link if you cannot remember your password.","error");
-      return;
-    }
-    if(data.session){
-      showMessage("Tasker account created and signed in. Opening your dashboard…","success");
-      button.textContent="Account approved";
-      setTimeout(()=>location.replace("dashboard.html"),800);
-    }else{
-      showMessage("Signup request received. Check your email for a confirmation link. After confirming, return to Tasker Login. If you already have an account, use Forgot Password.","success");
-      form.reset();passwordFeedback();
-    }
-  }catch(error){
-    console.error("Tasker signup error:",error);
-    const code=error.code||"";
-    let text=error.message||"Unable to create your account. Please try again.";
-    if(code==="email_provider_disabled")text="Email/password signup is currently disabled in Supabase. The site owner must enable Email provider in Supabase Auth settings.";
-    else if(code==="user_already_exists"||code==="email_exists"||/already registered|user already exists|email already exists/i.test(text))text="This email is already registered. Please use Tasker Login instead of signing up again. If you cannot remember your password, open Forgot Password on the login page.";
-    else if(code==="weak_password")text="Supabase rejected this password as too weak. Use a longer password with a mix of characters.";
-    else if(code==="over_email_send_rate_limit")text="Too many confirmation emails were requested. Wait before trying again.";
-    else if(/failed to fetch|network/i.test(text))text="Could not reach Supabase. Check your internet connection and try again.";
-    showMessage(text,"error");
-  }finally{button.disabled=false;button.textContent="Create my Tasker account →";}
-});
+function startCountdown(seconds){if(countdownTimer)clearInterval(countdownTimer);const btn=byId("resendVerification"),count=byId("verificationPanel")?.querySelector(".verification-count");let left=seconds;btn.disabled=true;btn.textContent="Resend email in "+left+"s";if(count)count.textContent="You can request another verification email when the timer reaches zero.";countdownTimer=setInterval(()=>{left--;if(left<=0){clearInterval(countdownTimer);countdownTimer=null;btn.disabled=false;btn.textContent="Resend verification email";if(count)count.textContent="Didn't receive the email? You can request another one now.";return;}btn.textContent="Resend email in "+left+"s";},1000);}
+function showVerification(email){resendEmail=email;let panel=byId("verificationPanel");if(!panel){panel=document.createElement("section");panel.id="verificationPanel";panel.className="verification-panel";panel.innerHTML='<div class="verification-icon" aria-hidden="true">✉</div><h3>Verify your email address</h3><p class="verification-copy"></p><p class="verification-count" aria-live="polite"></p><button type="button" class="verification-resend" id="resendVerification" disabled>Resend email in 60s</button><p class="verification-note">Open the message from NAIJA TASK and tap its verification button. Check Spam or Promotions if it is missing.</p><a class="verification-login" href="login.html">Already verified? Go to Tasker Login</a>';message.insertAdjacentElement("afterend",panel);}panel.querySelector(".verification-copy").textContent="We sent a verification link to "+email+". Keep this page open; you can request another email when the countdown ends.";byId("resendVerification").onclick=async()=>{const b=byId("resendVerification");if(b.disabled)return;b.disabled=true;b.textContent="Sending…";try{const client=await ensureDb(),{error}=await client.auth.resend({type:"signup",email:resendEmail,options:{emailRedirectTo:CALLBACK}});if(error)throw error;panel.querySelector(".verification-count").textContent="A fresh verification email has been requested. Check your inbox.";startCountdown(60);}catch(error){panel.querySelector(".verification-count").textContent=friendlyAuthError(error);b.disabled=false;b.textContent="Try resending again";}};startCountdown(60);}
+function passwordFeedback(){const p=byId("password").value,c=byId("confirmPassword").value,checks=[p.length>=8,/[a-z]/.test(p),/[A-Z]/.test(p),/[0-9]/.test(p)],score=checks.filter(Boolean).length,strength=byId("passwordStrength"),fill=byId("strengthFill"),match=byId("passwordMatch");if(strength){strength.textContent=p?(score===4?"Strong password":score>=2?"Getting stronger":"Weak password"):"Use 8+ characters, upper/lowercase and a number";strength.style.color=score===4?"#187a39":score>=2?"#a36a00":"#a32921";}if(fill){fill.style.width=(score*25)+"%";fill.style.background=score===4?"#187a39":score>=2?"#e0a323":"#d9534f";}if(match){match.textContent=c?(p===c?"Passwords match":"Passwords do not match"):"";match.style.color=p===c&&c?"#187a39":"#a32921";}}
+const ref=new URLSearchParams(location.search).get("ref");if(byId("referralCode")&&ref)byId("referralCode").value=ref;
+byId("showPassword")?.addEventListener("click",function(){const p=byId("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide";});byId("password")?.addEventListener("input",passwordFeedback);byId("confirmPassword")?.addEventListener("input",passwordFeedback);
+form.addEventListener("submit",async event=>{event.preventDefault();const fullName=byId("fullName").value.trim(),email=byId("email").value.trim().toLowerCase(),password=byId("password").value,confirm=byId("confirmPassword").value;if(!fullName){showMessage("Enter your full name.","error");return;}if(password.length<8||!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password)){showMessage("Choose a stronger password: at least 8 characters with uppercase, lowercase and a number.","error");return;}if(password!==confirm){showMessage("Your passwords do not match. Check both fields.","error");byId("confirmPassword").focus();return;}button.disabled=true;button.textContent="Creating your account…";showMessage("Connecting securely to NAIJA TASK…","info");try{const client=await ensureDb(),metadata={full_name:fullName,user_type:"tasker",role:"tasker"};if(byId("phone"))metadata.phone=byId("phone").value.trim();if(byId("referralCode")?.value.trim())metadata.referral_code=byId("referralCode").value.trim();const {data,error}=await client.auth.signUp({email,password,options:{data:metadata,emailRedirectTo:CALLBACK}});if(error)throw error;if(!data.user)throw new Error("The authentication service did not return an account.");if(data.user.identities&&data.user.identities.length===0){showMessage("This email already has an account. Please use Tasker Login or Forgot Password instead of registering again.","error");return;}if(data.session){showMessage("Your account is ready. Opening your dashboard…","success");button.textContent="Account created";setTimeout(()=>location.replace("dashboard.html"),700);}else{showMessage("Your signup was received. Complete email verification below before logging in.","success");form.reset();passwordFeedback();showVerification(email);}}catch(error){console.error("tasker signup error:",error);showMessage(friendlyAuthError(error),"error");}finally{button.disabled=false;button.textContent="Create my Tasker account →";}});
 </script>
 <section class="nt-public-ad" aria-label="Advertisement"><span class="nt-public-ad-label">ADVERTISEMENT</span><div class="nt-public-ad-unit"><script>atOptions={'key':'d33fd661fe11e17cd12dc188cb8b8bd1','format':'iframe','height':250,'width':300,'params':{}};</script><script src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1"></script></div></section>
 
 <style id="nt-global-root-palette">
 :root{--nt-forest:#064E2B;--nt-deep:#073B24;--nt-dark-green:#073B24;--nt-green:#0B8F45;--nt-bright:#16A34A;--nt-bright-green:#16A34A;--nt-lime:#B7F34A;--nt-white:#FFFFFF;--nt-surface:#FFFFFF;--nt-card:#FFFFFF;--nt-soft-white:#F7FBF7;--nt-bg:#F1F8F2;--nt-pale:#EAF5EC;--nt-leaf:#EAF5EC;--nt-cream:#F7FBF7;--nt-ink:#173326;--nt-muted:#647568;--nt-line:#DCE9DE;--nt-border:#DCE9DE;--nt-success:#168443}
+</style>
+<style id="nt-auth-polish">
+.verification-panel{margin-top:16px;padding:20px;border:1px solid #cfe4cf;border-radius:18px;background:linear-gradient(145deg,#f5fbf1,#fff);text-align:center;box-shadow:0 12px 28px #173c200d}.verification-icon{width:48px;height:48px;margin:0 auto 10px;display:grid;place-items:center;border-radius:15px;background:#e5f5dd;color:#176b32;font-size:23px}.verification-panel h3{margin:0 0 8px;color:#073b2b;font-size:18px}.verification-panel p{font-size:12px;line-height:1.6;color:#607267}.verification-copy{overflow-wrap:anywhere}.verification-count{margin:10px 0!important;font-weight:800;color:#176b32!important}.verification-resend{width:100%;min-height:45px;border:0;border-radius:11px;background:#0b8f3c;color:#fff;font-weight:850}.verification-resend:disabled{opacity:.55}.verification-note{margin:12px 0!important}.verification-login{display:inline-block;margin-top:8px;color:#0b7135;font-size:12px;font-weight:850;text-decoration:none}
+@media(max-width:760px){.layout{grid-template-columns:1fr!important;width:min(100% - 24px,520px)!important;padding:20px 0 32px!important;gap:18px!important}.intro{padding:0 5px}.intro h1{font-size:34px!important;letter-spacing:-1.5px!important}.intro p{font-size:13px!important;line-height:1.65!important}.benefits{display:none!important}.card{border-radius:20px!important;padding:21px!important}.top{height:64px!important;padding:0 15px!important}.top-link{font-size:12px!important}}
 </style>
 </body></html>
