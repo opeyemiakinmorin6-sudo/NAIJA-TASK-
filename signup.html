@@ -87,7 +87,7 @@ form.addEventListener("submit",async event=>{
     if(error)throw error;
     if(!data.user)throw new Error("The authentication service did not return an account. Please try again.");
     if(data.user.identities&&data.user.identities.length===0){
-      showMessage("We could not confirm this as a new signup. If you already registered, use Tasker Login or Forgot Password. Otherwise check the email address and try again.","error");
+      showMessage("This email is already registered or cannot be used for a new signup. Do not create another account. Go to Tasker Login and use the visible Forgot Password link if you cannot remember your password.","error");
       return;
     }
     if(data.session){
@@ -103,6 +103,7 @@ form.addEventListener("submit",async event=>{
     const code=error.code||"";
     let text=error.message||"Unable to create your account. Please try again.";
     if(code==="email_provider_disabled")text="Email/password signup is currently disabled in Supabase. The site owner must enable Email provider in Supabase Auth settings.";
+    else if(code==="user_already_exists"||code==="email_exists"||/already registered|user already exists|email already exists/i.test(text))text="This email is already registered. Please use Tasker Login instead of signing up again. If you cannot remember your password, open Forgot Password on the login page.";
     else if(code==="weak_password")text="Supabase rejected this password as too weak. Use a longer password with a mix of characters.";
     else if(code==="over_email_send_rate_limit")text="Too many confirmation emails were requested. Wait before trying again.";
     else if(/failed to fetch|network/i.test(text))text="Could not reach Supabase. Check your internet connection and try again.";
