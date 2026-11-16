@@ -15,11 +15,9 @@
     if(!isRecovery) return;
     const roleValue=(query.get("role")||"tasker").toLowerCase();
     const role=["tasker","poster","admin"].includes(roleValue)?roleValue:"tasker";
-    const target=new URL("/reset-password.html",window.location.origin);
-    query.forEach((value,key)=>target.searchParams.set(key,value));
-    target.searchParams.set("role",role);
-    target.hash=window.location.hash;
-    window.location.replace(target.href);
+    query.set("role",role);
+    const target=window.location.origin+"/reset-password.html"+(query.toString()?"?"+query.toString():"")+window.location.hash;
+    window.location.replace(target);
   }catch(error){
     console.error("Password recovery redirect could not be completed:",error);
   }
