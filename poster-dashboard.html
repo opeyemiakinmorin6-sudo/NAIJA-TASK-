@@ -1100,7 +1100,10 @@ async function loadPosterProofs(user){
   const decisionLabel={POSTER_APPROVED:"Approved — reward paid",POSTER_REJECTED:"Rejected — Tasker may appeal",REPORT_PROBLEM:"Escalated to admin",ACCEPT_RECOMMENDED:"Legacy recommendation",NEED_CLEARER_PROOF:"Legacy proof flag"};
   const priorHtml=prior?'<div class="poster-review-saved"><strong>Decision already submitted — locked</strong><span>'+escapeHtml(decisionLabel[prior.decision]||String(prior.decision).replaceAll("_"," "))+'</span>'+(prior.message?'<p>'+escapeHtml(prior.message)+'</p>':'')+'<small>'+escapeHtml(new Date(prior.created_at).toLocaleString("en-NG"))+'</small></div>':'';
   const safeTaskerId=/^[0-9a-f-]{36}$/i.test(String(s.user_id||""))?String(s.user_id):"";
-  const reportButton=safeTaskerId?'<button type="button" class="poster-action-escalate" data-report-tasker="'+safeTaskerId+'" data-submission-id="'+Number(s.id)+'" data-task-id="'+Number(s.task_id)+'">Report concern</button>':'';
+  const completed=["APPROVED","COMPLETED","SUCCESS"].includes(String(s.status||"").trim().toUpperCase());
+  const reportEvent=completed?"TASKER_REVERSAL":"FRAUDULENT_PROOF";
+  const reportLabel=completed?"Report unfollow / unsubscribe":"Report proof concern";
+  const reportButton=safeTaskerId?'<button type="button" class="poster-action-escalate" data-report-tasker="'+safeTaskerId+'" data-event-type="'+reportEvent+'" data-submission-id="'+Number(s.id)+'" data-task-id="'+Number(s.task_id)+'">'+reportLabel+'</button>':'';
   return '<article style="background:#fff;border:1px solid #dce9de;border-radius:14px;padding:14px;margin:10px 0"><strong>'+escapeHtml(tm[String(s.task_id)]?.title||("Task #"+s.task_id))+'</strong><div class="job-info"><span class="info">Submission #'+s.id+'</span><span class="info">'+escapeHtml(s.status||"pending")+'</span><span class="info">'+escapeHtml(new Date(s.created_at).toLocaleString("en-NG"))+'</span></div><div style="margin-top:10px">'+ev+'</div>'+(p.text?'<p style="margin-top:8px;white-space:pre-wrap">'+escapeHtml(p.text)+'</p>':'')+adminLocked+priorHtml+actions+'<div style="margin-top:9px">'+reportButton+'</div>'+'</article>';
  }));
  box.innerHTML=html.join("");
@@ -1108,20 +1111,38 @@ async function loadPosterProofs(user){
   button.addEventListener("click",()=>reportTaskerSubmission(
    button.dataset.reportTasker,
    Number(button.dataset.submissionId),
-   Number(button.dataset.taskId)
+   Number(button.dataset.taskId),
+   button.dataset.eventType
   ));
  });
 }
-async function reportTaskerSubmission(taskerId,submissionId,taskId){
+async function reportTaskerSubmission(taskerId,submissionId,taskId,eventType){
  if(!/^[0-9a-f-]{36}$/i.test(String(taskerId||"")))return;
- const reason=window.prompt("Describe the specific suspected fraud or proof problem. Include what you observed (20–1200 characters):");
+ if(!["TASKER_REVERSAL","FRAUDULENT_PROOF"].includes(eventType))return;
+ const reversal=eventType==="TASKER_REVERSAL";
+ const promptText=reversal
+  ?"Describe the follow/unfollow or subscribe/unsubscribe reversal you observed. Include the public profile/channel link, when you checked, and what changed. Do not include passwords or private account data (20–1200 characters):"
+  :"Describe the specific suspected fake proof or submission issue and what you observed (20–1200 characters):";
+ const reason=window.prompt(promptText);
  if(reason===null)return;
  if(reason.trim().length<20||reason.trim().length>1200){alert("Please provide 20 to 1,200 characters.");return;}
  const {data:authData}=await supabaseClient.auth.getUser();
  if(!authData?.user){alert("Please sign in again.");return;}
- const {data,error}=await supabaseClient.rpc("submit_trust_safety_report",{p_reported_user_id:taskerId,p_event_type:"FRAUDULENT_PROOF",p_description:reason.trim(),p_evidence:{submission_id:Number(submissionId),task_id:Number(taskId),source:"poster_proof_review"}});
+ const {data,error}=await supabaseClient.rpc("submit_trust_safety_report",{
+  p_reported_user_id:taskerId,
+  p_event_type:eventType,
+  p_description:reason.trim(),
+  p_evidence:{
+   submission_id:Number(submissionId),
+   task_id:Number(taskId),
+   source:reversal?"post_completion_retention_report":"poster_proof_review",
+   reported_after_approval:reversal
+  }
+ });
  if(error){alert("Could not submit report: "+error.message);return;}
- alert("Your report has been sent to NAIJA TASK Trust & Safety for review. A report does not automatically penalize the Tasker.");
+ alert(reversal
+  ?"Your post-completion reversal report has been sent to NAIJA TASK Trust & Safety. It will be checked against the task record and evidence; a report alone does not automatically penalize the Tasker."
+  :"Your proof concern has been sent to NAIJA TASK Trust & Safety. A report alone does not automatically penalize the Tasker.");
 }
 
 async function sendPosterProofDecision(submissionId,taskId,decision){
