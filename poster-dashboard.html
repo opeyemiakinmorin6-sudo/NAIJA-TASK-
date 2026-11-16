@@ -703,6 +703,10 @@ main{max-width:980px;padding-top:22px}
   <div class="proof-review-intro"><strong>Review the work submitted for your jobs</strong><span>Open the proof and compare it with your exact task instructions. You may approve and pay for genuine work, reject it with a specific reason, or escalate a concern to admin. You get one decision per submission. Rejected Taskers can appeal with evidence; admin handles those disputes.</span></div>
   <section id="posterProofList" class="jobs"><div class="loading">Loading submissions for your tasks...</div></section>
 
+  <div class="section-title">🛡️ Follow &amp; Subscribe Retention Checks</div>
+  <div class="proof-review-intro"><strong>Automatic 24-hour follow-up</strong><span>Approved follow and subscribe tasks appear here after 24 hours. Check the public profile or channel yourself, then confirm retention or report a suspected reversal. NAIJA TASK cannot independently read private follower or subscriber lists.</span></div>
+  <section id="posterRetentionList" class="jobs"><div class="loading">Loading retention checks...</div></section>
+
   <section id="jobsList" class="jobs">
 
     <div class="loading">
@@ -1072,6 +1076,33 @@ async function loadJobs(user){
 /* =========================================================
    POSTER PROOF REVIEW — FEEDBACK ONLY; ADMIN CONTROLS PAYOUT
    ========================================================= */
+async function loadPosterRetentionChecks(user){
+ const box=document.getElementById("posterRetentionList");if(!box)return;
+ box.innerHTML='<div class="loading">Loading follow-up checks...</div>';
+ const {data:rows,error}=await supabaseClient.from("task_retention_checks")
+  .select("id,submission_id,task_id,tasker_id,platform,action_type,target_url,approved_at,check_due_at,status")
+  .eq("poster_id",user.id).order("check_due_at",{ascending:true}).limit(100);
+ if(error){box.innerHTML='<div class="empty">Retention checks could not load: '+escapeHtml(error.message)+'</div>';return;}
+ if(!rows?.length){box.innerHTML='<div class="empty">No follow or subscribe retention checks yet. New checks are scheduled automatically 24 hours after eligible submissions are approved.</div>';return;}
+ box.innerHTML=rows.map(r=>{
+  const due=new Date(r.check_due_at),isDue=Date.now()>=due.getTime()&&r.status==="SCHEDULED";
+  const status=r.status==="POSTER_CONFIRMED"?"Retention confirmed by poster":r.status==="REVERSAL_REPORTED"?"Reversal reported":r.status==="INCONCLUSIVE"?"Needs more evidence":r.status==="CLOSED"?"Closed":isDue?"Check due":"Scheduled";
+  const link=/^https?:\/\//i.test(String(r.target_url||""))?'<a href="'+escapeHtml(r.target_url)+'" target="_blank" rel="noopener noreferrer">Open public target</a>':'<span class="info">No public target link saved</span>';
+  const actions=isDue?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="poster-action-approve" data-retention-confirm="'+Number(r.id)+'">Confirm still following / subscribed</button><button type="button" class="poster-action-escalate" data-retention-report="'+Number(r.id)+'" data-tasker="'+escapeHtml(r.tasker_id)+'" data-submission="'+Number(r.submission_id)+'" data-task="'+Number(r.task_id)+'">Report reversal</button></div>':'';
+  return '<article class="job"><div class="job-top"><strong>'+escapeHtml(String(r.platform||"social").toUpperCase())+' · '+escapeHtml(r.action_type)+'</strong><span class="status '+(isDue?"review":"")+'">'+escapeHtml(status)+'</span></div><div class="job-info"><span class="info">Task #'+Number(r.task_id)+'</span><span class="info">Approved: '+escapeHtml(new Date(r.approved_at).toLocaleString("en-NG"))+'</span><span class="info">'+(isDue?"Due now":"Check due: "+escapeHtml(due.toLocaleString("en-NG")))+'</span></div><div style="margin-top:9px">'+link+'</div>'+actions+'</article>';
+ }).join("");
+ box.querySelectorAll("[data-retention-confirm]").forEach(btn=>btn.addEventListener("click",()=>confirmPosterRetention(Number(btn.dataset.retentionConfirm),user)));
+ box.querySelectorAll("[data-retention-report]").forEach(btn=>btn.addEventListener("click",()=>reportTaskerSubmission(btn.dataset.tasker,Number(btn.dataset.submission),Number(btn.dataset.task),"TASKER_REVERSAL")));
+}
+async function confirmPosterRetention(checkId,user){
+ if(!confirm("Confirm that you checked the public profile or channel and the follow/subscription is still present?"))return;
+ const {data,error}=await supabaseClient.rpc("poster_confirm_task_retention",{p_check_id:checkId,p_evidence:{confirmation_source:"poster_dashboard_manual_check"}});
+ if(error){alert("Could not save confirmation: "+error.message);return;}
+ if(!data?.success){alert("The confirmation was not saved. Refresh and try again.");return;}
+ alert("Retention check recorded. This is your confirmation, not an independent platform API verification.");
+ await loadPosterRetentionChecks(user);
+}
+
 async function loadPosterProofs(user){
  const box=document.getElementById("posterProofList");if(!box)return;
  box.innerHTML='<div class="loading">Loading task submissions...</div>';
@@ -1253,6 +1284,7 @@ async function startDashboard(){
 
   await loadJobs(user);
   await loadPosterProofs(user);
+  await loadPosterRetentionChecks(user);
 
 }
 
