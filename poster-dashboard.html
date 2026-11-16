@@ -889,7 +889,7 @@ async function checkPoster(){
   }
 
   const role=String(profile.role||"").toLowerCase();
-  if(role!=="task_poster"){
+  if(!["task_poster","poster"].includes(role)){
     await supabaseClient.auth.signOut();
     alert(role==="tasker"||role==="user"
       ? "This is a Tasker account. Use the Tasker workspace."
