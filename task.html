@@ -742,7 +742,7 @@ async function submitProof(){
     const { error } = await db.from("task_submissions").insert({
       user_id: currentUser.id,
       task_id: selectedTask.id,
-      proof: { text: proofText || null, photo_url: null, photo_path: uploaded?.path || null, bucket: uploaded?.bucket || PROOF_BUCKET, submitted_from: "task.html" },
+      proof: JSON.stringify({ text: proofText || null, photo_url: null, photo_path: uploaded?.path || null, bucket: uploaded?.bucket || PROOF_BUCKET, submitted_from: "task.html" }),
       status: "PENDING"
     }).select("id,task_id,status").single();
 
