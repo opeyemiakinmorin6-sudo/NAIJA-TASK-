@@ -46,7 +46,7 @@ let db=null,dbPromise=null;
 function loadSupabaseScript(src){
  return new Promise((resolve,reject)=>{
   const script=document.createElement("script");script.src=src;script.async=true;
-  const timer=setTimeout(()=>{script.remove();reject(new Error("Timed out loading the secure login library from "+new URL(src).hostname));},12000);
+  const timer=setTimeout(()=>{script.remove();reject(new Error("Timed out loading the secure login library from "+(src.includes("jsdelivr")?"jsDelivr":"unpkg")));},12000);
   script.onload=()=>{clearTimeout(timer);if(window.supabase?.createClient)resolve();else{script.remove();reject(new Error("The secure login library loaded without its client API."));}};
   script.onerror=()=>{clearTimeout(timer);script.remove();reject(new Error("Could not download the secure login library from "+new URL(src).hostname));};
   document.head.appendChild(script);
