@@ -36,25 +36,51 @@
 <main class="layout"><section class="intro"><span class="eyebrow">Good to have you back</span><h1>Your next task<br>is waiting.</h1><p>Sign in to find available jobs, check your submissions, follow your wallet and keep your Tasker activity moving.</p><div class="benefits"><div class="benefit"><span class="tick">✓</span> Pick up where you stopped</div><div class="benefit"><span class="tick">✓</span> Track submitted tasks</div><div class="benefit"><span class="tick">✓</span> Check approved rewards</div></div></section>
 <section class="card"><div class="card-brand"><img class="mark" src="/assets/naija-task-logo.svg" alt="NAIJA TASK logo" style="padding:0;object-fit:cover;background:transparent"><span><strong>NAIJA TASK</strong><small>YOUR TASKER WORKSPACE</small></span></div><div class="role"><strong>👤 TASKER LOGIN</strong><span>Use this login if your account is for completing jobs and earning rewards.</span></div><div id="loginSection"><h2>Welcome back</h2><p class="sub">Enter the email and password you registered with.</p><form id="loginForm"><label for="email">Email address</label><input id="email" type="email" placeholder="you@example.com" autocomplete="email" required><label for="password">Password</label><div class="password-box"><input id="password" type="password" placeholder="Enter your password" autocomplete="current-password" required><button class="show" type="button" id="showPassword">Show</button></div><a href="forgot-password.html?role=tasker" class="forgot" id="forgotPassword">Forgot password? Tap here to reset your password</a><button class="primary" type="submit" id="loginBtn">Log in to my Tasker account →</button></form><div class="message" id="errorMessage" role="alert"></div><div class="message" id="successMessage" role="status"></div><div class="switch">New to NAIJA TASK? <a href="signup.html">Create a Tasker account</a><br>Posting jobs instead? <a href="poster-login.html">Poster login</a> · <a href="poster-signup.html">Poster sign up</a></div></div><div id="forgotSection" class="hidden"><h2>Reset your password</h2><p class="sub">Enter your account email and we'll send you a secure reset link.</p><form id="forgotForm"><label for="forgotEmail">Email address</label><input id="forgotEmail" type="email" placeholder="you@example.com" autocomplete="email" required><button class="primary" type="submit" id="resetBtn">Send password reset link</button></form><div class="message" id="forgotMessage" role="status"></div><button type="button" class="secondary" id="backToLogin">← Back to Tasker login</button></div></section></main><footer class="footer">© 2026 NAIJA TASK · Complete Tasks. Earn Naira.</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Supabase SDK is loaded with a timed primary/backup CDN loader below. -->
 <script>
 const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co",SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const byId=id=>document.getElementById(id),loginForm=byId("loginForm"),loginBtn=byId("loginBtn");
-let db=null;
 function msg(id,text,type){const el=byId(id);el.textContent=text;el.className="message "+type;}
-try{if(!window.supabase?.createClient)throw new Error("Secure login service did not load. Check your internet connection and refresh.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});}catch(e){msg("errorMessage",e.message,"error");}
+let db=null,dbPromise=null;
+function loadSupabaseScript(src){
+ return new Promise((resolve,reject)=>{
+  const script=document.createElement("script");script.src=src;script.async=true;
+  const timer=setTimeout(()=>{script.remove();reject(new Error("Timed out loading the secure login library from "+new URL(src).hostname));},12000);
+  script.onload=()=>{clearTimeout(timer);if(window.supabase?.createClient)resolve();else{script.remove();reject(new Error("The secure login library loaded without its client API."));}};
+  script.onerror=()=>{clearTimeout(timer);script.remove();reject(new Error("Could not download the secure login library from "+new URL(src).hostname));};
+  document.head.appendChild(script);
+ });
+}
+async function ensureDb(){
+ if(db)return db;
+ if(!dbPromise)dbPromise=(async()=>{
+  if(!window.supabase?.createClient){
+   try{await loadSupabaseScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}
+   catch(primaryError){
+    console.warn("Primary Supabase CDN failed; trying backup CDN.",primaryError);
+    await loadSupabaseScript("https://unpkg.com/@supabase/supabase-js@2");
+   }
+  }
+  if(!window.supabase?.createClient)throw new Error("Secure login library is unavailable from both approved CDNs. Check that your browser or network allows jsDelivr and unpkg, then retry.");
+  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  return db;
+ })();
+ try{return await dbPromise;}catch(error){dbPromise=null;throw error;}
+}
+
 byId("showPassword").addEventListener("click",function(){const p=byId("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide";});
 loginForm.addEventListener("submit",async event=>{
  event.preventDefault();msg("errorMessage","","");msg("successMessage","","");
- if(!db){msg("errorMessage","Secure login is unavailable. Refresh the page and try again.","error");return;}
+
  const email=byId("email").value.trim().toLowerCase(),password=byId("password").value;
  if(!email||!password){msg("errorMessage","Enter both your email and password.","error");return;}
  loginBtn.disabled=true;loginBtn.textContent="Checking your login…";
  try{
-  const {data,error}=await db.auth.signInWithPassword({email,password});
+  const client=await ensureDb();
+  const {data,error}=await client.auth.signInWithPassword({email,password});
   if(error)throw error;if(!data.user)throw new Error("Supabase did not return a signed-in user.");
-  const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
-  if(profileError){console.error("Profile lookup failed:",profileError);await db.auth.signOut();throw new Error("Your password was accepted, but your account profile could not be loaded. Please retry once. If it continues, contact naijataskofficia@gmail.com and include the code PROFILE_LOOKUP_FAILED.");}if(!profile){await db.auth.signOut();throw new Error("Your login exists, but its NAIJA TASK profile record is missing. Your account and balance have not been deleted. Please contact naijataskofficia@gmail.com and include the code PROFILE_MISSING so support can restore the correct account role.");}
+  const {data:profile,error:profileError}=await client.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
+  if(profileError){console.error("Profile lookup failed:",profileError);await client.auth.signOut();throw new Error("Your password was accepted, but your account profile could not be loaded. Please retry once. If it continues, contact naijataskofficia@gmail.com and include the code PROFILE_LOOKUP_FAILED.");}if(!profile){await db.auth.signOut();throw new Error("Your login exists, but its NAIJA TASK profile record is missing. Your account and balance have not been deleted. Please contact naijataskofficia@gmail.com and include the code PROFILE_MISSING so support can restore the correct account role.");}
   const role=String(profile.role||"user").trim().toLowerCase();
   if(role==="admin"){
    msg("successMessage","Administrator account verified. Opening the admin dashboard…","success");
@@ -77,7 +103,7 @@ loginForm.addEventListener("submit",async event=>{
 byId("backToLogin").addEventListener("click",()=>{byId("forgotSection").classList.add("hidden");byId("loginSection").classList.remove("hidden");});
 byId("forgotForm").addEventListener("submit",async event=>{
  event.preventDefault();const b=byId("resetBtn");b.disabled=true;b.textContent="Sending…";
- try{if(!db)throw new Error("Secure login service is unavailable. Refresh and try again.");const {error}=await db.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:window.location.origin + "/reset-password.html?role=tasker"});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
+ try{const client=await ensureDb();const {error}=await client.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:window.location.origin + "/reset-password.html?role=tasker"});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
  catch(error){msg("forgotMessage",error.message||"Could not send the reset email. Please try again.","error");}
  finally{b.disabled=false;b.textContent="Send password reset link";}
 });
