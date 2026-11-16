@@ -989,6 +989,10 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
  </div>
  <a class="nt-activity-button" href="applied-jobs.html">View all activity <span aria-hidden="true">→</span></a>
 </section>
+<section class="section nt-section" id="taskerRetentionHistory">
+ <div class="section-heading"><div><span class="nt-eyebrow">FAIR TASK PROTECTION</span><h2>Follow &amp; Subscribe Checks</h2><p class="nt-section-copy">See follow-up checks on approved follow and subscribe tasks. A report is not an automatic penalty.</p></div></div>
+ <div class="panel"><div id="taskerRetentionList" aria-live="polite"><div class="loading">Loading your retention history…</div></div></div>
+</section>
 <section class="section nt-section" id="recentTaskUpdates">
  <div class="section-heading"><div><span class="nt-eyebrow">LATEST ACTIVITY</span><h2>Recent task updates</h2></div><a href="applied-jobs.html">View all →</a></div>
  <div class="panel"><div id="activityUpdates" aria-live="polite"><div class="loading">Loading your updates…</div></div></div>
@@ -1430,6 +1434,25 @@ function renderActivityUpdates(rows){
   }).join("");
 }
 
+/* ---------- Tasker retention history ---------- */
+async function loadTaskerRetentionHistory(){
+ const box=$("taskerRetentionList");if(!box||!currentUser)return;
+ const {data:rows,error}=await withTimeout(supabaseClient.from("task_retention_checks")
+  .select("id,task_id,platform,action_type,target_url,approved_at,check_due_at,status,poster_confirmed_at,reversal_reported_at")
+  .eq("tasker_id",currentUser.id).order("created_at",{ascending:false}).limit(50));
+ if(error){console.warn("Retention history unavailable:",error);box.innerHTML='<div class="empty-state">Your retention history could not be loaded right now. Your task activity and wallet are unaffected.</div>';return;}
+ if(!rows?.length){box.innerHTML='<div class="empty-state">No follow or subscribe retention checks yet. Eligible approved tasks will appear here automatically.</div>';return;}
+ box.innerHTML=rows.map(r=>{
+  const status=String(r.status||"SCHEDULED").toUpperCase();
+  const labels={SCHEDULED:"Scheduled",DUE:"Poster check due",POSTER_CONFIRMED:"Poster confirmed retention",REVERSAL_REPORTED:"Concern reported — under review",INCONCLUSIVE:"More evidence needed",CLOSED:"Review closed"};
+  const colours={SCHEDULED:"#526b5b",DUE:"#8a5a00",POSTER_CONFIRMED:"#087f36",REVERSAL_REPORTED:"#8a5a00",INCONCLUSIVE:"#8a5a00",CLOSED:"#526b5b"};
+  const date=r.check_due_at?new Date(r.check_due_at).toLocaleString("en-NG",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"}):"Not scheduled";
+  const safeLink=/^https?:\/\//i.test(String(r.target_url||""))?'<a href="'+escapeHTML(r.target_url)+'" target="_blank" rel="noopener noreferrer">View task target</a>':"";
+  const notice=status==="REVERSAL_REPORTED"?' <p style="margin:8px 0 0;color:#76500a;font-size:12px;line-height:1.5">A poster reported a possible change after approval. This is not a finding of wrongdoing. Keep relevant public evidence and use the normal support/appeal route if contacted.</p>':"";
+  return '<article class="transaction-item" style="display:block;margin:9px 0"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><strong>'+escapeHTML(String(r.platform||"Social").toUpperCase())+' · '+escapeHTML(r.action_type||"FOLLOW")+'</strong><strong style="font-size:11px;color:'+colours[status]+'">'+escapeHTML(labels[status]||"Under review")+'</strong></div><small style="display:block;margin-top:7px;color:var(--muted)">Task #'+Number(r.task_id)+' · Approved '+escapeHTML(r.approved_at?new Date(r.approved_at).toLocaleDateString("en-NG"):"date unavailable")+' · Check due '+escapeHTML(date)+'</small><div style="margin-top:8px;font-size:12px">'+safeLink+'</div>'+notice+'</article>';
+ }).join("");
+}
+
 /* ---------- Recent wallet activity ---------- */
 async function loadWalletTransactions(){
   const container = $("transactionsList");
@@ -1469,7 +1492,8 @@ async function refreshDashboard(){
       loadPlatformSettings(),
       loadAvailableTasks(),
       submissionsReady,
-      loadWalletTransactions()
+      loadWalletTransactions(),
+      loadTaskerRetentionHistory()
     ]);
 
     const profileResult = results[0];
@@ -1503,6 +1527,7 @@ function subscribeToChanges(){
     submissionsReady = loadSubmissionStats().catch(console.error);
     loadAvailableTasks().catch(console.error);
   });
+  watch("dashboard-retention-" + currentUser.id, "task_retention_checks", "tasker_id=eq." + currentUser.id, () => loadTaskerRetentionHistory().catch(console.error));
   watch("dashboard-wallet-" + currentUser.id, "wallet_transactions", "user_id=eq." + currentUser.id, () => {
     loadWalletTransactions().catch(console.error);
     loadProfile().catch(console.error);
