@@ -69,7 +69,7 @@ byId("forgotPassword").addEventListener("click",event=>{event.preventDefault();b
 byId("backToLogin").addEventListener("click",()=>{byId("forgotSection").classList.add("hidden");byId("loginSection").classList.remove("hidden");});
 byId("forgotForm").addEventListener("submit",async event=>{
  event.preventDefault();const b=byId("resetBtn");b.disabled=true;b.textContent="Sending…";
- try{if(!db)throw new Error("Secure login service is unavailable. Refresh and try again.");const {error}=await db.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:new URL("reset-password.html",location.href).href});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
+ try{if(!db)throw new Error("Secure login service is unavailable. Refresh and try again.");const {error}=await db.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:new URL("/reset-password.html?role=tasker",window.location.origin).href});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
  catch(error){msg("forgotMessage",error.message||"Could not send the reset email. Please try again.","error");}
  finally{b.disabled=false;b.textContent="Send password reset link";}
 });
