@@ -83,7 +83,7 @@ form.addEventListener("submit",async event=>{
     const metadata={full_name:fullName,user_type:"tasker",role:"tasker"};
     if(byId("phone"))metadata.phone=byId("phone").value.trim();
     if(byId("referralCode")?.value.trim())metadata.referral_code=byId("referralCode").value.trim();
-    const {data,error}=await db.auth.signUp({email,password,options:{data:metadata}});
+    const {data,error}=await db.auth.signUp({email,password,options:{data:metadata,emailRedirectTo:location.origin + "/login.html"}});
     if(error)throw error;
     if(!data.user)throw new Error("The authentication service did not return an account. Please try again.");
     if(data.user.identities&&data.user.identities.length===0){
