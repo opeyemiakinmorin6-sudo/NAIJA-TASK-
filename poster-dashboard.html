@@ -707,6 +707,7 @@ main{max-width:980px;padding-top:22px}
   <div class="proof-review-intro"><strong>Automatic 24-hour follow-up</strong><span>Approved follow and subscribe tasks appear here after 24 hours. Check the public profile or channel yourself, then confirm retention or report a suspected reversal. NAIJA TASK cannot independently read private follower or subscriber lists.</span></div>
   <section id="posterRetentionList" class="jobs"><div class="loading">Loading retention checks...</div></section>
 
+<div class="section-title">🛡️ Trust &amp; Safety case discussion</div><div class="proof-review-intro"><strong>Follow up on reports and account concerns</strong><span>See reports you submitted or cases concerning your account. Add clear explanations and relevant public evidence. A report alone never automatically bans or penalizes anyone.</span></div><section id="trustSafetyCases" class="jobs"><div class="loading">Loading your cases…</div></section>
   <section id="jobsList" class="jobs">
 
     <div class="loading">
@@ -1076,6 +1077,43 @@ async function loadJobs(user){
 /* =========================================================
    POSTER PROOF REVIEW — FEEDBACK ONLY; ADMIN CONTROLS PAYOUT
    ========================================================= */
+
+/* Participant Trust & Safety case discussion. Reports are review signals, never automatic proof. */
+async function loadTrustSafetyCases(){
+ const {data:auth}=await supabaseClient.auth.getUser();const caseCurrentUser=auth?.user;if(!caseCurrentUser)return;
+ const box=document.getElementById("trustSafetyCases");if(!box)return;
+ box.innerHTML='<div class="loading">Loading your Trust &amp; Safety cases…</div>';
+ const fields="id,user_id,event_type,severity,description,metadata,status,created_at";
+ const [reported,submitted]=await Promise.all([
+  supabaseClient.from("security_events").select(fields).eq("user_id",caseCurrentUser.id).order("created_at",{ascending:false}).limit(50),
+  supabaseClient.from("security_events").select(fields).filter("metadata->>reporter_id","eq",caseCurrentUser.id).order("created_at",{ascending:false}).limit(50)
+ ]);
+ if(reported.error&&submitted.error){box.innerHTML='<div class="empty-state">Your case list could not be loaded right now. Your account and wallet are unaffected. Please refresh later.</div>';return;}
+ const byId=new Map();[...(reported.data||[]),...(submitted.data||[])].forEach(row=>byId.set(String(row.id),row));
+ const cases=[...byId.values()].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,50);
+ if(!cases.length){box.innerHTML='<div class="empty-state">You have no open or previous Trust &amp; Safety discussions. If a case is raised about your account, or you submit a report, it will appear here.</div>';return;}
+ const ids=cases.map(x=>Number(x.id)).filter(Number.isFinite);
+ const {data:messages,error:messageError}=await supabaseClient.from("trust_safety_case_messages")
+  .select("id,event_id,author_id,message,evidence,created_at").in("event_id",ids).order("created_at",{ascending:true}).limit(500);
+ const grouped={};(messages||[]).forEach(m=>(grouped[String(m.event_id)]??=[]).push(m));
+ box.innerHTML=cases.map(c=>{
+  const id=Number(c.id),meta=c.metadata&&typeof c.metadata==="object"?c.metadata:{};
+  const reporter=String(meta.reporter_id||"")===caseCurrentUser.id;
+  const heading=reporter?"Report you submitted":"Case concerning your account";
+  const thread=(grouped[String(id)]||[]).map(m=>'<div style="padding:10px;margin:8px 0;border-radius:11px;background:'+(m.author_id===caseCurrentUser.id?'#eaf7ed':'#f4f6f4')+'"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong style="font-size:11px">'+(m.author_id===caseCurrentUser.id?'You':'Other participant')+'</strong><small>'+escapeHTML(new Date(m.created_at).toLocaleString("en-NG"))+'</small></div><div style="white-space:pre-wrap;overflow-wrap:anywhere;margin-top:6px;font-size:13px">'+escapeHTML(m.message)+'</div></div>').join("");
+  return '<article style="border:1px solid #dce9de;border-radius:14px;padding:13px;margin:10px 0;background:#fff"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>'+heading+' · #'+id+'</strong><strong style="font-size:11px;color:#087f36">'+escapeHTML(String(c.status||"OPEN").replaceAll("_"," "))+'</strong></div><div style="font-size:12px;color:#647568;margin:7px 0">'+escapeHTML(String(c.event_type||"Trust & Safety").replaceAll("_"," "))+' · '+escapeHTML(new Date(c.created_at).toLocaleString("en-NG"))+'</div><p style="font-size:13px;line-height:1.5;white-space:pre-wrap">'+escapeHTML(c.description||"No description provided.")+'</p><div style="border-top:1px solid #e5ece6;padding-top:8px"><strong style="font-size:12px">Discussion</strong>'+(messageError?'<p style="font-size:12px;color:#a33">Discussion messages could not be loaded.</p>':thread||'<p style="font-size:12px;color:#647568">No replies yet. You can add your explanation or supporting public evidence below.</p>')+'</div><form data-case-message="'+id+'" style="margin-top:10px"><label style="display:block;font-size:12px;font-weight:800;margin-bottom:6px" for="caseReply'+id+'">Your reply (10–2,000 characters)</label><textarea id="caseReply'+id+'" name="message" minlength="10" maxlength="2000" required rows="3" style="width:100%;padding:11px;border:1px solid #dce9de;border-radius:10px;font:inherit;font-size:13px;resize:vertical" placeholder="Explain your side clearly. Do not share passwords, OTPs or private account credentials."></textarea><button type="submit" style="margin-top:8px;padding:11px 15px;border:0;border-radius:10px;background:#087f36;color:#fff;font-weight:800">Send reply</button></form></article>';
+ }).join("");
+ box.querySelectorAll("form[data-case-message]").forEach(form=>form.addEventListener("submit",async e=>{
+  e.preventDefault();const area=form.querySelector("textarea"),button=form.querySelector("button");
+  const message=String(area.value||"").trim();if(message.length<10||message.length>2000){alert("Your reply must be between 10 and 2,000 characters.");return;}
+  button.disabled=true;button.textContent="Sending…";
+  const {data,error}=await supabaseClient.rpc("submit_trust_safety_case_message",{p_event_id:Number(form.dataset.caseMessage),p_message:message,p_evidence:{}});
+  if(error){alert("Your reply could not be sent: "+error.message);button.disabled=false;button.textContent="Send reply";return;}
+  if(!data){alert("The server did not confirm the reply. Please refresh and check before sending again.");button.disabled=false;button.textContent="Send reply";return;}
+  await loadTrustSafetyCases();
+ }));
+}
+
 async function loadPosterRetentionChecks(user){
  const box=document.getElementById("posterRetentionList");if(!box)return;
  box.innerHTML='<div class="loading">Loading follow-up checks...</div>';
@@ -1101,6 +1139,7 @@ async function confirmPosterRetention(checkId,user){
  if(!data?.success){alert("The confirmation was not saved. Refresh and try again.");return;}
  alert("Retention check recorded. This is your confirmation, not an independent platform API verification.");
  await loadPosterRetentionChecks(user);
+  await loadTrustSafetyCases();
 }
 
 async function loadPosterProofs(user){
