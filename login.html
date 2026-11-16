@@ -51,7 +51,7 @@ loginForm.addEventListener("submit",async event=>{
   if(error)throw error;if(!data.user)throw new Error("Supabase did not return a signed-in user.");
   const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
   if(profileError){console.error("Profile lookup failed:",profileError);await db.auth.signOut();throw new Error("Your password was accepted, but your account profile could not be loaded. Please retry once. If it continues, contact naijataskofficia@gmail.com and include the code PROFILE_LOOKUP_FAILED.");}if(!profile){await db.auth.signOut();throw new Error("Your login exists, but its NAIJA TASK profile record is missing. Your account and balance have not been deleted. Please contact naijataskofficia@gmail.com and include the code PROFILE_MISSING so support can restore the correct account role.");}
-  const role=String(profile.role||"user").toLowerCase();
+  const role=String(profile.role||"user").trim().toLowerCase();
   if(!["tasker","user"].includes(role)){await db.auth.signOut();throw new Error(role==="task_poster"?"This is a Poster account. Use Poster Login instead.":"This account does not have Tasker access.");}
   msg("successMessage","Password accepted. Your Tasker session is active. Opening dashboard…","success");
   loginBtn.textContent="Opening dashboard…";location.replace("dashboard.html");
