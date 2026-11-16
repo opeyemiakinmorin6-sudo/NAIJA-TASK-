@@ -17,17 +17,22 @@ function fail(message){
   link.href=fallback;
   link.textContent=roleHint==="poster"?"Return to Poster Login":"Return to Tasker Login";
 }
-function loadSdk(){
-  return new Promise((resolve,reject)=>{
-    if(window.supabase?.createClient){resolve();return;}
-    const tag=document.createElement("script");
-    let finished=false;
-    const timer=setTimeout(()=>{if(finished)return;finished=true;tag.remove();reject(new Error("The secure verification service took too long to load. Check your connection and refresh."));},15000);
-    tag.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-    tag.onload=()=>{if(finished)return;finished=true;clearTimeout(timer);window.supabase?.createClient?resolve():reject(new Error("The secure verification service did not start correctly."));};
-    tag.onerror=()=>{if(finished)return;finished=true;clearTimeout(timer);reject(new Error("Could not load the secure verification service. Check your connection and try again."));};
-    document.head.appendChild(tag);
-  });
+async function loadSdk(){
+  if(window.supabase?.createClient)return;
+  async function load(src){
+    return new Promise((resolve,reject)=>{
+      const tag=document.createElement("script");
+      let finished=false;
+      const timer=setTimeout(()=>{if(finished)return;finished=true;tag.remove();reject(new Error("The secure verification service took too long to load."));},12000);
+      tag.src=src;
+      tag.onload=()=>{if(finished)return;finished=true;clearTimeout(timer);window.supabase?.createClient?resolve():reject(new Error("The secure verification service did not start correctly."));};
+      tag.onerror=()=>{if(finished)return;finished=true;clearTimeout(timer);tag.remove();reject(new Error("Could not load the secure verification service."));};
+      document.head.appendChild(tag);
+    });
+  }
+  try{await load("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}
+  catch(firstError){await load("https://unpkg.com/@supabase/supabase-js@2");}
+  if(!window.supabase?.createClient)throw new Error("Secure verification service is unavailable.");
 }
 (async()=>{
   try{
