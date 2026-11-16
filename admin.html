@@ -803,6 +803,34 @@ td,th{padding:13px 11px}
 #proofModal .modal-footer button:disabled{opacity:.55;cursor:not-allowed}
 @media(max-width:600px){#page-submissions .review-guide{grid-template-columns:1fr}#page-submissions .page-header{gap:8px}#page-submissions .card{padding:12px}}
 </style>
+<!-- Emergency visibility watchdog: keeps a script/CDN failure from trapping visitors behind the spinner. It never grants admin access. -->
+<script>
+(function () {
+  function armAdminVisibilityWatchdog() {
+    window.setTimeout(function () {
+      var loader = document.getElementById("loading");
+      var login = document.getElementById("loginScreen");
+      var app = document.getElementById("app");
+      if (loader && !loader.classList.contains("hidden")) {
+        loader.classList.add("hidden");
+        if (login) login.classList.remove("hidden");
+        if (app) app.classList.add("hidden");
+        var message = document.getElementById("loginMessage");
+        if (message) {
+          message.textContent = "The admin page is taking too long to start. The login screen has been opened safely. Please refresh once; if this continues, the secure sign-in service or page script is failing to load.";
+          message.classList.remove("hidden");
+          message.style.display = "block";
+        }
+      }
+    }, 12000);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", armAdminVisibilityWatchdog, { once: true });
+  } else {
+    armAdminVisibilityWatchdog();
+  }
+})();
+</script>
 </head>
 
 <body>
