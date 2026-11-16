@@ -9824,9 +9824,22 @@ async function loadSecurity() {
     );
     if (result.error) throw result.error;
     const rows = safeArray(result.data);
+    // Correlate recent post-completion reversal reports as a review signal only.
+    // Distinct reporters and repeated reports never trigger an automatic penalty.
+    const reversalPatterns = new Map();
+    rows.filter(row => String(row.event_type || "").toUpperCase() === "TASKER_REVERSAL")
+      .forEach(row => {
+        const key = String(row.user_id || "");
+        if (!key) return;
+        const current = reversalPatterns.get(key) || { count: 0, reporters: new Set() };
+        current.count += 1;
+        const reporterId = row.metadata && row.metadata.reporter_id ? String(row.metadata.reporter_id) : "";
+        if (reporterId) current.reporters.add(reporterId);
+        reversalPatterns.set(key, current);
+      });
     if (queueStatus) {
       queueStatus.textContent = rows.length
-        ? rows.length + " recent incident(s). Open reports require evidence review before enforcement."
+        ? rows.length + " recent incident(s). Repeat reversal reports are highlighted for investigation only; review evidence before enforcement."
         : "No incident reports have been submitted.";
       queueStatus.className = "notice success";
     }
@@ -9837,6 +9850,10 @@ async function loadSecurity() {
         const evidence = meta.evidence && typeof meta.evidence === "object"
           ? JSON.stringify(meta.evidence)
           : "No structured evidence supplied";
+        const pattern = reversalPatterns.get(String(row.user_id || ""));
+        const patternSignal = String(row.event_type || "").toUpperCase() === "TASKER_REVERSAL" && pattern
+          ? '<div style="margin-top:7px;padding:8px;border-radius:8px;background:#fff7e6;color:#805900"><strong>Review signal only:</strong> ' + pattern.count + ' reversal report(s) in the latest 100 incidents from ' + pattern.reporters.size + ' distinct reporter(s). This is not proof of wrongdoing.</div>'
+          : "";
         return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere">' +
           '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>#' + escapeHTML(row.id) + ' · ' + escapeHTML(row.event_type || "Incident") + '</strong>' + badge(row.status || "OPEN") + '</div>' +
           '<div style="font-size:12px;line-height:1.8;margin-top:8px">' +
@@ -9845,7 +9862,7 @@ async function loadSecurity() {
           '<div>Severity: ' + escapeHTML(row.severity || "LOW") + ' · Submitted: ' + escapeHTML(formatDate(row.created_at)) + '</div>' +
           '<div>Details: ' + escapeHTML(row.description || "—") + '</div>' +
           '<div>Evidence: ' + escapeHTML(evidence) + '</div>' +
-          '</div>' +
+          '</div>' + patternSignal +
           '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' +
           (["OPEN","UNDER_REVIEW"].includes(String(row.status||"").toUpperCase()) ?
             "<button class=\"success\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'VERIFY')\">Verify</button>" +
