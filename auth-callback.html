@@ -1,5 +1,70 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#073b2b"><title>Verifying your email | NAIJA TASK</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(145deg,#f1f8ef,#fbfdf9);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#173326}.card{width:min(100%,440px);padding:30px 24px;background:#fff;border:1px solid #dce9de;border-radius:24px;box-shadow:0 22px 60px #173c2014;text-align:center}.mark{width:54px;height:54px;margin:0 auto 16px;border-radius:17px;display:grid;place-items:center;background:linear-gradient(145deg,#073b2b,#0b8f3c);color:#b8e62e;font-weight:1000;font-size:18px}.spin{width:30px;height:30px;margin:20px auto;border:3px solid #dcefdc;border-top-color:#0b8f3c;border-radius:50%;animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}h1{font-size:23px;margin:0 0 10px;color:#073b2b}p{font-size:13px;line-height:1.7;color:#66766a}a{display:inline-block;margin-top:16px;padding:12px 18px;border-radius:11px;background:#0b8f3c;color:white;text-decoration:none;font-size:13px;font-weight:800}.error{color:#a32921}</style></head><body><main class="card"><div class="mark">NT</div><h1 id="title">Verifying your email…</h1><div class="spin" id="spinner"></div><p id="status">Please wait while we securely confirm your NAIJA TASK account.</p><a id="continue" href="login.html" hidden>Continue to login</a></main><script>
-const URL="https://jwakveeiynpakunwjzkj.supabase.co",KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D",q=new URLSearchParams(location.search),hint=(q.get("role")||"tasker").toLowerCase(),fallback=hint==="poster"?"poster-login.html":"login.html",title=document.getElementById("title"),status=document.getElementById("status"),spinner=document.getElementById("spinner"),link=document.getElementById("continue");
-function fail(m){title.textContent="Verification needs attention";status.textContent=m;status.className="error";spinner.hidden=true;link.hidden=false;link.href=fallback;}
-(async()=>{try{if(q.get("flow")!=="signup")throw new Error("This is not a signup verification link. Please use the latest email sent by NAIJA TASK.");const code=q.get("code");if(!code)throw new Error(q.get("error_description")||"This verification link is incomplete or expired. Request a fresh email from signup.");await new Promise((resolve,reject)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";s.onload=resolve;s.onerror=()=>reject(new Error("Could not load the secure verification service. Refresh this page or try another connection."));document.head.appendChild(s);});if(!window.supabase?.createClient)throw new Error("Secure verification service is unavailable.");const db=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});const dbVerify=db.auth;const callbackError=q.get("error_description")||q.get("error");if(callbackError)throw new Error(callbackError);const tokenHash=q.get("token_hash"),tokenType=q.get("type");if(tokenHash&&(tokenType==="email"||tokenType==="signup")){const verifyType=tokenType==="signup"?"email":tokenType;const {data,error}=await dbVerify.verifyOtp({token_hash:tokenHash,type:verifyType});if(error)throw error;if(!data.user)throw new Error("The verification link was accepted but no account was returned. Request a fresh email.");const role=hint==="poster"?"poster":"tasker";const target=role==="poster"?"poster-login.html":"login.html";title.textContent="Email verified successfully";status.textContent="Your email is confirmed. Continue to your "+(role==="poster"?"Poster":"Tasker")+" login.";spinner.hidden=true;link.href=target;link.hidden=false;link.textContent="Continue to login";return;}const code=q.get("code");if(!code)throw new Error(q.get("error_description")||"This verification link is incomplete or expired. Request a fresh email from signup.");await new Promise((resolve,reject)=>{const {data,error}=await db.auth.exchangeCodeForSession(code);if(error)throw error;if(!data.user)throw new Error("We could not confirm the account session. Request a fresh verification email.");let r=hint;for(let i=0;i<4;i++){const {data:p,error:e}=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();if(!e&&p?.role){r=String(p.role).toLowerCase();break;}await new Promise(x=>setTimeout(x,700));}const target=r==="task_poster"||r==="poster"?"poster-login.html":r==="admin"?"login.html":"login.html";title.textContent="Email verified successfully";status.textContent="Your email is confirmed. Taking you to the correct NAIJA TASK login…";spinner.hidden=true;link.href=target;link.hidden=false;link.textContent="Continue to login";setTimeout(()=>location.replace(target),1300);}catch(e){console.error("NAIJA TASK verification:",e);fail(e.message||"Verification could not be completed. Request a new email and try again.");}})();
+const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const params=new URLSearchParams(location.search);
+const roleHint=(params.get("role")||"tasker").toLowerCase();
+const fallback=roleHint==="poster"?"poster-login.html":"login.html";
+const title=document.getElementById("title");
+const status=document.getElementById("status");
+const spinner=document.getElementById("spinner");
+const link=document.getElementById("continue");
+function fail(message){
+  title.textContent="Verification needs attention";
+  status.textContent=message;
+  status.className="error";
+  spinner.hidden=true;
+  link.hidden=false;
+  link.href=fallback;
+  link.textContent=roleHint==="poster"?"Return to Poster Login":"Return to Tasker Login";
+}
+function loadSdk(){
+  return new Promise((resolve,reject)=>{
+    if(window.supabase?.createClient){resolve();return;}
+    const tag=document.createElement("script");
+    let finished=false;
+    const timer=setTimeout(()=>{if(finished)return;finished=true;tag.remove();reject(new Error("The secure verification service took too long to load. Check your connection and refresh."));},15000);
+    tag.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    tag.onload=()=>{if(finished)return;finished=true;clearTimeout(timer);window.supabase?.createClient?resolve():reject(new Error("The secure verification service did not start correctly."));};
+    tag.onerror=()=>{if(finished)return;finished=true;clearTimeout(timer);reject(new Error("Could not load the secure verification service. Check your connection and try again."));};
+    document.head.appendChild(tag);
+  });
+}
+(async()=>{
+  try{
+    if(params.get("flow")!=="signup")throw new Error("This is not a signup verification link. Please use the latest email sent by NAIJA TASK.");
+    const callbackError=params.get("error_description")||params.get("error");
+    if(callbackError)throw new Error(callbackError);
+    await loadSdk();
+    const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
+    let data=null,error=null;
+    const tokenHash=params.get("token_hash");
+    const tokenType=params.get("type");
+    if(tokenHash&&(tokenType==="email"||tokenType==="signup")){
+      const result=await db.auth.verifyOtp({token_hash:tokenHash,type:tokenType==="signup"?"email":tokenType});
+      data=result.data;error=result.error;
+    }else{
+      const code=params.get("code");
+      if(!code)throw new Error("This verification link is incomplete or expired. Request a fresh verification email from signup.");
+      const result=await db.auth.exchangeCodeForSession(code);
+      data=result.data;error=result.error;
+    }
+    if(error)throw error;
+    if(!data?.user)throw new Error("We could not confirm your account. Request a fresh verification email.");
+    let actualRole=roleHint;
+    const profileResult=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
+    if(!profileResult.error&&profileResult.data?.role)actualRole=String(profileResult.data.role).trim().toLowerCase();
+    const isPoster=actualRole==="poster"||actualRole==="task_poster";
+    const destination=isPoster?"poster-login.html":"login.html";
+    title.textContent="Email verified successfully";
+    status.textContent="Your email is confirmed. Continue to your "+(isPoster?"Poster":"Tasker")+" login.";
+    spinner.hidden=true;
+    link.href=destination;
+    link.hidden=false;
+    link.textContent="Continue to "+(isPoster?"Poster":"Tasker")+" Login";
+    setTimeout(()=>location.replace(destination),1200);
+  }catch(error){
+    console.error("NAIJA TASK verification:",error);
+    fail(error?.message||"Verification could not be completed. Request a new email and try again.");
+  }
+})();
 </script></body></html>
