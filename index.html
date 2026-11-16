@@ -11,6 +11,10 @@
   try{
     const query=new URLSearchParams(window.location.search);
     const hash=new URLSearchParams(window.location.hash.replace(/^#/,""));
+    if(query.get("flow")==="signup" && query.has("code")){
+      window.location.replace(window.location.origin+"/auth-callback.html"+window.location.search+window.location.hash);
+      return;
+    }
     const isRecovery=query.has("code") || hash.get("type")==="recovery";
     if(!isRecovery) return;
     const roleValue=(query.get("role")||"tasker").toLowerCase();
