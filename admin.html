@@ -9692,7 +9692,7 @@ async function adminTrustSafetyAction(eventId, action) {
     BAN: "Permanently ban this account",
     RESTORE: "Restore this account"
   };
-  const reason = window.prompt(labels[action] + "\\n\\nEnter a clear reason (at least 15 characters):");
+  const reason = window.prompt(labels[action] + "\n\nEnter a clear reason (at least 15 characters):");
   if (reason === null) return;
   if (String(reason).trim().length < 15) {
     toast("Please enter a reason of at least 15 characters.", "danger");
@@ -9789,14 +9789,15 @@ async function loadSecurity() {
           '<div>Evidence: ' + escapeHTML(evidence) + '</div>' +
           '</div>' +
           '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' +
-          (["OPEN","UNDER_REVIEW"].includes(String(row.status||"").toUpperCase()) ? 
-            '<button class="success" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'VERIFY\\')">Verify</button>' +
-            '<button class="secondary" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'DISMISS\\')">Dismiss</button>' +
-            '<button class="secondary" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'WARN\\')">Warn</button>' +
-            '<button class="warning" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'RESTRICT\\')">Restrict</button>' +
-            '<button class="warning" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'SUSPEND\\')">Suspend</button>' +
-            '<button class="danger" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'BAN\\')">Ban</button>' : '') +
-          '<button class="secondary" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'RESTORE\\')">Restore account</button>' +
+          (["OPEN","UNDER_REVIEW"].includes(String(row.status||"").toUpperCase()) ?
+            "<button class=\"success\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'VERIFY')\">Verify</button>" +
+            "<button class=\"secondary\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'DISMISS')\">Dismiss</button>" : "") +
+          (["OPEN","UNDER_REVIEW","VERIFIED"].includes(String(row.status||"").toUpperCase()) ?
+            "<button class=\"secondary\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'WARN')\">Warn</button>" +
+            "<button class=\"warning\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'RESTRICT')\">Restrict</button>" +
+            "<button class=\"warning\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'SUSPEND')\">Suspend</button>" +
+            "<button class=\"danger\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'BAN')\">Ban</button>" : "") +
+          "<button class=\"secondary\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'RESTORE')\">Restore account</button>" +
           '</div></article>';
       }).join("") : '<div class="empty">No incident reports found. No sample or fake records are shown.</div>';
     }
