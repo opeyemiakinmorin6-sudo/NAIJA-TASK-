@@ -9764,6 +9764,42 @@ async function adminReviewSecurityAppeal(appealId, decision) {
   }
 }
 
+async function viewTrustSafetyDiscussion(eventId) {
+  const target = $("trustSafetyThread-" + Number(eventId));
+  if (!target || !Number.isSafeInteger(Number(eventId))) return;
+  if (target.dataset.loaded === "true") {
+    target.innerHTML = "";
+    target.dataset.loaded = "false";
+    return;
+  }
+  target.innerHTML = '<div class="notice">Loading case discussion…</div>';
+  try {
+    const result = await withTimeout(
+      supabaseClient.from("trust_safety_case_messages")
+        .select("id,author_id,message,evidence,created_at")
+        .eq("event_id", Number(eventId))
+        .order("created_at", { ascending: true })
+        .limit(100),
+      15000,
+      "Trust & Safety case discussion"
+    );
+    if (result.error) throw result.error;
+    const messages = safeArray(result.data);
+    target.innerHTML = messages.length ? messages.map(message => {
+      const evidence = message.evidence && typeof message.evidence === "object"
+        ? JSON.stringify(message.evidence) : "{}";
+      return '<div style="padding:10px;margin:7px 0;border:1px solid #e4ece6;border-radius:10px;background:#fbfdfb;overflow-wrap:anywhere">' +
+        '<div style="font-size:11px;color:#718078">Participant ' + escapeHTML(message.author_id) +
+        ' · ' + escapeHTML(formatDate(message.created_at)) + '</div>' +
+        '<div style="margin-top:6px;white-space:pre-wrap">' + escapeHTML(message.message) + '</div>' +
+        '<div class="small" style="margin-top:6px">Evidence: ' + escapeHTML(evidence) + '</div></div>';
+    }).join("") : '<div class="empty">No participant responses have been added to this case yet.</div>';
+    target.dataset.loaded = "true";
+  } catch (error) {
+    target.innerHTML = '<div class="notice danger-box">' + escapeHTML(errorMessage(error, "Could not load the case discussion.")) + '</div>';
+  }
+}
+
 async function loadSecurity() {
   try {
     if (!platformSettings) {
@@ -9872,8 +9908,9 @@ async function loadSecurity() {
             "<button class=\"warning\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'RESTRICT')\">Restrict</button>" +
             "<button class=\"warning\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'SUSPEND')\">Suspend</button>" +
             "<button class=\"danger\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'BAN')\">Ban</button>" : "") +
+          "<button class=\"secondary\" onclick=\"viewTrustSafetyDiscussion(" + Number(row.id) + ")\">View case discussion</button>" +
           "<button class=\"secondary\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'RESTORE')\">Restore account</button>" +
-          '</div></article>';
+          '</div><div id="trustSafetyThread-' + Number(row.id) + '" style="margin-top:10px"></div></article>';
       }).join("") : '<div class="empty">No incident reports found. No sample or fake records are shown.</div>';
     }
   } catch (error) {
