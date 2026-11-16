@@ -708,6 +708,7 @@ const supabaseClient =
 
 let currentUser = null;
 let profileData = null;
+const profileRoleHint = new URLSearchParams(location.search).get("role") === "poster" ? "poster" : "tasker";
 
 
 /* =========================
@@ -879,7 +880,7 @@ async function loadUser(){
 
   if(!data || !data.user){
 
-    window.location.replace("login.html");
+    window.location.replace(profileRoleHint === "poster" ? "poster-login.html" : "login.html");
 
     return null;
   }
