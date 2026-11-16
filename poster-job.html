@@ -708,26 +708,45 @@ $("jobFilter").addEventListener("change",renderJobs);
 
 async function startPage(){
   try{
-    const {data,error}=await db.auth.getSession();
+    const {data,error}=await db.auth.getUser();
     if(error)throw error;
-    currentUser=data.session&&data.session.user;
+    currentUser=data?.user||null;
 
     if(!currentUser){
       location.replace("poster-login.html");
       return;
     }
-    const metadata = currentUser.user_metadata || {};
-    const role = String(metadata.role || metadata.user_type || "").toLowerCase();
-    if (!["task_poster", "poster", "task poster"].includes(role)) {
-      await db.auth.signOut();
-      location.replace("poster-login.html");
+
+    const {data:profile,error:profileError}=await db
+      .from("profiles")
+      .select("role")
+      .eq("id",currentUser.id)
+      .maybeSingle();
+
+    if(profileError)throw new Error("Your Poster account role could not be verified. Please retry.");
+    if(!profile)throw new Error("Your NAIJA TASK profile could not be found. Contact support.");
+
+    const role=String(profile.role||"").trim().toLowerCase();
+    if(["task_poster","poster"].includes(role)){
+      await loadAll();
       return;
     }
 
-    await loadAll();
+    if(role==="tasker"||role==="user"){
+      location.replace("dashboard.html");
+      return;
+    }
+
+    if(role==="admin"){
+      location.replace("admin.html");
+      return;
+    }
+
+    await db.auth.signOut();
+    location.replace("poster-login.html");
   }catch(error){
     console.error("Poster jobs startup error:",error);
-    showMessage("Unable to verify your login or load poster jobs. Please sign in again.", "error");
+    showMessage(error.message||"Unable to verify your login or load poster jobs. Please sign in again.", "error");
     $("jobsList").innerHTML='<div class="empty">Sign in to the poster account that created these jobs.</div>';
   }
 }
