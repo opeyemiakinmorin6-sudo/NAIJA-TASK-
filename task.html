@@ -737,6 +737,13 @@ async function submitProof(){
   let uploaded = null;
 
   try{
+    const velocityCheck = await db.rpc("check_task_submission_velocity");
+    if (velocityCheck.error) throw velocityCheck.error;
+    if (!velocityCheck.data || velocityCheck.data.allowed !== true) {
+      showNotice(velocityCheck.data?.message || "Task submission is temporarily rate-limited. Please wait and try again.", "error");
+      return;
+    }
+
     if (proofFile) uploaded = await uploadProofImage(proofFile, currentUser.id, selectedTask);
 
     const { error } = await db.from("task_submissions").insert({
