@@ -3051,6 +3051,18 @@ td,th{padding:13px 11px}
 
   </div>
 
+  <div class="card" style="margin-top:18px">
+    <div class="page-header" style="margin-bottom:8px">
+      <div>
+        <h3>Trust &amp; Safety Incident Queue</h3>
+        <p>Reports submitted by Taskers and Posters. Reports are evidence for review, not automatic proof of guilt.</p>
+      </div>
+      <button class="secondary" onclick="loadSecurity()">Refresh reports</button>
+    </div>
+    <div id="securityEventsStatus" class="notice">Loading incident queue…</div>
+    <div id="securityEventsBody"><div class="empty">Loading reports…</div></div>
+  </div>
+
 </section>
 
 
@@ -9672,45 +9684,69 @@ async function saveSettings() {
 
 async function loadSecurity() {
   try {
-
     if (!platformSettings) {
       await loadSettings();
     } else {
-      applySettingsToUI(
-        platformSettings
-      );
+      applySettingsToUI(platformSettings);
     }
 
-    const status =
-      $("securityStatus");
-
+    const status = $("securityStatus");
     if (status) {
-
       const securityEnabled =
-        boolValue(
-          platformSettings?.captcha_enabled
-        ) ||
-        boolValue(
-          platformSettings?.bot_detection_enabled
-        ) ||
-        boolValue(
-          platformSettings?.suspicious_activity_detection
-        ) ||
-        boolValue(
-          platformSettings?.withdrawal_security_check
-        );
-
-      status.innerHTML =
-        securityEnabled
-          ? badge("Security controls active")
-          : badge("Security controls mostly disabled");
+        boolValue(platformSettings?.captcha_enabled) ||
+        boolValue(platformSettings?.bot_detection_enabled) ||
+        boolValue(platformSettings?.suspicious_activity_detection) ||
+        boolValue(platformSettings?.withdrawal_security_check);
+      status.innerHTML = securityEnabled
+        ? badge("Security controls active")
+        : badge("Security controls mostly disabled");
     }
 
-  } catch (error) {
-    reportError(
-      "loadSecurity",
-      error
+    const queueStatus = $("securityEventsStatus");
+    const queueBody = $("securityEventsBody");
+    if (queueStatus) { queueStatus.textContent = "Loading the latest incident reports…"; queueStatus.className = "notice"; }
+    if (queueBody) queueBody.innerHTML = '<div class="empty">Loading reports…</div>';
+
+    const result = await withTimeout(
+      supabaseClient.from("security_events")
+        .select("id,user_id,event_type,severity,description,metadata,status,created_at")
+        .order("created_at", { ascending: false })
+        .limit(100),
+      15000,
+      "Trust & Safety incident queue"
     );
+    if (result.error) throw result.error;
+    const rows = safeArray(result.data);
+    if (queueStatus) {
+      queueStatus.textContent = rows.length
+        ? rows.length + " recent incident(s). Open reports require evidence review before enforcement."
+        : "No incident reports have been submitted.";
+      queueStatus.className = "notice success";
+    }
+    if (queueBody) {
+      queueBody.innerHTML = rows.length ? rows.map(row => {
+        const meta = row.metadata && typeof row.metadata === "object" ? row.metadata : {};
+        const reporter = meta.reporter_id ? String(meta.reporter_id) : "Not supplied";
+        const evidence = meta.evidence && typeof meta.evidence === "object"
+          ? JSON.stringify(meta.evidence)
+          : "No structured evidence supplied";
+        return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere">' +
+          '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>#' + escapeHTML(row.id) + ' · ' + escapeHTML(row.event_type || "Incident") + '</strong>' + badge(row.status || "OPEN") + '</div>' +
+          '<div style="font-size:12px;line-height:1.8;margin-top:8px">' +
+          '<div>Reported account: ' + escapeHTML(row.user_id || "—") + '</div>' +
+          '<div>Reporter: ' + escapeHTML(reporter) + '</div>' +
+          '<div>Severity: ' + escapeHTML(row.severity || "LOW") + ' · Submitted: ' + escapeHTML(formatDate(row.created_at)) + '</div>' +
+          '<div>Details: ' + escapeHTML(row.description || "—") + '</div>' +
+          '<div>Evidence: ' + escapeHTML(evidence) + '</div>' +
+          '</div></article>';
+      }).join("") : '<div class="empty">No incident reports found. No sample or fake records are shown.</div>';
+    }
+  } catch (error) {
+    reportError("loadSecurity", error);
+    const queueStatus = $("securityEventsStatus");
+    const queueBody = $("securityEventsBody");
+    if (queueStatus) { queueStatus.textContent = errorMessage(error, "Unable to load incident reports."); queueStatus.className = "notice warning"; }
+    if (queueBody) queueBody.innerHTML = '<div class="empty">Incident queue unavailable. Check Admin access and database permissions.</div>';
   }
 }
 
