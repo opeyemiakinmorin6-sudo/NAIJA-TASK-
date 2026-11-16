@@ -1537,7 +1537,7 @@ async function startDashboard(){
     const { data: roleProfile, error: roleError } = await supabaseClient
       .from("profiles").select("role").eq("id", currentUser.id).maybeSingle();
     if (roleError || !roleProfile) throw roleError || new Error("Your account role could not be verified.");
-    const dashboardRole = String(roleProfile.role || "user").toLowerCase();
+    const dashboardRole = String(roleProfile.role || "user").trim().toLowerCase();
     if (dashboardRole === "task_poster") {
       window.location.replace("poster-dashboard.html");
       return;
