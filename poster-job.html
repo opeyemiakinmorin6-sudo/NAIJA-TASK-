@@ -339,13 +339,14 @@ function jobGroup(job){
   const s=normalized(job.status);
   const payment=paymentFor(job.id);
   const ps=payment?normalized(payment.status):"";
+  const verified=payment&&String(payment.payment_status||"").trim().toLowerCase()==="paid";
   if(["REJECTED","JOB_REJECTED","PAYMENT_REJECTED"].includes(s)||ps==="REJECTED")return "REJECTED";
   if(["COMPLETED","CLOSED"].includes(s))return "COMPLETED";
   if(["PAUSED","INACTIVE"].includes(s)||job.active===false&&["PAUSED"].includes(s))return "PAUSED";
   if(isLive(job))return "LIVE";
+  if(verified||["APPROVED","APPROVED_BY_ADMIN"].includes(ps))return "APPROVAL";
   if(["AWAITING_ADMIN_APPROVAL","PENDING_APPROVAL","UNDER_REVIEW"].includes(s))return "APPROVAL";
   if(["PAYMENT_REQUIRED","PAYMENT_PENDING","PAYMENT_UNDER_REVIEW"].includes(s)||["PENDING","UNDER_REVIEW","PAYMENT_REQUIRED","PAYMENT_UNDER_REVIEW"].includes(ps))return "PAYMENT";
-  if(["APPROVED","APPROVED_BY_ADMIN"].includes(ps))return "APPROVAL";
   return "APPROVAL";
 }
 function paymentFor(taskId){
@@ -412,15 +413,18 @@ function renderSection(items,title,emptyText){
         const status=job.status||"UNKNOWN";
         const group=jobGroup(job);
         const pay=paymentFor(job.id);
-        const payStatus=pay?displayStatus(pay.status):"No payment record found";
+        const paymentVerified=pay&&String(pay.payment_status||"").trim().toLowerCase()==="paid";
+        const paymentApproved=pay&&normalized(pay.status)==="APPROVED";
+        const payStatus=pay?(paymentVerified?(paymentApproved?"Approved":"Verified — awaiting admin review"):displayStatus(pay.status)):"No payment record found";
         const count=countFor(job);
         const slots=slotsFor(job);
         const remaining=slots?Math.max(0,slots-count):"—";
-        const payBadge=pay?badgeClass(pay.status):"neutral";
+        const payBadge=pay?(paymentVerified?(paymentApproved?"good":"wait"):badgeClass(pay.status)):"neutral";
         const paymentHint=pay?
-          (normalized(pay.status)==="APPROVED"?"Payment record is marked approved; check the job status for publication.":
+          (paymentVerified&&!paymentApproved?"Flutterwave has verified your payment. Admin payment review and task moderation are still required before publication.":
+           paymentApproved?"Payment has been approved. The task still needs separate admin moderation before it can go live.":
            normalized(pay.status)==="REJECTED"?"Payment was rejected. Review the payment centre for next steps.":
-           "Payment is not confirmed as approved in the current payment record.")
+           "Payment has not yet been confirmed by Flutterwave.")
           :"No matching payment record was returned. Check the payment centre or contact support.";
 
         return `
@@ -456,7 +460,7 @@ function renderSection(items,title,emptyText){
 
             <div class="actions">
               <button class="btn btn-primary" type="button" onclick="viewSubmissions('${esc(String(job.id))}')">View submissions (${count})</button>
-              ${group==="PAYMENT"||group==="REJECTED"?`<a class="btn btn-secondary" href="poster-payment.html?task_id=${encodeURIComponent(job.id)}">Open payment centre</a>`:""}
+              ${group==="PAYMENT"||group==="REJECTED"||(group==="APPROVAL"&&paymentFor(job.id)&&String(paymentFor(job.id).payment_status||"").toLowerCase()==="paid")?`<a class="btn btn-secondary" href="poster-payment.html?task_id=${encodeURIComponent(job.id)}">View payment status</a>`:""}
               ${group==="LIVE"?'<span class="btn btn-disabled">Job status: live/active</span>':""}
             </div>
           </article>`;
