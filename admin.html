@@ -11994,11 +11994,40 @@ async function saveServicePricing(){
 }
 
 
-/* Start the admin controller explicitly. Without this call the page stays on its loading screen. */
+/* Start the admin controller explicitly and bind critical login controls directly.
+   This keeps sign-in working even if inline click handlers are blocked by the browser. */
 (function startAdminPage(){
   const run = () => {
     if (window.__naijaAdminInitStarted) return;
     window.__naijaAdminInitStarted = true;
+
+    // Expose the authentication actions and attach a native click listener.
+    window.login = login;
+    window.resetPassword = resetPassword;
+    const loginButton = $("loginButton");
+    if (loginButton && !loginButton.dataset.ntLoginBound) {
+      loginButton.dataset.ntLoginBound = "1";
+      loginButton.type = "button";
+      loginButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        login();
+      });
+    }
+
+    // Pressing Enter in either credential field submits the same login action.
+    ["loginEmail", "loginPassword"].forEach((id) => {
+      const field = $(id);
+      if (field && !field.dataset.ntLoginEnterBound) {
+        field.dataset.ntLoginEnterBound = "1";
+        field.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            login();
+          }
+        });
+      }
+    });
+
     init();
   };
   if (document.readyState === "loading") {
