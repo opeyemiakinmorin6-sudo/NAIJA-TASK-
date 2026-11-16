@@ -53,7 +53,7 @@ loginForm.addEventListener("submit",async event=>{
   const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
   if(profileError){console.error("Profile lookup failed:",profileError);await db.auth.signOut();throw new Error("Your password was accepted, but your account profile could not be loaded. Please retry once. If it continues, contact naijataskofficia@gmail.com and include the code PROFILE_LOOKUP_FAILED.");}if(!profile){await db.auth.signOut();throw new Error("Your login exists, but its NAIJA TASK profile record is missing. Your account and balance have not been deleted. Please contact naijataskofficia@gmail.com and include the code PROFILE_MISSING so support can restore the correct account role.");}
   const role=String(profile.role||"").toLowerCase();
-  if(role!=="task_poster"){await db.auth.signOut();throw new Error(role==="tasker"||role==="user"?"This is a Tasker account. Use Tasker Login instead.":"This account does not have Poster access.");}
+  if(!["task_poster","poster"].includes(role)){await db.auth.signOut();throw new Error(role==="tasker"||role==="user"?"This is a Tasker account. Use Tasker Login instead.":"This account does not have Poster access.");}
   msg("message","Password accepted. Your Poster session is active. Opening workspace…","success");
   loginBtn.textContent="Opening dashboard…";location.replace("poster-dashboard.html");
  }catch(error){
@@ -70,7 +70,7 @@ byId("forgotLink").addEventListener("click",event=>{event.preventDefault();byId(
 byId("backToLogin").addEventListener("click",()=>{byId("forgotSection").classList.add("hidden");byId("loginSection").classList.remove("hidden");});
 byId("forgotForm").addEventListener("submit",async event=>{
  event.preventDefault();const b=byId("resetBtn");b.disabled=true;b.textContent="Sending…";
- try{if(!db)throw new Error("Secure login service is unavailable. Refresh and try again.");const {error}=await db.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:new URL("reset-password.html",location.href).href});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
+ try{if(!db)throw new Error("Secure login service is unavailable. Refresh and try again.");const {error}=await db.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:new URL("/reset-password.html?role=poster",window.location.origin).href});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
  catch(error){msg("forgotMessage",error.message||"Could not send the reset email. Please try again.","error");}
  finally{b.disabled=false;b.textContent="Send password reset link";}
 });
