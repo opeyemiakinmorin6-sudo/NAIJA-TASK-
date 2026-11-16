@@ -1085,7 +1085,7 @@ async function loadPosterRetentionChecks(user){
  if(error){box.innerHTML='<div class="empty">Retention checks could not load: '+escapeHtml(error.message)+'</div>';return;}
  if(!rows?.length){box.innerHTML='<div class="empty">No follow or subscribe retention checks yet. New checks are scheduled automatically 24 hours after eligible submissions are approved.</div>';return;}
  box.innerHTML=rows.map(r=>{
-  const due=new Date(r.check_due_at),isDue=Date.now()>=due.getTime()&&r.status==="SCHEDULED";
+  const due=new Date(r.check_due_at),isDue=Date.now()>=due.getTime()&&["SCHEDULED","DUE"].includes(r.status);
   const status=r.status==="POSTER_CONFIRMED"?"Retention confirmed by poster":r.status==="REVERSAL_REPORTED"?"Reversal reported":r.status==="INCONCLUSIVE"?"Needs more evidence":r.status==="CLOSED"?"Closed":isDue?"Check due":"Scheduled";
   const link=/^https?:\/\//i.test(String(r.target_url||""))?'<a href="'+escapeHtml(r.target_url)+'" target="_blank" rel="noopener noreferrer">Open public target</a>':'<span class="info">No public target link saved</span>';
   const actions=isDue?'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button type="button" class="poster-action-approve" data-retention-confirm="'+Number(r.id)+'">Confirm still following / subscribed</button><button type="button" class="poster-action-escalate" data-retention-report="'+Number(r.id)+'" data-tasker="'+escapeHtml(r.tasker_id)+'" data-submission="'+Number(r.submission_id)+'" data-task="'+Number(r.task_id)+'">Report reversal</button></div>':'';
