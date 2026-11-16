@@ -4962,7 +4962,9 @@ async function init() {
   showLogin("Enter your administrator email and password to continue.");
   try {
     await ensureAdminSupabase();
+    registerAdminAuthStateListener();
   } catch (error) {
+    console.error("Admin startup failed:", error);
     showLogin("Admin sign-in could not connect to the secure login service. Check your internet connection and retry. " + (error?.message || ""));
   } finally {
     setLoading(false);
@@ -5239,9 +5241,13 @@ async function logout() {
    AUTH STATE
    ========================================================= */
 
-supabaseClient.auth.onAuthStateChange(
-  async (event, session) => {
+let adminAuthListenerRegistered = false;
 
+function registerAdminAuthStateListener() {
+  if (adminAuthListenerRegistered || !supabaseClient?.auth) return;
+  adminAuthListenerRegistered = true;
+
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (event === "SIGNED_OUT") {
       currentUser = null;
       appShownForUser = null;
@@ -5249,34 +5255,33 @@ supabaseClient.auth.onAuthStateChange(
       return;
     }
 
-    // Supabase re-sends SIGNED_IN when the tab regains focus. Same admin already on screen: ignore.
-    if (event === "SIGNED_IN" && session && session.user && appShownForUser === session.user.id) {
+    // Supabase re-sends SIGNED_IN when the tab regains focus. Ignore the
+    // event if this exact administrator is already on the admin screen.
+    if (event === "SIGNED_IN" && session?.user && appShownForUser === session.user.id) {
       currentUser = session.user;
       return;
     }
 
-    if (
-      event === "SIGNED_IN" &&
-      session &&
-      session.user
-    ) {
+    if (event === "SIGNED_IN" && session?.user) {
       currentUser = session.user;
-
-      const isAdmin =
-        await verifyAdmin(currentUser.id);
-
-      if (isAdmin) {
-        showAdminApp();
-      } else {
+      try {
+        const isAdmin = await verifyAdmin(currentUser.id);
+        if (isAdmin) {
+          showAdminApp();
+        } else {
+          await supabaseClient.auth.signOut();
+          currentUser = null;
+          showLogin("This account does not have administrator access.");
+        }
+      } catch (error) {
+        console.error("Admin session verification failed:", error);
         await supabaseClient.auth.signOut();
         currentUser = null;
-        showLogin(
-          "This account does not have administrator access."
-        );
+        showLogin("We could not verify administrator access. Please sign in again.");
       }
     }
-  }
-);
+  });
+}
 
 
 /* =========================================================
