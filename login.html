@@ -38,76 +38,22 @@
 
 <!-- Supabase SDK is loaded with a timed primary/backup CDN loader below. -->
 <script>
-const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co",SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-const byId=id=>document.getElementById(id),loginForm=byId("loginForm"),loginBtn=byId("loginBtn");
-function msg(id,text,type){const el=byId(id);el.textContent=text;el.className="message "+type;}
+const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co",SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D",ROLE="tasker",CALLBACK=location.origin+"/auth-callback.html?role=tasker%26flow=signup";
 let db=null,dbPromise=null;
-function loadSupabaseScript(src){
- return new Promise((resolve,reject)=>{
-  const script=document.createElement("script");script.src=src;script.async=true;
-  const timer=setTimeout(()=>{script.remove();reject(new Error("Timed out loading the secure login library from "+(src.includes("jsdelivr")?"jsDelivr":"unpkg")));},12000);
-  script.onload=()=>{clearTimeout(timer);if(window.supabase?.createClient)resolve();else{script.remove();reject(new Error("The secure login library loaded without its client API."));}};
-  script.onerror=()=>{clearTimeout(timer);script.remove();reject(new Error("Could not download the secure login library from "+(src.includes("jsdelivr")?"jsDelivr":"unpkg")));};
-  document.head.appendChild(script);
- });
-}
-async function ensureDb(){
- if(db)return db;
- if(!dbPromise)dbPromise=(async()=>{
-  if(!window.supabase?.createClient){
-   try{await loadSupabaseScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}
-   catch(primaryError){
-    console.warn("Primary Supabase CDN failed; trying backup CDN.",primaryError);
-    await loadSupabaseScript("https://unpkg.com/@supabase/supabase-js@2");
-   }
-  }
-  if(!window.supabase?.createClient)throw new Error("Secure login library is unavailable from both approved CDNs. Check that your browser or network allows jsDelivr and unpkg, then retry.");
-  db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-  return db;
- })();
- try{return await dbPromise;}catch(error){dbPromise=null;throw error;}
-}
-
-byId("showPassword").addEventListener("click",function(){const p=byId("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide";});
-loginForm.addEventListener("submit",async event=>{
- event.preventDefault();msg("errorMessage","","");msg("successMessage","","");
-
- const email=byId("email").value.trim().toLowerCase(),password=byId("password").value;
- if(!email||!password){msg("errorMessage","Enter both your email and password.","error");return;}
- loginBtn.disabled=true;loginBtn.textContent="Checking your login…";
- try{
-  const client=await ensureDb();
-  const {data,error}=await client.auth.signInWithPassword({email,password});
-  if(error)throw error;if(!data.user)throw new Error("Supabase did not return a signed-in user.");
-  const {data:profile,error:profileError}=await client.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
-  if(profileError){console.error("Profile lookup failed:",profileError);await client.auth.signOut();throw new Error("Your password was accepted, but your account profile could not be loaded. Please retry once. If it continues, contact naijataskofficia@gmail.com and include the code PROFILE_LOOKUP_FAILED.");}if(!profile){await db.auth.signOut();throw new Error("Your login exists, but its NAIJA TASK profile record is missing. Your account and balance have not been deleted. Please contact naijataskofficia@gmail.com and include the code PROFILE_MISSING so support can restore the correct account role.");}
-  const role=String(profile.role||"user").trim().toLowerCase();
-  if(role==="admin"){
-   msg("successMessage","Administrator account verified. Opening the admin dashboard…","success");
-   loginBtn.textContent="Opening admin dashboard…";location.replace("admin.html");return;
-  }
-  if(!["tasker","user"].includes(role)){await db.auth.signOut();throw new Error(role==="task_poster"||role==="poster"?"This is a Poster account. Use Poster Login instead.":"This account does not have Tasker access.");}
-  msg("successMessage","Password accepted. Your Tasker session is active. Opening dashboard…","success");
-  loginBtn.textContent="Opening dashboard…";location.replace("dashboard.html");
- }catch(error){
-  console.error("Tasker login error:",error);
-  const code=error.code||"";let text=error.message||"Unable to log in. Please try again.";
-  if(code==="invalid_credentials"||/invalid login credentials/i.test(text))text="We could not sign you in with those details. Check that you are using the exact email address registered on NAIJA TASK and re-enter your password. If you forgot it, tap the visible “Forgot password?” link above the login button to reset it. For privacy, the login service does not reveal whether an email is registered.";else if(code==="user_not_found"||code==="email_not_found"||/user not found|email not found|no user found/i.test(text))text="No matching login was found. Check the email address and make sure you are using the correct login page. If you already registered, try Forgot Password before creating another account.";
-  else if(code==="email_not_confirmed"||/email not confirmed/i.test(text))text="Your email is not confirmed yet. Open the confirmation email first, then log in.";
-  else if(code==="user_banned")text="This account is temporarily restricted. Contact NAIJA TASK support.";
-  else if(/failed to fetch|network/i.test(text))text="Could not connect to Supabase. Check your internet connection and retry.";
-  msg("errorMessage",text,"error");loginBtn.disabled=false;loginBtn.textContent="Log in to my Tasker account →";
- }
-});
-
-byId("backToLogin").addEventListener("click",()=>{byId("forgotSection").classList.add("hidden");byId("loginSection").classList.remove("hidden");});
-byId("forgotForm").addEventListener("submit",async event=>{
- event.preventDefault();const b=byId("resetBtn");b.disabled=true;b.textContent="Sending…";
- try{const client=await ensureDb();const {error}=await client.auth.resetPasswordForEmail(byId("forgotEmail").value.trim(),{redirectTo:window.location.origin + "/reset-password.html?role=tasker"});if(error)throw error;msg("forgotMessage","If this email is registered, a secure reset link will be sent. Check your inbox and spam folder.","success");}
- catch(error){msg("forgotMessage",error.message||"Could not send the reset email. Please try again.","error");}
- finally{b.disabled=false;b.textContent="Send password reset link";}
-});
+function loadSupabaseScript(src){return new Promise((resolve,reject)=>{const s=document.createElement("script");s.src=src;s.async=true;const t=setTimeout(()=>{s.remove();reject(new Error("Timed out loading the secure login service."));},12000);s.onload=()=>{clearTimeout(t);window.supabase?.createClient?resolve():reject(new Error("The secure login service loaded incorrectly."));};s.onerror=()=>{clearTimeout(t);s.remove();reject(new Error("Could not load the secure login service. Check your connection and retry."));};document.head.appendChild(s);});}
+async function ensureDb(){if(db)return db;if(!dbPromise)dbPromise=(async()=>{if(!window.supabase?.createClient){try{await loadSupabaseScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}catch(e){await loadSupabaseScript("https://unpkg.com/@supabase/supabase-js@2");}}if(!window.supabase?.createClient)throw new Error("Secure login service is unavailable.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:"pkce"}});return db;})();try{return await dbPromise;}catch(e){dbPromise=null;throw e;}}
+function friendlyAuthError(error){const code=error?.code||"",raw=error?.message||"Please try again.";if(code==="email_not_confirmed"||/email not confirmed/i.test(raw))return "Your email is not verified yet. Use the verification email or request a new one from the signup page.";if(code==="invalid_credentials"||/invalid login credentials/i.test(raw))return "We could not sign you in. Check the email address and password, and make sure you are using the correct "+(ROLE==="poster"?"Poster":"Tasker")+" login page. If you forgot your password, use Forgot Password. For security, we cannot disclose whether an email is registered.";if(code==="over_email_send_rate_limit")return "Too many emails were requested. Wait a little before trying again.";if(code==="user_already_exists"||code==="email_exists"||/already registered|user already exists|email already exists/i.test(raw))return "This email already has an account. Please log in instead of registering again, or use Forgot Password.";if(/failed to fetch|network/i.test(raw))return "We could not connect to NAIJA TASK securely. Check your internet connection and retry.";return raw;}
+const byId=id=>document.getElementById(id),loginForm=byId("loginForm"),loginBtn=byId("loginBtn"),messageId="errorMessage";
+function showMessage(id,text,type){const el=byId(id);if(el){el.textContent=text;el.className="message "+type;}}
+byId("showPassword")?.addEventListener("click",function(){const p=byId("password");p.type=p.type==="password"?"text":"password";this.textContent=p.type==="password"?"Show":"Hide";});
+loginForm.addEventListener("submit",async event=>{event.preventDefault();showMessage(messageId,"","");const email=byId("email").value.trim().toLowerCase(),password=byId("password").value;if(!email||!password){showMessage(messageId,"Enter both your email and password.","error");return;}loginBtn.disabled=true;loginBtn.textContent="Checking your login…";try{const client=await ensureDb(),{data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;if(!data.user)throw new Error("The authentication service did not return a signed-in account.");const {data:profile,error:profileError}=await client.from("profiles").select("role").eq("id",data.user.id).maybeSingle();if(profileError)throw new Error("Your password was accepted, but NAIJA TASK could not load your account role (PROFILE_LOOKUP_FAILED). Please retry or contact support.");if(!profile){await client.auth.signOut();throw new Error("Your login exists, but your NAIJA TASK profile is missing (PROFILE_MISSING). Your account has not been deleted. Contact naijataskofficia@gmail.com.");}const r=String(profile.role||"").trim().toLowerCase();if(r==="admin"){showMessage(messageId,"Administrator account verified. Opening the admin dashboard…","success");loginBtn.textContent="Opening admin dashboard…";location.replace("admin.html");return;}const allowed=["tasker","user"];if(!allowed.includes(r)){await client.auth.signOut();throw new Error(r==="tasker"||r==="user"?"This is a Tasker account. Please use Tasker Login.":r==="task_poster"||r==="poster"?"This is a Poster account. Please use Poster Login.":"This account does not have the correct Tasker access. Contact support if you believe this is an error.");}showMessage(messageId,"Login successful. Opening your Tasker dashboard…","success");loginBtn.textContent="Opening dashboard…";location.replace("dashboard.html");}catch(error){console.error("tasker login error:",error);showMessage(messageId,friendlyAuthError(error),"error");loginBtn.disabled=false;loginBtn.textContent="Log in to my Tasker account →";}});
+byId("backToLogin")?.addEventListener("click",()=>{byId("forgotSection").classList.add("hidden");byId("loginSection").classList.remove("hidden");});
+byId("forgotForm")?.addEventListener("submit",async event=>{event.preventDefault();const b=byId("resetBtn");b.disabled=true;b.textContent="Sending secure link…";try{const client=await ensureDb(),email=byId("forgotEmail").value.trim().toLowerCase();if(!email)throw new Error("Enter the email address for your account.");const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+"/reset-password.html?role=tasker"});if(error)throw error;showMessage("forgotMessage","If this email is registered, a password reset link has been sent. Check your inbox and spam folder.","success");}catch(error){showMessage("forgotMessage",friendlyAuthError(error),"error");}finally{b.disabled=false;b.textContent="Send password reset link";}});
 </script><style id="nt-global-root-palette">
 :root{--nt-forest:#064E2B;--nt-deep:#073B24;--nt-dark-green:#073B24;--nt-green:#0B8F45;--nt-bright:#16A34A;--nt-bright-green:#16A34A;--nt-lime:#B7F34A;--nt-white:#FFFFFF;--nt-surface:#FFFFFF;--nt-card:#FFFFFF;--nt-soft-white:#F7FBF7;--nt-bg:#F1F8F2;--nt-pale:#EAF5EC;--nt-leaf:#EAF5EC;--nt-cream:#F7FBF7;--nt-ink:#173326;--nt-muted:#647568;--nt-line:#DCE9DE;--nt-border:#DCE9DE;--nt-success:#168443}
+</style>
+<style id="nt-auth-polish">
+.verification-panel{margin-top:16px;padding:20px;border:1px solid #cfe4cf;border-radius:18px;background:linear-gradient(145deg,#f5fbf1,#fff);text-align:center;box-shadow:0 12px 28px #173c200d}.verification-icon{width:48px;height:48px;margin:0 auto 10px;display:grid;place-items:center;border-radius:15px;background:#e5f5dd;color:#176b32;font-size:23px}.verification-panel h3{margin:0 0 8px;color:#073b2b;font-size:18px}.verification-panel p{font-size:12px;line-height:1.6;color:#607267}.verification-copy{overflow-wrap:anywhere}.verification-count{margin:10px 0!important;font-weight:800;color:#176b32!important}.verification-resend{width:100%;min-height:45px;border:0;border-radius:11px;background:#0b8f3c;color:#fff;font-weight:850}.verification-resend:disabled{opacity:.55}.verification-note{margin:12px 0!important}.verification-login{display:inline-block;margin-top:8px;color:#0b7135;font-size:12px;font-weight:850;text-decoration:none}
+@media(max-width:760px){.layout{grid-template-columns:1fr!important;width:min(100% - 24px,520px)!important;padding:20px 0 32px!important;gap:18px!important}.intro{padding:0 5px}.intro h1{font-size:34px!important;letter-spacing:-1.5px!important}.intro p{font-size:13px!important;line-height:1.65!important}.benefits{display:none!important}.card{border-radius:20px!important;padding:21px!important}.top{height:64px!important;padding:0 15px!important}.top-link{font-size:12px!important}}
 </style>
 </body></html>
