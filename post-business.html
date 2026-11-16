@@ -757,37 +757,46 @@ async function getAuthenticatedUser(){
 
 async function checkPoster(){
 
-  const user =
-    await getAuthenticatedUser();
+  const user = await getAuthenticatedUser();
 
   if(!user){
-
-    window.location.href =
-      "poster-login.html";
-
+    window.location.replace("poster-login.html");
     return null;
   }
 
-  const metadata =
-    user.user_metadata || {};
+  const {data:profile,error:profileError} = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id",user.id)
+    .maybeSingle();
 
-  const posterRoles = ["task_poster", "poster", "task poster"];
-  const isPoster =
-    posterRoles.includes(String(metadata.user_type || "").toLowerCase()) ||
-    posterRoles.includes(String(metadata.role || "").toLowerCase()) ||
-    posterRoles.includes(String(metadata.account_type || "").toLowerCase());
-
-  if(!isPoster){
-
-    await supabaseClient.auth.signOut();
-
-    window.location.href =
-      "poster-login.html";
-
+  if(profileError){
+    console.error("Poster profile lookup failed:",profileError);
     return null;
   }
 
-  return user;
+  if(!profile){
+    console.error("Poster profile is missing for the signed-in account.");
+    return null;
+  }
+
+  const role=String(profile.role||"").trim().toLowerCase();
+
+  if(role==="task_poster"||role==="poster") return user;
+
+  if(role==="tasker"||role==="user"){
+    window.location.replace("dashboard.html");
+    return null;
+  }
+
+  if(role==="admin"){
+    window.location.replace("admin.html");
+    return null;
+  }
+
+  await supabaseClient.auth.signOut();
+  window.location.replace("poster-login.html");
+  return null;
 }
 
 
