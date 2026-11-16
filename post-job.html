@@ -851,9 +851,11 @@ function selectedBusinessItem(){return priceItem("business",document.getElementB
 function selectedPromotionFee(){const tier=document.getElementById("promotionTier").value;return tier==="fast"?Number(servicePricing.fast_fee||0):tier==="priority"?Number(servicePricing.priority_fee||0):0;}
 function refreshServiceOptions(){
  const category=document.getElementById("category");
- // Keep every platform-specific social task selectable. Missing Admin pricing
- // should be reported after selection, not by disabling the dropdown option.
- [...category.options].forEach(option=>{if(option.value)option.disabled=false;});
+ // Do not let Posters select a service until Admin has saved a valid price.
+ [...category.options].forEach(option=>{
+  if(option.value)option.disabled=!priceItem("social",socialPriceKey(option.value)).enabled;
+ });
+ if(category.selectedOptions[0]?.disabled)category.value="";
  const business=document.getElementById("businessService");
  const businessOptions=business?[...business.options]:[];
  businessOptions.forEach(option=>{if(!option.value)return;option.disabled=!priceItem("business",option.value).enabled;});
@@ -1329,7 +1331,7 @@ if(
       return;
     }
     if(socialService&&!socialServiceIsConfigured()){
-      showMessage("This social task is selectable, but its price is not active yet. Ask Admin to enable and set its poster price and poster price.","error");
+      showMessage("This social task is selectable, but its price is not active yet. Ask Admin to configure both the Poster price and Tasker reward.","error");
       return;
     }
     const taskDescription=socialService
