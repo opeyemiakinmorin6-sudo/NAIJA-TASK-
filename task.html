@@ -587,6 +587,22 @@ function resetProofForm(){
   $("proofPreview").classList.remove("show");
 }
 
+async function reportPosterFromTask(task){
+  const posterId=String(task?.created_by||"");
+  if(!/^[0-9a-f-]{36}$/i.test(posterId)) { showNotice("The Poster reference is unavailable for this task.", "error"); return; }
+  const reason=window.prompt("Describe the specific concern about this Poster or task (20–1200 characters):");
+  if(reason===null)return;
+  if(reason.trim().length<20||reason.trim().length>1200){showNotice("Please provide 20 to 1,200 characters.", "error");return;}
+  const {data,error}=await db.rpc("submit_trust_safety_report",{
+    p_reported_user_id:posterId,
+    p_event_type:"OTHER",
+    p_description:reason.trim(),
+    p_evidence:{task_id:Number(task.id),task_title:String(task.title||"").slice(0,160),source:"tasker_task_details"}
+  });
+  if(error){showNotice("Your report could not be submitted: "+error.message,"error");return;}
+  showNotice("Your report has been sent to NAIJA TASK Trust & Safety. It will be reviewed; a report alone does not automatically penalize the Poster.","success");
+}
+
 function openTask(task){
   selectedTask = task;
   hideNotice();
@@ -609,6 +625,14 @@ function openTask(task){
     ${safeUrl ? `<div class="field"><div class="lab" style="font-size:14px">Target link</div>
       <div class="linkrow"><div class="linkbox">${escapeHtml(safeUrl)}</div><a class="btn p" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">Open Target</a></div><div class="help">Complete the requested action on this exact destination, then return here to submit your proof.</div></div>` : ""}
     ${submitted ? '<div class="notice show info">You already submitted this task. It cannot be submitted again.</div>' : ""}`;
+
+  if (currentUser && /^[0-9a-f-]{36}$/i.test(String(selectedTask.created_by || ""))) {
+    const reportWrap = document.createElement("div");
+    reportWrap.style.cssText = "margin-top:12px";
+    reportWrap.innerHTML = '<button type="button" class="btn s" id="reportPosterBtn" style="width:100%">Report this Poster or task</button><p class="note">Reports are reviewed by NAIJA TASK. A report alone does not automatically penalize anyone.</p>';
+    $("selectedTaskDetails").appendChild(reportWrap);
+    $("reportPosterBtn").addEventListener("click", () => reportPosterFromTask(selectedTask));
+  }
 
   const isBusinessTask = String(task.task_type || "").startsWith("business_");
   if (isBusinessTask) {
