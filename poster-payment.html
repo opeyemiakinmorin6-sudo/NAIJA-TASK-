@@ -198,26 +198,34 @@ function getTaskId() {
 }
 
 async function requireUser() {
-  // Read the persisted session first. Do not redirect away from this page:
-  // the back link and task context must remain available if the session expired.
-  const { data, error } = await db.auth.getSession();
-  if (error) throw error;
-  const session = data?.session;
-  if (!session?.user) {
-    showError("Your poster session is not active in this browser. Sign in with the same account used to create this task. You can return to the dashboard without losing the task.", true);
+  const {data:authData,error:authError}=await db.auth.getUser();
+  if(authError) throw authError;
+  const user=authData?.user;
+
+  if(!user){
+    showError("Your poster session is not active in this browser. Sign in with the same account used to create this task.",true);
     return null;
   }
-  currentUser = session.user;
-  const metadata = currentUser.user_metadata || {};
-  const posterRoles = ["task_poster", "poster", "task poster"];
-  const isPoster = posterRoles.includes(String(metadata.role || "").toLowerCase()) ||
-    posterRoles.includes(String(metadata.user_type || "").toLowerCase()) ||
-    posterRoles.includes(String(metadata.account_type || "").toLowerCase());
-  if (!isPoster) {
-    showError("This payment page is only available to the Poster account that created the task. Please sign in through Poster Login.", true);
-    currentUser = null;
+
+  const {data:profile,error:profileError}=await db
+    .from("profiles")
+    .select("role")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(profileError) throw new Error("Your account role could not be verified. Please sign in again.");
+  if(!profile){
+    showError("Your NAIJA TASK profile could not be found. Contact support before making a payment.",true);
     return null;
   }
+
+  const role=String(profile.role||"").trim().toLowerCase();
+  if(!["task_poster","poster"].includes(role)){
+    showError("This payment page is only available to the Poster account that created the task. Please use the correct account.",true);
+    return null;
+  }
+
+  currentUser=user;
   return currentUser;
 }
 
