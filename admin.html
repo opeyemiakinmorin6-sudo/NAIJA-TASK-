@@ -7,7 +7,7 @@
 
 <title>Admin Control Center — NAIJA TASK</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Supabase SDK is loaded on demand with a fallback, so a blocked CDN cannot freeze the admin page. -->
 
 <style>
 *{
@@ -4401,10 +4401,62 @@ const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY =
      "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+let supabaseClient = null;
+let supabaseClientPromise = null;
+
+function loadAdminSdkScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    const timer = setTimeout(() => {
+      script.remove();
+      reject(new Error("The secure sign-in library took too long to load."));
+    }, 10000);
+    script.onload = () => {
+      clearTimeout(timer);
+      window.supabase?.createClient
+        ? resolve()
+        : reject(new Error("The secure sign-in library did not initialize."));
+    };
+    script.onerror = () => {
+      clearTimeout(timer);
+      script.remove();
+      reject(new Error("Could not load the secure sign-in library."));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureAdminSupabase() {
+  if (supabaseClient) return supabaseClient;
+  if (!supabaseClientPromise) {
+    supabaseClientPromise = (async () => {
+      if (!window.supabase?.createClient) {
+        try {
+          await loadAdminSdkScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");
+        } catch (_) {
+          await loadAdminSdkScript("https://unpkg.com/@supabase/supabase-js@2");
+        }
+      }
+      if (!window.supabase?.createClient) {
+        throw new Error("The secure sign-in library is unavailable. Check your connection and retry.");
+      }
+      supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+      );
+      return supabaseClient;
+    })();
+  }
+  try {
+    return await supabaseClientPromise;
+  } catch (error) {
+    supabaseClientPromise = null;
+    throw error;
+  }
+}
 
 
 /* =========================================================
@@ -4904,12 +4956,14 @@ async function writeAudit(action, targetId = null, details = {}) {
    ========================================================= */
 
 async function init() {
-  /* Require fresh administrator credentials on every visit to admin.html.
-     Supabase may still have a member session stored from the main website;
-     that session must never silently open the admin control centre. */
+  /* Always show the administrator login, and never leave the loader covering
+     the page if the external Supabase SDK cannot be reached. */
+  currentUser = null;
+  showLogin("Enter your administrator email and password to continue.");
   try {
-    currentUser = null;
-    showLogin("Enter your administrator email and password to continue.");
+    await ensureAdminSupabase();
+  } catch (error) {
+    showLogin("Admin sign-in could not connect to the secure login service. Check your internet connection and retry. " + (error?.message || ""));
   } finally {
     setLoading(false);
   }
@@ -5041,6 +5095,8 @@ async function login() {
 
   try {
     setLoading(true, "Signing in...");
+
+    await ensureAdminSupabase();
 
     const {
       data,
@@ -10958,10 +11014,7 @@ document.addEventListener(
    DOM READY
    ========================================================= */
 
-document.addEventListener(
-  "DOMContentLoaded",
-  init
-);
+/* Initialization is started once by startAdminPage below. */
 
 
 /* =========================================================
