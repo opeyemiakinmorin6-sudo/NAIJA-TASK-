@@ -9682,6 +9682,55 @@ async function saveSettings() {
    SECURITY PAGE
    ========================================================= */
 
+async function adminTrustSafetyAction(eventId, action) {
+  const labels = {
+    VERIFY: "Verify this report (no penalty)",
+    DISMISS: "Dismiss this report (no penalty)",
+    WARN: "Issue an account warning",
+    RESTRICT: "Temporarily restrict this account",
+    SUSPEND: "Temporarily suspend this account",
+    BAN: "Permanently ban this account",
+    RESTORE: "Restore this account"
+  };
+  const reason = window.prompt(labels[action] + "\\n\\nEnter a clear reason (at least 15 characters):");
+  if (reason === null) return;
+  if (String(reason).trim().length < 15) {
+    toast("Please enter a reason of at least 15 characters.", "danger");
+    return;
+  }
+  let duration = null;
+  if (action === "RESTRICT" || action === "SUSPEND") {
+    const raw = window.prompt("Duration in hours (1 to 720):", action === "RESTRICT" ? "24" : "72");
+    if (raw === null) return;
+    duration = Number(raw);
+    if (!Number.isInteger(duration) || duration < 1 || duration > 720) {
+      toast("Duration must be a whole number from 1 to 720 hours.", "danger");
+      return;
+    }
+  }
+  if (action === "BAN" && !window.confirm("This is a permanent ban. Continue only if the evidence is strong and the decision is justified.")) return;
+  if (!window.confirm(labels[action] + "? This action will be recorded in the Admin audit log.")) return;
+  try {
+    const result = await withTimeout(
+      supabaseClient.rpc("admin_apply_trust_safety_action", {
+        p_event_id: Number(eventId),
+        p_action: action,
+        p_reason: String(reason).trim(),
+        p_duration_hours: duration
+      }),
+      20000,
+      "Trust & Safety moderation action"
+    );
+    if (result.error) throw result.error;
+    if (!result.data || result.data.success !== true) throw new Error("The server did not confirm the moderation action.");
+    toast("Trust & Safety action completed and recorded.", "success");
+    await loadSecurity();
+  } catch (error) {
+    reportError("adminTrustSafetyAction", error);
+    toast(errorMessage(error, "The moderation action could not be completed."), "danger");
+  }
+}
+
 async function loadSecurity() {
   try {
     if (!platformSettings) {
@@ -9738,6 +9787,16 @@ async function loadSecurity() {
           '<div>Severity: ' + escapeHTML(row.severity || "LOW") + ' · Submitted: ' + escapeHTML(formatDate(row.created_at)) + '</div>' +
           '<div>Details: ' + escapeHTML(row.description || "—") + '</div>' +
           '<div>Evidence: ' + escapeHTML(evidence) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' +
+          (["OPEN","UNDER_REVIEW"].includes(String(row.status||"").toUpperCase()) ? 
+            '<button class="success" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'VERIFY\\')">Verify</button>' +
+            '<button class="secondary" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'DISMISS\\')">Dismiss</button>' +
+            '<button class="secondary" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'WARN\\')">Warn</button>' +
+            '<button class="warning" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'RESTRICT\\')">Restrict</button>' +
+            '<button class="warning" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'SUSPEND\\')">Suspend</button>' +
+            '<button class="danger" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'BAN\\')">Ban</button>' : '') +
+          '<button class="secondary" onclick="adminTrustSafetyAction(\\'' + escapeHTML(row.id) + '\\',\\'RESTORE\\')">Restore account</button>' +
           '</div></article>';
       }).join("") : '<div class="empty">No incident reports found. No sample or fake records are shown.</div>';
     }
