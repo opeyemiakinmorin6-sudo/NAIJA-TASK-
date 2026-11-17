@@ -10040,6 +10040,33 @@ async function copyTaskCallbackSecret(taskId){
   catch(_){const el=$("taskCallbackSecret-"+id);if(el){el.focus();el.select();}toast("Select and copy the key above. Keep it on your server only.","info");}
 }
 
+async function confirmExternalCallbackReversal(eventRowId){
+  const id=Number(eventRowId);
+  if(!Number.isSafeInteger(id)||id<=0){toast("Invalid callback event ID.","warning");return;}
+  const note=window.prompt("Describe the independent evidence you checked (at least 20 characters). The callback report alone is not enough:");
+  if(note===null)return;
+  if(note.trim().length<20||note.trim().length>3000){toast("Enter 20 to 3,000 characters describing the evidence you checked.","warning");return;}
+  if(!window.confirm("Confirm this reversal and deduct the original task reward from the Tasker's available wallet balance? This action is recorded in the ledger."))return;
+  try{
+    const {data,error}=await withTimeout(
+      supabaseClient.rpc("admin_confirm_external_task_reversal",{
+        p_event_row_id:id,
+        p_evidence:{admin_note:note.trim(),source:"admin_callback_review",reviewed_at:new Date().toISOString()}
+      }),
+      20000,
+      "Confirm external task reversal"
+    );
+    if(error)throw error;
+    if(!data||data.success!==true)throw new Error("The database did not confirm the reversal.");
+    toast("Verified reversal recorded. ₦"+Number(data.amount_reversed||0).toLocaleString("en-NG")+" reversed from the available wallet balance.","success");
+    await loadTaskCallbackEvents();
+    await loadSecurity();
+  }catch(error){
+    toast(errorMessage(error,"Could not confirm the external reversal. No deduction was made unless the database confirmed it."),"warning");
+    reportError("confirmExternalCallbackReversal",error);
+  }
+}
+
 async function loadTaskCallbackEvents(){
   const status=$("taskCallbackEventsStatus"),body=$("taskCallbackEventsBody");if(!body)return;
   if(status){status.textContent="Loading app/site callback events…";status.className="notice";}
@@ -10052,9 +10079,11 @@ async function loadTaskCallbackEvents(){
     body.innerHTML=rows.length?rows.map(e=>{
       const evidence=e.evidence&&typeof e.evidence==="object"?JSON.stringify(e.evidence,null,2):"{}";
       const reversal=String(e.event_type).toLowerCase()==="action_reversed";
+      const canConfirm=reversal&&String(e.status).toUpperCase()==="REVERSAL_REPORTED";
       return '<article class="card" style="margin:9px 0;padding:12px;overflow-wrap:anywhere"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>'+escapeHTML(e.event_type)+' · Task #'+escapeHTML(e.task_id)+'</strong>'+badge(e.status)+'</div>'+
         '<div class="small" style="line-height:1.8;margin-top:7px">Submission #'+escapeHTML(e.submission_id)+' · Tasker '+escapeHTML(e.tasker_id)+'<br>Received '+escapeHTML(formatDate(e.received_at))+' · Action time '+escapeHTML(formatDate(e.occurred_at))+'<br>Reference: '+escapeHTML(e.external_reference||"")+'<br>Event ID: '+escapeHTML(e.event_id)+'</div>'+
-        (reversal?'<div class="notice warning" style="margin-top:8px">Partner backend reported a reversal. Verify the original action and evidence before using any reward-reversal control.</div>':"")+
+        (reversal?'<div class="notice warning" style="margin-top:8px">Partner backend reported a reversal. Independently inspect the account/action and evidence; the callback alone is not proof.</div>':"")+
+        (canConfirm?'<button class="danger" style="margin-top:10px" onclick="confirmExternalCallbackReversal('+Number(e.event_row_id)+')">Confirm verified reversal &amp; reverse reward</button>':"")+
         '<details style="margin-top:8px"><summary>View submitted evidence</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+escapeHTML(evidence)+'</pre></details></article>';
     }).join(""):'<div class="empty">No external callback events have been received yet.</div>';
   }catch(error){if(status){status.textContent=errorMessage(error,"Could not load callback events.");status.className="notice warning";}body.innerHTML='<div class="empty">Callback events are unavailable. Check administrator access.</div>';reportError("loadTaskCallbackEvents",error);}
