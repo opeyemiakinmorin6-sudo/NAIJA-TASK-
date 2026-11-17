@@ -353,17 +353,14 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
   <div id="message" class="message"></div>
 
   <div class="poster-box">
-    <strong>Task Poster</strong><br>
-    Create your job and clearly tell Taskers exactly what you want them to do.
+    <strong>Post a social task</strong>
+    <span>Choose a platform, explain one clear action, set the number of slots and review your total.</span>
   </div>
-
-  <div class="notice">
-    <strong>Payment approval is required.</strong><br>
-    Your job will not become available to Taskers until the required funding has been paid and approved by the NAIJA TASK admin.
-  </div>
+  <div class="notice"><strong>Before it goes live</strong><span>Your task is published after payment is verified and the required review is complete.</span></div>
+  <nav class="form-steps" aria-label="Posting steps"><span class="current">1. Task details</span><span>2. Slots &amp; budget</span><span>3. Proof &amp; payment</span></nav>
 
   <div class="card">
-    <h2>Social Task Details</h2>
+    <h2>1. What should Taskers do?</h2>
 
     <label for="title">Job Title</label>
 
@@ -389,29 +386,23 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
       <select id="category" disabled>
         <option value="">Select a platform first</option>
       </select>
-      <div class="help">Choose a platform first. The next list will show only that platform’s available task types.</div>
+      <div class="help">Select a platform, then choose the action you want completed.</div>
     </div>
 
     <div id="priceRule" class="price-rule">
       Select a service to load its Admin-set price automatically.
     </div>
 
-    <label for="description">
-      Task Description / Instructions
-    </label>
+    <label for="description">Instructions for Taskers</label>
 
     <textarea
       id="description"
-      placeholder="Write exactly what you want the Tasker to do."
+      placeholder="Example: Open the link, follow the account, then submit a screenshot."
     ></textarea>
 
-    <div class="help">
-      Write the complete instructions the Tasker must follow.
-    </div>
+    <div class="help">Keep it short and list the exact steps. Do not ask for passwords or OTPs.</div>
 
-    <label for="taskLink">
-      Website / App / Research Link
-    </label>
+    <label for="taskLink">Link to the exact page or post</label>
 
     <input
       id="taskLink"
@@ -420,12 +411,10 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
     >
 
     <div class="help" id="taskLinkHelp">
-      Required for social tasks. Paste the exact profile, post, video, channel, group or page URL where the Tasker must complete the action. Use the real destination link, not a search-results page.
+      Paste the direct profile, post, video, channel or app link Taskers should open.
     </div>
 
-    <label for="copyText">
-      Copy Text
-    </label>
+    <label for="copyText">Text to use (optional)</label>
 
     <textarea
       id="copyText"
@@ -437,16 +426,14 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
 
   <div class="card">
 
-    <h2>Reward & Slots</h2>
+    <h2>2. How many people do you need?</h2>
 
     <input id="reward" type="hidden" value="">
     <div id="rewardHelp" class="help" aria-live="polite">
       Service pricing is calculated automatically.
     </div>
 
-    <label for="slots">
-      Available Slots
-    </label>
+    <label for="slots">Number of Taskers (minimum 10)</label>
 
     <input
       id="slots"
@@ -486,7 +473,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
       </div>
 
     </div>
-    <label for="promotionTier">Optional Paid Promotion</label>
+    <label for="promotionTier">Boost this task (optional)</label>
     <select id="promotionTier">
       <option value="none">No promotion</option>
       <option value="fast">Fast Promotion</option>
@@ -494,19 +481,15 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
     </select>
     <div class="money-note" id="promotionHelp">Promotion is optional. The final amount is calculated securely before checkout.</div>
 
-    <div class="help">
-      NAIJA TASK automatically calculates the complete amount. You only pay the single total shown above.
-    </div>
+    <div class="help">Your final amount is shown below. No payment is taken until you continue.</div>
 
   </div>
 
   <div class="card">
 
-    <h2>Proof Requirements</h2>
+    <h2>3. What should Taskers submit?</h2>
 
-    <div class="help">
-      Select what the Tasker must submit after completing the job.
-    </div>
+    <div class="help">Choose the evidence needed to check that the task was completed.</div>
 
     <div class="proof-grid">
 
@@ -574,7 +557,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
 
   <div class="card">
 
-    <h2>Job Summary</h2>
+    <h2>Review before payment</h2>
 
     <div class="summary">
 
@@ -1582,3 +1565,28 @@ checkPoster();
 <style id="nt-global-root-palette">:root{--nt-forest:#064E2B;--nt-deep:#073B24;--nt-dark-green:#073B24;--nt-green:#0B8F45;--nt-bright:#16A34A;--nt-bright-green:#16A34A;--nt-lime:#B7F34A;--nt-white:#FFFFFF;--nt-surface:#FFFFFF;--nt-card:#FFFFFF;--nt-soft-white:#F7FBF7;--nt-bg:#F1F8F2;--nt-pale:#EAF5EC;--nt-leaf:#EAF5EC;--nt-cream:#F7FBF7;--nt-ink:#173326;--nt-muted:#647568;--nt-line:#DCE9DE;--nt-border:#DCE9DE;--nt-success:#168443}</style>
 </body>
         </html>
+
+
+<style id="poster-form-clean-layout">
+.container{max-width:760px;margin:22px auto 48px}
+.poster-box{display:flex;flex-direction:column;gap:5px;padding:17px 18px;font-size:14px;line-height:1.5}
+.poster-box strong{font-size:18px;color:#063d20}
+.poster-box span{font-size:13px;color:#526b59}
+.notice{padding:12px 15px;font-size:12px;line-height:1.5}
+.notice strong,.notice span{display:block}
+.form-steps{display:flex;gap:7px;overflow-x:auto;margin:0 0 16px;padding:0 0 5px}
+.form-steps span{flex:1;min-width:max-content;padding:9px 11px;border:1px solid #dce9de;border-radius:10px;background:#fff;color:#6b7c70;font-size:11px;font-weight:800;text-align:center}
+.form-steps span.current{background:#eaf6df;border-color:#b7d98b;color:#174a27}
+.card{padding:22px;margin-bottom:14px;border-top:3px solid #c7f36b}
+.card h2{font-size:18px;margin-bottom:13px}
+label{margin:13px 0 6px;font-size:13px}
+input,textarea,select{padding:12px 13px;font-size:14px;min-height:46px}
+textarea{min-height:112px;line-height:1.5}
+.help{font-size:11px;line-height:1.45;margin-top:5px}
+.price-rule{font-size:12px;line-height:1.45;padding:10px 12px}
+.money-box{padding:13px;margin-top:13px}
+.money-total{font-size:18px}
+.summary{font-size:13px;line-height:1.7}
+.publish-btn{min-height:52px;font-size:15px}
+@media(max-width:480px){.container{width:calc(100% - 24px);margin-top:14px}.card{padding:17px 15px}.poster-box{padding:15px}.form-steps span{font-size:10px}}
+</style>
