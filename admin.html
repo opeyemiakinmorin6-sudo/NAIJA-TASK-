@@ -3260,6 +3260,12 @@ td,th{padding:13px 11px}
   </div>
 
   <div id="chatReportsList" class="card"><div class="empty">Open this page to load reports.</div></div>
+  <div class="card" style="margin-top:16px">
+    <h3>Community safety reports</h3>
+    <p style="font-size:12px;color:#708176">Reports submitted about members in NAIJA TASK communities.</p>
+    <button class="primary" onclick="loadCommunityReports()">Reload community reports</button>
+    <div id="communityReportsList" style="margin-top:12px"><div class="empty">Open Chat Reports to load reports.</div></div>
+  </div>
 
 </section>
 
@@ -12565,6 +12571,7 @@ async function addSponsoredBillboard() {
 async function loadChatReports() {
   const box = $("chatReportsList");
   if (!box) return;
+  loadCommunityReports();
   box.innerHTML = '<div class="empty">Loading reports...</div>';
   try {
     const { data, error } = await supabaseClient.rpc("starlife_admin_chat_reports");
@@ -12591,6 +12598,55 @@ async function loadChatReports() {
     box.innerHTML = '<div class="empty">Reports could not be loaded. ' +
       escapeHTML(errorMessage(error, "Run the online-players SQL first.")) + '</div>';
   }
+}
+
+
+async function loadCommunityReports() {
+  const box=$("communityReportsList"); if(!box)return;
+  box.innerHTML='<div class="empty">Loading community reports...</div>';
+  try {
+    const q=await supabaseClient.from("community_room_reports")
+      .select("id,room_id,reporter_id,reported_user_id,reason,details,status,created_at")
+      .order("created_at",{ascending:false}).limit(100);
+    if(q.error)throw q.error;
+    if(!q.data?.length){box.innerHTML='<div class="empty">No community reports yet.</div>';return;}
+    const roomIds=[...new Set(q.data.map(x=>x.room_id))];
+    const userIds=[...new Set(q.data.flatMap(x=>[x.reporter_id,x.reported_user_id]))];
+    const [rooms,profiles]=await Promise.all([
+      supabaseClient.from("community_rooms").select("id,name").in("id",roomIds),
+      supabaseClient.from("profiles").select("id,full_name").in("id",userIds)
+    ]);
+    if(rooms.error)throw rooms.error;if(profiles.error)throw profiles.error;
+    const rn=new Map((rooms.data||[]).map(x=>[x.id,x.name]));
+    const pn=new Map((profiles.data||[]).map(x=>[x.id,x.full_name||"Member"]));
+    box.innerHTML=q.data.map(r=>'<div style="padding:12px 0;border-bottom:1px solid #e0eae3">'
+      +'<b>'+escapeHTML(rn.get(r.room_id)||"Community")+'</b> · '+escapeHTML(r.status)
+      +'<div style="font-size:11px;color:#708176">'+escapeHTML(new Date(r.created_at).toLocaleString())+'</div>'
+      +'<div style="font-size:12px;margin-top:5px">Reported member: <b>'+escapeHTML(pn.get(r.reported_user_id)||"Member")+'</b> · By: '+escapeHTML(pn.get(r.reporter_id)||"Member")+'</div>'
+      +'<div style="font-size:12px;margin-top:5px"><b>Reason:</b> '+escapeHTML(r.reason)+'</div>'
+      +(r.details?'<div style="font-size:12px;margin-top:4px"><b>Details:</b> '+escapeHTML(r.details)+'</div>':'')
+      +(r.status==="PENDING"||r.status==="REVIEWING"?'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button class="secondary" data-cr-status="REVIEWING" data-cr-id="'+escapeHTML(r.id)+'">Mark reviewing</button><button class="primary" data-cr-status="RESOLVED" data-cr-id="'+escapeHTML(r.id)+'">Resolve</button><button class="secondary" data-cr-status="DISMISSED" data-cr-id="'+escapeHTML(r.id)+'">Dismiss</button></div>':'')
+      +'</div>').join("");
+    box.querySelectorAll("[data-cr-status]").forEach(b=>b.addEventListener("click",()=>setCommunityReportStatus(b.dataset.crId,b.dataset.crStatus)));
+  } catch(e) {
+    reportError("loadCommunityReports",e);
+    box.innerHTML='<div class="empty">Could not load community reports: '+escapeHTML(errorMessage(e,"Check admin access."))+'</div>';
+  }
+}
+async function setCommunityReportStatus(id,status) {
+  const ok=await uiConfirm(status==="RESOLVED"?"Resolve this report?":status==="DISMISSED"?"Dismiss this report?":"Mark this report as reviewing?");
+  if(!ok)return;
+  try {
+    setLoading(true,"Saving...");
+    const {error}=await supabaseClient.rpc("review_community_room_report",{p_report_id:id,p_status:status});
+    if(error)throw error;
+    await writeAudit("community_report_"+status.toLowerCase(),null,{report_id:String(id).slice(0,8)});
+    toast("Community report updated.","success");
+    await loadCommunityReports();
+  } catch(e) {
+    reportError("setCommunityReportStatus",e);
+    toast(errorMessage(e,"Could not update report."),"danger");
+  } finally {setLoading(false);}
 }
 
 async function setChatBan(userId, banned) {
