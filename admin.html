@@ -3824,7 +3824,7 @@ td,th{padding:13px 11px}
   <div class="grid grid-2" style="margin-top:16px">
     <div class="card">
       <h3>Product reports</h3>
-      <div class="table-wrap"><table><thead><tr><th>Product</th><th>Reason</th><th>Reporter</th><th>Status</th><th>Date</th></tr></thead>
+      <div class="table-wrap"><table><thead><tr><th>Product</th><th>Reason</th><th>Reporter</th><th>Status</th><th>Date</th><th>Admin action</th></tr></thead>
       <tbody id="marketplaceReportsBody"><tr><td colspan="5" class="loading-row">Loading reports…</td></tr></tbody></table></div>
     </div>
     <div class="card">
@@ -10996,6 +10996,35 @@ async function loadMarketplace() {
 
 
 
+
+async function updateMarketplaceReport(reportId, status) {
+  const labels = {
+    under_review: "move this product report into review",
+    dismissed: "dismiss this product report",
+    upheld: "uphold this report and hide the product from the shop"
+  };
+  if (!labels[status]) return;
+  const warning = status === "upheld"
+    ? "\\n\\nThe product will be hidden. This action does not issue a refund or decide any order dispute."
+    : "";
+  if (!confirm("Are you sure you want to " + labels[status] + "?" + warning)) return;
+  try {
+    setLoading(true, "Updating product report…");
+    const { error } = await supabaseClient.from("marketplace_reports")
+      .update({ status })
+      .eq("id", reportId);
+    if (error) throw error;
+    toast(status === "upheld" ? "Report upheld and product hidden." : "Product report updated.", "success");
+    await loadMarketplaceSafety();
+  } catch (error) {
+    reportError("updateMarketplaceReport", error);
+    toast("Report update failed: " + errorMessage(error, "unknown error"), "danger");
+  } finally {
+    setLoading(false);
+  }
+}
+
+
 async function updateMarketplaceDispute(disputeId, status) {
   const labels = {
     under_review: "move this dispute into review",
@@ -11048,9 +11077,16 @@ async function loadMarketplaceSafety() {
     ]);
     for (const result of [reports,disputes,risks,refunds,payouts,moderation]) if (result.error) throw result.error;
     const rows = (result) => safeArray(result.data);
-    targets.reports.innerHTML = rows(reports).length ? rows(reports).map(x =>
-      '<tr><td class="mono">'+escapeHTML(x.product_id||"—")+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.reporter_id)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
-    ).join("") : '<tr><td colspan="5" class="empty-row">No product reports.</td></tr>';
+    targets.reports.innerHTML = rows(reports).length ? rows(reports).map(x => {
+      const id = escapeHTML(x.id);
+      const active = ["open","triaged","under_review"].includes(x.status);
+      const actions = active
+        ? '<button class="btn btn-sm" onclick="updateMarketplaceReport(\\''+id+'\\',\\'under_review\\')">Review</button> '+
+          '<button class="btn btn-sm btn-success" onclick="updateMarketplaceReport(\\''+id+'\\',\\'dismissed\\')">Dismiss</button> '+
+          '<button class="btn btn-sm btn-warning" onclick="updateMarketplaceReport(\\''+id+'\\',\\'upheld\\')">Uphold &amp; hide</button>'
+        : '<span class="muted">Reviewed</span>';
+      return '<tr><td class="mono">'+escapeHTML(x.product_id||"—")+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.reporter_id)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td><td>'+actions+'</td></tr>';
+    }).join("") : '<tr><td colspan="6" class="empty-row">No product reports.</td></tr>';
     targets.disputes.innerHTML = rows(disputes).length ? rows(disputes).map(x => {
       const id = escapeHTML(x.id);
       const active = ["open","under_review","awaiting_evidence"].includes(x.status);
