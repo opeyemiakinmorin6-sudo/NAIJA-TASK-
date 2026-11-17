@@ -11020,7 +11020,7 @@ async function loadAdminNotifications(){
     list.innerHTML=rows.length?rows.map(n=>'<div class="setting" style="align-items:flex-start;gap:12px"><div style="flex:1"><strong>'+escapeHTML(n.title||n.type||"Platform update")+(n.is_read?'':' <span class="badge orange">NEW</span>')+'</strong><small>'+escapeHTML(n.message||"")+'</small><small>'+formatDate(n.created_at)+'</small></div>'+(n.is_read?'':'<button class="secondary" onclick="markAdminNotificationRead('+Number(n.id)+')">Mark read</button>')+'</div>').join(""):'<div class="empty">No admin notifications yet.</div>';
     if(!window.ntAdminNotificationsChannel){
       window.ntAdminNotificationsChannel=supabaseClient.channel("nt-admin-notifications")
-        .on("postgres_changes",{event:"INSERT",schema:"public",table:"admin_notifications"},()=>loadAdminNotifications())
+        .on("postgres_changes",{event:"INSERT",schema:"public",table:"admin_notifications"},()=>{loadAdminNotifications();toast("New platform activity. Open Notifications to review.","success");})
         .subscribe();
     }
   }catch(error){if(status)status.textContent="Notifications could not load: "+errorMessage(error,"database request failed");reportError("loadAdminNotifications",error);}
