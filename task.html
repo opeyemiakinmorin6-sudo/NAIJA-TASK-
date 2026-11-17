@@ -74,11 +74,13 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 .box{background:#f5faf6;border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere}
 .form-control{width:100%;border:1px solid #dce7de;border-radius:12px;padding:12px;outline:none;color:var(--text);min-height:84px;resize:vertical}
 .drop{display:flex;flex-direction:column;align-items:center;gap:4px;border:3px dashed var(--green);border-radius:16px;background:#fff;padding:24px 14px;text-align:center;cursor:pointer;color:var(--green-d)}
+.drop.has-preview{padding:12px;gap:7px}.drop.has-preview .cam{display:none}
+.drop .preview{display:none;width:100%;max-height:260px;object-fit:contain;margin:8px 0 0;border:1px solid var(--line);border-radius:10px;background:#f5f5f5;pointer-events:none}.drop .preview.show{display:block}
 .drop .cam{font-size:34px;line-height:1}.drop b{font-size:17px;font-weight:800;color:var(--green)}.drop span{font-size:12px;color:var(--muted)}
 .drop:active{background:#f1f9f3}.req-tag{display:inline-block;background:var(--lime);color:#274a05;border-radius:6px;padding:2px 7px;font-size:11px;font-weight:800;margin-left:6px}
 .drop:focus-within{border-color:var(--green-l)}
 .file{position:absolute;width:1px;height:1px;opacity:0}
-.preview{display:none;width:100%;max-height:240px;object-fit:contain;margin-top:10px;border-radius:12px;border:1px solid var(--line);background:#f5f5f5}.preview.show{display:block}
+
 .row{display:flex;gap:9px;margin-top:6px}.row .btn{flex:1}
 .sheet-top{position:sticky;top:-10px;z-index:2;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:6px 0 12px;margin-bottom:6px;border-bottom:1px solid var(--line)}
 .sheet-top h2{margin:0;font-size:20px}
@@ -242,18 +244,18 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 
     <div class="field">
       <span class="lab" style="font-size:14px">Screenshot proof <span id="photoReq" class="req-tag"></span></span>
-      <label for="proofPhoto" class="drop"><span class="cam">📷</span><b>UPLOAD SCREENSHOT</b><span>Tap to take a photo or choose one from your phone</span></label>
+      <label for="proofPhoto" class="drop" id="proofDrop"><span class="cam">📷</span><b>UPLOAD SCREENSHOT</b><span>Tap to take a photo or choose one from your phone</span><img id="proofPreview" class="preview" alt="Selected proof preview"></label>
       <input id="proofPhoto" class="file" type="file" accept="image/*">
-      <img id="proofPreview" class="preview" alt="Selected proof preview">
     </div>
 
     <div class="field">
       <label class="lab" for="proofText" style="font-size:14px">Enter your username</label>
-      <input id="proofText" class="form-control" style="min-height:0" type="text" placeholder="e.g. @yourhandle" autocomplete="off">
+      <input id="proofText" name="tasker_username" class="form-control" style="min-height:0" type="text" placeholder="e.g. @yourhandle" autocomplete="username" list="savedUsernameSuggestions">
+      <datalist id="savedUsernameSuggestions"></datalist>
     </div>
 
     <button id="submitProofBtn" class="btn p" style="width:100%" type="button">Submit Proof</button>
-    <button id="closeDetailsBtn" class="btn cancel" style="width:100%;margin-top:9px" type="button">Cancel Task</button>
+    <button id="closeDetailsBtn" class="btn cancel" style="width:100%;margin-top:9px" type="button">Close</button>
     <p class="note">Reward will be added to your wallet after successful verification.</p>
   </div>
 </div>
@@ -580,32 +582,44 @@ function getSafeHttpUrl(v){
   }catch(_){ return ""; }
 }
 
+function usernameStorageKey(){return "naija_task_saved_usernames_v1_"+String(currentUser?.id||"guest");}
+function getSavedUsernames(){
+  try{const value=JSON.parse(localStorage.getItem(usernameStorageKey())||"[]");return Array.isArray(value)?value.filter(x=>typeof x==="string"&&x.trim()).slice(0,12):[];}catch(_){return [];}
+}
+function renderSavedUsernameSuggestions(){
+  const list=$("savedUsernameSuggestions");if(!list)return;
+  list.innerHTML=getSavedUsernames().map(value=>"<option value=\""+escapeHtml(value)+"\"></option>").join("");
+}
+function rememberUsername(value){
+  const username=String(value||"").trim();if(!username||username.length>120)return;
+  const saved=getSavedUsernames().filter(x=>x.toLowerCase()!==username.toLowerCase());saved.unshift(username);
+  try{localStorage.setItem(usernameStorageKey(),JSON.stringify(saved.slice(0,12)));}catch(_){}
+  renderSavedUsernameSuggestions();
+}
+async function recordTaskStarted(task){
+  if(!currentUser||!task?.id)return;
+  try{
+    const existing=await db.from("task_activity").select("id").eq("task_id",task.id).eq("user_id",currentUser.id).eq("activity_type","STARTED").limit(1);
+    if(existing.error){console.warn("Task start activity could not be checked:",existing.error.message);return;}
+    if(existing.data?.length)return;
+    const inserted=await db.from("task_activity").insert({task_id:Number(task.id),user_id:currentUser.id,activity_type:"STARTED"});
+    if(inserted.error)console.warn("Task start activity could not be saved:",inserted.error.message);
+  }catch(error){console.warn("Task start activity was not recorded:",error?.message||error);}
+}
 function resetProofForm(){
   $("proofText").value = "";
   $("proofPhoto").value = "";
-  $("proofPreview").removeAttribute("src");
-  $("proofPreview").classList.remove("show");
-}
-
-async function reportPosterFromTask(task){
-  const posterId=String(task?.created_by||"");
-  if(!/^[0-9a-f-]{36}$/i.test(posterId)) { showNotice("The Poster reference is unavailable for this task.", "error"); return; }
-  const reason=window.prompt("Describe the specific concern about this Poster or task (20–1200 characters):");
-  if(reason===null)return;
-  if(reason.trim().length<20||reason.trim().length>1200){showNotice("Please provide 20 to 1,200 characters.", "error");return;}
-  const {data,error}=await db.rpc("submit_trust_safety_report",{
-    p_reported_user_id:posterId,
-    p_event_type:"OTHER",
-    p_description:reason.trim(),
-    p_evidence:{task_id:Number(task.id),task_title:String(task.title||"").slice(0,160),source:"tasker_task_details"}
-  });
-  if(error){showNotice("Your report could not be submitted: "+error.message,"error");return;}
-  showNotice("Your report has been sent to NAIJA TASK Trust & Safety. It will be reviewed; a report alone does not automatically penalize the Poster.","success");
+  const pv=$("proofPreview");
+  if(pv.src&&pv.src.startsWith("blob:"))URL.revokeObjectURL(pv.src);
+  pv.removeAttribute("src");
+  pv.classList.remove("show");
+  $("proofDrop")?.classList.remove("has-preview");
 }
 
 function openTask(task){
   selectedTask = task;
   hideNotice();
+  void recordTaskStarted(task);
   const cat = getTaskCategory(task);
   const safeUrl = getSafeHttpUrl(task.task_link || task.post_link || task.url || "");
   const taskTarget = taskTargetKey(task);
@@ -615,7 +629,7 @@ function openTask(task){
   $("selectedTaskDetails").innerHTML = `
     <div class="sheet-head">
       <div class="logo" aria-hidden="true">${LOGOS[cat]}</div>
-      <div class="task-t"><h2>${escapeHtml(task.title || "Untitled task")}</h2><div class="plat">${String(task.task_type||"").startsWith("business_") ? "Business service" : NAMES[cat]} · Earn ${escapeHtml(money(getTaskReward(task)))}</div></div>
+      <div class="task-t"><h2>${escapeHtml(task.title || "Untitled task")}</h2><div class="plat">${String(task.task_type||"").startsWith("business_") ? "Business service" : NAMES[cat]} · Earn ${escapeHtml(money(getTaskReward(task)))}</div><div class="help">Task reference #${escapeHtml(String(task.id))}</div></div>
     </div>
 
     <div class="field"><div class="lab" style="font-size:14px">Task instructions</div>
@@ -623,24 +637,27 @@ function openTask(task){
     ${task.uploader_username ? `<div class="field"><div class="lab">Account to use</div><div class="box">${escapeHtml(task.uploader_username)}</div></div>` : ""}
     ${task.copy_text ? `<div class="field"><div class="lab">Text to use</div><div class="box">${escapeHtml(task.copy_text)}</div><button type="button" class="btn s sm" style="margin-top:8px" id="copyTaskTextBtn">Copy text</button></div>` : ""}
     ${safeUrl ? `<div class="field"><div class="lab" style="font-size:14px">Target link</div>
-      <div class="linkrow"><div class="linkbox">${escapeHtml(safeUrl)}</div><a class="btn p" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">Open Target</a></div><div class="help">Complete the requested action on this exact destination, then return here to submit your proof.</div></div>` : ""}
+      <div class="linkrow"><div class="linkbox">${escapeHtml(safeUrl)}</div><a class="btn p" href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer">Open</a></div><div class="help">Complete the requested action on this exact destination, then return here to submit your proof.</div></div>` : ""}
     ${submitted ? '<div class="notice show info">You already submitted this task. It cannot be submitted again.</div>' : ""}`;
 
-  if (currentUser && /^[0-9a-f-]{36}$/i.test(String(selectedTask.created_by || ""))) {
-    const reportWrap = document.createElement("div");
-    reportWrap.style.cssText = "margin-top:12px";
-    reportWrap.innerHTML = '<button type="button" class="btn s" id="reportPosterBtn" style="width:100%">Report this Poster or task</button><p class="note">Reports are reviewed by NAIJA TASK. A report alone does not automatically penalize anyone.</p>';
-    $("selectedTaskDetails").appendChild(reportWrap);
-    $("reportPosterBtn").addEventListener("click", () => reportPosterFromTask(selectedTask));
-  }
 
   const isBusinessTask = String(task.task_type || "").startsWith("business_");
+  const usernameLabel = $("proofText").previousElementSibling;
   if (isBusinessTask) {
-    const proofLabel = $("proofText").previousElementSibling;
-    if (proofLabel) proofLabel.textContent = "Your feedback, answers or completed work";
+    if (usernameLabel) usernameLabel.textContent = "Your feedback, answers or completed work";
     $("proofText").placeholder = "Write your comments, test results, answers, findings or work summary...";
+    $("proofText").setAttribute("autocomplete","off");
+    $("proofText").removeAttribute("list");
     const uploadLabel = document.querySelector('label[for="proofPhoto"]');
     if (uploadLabel) uploadLabel.querySelector("b").textContent = "UPLOAD SCREENSHOT / PHOTO";
+  } else {
+    if (usernameLabel) usernameLabel.textContent = "Enter your username";
+    $("proofText").placeholder = "e.g. @yourhandle";
+    $("proofText").setAttribute("autocomplete","username");
+    $("proofText").setAttribute("list","savedUsernameSuggestions");
+    renderSavedUsernameSuggestions();
+    const uploadLabel = document.querySelector('label[for="proofPhoto"]');
+    if (uploadLabel) uploadLabel.querySelector("b").textContent = "UPLOAD SCREENSHOT";
   }
 
   resetProofForm();
@@ -694,7 +711,9 @@ $("refreshBtn").addEventListener("click", loadTasks);
 
 $("proofPhoto").addEventListener("change", () => {
   const file = $("proofPhoto").files?.[0], pv = $("proofPreview");
+  if(pv.src&&pv.src.startsWith("blob:"))URL.revokeObjectURL(pv.src);
   pv.removeAttribute("src"); pv.classList.remove("show");
+  $("proofDrop").classList.remove("has-preview");
   if (!file) return;
   if (!file.type.startsWith("image/")){
     $("proofPhoto").value = "";
@@ -708,6 +727,7 @@ $("proofPhoto").addEventListener("change", () => {
   }
   pv.src = URL.createObjectURL(file);
   pv.classList.add("show");
+  $("proofDrop").classList.add("has-preview");
   showNotice("Screenshot added.", "success");
 });
 
@@ -797,6 +817,7 @@ async function submitProof(){
     currentSubmissionIds.add(id);
     const completedTargetKey = taskTargetKey(selectedTask);
     if (completedTargetKey) currentSubmissionTargets.add(completedTargetKey);
+    if(!String(selectedTask.task_type||"").startsWith("business_"))rememberUsername(proofText);
     resetProofForm();
     buildFilters();
     renderTasks();
