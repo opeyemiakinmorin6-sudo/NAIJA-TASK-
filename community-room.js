@@ -16,6 +16,10 @@ async function start(){
  onlineChannel.on("presence",{event:"sync"},drawPresence).subscribe(async s=>{if(s==="SUBSCRIBED"){await onlineChannel.track({user_id:me.id,name:myDisplayName,active_area:"Community",active_room:null});drawPresence();}});
  $("newRoom").onclick=()=>$("modal").classList.add("open");$("cancelCreate").onclick=()=>$("modal").classList.remove("open");$("search").oninput=drawRooms;$("createForm").onsubmit=createRoom;$("closeBtn").onclick=closeRoom;$("leaveBtn").onclick=leaveRoom;$("requestsBtn").onclick=showRequests;$("sendForm").onsubmit=sendMessage;
  await loadRooms();await loadMyRequests();
+ document.addEventListener("visibilitychange",async()=>{
+  if(document.hidden)await onlineChannel?.untrack();
+  else if(onlineChannel?.state==="joined")await onlineChannel.track({user_id:me.id,name:myDisplayName,active_area:"Community",active_room:active?.id||null,online_at:new Date().toISOString()});
+ });
  window.addEventListener("beforeunload",()=>onlineChannel?.untrack());
 }
 function drawPresence(){const all=Object.values(onlineChannel?.presenceState?.()||{}).flat().filter(x=>x.user_id);presence=[...new Map(all.map(x=>[x.user_id,x])).values()];$("onlineCount").textContent=presence.length+" online";$("onlineList").innerHTML=presence.length?presence.slice(0,25).map(x=>'<span class="person">🟢 '+esc(x.name||"Member")+'</span>').join(""):'<span class="muted">No other members are online right now.</span>';if(active){const n=presence.filter(x=>x.active_room===active.id).length;$("roomMeta").textContent=(active.is_private?"Private":"Public")+" community · "+n+" active here";}}
