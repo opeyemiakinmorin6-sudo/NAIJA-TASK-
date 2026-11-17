@@ -1121,6 +1121,8 @@ td,th{padding:13px 11px}
     🛍️ Marketplace
   </button>
 
+  <button class="nav-btn" data-page="seasons" onclick="navigate('seasons')">🎉 Seasonal Displays</button>
+
   <button
     class="nav-btn"
     data-page="airtime"
@@ -3822,6 +3824,39 @@ td,th{padding:13px 11px}
 </section>
 
 
+
+<section id="page-seasons" class="page">
+  <div class="page-header">
+    <div><h2>Marketplace Seasonal Displays</h2><p>Schedule shopping collections and promotional banners.</p></div>
+    <button class="primary" onclick="loadMarketplaceSeasons()">Refresh displays</button>
+  </div>
+  <div class="card">
+    <h3 id="seasonFormTitle">Create seasonal display</h3>
+    <input id="seasonId" type="hidden">
+    <div class="form-grid">
+      <label>Campaign title<input id="seasonTitle" maxlength="80" placeholder="Christmas Shopping"></label>
+      <label>Small badge<input id="seasonBadge" maxlength="30" value="SEASONAL PICK" placeholder="HOLIDAY DEALS"></label>
+      <label class="full">Short description<input id="seasonSubtitle" maxlength="180" placeholder="Discover special seasonal products"></label>
+      <label class="full">Banner image URL (optional)<input id="seasonImage" type="url" placeholder="https://..."></label>
+      <label>Starts at<input id="seasonStarts" type="datetime-local"></label>
+      <label>Ends at<input id="seasonEnds" type="datetime-local"></label>
+      <label>Display order<input id="seasonOrder" type="number" value="0" min="0" max="999"></label>
+      <label style="display:flex;align-items:center;gap:8px"><input id="seasonActive" type="checkbox" style="width:auto"> Publish when within schedule</label>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+      <button class="primary" onclick="saveMarketplaceSeason()">Save display</button>
+      <button class="secondary" onclick="resetMarketplaceSeason()">Clear form</button>
+    </div>
+    <div id="seasonAdminStatus" class="notice" style="margin-top:12px">Changes are shown in the Marketplace only while published and within the selected dates.</div>
+  </div>
+  <div class="card">
+    <h3>Saved seasonal displays</h3>
+    <div class="table-wrap"><table><thead><tr><th>Campaign</th><th>Schedule</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody id="marketplaceSeasonsBody"><tr><td colspan="4" class="loading-row">Loading campaigns…</td></tr></tbody></table></div>
+  </div>
+</section>
+
+
 <!-- =====================================================
      AIRTIME & DATA
      ===================================================== -->
@@ -5556,6 +5591,10 @@ function navigate(page) {
 
       case "marketplace":
         loadMarketplace();
+        break;
+
+      case "seasons":
+        loadMarketplaceSeasons();
         break;
 
       case "airtime":
@@ -10925,6 +10964,72 @@ async function loadMarketplace() {
     reportError("loadMarketplace", error);
     body.innerHTML = '<tr><td colspan="6" class="empty-row">Marketplace records could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
   }
+}
+
+
+/* =========================================================
+   MARKETPLACE SEASONAL DISPLAYS
+   ========================================================= */
+function resetMarketplaceSeason() {
+  ["seasonId","seasonTitle","seasonSubtitle","seasonImage","seasonStarts","seasonEnds"].forEach(id => { const el=$(id); if(el) el.value=""; });
+  $("seasonBadge").value="SEASONAL PICK";
+  $("seasonOrder").value="0";
+  $("seasonActive").checked=false;
+  $("seasonFormTitle").textContent="Create seasonal display";
+}
+function seasonDateInput(value) {
+  if(!value) return "";
+  const d=new Date(value); if(Number.isNaN(d.getTime())) return "";
+  const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+  return local.toISOString().slice(0,16);
+}
+function editMarketplaceSeason(row) {
+  $("seasonId").value=row.id;
+  $("seasonTitle").value=row.title||"";
+  $("seasonSubtitle").value=row.subtitle||"";
+  $("seasonImage").value=row.image_url||"";
+  $("seasonBadge").value=row.badge||"SEASONAL PICK";
+  $("seasonStarts").value=seasonDateInput(row.starts_at);
+  $("seasonEnds").value=seasonDateInput(row.ends_at);
+  $("seasonOrder").value=String(row.sort_order??0);
+  $("seasonActive").checked=!!row.is_active;
+  $("seasonFormTitle").textContent="Edit seasonal display";
+  $("seasonFormTitle").scrollIntoView({behavior:"smooth",block:"center"});
+}
+async function loadMarketplaceSeasons() {
+  const body=$("marketplaceSeasonsBody"); if(!body)return;
+  body.innerHTML='<tr><td colspan="4" class="loading-row">Loading seasonal displays…</td></tr>';
+  try {
+    const {data,error}=await supabaseClient.from("marketplace_seasonal_campaigns").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:false}).limit(100);
+    if(error)throw error;
+    const rows=safeArray(data);
+    if(!rows.length){body.innerHTML='<tr><td colspan="4" class="empty-row">No seasonal displays yet. Create the first one above.</td></tr>';return;}
+    body.innerHTML=rows.map(row=>{
+      const schedule=(row.starts_at?formatDate(row.starts_at):"Any start")+" → "+(row.ends_at?formatDate(row.ends_at):"No end date");
+      return '<tr><td><strong>'+escapeHTML(row.title)+'</strong><br><small>'+escapeHTML(row.subtitle||"")+'</small></td><td>'+escapeHTML(schedule)+'</td><td>'+badge(row.is_active?"PUBLISHED":"HIDDEN")+'</td><td><button class="secondary" onclick="editMarketplaceSeason('+JSON.stringify(row).replace(/</g,"\\\\u003c")+')">Edit</button> <button class="danger" onclick="deleteMarketplaceSeason(\\''+escapeHTML(row.id)+'\\')">Delete</button></td></tr>';
+    }).join("");
+  }catch(error){reportError("loadMarketplaceSeasons",error);body.innerHTML='<tr><td colspan="4" class="empty-row">Could not load seasonal displays: '+escapeHTML(errorMessage(error,"Database request failed."))+'</td></tr>';}
+}
+async function saveMarketplaceSeason() {
+  const title=$("seasonTitle").value.trim();
+  if(title.length<2){toast("Enter a campaign title.","danger");return;}
+  const starts=$("seasonStarts").value, ends=$("seasonEnds").value;
+  const startsAt=starts?new Date(starts).toISOString():null;
+  const endsAt=ends?new Date(ends).toISOString():null;
+  if(startsAt&&endsAt&&new Date(endsAt)<=new Date(startsAt)){toast("End date must be after start date.","danger");return;}
+  const payload={title,subtitle:$("seasonSubtitle").value.trim(),image_url:$("seasonImage").value.trim()||null,badge:$("seasonBadge").value.trim()||"SEASONAL PICK",starts_at:startsAt,ends_at:endsAt,sort_order:Math.max(0,Math.min(999,Number($("seasonOrder").value)||0)),is_active:$("seasonActive").checked,updated_at:new Date().toISOString()};
+  try{
+    const id=$("seasonId").value;
+    const result=id?await supabaseClient.from("marketplace_seasonal_campaigns").update(payload).eq("id",id).select("id").maybeSingle():await supabaseClient.from("marketplace_seasonal_campaigns").insert(payload).select("id").single();
+    if(result.error)throw result.error;
+    $("seasonAdminStatus").textContent="Seasonal display saved.";
+    resetMarketplaceSeason();await loadMarketplaceSeasons();toast("Seasonal display saved.","success");
+  }catch(error){reportError("saveMarketplaceSeason",error);toast(errorMessage(error,"Could not save seasonal display."),"danger");}
+}
+async function deleteMarketplaceSeason(id) {
+  if(!confirm("Delete this seasonal display?"))return;
+  try{const {error}=await supabaseClient.from("marketplace_seasonal_campaigns").delete().eq("id",id);if(error)throw error;await loadMarketplaceSeasons();toast("Seasonal display deleted.","success");}
+  catch(error){reportError("deleteMarketplaceSeason",error);toast(errorMessage(error,"Could not delete seasonal display."),"danger");}
 }
 
 /* =========================================================
