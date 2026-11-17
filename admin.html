@@ -3829,7 +3829,7 @@ td,th{padding:13px 11px}
     </div>
     <div class="card">
       <h3>Buyer / seller disputes</h3>
-      <div class="table-wrap"><table><thead><tr><th>Order</th><th>Reason</th><th>Opened by</th><th>Status</th><th>Date</th></tr></thead>
+      <div class="table-wrap"><table><thead><tr><th>Order</th><th>Reason</th><th>Opened by</th><th>Status</th><th>Date</th><th>Admin action</th></tr></thead>
       <tbody id="marketplaceDisputesBody"><tr><td colspan="5" class="loading-row">Loading disputes…</td></tr></tbody></table></div>
     </div>
     <div class="card">
@@ -10995,6 +10995,38 @@ async function loadMarketplace() {
 }
 
 
+
+async function updateMarketplaceDispute(disputeId, status) {
+  const labels = {
+    under_review: "move this dispute into review",
+    resolved_buyer: "resolve this dispute in the buyer's favour",
+    resolved_seller: "resolve this dispute in the seller's favour",
+    cancelled: "cancel this dispute"
+  };
+  if (!labels[status]) return;
+  const warning = status === "resolved_buyer"
+    ? "\\n\\nThis records a buyer-favourable decision and keeps seller payout blocked. It does NOT send a refund automatically."
+    : status === "resolved_seller"
+      ? "\\n\\nThis records a seller-favourable decision. Payout remains blocked unless the order has protected funds and both delivery confirmations."
+      : "";
+  if (!confirm("Are you sure you want to " + labels[status] + "?" + warning)) return;
+  try {
+    setLoading(true, "Updating marketplace dispute…");
+    const { error } = await supabaseClient.from("marketplace_disputes")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", disputeId);
+    if (error) throw error;
+    toast("Marketplace dispute updated. No refund or payout was initiated.", "success");
+    await loadMarketplaceSafety();
+  } catch (error) {
+    reportError("updateMarketplaceDispute", error);
+    toast("Dispute update failed: " + errorMessage(error, "unknown error"), "danger");
+  } finally {
+    setLoading(false);
+  }
+}
+
+
 async function loadMarketplaceSafety() {
   const targets = {
     reports: $("marketplaceReportsBody"),
@@ -11019,9 +11051,17 @@ async function loadMarketplaceSafety() {
     targets.reports.innerHTML = rows(reports).length ? rows(reports).map(x =>
       '<tr><td class="mono">'+escapeHTML(x.product_id||"—")+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.reporter_id)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
     ).join("") : '<tr><td colspan="5" class="empty-row">No product reports.</td></tr>';
-    targets.disputes.innerHTML = rows(disputes).length ? rows(disputes).map(x =>
-      '<tr><td class="mono">'+escapeHTML(x.order_id)+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.opened_by)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
-    ).join("") : '<tr><td colspan="5" class="empty-row">No disputes.</td></tr>';
+    targets.disputes.innerHTML = rows(disputes).length ? rows(disputes).map(x => {
+      const id = escapeHTML(x.id);
+      const active = ["open","under_review","awaiting_evidence"].includes(x.status);
+      const actions = active
+        ? '<button class="btn btn-sm" onclick="updateMarketplaceDispute(\\''+id+'\\',\\'under_review\\')">Review</button> '+
+          '<button class="btn btn-sm btn-success" onclick="updateMarketplaceDispute(\\''+id+'\\',\\'resolved_buyer\\')">Resolve for buyer</button> '+
+          '<button class="btn btn-sm btn-warning" onclick="updateMarketplaceDispute(\\''+id+'\\',\\'resolved_seller\\')">Resolve for seller</button> '+
+          '<button class="btn btn-sm btn-light" onclick="updateMarketplaceDispute(\\''+id+'\\',\\'cancelled\\')">Cancel</button>'
+        : '<span class="muted">Case closed</span>';
+      return '<tr><td class="mono">'+escapeHTML(x.order_id)+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.opened_by)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td><td>'+actions+'</td></tr>';
+    }).join("") : '<tr><td colspan="6" class="empty-row">No disputes.</td></tr>';
     targets.risks.innerHTML = rows(risks).length ? rows(risks).map(x =>
       '<tr><td>'+escapeHTML(x.signal)+'</td><td class="mono">'+escapeHTML(x.subject_user_id||"—")+'</td><td>'+badge(x.severity)+'</td><td>'+badge(x.review_status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
     ).join("") : '<tr><td colspan="5" class="empty-row">No risk alerts.</td></tr>';
