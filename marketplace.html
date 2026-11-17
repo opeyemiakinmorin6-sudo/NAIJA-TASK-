@@ -229,8 +229,8 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
               <textarea id="productDescription" maxlength="3000" required placeholder="Describe the condition, features, and other important details."></textarea>
             </div>
             <div class="full">
-              <label for="productImageFile">Product photo (optional, max 5 MB)</label>
-              <input id="productImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+              <label for="productImageFile">Original product photo (required, max 5 MB) *</label>
+              <input id="productImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required>
               <p class="muted">Choose an image from your phone gallery or camera if your browser offers that option. JPEG, PNG, WebP, and GIF are supported.</p>
               <div class="preview-wrap" id="previewWrap">
                 <img id="imagePreview" alt="Selected product photo preview">
@@ -442,6 +442,7 @@ function productCard(p) {
   const sellerAction = isOwnListing
     ? '<span class="badge">Your listing</span>'
     : '<a class="btn-light" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1;font-size:12px;padding:10px 8px;border-radius:10px" href="marketplace-chat.html?product=' + encodeURIComponent(p.id) + '">Chat seller</a>';
+  const reportAction = isOwnListing ? '' : '<button class="btn-light" onclick="reportMarketplaceProduct(\'' + escapeHTML(p.id) + '\',\'' + escapeHTML(p.seller_id || '') + '\')">Report</button>';
   return '<article class="product"><div class="product-image">' + imageHTML +
     '</div><div class="product-content"><span class="badge">' + category +
     '</span><h3>' + title + '</h3><div class="price">' + money(p.price) +
@@ -450,10 +451,57 @@ function productCard(p) {
     '</p><div class="product-actions"><button class="btn-green" ' +
     (stock < 1 || isOwnListing ? 'disabled' : '') + ' onclick="placeOrder(\'' +
     escapeHTML(p.id) + '\')">' + (isOwnListing ? 'Your listing' : 'Order') +
-    '</button>' + sellerAction + '</div></div></article>';
+    '</button>' + sellerAction + reportAction + '</div></div></article>';
 }
 
-async function loadSeasonalCampaigns() {
+async function reportMarketplaceProduct(productId, sellerId) {
+  if (!currentUser) return showGlobal('Sign in before reporting a product.','error');
+  const choice = prompt('Report reason:\\n1. Fake product\\n2. Counterfeit goods\\n3. Misleading photos or description\\n4. Prohibited item\\n5. Suspected seller scam\\n6. Other','1');
+  if (choice === null) return;
+  const reasons = {1:'fake_product',2:'counterfeit',3:'misleading_listing',4:'prohibited_item',5:'seller_scam',6:'other'};
+  const reason = reasons[String(choice).trim()];
+  if (!reason) return showGlobal('Choose a valid report reason from 1 to 6.','error');
+  const details = prompt('Briefly explain what is wrong (at least 10 characters):','');
+  if (details === null) return;
+  if (details.trim().length < 10) return showGlobal('Please provide at least 10 characters of detail.','error');
+  try {
+    const {error} = await db.from('marketplace_reports').insert({product_id:productId,reporter_id:currentUser.id,reported_user_id:sellerId || null,reason,details:details.trim()});
+    if (error) throw error;
+    showGlobal('Report received. The listing has been added to Marketplace Safety review.','success');
+  } catch (error) { showGlobal('Could not submit report: ' + error.message,'error'); }
+}
+
+async function openMarketplaceDispute(orderId) {
+  if (!currentUser) return showGlobal('Sign in first.','error');
+  const choices = ['not_delivered','wrong_item','damaged_item','not_as_described','counterfeit','seller_fraud','buyer_fraud','other'];
+  const choice = prompt('Dispute reason:\\n1. Item not delivered\\n2. Wrong item\\n3. Damaged item\\n4. Not as described\\n5. Counterfeit\\n6. Seller fraud\\n7. Buyer fraud\\n8. Other','1');
+  if (choice === null) return;
+  const reason = choices[Number(choice)-1];
+  if (!reason) return showGlobal('Choose a valid dispute reason from 1 to 8.','error');
+  const details = prompt('Explain the problem (at least 10 characters):','');
+  if (details === null) return;
+  if (details.trim().length < 10) return showGlobal('Please provide more details.','error');
+  try {
+    const {error} = await db.from('marketplace_disputes').insert({order_id:orderId,opened_by:currentUser.id,reason,details:details.trim()});
+    if (error) throw error;
+    showGlobal('Dispute opened. Seller payout is blocked pending review.','success');
+    await Promise.all([loadMyOrders(),loadSellerOrders()]);
+  } catch (error) { showGlobal('Could not open dispute: ' + error.message,'error'); }
+}
+
+async function confirmMarketplaceDelivery(orderId, role) {
+  if (!currentUser) return showGlobal('Sign in first.','error');
+  const wording = role === 'buyer' ? 'confirm that you received the product' : 'confirm that delivery was completed with the buyer';
+  if (!confirm('Are you sure you want to ' + wording + '? Only confirm if this is true.')) return;
+  try {
+    const {error} = await db.from('marketplace_delivery_confirmations').insert({order_id:orderId,confirmer_id:currentUser.id,party_role:role,confirmation:'confirmed'});
+    if (error) throw error;
+    showGlobal('Your confirmation has been recorded. Both parties must confirm. Payout remains disabled until protected settlement is configured.','success');
+    await Promise.all([loadMyOrders(),loadSellerOrders()]);
+  } catch (error) { showGlobal('Could not record confirmation: ' + error.message,'error'); }
+}
+
+async function loadSeasonalCampaigns()
   const wrap = document.getElementById('seasonalShowcase');
   const grid = document.getElementById('seasonalCampaignGrid');
   if (!wrap || !grid || !currentUser) return;
@@ -656,9 +704,12 @@ function showRows(containerId, rows, type) {
         escapeHTML(row.product_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
         ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
         escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
+        '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
         (String(row.payment_status || '').toLowerCase() === 'paid'
-          ? '<p class="muted">Payment confirmed. Await seller fulfilment.</p>'
-          : '<button class="btn-green" onclick="retryMarketplacePayment(\'' + escapeHTML(row.id) + '\')">Pay securely with Flutterwave</button>') +
+          ? '<p class="muted">Payment verified. Protected holding is not yet configured; contact support before dispatch.</p>'
+          : '<p class="muted">Protected checkout is being configured. Do not pay the seller directly.</p>') +
+        (row.buyer_confirmed_at ? '<p class="muted">You confirmed delivery.</p>' : (String(row.payment_status || '').toLowerCase() === 'paid' ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'buyer\')">Confirm received</button>' : '')) +
+        (row.dispute_status && row.dispute_status !== 'none' ? '' : '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') +
         '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') +
         '</p></div>';
     }
@@ -683,7 +734,10 @@ function showRows(containerId, rows, type) {
       escapeHTML(row.product_id) + '</p><p>Buyer ID: ' +
       escapeHTML(row.buyer_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
       ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
-      escapeHTML(row.delivery_status || 'pending') + '</p></div>';
+      escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
+      '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
+      (row.seller_confirmed_at ? '<p class="muted">You confirmed delivery.</p>' : (String(row.payment_status || '').toLowerCase() === 'paid' ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Confirm delivered</button>' : '')) +
+      (row.dispute_status && row.dispute_status !== 'none' ? '' : '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') + '</div>';
   }).join('');
 }
 
@@ -693,7 +747,7 @@ async function loadMyOrders() {
   if (!currentUser) return;
   try {
     const {data,error} = await db.from('marketplace_orders')
-      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,created_at')
+      .select('id,buyer_id,seller_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,protection_status,payout_status,dispute_status,buyer_confirmed_at,seller_confirmed_at,created_at')
       .eq('buyer_id',currentUser.id).order('created_at',{ascending:false});
     if (error) throw error;
     showRows('myOrdersList',data,'order');
@@ -723,18 +777,9 @@ async function loadSellerOrders() {
   if (!currentUser) return;
 
   try {
-    const {data:listingData,error:listingError} = await db.from('marketplace')
-      .select('id').eq('seller_id',currentUser.id);
-    if (listingError) throw listingError;
-    const ids = (listingData || []).map(item => item.id);
-    if (!ids.length) {
-      container.innerHTML = '<div class="empty">You have no products listed yet.</div>';
-      return;
-    }
-
     const {data:orderData,error:orderError} = await db.from('marketplace_orders')
-      .select('id,buyer_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,created_at')
-      .in('product_id',ids).order('created_at',{ascending:false});
+      .select('id,buyer_id,seller_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,protection_status,payout_status,dispute_status,buyer_confirmed_at,seller_confirmed_at,created_at')
+      .eq('seller_id',currentUser.id).order('created_at',{ascending:false});
     if (orderError) throw orderError;
     showRows('sellerOrdersList',orderData,'seller');
   } catch (error) {
@@ -847,6 +892,7 @@ document.getElementById('listingForm').addEventListener('submit', async function
   const stock = Number(document.getElementById('productStock').value);
   const imageFile = selectedProductImage;
 
+  if (!imageFile) return showStatus('listingStatus','Upload at least one original photo of the actual product before publishing.','error');
   if (!title || !category || !description) {
     return showStatus('listingStatus','Complete all required fields.','error');
   }
@@ -879,13 +925,13 @@ document.getElementById('listingForm').addEventListener('submit', async function
       stock,
       image_url:imageUrl,
       seller_id:currentUser.id,
-      status:'pending'
+      status:'active'
     });
     if (error) throw error;
 
     document.getElementById('listingForm').reset();
     clearImage();
-    showStatus('listingStatus','Your product is now published and available in the shop. You do not need to wait for admin approval.','success');
+    showStatus('listingStatus','Your product has been published automatically. Three independent reports can temporarily hide a listing for safety review.','success');
     await Promise.all([loadMyListings(),loadMarketplace()]);
   } catch (error) {
     showStatus('listingStatus','Submission failed: ' + error.message,'error');
