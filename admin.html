@@ -5205,6 +5205,8 @@ function showAdminApp() {
 
   appShownForUser = currentUser ? currentUser.id : null;
   navigate(startingAdminPage());
+  // Start notification count + realtime updates regardless of which admin page was last open.
+  loadAdminNotifications();
 }
 
 
@@ -5671,7 +5673,6 @@ function navigate(page) {
    ========================================================= */
 
 async function loadOverview() {
-  loadAdminNotifications();
   const notice = $("overviewNotice");
   if (notice) {
     notice.textContent = "Loading platform information...";
