@@ -415,6 +415,8 @@ button:disabled { opacity:.5; cursor:not-allowed; }
   let knownMessageIds = new Set(), toastTimer = null;
   let conversations = [], searchTimer = null, modalSearchTimer = null;
   let lastMessageTime = null;
+  let globalPresenceChannel = null, messageRealtimeChannel = null;
+  let onlineMemberIds = new Set();
 
   function toast(message) {
     const el = $("toast");
@@ -488,6 +490,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     }
 
     me = data.user;
+    await startGlobalPresence();
     $("welcome").querySelector("p").textContent =
       "Choose a conversation or start a new chat with a registered NAIJA TASK member.";
 
@@ -504,6 +507,29 @@ button:disabled { opacity:.5; cursor:not-allowed; }
         if (currentConversation) loadMessages(true);
       }
     });
+  }
+
+  async function startGlobalPresence() {
+    const profile = await db.from("profiles").select("full_name").eq("id",me.id).maybeSingle();
+    const displayName = profile.data?.full_name || me.user_metadata?.full_name || "NAIJA TASK member";
+    globalPresenceChannel = db.channel("nt-global-online", {config:{presence:{key:me.id+":"+Math.random().toString(36).slice(2,8)}}});
+    globalPresenceChannel.on("presence", {event:"sync"}, refreshOnlineStatus);
+    globalPresenceChannel.subscribe(async state => {
+      if (state === "SUBSCRIBED") {
+        await globalPresenceChannel.track({user_id:me.id,name:displayName,active_area:"Private Chat",active_room:null,online_at:new Date().toISOString()});
+        refreshOnlineStatus();
+      }
+    });
+    window.addEventListener("beforeunload", () => { globalPresenceChannel?.untrack(); });
+  }
+
+  function refreshOnlineStatus() {
+    const state = globalPresenceChannel?.presenceState?.() || {};
+    const people = Object.values(state).flat().filter(x => x && x.user_id);
+    onlineMemberIds = new Set(people.map(x => x.user_id));
+    if (currentPartner?.id) {
+      $("chatSub").textContent = onlineMemberIds.has(currentPartner.id) ? "🟢 Online now" : "Offline · Private conversation";
+    }
   }
 
   function showFatal(message, canSignIn = false) {
@@ -853,7 +879,8 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     $("composerArea").style.display = "block";
     $("chatAvatar").textContent = initials(convo.name);
     $("chatName").textContent = convo.name;
-    $("chatSub").textContent = convo.city || "Private conversation";
+    $("chatSub").textContent = onlineMemberIds.has(convo.partnerId) ? "🟢 Online now" : "Offline · Private conversation";
+    globalPresenceChannel?.track({user_id:me.id,active_area:"Private Chat",active_room:null});
     $("messageInput").disabled = false;
     $("sendBtn").disabled = false;
 
@@ -863,10 +890,13 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 
     clearInterval(messageTimer);
     await loadMessages();
-
+    if (messageRealtimeChannel) await db.removeChannel(messageRealtimeChannel);
+    messageRealtimeChannel = db.channel("nt-private-chat-" + conversationId)
+      .on("postgres_changes", {event:"INSERT",schema:"public",table:"chat_messages",filter:"conversation_id=eq." + conversationId}, () => loadMessages(true))
+      .subscribe();
     messageTimer = setInterval(() => {
       if (!document.hidden && currentConversation) loadMessages(true);
-    }, 3500);
+    }, 20000);
   }
 
   async function loadMessages(silent = false) {
