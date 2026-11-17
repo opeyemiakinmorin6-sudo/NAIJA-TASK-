@@ -3827,47 +3827,20 @@ td,th{padding:13px 11px}
      ===================================================== -->
 
 <section id="page-airtime" class="page">
-
   <div class="page-header">
-
-    <div>
-      <h2>Airtime & Data</h2>
-      <p>Monitor airtime and data services.</p>
-    </div>
-
+    <div><h2>Airtime & Data</h2><p>Service catalogue, platform switches and purchase records.</p></div>
+    <button class="primary" onclick="loadAirtime()">Refresh Airtime & Data</button>
   </div>
-
-
+  <div id="airtimeAdminStatus" class="notice">Checking Airtime & Data settings…</div>
   <div class="card">
-
-    <div class="notice danger-box">
-
-      Airtime/Data purchasing must not deduct a user's wallet
-      until an actual VTU/provider confirms the transaction.
-
-      No provider API is being fabricated here.
-
+    <h3>Products and orders</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Record</th><th>Reference</th><th>Product / Phone</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody id="airtimeBody"><tr><td colspan="7" class="loading-row">Loading airtime/data products and orders…</td></tr></tbody>
+      </table>
     </div>
-
-
-    <div class="setting">
-
-      <div>
-        <strong>Provider Integration</strong>
-        <small>
-          Live provider integration is required before
-          real airtime or data purchases can be processed.
-        </small>
-      </div>
-
-      <span class="badge orange">
-        Not Connected
-      </span>
-
-    </div>
-
   </div>
-
 </section>
 
 
@@ -10891,17 +10864,29 @@ async function reviewAppeal(id) {
 async function loadMarketplace() {
   const body = $("marketplaceBody");
   if (!body) return;
-  body.innerHTML = '<tr><td colspan="6" class="loading-row">Loading marketplace records…</td></tr>';
+  body.innerHTML = '<tr><td colspan="6" class="loading-row">Loading marketplace listings and orders…</td></tr>';
   try {
-    const [productsResult, ordersResult] = await Promise.all([
-      withTimeout(supabaseClient.from("marketplace_products").select("id,name,seller_id,price,category,active,created_at").order("created_at", { ascending: false }).limit(150), 15000, "Marketplace products request"),
-      withTimeout(supabaseClient.from("marketplace_orders").select("id,buyer_id,product_id,total_amount,status,delivery_status,payment_status,created_at").order("created_at", { ascending: false }).limit(150), 15000, "Marketplace orders request")
+    const [legacyResult, productsResult, ordersResult] = await Promise.all([
+      withTimeout(supabaseClient.from("marketplace").select("id,title,seller_id,price,category,status,created_at").order("created_at", { ascending: false }).limit(200), 15000, "Marketplace listings request"),
+      withTimeout(supabaseClient.from("marketplace_products").select("id,name,seller_id,price,category,active,created_at").order("created_at", { ascending: false }).limit(200), 15000, "Marketplace products request"),
+      withTimeout(supabaseClient.from("marketplace_orders").select("id,buyer_id,product_id,total_amount,status,delivery_status,payment_status,created_at").order("created_at", { ascending: false }).limit(200), 15000, "Marketplace orders request")
     ]);
+    if (legacyResult.error) throw new Error("marketplace listings: " + legacyResult.error.message);
     if (productsResult.error) throw new Error("marketplace_products: " + productsResult.error.message);
     if (ordersResult.error) throw new Error("marketplace_orders: " + ordersResult.error.message);
+    const legacyListings = safeArray(legacyResult.data);
     const products = safeArray(productsResult.data);
     const productMap = new Map(products.map(row => [String(row.id), row]));
     const rows = [
+      ...legacyListings.map(row => ({
+        kind: "Listing",
+        title: row.title || row.category || "Marketplace listing",
+        member: row.seller_id || "—",
+        amount: row.price,
+        status: row.status || "PENDING",
+        date: row.created_at,
+        id: row.id
+      })),
       ...products.map(row => ({
         kind: "Product",
         title: row.name || row.category || "Marketplace product",
@@ -10925,7 +10910,7 @@ async function loadMarketplace() {
       })
     ].sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="6" class="empty-row">No marketplace products or orders have been recorded.</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" class="empty-row">No marketplace listings, products or orders have been recorded.</td></tr>';
       return;
     }
     body.innerHTML = rows.map(row =>
@@ -10948,29 +10933,69 @@ async function loadMarketplace() {
 
 async function loadAirtime() {
   const body = $("airtimeBody");
+  const statusBox = $("airtimeAdminStatus");
   if (!body) return;
-  body.innerHTML = `<tr><td colspan="7" class="loading-row">Loading airtime/data products and orders…</td></tr>`;
+  body.innerHTML = '<tr><td colspan="7" class="loading-row">Loading airtime/data products and orders…</td></tr>';
+  if (statusBox) statusBox.textContent = "Checking service switches and provider status…";
   try {
-    const [productsResult, ordersResult] = await Promise.all([
-      withTimeout(supabaseClient.from("airtime_data_products").select("*").limit(100), 15000, "Airtime/data products request"),
-      withTimeout(supabaseClient.from("airtime_data_orders").select("*").limit(100), 15000, "Airtime/data orders request")
+    const [productsResult, ordersResult, settingsResult] = await Promise.all([
+      withTimeout(supabaseClient.from("airtime_data_products").select("id,name,type,network,amount,selling_price,data_size,active,created_at").order("created_at", { ascending: false }).limit(250), 15000, "Airtime/data products request"),
+      withTimeout(supabaseClient.from("airtime_data_orders").select("id,product_name,phone_number,network,amount,status,created_at,order_type,provider_reference").order("created_at", { ascending: false }).limit(250), 15000, "Airtime/data orders request"),
+      withTimeout(supabaseClient.from("platform_settings_public").select("airtime_service_enabled,data_service_enabled").limit(1).maybeSingle(), 15000, "Airtime/data settings request")
     ]);
     if (productsResult.error) throw new Error("airtime_data_products: " + productsResult.error.message);
     if (ordersResult.error) throw new Error("airtime_data_orders: " + ordersResult.error.message);
     const products = safeArray(productsResult.data);
     const orders = safeArray(ordersResult.data);
+    const activeProducts = products.filter(row => row.active === true).length;
+    const settings = settingsResult.error ? null : settingsResult.data;
+    if (statusBox) {
+      const airtimeOn = settings ? settings.airtime_service_enabled === true : null;
+      const dataOn = settings ? settings.data_service_enabled === true : null;
+      statusBox.className = "notice";
+      statusBox.textContent =
+        "Airtime switch: " + (airtimeOn === null ? "status unavailable" : airtimeOn ? "Enabled" : "Disabled") +
+        " · Data switch: " + (dataOn === null ? "status unavailable" : dataOn ? "Enabled" : "Disabled") +
+        " · Active catalogue products: " + activeProducts +
+        " · Provider purchases: Not active until the VTU provider connection and purchase switch are configured.";
+    }
     const rows = [
-      ...products.map(row => ({...row, __kind:"Product", __label:row.name || row.title || row.product_name || row.network || row.id, __amount:row.price ?? row.amount ?? row.selling_price, __status:row.status ?? (row.active === false ? "inactive" : "available"), __date:row.created_at})),
-      ...orders.map(row => ({...row, __kind:"Order", __label:row.product_name || row.phone_number || row.mobile_number || row.id, __amount:row.amount ?? row.price, __status:row.status || "—", __date:row.created_at}))
-    ];
+      ...products.map(row => ({
+        kind: "Product",
+        id: row.id,
+        label: [row.name, row.network, row.data_size].filter(Boolean).join(" · ") || row.type || "Airtime/Data product",
+        amount: row.selling_price ?? row.amount,
+        status: row.active === true ? "AVAILABLE" : "INACTIVE",
+        date: row.created_at
+      })),
+      ...orders.map(row => ({
+        kind: "Order",
+        id: row.id,
+        label: [row.product_name, row.network, row.phone_number].filter(Boolean).join(" · ") || row.order_type || "Airtime/Data order",
+        amount: row.amount,
+        status: row.status || "UNKNOWN",
+        date: row.created_at
+      }))
+    ].sort((a,b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
     if (!rows.length) {
-      body.innerHTML = `<tr><td colspan="7" class="empty-row">No airtime/data products or orders found. This admin page does not itself connect a telecom provider.</td></tr>`;
+      body.innerHTML = '<tr><td colspan="7" class="empty-row">No airtime/data products or orders were found.</td></tr>';
       return;
     }
-    body.innerHTML = rows.map(row => `<tr><td>${escapeHTML(row.__kind)}</td><td>${escapeHTML(row.id ?? "—")}</td><td>${escapeHTML(row.__label ?? "—")}</td><td>${row.__amount == null ? "—" : money(row.__amount)}</td><td>${badge(row.__status)}</td><td>${formatDate(row.__date)}</td><td>Read-only</td></tr>`).join("");
+    body.innerHTML = rows.map(row =>
+      '<tr><td>' + escapeHTML(row.kind) + '</td>' +
+      '<td class="mono">' + escapeHTML(row.id || "—") + '</td>' +
+      '<td>' + escapeHTML(row.label) + '</td>' +
+      '<td>' + (row.amount == null ? "—" : money(row.amount)) + '</td>' +
+      '<td>' + badge(row.status) + '</td>' +
+      '<td>' + formatDate(row.date) + '</td><td>Read-only</td></tr>'
+    ).join("");
   } catch (error) {
     reportError("loadAirtime", error);
-    body.innerHTML = `<tr><td colspan="7" class="empty-row">Airtime/data records could not load: ${escapeHTML(errorMessage(error, "Database request failed."))}</td></tr>`;
+    if (statusBox) {
+      statusBox.className = "notice danger-box";
+      statusBox.textContent = "Airtime/data status could not be checked: " + errorMessage(error, "Database request failed.");
+    }
+    body.innerHTML = '<tr><td colspan="7" class="empty-row">Airtime/data records could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
   }
 }
 
