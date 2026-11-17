@@ -928,11 +928,12 @@ td,th{padding:13px 11px}
 
   </div>
 
-  <button
-    class="menu-btn"
-    onclick="logout()">
-    ↪
-  </button>
+  <div style="display:flex;align-items:center;gap:9px">
+    <button class="menu-btn" onclick="navigate('notifications')" title="Admin notifications" style="position:relative">
+      🔔 <span id="adminNotificationCount" style="position:absolute;right:-4px;top:-5px;background:#facc15;color:#173326;border-radius:20px;min-width:18px;padding:2px 4px;font-size:10px;font-weight:900">0</span>
+    </button>
+    <button class="menu-btn" onclick="logout()">↪</button>
+  </div>
 
 </header>
 
@@ -941,9 +942,8 @@ td,th{padding:13px 11px}
 
 <aside id="sidebar" class="sidebar">
 
-  <div class="nav-title">
-    Control Center
-  </div>
+  <div class="nav-title">Control Center</div>
+  <button class="nav-btn" data-page="notifications" onclick="navigate('notifications')">🔔 Notifications <span id="adminNotificationNavCount" style="float:right;font-weight:900"></span></button>
 
   <button
     class="nav-btn active"
@@ -3809,6 +3809,20 @@ td,th{padding:13px 11px}
   </div>
 </section>
 
+<section id="page-notifications" class="page">
+  <div class="page-header">
+    <div><h2>Admin Notifications</h2><p>Live alerts for new members, tasks, products and confirmed payments.</p></div>
+    <div class="actions">
+      <button class="secondary" onclick="markAllAdminNotificationsRead()">Mark all read</button>
+      <button class="primary" onclick="loadAdminNotifications()">Refresh</button>
+    </div>
+  </div>
+  <div class="card">
+    <div id="adminNotificationsStatus" class="notice">Loading notifications…</div>
+    <div id="adminNotificationsList"></div>
+  </div>
+</section>
+
 <section id="page-marketplace" class="page">
   <div class="page-header">
     <div><h2>Marketplace</h2><p>Monitor product listings and customer orders.</p></div>
@@ -3817,8 +3831,8 @@ td,th{padding:13px 11px}
   <div class="card">
     <div class="notice">Marketplace monitoring. Refunds and seller payouts remain server-controlled; no admin action here can release funds directly.</div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Record</th><th>Item</th><th>Seller / Buyer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-      <tbody id="marketplaceBody"><tr><td colspan="6" class="loading-row">Loading marketplace records…</td></tr></tbody>
+      <thead><tr><th>Record</th><th>Item</th><th>Seller / Buyer</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody id="marketplaceBody"><tr><td colspan="7" class="loading-row">Loading marketplace records…</td></tr></tbody>
     </table></div>
   </div>
   <div class="grid grid-2" style="margin-top:16px">
@@ -5620,6 +5634,9 @@ function navigate(page) {
         loadMarketplace();
         loadMarketplaceSafety();
         break;
+      case "notifications":
+        loadAdminNotifications();
+        break;
 
       case "seasons":
         loadMarketplaceSeasons();
@@ -5654,6 +5671,7 @@ function navigate(page) {
    ========================================================= */
 
 async function loadOverview() {
+  loadAdminNotifications();
   const notice = $("overviewNotice");
   if (notice) {
     notice.textContent = "Loading platform information...";
@@ -10931,67 +10949,90 @@ async function reviewAppeal(id) {
 async function loadMarketplace() {
   const body = $("marketplaceBody");
   if (!body) return;
-  body.innerHTML = '<tr><td colspan="6" class="loading-row">Loading marketplace listings and orders…</td></tr>';
+  body.innerHTML = '<tr><td colspan="7" class="loading-row">Loading marketplace listings and orders…</td></tr>';
   try {
-    const [legacyResult, productsResult, ordersResult] = await Promise.all([
-      withTimeout(supabaseClient.from("marketplace").select("id,title,seller_id,price,category,status,created_at").order("created_at", { ascending: false }).limit(200), 15000, "Marketplace listings request"),
-      withTimeout(supabaseClient.from("marketplace_products").select("id,name,seller_id,price,category,active,created_at").order("created_at", { ascending: false }).limit(200), 15000, "Marketplace products request"),
-      withTimeout(supabaseClient.from("marketplace_orders").select("id,buyer_id,product_id,total_amount,status,delivery_status,payment_status,created_at").order("created_at", { ascending: false }).limit(200), 15000, "Marketplace orders request")
+    const [listingResult, ordersResult] = await Promise.all([
+      withTimeout(supabaseClient.from("marketplace").select("id,title,seller_id,price,category,status,image_url,created_at").order("created_at", {ascending:false}).limit(200),15000,"Marketplace listings"),
+      withTimeout(supabaseClient.from("marketplace_orders").select("id,buyer_id,product_id,total_amount,status,delivery_status,payment_status,created_at").order("created_at",{ascending:false}).limit(200),15000,"Marketplace orders")
     ]);
-    if (legacyResult.error) throw new Error("marketplace listings: " + legacyResult.error.message);
-    if (productsResult.error) throw new Error("marketplace_products: " + productsResult.error.message);
-    if (ordersResult.error) throw new Error("marketplace_orders: " + ordersResult.error.message);
-    const legacyListings = safeArray(legacyResult.data);
-    const products = safeArray(productsResult.data);
-    const productMap = new Map(products.map(row => [String(row.id), row]));
+    if (listingResult.error) throw new Error("Marketplace listings: " + listingResult.error.message);
+    if (ordersResult.error) throw new Error("Marketplace orders: " + ordersResult.error.message);
+    const listings = safeArray(listingResult.data);
+    const orders = safeArray(ordersResult.data);
     const rows = [
-      ...legacyListings.map(row => ({
-        kind: "Listing",
-        title: row.title || row.category || "Marketplace listing",
-        member: row.seller_id || "—",
-        amount: row.price,
-        status: row.status || "PENDING",
-        date: row.created_at,
-        id: row.id
-      })),
-      ...products.map(row => ({
-        kind: "Product",
-        title: row.name || row.category || "Marketplace product",
-        member: row.seller_id || "—",
-        amount: row.price,
-        status: row.active === false ? "INACTIVE" : "AVAILABLE",
-        date: row.created_at,
-        id: row.id
-      })),
-      ...safeArray(ordersResult.data).map(row => {
-        const product = productMap.get(String(row.product_id));
-        return {
-          kind: "Order",
-          title: product?.name || "Marketplace order",
-          member: row.buyer_id || "—",
-          amount: row.total_amount,
-          status: row.delivery_status || row.payment_status || row.status || "UNKNOWN",
-          date: row.created_at,
-          id: row.id
-        };
-      })
-    ].sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
-    if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="6" class="empty-row">No marketplace listings, products or orders have been recorded.</td></tr>';
-      return;
-    }
-    body.innerHTML = rows.map(row =>
-      '<tr><td>' + escapeHTML(row.kind + " · " + row.id) + '</td>' +
-      '<td>' + escapeHTML(row.title) + '</td>' +
-      '<td class="mono">' + escapeHTML(row.member) + '</td>' +
-      '<td>' + (row.amount == null ? "—" : money(row.amount)) + '</td>' +
-      '<td>' + badge(row.status) + '</td>' +
-      '<td>' + formatDate(row.date) + '</td></tr>'
-    ).join("");
-  } catch (error) {
-    reportError("loadMarketplace", error);
-    body.innerHTML = '<tr><td colspan="6" class="empty-row">Marketplace records could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
+      ...listings.map(row=>({kind:"Product",title:row.title||row.category||"Marketplace product",member:row.seller_id||"—",amount:row.price,status:row.status||"pending",date:row.created_at,id:row.id,image:row.image_url})),
+      ...orders.map(row=>({kind:"Order",title:"Marketplace order",member:row.buyer_id||"—",amount:row.total_amount,status:row.payment_status||row.delivery_status||row.status||"pending",date:row.created_at,id:row.id}))
+    ].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    if(!rows.length){body.innerHTML='<tr><td colspan="7" class="empty-row">No marketplace products or orders have been recorded.</td></tr>';return;}
+    body.innerHTML=rows.map(row=>{
+      const actions=row.kind!=="Product" ? '<span class="small">Order management</span>' :
+        '<div class="actions" style="min-width:210px">' +
+        (String(row.status).toLowerCase()==="pending" ? '<button class="success" onclick="moderateMarketplaceProduct(\''+escapeHTML(row.id)+'\',\'active\')">Approve</button><button class="warning" onclick="moderateMarketplaceProduct(\''+escapeHTML(row.id)+'\',\'rejected\')">Reject</button>' : '') +
+        (String(row.status).toLowerCase()!=="cancelled" ? '<button class="secondary" onclick="moderateMarketplaceProduct(\''+escapeHTML(row.id)+'\',\'cancelled\')">Cancel</button>' : '') +
+        '<button class="danger" onclick="deleteMarketplaceProduct(\''+escapeHTML(row.id)+'\')">Delete</button></div>';
+      return '<tr><td>'+escapeHTML(row.kind+" · "+row.id)+'</td><td>'+escapeHTML(row.title)+(row.image?'<br><a href="'+escapeHTML(row.image)+'" target="_blank" rel="noopener">View product photo</a>':'')+'</td><td class="mono">'+escapeHTML(row.member)+'</td><td>'+(row.amount==null?"—":money(row.amount))+'</td><td>'+badge(row.status)+'</td><td>'+formatDate(row.date)+'</td><td>'+actions+'</td></tr>';
+    }).join("");
+  } catch(error) {
+    reportError("loadMarketplace",error);
+    body.innerHTML='<tr><td colspan="7" class="empty-row">Marketplace records could not load: '+escapeHTML(errorMessage(error,"Database request failed."))+'</td></tr>';
   }
+}
+
+async function moderateMarketplaceProduct(productId,status){
+  const allowed=["active","rejected","cancelled"];
+  if(!allowed.includes(status)) return;
+  const label=status==="active"?"approve and publish":status==="rejected"?"reject":"cancel";
+  if(!confirm("Are you sure you want to "+label+" this product?")) return;
+  try{
+    setLoading(true,"Updating marketplace product…");
+    const {data,error}=await supabaseClient.from("marketplace").update({status,updated_at:new Date().toISOString()}).eq("id",productId).select("id,status");
+    if(error) throw error;
+    if(!data||!data.length) throw new Error("No product was updated. Check admin permissions.");
+    toast("Product "+(status==="active"?"approved and published":status)+".","success");
+    await loadMarketplace();
+  }catch(error){reportError("moderateMarketplaceProduct",error);toast("Product update failed: "+errorMessage(error,"unknown error"),"danger");}
+  finally{setLoading(false);}
+}
+
+async function deleteMarketplaceProduct(productId){
+  if(!confirm("Permanently delete this product listing? This cannot be undone.")) return;
+  try{
+    setLoading(true,"Deleting product listing…");
+    const {data,error}=await supabaseClient.from("marketplace").delete().eq("id",productId).select("id");
+    if(error) throw error;
+    if(!data||!data.length) throw new Error("No product was deleted. Check admin permissions.");
+    toast("Product listing deleted.","success");
+    await loadMarketplace();
+  }catch(error){reportError("deleteMarketplaceProduct",error);toast("Delete failed: "+errorMessage(error,"unknown error"),"danger");}
+  finally{setLoading(false);}
+}
+
+async function loadAdminNotifications(){
+  const list=$("adminNotificationsList"),status=$("adminNotificationsStatus");
+  if(!list)return;
+  try{
+    const {data,error}=await supabaseClient.from("admin_notifications").select("id,type,title,message,is_read,created_at").order("created_at",{ascending:false}).limit(100);
+    if(error)throw error;
+    const rows=safeArray(data),unread=rows.filter(x=>!x.is_read).length;
+    ["adminNotificationCount","adminNotificationNavCount"].forEach(id=>{const el=$(id);if(el)el.textContent=unread>99?"99+":String(unread);});
+    if(status)status.textContent=unread+" unread notification(s) · showing the latest "+rows.length;
+    list.innerHTML=rows.length?rows.map(n=>'<div class="setting" style="align-items:flex-start;gap:12px"><div style="flex:1"><strong>'+escapeHTML(n.title||n.type||"Platform update")+(n.is_read?'':' <span class="badge orange">NEW</span>')+'</strong><small>'+escapeHTML(n.message||"")+'</small><small>'+formatDate(n.created_at)+'</small></div>'+(n.is_read?'':'<button class="secondary" onclick="markAdminNotificationRead('+Number(n.id)+')">Mark read</button>')+'</div>').join(""):'<div class="empty">No admin notifications yet.</div>';
+    if(!window.ntAdminNotificationsChannel){
+      window.ntAdminNotificationsChannel=supabaseClient.channel("nt-admin-notifications")
+        .on("postgres_changes",{event:"INSERT",schema:"public",table:"admin_notifications"},()=>loadAdminNotifications())
+        .subscribe();
+    }
+  }catch(error){if(status)status.textContent="Notifications could not load: "+errorMessage(error,"database request failed");reportError("loadAdminNotifications",error);}
+}
+async function markAdminNotificationRead(id){
+  const {error}=await supabaseClient.from("admin_notifications").update({is_read:true}).eq("id",id);
+  if(error){toast("Could not update notification: "+error.message,"danger");return;}
+  await loadAdminNotifications();
+}
+async function markAllAdminNotificationsRead(){
+  const {error}=await supabaseClient.from("admin_notifications").update({is_read:true}).eq("is_read",false);
+  if(error){toast("Could not mark notifications read: "+error.message,"danger");return;}
+  await loadAdminNotifications();
 }
 
 
