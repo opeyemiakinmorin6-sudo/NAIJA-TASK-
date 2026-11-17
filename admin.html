@@ -11010,7 +11010,7 @@ async function loadMarketplaceSeasons() {
     if(!rows.length){body.innerHTML='<tr><td colspan="4" class="empty-row">No seasonal displays yet. Create the first one above.</td></tr>';return;}
     body.innerHTML=rows.map(row=>{
       const schedule=(row.starts_at?formatDate(row.starts_at):"Any start")+" → "+(row.ends_at?formatDate(row.ends_at):"No end date");
-      return '<tr><td><strong>'+escapeHTML(row.title)+'</strong><br><small>'+escapeHTML(row.subtitle||"")+'</small></td><td>'+escapeHTML(schedule)+'</td><td>'+badge(row.is_active?"PUBLISHED":"HIDDEN")+'</td><td><button class="secondary" onclick="editMarketplaceSeason(&quot;'+escapeHTML(row.id)+'&quot;)">Edit</button> <button class="danger" onclick="deleteMarketplaceSeason(\\''+escapeHTML(row.id)+'\\')">Delete</button></td></tr>';
+      return '<tr><td><strong>'+escapeHTML(row.title)+'</strong><br><small>'+escapeHTML(row.subtitle||"")+'</small></td><td>'+escapeHTML(schedule)+'</td><td>'+badge(row.is_active?"PUBLISHED":"HIDDEN")+'</td><td><button class="secondary" onclick="editMarketplaceSeason(&quot;'+escapeHTML(row.id)+'&quot;)">Edit</button> <button class="danger" onclick="deleteMarketplaceSeason(&quot;'+escapeHTML(row.id)+'&quot;)">Delete</button></td></tr>';
     }).join("");
   }catch(error){reportError("loadMarketplaceSeasons",error);body.innerHTML='<tr><td colspan="4" class="empty-row">Could not load seasonal displays: '+escapeHTML(errorMessage(error,"Database request failed."))+'</td></tr>';}
 }
