@@ -193,7 +193,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
     <section id="section-sell" class="section">
       <div class="panel">
         <h2>List a product</h2>
-        <p class="muted">Upload a real product photo from your phone. New listings are submitted as pending and may need administrator approval before appearing in the shop.</p>
+        <p class="muted">Upload a real product photo from your phone. New listings are published automatically after submission. Make sure your product details and photos are genuine and accurate.</p>
         <form id="listingForm">
           <div class="form-grid">
             <div class="full">
@@ -231,7 +231,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
               </div>
             </div>
           </div>
-          <button class="btn-green" id="submitListingBtn" type="submit" style="width:100%;margin-top:16px">Submit product for review</button>
+          <button class="btn-green" id="submitListingBtn" type="submit" style="width:100%;margin-top:16px">Publish product</button>
         </form>
         <div id="listingStatus" class="status" aria-live="polite"></div>
       </div>
@@ -580,7 +580,7 @@ async function placeOrder(productId) {
       quantity,
       unit_price:unitPrice,
       total_amount:total,
-      status:'pending',
+      status:'active',
       delivery_status:'pending',
       payment_status:'pending'
     }).select('id').single();
@@ -855,14 +855,14 @@ document.getElementById('listingForm').addEventListener('submit', async function
 
     document.getElementById('listingForm').reset();
     clearImage();
-    showStatus('listingStatus','Product submitted successfully and is pending review. It will appear in the shop only when approved and active.','success');
+    showStatus('listingStatus','Your product is now published and available in the shop. You do not need to wait for admin approval.','success');
     await Promise.all([loadMyListings(),loadMarketplace()]);
   } catch (error) {
     showStatus('listingStatus','Submission failed: ' + error.message,'error');
   } finally {
     submittingListing = false;
     button.disabled = false;
-    button.textContent = 'Submit product for review';
+    button.textContent = 'Publish product';
   }
 });
 
