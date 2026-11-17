@@ -891,8 +891,8 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     clearInterval(messageTimer);
     await loadMessages();
     if (messageRealtimeChannel) await db.removeChannel(messageRealtimeChannel);
-    messageRealtimeChannel = db.channel("nt-private-chat-" + conversationId)
-      .on("postgres_changes", {event:"INSERT",schema:"public",table:"chat_messages",filter:"conversation_id=eq." + conversationId}, () => loadMessages(true))
+    messageRealtimeChannel = db.channel("nt-private-chat-" + currentConversation)
+      .on("postgres_changes", {event:"INSERT",schema:"public",table:"chat_messages",filter:"conversation_id=eq." + currentConversation}, () => loadMessages(true))
       .subscribe();
     messageTimer = setInterval(() => {
       if (!document.hidden && currentConversation) loadMessages(true);
