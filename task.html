@@ -770,7 +770,7 @@ async function submitProof(){
 
     if (proofFile) uploaded = await uploadProofImage(proofFile, currentUser.id, selectedTask);
 
-    const { error } = await db.from("task_submissions").insert({
+    const { data: submittedRow, error } = await db.from("task_submissions").insert({
       user_id: currentUser.id,
       task_id: selectedTask.id,
       proof: JSON.stringify({ text: proofText || null, photo_url: null, photo_path: uploaded?.path || null, bucket: uploaded?.bucket || PROOF_BUCKET, submitted_from: "task.html" })
@@ -801,7 +801,7 @@ async function submitProof(){
     buildFilters();
     renderTasks();
     closeTaskDetails();
-    showNotice("Proof submitted. Track it in Proofs. Your reward is added to your wallet after approval.", "success");
+    showNotice("Proof submitted. Submission reference #" + String(submittedRow?.id || "pending") + ". Track it in Proofs. If a participating app/site asks for your NAIJA TASK reference, provide this number. Your reward is added after approval.", "success");
   }catch(e){
     console.error("Proof submission failed:", e);
     showNotice(e.message || "Could not submit proof. Try again.", "error");
