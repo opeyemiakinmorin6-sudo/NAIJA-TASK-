@@ -438,15 +438,19 @@ function productCard(p) {
     ? '<img loading="lazy" src="' + escapeHTML(image) + '" alt="' + title + '" onerror="this.style.display=\'none\'">'
     : '<div class="no-image" aria-label="No product photo">🛍️</div>';
 
+  const isOwnListing = !!currentUser && p.seller_id === currentUser.id;
+  const sellerAction = isOwnListing
+    ? '<span class="badge">Your listing</span>'
+    : '<a class="btn-light" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1;font-size:12px;padding:10px 8px;border-radius:10px" href="marketplace-chat.html?product=' + encodeURIComponent(p.id) + '">Chat seller</a>';
   return '<article class="product"><div class="product-image">' + imageHTML +
     '</div><div class="product-content"><span class="badge">' + category +
     '</span><h3>' + title + '</h3><div class="price">' + money(p.price) +
     '</div><p class="muted">' + description + '</p><p class="muted">' +
     (stock > 0 ? escapeHTML(stock) + ' available' : 'Out of stock') +
     '</p><div class="product-actions"><button class="btn-green" ' +
-    (stock < 1 ? 'disabled' : '') + ' onclick="placeOrder(\'' +
-    escapeHTML(p.id) + '\')">Order</button><a class="btn-light" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1;font-size:12px;padding:10px 8px;border-radius:10px" href="marketplace-chat.html?product=' +
-    encodeURIComponent(p.id) + '">Chat seller</a></div></div></article>';
+    (stock < 1 || isOwnListing ? 'disabled' : '') + ' onclick="placeOrder(\'' +
+    escapeHTML(p.id) + '\')">' + (isOwnListing ? 'Your listing' : 'Order') +
+    '</button>' + sellerAction + '</div></div></article>';
 }
 
 async function loadSeasonalCampaigns() {
