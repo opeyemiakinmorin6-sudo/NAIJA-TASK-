@@ -3,6 +3,7 @@
 const url = "https://jwakveeiynpakunwjzkj.supabase.co";
 const anon = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const moduleName = document.body.dataset.module || "more";
+let notificationRealtimeChannel=null;
 const titles = {
 support:"Support Centre",notifications:"Notifications","applied-jobs":"My Task Activity",approved:"Approved Tasks",retry:"Needs Attention",cancelled:"Cancelled Tasks","airtime-data":"Airtime & Data",more:"More Services",promote:"Promote Your Business",announcements:"Platform Announcements",community:"Community","ai-assistant":"Help Assistant","ai-care":"Member Care Inbox",arena:"Games Arena",security:"Account Security",appeals:"Appeals Centre"
 };
@@ -189,7 +190,10 @@ if(["applied-jobs","approved","retry","cancelled"].includes(moduleName)){
   const rows=q.data||[],unread=rows.filter(x=>!x.is_read).length;
   app.innerHTML='<section class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2>Your notifications</h2><button class="btn alt" id="markAllRead" '+(unread?'':'disabled')+'>Mark all as read</button></div><p class="muted">'+unread+' unread · '+rows.length+' total</p>'+(q.error?note(q.error.message,true):list(rows,x=>{const taskMatch=String(x.message||"").match(/Task #(\d+)/i);const contactLink=String(x.type||"")==="task_cancelled"?'<a class="btn alt" href="support-centre.html'+(taskMatch?'?task_id='+encodeURIComponent(taskMatch[1]):'')+'">Contact Support</a>':'';return '<article class="item"><div><strong>'+esc(x.title)+'</strong><small>'+esc(x.message)+' · '+date(x.created_at)+'</small>'+contactLink+'</div><div><span class="pill '+(x.is_read?'good':'wait')+'">'+(x.is_read?'Read':'New')+'</span>'+(x.is_read?'':'<button class="btn alt mark-read" data-id="'+esc(x.id)+'">Mark read</button>')+'</div></article>'}))+ '</section>';
   document.getElementById("markAllRead").addEventListener("click",async b=>{const button=b.currentTarget;button.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("user_id",user.id).eq("is_read",false);if(error){button.disabled=false;alert("Could not update notifications: "+error.message)}else start()});
-  document.querySelectorAll(".mark-read").forEach(b=>b.addEventListener("click",async()=>{b.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("id",b.dataset.id).eq("user_id",user.id);if(error){b.disabled=false;alert("Could not mark as read: "+error.message)}else start()}));return;
+  document.querySelectorAll(".mark-read").forEach(b=>b.addEventListener("click",async()=>{b.disabled=true;const {error}=await sb.from("notifications").update({is_read:true}).eq("id",b.dataset.id).eq("user_id",user.id);if(error){b.disabled=false;alert("Could not mark as read: "+error.message)}else start()}));
+  if(notificationRealtimeChannel)await sb.removeChannel(notificationRealtimeChannel);
+  notificationRealtimeChannel=sb.channel("nt-notification-centre-"+user.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"notifications",filter:"user_id=eq."+user.id},()=>start()).subscribe();
+  return;
  }
 if(moduleName==="announcements"){
  const q=await sb.from("announcements").select("id,title,message,created_at").eq("is_published",true).order("created_at",{ascending:false}).limit(50);
