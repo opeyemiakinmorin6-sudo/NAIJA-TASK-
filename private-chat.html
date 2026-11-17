@@ -415,7 +415,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
   let knownMessageIds = new Set(), toastTimer = null;
   let conversations = [], searchTimer = null, modalSearchTimer = null;
   let lastMessageTime = null;
-  let globalPresenceChannel = null, messageRealtimeChannel = null;
+  let globalPresenceChannel = null, messageRealtimeChannel = null, showOnlinePresence = true;
   let onlineMemberIds = new Set();
 
   function toast(message) {
@@ -510,19 +510,21 @@ button:disabled { opacity:.5; cursor:not-allowed; }
   }
 
   async function startGlobalPresence() {
+    const pref = await db.from("member_presence_settings").select("show_online").eq("user_id",me.id).maybeSingle();
+    showOnlinePresence = !pref.error && pref.data?.show_online !== false;
     const profile = await db.from("profiles").select("full_name").eq("id",me.id).maybeSingle();
     const displayName = profile.data?.full_name || me.user_metadata?.full_name || "NAIJA TASK member";
     globalPresenceChannel = db.channel("nt-global-online", {config:{presence:{key:me.id+":"+Math.random().toString(36).slice(2,8)}}});
     globalPresenceChannel.on("presence", {event:"sync"}, refreshOnlineStatus);
     globalPresenceChannel.subscribe(async state => {
       if (state === "SUBSCRIBED") {
-        await globalPresenceChannel.track({user_id:me.id,name:displayName,active_area:"Private Chat",active_room:null,online_at:new Date().toISOString()});
+        if(showOnlinePresence) await globalPresenceChannel.track({user_id:me.id,name:displayName,active_area:"Private Chat",active_room:null,online_at:new Date().toISOString()});
         refreshOnlineStatus();
       }
     });
     document.addEventListener("visibilitychange", async () => {
       if (document.hidden) await globalPresenceChannel?.untrack();
-      else if (globalPresenceChannel?.state === "joined") await globalPresenceChannel.track({user_id:me.id,name:displayName,active_area:"Private Chat",active_room:null,online_at:new Date().toISOString()});
+      else if (showOnlinePresence && globalPresenceChannel?.state === "joined") await globalPresenceChannel.track({user_id:me.id,name:displayName,active_area:"Private Chat",active_room:null,online_at:new Date().toISOString()});
     });
     window.addEventListener("beforeunload", () => { globalPresenceChannel?.untrack(); });
   }
