@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v10';
+const CACHE_NAME='naija-task-shell-v11-username-placeholder-fix';
 const APP_SHELL=[
   '/',
   '/index.html',
@@ -33,7 +33,7 @@ self.addEventListener('fetch',event=>{
   if(url.origin!==self.location.origin) return;
   if(request.mode==='navigate'){
     event.respondWith(
-      fetch(request).then(response=>{
+      fetch(request,{cache:'no-store'}).then(response=>{
         if(response.ok){
           const copy=response.clone();
           caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));
