@@ -734,8 +734,8 @@ async function cancelPosterTask(taskId){
     const result=await db.rpc("poster_cancel_task",{p_task_id:String(taskId),p_reason:clean});
     if(result.error)throw result.error;
     const notified=Number(result.data?.notified_taskers||0);
-    showMessage("Task cancelled. "+notified+" Tasker(s) were notified. Existing submitted proofs were not deleted or automatically rejected.","info");
     await loadAll();
+    showMessage("Task cancelled. "+notified+" Tasker(s) were notified. Existing submitted proofs were not deleted or automatically rejected.","info");
   }catch(error){
     console.error("Poster task cancellation failed:",error);
     showMessage(error.message||"The task could not be cancelled. No cancellation was confirmed.","error");
