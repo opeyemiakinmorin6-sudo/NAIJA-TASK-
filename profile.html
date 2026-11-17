@@ -369,15 +369,7 @@ input[readonly]{
       </p>
 
       <div class="status-row">
-
-        <span class="badge orange" id="activationBadge">
-          Checking activation...
-        </span>
-
-        <span class="badge orange" id="verificationBadge">
-          Checking email...
-        </span>
-
+        <span class="badge orange" id="verificationBadge">Checking email...</span>
       </div>
 
     </section>
@@ -405,9 +397,9 @@ input[readonly]{
 
         <div class="info-box">
           <div class="info-label">
-            Account Status
+            Account Type
           </div>
-          <div class="info-value" id="accountStatus">
+          <div class="info-value" id="accountType">
             —
           </div>
         </div>
@@ -565,6 +557,16 @@ input[readonly]{
         Save Profile
       </button>
 
+    </section>
+
+    <!-- ACCOUNT SERVICES -->
+    <section class="card">
+      <h2 class="section-title">Explore NAIJA TASK</h2>
+      <div class="grid">
+        <a class="btn btn-primary" href="marketplace.html" style="text-align:center;text-decoration:none">🛍️ Marketplace</a>
+        <a class="btn btn-primary" href="airtime-data.html" style="text-align:center;text-decoration:none">📱 Airtime &amp; Data</a>
+      </div>
+      <p class="hint">List products for sale, manage orders, or purchase available mobile services.</p>
     </section>
 
     <!-- ACCOUNT ID -->
@@ -909,7 +911,6 @@ async function loadProfile(){
         full_name,
         phone,
         balance,
-        is_activated,
         date_of_birth,
         address,
         city,
@@ -989,33 +990,9 @@ function renderProfile(){
   updateAgeDisplay();
 
 
-  /* ACTIVATION */
-
-  const activated =
-    profile.is_activated === true;
-
-  if(activated){
-
-    $("activationBadge").textContent =
-      "Account Activated";
-
-    $("activationBadge").className =
-      "badge green";
-
-    $("accountStatus").textContent =
-      "Activated";
-
-  }else{
-
-    $("activationBadge").textContent =
-      "Activation Required";
-
-    $("activationBadge").className =
-      "badge orange";
-
-    $("accountStatus").textContent =
-      "Not Activated";
-  }
+  /* Account role is shown here; profile access is not tied to an activation form. */
+  $("accountType").textContent =
+    profileRoleHint === "poster" ? "Poster" : "Tasker";
 
 
   /* EMAIL */
