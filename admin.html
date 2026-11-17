@@ -3055,13 +3055,22 @@ td,th{padding:13px 11px}
     <div class="page-header" style="margin-bottom:8px">
       <div>
         <h3>Task Verification Profiles</h3>
-        <p>Manual and evidence review are enforced when Taskers submit proof. Official API, signed-callback and tracking-link methods remain unavailable until their real integrations are deployed.</p>
+        <p>Manual/evidence review and signed callbacks from participating app/site backends are supported. Official social-platform APIs and tracking-link verification are not connected.</p>
       </div>
       <button class="secondary" onclick="loadTaskVerificationProfiles()">Refresh tasks</button>
     </div>
-    <div class="notice">Supported rule keys: <code>require_text</code> (true/false), <code>require_screenshot</code> (true/false), and <code>min_text_length</code> (whole number 1–5000). Each submission stores a server-side snapshot of the rules used. Retention follow-up schedules a poster check after approval; it does not independently read private platform data. A report alone never triggers a penalty.</div>
+    <div class="notice">Supported rule keys: <code>require_text</code> (true/false), <code>require_screenshot</code> (true/false), and <code>min_text_length</code> (whole number 1–5000). Each submission stores a server-side snapshot. Signed callbacks require a participating app/site backend with independent verification; keep callback keys server-side. Events are review evidence only and never auto-approve, reverse rewards or ban users. Social-platform checks still need each platform’s permitted API access.</div>
     <div id="taskVerificationStatus" class="notice">Loading task verification profiles…</div>
     <div id="taskVerificationBody"><div class="empty">Loading tasks…</div></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="page-header" style="margin-bottom:8px">
+      <div><h3>App / Website Verification Events</h3><p>Signed partner-backend reports for task actions and reversals. These are evidence signals, not automatic approvals or wallet deductions.</p></div>
+      <button class="secondary" onclick="loadTaskCallbackEvents()">Refresh callback events</button>
+    </div>
+    <div id="taskCallbackEventsStatus" class="notice">Loading callback events…</div>
+    <div id="taskCallbackEventsBody"><div class="empty">Loading callback events…</div></div>
   </div>
 
   <div class="card" style="margin-top:18px">
@@ -9950,60 +9959,105 @@ async function loadSecurity() {
 
 
 async function loadTaskVerificationProfiles() {
-  const status = $("taskVerificationStatus");
-  const body = $("taskVerificationBody");
-  if (!body) return;
-  if (status) { status.textContent = "Loading task verification profiles…"; status.className = "notice"; }
-  body.innerHTML = '<div class="empty">Loading tasks…</div>';
-  try {
-    const { data, error } = await withTimeout(
-      supabaseClient.rpc("admin_get_task_verification_profiles"),
-      15000,
-      "Task verification profiles"
-    );
-    if (error) throw error;
-    const rows = safeArray(data);
-    if (status) {
-      status.textContent = rows.length + " task(s) loaded. Evidence/manual review are available; external API, callback and tracking integrations are not live yet.";
-      status.className = "notice " + (rows.length ? "success" : "");
+  const status=$("taskVerificationStatus"), body=$("taskVerificationBody");
+  if(!body)return;
+  if(status){status.textContent="Loading task verification profiles…";status.className="notice";}
+  body.innerHTML='<div class="empty">Loading tasks…</div>';
+  try{
+    const [pr,ir]=await Promise.all([
+      withTimeout(supabaseClient.rpc("admin_get_task_verification_profiles"),15000,"Task verification profiles"),
+      withTimeout(supabaseClient.rpc("admin_get_task_callback_integrations"),15000,"Task callback integrations")
+    ]);
+    if(pr.error)throw pr.error;if(ir.error)throw ir.error;
+    const rows=safeArray(pr.data);
+    window.ntTaskCallbackIntegrations=safeArray(ir.data);
+    window.ntTaskCallbackSecrets=window.ntTaskCallbackSecrets||{};
+    if(status){
+      const active=window.ntTaskCallbackIntegrations.filter(x=>!x.revoked_at).length;
+      status.textContent=rows.length+" task(s) loaded · "+active+" active app/site callback integration(s). Callback events are review evidence only; they never auto-approve or reverse rewards.";
+      status.className="notice "+(rows.length?"success":"");
     }
-    const supported = new Set(["manual_review", "evidence_review"]);
-    body.innerHTML = rows.length ? rows.map(row => {
-      const id = Number(row.task_id);
-      if (!Number.isSafeInteger(id) || id <= 0) return "";
-      const method = String(row.verification_method || "manual_review");
-      const methodOptions =
-        '<option value="manual_review"' + (method === "manual_review" ? " selected" : "") + '>Manual review</option>' +
-        '<option value="evidence_review"' + (method === "evidence_review" ? " selected" : "") + '>Evidence review</option>' +
-        (!supported.has(method)
-          ? '<option value="' + escapeHTML(method) + '" selected disabled>' + escapeHTML(method) + ' — integration not live</option>'
-          : "");
-      const rules = row.verification_rules && typeof row.verification_rules === "object"
-        ? JSON.stringify(row.verification_rules, null, 2)
-        : "{}";
-      return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere">' +
-        '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>' +
-        escapeHTML(row.task_title || ("Task #" + id)) + '</strong>' + badge(row.enabled === false ? "DISABLED" : "ENABLED") + '</div>' +
-        '<div class="small" style="margin:6px 0 10px">Task #' + id + ' · ' +
-        escapeHTML(row.task_kind || row.task_type || "General task") + '</div>' +
-        '<div class="field"><label for="taskVerifyMethod-' + id + '">Verification method</label>' +
-        '<select id="taskVerifyMethod-' + id + '" style="width:100%">' + methodOptions + '</select></div>' +
-        '<div class="field"><label for="taskVerifyRules-' + id + '">Verification rules (JSON)</label>' +
-        '<textarea id="taskVerifyRules-' + id + '" rows="3" style="width:100%;font-family:monospace">' + escapeHTML(rules) + '</textarea></div>' +
-        '<div class="setting"><div><strong>Require post-approval retention follow-up</strong><small>Schedules a follow-up review; it does not automatically prove an action was reversed.</small></div>' +
-        '<label class="switch"><input id="taskVerifyRetention-' + id + '" type="checkbox"' + (row.retention_required ? " checked" : "") + '><span class="slider"></span></label></div>' +
-        '<div class="field"><label for="taskVerifyHours-' + id + '">Follow-up delay (hours, 1–720)</label>' +
-        '<input id="taskVerifyHours-' + id + '" type="number" min="1" max="720" step="1" value="' + escapeHTML(row.retention_hours || 24) + '"></div>' +
-        '<div class="setting"><div><strong>Profile enabled</strong><small>Disabled profiles do not create new retention checks.</small></div>' +
-        '<label class="switch"><input id="taskVerifyEnabled-' + id + '" type="checkbox"' + (row.enabled !== false ? " checked" : "") + '><span class="slider"></span></label></div>' +
-        '<button class="primary" style="margin-top:12px" onclick="saveTaskVerificationProfile(' + id + ')">Save verification settings</button>' +
-        '</article>';
-    }).join("") : '<div class="empty">No tasks were returned. Create or publish a task first, then refresh this list.</div>';
-  } catch (error) {
-    if (status) { status.textContent = errorMessage(error, "Could not load task verification profiles."); status.className = "notice warning"; }
-    body.innerHTML = '<div class="empty">Task verification settings are unavailable. Check administrator access and database permissions.</div>';
-    reportError("loadTaskVerificationProfiles", error);
+    body.innerHTML=rows.length?rows.map(row=>{
+      const id=Number(row.task_id);if(!Number.isSafeInteger(id)||id<=0)return "";
+      const method=String(row.verification_method||"manual_review");
+      const integration=window.ntTaskCallbackIntegrations.find(x=>Number(x.task_id)===id&&!x.revoked_at);
+      const options='<option value="manual_review"'+(method==="manual_review"?" selected":"")+'>Manual review</option>'+
+        '<option value="evidence_review"'+(method==="evidence_review"?" selected":"")+'>Evidence review</option>'+
+        ((integration||method==="signed_callback")?'<option value="signed_callback"'+(method==="signed_callback"?" selected":"")+'>Signed app/website callback</option>':'<option value="signed_callback" disabled>Signed callback — create integration first</option>')+
+        (!["manual_review","evidence_review","signed_callback"].includes(method)?'<option value="'+escapeHTML(method)+'" selected disabled>'+escapeHTML(method)+' — unavailable</option>':"");
+      const rules=row.verification_rules&&typeof row.verification_rules==="object"?JSON.stringify(row.verification_rules,null,2):"{}";
+      const secret=window.ntTaskCallbackSecrets[id]||"";
+      const integrationHtml=integration
+        ?'<div class="notice success" style="margin-top:9px"><strong>Active:</strong> '+escapeHTML(integration.label)+'<br><span class="small">ID: '+escapeHTML(integration.integration_id)+' · Last used: '+escapeHTML(integration.last_used_at?formatDate(integration.last_used_at):"Not used yet")+'</span><button class="danger" style="margin-top:8px" onclick="revokeTaskCallbackIntegration(\''+escapeHTML(integration.integration_id)+'\')">Revoke key</button></div>'
+        :'<div class="field" style="margin-top:9px"><label for="taskCallbackLabel-'+id+'">App/site integration label</label><input id="taskCallbackLabel-'+id+'" maxlength="120" placeholder="e.g. My app backend" style="width:100%"></div><button class="secondary" onclick="createTaskCallbackIntegration('+id+')">Create server callback key</button>';
+      const secretHtml=secret?'<div class="notice warning" style="margin-top:9px"><strong>Copy this key now — it is shown only once.</strong><p class="small">Keep it on your backend server only. Never put it in browser JavaScript, mobile app bundles or public repositories.</p><label>Callback endpoint</label><textarea readonly rows="2" style="width:100%">https://jwakveeiynpakunwjzkj.supabase.co/functions/v1/task-verification-callback</textarea><label>One-time bearer key</label><textarea id="taskCallbackSecret-'+id+'" readonly rows="2" style="width:100%;font-family:monospace">'+escapeHTML(secret)+'</textarea><button class="secondary" onclick="copyTaskCallbackSecret('+id+')">Copy endpoint and key</button><p class="small">Your backend must independently verify the action and know the NAIJA TASK submission ID. Send POST JSON fields: event_id (UUID), submission_id, event_type (action_verified or action_reversed), sent_at, occurred_at, external_reference and a non-empty evidence object. Reuse the same event_id when retrying.</p></div>':"";
+      return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>'+escapeHTML(row.task_title||("Task #"+id))+'</strong>'+badge(row.enabled===false?"DISABLED":"ENABLED")+'</div>'+
+        '<div class="small" style="margin:6px 0 10px">Task #'+id+' · '+escapeHTML(row.task_kind||row.task_type||"General task")+'</div>'+
+        '<div class="field"><label for="taskVerifyMethod-'+id+'">Verification method</label><select id="taskVerifyMethod-'+id+'" style="width:100%">'+options+'</select></div>'+
+        '<div class="field"><label for="taskVerifyRules-'+id+'">Verification rules (JSON)</label><textarea id="taskVerifyRules-'+id+'" rows="3" style="width:100%;font-family:monospace">'+escapeHTML(rules)+'</textarea></div>'+
+        '<div class="setting"><div><strong>Require post-approval retention follow-up</strong><small>Schedules a follow-up review; it does not independently check private platform data.</small></div><label class="switch"><input id="taskVerifyRetention-'+id+'" type="checkbox"'+(row.retention_required?" checked":"")+'><span class="slider"></span></label></div>'+
+        '<div class="field"><label for="taskVerifyHours-'+id+'">Follow-up delay (hours, 1–720)</label><input id="taskVerifyHours-'+id+'" type="number" min="1" max="720" step="1" value="'+escapeHTML(row.retention_hours||24)+'"></div>'+
+        '<div class="setting"><div><strong>Profile enabled</strong><small>Disabled profiles do not create new retention checks.</small></div><label class="switch"><input id="taskVerifyEnabled-'+id+'" type="checkbox"'+(row.enabled!==false?" checked":"")+'><span class="slider"></span></label></div>'+
+        '<div class="card" style="margin-top:12px;padding:11px"><strong>App / website callback integration</strong><p class="small">Only use with a partner backend that independently verifies actions. Events are evidence for review; they never auto-approve, pay, deduct or ban.</p>'+integrationHtml+secretHtml+'</div>'+
+        '<button class="primary" style="margin-top:12px" onclick="saveTaskVerificationProfile('+id+')">Save verification settings</button></article>';
+    }).join(""):'<div class="empty">No tasks were returned. Create or publish a task first, then refresh this list.</div>';
+    await loadTaskCallbackEvents();
+  }catch(error){
+    if(status){status.textContent=errorMessage(error,"Could not load task verification profiles.");status.className="notice warning";}
+    body.innerHTML='<div class="empty">Task verification settings are unavailable. Check administrator access and database permissions.</div>';
+    reportError("loadTaskVerificationProfiles",error);
   }
+}
+
+async function createTaskCallbackIntegration(taskId){
+  const id=Number(taskId);if(!Number.isSafeInteger(id)||id<=0){toast("Invalid task ID.","warning");return;}
+  const label=String($("taskCallbackLabel-"+id)?.value||("Task "+id+" app/site backend")).trim();
+  if(!label||label.length>120){toast("Enter an integration label from 1 to 120 characters.","warning");return;}
+  try{
+    const {data,error}=await withTimeout(supabaseClient.rpc("admin_create_task_callback_integration",{p_task_id:id,p_label:label}),15000,"Create task callback integration");
+    if(error)throw error;if(!data||data.success!==true||!data.token)throw new Error("The server did not return a one-time integration key.");
+    window.ntTaskCallbackSecrets=window.ntTaskCallbackSecrets||{};window.ntTaskCallbackSecrets[id]=String(data.token);
+    await loadTaskVerificationProfiles();toast("Callback key created. Copy it now; it will not be shown again after refresh.","success");
+  }catch(error){toast(errorMessage(error,"Could not create the callback integration."),"warning");reportError("createTaskCallbackIntegration",error);}
+}
+
+async function revokeTaskCallbackIntegration(integrationId){
+  const id=String(integrationId||"");if(!/^[0-9a-f-]{36}$/i.test(id)){toast("Invalid integration ID.","warning");return;}
+  if(!window.confirm("Revoke this callback key? The connected app/site will stop sending events immediately."))return;
+  try{
+    const {data,error}=await withTimeout(supabaseClient.rpc("admin_revoke_task_callback_integration",{p_integration_id:id}),15000,"Revoke callback integration");
+    if(error)throw error;if(!data||data.success!==true)throw new Error("The server did not confirm revocation.");
+    await loadTaskVerificationProfiles();toast("Callback key revoked.","success");
+  }catch(error){toast(errorMessage(error,"Could not revoke the callback key."),"warning");reportError("revokeTaskCallbackIntegration",error);}
+}
+
+async function copyTaskCallbackSecret(taskId){
+  const id=Number(taskId),token=window.ntTaskCallbackSecrets?.[id];
+  if(!token){toast("The one-time key is no longer available. Revoke it and create a replacement.","warning");return;}
+  const text="POST https://jwakveeiynpakunwjzkj.supabase.co/functions/v1/task-verification-callback\nAuthorization: Bearer "+token+"\nContent-Type: application/json";
+  try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);toast("Endpoint and key copied. Keep the key on your server only.","success");}
+  else{const el=$("taskCallbackSecret-"+id);if(el){el.focus();el.select();}toast("Select and copy the key above. Keep it on your server only.","info");}}
+  catch(_){const el=$("taskCallbackSecret-"+id);if(el){el.focus();el.select();}toast("Select and copy the key above. Keep it on your server only.","info");}
+}
+
+async function loadTaskCallbackEvents(){
+  const status=$("taskCallbackEventsStatus"),body=$("taskCallbackEventsBody");if(!body)return;
+  if(status){status.textContent="Loading app/site callback events…";status.className="notice";}
+  body.innerHTML='<div class="empty">Loading callback events…</div>';
+  try{
+    const {data,error}=await withTimeout(supabaseClient.rpc("admin_get_task_callback_events"),15000,"Task callback events");
+    if(error)throw error;const rows=safeArray(data);
+    const reversals=rows.filter(x=>String(x.event_type).toLowerCase()==="action_reversed").length;
+    if(status){status.textContent=rows.length+" callback event(s) · "+reversals+" reversal report(s). All require review; none changes a wallet or account automatically.";status.className="notice "+(reversals?"warning":"success");}
+    body.innerHTML=rows.length?rows.map(e=>{
+      const evidence=e.evidence&&typeof e.evidence==="object"?JSON.stringify(e.evidence,null,2):"{}";
+      const reversal=String(e.event_type).toLowerCase()==="action_reversed";
+      return '<article class="card" style="margin:9px 0;padding:12px;overflow-wrap:anywhere"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>'+escapeHTML(e.event_type)+' · Task #'+escapeHTML(e.task_id)+'</strong>'+badge(e.status)+'</div>'+
+        '<div class="small" style="line-height:1.8;margin-top:7px">Submission #'+escapeHTML(e.submission_id)+' · Tasker '+escapeHTML(e.tasker_id)+'<br>Received '+escapeHTML(formatDate(e.received_at))+' · Action time '+escapeHTML(formatDate(e.occurred_at))+'<br>Reference: '+escapeHTML(e.external_reference||"")+'<br>Event ID: '+escapeHTML(e.event_id)+'</div>'+
+        (reversal?'<div class="notice warning" style="margin-top:8px">Partner backend reported a reversal. Verify the original action and evidence before using any reward-reversal control.</div>':"")+
+        '<details style="margin-top:8px"><summary>View submitted evidence</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+escapeHTML(evidence)+'</pre></details></article>';
+    }).join(""):'<div class="empty">No external callback events have been received yet.</div>';
+  }catch(error){if(status){status.textContent=errorMessage(error,"Could not load callback events.");status.className="notice warning";}body.innerHTML='<div class="empty">Callback events are unavailable. Check administrator access.</div>';reportError("loadTaskCallbackEvents",error);}
 }
 
 async function saveTaskVerificationProfile(taskId) {
@@ -10022,8 +10076,12 @@ async function saveTaskVerificationProfile(taskId) {
     return;
   }
   const method = String(methodInput.value || "");
-  if (!["manual_review", "evidence_review"].includes(method)) {
-    toast("That method needs a real platform integration. Choose Manual review or Evidence review until the integration is deployed.", "warning");
+  if (!["manual_review", "evidence_review", "signed_callback"].includes(method)) {
+    toast("Choose Manual review, Evidence review, or a configured signed callback.", "warning");
+    return;
+  }
+  if (method === "signed_callback" && !(window.ntTaskCallbackIntegrations || []).some(x => Number(x.task_id) === id && !x.revoked_at)) {
+    toast("Create an active app/site callback integration before enabling this method.", "warning");
     return;
   }
   const hours = Number(hoursInput.value);
