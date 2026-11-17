@@ -3818,6 +3818,18 @@ td,th{padding:13px 11px}
     </div>
   </div>
   <div class="card">
+    <h3>Send a NAIJA Games update to everyone</h3>
+    <p class="muted">Use this when a game is added, changed, or a tournament or leaderboard update is ready. Every registered member will receive one notification.</p>
+    <form id="gamesBroadcastForm" onsubmit="event.preventDefault();broadcastGamesUpdate()">
+      <label for="gamesBroadcastTitle">Notification title</label>
+      <input id="gamesBroadcastTitle" maxlength="120" minlength="3" required placeholder="Example: New game added to NAIJA Games">
+      <label for="gamesBroadcastMessage">Message</label>
+      <textarea id="gamesBroadcastMessage" maxlength="1000" minlength="5" required placeholder="Tell members what changed and where to find it."></textarea>
+      <button class="primary" type="submit" id="gamesBroadcastButton">Notify all members</button>
+    </form>
+    <div id="gamesBroadcastResult"></div>
+  </div>
+  <div class="card">
     <div id="adminNotificationsStatus" class="notice">Loading notifications…</div>
     <div id="adminNotificationsList"></div>
   </div>
@@ -11006,6 +11018,26 @@ async function deleteMarketplaceProduct(productId){
     await loadMarketplace();
   }catch(error){reportError("deleteMarketplaceProduct",error);toast("Delete failed: "+errorMessage(error,"unknown error"),"danger");}
   finally{setLoading(false);}
+}
+
+async function broadcastGamesUpdate(){
+  const titleEl=$("gamesBroadcastTitle"),messageEl=$("gamesBroadcastMessage"),button=$("gamesBroadcastButton"),result=$("gamesBroadcastResult");
+  const title=titleEl?titleEl.value.trim():"",message=messageEl?messageEl.value.trim():"";
+  if(title.length<3||message.length<5){toast("Enter a title and a clear game update message.","warning");return;}
+  if(!confirm("Send this NAIJA Games notification to every registered member?"))return;
+  if(button){button.disabled=true;button.textContent="Sending…";}
+  try{
+    const {data,error}=await supabaseClient.rpc("admin_broadcast_games_update",{p_title:title,p_message:message});
+    if(error)throw error;
+    if(result)result.innerHTML='<div class="notice success">'+escapeHTML("Game update sent to "+Number(data||0)+" registered members.")+'</div>';
+    if(titleEl)titleEl.value="";if(messageEl)messageEl.value="";
+    toast("NAIJA Games update sent to "+Number(data||0)+" members.","success");
+    await loadAdminNotifications();
+  }catch(error){
+    reportError("broadcastGamesUpdate",error);
+    if(result)result.innerHTML='<div class="notice warning">'+escapeHTML(errorMessage(error,"Could not send the game update."))+'</div>';
+    toast(errorMessage(error,"Could not send the game update."),"danger");
+  }finally{if(button){button.disabled=false;button.textContent="Notify all members";}}
 }
 
 async function loadAdminNotifications(){
