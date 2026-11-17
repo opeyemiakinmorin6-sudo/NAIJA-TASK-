@@ -180,6 +180,11 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 #submitProofBtn:active{transform:translateY(1px);filter:brightness(.94)}
 #submitProofBtn:focus-visible{outline:4px solid #b7ef43;outline-offset:3px}
 #submitProofBtn:disabled{opacity:.65;box-shadow:none}
+.username-hint{margin:7px 2px 0;color:#617468;font-size:11px;line-height:1.5}
+.drop.has-preview{align-items:stretch;justify-content:flex-start;min-height:0;padding:10px;gap:10px;overflow:hidden}
+.drop.has-preview .preview.show{display:block;width:100%;height:min(62vh,480px);min-height:240px;max-height:480px;object-fit:contain;margin:0;border:3px solid var(--green);border-radius:14px;background:#07190d;box-shadow:0 8px 22px rgba(6,77,37,.18)}
+.drop.has-preview b{font-size:15px;letter-spacing:.2px}
+.drop.has-preview span:not(.cam){font-size:12px}
 </style>
   <link rel="stylesheet" href="/assets/naija-design-system.css?v=2">
 </head>
@@ -250,8 +255,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 
     <div class="field">
       <label class="lab" for="proofText" style="font-size:14px">Enter your username</label>
-      <input id="proofText" name="tasker_username" class="form-control" style="min-height:0" type="text" placeholder="e.g. @yourhandle" autocomplete="username" list="savedUsernameSuggestions">
+      <input id="proofText" name="task_proof_text" class="form-control" style="min-height:0" type="text" placeholder="e.g. davina or @davina" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" list="savedUsernameSuggestions" aria-label="Social media username or account handle">
       <datalist id="savedUsernameSuggestions"></datalist>
+      <p id="usernameMemoryHint" class="username-hint">Your username becomes a saved suggestion after 3 matching entries for the same task type, or 5 entries on this platform.</p>
     </div>
 
     <button id="submitProofBtn" class="btn p" style="width:100%" type="button">Submit Proof</button>
@@ -582,19 +588,81 @@ function getSafeHttpUrl(v){
   }catch(_){ return ""; }
 }
 
-function usernameStorageKey(){return "naija_task_saved_usernames_v1_"+String(currentUser?.id||"guest");}
-function getSavedUsernames(){
-  try{const value=JSON.parse(localStorage.getItem(usernameStorageKey())||"[]");return Array.isArray(value)?value.filter(x=>typeof x==="string"&&x.trim()).slice(0,12):[];}catch(_){return [];}
+let usernameSuggestionRequest = 0;
+function getTaskPlatformKey(task){
+  const source=[task?.platform,task?.service_key,task?.task_type,task?.title,task?.description].filter(Boolean).join(" ").toLowerCase();
+  const platforms=[
+    ["youtube_music",/youtube\s*music/],
+    ["whatsapp",/whatsapp/],
+    ["tiktok",/tiktok|tik\s*tok/],
+    ["instagram",/instagram/],
+    ["facebook",/facebook/],
+    ["telegram",/telegram/],
+    ["threads",/threads/],
+    ["spotify",/spotify/],
+    ["snapchat",/snapchat/],
+    ["x",/(^|\W)(x|twitter)(\W|$)/],
+    ["trustpilot",/trustpilot/],
+    ["google",/google/],
+    ["website",/website|web\s*traffic|site\s*visit/],
+    ["youtube",/youtube|\byt\b/],
+    ["app",/app\s*download|download\s*app/]
+  ];
+  for(const [key,re] of platforms)if(re.test(source))return key;
+  const fallback=normalize(task?.service_key||task?.task_type||task?.title||"general").replace(/[^a-z0-9]/g,"").slice(0,34);
+  return "other_"+(fallback||"general");
 }
-function renderSavedUsernameSuggestions(){
-  const list=$("savedUsernameSuggestions");if(!list)return;
-  list.innerHTML=getSavedUsernames().map(value=>"<option value=\""+escapeHtml(value)+"\"></option>").join("");
+function getTaskActionKey(task){
+  const source=[task?.task_type,task?.title,task?.description,task?.requirements].filter(Boolean).join(" ").toLowerCase();
+  const actions=[
+    ["follow",/\bfollow\b/],
+    ["subscribe",/\bsubscrib/],
+    ["like",/\blike\b/],
+    ["comment",/\bcomment/],
+    ["repost",/\brepost\b|\bretweet\b/],
+    ["share",/\bshare/],
+    ["view",/\bview/],
+    ["watch",/\bwatch|\bstream/],
+    ["save",/\bsave|\bbookmark/],
+    ["review",/\breview/],
+    ["download",/\bdownload/],
+    ["visit",/\bvisit|\btraffic/],
+    ["signup",/\bsign[\s_-]?up|\bregister/]
+  ];
+  for(const [key,re] of actions)if(re.test(source))return key;
+  const fallback=normalize(task?.task_type||"general").replace(/[^a-z0-9]/g,"").slice(0,60);
+  return fallback||"general";
 }
-function rememberUsername(value){
-  const username=String(value||"").trim();if(!username||username.length>120)return;
-  const saved=getSavedUsernames().filter(x=>x.toLowerCase()!==username.toLowerCase());saved.unshift(username);
-  try{localStorage.setItem(usernameStorageKey(),JSON.stringify(saved.slice(0,12)));}catch(_){}
-  renderSavedUsernameSuggestions();
+async function renderSavedUsernameSuggestions(task){
+  const list=$("savedUsernameSuggestions");
+  if(!list)return;
+  list.innerHTML="";
+  if(!currentUser||!task||String(task.task_type||"").startsWith("business_"))return;
+  const platformKey=getTaskPlatformKey(task);
+  const actionKey=getTaskActionKey(task);
+  const requestId=++usernameSuggestionRequest;
+  try{
+    const {data,error}=await db.from("tasker_saved_usernames")
+      .select("username,scope_key,is_saved,updated_at")
+      .eq("platform_key",platformKey)
+      .eq("is_saved",true)
+      .order("updated_at",{ascending:false})
+      .limit(30);
+    if(error)throw error;
+    if(requestId!==usernameSuggestionRequest||selectedTask!==task)return;
+    const eligible=(data||[]).filter(row=>row.scope_key==="platform"||row.scope_key==="action:"+actionKey);
+    const seen=new Set();
+    const options=[];
+    for(const row of eligible){
+      const value=String(row.username||"").trim();
+      const key=value.toLowerCase().replace(/^@+/,"");
+      if(value&&!seen.has(key)){seen.add(key);options.push(value);}
+      if(options.length>=12)break;
+    }
+    list.innerHTML=options.map(value=>"<option value=\""+escapeHtml(value)+"\"></option>").join("");
+  }catch(error){
+    console.warn("Saved username suggestions could not be loaded:",error?.message||error);
+  }
 }
 async function recordTaskStarted(task){
   if(!currentUser||!task?.id)return;
@@ -643,19 +711,24 @@ function openTask(task){
 
   const isBusinessTask = String(task.task_type || "").startsWith("business_");
   const usernameLabel = $("proofText").previousElementSibling;
+  $("proofText").setAttribute("name","task_proof_text");
+  $("proofText").setAttribute("autocomplete","off");
+  $("proofText").setAttribute("autocapitalize","none");
+  $("proofText").setAttribute("spellcheck","false");
+  const usernameHint = $("usernameMemoryHint");
   if (isBusinessTask) {
     if (usernameLabel) usernameLabel.textContent = "Your feedback, answers or completed work";
     $("proofText").placeholder = "Write your comments, test results, answers, findings or work summary...";
-    $("proofText").setAttribute("autocomplete","off");
     $("proofText").removeAttribute("list");
+    if(usernameHint)usernameHint.style.display="none";
     const uploadLabel = document.querySelector('label[for="proofPhoto"]');
     if (uploadLabel) uploadLabel.querySelector("b").textContent = "UPLOAD SCREENSHOT / PHOTO";
   } else {
     if (usernameLabel) usernameLabel.textContent = "Enter your username";
-    $("proofText").placeholder = "e.g. @yourhandle";
-    $("proofText").setAttribute("autocomplete","username");
+    $("proofText").placeholder = "e.g. davina or @davina";
     $("proofText").setAttribute("list","savedUsernameSuggestions");
-    renderSavedUsernameSuggestions();
+    if(usernameHint)usernameHint.style.display="block";
+    void renderSavedUsernameSuggestions(task);
     const uploadLabel = document.querySelector('label[for="proofPhoto"]');
     if (uploadLabel) uploadLabel.querySelector("b").textContent = "UPLOAD SCREENSHOT";
   }
@@ -779,6 +852,7 @@ async function submitProof(){
   button.disabled = true;
   button.textContent = "Submitting...";
   let uploaded = null;
+  let usernameSaved = false;
 
   try{
     const velocityCheck = await db.rpc("check_task_submission_velocity");
@@ -817,12 +891,24 @@ async function submitProof(){
     currentSubmissionIds.add(id);
     const completedTargetKey = taskTargetKey(selectedTask);
     if (completedTargetKey) currentSubmissionTargets.add(completedTargetKey);
-    if(!String(selectedTask.task_type||"").startsWith("business_"))rememberUsername(proofText);
+    if(!String(selectedTask.task_type||"").startsWith("business_") && proofText){
+      try{
+        const memoryResult=await db.rpc("record_tasker_username",{
+          p_platform_key:getTaskPlatformKey(selectedTask),
+          p_action_key:getTaskActionKey(selectedTask),
+          p_username:proofText
+        });
+        if(memoryResult.error)console.warn("Username memory was not updated:",memoryResult.error.message);
+        else usernameSaved=memoryResult.data?.saved===true;
+      }catch(memoryError){
+        console.warn("Username memory was not updated:",memoryError?.message||memoryError);
+      }
+    }
     resetProofForm();
     buildFilters();
     renderTasks();
     closeTaskDetails();
-    showNotice("Proof submitted. Submission reference #" + String(submittedRow?.id || "pending") + ". Track it in Proofs. If a participating app/site asks for your NAIJA TASK reference, provide this number. Your reward is added after approval.", "success");
+    showNotice("Proof submitted. Submission reference #" + String(submittedRow?.id || "pending") + ". Track it in Proofs. If a participating app/site asks for your NAIJA TASK reference, provide this number. Your reward is added after approval." + (usernameSaved ? " Your username is now saved for future suggestions." : ""), "success");
   }catch(e){
     console.error("Proof submission failed:", e);
     showNotice(e.message || "Could not submit proof. Try again.", "error");
