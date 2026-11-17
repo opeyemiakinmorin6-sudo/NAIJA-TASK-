@@ -219,6 +219,7 @@ dialog::backdrop{background:#09201299}
           <option value="PAUSED">Paused</option>
           <option value="COMPLETED">Completed</option>
           <option value="REJECTED">Rejected</option>
+          <option value="CANCELLED">Cancelled</option>
         </select>
       </div>
     </div>
@@ -230,6 +231,7 @@ dialog::backdrop{background:#09201299}
     <div class="notice info">Poster task payments use Flutterwave only. The server verifies the transaction; then the job still needs administrator approval before it can go live.</div>
     <div class="notice warning">For fairness and fraud prevention, posters cannot approve their own payments, approve tasker submissions, or change tasker wallet balances from this page.</div>
     <div class="notice info">If checkout fails or you were charged without seeing confirmation, do not pay again immediately. Contact support with your Flutterwave transaction reference.</div>
+    <div class="notice warning">Cancelling a live or paused task stops new work. Your genuine reason is sent to Taskers who started or submitted it. Existing submissions remain in your review queue; cancellation does not automatically reject proof or issue a refund.</div>
   </section>
 </main>
 
@@ -340,6 +342,7 @@ function jobGroup(job){
   const payment=paymentFor(job.id);
   const ps=payment?normalized(payment.status):"";
   const verified=payment&&String(payment.payment_status||"").trim().toLowerCase()==="paid";
+  if(s==="CANCELLED")return "CANCELLED";
   if(["REJECTED","JOB_REJECTED","PAYMENT_REJECTED"].includes(s)||ps==="REJECTED")return "REJECTED";
   if(["COMPLETED","CLOSED"].includes(s))return "COMPLETED";
   if(["PAUSED","INACTIVE"].includes(s)||job.active===false&&["PAUSED"].includes(s))return "PAUSED";
@@ -391,6 +394,7 @@ function renderJobs(){
     if(filter==="PAUSED")matchesFilter=group==="PAUSED";
     if(filter==="COMPLETED")matchesFilter=group==="COMPLETED";
     if(filter==="REJECTED")matchesFilter=group==="REJECTED";
+    if(filter==="CANCELLED")matchesFilter=group==="CANCELLED";
     return matchesTerm&&matchesFilter;
   });
 
@@ -457,11 +461,13 @@ function renderSection(items,title,emptyText){
             ${group==="PAYMENT"?'<div class="notice warning">This job appears to need payment or payment review. It should not be considered live until the platform confirms payment and publication.</div>':""}
             ${group==="APPROVAL"?'<div class="notice info">This job appears to be waiting for an approval or publication step.</div>':""}
             ${group==="REJECTED"?'<div class="notice error">This job or its payment has a rejected status. Review the payment centre or contact support for the recorded reason.</div>':""}
+            ${group==="CANCELLED"?'<div class="notice error"><strong>Cancellation reason</strong><br>'+esc(job.cancellation_reason||"No reason was recorded.")+(job.cancelled_at?'<br><small>Cancelled: '+esc(dateText(job.cancelled_at))+'</small>':'')+'</div>':""}
 
             <div class="actions">
               <button class="btn btn-primary" type="button" onclick="viewSubmissions('${esc(String(job.id))}')">View submissions (${count})</button>
               ${group==="PAYMENT"||group==="REJECTED"||(group==="APPROVAL"&&paymentFor(job.id)&&String(paymentFor(job.id).payment_status||"").toLowerCase()==="paid")?`<a class="btn btn-secondary" href="poster-payment.html?task_id=${encodeURIComponent(job.id)}">View payment status</a>`:""}
               ${group==="LIVE"?'<span class="btn btn-disabled">Job status: live/active</span>':""}
+              ${["LIVE","PAUSED"].includes(group)?'<button class="btn btn-secondary" type="button" data-cancel-task="'+esc(String(job.id))+'" style="background:#fff0f0;color:#9d2828;border:1px solid #f0caca">Cancel task</button>':""}
             </div>
           </article>`;
       }).join("")+'</section>';
@@ -477,13 +483,22 @@ function renderSection(items,title,emptyText){
   $("jobsList").innerHTML=
     renderSection(social,"Social Tasks","No social tasks match this filter.")+
     renderSection(business,"Business Jobs","No business jobs match this filter.");
+  $("jobsList").querySelectorAll("[data-cancel-task]").forEach(button=>button.addEventListener("click",()=>cancelPosterTask(button.dataset.cancelTask)));
 }
 
 async function loadJobs(){
   const result=await db.rpc("get_poster_tasks");
-
   if(result.error)throw result.error;
   jobs=result.data||[];
+  if(jobs.length){
+    const ids=jobs.map(job=>job.id);
+    const cancellation=await db.from("tasks").select("id,cancellation_reason,cancelled_at").in("id",ids);
+    if(cancellation.error){console.warn("Task cancellation details could not be loaded:",cancellation.error.message);}
+    else{
+      const details=new Map((cancellation.data||[]).map(row=>[String(row.id),row]));
+      jobs=jobs.map(job=>({...job,...(details.get(String(job.id))||{})}));
+    }
+  }
 }
 
 async function loadPayments(){
@@ -539,7 +554,7 @@ async function loadSubmissionCounts(){
 }
 
 async function loadAll(){
-  if(requestedJobFilter && ["ALL","LIVE","PAYMENT","APPROVAL","PAUSED","COMPLETED","REJECTED"].includes(requestedJobFilter)) $("jobFilter").value=requestedJobFilter;
+  if(requestedJobFilter && ["ALL","LIVE","PAYMENT","APPROVAL","PAUSED","COMPLETED","REJECTED","CANCELLED"].includes(requestedJobFilter)) $("jobFilter").value=requestedJobFilter;
   if(!currentUser)return;
   hideMessage();
   $("jobsList").innerHTML='<div class="empty"><div class="emoji">⏳</div>Refreshing jobs and payment information…</div>';
@@ -705,6 +720,26 @@ async function viewSubmissions(jobId){
 
 function closeSubmissions(){
   if($("submissionsDialog").open)$("submissionsDialog").close();
+}
+
+async function cancelPosterTask(taskId){
+  const job=jobs.find(row=>String(row.id)===String(taskId));
+  if(!job){showMessage("This task could not be found in your Poster account.","error");return;}
+  const reason=window.prompt("Why are you cancelling this task? Give a genuine reason that Taskers who started or submitted it will see (20–500 characters):");
+  if(reason===null)return;
+  const clean=reason.trim();
+  if(clean.length<20||clean.length>500){showMessage("Please enter a genuine cancellation reason between 20 and 500 characters.","error");return;}
+  if(!window.confirm("Cancel this task now? New Taskers will no longer be able to start it. Anyone who started or submitted it will receive your reason. Existing submitted proofs will remain in your review queue."))return;
+  try{
+    const result=await db.rpc("poster_cancel_task",{p_task_id:String(taskId),p_reason:clean});
+    if(result.error)throw result.error;
+    const notified=Number(result.data?.notified_taskers||0);
+    showMessage("Task cancelled. "+notified+" Tasker(s) were notified. Existing submitted proofs were not deleted or automatically rejected.","info");
+    await loadAll();
+  }catch(error){
+    console.error("Poster task cancellation failed:",error);
+    showMessage(error.message||"The task could not be cancelled. No cancellation was confirmed.","error");
+  }
 }
 
 $("searchInput").addEventListener("input",renderJobs);
