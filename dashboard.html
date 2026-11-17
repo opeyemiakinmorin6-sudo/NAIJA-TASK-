@@ -908,7 +908,7 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
     <div class="nt-wide-copy"><strong>NAIJA TASK</strong><small>COMPLETE TASKS. EARN NAIRA.</small></div>
   </a>
   <div class="top-actions">
-    <a class="icon-button nt-header-icon nt-bell-icon" href="notifications.html" aria-label="Notifications"><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M37 19a13 13 0 0 0-26 0c0 15-6 15-6 19h38c0-4-6-4-6-19M19 43h10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></a>
+    <a class="icon-button nt-header-icon nt-bell-icon" href="notifications.html" aria-label="Notifications" style="position:relative"><span id="ntUnreadBadge" style="display:none;position:absolute;right:-4px;top:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:10px;background:#e11d48;color:#fff;font:800 10px/18px Arial;text-align:center"></span><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M37 19a13 13 0 0 0-26 0c0 15-6 15-6 19h38c0-4-6-4-6-19M19 43h10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></a>
     <a class="icon-button nt-header-icon nt-profile-icon" href="profile.html" aria-label="Profile"><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="3"/><path d="M7 42c1-10 7-15 17-15s16 5 17 15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></a>
     <a class="icon-button nt-header-icon nt-menu-icon" href="more.html" aria-label="Menu"><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M7 13h34M7 24h34M7 35h34" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></a>
   </div>
@@ -1092,7 +1092,27 @@ let realtimeChannels = [];
 let submittedTaskIds = new Set();
 let submissionsReady = Promise.resolve();
 
+
 const $ = id => document.getElementById(id);
+
+let ntNotificationChannel = null;
+async function refreshNotificationBadge(){
+  if(!currentUser)return;
+  const badge=$("ntUnreadBadge");if(!badge)return;
+  const {count,error}=await supabaseClient.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",currentUser.id).eq("is_read",false);
+  if(error){console.warn("Notification count unavailable:",error.message);return;}
+  badge.textContent=count>99?"99+":String(count||0);
+  badge.style.display=count>0?"block":"none";
+}
+function startNotificationUpdates(){
+  if(!currentUser)return;
+  refreshNotificationBadge();
+  if(ntNotificationChannel)supabaseClient.removeChannel(ntNotificationChannel);
+  ntNotificationChannel=supabaseClient.channel("nt-user-notifications-"+currentUser.id)
+    .on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"user_id=eq."+currentUser.id},refreshNotificationBadge)
+    .subscribe();
+}
+
 
 function money(value){
   const n = Number(value);
@@ -1593,6 +1613,7 @@ async function startDashboard(){
     if (!data?.session?.user){ window.location.replace("login.html"); return; }
 
     currentUser = data.session.user;
+    startNotificationUpdates();
     const { data: roleProfile, error: roleError } = await supabaseClient
       .from("profiles").select("role").eq("id", currentUser.id).maybeSingle();
     if (roleError || !roleProfile) throw roleError || new Error("Your account role could not be verified.");
