@@ -142,12 +142,19 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
   </section>
 
   <div id="appPanel" class="hidden">
+    <section id="seasonalShowcase" class="hidden" style="margin:0 0 18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px">
+        <h2 style="margin:0">Seasonal picks</h2><span class="muted">Special collections</span>
+      </div>
+      <div id="seasonalCampaignGrid" class="grid"></div>
+    </section>
     <div class="tabs" role="tablist" aria-label="Marketplace sections">
       <button class="tab active" data-section="shop" onclick="openTab('shop',this)">🛍️ Shop</button>
       <button class="tab" data-section="orders" onclick="openTab('orders',this)">📦 My Orders</button>
       <button class="tab" data-section="sell" onclick="openTab('sell',this)">➕ Sell Product</button>
       <button class="tab" data-section="listings" onclick="openTab('listings',this)">🏪 My Listings</button>
       <button class="tab" data-section="sellerOrders" onclick="openTab('sellerOrders',this)">🚚 Seller Orders</button>
+      <button class="tab" onclick="location.href='marketplace-chat.html'">💬 Messages</button>
     </div>
 
     <section id="section-shop" class="section active">
@@ -438,7 +445,26 @@ function productCard(p) {
     (stock > 0 ? escapeHTML(stock) + ' available' : 'Out of stock') +
     '</p><div class="product-actions"><button class="btn-green" ' +
     (stock < 1 ? 'disabled' : '') + ' onclick="placeOrder(\'' +
-    escapeHTML(p.id) + '\')">Order</button></div></div></article>';
+    escapeHTML(p.id) + '\')">Order</button><a class="btn-light" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1;font-size:12px;padding:10px 8px;border-radius:10px" href="marketplace-chat.html?product=' +
+    encodeURIComponent(p.id) + '">Chat seller</a></div></div></article>';
+}
+
+async function loadSeasonalCampaigns() {
+  const wrap = document.getElementById('seasonalShowcase');
+  const grid = document.getElementById('seasonalCampaignGrid');
+  if (!wrap || !grid || !currentUser) return;
+  try {
+    const {data,error} = await db.from('marketplace_seasonal_campaigns').select('id,title,subtitle,image_url,badge').eq('is_active',true).order('sort_order',{ascending:true}).limit(6);
+    if (error) throw error;
+    const rows = data || [];
+    if (!rows.length) { wrap.classList.add('hidden'); grid.innerHTML=''; return; }
+    grid.innerHTML = rows.map(row => {
+      const image = safeImageURL(row.image_url);
+      return '<article class="product">' + (image ? '<div class="product-image"><img loading="lazy" src="' + escapeHTML(image) + '" alt="' + escapeHTML(row.title) + '"></div>' : '<div style="min-height:100px;display:grid;place-items:center;background:linear-gradient(135deg,#064d25,#0b9b45);color:#fff;font-size:30px">🛍️</div>') +
+        '<div class="product-content"><span class="badge">' + escapeHTML(row.badge || 'SEASONAL PICK') + '</span><h3>' + escapeHTML(row.title) + '</h3><p class="muted">' + escapeHTML(row.subtitle || '') + '</p></div></article>';
+    }).join('');
+    wrap.classList.remove('hidden');
+  } catch (error) { wrap.classList.add('hidden'); console.warn('Seasonal campaigns unavailable:', error.message); }
 }
 
 async function loadMarketplace() {
@@ -870,6 +896,7 @@ async function refreshAll() {
   if (!currentUser) return;
   await Promise.all([
     loadMarketplace(),
+    loadSeasonalCampaigns(),
     loadMyOrders(),
     loadMyListings(),
     loadSellerOrders()
