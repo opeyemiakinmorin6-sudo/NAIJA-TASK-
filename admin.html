@@ -9830,6 +9830,8 @@ async function viewTrustSafetyDiscussion(eventId) {
 
 async function loadSecurity() {
   try {
+
+    loadTaskVerificationProfiles();
     if (!platformSettings) {
       await loadSettings();
     } else {
@@ -9983,7 +9985,7 @@ async function loadTaskVerificationProfiles() {
       const integration=window.ntTaskCallbackIntegrations.find(x=>Number(x.task_id)===id&&!x.revoked_at);
       const options='<option value="manual_review"'+(method==="manual_review"?" selected":"")+'>Manual review</option>'+
         '<option value="evidence_review"'+(method==="evidence_review"?" selected":"")+'>Evidence review</option>'+
-        ((integration||method==="signed_callback")?'<option value="signed_callback"'+(method==="signed_callback"?" selected":"")+'>Signed app/website callback</option>':'<option value="signed_callback" disabled>Signed callback — create integration first</option>')+
+        ((integration||method==="signed_callback")?'<option value="signed_callback"'+(method==="signed_callback"?" selected":"")+'>Authenticated app/website callback</option>':'<option value="signed_callback" disabled>Signed callback — create integration first</option>')+
         (!["manual_review","evidence_review","signed_callback"].includes(method)?'<option value="'+escapeHTML(method)+'" selected disabled>'+escapeHTML(method)+' — unavailable</option>':"");
       const rules=row.verification_rules&&typeof row.verification_rules==="object"?JSON.stringify(row.verification_rules,null,2):"{}";
       const secret=window.ntTaskCallbackSecrets[id]||"";
