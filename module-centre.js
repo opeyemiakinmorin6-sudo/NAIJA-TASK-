@@ -66,7 +66,7 @@ async function start(){
  if(!user){location.replace("login.html");return}
  const roleMeta=user.user_metadata||{};
  const memberRole=String(roleMeta.role||roleMeta.user_type||roleMeta.account_type||"").toLowerCase();
- const taskerOnlyModules=["more","applied-jobs","approved","retry","cancelled","airtime-data","arena","ai-care","appeals","community","ai-assistant"];
+ const taskerOnlyModules=["more","applied-jobs","approved","retry","cancelled","arena","ai-care","appeals","community","ai-assistant"];
  if(taskerOnlyModules.includes(moduleName)&&["task_poster","poster","task poster"].includes(memberRole)){location.replace("poster-dashboard.html");return}
 
  if(moduleName==="appeals"){
