@@ -66,15 +66,17 @@ async function start(){
  const user=auth.data&&auth.data.user;
  if(!user){location.replace("login.html");return}
  const ntPresenceChannel=sb.channel("nt-global-online",{config:{presence:{key:user.id+":"+Math.random().toString(36).slice(2,8)}}});
+ const ntPresencePref=await sb.from("member_presence_settings").select("show_online").eq("user_id",user.id).maybeSingle();
+ const ntShowOnline=!ntPresencePref.error&&ntPresencePref.data?.show_online!==false;
  const ntPresenceProfile=await sb.from("profiles").select("full_name").eq("id",user.id).maybeSingle();
  ntPresenceChannel.subscribe(async state=>{
    if(state==="SUBSCRIBED"){
-     await ntPresenceChannel.track({user_id:user.id,name:ntPresenceProfile.data?.full_name||user.user_metadata?.full_name||"NAIJA TASK member",active_area:moduleName,active_room:null,online_at:new Date().toISOString()});
+     if(ntShowOnline)await ntPresenceChannel.track({user_id:user.id,name:ntPresenceProfile.data?.full_name||user.user_metadata?.full_name||"NAIJA TASK member",active_area:moduleName,active_room:null,online_at:new Date().toISOString()});
    }
  });
  document.addEventListener("visibilitychange",async()=>{
    if(document.hidden)await ntPresenceChannel.untrack();
-   else if(ntPresenceChannel.state==="joined")await ntPresenceChannel.track({user_id:user.id,name:ntPresenceProfile.data?.full_name||user.user_metadata?.full_name||"NAIJA TASK member",active_area:moduleName,active_room:null,online_at:new Date().toISOString()});
+   else if(ntShowOnline&&ntPresenceChannel.state==="joined")await ntPresenceChannel.track({user_id:user.id,name:ntPresenceProfile.data?.full_name||user.user_metadata?.full_name||"NAIJA TASK member",active_area:moduleName,active_room:null,online_at:new Date().toISOString()});
  });
  window.addEventListener("beforeunload",()=>ntPresenceChannel.untrack());
  const roleMeta=user.user_metadata||{};
