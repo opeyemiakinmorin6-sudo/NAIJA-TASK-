@@ -3815,11 +3815,38 @@ td,th{padding:13px 11px}
     <button class="primary" onclick="loadMarketplace()">Refresh marketplace</button>
   </div>
   <div class="card">
-    <div class="notice">Read-only monitoring. Payment and delivery actions remain in their verified marketplace workflows.</div>
+    <div class="notice">Marketplace monitoring. Refunds and seller payouts remain server-controlled; no admin action here can release funds directly.</div>
     <div class="table-wrap"><table>
       <thead><tr><th>Record</th><th>Item</th><th>Seller / Buyer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
       <tbody id="marketplaceBody"><tr><td colspan="6" class="loading-row">Loading marketplace records…</td></tr></tbody>
     </table></div>
+  </div>
+  <div class="grid grid-2" style="margin-top:16px">
+    <div class="card">
+      <h3>Product reports</h3>
+      <div class="table-wrap"><table><thead><tr><th>Product</th><th>Reason</th><th>Reporter</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody id="marketplaceReportsBody"><tr><td colspan="5" class="loading-row">Loading reports…</td></tr></tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>Buyer / seller disputes</h3>
+      <div class="table-wrap"><table><thead><tr><th>Order</th><th>Reason</th><th>Opened by</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody id="marketplaceDisputesBody"><tr><td colspan="5" class="loading-row">Loading disputes…</td></tr></tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>Fraud risk alerts</h3>
+      <div class="table-wrap"><table><thead><tr><th>Signal</th><th>Subject</th><th>Severity</th><th>Review</th><th>Date</th></tr></thead>
+      <tbody id="marketplaceRiskBody"><tr><td colspan="5" class="loading-row">Loading risk alerts…</td></tr></tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>Refunds and seller payouts</h3>
+      <div class="table-wrap"><table><thead><tr><th>Type</th><th>Order / Case</th><th>Amount</th><th>Status</th><th>Reference</th></tr></thead>
+      <tbody id="marketplaceMoneyBody"><tr><td colspan="5" class="loading-row">Loading payment protection records…</td></tr></tbody></table></div>
+    </div>
+    <div class="card">
+      <h3>Product moderation</h3>
+      <div class="table-wrap"><table><thead><tr><th>Product</th><th>Risk</th><th>Score</th><th>Reports</th><th>Status</th></tr></thead>
+      <tbody id="marketplaceModerationBody"><tr><td colspan="5" class="loading-row">Loading moderation records…</td></tr></tbody></table></div>
+    </div>
   </div>
 </section>
 
@@ -5591,6 +5618,7 @@ function navigate(page) {
 
       case "marketplace":
         loadMarketplace();
+        loadMarketplaceSafety();
         break;
 
       case "seasons":
@@ -10963,6 +10991,53 @@ async function loadMarketplace() {
   } catch (error) {
     reportError("loadMarketplace", error);
     body.innerHTML = '<tr><td colspan="6" class="empty-row">Marketplace records could not load: ' + escapeHTML(errorMessage(error, "Database request failed.")) + '</td></tr>';
+  }
+}
+
+
+async function loadMarketplaceSafety() {
+  const targets = {
+    reports: $("marketplaceReportsBody"),
+    disputes: $("marketplaceDisputesBody"),
+    risks: $("marketplaceRiskBody"),
+    money: $("marketplaceMoneyBody"),
+    moderation: $("marketplaceModerationBody")
+  };
+  if (!targets.reports) return;
+  Object.values(targets).forEach(el => { if (el) el.innerHTML = '<tr><td colspan="5" class="loading-row">Loading…</td></tr>'; });
+  try {
+    const [reports, disputes, risks, refunds, payouts, moderation] = await Promise.all([
+      withTimeout(supabaseClient.from("marketplace_reports").select("id,product_id,reporter_id,reason,status,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace reports"),
+      withTimeout(supabaseClient.from("marketplace_disputes").select("id,order_id,opened_by,reason,status,priority,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace disputes"),
+      withTimeout(supabaseClient.from("marketplace_risk_events").select("id,signal,subject_user_id,severity,review_status,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace risk events"),
+      withTimeout(supabaseClient.from("marketplace_refunds").select("id,order_id,amount,status,provider_reference,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace refunds"),
+      withTimeout(supabaseClient.from("marketplace_payouts").select("id,order_id,amount,status,provider_reference,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace payouts"),
+      withTimeout(supabaseClient.from("marketplace_product_moderation").select("product_id,status,risk_score,risk_level,report_count,updated_at").order("updated_at",{ascending:false}).limit(100),15000,"Marketplace moderation")
+    ]);
+    for (const result of [reports,disputes,risks,refunds,payouts,moderation]) if (result.error) throw result.error;
+    const rows = (result) => safeArray(result.data);
+    targets.reports.innerHTML = rows(reports).length ? rows(reports).map(x =>
+      '<tr><td class="mono">'+escapeHTML(x.product_id||"—")+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.reporter_id)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
+    ).join("") : '<tr><td colspan="5" class="empty-row">No product reports.</td></tr>';
+    targets.disputes.innerHTML = rows(disputes).length ? rows(disputes).map(x =>
+      '<tr><td class="mono">'+escapeHTML(x.order_id)+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.opened_by)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
+    ).join("") : '<tr><td colspan="5" class="empty-row">No disputes.</td></tr>';
+    targets.risks.innerHTML = rows(risks).length ? rows(risks).map(x =>
+      '<tr><td>'+escapeHTML(x.signal)+'</td><td class="mono">'+escapeHTML(x.subject_user_id||"—")+'</td><td>'+badge(x.severity)+'</td><td>'+badge(x.review_status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
+    ).join("") : '<tr><td colspan="5" class="empty-row">No risk alerts.</td></tr>';
+    const moneyRows = [
+      ...rows(refunds).map(x=>({type:"Refund",id:x.order_id,amount:x.amount,status:x.status,ref:x.provider_reference})),
+      ...rows(payouts).map(x=>({type:"Payout",id:x.order_id,amount:x.amount,status:x.status,ref:x.provider_reference}))
+    ];
+    targets.money.innerHTML = moneyRows.length ? moneyRows.map(x =>
+      '<tr><td>'+x.type+'</td><td class="mono">'+escapeHTML(x.id)+'</td><td>'+money(x.amount)+'</td><td>'+badge(x.status)+'</td><td class="mono">'+escapeHTML(x.ref||"—")+'</td></tr>'
+    ).join("") : '<tr><td colspan="5" class="empty-row">No refund or payout transactions.</td></tr>';
+    targets.moderation.innerHTML = rows(moderation).length ? rows(moderation).map(x =>
+      '<tr><td class="mono">'+escapeHTML(x.product_id)+'</td><td>'+badge(x.risk_level)+'</td><td>'+escapeHTML(x.risk_score)+'</td><td>'+escapeHTML(x.report_count)+'</td><td>'+badge(x.status)+'</td></tr>'
+    ).join("") : '<tr><td colspan="5" class="empty-row">No moderation flags.</td></tr>';
+  } catch (error) {
+    reportError("loadMarketplaceSafety",error);
+    Object.values(targets).forEach(el => { if (el) el.innerHTML = '<tr><td colspan="5" class="empty-row">Safety records unavailable: '+escapeHTML(errorMessage(error,"Database request failed."))+'</td></tr>'; });
   }
 }
 
