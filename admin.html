@@ -3054,6 +3054,19 @@ td,th{padding:13px 11px}
   <div class="card" style="margin-top:18px">
     <div class="page-header" style="margin-bottom:8px">
       <div>
+        <h3>Task Verification Profiles</h3>
+        <p>Set verification rules per task. Manual and evidence review are available now. API, signed-callback and tracking-link methods require a real platform integration before they can be used.</p>
+      </div>
+      <button class="secondary" onclick="loadTaskVerificationProfiles()">Refresh tasks</button>
+    </div>
+    <div class="notice">Retention follow-up schedules a poster check after approval; it does not independently read private follower, subscriber, app or website data. A report alone never triggers a penalty.</div>
+    <div id="taskVerificationStatus" class="notice">Loading task verification profiles…</div>
+    <div id="taskVerificationBody"><div class="empty">Loading tasks…</div></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="page-header" style="margin-bottom:8px">
+      <div>
         <h3>Trust &amp; Safety Incident Queue</h3>
         <p>Reports submitted by Taskers and Posters. Reports are evidence for review, not automatic proof of guilt.</p>
       </div>
@@ -9920,6 +9933,7 @@ async function loadSecurity() {
       }).join("") : '<div class="empty">No incident reports found. No sample or fake records are shown.</div>';
     }
     await loadRetentionReversalQueue();
+    await loadTaskVerificationProfiles();
   } catch (error) {
     reportError("loadSecurity", error);
     const queueStatus = $("securityEventsStatus");
@@ -9934,6 +9948,122 @@ async function loadSecurity() {
    ADS
    ========================================================= */
 
+
+async function loadTaskVerificationProfiles() {
+  const status = $("taskVerificationStatus");
+  const body = $("taskVerificationBody");
+  if (!body) return;
+  if (status) { status.textContent = "Loading task verification profiles…"; status.className = "notice"; }
+  body.innerHTML = '<div class="empty">Loading tasks…</div>';
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_get_task_verification_profiles"),
+      15000,
+      "Task verification profiles"
+    );
+    if (error) throw error;
+    const rows = safeArray(data);
+    if (status) {
+      status.textContent = rows.length + " task(s) loaded. Evidence/manual review are available; external API, callback and tracking integrations are not live yet.";
+      status.className = "notice " + (rows.length ? "success" : "");
+    }
+    const supported = new Set(["manual_review", "evidence_review"]);
+    body.innerHTML = rows.length ? rows.map(row => {
+      const id = Number(row.task_id);
+      if (!Number.isSafeInteger(id) || id <= 0) return "";
+      const method = String(row.verification_method || "manual_review");
+      const methodOptions =
+        '<option value="manual_review"' + (method === "manual_review" ? " selected" : "") + '>Manual review</option>' +
+        '<option value="evidence_review"' + (method === "evidence_review" ? " selected" : "") + '>Evidence review</option>' +
+        (!supported.has(method)
+          ? '<option value="' + escapeHTML(method) + '" selected disabled>' + escapeHTML(method) + ' — integration not live</option>'
+          : "");
+      const rules = row.verification_rules && typeof row.verification_rules === "object"
+        ? JSON.stringify(row.verification_rules, null, 2)
+        : "{}";
+      return '<article class="card" style="margin:10px 0;padding:13px;overflow-wrap:anywhere">' +
+        '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><strong>' +
+        escapeHTML(row.task_title || ("Task #" + id)) + '</strong>' + badge(row.enabled === false ? "DISABLED" : "ENABLED") + '</div>' +
+        '<div class="small" style="margin:6px 0 10px">Task #' + id + ' · ' +
+        escapeHTML(row.task_kind || row.task_type || "General task") + '</div>' +
+        '<div class="field"><label for="taskVerifyMethod-' + id + '">Verification method</label>' +
+        '<select id="taskVerifyMethod-' + id + '" style="width:100%">' + methodOptions + '</select></div>' +
+        '<div class="field"><label for="taskVerifyRules-' + id + '">Verification rules (JSON)</label>' +
+        '<textarea id="taskVerifyRules-' + id + '" rows="3" style="width:100%;font-family:monospace">' + escapeHTML(rules) + '</textarea></div>' +
+        '<div class="setting"><div><strong>Require post-approval retention follow-up</strong><small>Schedules a follow-up review; it does not automatically prove an action was reversed.</small></div>' +
+        '<label class="switch"><input id="taskVerifyRetention-' + id + '" type="checkbox"' + (row.retention_required ? " checked" : "") + '><span class="slider"></span></label></div>' +
+        '<div class="field"><label for="taskVerifyHours-' + id + '">Follow-up delay (hours, 1–720)</label>' +
+        '<input id="taskVerifyHours-' + id + '" type="number" min="1" max="720" step="1" value="' + escapeHTML(row.retention_hours || 24) + '"></div>' +
+        '<div class="setting"><div><strong>Profile enabled</strong><small>Disabled profiles do not create new retention checks.</small></div>' +
+        '<label class="switch"><input id="taskVerifyEnabled-' + id + '" type="checkbox"' + (row.enabled !== false ? " checked" : "") + '><span class="slider"></span></label></div>' +
+        '<button class="primary" style="margin-top:12px" onclick="saveTaskVerificationProfile(' + id + ')">Save verification settings</button>' +
+        '</article>';
+    }).join("") : '<div class="empty">No tasks were returned. Create or publish a task first, then refresh this list.</div>';
+  } catch (error) {
+    if (status) { status.textContent = errorMessage(error, "Could not load task verification profiles."); status.className = "notice warning"; }
+    body.innerHTML = '<div class="empty">Task verification settings are unavailable. Check administrator access and database permissions.</div>';
+    reportError("loadTaskVerificationProfiles", error);
+  }
+}
+
+async function saveTaskVerificationProfile(taskId) {
+  const id = Number(taskId);
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    toast("Invalid task ID.", "warning");
+    return;
+  }
+  const methodInput = $("taskVerifyMethod-" + id);
+  const rulesInput = $("taskVerifyRules-" + id);
+  const retentionInput = $("taskVerifyRetention-" + id);
+  const hoursInput = $("taskVerifyHours-" + id);
+  const enabledInput = $("taskVerifyEnabled-" + id);
+  if (!methodInput || !rulesInput || !retentionInput || !hoursInput || !enabledInput) {
+    toast("The task settings could not be read. Refresh the list and try again.", "warning");
+    return;
+  }
+  const method = String(methodInput.value || "");
+  if (!["manual_review", "evidence_review"].includes(method)) {
+    toast("That method needs a real platform integration. Choose Manual review or Evidence review until the integration is deployed.", "warning");
+    return;
+  }
+  const hours = Number(hoursInput.value);
+  if (!Number.isInteger(hours) || hours < 1 || hours > 720) {
+    toast("Follow-up delay must be a whole number from 1 to 720 hours.", "warning");
+    return;
+  }
+  let rules;
+  try {
+    rules = JSON.parse(rulesInput.value || "{}");
+  } catch (_) {
+    toast("Verification rules must be valid JSON.", "warning");
+    return;
+  }
+  if (!rules || typeof rules !== "object" || Array.isArray(rules)) {
+    toast("Verification rules must be a JSON object.", "warning");
+    return;
+  }
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_set_task_verification_profile", {
+        p_task_id: id,
+        p_verification_method: method,
+        p_verification_rules: rules,
+        p_retention_required: retentionInput.checked,
+        p_retention_hours: hours,
+        p_enabled: enabledInput.checked
+      }),
+      15000,
+      "Save task verification profile"
+    );
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error("The server did not confirm the settings update.");
+    toast("Task verification settings saved. Retention follow-up: " + (retentionInput.checked ? "on" : "off") + ".", "success");
+    await loadTaskVerificationProfiles();
+  } catch (error) {
+    toast(errorMessage(error, "Could not save task verification settings."), "warning");
+    reportError("saveTaskVerificationProfile", error);
+  }
+}
 
 async function loadRetentionReversalQueue() {
   const status = $("retentionReversalStatus");
