@@ -65,6 +65,14 @@ async function start(){
  if(auth.error)throw auth.error;
  const user=auth.data&&auth.data.user;
  if(!user){location.replace("login.html");return}
+ const ntPresenceChannel=sb.channel("nt-global-online",{config:{presence:{key:user.id+":"+Math.random().toString(36).slice(2,8)}}});
+ const ntPresenceProfile=await sb.from("profiles").select("full_name").eq("id",user.id).maybeSingle();
+ ntPresenceChannel.subscribe(async state=>{
+   if(state==="SUBSCRIBED"){
+     await ntPresenceChannel.track({user_id:user.id,name:ntPresenceProfile.data?.full_name||user.user_metadata?.full_name||"NAIJA TASK member",active_area:moduleName,active_room:null,online_at:new Date().toISOString()});
+   }
+ });
+ window.addEventListener("beforeunload",()=>ntPresenceChannel.untrack());
  const roleMeta=user.user_metadata||{};
  const memberRole=String(roleMeta.role||roleMeta.user_type||roleMeta.account_type||"").toLowerCase();
  const taskerOnlyModules=["more","applied-jobs","approved","retry","cancelled","arena","ai-care","appeals","community","ai-assistant"];
