@@ -72,6 +72,10 @@ async function start(){
      await ntPresenceChannel.track({user_id:user.id,name:ntPresenceProfile.data?.full_name||user.user_metadata?.full_name||"NAIJA TASK member",active_area:moduleName,active_room:null,online_at:new Date().toISOString()});
    }
  });
+ document.addEventListener("visibilitychange",async()=>{
+   if(document.hidden)await ntPresenceChannel.untrack();
+   else if(ntPresenceChannel.state==="joined")await ntPresenceChannel.track({user_id:user.id,name:ntPresenceProfile.data?.full_name||user.user_metadata?.full_name||"NAIJA TASK member",active_area:moduleName,active_room:null,online_at:new Date().toISOString()});
+ });
  window.addEventListener("beforeunload",()=>ntPresenceChannel.untrack());
  const roleMeta=user.user_metadata||{};
  const memberRole=String(roleMeta.role||roleMeta.user_type||roleMeta.account_type||"").toLowerCase();
