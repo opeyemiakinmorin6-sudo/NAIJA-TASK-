@@ -579,9 +579,7 @@ main{max-width:1080px;padding:22px 18px 38px}
       NAIJA TASK
     </div>
 
-    <div class="badge">
-      POSTER
-    </div>
+    <div style="display:flex;align-items:center;gap:10px"><a id="posterNotificationLink" href="notifications.html" aria-label="Notifications" style="position:relative;color:#fff;text-decoration:none;font-size:22px;padding:5px">🔔<span id="posterUnreadBadge" style="display:none;position:absolute;right:-4px;top:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:10px;background:#e11d48;color:#fff;font:800 10px/18px Arial;text-align:center"></span></a><div class="badge">POSTER</div></div>
 
   </div>
 
@@ -927,6 +925,24 @@ const supabaseClient =
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
+let posterNotificationChannel=null;
+async function setupPosterNotificationBadge(user){
+  const badge=document.getElementById("posterUnreadBadge");
+  if(!badge||!user)return;
+  const refresh=async()=>{
+    const {count,error}=await supabaseClient.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",user.id).eq("is_read",false);
+    if(error){console.warn("Notification count unavailable:",error.message);return;}
+    badge.textContent=count>99?"99+":String(count||0);
+    badge.style.display=count>0?"block":"none";
+  };
+  await refresh();
+  if(posterNotificationChannel)await supabaseClient.removeChannel(posterNotificationChannel);
+  posterNotificationChannel=supabaseClient.channel("nt-poster-notifications-"+user.id)
+    .on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"user_id=eq."+user.id},refresh)
+    .subscribe();
+}
+
 
 
 /* =========================================================
@@ -1418,6 +1434,7 @@ async function startDashboard(){
     return;
   }
 
+  await setupPosterNotificationBadge(user);
   await loadProfile(user);
 
   await loadJobs(user);
