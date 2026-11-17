@@ -899,13 +899,13 @@ document.getElementById('listingForm').addEventListener('submit', async function
       stock,
       image_url:imageUrl,
       seller_id:currentUser.id,
-      status:'active'
+      status:'pending'
     });
     if (error) throw error;
 
     document.getElementById('listingForm').reset();
     clearImage();
-    showStatus('listingStatus','Your product has been published automatically. Three independent reports can temporarily hide a listing for safety review.','success');
+    showStatus('listingStatus','Your product has been submitted successfully and is awaiting admin review. It will appear in the shop after approval.','success');
     await Promise.all([loadMyListings(),loadMarketplace()]);
   } catch (error) {
     showStatus('listingStatus','Submission failed: ' + error.message,'error');
