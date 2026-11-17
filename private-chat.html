@@ -530,6 +530,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     if (currentPartner?.id) {
       $("chatSub").textContent = onlineMemberIds.has(currentPartner.id) ? "🟢 Online now" : "Offline · Private conversation";
     }
+    if (conversations.length) renderConversations();
   }
 
   function showFatal(message, canSignIn = false) {
@@ -732,7 +733,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
            data-conversation="${escapeHTML(c.id)}">
         <div class="avatar">${escapeHTML(initials(c.name))}</div>
         <div class="row-content">
-          <div class="row-name">${escapeHTML(c.name)}</div>
+          <div class="row-name">${escapeHTML(c.name)} ${onlineMemberIds.has(c.partnerId) ? '<span style="color:#0b9b45;font-size:10px">● Online</span>' : '<span style="color:#9aa89e;font-size:10px">● Offline</span>'}</div>
           <div class="row-preview">${escapeHTML(c.lastMessage)}</div>
         </div>
         <div class="row-side">
