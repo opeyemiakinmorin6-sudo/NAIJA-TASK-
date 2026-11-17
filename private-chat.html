@@ -520,6 +520,10 @@ button:disabled { opacity:.5; cursor:not-allowed; }
         refreshOnlineStatus();
       }
     });
+    document.addEventListener("visibilitychange", async () => {
+      if (document.hidden) await globalPresenceChannel?.untrack();
+      else if (globalPresenceChannel?.state === "joined") await globalPresenceChannel.track({user_id:me.id,name:displayName,active_area:"Private Chat",active_room:null,online_at:new Date().toISOString()});
+    });
     window.addEventListener("beforeunload", () => { globalPresenceChannel?.untrack(); });
   }
 
