@@ -122,7 +122,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
 <main>
   <div class="notice">
     <strong>Welcome to NAIJA TASK Marketplace.</strong><br>
-    Browse products, chat with sellers, and list genuine items. Protected checkout is being prepared. Do not pay sellers outside NAIJA TASK.
+    Browse products, chat with sellers, and list genuine items. Listings publish automatically after required checks. Protected checkout remains unavailable until secure payment holding is verified. Never pay sellers outside NAIJA TASK.
   </div>
 
   <div id="globalStatus" class="status" role="status" aria-live="polite"></div>
@@ -201,7 +201,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
     <section id="section-sell" class="section">
       <div class="panel">
         <h2>List a product</h2>
-        <p class="muted">Upload at least one original product photo from your phone. New listings are reviewed by NAIJA TASK before they appear publicly. Make sure your product details and photos are genuine and accurate.</p>
+        <p class="muted">Upload at least one original product photo. Your listing goes live automatically after required details and photo checks. NAIJA TASK may hide or suspend listings reported for scams, prohibited goods, threats, or misleading content.</p>
         <form id="listingForm">
           <div class="form-grid">
             <div class="full">
@@ -239,7 +239,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
               </div>
             </div>
           </div>
-          <button class="btn-green" id="submitListingBtn" type="submit" style="width:100%;margin-top:16px">Submit for approval</button>
+          <button class="btn-green" id="submitListingBtn" type="submit" style="width:100%;margin-top:16px">Publish product</button>
         </form>
         <div id="listingStatus" class="status" aria-live="polite"></div>
       </div>
@@ -492,16 +492,32 @@ async function openMarketplaceDispute(orderId) {
 
 async function confirmMarketplaceDelivery(orderId, role) {
   if (!currentUser) return showGlobal('Sign in first.','error');
-  const wording = role === 'buyer' ? 'confirm that you received the product' : 'confirm that delivery was completed with the buyer';
-  if (!confirm('Are you sure you want to ' + wording + '? Only confirm if this is true.')) return;
   try {
-    const {error} = await db.from('marketplace_delivery_confirmations').insert({order_id:orderId,confirmer_id:currentUser.id,party_role:role,confirmation:'confirmed'});
-    if (error) throw error;
-    showGlobal('Your confirmation has been recorded. Both parties must confirm. Payout remains disabled until protected settlement is configured.','success');
+    if (role === 'seller') {
+      const trackingRef = prompt('Enter the delivery tracking reference. For local delivery, leave blank and add a detailed delivery note next.','');
+      if (trackingRef === null) return;
+      const deliveryNote = prompt('Add delivery evidence or a delivery note (at least 8 characters if no tracking reference).','');
+      if (deliveryNote === null) return;
+      const {data,error} = await db.rpc('marketplace_mark_order_delivered',{
+        p_order_id:orderId,
+        p_tracking_ref:trackingRef.trim(),
+        p_delivery_note:deliveryNote.trim()
+      });
+      if (error) throw error;
+      showGlobal('Delivery details recorded. The buyer can now confirm receipt. If the buyer does not respond, the 48-hour release window applies only when protected funds are held and no dispute or report is open.','success');
+    } else {
+      if (!confirm('Confirm that you have actually received the product? Only confirm if it is true.')) return;
+      const {error} = await db.from('marketplace_delivery_confirmations').insert({
+        order_id:orderId,confirmer_id:currentUser.id,party_role:'buyer',confirmation:'confirmed'
+      });
+      if (error) throw error;
+      showGlobal('Receipt confirmed. Release eligibility is checked immediately, subject to protected funds being held and no open dispute or report.','success');
+    }
     await Promise.all([loadMyOrders(),loadSellerOrders()]);
-  } catch (error) { showGlobal('Could not record confirmation: ' + error.message,'error'); }
+  } catch (error) {
+    showGlobal('Could not update delivery: ' + error.message,'error');
+  }
 }
-
 async function loadSeasonalCampaigns() {
   const wrap = document.getElementById('seasonalShowcase');
   const grid = document.getElementById('seasonalCampaignGrid');
@@ -664,65 +680,67 @@ function showRows(containerId, rows, type) {
     container.innerHTML = '<div class="empty">Nothing to show yet.</div>';
     return;
   }
-
   container.innerHTML = rows.map(row => {
     const status = String(row.status || 'pending');
-    const badgeClass = ['active','approved','completed'].includes(status.toLowerCase())
+    const badgeClass = ['active','approved','completed','delivered','buyer_confirmed'].includes(status.toLowerCase())
       ? 'active'
       : ['rejected','cancelled','inactive'].includes(status.toLowerCase())
         ? 'rejected' : 'pending';
-
     if (type === 'order') {
       return '<div class="row-card"><div class="row-top"><strong>Order #' +
-        escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' +
-        badgeClass + '">' + escapeHTML(status) + '</span></div><p>Product ID: ' +
-        escapeHTML(row.product_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
-        ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
-        escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
-        '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
-        (String(row.payment_status || '').toLowerCase() === 'paid'
-          ? '<p class="muted">Payment verified. Protected holding is not yet configured; contact support before dispatch.</p>'
-          : '<p class="muted">Protected checkout is being configured. Do not pay the seller directly.</p>') +
-        (row.buyer_confirmed_at ? '<p class="muted">You confirmed delivery.</p>' : (String(row.payment_status || '').toLowerCase() === 'paid' ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'buyer\')">Confirm received</button>' : '')) +
-        (row.dispute_status && row.dispute_status !== 'none' ? '' : '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') +
-        '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') +
-        '</p></div>';
+        escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' + badgeClass +
+        '">' + escapeHTML(status) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
+        '</p><p>Quantity: ' + escapeHTML(row.quantity) + ' · Total: <strong>' + money(row.total_amount) +
+        '</strong></p><p>Delivery: ' + escapeHTML(row.delivery_status || 'pending') +
+        '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
+        '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') +
+        ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
+        (row.buyer_confirmed_at
+          ? '<p class="muted">You confirmed receipt. Release is queued only when funds are held and no dispute or open report exists.</p>'
+          : (String(row.delivery_status || '').toLowerCase() === 'delivered' && String(row.payment_status || '').toLowerCase() === 'paid'
+            ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'buyer\')">Confirm received</button><p class="muted">If you do not respond, automatic release may occur 48 hours after recorded delivery if no dispute or report is open.</p>'
+            : '<p class="muted">You can confirm receipt after the seller records delivery. Report problems before the release deadline.</p>')) +
+        (row.dispute_status && row.dispute_status !== 'none' ? '' :
+          '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') +
+        '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</p></div>';
     }
-
     if (type === 'listing') {
-      return '<div class="row-card"><div class="row-top"><strong>' +
-        escapeHTML(row.title) + '</strong><span class="badge ' + badgeClass +
-        '">' + escapeHTML(status) + '</span></div><p>' + money(row.price) +
-        ' · Stock: ' + escapeHTML(row.stock) + '</p><p class="muted">' +
+      return '<div class="row-card"><div class="row-top"><strong>' + escapeHTML(row.title) +
+        '</strong><span class="badge ' + badgeClass + '">' + escapeHTML(status) + '</span></div><p>' +
+        money(row.price) + ' · Stock: ' + escapeHTML(row.stock) + '</p><p class="muted">' +
         escapeHTML(row.description || '') + '</p>' +
         (status.toLowerCase() === 'active'
           ? '<button class="btn-light" onclick="changeListingStatus(\'' + escapeHTML(row.id) + '\',\'inactive\')">Deactivate</button>'
           : status.toLowerCase() === 'inactive'
             ? '<button class="btn-green" onclick="changeListingStatus(\'' + escapeHTML(row.id) + '\',\'active\')">Activate</button>'
-            : '<p class="muted">This listing is awaiting review. Only approved/active listings appear in the shop.</p>') +
+            : '<p class="muted">This listing is not currently public. Contact support if you think this is an error.</p>') +
         '</div>';
     }
-
     return '<div class="row-card"><div class="row-top"><strong>Order #' +
-      escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' +
-      badgeClass + '">' + escapeHTML(status) + '</span></div><p>Product ID: ' +
-      escapeHTML(row.product_id) + '</p><p>Buyer ID: ' +
-      escapeHTML(row.buyer_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
+      escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' + badgeClass +
+      '">' + escapeHTML(status) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
+      '</p><p>Buyer ID: ' + escapeHTML(row.buyer_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
       ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
-      escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
-      '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
-      (row.seller_confirmed_at ? '<p class="muted">You confirmed delivery.</p>' : (String(row.payment_status || '').toLowerCase() === 'paid' ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Confirm delivered</button>' : '')) +
-      (row.dispute_status && row.dispute_status !== 'none' ? '' : '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') + '</div>';
+      escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' +
+      escapeHTML(row.payment_status || 'unpaid') + '</strong></p><p class="muted">Protected settlement: ' +
+      escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' +
+      escapeHTML(row.dispute_status || 'none') + '</p>' +
+      (['delivered','buyer_confirmed'].includes(String(row.delivery_status || '').toLowerCase())
+        ? '<p class="muted">Delivery recorded. Waiting for buyer confirmation or the 48-hour dispute-free release window.</p>'
+        : (String(row.payment_status || '').toLowerCase() === 'paid'
+          ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Mark delivered & add tracking</button>'
+          : '<p class="muted">Delivery actions unlock only after payment is verified and held securely.</p>')) +
+      (row.dispute_status && row.dispute_status !== 'none' ? '' :
+        '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') + '</div>';
   }).join('');
 }
-
 async function loadMyOrders() {
   const container = document.getElementById('myOrdersList');
   container.innerHTML = '<div class="empty">Loading your orders...</div>';
   if (!currentUser) return;
   try {
     const {data,error} = await db.from('marketplace_orders')
-      .select('id,buyer_id,seller_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,protection_status,payout_status,dispute_status,buyer_confirmed_at,seller_confirmed_at,created_at')
+      .select('id,buyer_id,seller_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,protection_status,payout_status,dispute_status,buyer_confirmed_at,seller_confirmed_at,delivered_at,payout_release_after,delivery_tracking_ref,marketplace_commission_amount,seller_net_amount,created_at')
       .eq('buyer_id',currentUser.id).order('created_at',{ascending:false});
     if (error) throw error;
     showRows('myOrdersList',data,'order');
@@ -900,13 +918,13 @@ document.getElementById('listingForm').addEventListener('submit', async function
       stock,
       image_url:imageUrl,
       seller_id:currentUser.id,
-      status:'pending'
+      status:'active'
     });
     if (error) throw error;
 
     document.getElementById('listingForm').reset();
     clearImage();
-    showStatus('listingStatus','Your product has been submitted successfully and is awaiting admin review. It will appear in the shop after approval.','success');
+    showStatus('listingStatus','Your product is now published and visible in the marketplace. NAIJA TASK may temporarily hide it if a credible safety or fraud report is received.','success');
     await Promise.all([loadMyListings(),loadMarketplace()]);
   } catch (error) {
     showStatus('listingStatus','Submission failed: ' + error.message,'error');
