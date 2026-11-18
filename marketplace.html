@@ -463,16 +463,13 @@ function productCard(p) {
   const isOwnListing = !!currentUser && p.seller_id === currentUser.id;
   const sellerAction = isOwnListing
     ? '<span class="badge">Your listing</span>'
-    : '<a class="btn-light" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1;font-size:12px;padding:10px 8px;border-radius:10px" href="marketplace-chat.html?product=' + encodeURIComponent(p.id) + '">Chat seller</a>';
+    : '<a class="btn-green" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1;font-size:12px;padding:10px 8px;border-radius:10px" href="marketplace-chat.html?product=' + encodeURIComponent(p.id) + '">Discuss with seller first</a>';
   return '<article class="product"><div class="product-image">' + imageHTML +
     '</div><div class="product-content"><span class="badge">' + category +
     '</span><h3>' + title + '</h3><div class="price">' + money(p.price) +
     '</div><p class="muted">' + description + '</p><p class="muted">' +
-    (stock > 0 ? escapeHTML(stock) + ' available' : 'Out of stock') +
-    '</p><div class="product-actions"><button class="btn-green" ' +
-    (stock < 1 || isOwnListing ? 'disabled' : '') + ' onclick="placeOrder(\'' +
-    escapeHTML(p.id) + '\')">' + (isOwnListing ? 'Your listing' : 'Order') +
-    '</button>' + sellerAction + '</div></div></article>';
+    (stock > 0 ? escapeHTML(stock) + ' available · Confirm availability with seller' : 'Out of stock') +
+    '</p><div class="product-actions">' + sellerAction + '</div></div></article>';
 }
 
 async function confirmMarketplaceDelivery(orderId, role) {
