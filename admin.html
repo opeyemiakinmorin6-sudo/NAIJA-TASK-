@@ -11116,7 +11116,7 @@ async function updateMarketplaceDispute(disputeId, status) {
   const warning = status === "resolved_buyer"
     ? "\\n\\nThis records a buyer-favourable decision and keeps seller payout blocked. It does NOT send a refund automatically."
     : status === "resolved_seller"
-      ? "\\n\\nThis records a seller-favourable decision. Payout remains blocked unless the order has protected funds and both delivery confirmations."
+      ? "\\n\\nThis records a seller-favourable decision. Payout remains blocked unless protected funds are held, the buyer has confirmed receipt or the 48-hour dispute-free release window has elapsed, and no open report or dispute remains."
       : "";
   if (!confirm("Are you sure you want to " + labels[status] + "?" + warning)) return;
   try {
