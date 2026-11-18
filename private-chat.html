@@ -318,6 +318,8 @@ button:disabled { opacity:.5; cursor:not-allowed; }
       </div>
     </div>
     <div class="top-actions">
+      <a class="top-btn" href="community.html" style="text-decoration:none">🌐 Public chat</a>
+      <a class="top-btn" href="marketplace-chat.html" style="text-decoration:none">🛍️ Marketplace</a>
       <button class="top-btn" id="refreshBtn">↻ Refresh</button>
       <button class="top-btn" id="exitBtn">← Back</button>
     </div>
@@ -618,9 +620,26 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 
       if (error) throw error;
 
-      const ids = [...new Set((memberships || []).map(x => x.conversation_id))];
+      const memberIds = [...new Set((memberships || []).map(x => x.conversation_id))];
+
+      // Private inbox must never include product-linked Marketplace conversations.
+      // Marketplace chat shares the underlying message tables, so filter at the
+      // conversation record before loading participants or messages.
+      let ids = [];
+      if (memberIds.length) {
+        const {data: privateRows, error: privateError} = await db
+          .from("chat_conversations")
+          .select("id,marketplace_product_id")
+          .in("id", memberIds)
+          .is("marketplace_product_id", null);
+        if (privateError) throw privateError;
+        ids = (privateRows || []).map(row => row.id);
+      }
+
       const membershipByConversation = new Map(
-        (memberships || []).map(x => [x.conversation_id, x])
+        (memberships || [])
+          .filter(x => ids.includes(x.conversation_id))
+          .map(x => [x.conversation_id, x])
       );
 
       if (!ids.length) {
