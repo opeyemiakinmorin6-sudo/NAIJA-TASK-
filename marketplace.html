@@ -149,7 +149,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
 
   <section id="authPanel" class="auth-card">
     <h2>Sign in or create an account</h2>
-    <p class="muted">Sign in to buy products, upload product photos, manage listings, and view orders.</p>
+    <p class="muted">Any registered Tasker or Poster can buy and sell here using their NAIJA TASK signup account.</p>
     <label for="authEmail">Email address</label>
     <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com">
     <label for="authPassword">Password</label>
@@ -467,7 +467,8 @@ function productCard(p) {
   return '<article class="product"><div class="product-image">' + imageHTML +
     '</div><div class="product-content"><span class="badge">' + category +
     '</span><h3>' + title + '</h3><div class="price">' + money(p.price) +
-    '</div><p class="muted">' + description + '</p><p class="muted">' +
+    '</div><p class="muted">Seller: <strong>' + escapeHTML(p.seller_display_name || 'NAIJA TASK member') + '</strong></p>' +
+    '<p class="muted">' + description + '</p><p class="muted">' +
     (stock > 0 ? escapeHTML(stock) + ' available · Confirm availability with seller' : 'Out of stock') +
     '</p><div class="product-actions">' + sellerAction + '</div></div></article>';
 }
@@ -528,6 +529,29 @@ async function loadMarketplace() {
       .order('created_at',{ascending:false});
     if (error) throw error;
     products = data || [];
+
+    // Marketplace is a shared NAIJA TASK space: Taskers and Posters can both buy and sell.
+    // Resolve seller display names from the same registered profile used at signup.
+    const sellerIds = [...new Set(products.map(p => p.seller_id).filter(Boolean))];
+    if (sellerIds.length) {
+      const {data: sellerProfiles, error: sellerProfilesError} = await db
+        .from('profiles')
+        .select('id,full_name')
+        .in('id', sellerIds);
+      if (sellerProfilesError) {
+        console.warn('Marketplace seller names could not be loaded:', sellerProfilesError.message);
+      }
+      const sellerNames = new Map((sellerProfiles || []).map(profile => [
+        String(profile.id),
+        String(profile.full_name || '').trim()
+      ]));
+      products = products.map(product => ({
+        ...product,
+        seller_display_name: sellerNames.get(String(product.seller_id)) || 'NAIJA TASK member'
+      }));
+    } else {
+      products = products.map(product => ({...product, seller_display_name:'NAIJA TASK member'}));
+    }
     renderProducts();
   } catch (error) {
     grid.innerHTML = '';
