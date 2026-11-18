@@ -44,11 +44,11 @@ $('reportForm').addEventListener('submit',async e=>{
  e.preventDefault();
  const c=inbox.find(x=>x.conversation_id===activeConversation);
  if(!c||!user)return;
- const reason=$('reportReason').value,details=$('reportDetails').value.trim(),orderId=$('reportOrder').value||null;
+ const reason=$('reportReason').value,reportReason=reason==='seller_fraud'?'seller_scam':reason==='buyer_fraud'?'buyer_scam':reason,details=$('reportDetails').value.trim(),orderId=$('reportOrder').value||null;
  if(details.length<10){$('reportFormError').textContent='Please enter at least 10 characters so we can investigate.';return;}
  const btn=$('sendReportBtn');btn.disabled=true;btn.textContent='Submitting…';
  try{
-  const {error:reportError}=await db.from('marketplace_reports').insert({product_id:c.product_id||null,order_id:orderId,reporter_id:user.id,reported_user_id:c.other_user_id||null,reason,details});
+  const {error:reportError}=await db.from('marketplace_reports').insert({product_id:c.product_id||null,order_id:orderId,reporter_id:user.id,reported_user_id:c.other_user_id||null,reason:reportReason,details});
   if(reportError)throw reportError;
   if(orderId){
    const {error:disputeError}=await db.from('marketplace_disputes').insert({order_id:orderId,opened_by:user.id,reason,details});
