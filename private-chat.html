@@ -415,6 +415,23 @@ button:disabled { opacity:.5; cursor:not-allowed; }
   </div>
 </div>
 
+<div class="modal-backdrop" id="reportBackdrop" aria-hidden="true">
+  <form class="modal" id="reportForm" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+    <h3 id="reportTitle">Report this member</h3>
+    <p>Tell NAIJA TASK Trust &amp; Safety what happened. Reports are private and reviewed by the moderation team.</p>
+    <label for="reportReason">Reason</label>
+    <select class="input" id="reportReason" required>
+      <option value="">Choose a reason</option><option value="harassment">Harassment or bullying</option>
+      <option value="spam">Spam or unwanted messages</option><option value="scam">Scam or fraud</option>
+      <option value="threats">Threats or abusive content</option><option value="impersonation">Impersonation</option>
+      <option value="other">Other</option>
+    </select>
+    <label for="reportDetails">Additional details (optional)</label>
+    <textarea class="input" id="reportDetails" rows="4" maxlength="2000" placeholder="Add context to help us review this report."></textarea>
+    <div id="reportError" class="subtext" role="alert" style="color:#c62828;min-height:18px"></div>
+    <div class="modal-actions"><button type="button" class="secondary" id="reportCancel">Cancel</button><button type="submit" class="primary" id="reportSubmit">Submit report</button></div>
+  </form>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -588,6 +605,9 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     $("sendBtn").onclick = sendMessage;
     $("blockBtn").onclick = blockUser;
     $("reportBtn").onclick = reportUser;
+    $("reportCancel").onclick = closeReportModal;
+    $("reportBackdrop").addEventListener("click", e => { if(e.target === $("reportBackdrop")) closeReportModal(); });
+    $("reportForm").addEventListener("submit", submitPrivateReport);
     $("modalCancel").onclick = closeModal;
     $("modalBackdrop").addEventListener("click", e => {
       if (e.target === $("modalBackdrop")) closeModal();
@@ -1103,29 +1123,49 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     }
   }
 
-  async function reportUser() {
+  function reportUser() {
     if (!currentPartner?.id) return;
+    $("reportReason").value = "";
+    $("reportDetails").value = "";
+    $("reportError").textContent = "";
+    $("reportBackdrop").classList.add("open");
+    $("reportBackdrop").setAttribute("aria-hidden","false");
+    $("reportReason").focus();
+  }
 
-    const reason = prompt(
-      "Why are you reporting this member?\n\nExamples: harassment, spam, scam, threats."
-    );
-    if (!reason?.trim()) return;
+  function closeReportModal() {
+    $("reportBackdrop").classList.remove("open");
+    $("reportBackdrop").setAttribute("aria-hidden","true");
+  }
 
-    const details = prompt("Additional details (optional):") || "";
-
+  async function submitPrivateReport(event) {
+    event.preventDefault();
+    if (!currentPartner?.id || !me) return;
+    const reason = $("reportReason").value;
+    const details = $("reportDetails").value.trim();
+    if (!reason) {
+      $("reportError").textContent = "Choose a reason for this report.";
+      return;
+    }
+    const button = $("reportSubmit");
+    button.disabled = true;
+    button.textContent = "Submitting…";
+    $("reportError").textContent = "";
     try {
       const {error} = await db.from("chat_reports").insert({
         reporter_id:me.id,
         reported_user_id:currentPartner.id,
-        reason:reason.trim().slice(0,200),
-        details:details.trim().slice(0,2000)
+        reason,
+        details:details.slice(0,2000)
       });
-
       if (error) throw error;
-      toast("Report submitted for review.");
+      closeReportModal();
+      toast("Report submitted privately for review.");
     } catch (error) {
-      console.error("reportUser:",error);
-      toast(friendlyError(error));
+      $("reportError").textContent = friendlyError(error);
+    } finally {
+      button.disabled = false;
+      button.textContent = "Submit report";
     }
   }
 
