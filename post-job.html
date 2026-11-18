@@ -323,6 +323,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
 </style>
 
   <link rel="stylesheet" href="/assets/naija-design-system.css?v=2">
+
+<style id="nt-platform-picker-style">.nt-selected-platform{display:flex;align-items:center;gap:12px;margin:10px 0 13px;padding:12px;border:1px solid #dce9de;border-radius:15px;background:linear-gradient(135deg,#f5fbf5,#fff);color:#173326}.nt-selected-platform-icon{width:46px;height:46px;display:grid;place-items:center;flex:0 0 46px;border-radius:13px;background:#0b8f45;color:#fff;font-size:22px;font-weight:900;box-shadow:0 5px 14px #073b2418}.nt-selected-platform b,.nt-selected-platform small{display:block}.nt-selected-platform b{font-size:13px}.nt-selected-platform small{margin-top:3px;color:#6b7b70;font-size:10px}.nt-selected-platform-icon.play{background:#fff;color:#188b49}.nt-selected-platform-icon.apple{background:#111;color:#fff}.nt-selected-platform-icon.youtube{background:#f00}.nt-selected-platform-icon.instagram{background:linear-gradient(135deg,#ffb347,#e1306c,#5851db)}.nt-selected-platform-icon.tiktok{background:#111}.nt-selected-platform-icon.whatsapp{background:#20b95b}.nt-selected-platform-icon.facebook{background:#1877f2}.nt-selected-platform-icon.telegram{background:#229ed9}.nt-selected-platform-icon.spotify{background:#1ed760;color:#111}.nt-selected-platform-icon.snapchat{background:#fffc00;color:#111}.nt-selected-platform-icon.linkedin{background:#0a66c2}.nt-selected-platform-icon.x{background:#111}.nt-selected-platform-icon.threads{background:#111}</style>
 </head>
 
 <body>
@@ -373,6 +375,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
 
     <div id="normalSocialServiceFields">
       <label for="socialPlatform">Choose Social Platform</label>
+      <div id="ntSelectedPlatform" class="nt-selected-platform" aria-live="polite"><span class="nt-selected-platform-icon">◎</span><span><b>Choose a platform</b><small>Its app icon will appear here</small></span></div>
       <select id="socialPlatform">
         <option value="">Select the platform you want to use</option>
         <option>Facebook</option><option>Instagram</option><option>TikTok</option>
@@ -1566,6 +1569,9 @@ checkPoster();
 
 <!-- NAIJA TASK Adsterra banner -->
 <div class="nt-adsterra-banner" style="width:100%;max-width:320px;min-height:50px;margin:18px auto;text-align:center;overflow:hidden"><script>atOptions={'key':'dc095c7f78341b7c3f8c3cd337d72815','format':'iframe','height':50,'width':320,'params':{}};</script><script src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script></div>
+<script>
+(function(){const select=document.getElementById("socialPlatform"),box=document.getElementById("ntSelectedPlatform");if(!select||!box)return;const brands={"Facebook":["f","facebook"],"Instagram":["◎","instagram"],"TikTok":["♪","tiktok"],"YouTube":["▶","youtube"],"YouTube Music":["♫","youtube"],"X / Twitter":["𝕏","x"],"LinkedIn":["in","linkedin"],"WhatsApp":["◔","whatsapp"],"Telegram":["➤","telegram"],"Threads":["@","threads"],"Spotify":["≋","spotify"],"Apple Music":["♫","apple"],"Audiomack":["A","audiomack"],"Snapchat":["👻","snapchat"],"Quora":["Q","quora"],"Boomplay":["▶","boomplay"],"Google":["G","google"],"Google Play Store":["▷","play"],"Apple App Store":["A","apple"]};function draw(){const name=select.value;if(!name){box.innerHTML='<span class="nt-selected-platform-icon">◎</span><span><b>Choose a platform</b><small>Its app icon will appear here</small></span>';return;}const item=brands[name]||[name.slice(0,1).toUpperCase(),""];box.innerHTML='<span class="nt-selected-platform-icon '+item[1]+'">'+item[0]+'</span><span><b>'+name.replace(/[&<>"]/g,'')+'</b><small>Selected platform · choose the task action below</small></span>';}select.addEventListener("change",draw);draw();})();
+</script>
 </body>
         </html>
 
