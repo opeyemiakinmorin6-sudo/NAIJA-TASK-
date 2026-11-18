@@ -105,6 +105,8 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
 .ad-popup-dismiss{width:100%;margin-top:13px;padding:13px;border:0;border-radius:12px;background:linear-gradient(110deg,#087f36,#0b9b45);color:#fff;font-size:13px;font-weight:850;box-shadow:0 5px 14px rgba(8,127,54,.18);cursor:pointer}
 @keyframes adFadeIn{from{opacity:0}to{opacity:1}}@keyframes adCardIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:360px){.ad-popup-backdrop{padding:10px}.ad-popup-card{padding:0 11px 12px;border-radius:18px}.ad-popup-head{margin:0 -11px 10px;padding:13px 11px}.ad-popup-unit{width:100%}}
+
+.nt-dialog{position:fixed;inset:0;z-index:1000000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,20,10,.78);backdrop-filter:blur(7px)}.nt-dialog.open{display:flex}.nt-dialog-card{width:min(100%,430px);background:linear-gradient(155deg,#073b24,#064d25 60%,#0b6f38);color:#f4fff6;border:1px solid #b7ef4355;border-radius:22px;padding:20px;box-shadow:0 24px 80px #001b0c88}.nt-dialog-kicker{font-size:10px;letter-spacing:1.6px;font-weight:900;color:#b7ef43;margin-bottom:8px}.nt-dialog-card h3{font-size:20px;margin:0 0 9px;color:#fff}.nt-dialog-message{white-space:pre-line;color:#dcefe1;font-size:13px;line-height:1.6;margin:0 0 15px}.nt-dialog-field{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #ffffff36;background:#f7fff8;color:#173326;outline:none;margin:0 0 15px}.nt-dialog-actions{display:flex;gap:9px}.nt-dialog-actions button{flex:1;padding:12px;border-radius:12px;font-weight:850}.nt-dialog-cancel{background:#ffffff16;color:#fff;border:1px solid #ffffff32}.nt-dialog-confirm{background:linear-gradient(110deg,#b7ef43,#d5ff7a);color:#073b24}.nt-dialog-confirm.danger{background:#ffd9d9;color:#8c1717}
 </style>
 </head>
 <body>
@@ -266,7 +268,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
 </main>
 
 <footer>NAIJA TASK · Complete Tasks. Earn Naira.</footer>
-
+<div id="ntDialog" class="nt-dialog" aria-hidden="true"><div class="nt-dialog-card" role="dialog" aria-modal="true" aria-labelledby="ntDialogTitle"><div class="nt-dialog-kicker">NAIJA TASK · MARKETPLACE</div><h3 id="ntDialogTitle">Confirm action</h3><p id="ntDialogMessage" class="nt-dialog-message"></p><div id="ntDialogField"></div><div class="nt-dialog-actions"><button type="button" class="nt-dialog-cancel" id="ntDialogCancel">Cancel</button><button type="button" class="nt-dialog-confirm" id="ntDialogConfirm">Continue</button></div></div></div>
 <script>
 'use strict';
 
@@ -283,6 +285,7 @@ let selectedProductImage = null;
 let previewObjectUrl = null;
 let submittingListing = false;
 
+function ntDialog(options={}){return new Promise(resolve=>{const root=document.getElementById('ntDialog'),title=document.getElementById('ntDialogTitle'),message=document.getElementById('ntDialogMessage'),field=document.getElementById('ntDialogField'),cancel=document.getElementById('ntDialogCancel'),ok=document.getElementById('ntDialogConfirm'),mode=options.mode||'confirm';title.textContent=options.title||'Confirm action';message.textContent=options.message||'';ok.textContent=options.confirmText||'Continue';cancel.textContent=options.cancelText||'Cancel';ok.classList.toggle('danger',!!options.danger);field.innerHTML='';let control=null;if(mode==='input'||mode==='textarea'){control=document.createElement(mode==='textarea'?'textarea':'input');control.className='nt-dialog-field';if(mode==='input')control.type=options.inputType||'text';control.placeholder=options.placeholder||'';control.value=options.defaultValue??'';if(options.inputType==='number'){control.min=options.min??'1';control.step='1';}if(mode==='textarea'){control.rows=4;control.maxLength=options.maxLength||1000;}field.appendChild(control);setTimeout(()=>control.focus(),40);}root.classList.add('open');root.setAttribute('aria-hidden','false');const finish=value=>{root.classList.remove('open');root.setAttribute('aria-hidden','true');cancel.onclick=null;ok.onclick=null;root.onclick=null;document.removeEventListener('keydown',onKey);resolve(value);};cancel.onclick=()=>finish(mode==='confirm'?false:null);ok.onclick=()=>{if(mode==='confirm')return finish(true);const value=control.value.trim();if(options.required&&!value){control.focus();return;}finish(value);};root.onclick=e=>{if(e.target===root)finish(mode==='confirm'?false:null);};const onKey=e=>{if(e.key==='Escape')finish(mode==='confirm'?false:null);if(e.key==='Enter'&&mode==='input'){e.preventDefault();ok.click();}};document.addEventListener('keydown',onKey);});}
 function escapeHTML(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -443,7 +446,6 @@ function productCard(p) {
   const sellerAction = isOwnListing
     ? '<span class="badge">Your listing</span>'
     : '<a class="btn-light" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;flex:1;font-size:12px;padding:10px 8px;border-radius:10px" href="marketplace-chat.html?product=' + encodeURIComponent(p.id) + '">Chat seller</a>';
-  const reportAction = isOwnListing ? '' : '<button class="btn-light" onclick="reportMarketplaceProduct(\'' + escapeHTML(p.id) + '\',\'' + escapeHTML(p.seller_id || '') + '\')">Report</button>';
   return '<article class="product"><div class="product-image">' + imageHTML +
     '</div><div class="product-content"><span class="badge">' + category +
     '</span><h3>' + title + '</h3><div class="price">' + money(p.price) +
@@ -452,51 +454,16 @@ function productCard(p) {
     '</p><div class="product-actions"><button class="btn-green" ' +
     (stock < 1 || isOwnListing ? 'disabled' : '') + ' onclick="placeOrder(\'' +
     escapeHTML(p.id) + '\')">' + (isOwnListing ? 'Your listing' : 'Order') +
-    '</button>' + sellerAction + reportAction + '</div></div></article>';
-}
-
-async function reportMarketplaceProduct(productId, sellerId) {
-  if (!currentUser) return showGlobal('Sign in before reporting a product.','error');
-  const choice = prompt('Report reason:\\n1. Fake product\\n2. Counterfeit goods\\n3. Misleading photos or description\\n4. Prohibited item\\n5. Suspected seller scam\\n6. Other','1');
-  if (choice === null) return;
-  const reasons = {1:'fake_product',2:'counterfeit',3:'misleading_listing',4:'prohibited_item',5:'seller_scam',6:'other'};
-  const reason = reasons[String(choice).trim()];
-  if (!reason) return showGlobal('Choose a valid report reason from 1 to 6.','error');
-  const details = prompt('Briefly explain what is wrong (at least 10 characters):','');
-  if (details === null) return;
-  if (details.trim().length < 10) return showGlobal('Please provide at least 10 characters of detail.','error');
-  try {
-    const {error} = await db.from('marketplace_reports').insert({product_id:productId,reporter_id:currentUser.id,reported_user_id:sellerId || null,reason,details:details.trim()});
-    if (error) throw error;
-    showGlobal('Report received. The listing has been added to Marketplace Safety review.','success');
-  } catch (error) { showGlobal('Could not submit report: ' + error.message,'error'); }
-}
-
-async function openMarketplaceDispute(orderId) {
-  if (!currentUser) return showGlobal('Sign in first.','error');
-  const choices = ['not_delivered','wrong_item','damaged_item','not_as_described','counterfeit','seller_fraud','buyer_fraud','other'];
-  const choice = prompt('Dispute reason:\\n1. Item not delivered\\n2. Wrong item\\n3. Damaged item\\n4. Not as described\\n5. Counterfeit\\n6. Seller fraud\\n7. Buyer fraud\\n8. Other','1');
-  if (choice === null) return;
-  const reason = choices[Number(choice)-1];
-  if (!reason) return showGlobal('Choose a valid dispute reason from 1 to 8.','error');
-  const details = prompt('Explain the problem (at least 10 characters):','');
-  if (details === null) return;
-  if (details.trim().length < 10) return showGlobal('Please provide more details.','error');
-  try {
-    const {error} = await db.from('marketplace_disputes').insert({order_id:orderId,opened_by:currentUser.id,reason,details:details.trim()});
-    if (error) throw error;
-    showGlobal('Dispute opened. Seller payout is blocked pending review.','success');
-    await Promise.all([loadMyOrders(),loadSellerOrders()]);
-  } catch (error) { showGlobal('Could not open dispute: ' + error.message,'error'); }
+    '</button>' + sellerAction + '</div></div></article>';
 }
 
 async function confirmMarketplaceDelivery(orderId, role) {
   if (!currentUser) return showGlobal('Sign in first.','error');
   try {
     if (role === 'seller') {
-      const trackingRef = prompt('Enter the delivery tracking reference. For local delivery, leave blank and add a detailed delivery note next.','');
+      const trackingRef = await ntDialog({mode:'input',title:'Delivery tracking',message:'Enter the delivery tracking reference. For local delivery, leave this blank and add a delivery note next.',placeholder:'Tracking reference'});
       if (trackingRef === null) return;
-      const deliveryNote = prompt('Add delivery evidence or a delivery note (at least 8 characters if no tracking reference).','');
+      const deliveryNote = await ntDialog({mode:'textarea',title:'Delivery note',message:'Add delivery evidence or a delivery note (at least 8 characters if no tracking reference).',placeholder:'Describe the delivery or evidence…',maxLength:1000});
       if (deliveryNote === null) return;
       const {data,error} = await db.rpc('marketplace_mark_order_delivered',{
         p_order_id:orderId,
@@ -506,7 +473,7 @@ async function confirmMarketplaceDelivery(orderId, role) {
       if (error) throw error;
       showGlobal('Delivery details recorded. The buyer can now confirm receipt. If the buyer does not respond, the 48-hour release window applies only when protected funds are held and no dispute or report is open.','success');
     } else {
-      if (!confirm('Confirm that you have actually received the product? Only confirm if it is true.')) return;
+      if (!(await ntDialog({title:'Confirm delivery',message:'Have you actually received the product? Only confirm if this is true.',confirmText:'Yes, I received it'}))) return;
       const {error} = await db.from('marketplace_delivery_confirmations').insert({
         order_id:orderId,confirmer_id:currentUser.id,party_role:'buyer',confirmation:'confirmed'
       });
@@ -636,7 +603,7 @@ async function placeOrder(productId) {
   if (String(product.seller_id) === String(currentUser.id)) {
     return showGlobal('You cannot order your own product.','error');
   }
-  const quantityText = prompt('Enter quantity (available: ' + Number(product.stock || 0) + '):','1');
+  const quantityText = await ntDialog({mode:'input',inputType:'number',title:'Choose quantity',message:'Available quantity: ' + Number(product.stock || 0),placeholder:'Quantity',defaultValue:'1',min:1,required:true,confirmText:'Continue'});
   if (quantityText === null) return;
   const quantity = Number(quantityText);
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > Number(product.stock || 0)) {
@@ -645,9 +612,7 @@ async function placeOrder(productId) {
   const unitPrice = Number(product.price);
   const total = unitPrice * quantity;
   if (!Number.isFinite(total) || unitPrice <= 0) return showGlobal('This product has an invalid price.','error');
-  if (!confirm('Create an order request?\n\nProduct: ' + product.title +
-    '\nQuantity: ' + quantity + '\nTotal: ' + money(total) +
-    '\n\nNo payment will be taken. Marketplace checkout is not active yet.')) return;
+  if (!(await ntDialog({title:'Review your order',message:'Product: ' + product.title + '\nQuantity: ' + quantity + '\nTotal: ' + money(total) + '\n\nProtected checkout is not active yet. This creates an order request only; no payment will be taken.',confirmText:'Create order request'}))) return;
 
   let orderId = null;
   try {
@@ -664,7 +629,7 @@ async function placeOrder(productId) {
     }).select('id').single();
     if (error) throw error;
     orderId = order.id;
-    showGlobal('Your order request has been saved. No payment has been taken. We will enable checkout only after protected settlement is ready. Do not pay the seller directly.','success');
+    showGlobal('Order request saved. No payment has been taken because protected checkout is not ready yet. Do not pay the seller directly.','success');
     await loadMyOrders();
     openTab('orders',document.querySelector('[data-section="orders"]'));
     return;
@@ -708,8 +673,7 @@ function showRows(containerId, rows, type) {
         decisionNote +
         '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') +
         ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
-        (row.dispute_status && row.dispute_status !== 'none' ? '' :
-          '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') +
+        '' +
         '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</p></div>';
     }
     if (type === 'listing') {
@@ -747,16 +711,14 @@ function showRows(containerId, rows, type) {
         : (String(row.payment_status || '').toLowerCase() === 'paid'
           ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Mark delivered & add tracking</button>'
           : '<p class="muted">Delivery actions unlock only after payment is verified and held securely.</p>')) +
-      (row.dispute_status && row.dispute_status !== 'none' ? '' :
-        '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') + '</div>';
+        '' + '</div>';
   }).join('');
 }
 async function decideMarketplaceOrder(orderId, decision) {
   if (!currentUser) return showGlobal('Sign in first.','error');
   if (!['approve','decline'].includes(decision)) return;
   const verb = decision === 'approve' ? 'approve' : 'decline';
-  if (!confirm('Are you sure you want to ' + verb + ' this order request? ' +
-      (decision === 'approve' ? 'The buyer will be told you approved, but payment is not active yet.' : 'The buyer will be told you declined.'))) return;
+  if (!(await ntDialog({title:decision==='approve'?'Approve order request':'Decline order request',message:'Are you sure you want to ' + verb + ' this order request? ' + (decision === 'approve' ? 'The buyer will be told you approved, but payment is not active yet.' : 'The buyer will be told you declined.'),confirmText:decision==='approve'?'Approve request':'Decline request',danger:decision==='decline'}))) return;
   try {
     const {data,error} = await db.rpc('marketplace_seller_decide_order',{
       p_order_id:orderId,
@@ -820,7 +782,7 @@ async function loadSellerOrders() {
 async function changeListingStatus(productId, newStatus) {
   if (!currentUser) return showGlobal('Sign in first.','error');
   if (!['active','inactive'].includes(newStatus)) return;
-  if (!confirm('Change this listing status to ' + newStatus + '?')) return;
+  if (!(await ntDialog({title:'Change listing status',message:'Change this listing status to ' + newStatus + '?',confirmText:'Confirm change'}))) return;
 
   try {
     const {data,error} = await db.from('marketplace')
