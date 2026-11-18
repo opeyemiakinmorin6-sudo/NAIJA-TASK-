@@ -771,7 +771,7 @@ async function loadSellerOrders() {
 
   try {
     const {data:orderData,error:orderError} = await db.from('marketplace_orders')
-      .select('id,buyer_id,seller_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,protection_status,payout_status,dispute_status,buyer_confirmed_at,seller_confirmed_at,created_at')
+      .select('id,buyer_id,seller_id,product_id,quantity,unit_price,total_amount,status,delivery_status,payment_status,protection_status,payout_status,dispute_status,buyer_confirmed_at,seller_confirmed_at,delivered_at,payout_release_after,delivery_tracking_ref,marketplace_commission_amount,seller_net_amount,created_at')
       .eq('seller_id',currentUser.id).order('created_at',{ascending:false});
     if (orderError) throw orderError;
     showRows('sellerOrdersList',orderData,'seller');
@@ -931,7 +931,7 @@ document.getElementById('listingForm').addEventListener('submit', async function
   } finally {
     submittingListing = false;
     button.disabled = false;
-    button.textContent = 'Submit for approval';
+    button.textContent = 'Publish product';
   }
 });
 
