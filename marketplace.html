@@ -682,6 +682,8 @@ function showRows(containerId, rows, type) {
   }
   container.innerHTML = rows.map(row => {
     const status = String(row.status || 'pending');
+    const displayStatus = ['order_request_pending','awaiting_protected_checkout'].includes(status.toLowerCase())
+      ? 'Order request pending' : status;
     const badgeClass = ['active','approved','completed','delivered','buyer_confirmed'].includes(status.toLowerCase())
       ? 'active'
       : ['rejected','cancelled','inactive'].includes(status.toLowerCase())
@@ -689,7 +691,7 @@ function showRows(containerId, rows, type) {
     if (type === 'order') {
       return '<div class="row-card"><div class="row-top"><strong>Order #' +
         escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' + badgeClass +
-        '">' + escapeHTML(status) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
+        '">' + escapeHTML(displayStatus) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
         '</p><p>Quantity: ' + escapeHTML(row.quantity) + ' · Total: <strong>' + money(row.total_amount) +
         '</strong></p><p>Delivery: ' + escapeHTML(row.delivery_status || 'pending') +
         '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
@@ -718,7 +720,7 @@ function showRows(containerId, rows, type) {
     }
     return '<div class="row-card"><div class="row-top"><strong>Order #' +
       escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' + badgeClass +
-      '">' + escapeHTML(status) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
+      '">' + escapeHTML(displayStatus) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
       '</p><p>Buyer ID: ' + escapeHTML(row.buyer_id) + '</p><p>Quantity: ' + escapeHTML(row.quantity) +
       ' · Total: <strong>' + money(row.total_amount) + '</strong></p><p>Delivery: ' +
       escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' +
