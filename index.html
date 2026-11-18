@@ -828,12 +828,14 @@ footer a{color:#d9f3b2!important}
     document.querySelectorAll(selector).forEach(function(slot){
       if(slot.dataset.ntVisibleFallbackReady==="1")return;
       slot.dataset.ntVisibleFallbackReady="1";
+      slot.dataset.ntFallbackReady="1";
       if(hasCreative(slot))return;
       var fallback=document.createElement("div");
       fallback.className="nt-visible-ad-fallback";
       fallback.innerHTML='<div><strong>Advertise on NAIJA TASK</strong><span>Promote your business, product or service to our community.</span></div><a href="ads.html">Advertise here</a>';
       slot.appendChild(fallback);
       var observer=new MutationObserver(function(){
+        slot.querySelectorAll(".nt-ad-fallback").forEach(function(oldFallback){oldFallback.remove();});
         if(hasCreative(slot)){fallback.remove();observer.disconnect();}
       });
       observer.observe(slot,{childList:true,subtree:true,attributes:true});
