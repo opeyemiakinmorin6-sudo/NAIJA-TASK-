@@ -724,7 +724,10 @@ function showRows(containerId, rows, type) {
       escapeHTML(row.delivery_status || 'pending') + '</p><p>Payment: <strong>' +
       escapeHTML(row.payment_status || 'unpaid') + '</strong></p><p class="muted">Protected settlement: ' +
       escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' +
-      escapeHTML(row.dispute_status || 'none') + '</p>' +
+      escapeHTML(row.dispute_status || 'none') + ' · Payout: ' + escapeHTML(row.payout_status || 'not_ready') + '</p>' +
+      (Number(row.seller_net_amount) > 0
+        ? '<p class="muted">Seller proceeds after platform commission: <strong>' + money(row.seller_net_amount) + '</strong> · Platform commission: ' + money(row.marketplace_commission_amount) + '</p>'
+        : '<p class="muted">Seller proceeds are calculated when protected funds become eligible for release.</p>') +
       (['delivered','buyer_confirmed'].includes(String(row.delivery_status || '').toLowerCase())
         ? '<p class="muted">Delivery recorded. Waiting for buyer confirmation or the 48-hour dispute-free release window.</p>'
         : (String(row.payment_status || '').toLowerCase() === 'paid'
