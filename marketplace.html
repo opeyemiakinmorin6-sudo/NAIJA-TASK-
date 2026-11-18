@@ -682,28 +682,34 @@ function showRows(containerId, rows, type) {
   }
   container.innerHTML = rows.map(row => {
     const status = String(row.status || 'pending');
-    const displayStatus = ['order_request_pending','awaiting_protected_checkout'].includes(status.toLowerCase())
-      ? 'Order request pending' : status;
+    const statusLabels = {
+      order_request_pending:'Order request pending',
+      awaiting_protected_checkout:'Order request pending',
+      seller_approved_pending_payment:'Seller approved · awaiting payment',
+      seller_declined:'Seller declined'
+    };
+    const displayStatus = statusLabels[status.toLowerCase()] || status;
     const badgeClass = ['active','approved','completed','delivered','buyer_confirmed'].includes(status.toLowerCase())
       ? 'active'
       : ['rejected','cancelled','inactive'].includes(status.toLowerCase())
         ? 'rejected' : 'pending';
     if (type === 'order') {
+      const decisionNote = status === 'seller_approved_pending_payment'
+        ? '<p class="muted">The seller approved your request. Checkout is not active yet, so no payment has been taken.</p>'
+        : status === 'seller_declined'
+          ? '<p class="muted">The seller declined this request. No payment was taken.</p>'
+          : '<p class="muted">Waiting for the seller to approve or decline this request. No payment has been taken.</p>';
       return '<div class="row-card"><div class="row-top"><strong>Order #' +
         escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' + badgeClass +
         '">' + escapeHTML(displayStatus) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
         '</p><p>Quantity: ' + escapeHTML(row.quantity) + ' · Total: <strong>' + money(row.total_amount) +
         '</strong></p><p>Delivery: ' + escapeHTML(row.delivery_status || 'pending') +
         '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
+        decisionNote +
         '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') +
         ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
-        (row.buyer_confirmed_at
-          ? '<p class="muted">You confirmed receipt. Release is queued only when funds are held and no dispute or open report exists.</p>'
-          : (String(row.delivery_status || '').toLowerCase() === 'delivered' && String(row.payment_status || '').toLowerCase() === 'paid'
-            ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'buyer\')">Confirm received</button><p class="muted">If you do not respond, automatic release may occur 48 hours after recorded delivery if no dispute or report is open.</p>'
-            : '<p class="muted">You can confirm receipt after the seller records delivery. Report problems before the release deadline.</p>')) +
         (row.dispute_status && row.dispute_status !== 'none' ? '' :
-          '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') +
+          '<button class="btn-danger" onclick="openMarketplaceDispute(\\'' + escapeHTML(row.id) + '\\')">Report a problem</button>') +
         '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</p></div>';
     }
     if (type === 'listing') {
@@ -727,18 +733,44 @@ function showRows(containerId, rows, type) {
       escapeHTML(row.payment_status || 'unpaid') + '</strong></p><p class="muted">Protected settlement: ' +
       escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' +
       escapeHTML(row.dispute_status || 'none') + ' · Payout: ' + escapeHTML(row.payout_status || 'not_ready') + '</p>' +
+      (status === 'order_request_pending'
+        ? '<p class="muted">A buyer is waiting for your response. Approving does not collect payment; checkout is currently unavailable.</p><div class="product-actions"><button class="btn-green" onclick="decideMarketplaceOrder(\\'' + escapeHTML(row.id) + '\\',\\'approve\\')">Approve request</button><button class="btn-danger" onclick="decideMarketplaceOrder(\\'' + escapeHTML(row.id) + '\\',\\'decline\\')">Decline</button></div>'
+        : status === 'seller_approved_pending_payment'
+          ? '<p class="muted">You approved this request. It is waiting for protected checkout; do not accept direct payment.</p>'
+          : status === 'seller_declined'
+            ? '<p class="muted">You declined this request. No payment was taken.</p>' : '') +
       (Number(row.seller_net_amount) > 0
         ? '<p class="muted">Seller proceeds after platform commission: <strong>' + money(row.seller_net_amount) + '</strong> · Platform commission: ' + money(row.marketplace_commission_amount) + '</p>'
-        : '<p class="muted">Seller proceeds are calculated when protected funds become eligible for release.</p>') +
+        : '<p class="muted">Seller proceeds are calculated only after protected funds are held and eligible for release.</p>') +
       (['delivered','buyer_confirmed'].includes(String(row.delivery_status || '').toLowerCase())
         ? '<p class="muted">Delivery recorded. Waiting for buyer confirmation or the 48-hour dispute-free release window.</p>'
         : (String(row.payment_status || '').toLowerCase() === 'paid'
-          ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Mark delivered & add tracking</button>'
+          ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\\'' + escapeHTML(row.id) + '\\',\\'seller\\')">Mark delivered & add tracking</button>'
           : '<p class="muted">Delivery actions unlock only after payment is verified and held securely.</p>')) +
       (row.dispute_status && row.dispute_status !== 'none' ? '' :
-        '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') + '</div>';
+        '<button class="btn-danger" onclick="openMarketplaceDispute(\\'' + escapeHTML(row.id) + '\\')">Report a problem</button>') + '</div>';
   }).join('');
 }
+async function decideMarketplaceOrder(orderId, decision) {
+  if (!currentUser) return showGlobal('Sign in first.','error');
+  if (!['approve','decline'].includes(decision)) return;
+  const verb = decision === 'approve' ? 'approve' : 'decline';
+  if (!confirm('Are you sure you want to ' + verb + ' this order request? ' +
+      (decision === 'approve' ? 'The buyer will be told you approved, but payment is not active yet.' : 'The buyer will be told you declined.'))) return;
+  try {
+    const {data,error} = await db.rpc('marketplace_seller_decide_order',{
+      p_order_id:orderId,
+      p_decision:decision
+    });
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error(data?.message || 'The order decision was not saved.');
+    showGlobal(data.message || 'Order request updated.','success');
+    await Promise.all([loadSellerOrders(),loadMyOrders()]);
+  } catch (error) {
+    showGlobal('Could not update order request: ' + error.message,'error');
+  }
+}
+
 async function loadMyOrders() {
   const container = document.getElementById('myOrdersList');
   container.innerHTML = '<div class="empty">Loading your orders...</div>';
