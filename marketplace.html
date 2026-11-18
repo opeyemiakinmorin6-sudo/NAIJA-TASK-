@@ -122,7 +122,7 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
 <main>
   <div class="notice">
     <strong>Welcome to NAIJA TASK Marketplace.</strong><br>
-    Browse products, chat with sellers, and list genuine items. Listings publish automatically after required checks. Protected checkout remains unavailable until secure payment holding is verified. Never pay sellers outside NAIJA TASK.
+    Browse products, chat with sellers, and list genuine items. Listings publish automatically after required checks. Marketplace orders are requests only for now: checkout is not active, and no payment is collected. Never transfer money directly to a seller. Flutterwave split settlement is not escrow and will only be enabled after seller subaccounts and settlement checks are complete.
   </div>
 
   <div id="globalStatus" class="status" role="status" aria-live="polite"></div>
@@ -645,9 +645,9 @@ async function placeOrder(productId) {
   const unitPrice = Number(product.price);
   const total = unitPrice * quantity;
   if (!Number.isFinite(total) || unitPrice <= 0) return showGlobal('This product has an invalid price.','error');
-  if (!confirm('Create a protected order request?\n\nProduct: ' + product.title +
+  if (!confirm('Create an order request?\n\nProduct: ' + product.title +
     '\nQuantity: ' + quantity + '\nTotal: ' + money(total) +
-    '\n\nNo payment will be taken yet. Protected checkout is still being configured.')) return;
+    '\n\nNo payment will be taken. Marketplace checkout is not active yet.')) return;
 
   let orderId = null;
   try {
