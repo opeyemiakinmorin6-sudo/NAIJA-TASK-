@@ -509,12 +509,13 @@ async function loadTasks(){
       window.location.replace("login.html?next=task.html");
       return;
     }
-    const {data:roleProfile,error:roleError}=await db.from("profiles").select("role").eq("id",currentUser.id).maybeSingle();
+    const {data:roleProfile,error:roleError}=await db.from("profiles").select("role,is_activated").eq("id",currentUser.id).maybeSingle();
     if(roleError||!roleProfile)throw roleError||new Error("Your account role could not be verified.");
     const accountRole=String(roleProfile.role||"user").toLowerCase();
     if(accountRole==="task_poster"){window.location.replace("poster-dashboard.html");return;}
     if(accountRole==="admin"){window.location.replace("admin.html");return;}
     if(!["tasker","user"].includes(accountRole)){await db.auth.signOut();window.location.replace("login.html");return;}
+    if(roleProfile.is_activated!==true){window.location.replace("activation.html?next=task.html");return;}
     let tasks = null, rpcError = null, usedRpc = false;
     const rpc = await db.rpc("get_available_tasks_for_tasker");
     if (!rpc.error && Array.isArray(rpc.data)){ tasks = rpc.data; usedRpc = true; } else rpcError = rpc.error;
