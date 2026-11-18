@@ -427,7 +427,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 
   const $ = id => document.getElementById(id);
   const layout = $("layout");
-  let db, me, currentConversation = null, currentPartner = null;
+  let db, me, currentConversation = null, currentPartner = null, homePage = "index.html#account-types";
   let loadingMessages = false, sending = false, refreshing = false;
   let messageTimer = null, conversationTimer = null;
   let knownMessageIds = new Set(), toastTimer = null;
@@ -508,6 +508,8 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     }
 
     me = data.user;
+    const ownProfile = await db.from("profiles").select("role").eq("id",me.id).maybeSingle();
+    homePage = String(ownProfile.data?.role || "").toLowerCase() === "poster" ? "poster-dashboard.html" : "dashboard.html";
     await startGlobalPresence();
     $("welcome").querySelector("p").textContent =
       "Choose a conversation or start a new chat with a registered NAIJA TASK member.";
@@ -566,7 +568,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
       const button = document.createElement("button");
       button.className = "primary";
       button.textContent = "Sign in";
-      button.onclick = () => location.href = "task.html";
+      button.onclick = () => location.href = "index.html#account-types";
       $("welcome").appendChild(button);
     }
   }
@@ -579,7 +581,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
     };
 
     $("exitBtn").onclick = goBack;
-    $("homeBtn").onclick = () => location.href = "task.html";
+    $("homeBtn").onclick = () => location.href = homePage;
     $("newChatBtn").onclick = openNewChat;
     $("welcomeNewChat").onclick = openNewChat;
     $("backToList").onclick = () => layout.classList.remove("show-chat");
@@ -616,7 +618,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
 
   function goBack() {
     if (history.length > 1) history.back();
-    else location.href = "task.html";
+    else location.href = homePage;
   }
 
   async function loadConversations(silent = false) {
