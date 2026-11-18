@@ -849,7 +849,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
       });
       if (error) throw error;
 
-      if (!data?.length) {
+      if (!messages.length) {
         box.innerHTML = '<div class="empty">No matching members found.</div>';
         return;
       }
@@ -972,11 +972,12 @@ button:disabled { opacity:.5; cursor:not-allowed; }
         .from("chat_messages")
         .select("id,conversation_id,sender_id,message,created_at,deleted_at")
         .eq("conversation_id",conversationId)
-        .order("created_at",{ascending:true})
+        .order("created_at",{ascending:false})
         .limit(250);
 
       if (error) throw error;
       if (currentConversation !== conversationId) return;
+      const messages = (data || []).reverse();
 
       const box = $("messages");
       const wasNearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 100;
@@ -988,7 +989,7 @@ button:disabled { opacity:.5; cursor:not-allowed; }
         box.innerHTML = '<div class="system-note">No messages yet. Say hello! 👋</div>';
       } else {
         const groups = {};
-        for (const m of data) {
+        for (const m of messages) {
           const day = new Date(m.created_at).toLocaleDateString();
           if (!groups[day]) groups[day] = [];
           groups[day].push(m);
