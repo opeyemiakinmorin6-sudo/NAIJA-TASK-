@@ -10,9 +10,9 @@ document.body.innerHTML = `<header class="top"><b>NAIJA TASK · PUBLIC CHAT</b><
 let me,myDisplayName="NAIJA TASK member",showOnlinePresence=true,rooms=[],roles=new Map(),active=null,roomChannel=null,onlineChannel=null,presence=[];
 function say(id,s){$(id).textContent=s;}
 async function start(){
- const a=await db.auth.getUser();if(a.error)throw a.error;me=a.data.user;if(!me){location.replace("login.html");return;}
+ const a=await db.auth.getUser();if(a.error)throw a.error;me=a.data.user;if(!me){location.replace("index.html#account-types");return;}
  const pref=await db.from("member_presence_settings").select("show_online").eq("user_id",me.id).maybeSingle();showOnlinePresence=!pref.error&&pref.data?.show_online!==false;
- const p=await db.from("profiles").select("full_name").eq("id",me.id).maybeSingle();myDisplayName=p.data?.full_name||me.user_metadata?.full_name||"NAIJA TASK member";
+ const p=await db.from("profiles").select("full_name,role").eq("id",me.id).maybeSingle();myDisplayName=p.data?.full_name||me.user_metadata?.full_name||"NAIJA TASK member";const dashboardLink=document.querySelector(".top nav a[href=\"dashboard.html\"]");if(dashboardLink)dashboardLink.href=String(p.data?.role||"").toLowerCase()==="poster"?"poster-dashboard.html":"dashboard.html";
  onlineChannel=db.channel("nt-global-online",{config:{presence:{key:me.id+":"+Math.random().toString(36).slice(2,7)}}});
  onlineChannel.on("presence",{event:"sync"},drawPresence).subscribe(async s=>{if(s==="SUBSCRIBED"){if(showOnlinePresence)await onlineChannel.track({user_id:me.id,name:myDisplayName,active_area:"Community",active_room:null});drawPresence();}});
  $("newRoom").onclick=()=>$("modal").classList.add("open");$("cancelCreate").onclick=()=>$("modal").classList.remove("open");$("search").oninput=drawRooms;$("createForm").onsubmit=createRoom;$("closeBtn").onclick=closeRoom;$("leaveBtn").onclick=leaveRoom;$("requestsBtn").onclick=showRequests;$("sendForm").onsubmit=sendMessage;
