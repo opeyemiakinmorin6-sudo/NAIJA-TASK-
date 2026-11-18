@@ -709,7 +709,7 @@ function showRows(containerId, rows, type) {
         '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') +
         ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
         (row.dispute_status && row.dispute_status !== 'none' ? '' :
-          '<button class="btn-danger" onclick="openMarketplaceDispute(\\'' + escapeHTML(row.id) + '\\')">Report a problem</button>') +
+          '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') +
         '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</p></div>';
     }
     if (type === 'listing') {
@@ -734,7 +734,7 @@ function showRows(containerId, rows, type) {
       escapeHTML(row.protection_status || 'not_configured') + ' · Dispute: ' +
       escapeHTML(row.dispute_status || 'none') + ' · Payout: ' + escapeHTML(row.payout_status || 'not_ready') + '</p>' +
       (status === 'order_request_pending'
-        ? '<p class="muted">A buyer is waiting for your response. Approving does not collect payment; checkout is currently unavailable.</p><div class="product-actions"><button class="btn-green" onclick="decideMarketplaceOrder(\\'' + escapeHTML(row.id) + '\\',\\'approve\\')">Approve request</button><button class="btn-danger" onclick="decideMarketplaceOrder(\\'' + escapeHTML(row.id) + '\\',\\'decline\\')">Decline</button></div>'
+        ? '<p class="muted">A buyer is waiting for your response. Approving does not collect payment; checkout is currently unavailable.</p><div class="product-actions"><button class="btn-green" onclick="decideMarketplaceOrder(\'' + escapeHTML(row.id) + '\',\'approve\')">Approve request</button><button class="btn-danger" onclick="decideMarketplaceOrder(\'' + escapeHTML(row.id) + '\',\'decline\')">Decline</button></div>'
         : status === 'seller_approved_pending_payment'
           ? '<p class="muted">You approved this request. It is waiting for protected checkout; do not accept direct payment.</p>'
           : status === 'seller_declined'
@@ -745,10 +745,10 @@ function showRows(containerId, rows, type) {
       (['delivered','buyer_confirmed'].includes(String(row.delivery_status || '').toLowerCase())
         ? '<p class="muted">Delivery recorded. Waiting for buyer confirmation or the 48-hour dispute-free release window.</p>'
         : (String(row.payment_status || '').toLowerCase() === 'paid'
-          ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\\'' + escapeHTML(row.id) + '\\',\\'seller\\')">Mark delivered & add tracking</button>'
+          ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Mark delivered & add tracking</button>'
           : '<p class="muted">Delivery actions unlock only after payment is verified and held securely.</p>')) +
       (row.dispute_status && row.dispute_status !== 'none' ? '' :
-        '<button class="btn-danger" onclick="openMarketplaceDispute(\\'' + escapeHTML(row.id) + '\\')">Report a problem</button>') + '</div>';
+        '<button class="btn-danger" onclick="openMarketplaceDispute(\'' + escapeHTML(row.id) + '\')">Report a problem</button>') + '</div>';
   }).join('');
 }
 async function decideMarketplaceOrder(orderId, decision) {
