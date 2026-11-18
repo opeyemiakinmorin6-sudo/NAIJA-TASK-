@@ -20,6 +20,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
 .card{display:block;width:100%;max-width:460px;margin:0 auto 12px;text-align:left;border:0;border-radius:18px;padding:16px;background:rgba(255,255,255,.12);color:#fff;font:inherit;border:1px solid rgba(255,255,255,.2)}
 .card b{display:block;font-size:18px;margin:4px 0 2px}.card small{display:block;color:#d6ecdc;font-size:12px;line-height:1.4}
 .card em{display:block;margin-top:6px;font-style:normal;color:var(--lime);font-size:12px;font-weight:700}
+.game-dashboard-tools{max-width:460px;margin:0 auto 12px;padding:14px;border:1px solid #ffffff28;border-radius:17px;background:#ffffff12}
+.game-search-label{display:block;margin:0 0 7px;color:#e7f7e9;font-size:12px;font-weight:800}
+.game-search{width:100%;padding:12px 13px;border:1px solid #ffffff45;border-radius:12px;background:#fff;color:#173326;font:inherit;outline:none}
+.game-filters{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.game-filter{border:1px solid #ffffff45;border-radius:999px;padding:8px 11px;background:#ffffff14;color:#fff;font-size:11px;font-weight:800}
+.game-filter.active{background:var(--lime);border-color:var(--lime);color:var(--dark)}
+.game-count{margin:10px 0 0!important;color:#d7efdd!important;font-size:11px!important}
+.game-grid{display:grid;grid-template-columns:1fr;gap:11px;max-width:460px;margin:0 auto}
+.game-card{position:relative;min-width:0;min-height:174px;margin:0!important;text-decoration:none;cursor:pointer;transition:transform .16s ease,border-color .16s ease}
+.game-card:active{transform:scale(.985)}
+.game-card .big{display:block;font-size:31px;margin-bottom:4px}
+.game-card .game-play{display:block;margin-top:12px;color:var(--lime);font-size:11px;font-weight:900;letter-spacing:.5px}
+.game-card.game-link{background:linear-gradient(135deg,#ffffff1c,#ffffff0d)}
+.game-card[hidden]{display:none!important}
+@media(min-width:620px){.game-grid{grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px}.game-dashboard-tools{max-width:760px}}
+
 .card .big{font-size:34px}
 .back{display:block;text-align:center;margin-top:18px;color:var(--lime);font-weight:800;text-decoration:none;font-size:14px}
 #game{position:fixed;inset:0;display:flex;flex-direction:column;background:#06331a}
@@ -107,8 +123,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
 <body>
 
 <div id="menu">
-  <h1>🇳🇬 Naija Games</h1>
-  <p class="sub">Three quick games with a Lagos flavour. Scores are for fun only. They are not naira and cannot be withdrawn.</p>
+  <h1>🇳🇬 NAIJA GAMES</h1>
+  <p class="sub">Your gaming dashboard: choose a game, explore Lagos, test your knowledge and beat your best scores. Game points are for fun only — they are not naira and cannot be withdrawn.</p>
   <section class="nt-gaming-spotlight" aria-label="NAIJA TASK gaming highlights">
     <span class="nt-spot-kicker">NAIJA TASK GAMING ARENA</span>
     <h2>READY TO BE A CHAMPION?</h2>
@@ -139,11 +155,26 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
     <script data-cfasync="false" src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script>
   </div>
 </section>
-  <div id="game-list" aria-label="Available games"></div>
-  <button class="card" data-g="dash"><span class="big">🏃</span><b>Naija Dash</b><small>Run down a busy Lagos road. Swipe to change lane, swipe up or tap to jump over potholes, and dodge danfo buses, okada and barriers.</small><em id="b1"></em></button>
-  <button class="card" data-g="match"><span class="big">🍢</span><b>Naija Match</b><small>Swap snacks to match three or more. Reach the target score before you run out of moves.</small><em id="b2"></em></button>
-  <button class="card" data-g="fight"><span class="big">🥊</span><b>Naija Fighter</b><small>Take on three street fighters. Punch, kick and block. Win two rounds to move on.</small><em id="b3"></em></button>
- <a class="back" href="dashboard.html">← Back to dashboard</a>
+  <section class="game-dashboard-tools" aria-label="Game dashboard tools">
+    <label class="game-search-label" for="gameSearch">Find a game</label>
+    <input id="gameSearch" class="game-search" type="search" placeholder="Search games..." autocomplete="off">
+    <div class="game-filters" role="group" aria-label="Filter games">
+      <button type="button" class="game-filter active" data-filter="all">All games</button>
+      <button type="button" class="game-filter" data-filter="arcade">Arcade</button>
+      <button type="button" class="game-filter" data-filter="brain">Brain & quiz</button>
+      <button type="button" class="game-filter" data-filter="world">Open world</button>
+    </div>
+    <p class="game-count" id="gameCount" aria-live="polite">6 games available</p>
+  </section>
+  <div id="game-list" class="game-grid" aria-label="Available games">
+    <button class="card game-card" data-g="dash" data-category="arcade"><span class="big">🏃</span><b>Naija Dash</b><small>Run through Lagos, switch lanes, jump potholes and dodge danfo buses and okada.</small><em id="b1">Arcade · Best score saved on this device</em><span class="game-play">PLAY NOW →</span></button>
+    <button class="card game-card" data-g="match" data-category="arcade"><span class="big">🍢</span><b>Naija Match</b><small>Match three or more Nigerian snacks, beat the target and manage your moves.</small><em id="b2">Puzzle · Best score saved on this device</em><span class="game-play">PLAY NOW →</span></button>
+    <button class="card game-card" data-g="fight" data-category="arcade"><span class="big">🥊</span><b>Naija Fighter</b><small>Face three street fighters. Punch, kick and block your way through each round.</small><em id="b3">Action · Best score saved on this device</em><span class="game-play">PLAY NOW →</span></button>
+    <a class="card game-card game-link" href="brain-battle.html" data-category="brain"><span class="big">🧠</span><b>Brain Battle</b><small>Test your Nigerian knowledge, choose a category and question count, then compete on the weekly leaderboard.</small><em>Quiz · Categories · Weekly leaderboard</em><span class="game-play">OPEN GAME →</span></a>
+    <a class="card game-card game-link" href="starlife.html" data-category="world"><span class="big">🌟</span><b>Naija Star Life</b><small>Build a fictional career in music, Nollywood, comedy, football or content creation. Explore, work and grow your fame.</small><em>Story game · Career choices · Player progress</em><span class="game-play">OPEN GAME →</span></a>
+    <a class="card game-card game-link" href="starlife-3d.html" data-category="world"><span class="big">🌍</span><b>Naija Star Life 3D</b><small>Explore a 3D Lagos-inspired world, move around neighbourhoods, interact with places and discover activities.</small><em>3D open world · Mobile controls</em><span class="game-play">ENTER WORLD →</span></a>
+  </div>
+  <a class="back" href="dashboard.html">← Back to dashboard</a>
 </div>
 
 <div id="game" class="hide">
@@ -155,6 +186,30 @@ html,body{margin:0;height:100%;overflow:hidden;background:#06331a;color:#fff;fon
 "use strict";
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+/* Game dashboard search and category filters */
+(function(){
+ const grid=$("game-list"),search=$("gameSearch"),count=$("gameCount");
+ if(!grid||!search||!count)return;
+ let category="all";
+ const cards=Array.from(grid.querySelectorAll(".game-card"));
+ function render(){
+  const q=search.value.trim().toLowerCase();let visible=0;
+  cards.forEach(card=>{
+   const categoryMatch=category==="all"||card.dataset.category===category;
+   const textMatch=!q||card.textContent.toLowerCase().includes(q);
+   const show=categoryMatch&&textMatch;
+   card.hidden=!show;if(show)visible++;
+  });
+  count.textContent=visible+" game"+(visible===1?"":"s")+" found";
+ }
+ document.querySelectorAll(".game-filter").forEach(btn=>btn.addEventListener("click",()=>{
+  category=btn.dataset.filter;
+  document.querySelectorAll(".game-filter").forEach(x=>x.classList.toggle("active",x===btn));
+  render();
+ }));
+ search.addEventListener("input",render);
+ render();
+})();
 
 function best(key, v){
   try{
