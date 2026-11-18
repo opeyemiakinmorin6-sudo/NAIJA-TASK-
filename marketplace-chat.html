@@ -50,16 +50,13 @@ $('submitOrderRequest').addEventListener('click',async()=>{
  if(!p||!Number.isInteger(qty)||qty<1||qty>Number(p.stock)){ $('orderError').textContent='Enter a whole quantity within the available stock.';return; }
  const btn=$('submitOrderRequest');btn.disabled=true;btn.textContent='Sending…';
  try{
-  const {data:latest,error:checkError}=await db.from('marketplace').select('id,seller_id,title,price,stock,status').eq('id',p.id).maybeSingle();
-  if(checkError)throw checkError;
-  if(!latest||latest.status!=='active'||Number(latest.stock)<qty)throw new Error('The product is no longer available in that quantity. Please message the seller.');
-  const unitPrice=Number(latest.price),total=unitPrice*qty;
-  if(!Number.isFinite(total)||unitPrice<=0)throw new Error('The current product price is invalid.');
-  const {data:order,error}=await db.from('marketplace_orders').insert({buyer_id:user.id,seller_id:latest.seller_id,product_id:latest.id,quantity:qty,unit_price:unitPrice,total_amount:total,status:'order_request_pending',delivery_status:'pending',payment_status:'pending'}).select('id').single();
+  const {data:order,error}=await db.rpc('marketplace_create_order_request',{p_product_id:p.id,p_quantity:qty});
   if(error)throw error;
+  if(!order||order.success!==true||!order.order_id)throw new Error(order?.message||'The order request could not be created.');
+  const total=Number(order.total_amount);
   closeOrderRequest();
-  notice('Order request sent. The seller must confirm availability and approve the details. No payment has been taken.');
-  $('messages').insertAdjacentHTML('beforeend','<div class="message mine">Order request #'+esc(String(order.id).slice(0,8))+' sent · '+qty+' item(s) · ₦'+total.toLocaleString('en-NG')+'<time>Awaiting seller approval · Unpaid</time></div>');
+  notice(order.message||'Order request sent. The seller must approve it. No payment has been taken.');
+  $('messages').insertAdjacentHTML('beforeend','<div class="message mine">Order request #'+esc(String(order.order_id).slice(0,8))+' sent · '+qty+' item(s) · ₦'+total.toLocaleString('en-NG')+'<time>Awaiting seller approval · No payment taken</time></div>');
   $('messages').scrollTop=$('messages').scrollHeight;
  }catch(error){$('orderError').textContent=error.message||'Order request could not be sent.';}
  finally{btn.disabled=false;btn.textContent='Send request';}
