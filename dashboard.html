@@ -1644,8 +1644,8 @@ async function startDashboard(){
       .from("profiles").select("role").eq("id", currentUser.id).maybeSingle();
     if (roleError || !roleProfile) throw roleError || new Error("Your account role could not be verified.");
     const dashboardRole = String(roleProfile.role || "user").trim().toLowerCase();
-    if (dashboardRole === "task_poster") {
-      window.location.replace("poster-dashboard.html");
+    if (dashboardRole === "task_poster" || dashboardRole === "poster") {
+      showNotice("This is a Poster account. The Tasker Dashboard is a separate workspace. Sign out, then use your registered Tasker account at login.html. Your Poster dashboard has not been opened or merged here.", true);
       return;
     }
     if (dashboardRole === "admin") {
