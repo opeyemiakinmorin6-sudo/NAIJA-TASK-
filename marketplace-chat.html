@@ -55,7 +55,7 @@ $('submitOrderRequest').addEventListener('click',async()=>{
   if(!latest||latest.status!=='active'||Number(latest.stock)<qty)throw new Error('The product is no longer available in that quantity. Please message the seller.');
   const unitPrice=Number(latest.price),total=unitPrice*qty;
   if(!Number.isFinite(total)||unitPrice<=0)throw new Error('The current product price is invalid.');
-  const {data:order,error}=await db.from('marketplace_orders').insert({buyer_id:user.id,seller_id:latest.seller_id,product_id:latest.id,quantity:qty,unit_price:unitPrice,total_amount:total,status:'order_request_pending',delivery_status:'pending',payment_status:'unpaid'}).select('id').single();
+  const {data:order,error}=await db.from('marketplace_orders').insert({buyer_id:user.id,seller_id:latest.seller_id,product_id:latest.id,quantity:qty,unit_price:unitPrice,total_amount:total,status:'order_request_pending',delivery_status:'pending',payment_status:'pending'}).select('id').single();
   if(error)throw error;
   closeOrderRequest();
   notice('Order request sent. The seller must confirm availability and approve the details. No payment has been taken.');
