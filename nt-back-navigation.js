@@ -2,11 +2,12 @@
 (() => {
   const run = () => {
     const file = (location.pathname.split("/").pop() || "index.html").toLowerCase();
-    const adminFiles = ["admin.html", "admin-payments.html"];
-    const posterFiles = ["poster-dashboard.html", "poster-job.html", "poster-payment.html", "post-job.html", "post-business.html"];
-    const fallback = adminFiles.includes(file) ? "admin.html" : (posterFiles.includes(file) ? "poster-dashboard.html" : "dashboard.html");
+    const adminFiles = ["admin-payments.html"];
+    const posterFiles = ["poster-job.html", "poster-payment.html", "post-job.html", "post-business.html"];
+    const fallback = adminFiles.includes(file) ? "admin.html" :
+      (posterFiles.includes(file) ? "poster-dashboard.html" :
+      (file === "admin.html" || file === "poster-dashboard.html" || file === "dashboard.html" ? "index.html" : "dashboard.html"));
 
-    // Keep a page's existing back control when one is already provided.
     const existing = document.querySelector('a.back, button.back, a.back-button, button.back-button, [data-back]');
     if (existing) {
       existing.setAttribute("aria-label", existing.getAttribute("aria-label") || "Go back");
@@ -48,7 +49,7 @@
 
     const header = document.querySelector("header, .topbar, .header, .hero, .app > .topbar");
     if (header) {
-      const row = header.querySelector(".header-row, .header-inner, .toprow, .brand-row, .top-actions, nav") || header;
+      const row = header.querySelector(".header-row, .header-inner, .toprow, .brand-row, nav") || header;
       if (getComputedStyle(row).display === "flex" || getComputedStyle(row).display === "inline-flex") {
         row.insertBefore(button, row.firstChild);
       } else {
