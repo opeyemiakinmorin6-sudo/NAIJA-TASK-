@@ -3260,6 +3260,7 @@ td,th{padding:13px 11px}
   </div>
 
   <div id="chatReportsList" class="card"><div class="empty">Open this page to load reports.</div></div>
+  <div class="card" style="margin-top:16px"><h3>Private Chat safety reports</h3><p style="font-size:12px;color:#708176">One-to-one member reports submitted from Private Chat.</p><button class="primary" onclick="loadPrivateChatReports()">Reload private reports</button><div id="privateChatReportsList" style="margin-top:12px"><div class="empty">Open Chat Reports to load reports.</div></div></div>
   <div class="card" style="margin-top:16px">
     <h3>Community safety reports</h3>
     <p style="font-size:12px;color:#708176">Reports submitted about members in NAIJA TASK communities.</p>
@@ -12577,6 +12578,7 @@ async function loadChatReports() {
   const box = $("chatReportsList");
   if (!box) return;
   loadCommunityReports();
+  loadPrivateChatReports();
   box.innerHTML = '<div class="empty">Loading reports...</div>';
   try {
     const { data, error } = await supabaseClient.rpc("starlife_admin_chat_reports");
@@ -12605,6 +12607,50 @@ async function loadChatReports() {
   }
 }
 
+
+async function loadPrivateChatReports() {
+  const box=$("privateChatReportsList"); if(!box)return;
+  box.innerHTML='<div class="empty">Loading private chat reports...</div>';
+  try {
+    const q=await supabaseClient.from("chat_reports")
+      .select("id,conversation_id,reporter_id,reported_user_id,reason,details,status,created_at,reviewed_at")
+      .order("created_at",{ascending:false}).limit(100);
+    if(q.error)throw q.error;
+    if(!q.data?.length){box.innerHTML='<div class="empty">No private chat reports yet.</div>';return;}
+    const ids=[...new Set(q.data.flatMap(x=>[x.reporter_id,x.reported_user_id]))];
+    const p=await supabaseClient.from("profiles").select("id,full_name").in("id",ids);
+    if(p.error)throw p.error;
+    const names=new Map((p.data||[]).map(x=>[x.id,x.full_name||"Member"]));
+    box.innerHTML=q.data.map(r=>'<article style="padding:12px 0;border-bottom:1px solid #e0eae3">'
+      +'<div style="font-size:11px;color:#708176">'+escapeHTML(new Date(r.created_at).toLocaleString())+' · '+escapeHTML(r.status||"PENDING")+'</div>'
+      +'<div style="font-size:13px;margin-top:5px"><b>'+escapeHTML(names.get(r.reported_user_id)||"Member")+'</b> reported by '+escapeHTML(names.get(r.reporter_id)||"Member")+'</div>'
+      +'<div style="font-size:12px;margin-top:5px"><b>Reason:</b> '+escapeHTML(r.reason||"")+'</div>'
+      +(r.details?'<div style="font-size:12px;margin-top:4px"><b>Details:</b> '+escapeHTML(r.details)+'</div>':'')
+      +'<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'
+      +(r.status==="PENDING"?'<button class="secondary" data-private-report-status="REVIEWING" data-private-report-id="'+escapeHTML(r.id)+'">Mark reviewing</button>':'')
+      +(r.status==="PENDING"||r.status==="REVIEWING"?'<button class="primary" data-private-report-status="RESOLVED" data-private-report-id="'+escapeHTML(r.id)+'">Resolve</button><button class="secondary" data-private-report-status="DISMISSED" data-private-report-id="'+escapeHTML(r.id)+'">Dismiss</button>':'')
+      +'</div></article>').join("");
+    box.querySelectorAll("[data-private-report-status]").forEach(b=>b.addEventListener("click",()=>setPrivateChatReportStatus(b.dataset.privateReportId,b.dataset.privateReportStatus)));
+  } catch(e) {
+    reportError("loadPrivateChatReports",e);
+    box.innerHTML='<div class="empty">Could not load private chat reports: '+escapeHTML(errorMessage(e,"Check admin access."))+'</div>';
+  }
+}
+async function setPrivateChatReportStatus(id,status) {
+  const ok=await uiConfirm(status==="RESOLVED"?"Resolve this private chat report?":status==="DISMISSED"?"Dismiss this private chat report?":"Mark this report as reviewing?");
+  if(!ok)return;
+  try {
+    setLoading(true,"Saving...");
+    const {error}=await supabaseClient.from("chat_reports").update({status,reviewed_at:new Date().toISOString(),reviewed_by:currentAdmin?.id||null}).eq("id",id);
+    if(error)throw error;
+    await writeAudit("private_chat_report_"+status.toLowerCase(),null,{report_id:String(id).slice(0,8)});
+    toast("Private chat report updated.","success");
+    await loadPrivateChatReports();
+  } catch(e) {
+    reportError("setPrivateChatReportStatus",e);
+    toast(errorMessage(e,"Could not update private chat report."),"danger");
+  } finally {setLoading(false);}
+}
 
 async function loadCommunityReports() {
   const box=$("communityReportsList"); if(!box)return;
