@@ -107,6 +107,24 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
 @media(max-width:360px){.ad-popup-backdrop{padding:10px}.ad-popup-card{padding:0 11px 12px;border-radius:18px}.ad-popup-head{margin:0 -11px 10px;padding:13px 11px}.ad-popup-unit{width:100%}}
 
 .nt-dialog{position:fixed;inset:0;z-index:1000000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,20,10,.78);backdrop-filter:blur(7px)}.nt-dialog.open{display:flex}.nt-dialog-card{width:min(100%,430px);background:linear-gradient(155deg,#073b24,#064d25 60%,#0b6f38);color:#f4fff6;border:1px solid #b7ef4355;border-radius:22px;padding:20px;box-shadow:0 24px 80px #001b0c88}.nt-dialog-kicker{font-size:10px;letter-spacing:1.6px;font-weight:900;color:#b7ef43;margin-bottom:8px}.nt-dialog-card h3{font-size:20px;margin:0 0 9px;color:#fff}.nt-dialog-message{white-space:pre-line;color:#dcefe1;font-size:13px;line-height:1.6;margin:0 0 15px}.nt-dialog-field{width:100%;padding:13px 14px;border-radius:12px;border:1px solid #ffffff36;background:#f7fff8;color:#173326;outline:none;margin:0 0 15px}.nt-dialog-actions{display:flex;gap:9px}.nt-dialog-actions button{flex:1;padding:12px;border-radius:12px;font-weight:850}.nt-dialog-cancel{background:#ffffff16;color:#fff;border:1px solid #ffffff32}.nt-dialog-confirm{background:linear-gradient(110deg,#b7ef43,#d5ff7a);color:#073b24}.nt-dialog-confirm.danger{background:#ffd9d9;color:#8c1717}
+
+/* Branded buyer order summary — replaces the generic white status card */
+.order-summary-card{margin:14px 0;padding:17px;border:1px solid #b7ef4355;border-radius:18px;background:linear-gradient(145deg,#073b24 0%,#064d25 62%,#0b7540 100%);color:#f5fff6;box-shadow:0 12px 30px #06391d20;overflow:hidden}
+.order-summary-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:14px;border-bottom:1px solid #ffffff25}
+.order-kicker{display:block;margin-bottom:6px;color:#c8f477;font-size:9px;font-weight:900;letter-spacing:1.3px}
+.order-product-name{display:block;color:#fff;font-size:16px;line-height:1.35;overflow-wrap:anywhere}
+.order-summary-top small{display:block;margin-top:5px;color:#c8ddce;font-size:10px}
+.order-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px 0}
+.order-summary-grid div{padding:10px;border:1px solid #ffffff20;border-radius:11px;background:#ffffff0b;min-width:0}
+.order-summary-grid small{display:block;color:#c8ddce;font-size:10px;margin-bottom:5px}
+.order-summary-grid strong{display:block;color:#fff;font-size:13px;overflow-wrap:anywhere}
+.order-summary-grid .order-total{color:#d5ff7a;font-size:17px}
+.order-note{margin:0;padding:11px 12px;border-radius:11px;background:#ffffff12;color:#eff9f0;font-size:12px;line-height:1.5}
+.order-note-danger{background:#ffdddd20;color:#ffe0dc}
+.order-summary-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;color:#c8ddce;font-size:10px}
+.order-chat-link{color:#d5ff7a;font-size:12px;font-weight:850;text-decoration:none;white-space:nowrap}
+.order-chat-link:hover{text-decoration:underline}
+@media(max-width:380px){.order-summary-card{padding:13px}.order-summary-top{flex-direction:column}.order-summary-footer{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
@@ -629,7 +647,7 @@ async function placeOrder(productId) {
     }).select('id').single();
     if (error) throw error;
     orderId = order.id;
-    showGlobal('Order request saved. No payment has been taken because protected checkout is not ready yet. Do not pay the seller directly.','success');
+    await ntDialog({title:'Order request received',message:'Your request has been sent to the seller. No payment has been taken yet because protected seller settlement is not configured. Do not transfer money directly to the seller. You can message the seller from My Orders.',confirmText:'View my orders'});
     await loadMyOrders();
     openTab('orders',document.querySelector('[data-section="orders"]'));
     return;
@@ -659,22 +677,17 @@ function showRows(containerId, rows, type) {
       : ['rejected','cancelled','inactive'].includes(status.toLowerCase())
         ? 'rejected' : 'pending';
     if (type === 'order') {
+      const product = products.find(p => String(p.id) === String(row.product_id));
+      const productName = escapeHTML(product?.title || 'Marketplace product');
       const decisionNote = status === 'seller_approved_pending_payment'
-        ? '<p class="muted">The seller approved your request. Checkout is not active yet, so no payment has been taken.</p>'
+        ? '<p class="order-note"><strong>Seller approved.</strong> Payment is not available yet; wait for the protected checkout notice.</p>'
         : status === 'seller_declined'
-          ? '<p class="muted">The seller declined this request. No payment was taken.</p>'
-          : '<p class="muted">Waiting for the seller to approve or decline this request. No payment has been taken.</p>';
-      return '<div class="row-card"><div class="row-top"><strong>Order #' +
-        escapeHTML(String(row.id).slice(0,8)) + '</strong><span class="badge ' + badgeClass +
-        '">' + escapeHTML(displayStatus) + '</span></div><p>Product ID: ' + escapeHTML(row.product_id) +
-        '</p><p>Quantity: ' + escapeHTML(row.quantity) + ' · Total: <strong>' + money(row.total_amount) +
-        '</strong></p><p>Delivery: ' + escapeHTML(row.delivery_status || 'pending') +
-        '</p><p>Payment: <strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></p>' +
+          ? '<p class="order-note order-note-danger"><strong>Request declined.</strong> No payment was taken.</p>'
+          : '<p class="order-note"><strong>Waiting for seller.</strong> Your request has been sent. No payment has been taken.</p>';
+      return '<article class="order-summary-card"><div class="order-summary-top"><div><span class="order-kicker">NAIJA TASK MARKETPLACE</span><strong class="order-product-name">' + productName + '</strong><small>Order #' + escapeHTML(String(row.id).slice(0,8)) + '</small></div><span class="badge ' + badgeClass + '">' + escapeHTML(displayStatus) + '</span></div>' +
+        '<div class="order-summary-grid"><div><small>Quantity</small><strong>' + escapeHTML(row.quantity) + '</strong></div><div><small>Order total</small><strong class="order-total">' + money(row.total_amount) + '</strong></div><div><small>Delivery</small><strong>' + escapeHTML(row.delivery_status || 'pending') + '</strong></div><div><small>Payment</small><strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></div></div>' +
         decisionNote +
-        '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') +
-        ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
-        '<a class="btn-light" style="display:inline-flex;text-decoration:none;margin-top:8px" href="marketplace-chat.html?product=' + encodeURIComponent(row.product_id || '') + '">Open seller chat</a>' +
-        '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</p></div>';
+        '<div class="order-summary-footer"><span>' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</span><a class="order-chat-link" href="marketplace-chat.html?product=' + encodeURIComponent(row.product_id || '') + '">Message seller <span aria-hidden="true">→</span></a></div></article>';
     }
     if (type === 'listing') {
       return '<div class="row-card"><div class="row-top"><strong>' + escapeHTML(row.title) +
