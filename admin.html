@@ -12641,7 +12641,7 @@ async function setPrivateChatReportStatus(id,status) {
   if(!ok)return;
   try {
     setLoading(true,"Saving...");
-    const {error}=await supabaseClient.from("chat_reports").update({status,reviewed_at:new Date().toISOString(),reviewed_by:currentAdmin?.id||null}).eq("id",id);
+    const {error}=await supabaseClient.from("chat_reports").update({status,reviewed_at:new Date().toISOString(),reviewed_by:currentUser?.id||null}).eq("id",id);
     if(error)throw error;
     await writeAudit("private_chat_report_"+status.toLowerCase(),null,{report_id:String(id).slice(0,8)});
     toast("Private chat report updated.","success");
