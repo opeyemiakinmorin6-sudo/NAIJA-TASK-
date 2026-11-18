@@ -1025,7 +1025,6 @@ db.auth.onAuthStateChange((_event,session) => {
   function setup(){
     document.querySelectorAll(".nt-public-ad-unit,.nt-auto-ad-slot,.poster-ad-unit,.nt-ad-frame,.nt-market-ad-frame").forEach(function(slot){
       if(slot.dataset.ntFallbackReady==="1") return;
-      slot.dataset.ntFallbackReady="1";
       var fallback=null;
       function refresh(){
         if(hasCreative(slot)){
@@ -1048,37 +1047,6 @@ db.auth.onAuthStateChange((_event,session) => {
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",setup,{once:true});
   else setup();
-})();
-</script>
-<style id="nt-visible-ad-fallback-style">
-.nt-visible-ad-fallback{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;min-height:76px;padding:12px 14px;border:1px solid #cfe4d2;border-radius:12px;background:linear-gradient(110deg,#effaf1,#fff8df);color:#174329;text-align:left}
-.nt-visible-ad-fallback strong{display:block;font-size:13px;font-weight:900}
-.nt-visible-ad-fallback span{display:block;margin-top:4px;font-size:11px;line-height:1.4;color:#5b7062}
-.nt-visible-ad-fallback a{flex:0 0 auto;padding:9px 11px;border-radius:9px;background:#087f36;color:#fff!important;font-size:11px;font-weight:900;text-decoration:none;white-space:nowrap}
-@media(max-width:360px){.nt-visible-ad-fallback{gap:7px;padding:9px}.nt-visible-ad-fallback a{padding:8px;font-size:10px}}
-</style>
-<script id="nt-visible-ad-fallback-script">
-(function(){
-  var selector=".nt-public-ad-unit,.nt-auto-ad-slot,.poster-ad-unit,.nt-ad-frame,.nt-market-ad-frame,.nt-ad-slot,.adsterra-unit";
-  function hasCreative(slot){return !!slot.querySelector("iframe,img,video,ins.adsbygoogle[data-ad-status='filled'],[data-ad-rendered='true']");}
-  function setup(){
-    document.querySelectorAll(selector).forEach(function(slot){
-      if(slot.dataset.ntVisibleFallbackReady==="1")return;
-      slot.dataset.ntVisibleFallbackReady="1";
-      slot.dataset.ntFallbackReady="1";
-      if(hasCreative(slot))return;
-      var fallback=document.createElement("div");
-      fallback.className="nt-visible-ad-fallback";
-      fallback.innerHTML='<div><strong>Advertise on NAIJA TASK</strong><span>Promote your business, product or service to our community.</span></div><a href="ads.html">Advertise here</a>';
-      slot.appendChild(fallback);
-      var observer=new MutationObserver(function(){
-        slot.querySelectorAll(".nt-ad-fallback").forEach(function(oldFallback){oldFallback.remove();});
-        if(hasCreative(slot)){fallback.remove();observer.disconnect();}
-      });
-      observer.observe(slot,{childList:true,subtree:true,attributes:true});
-    });
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup,{once:true});else setup();
 })();
 </script>
 </body>
