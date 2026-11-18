@@ -673,7 +673,7 @@ function showRows(containerId, rows, type) {
         decisionNote +
         '<p class="muted">Protected settlement: ' + escapeHTML(row.protection_status || 'not_configured') +
         ' · Dispute: ' + escapeHTML(row.dispute_status || 'none') + '</p>' +
-        '' +
+        '<a class="btn-light" style="display:inline-flex;text-decoration:none;margin-top:8px" href="marketplace-chat.html?product=' + encodeURIComponent(row.product_id || '') + '">Open seller chat</a>' +
         '<p class="muted">' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</p></div>';
     }
     if (type === 'listing') {
@@ -711,7 +711,7 @@ function showRows(containerId, rows, type) {
         : (String(row.payment_status || '').toLowerCase() === 'paid'
           ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Mark delivered & add tracking</button>'
           : '<p class="muted">Delivery actions unlock only after payment is verified and held securely.</p>')) +
-        '' + '</div>';
+        '<a class="btn-light" style="display:inline-flex;text-decoration:none;margin-top:8px" href="marketplace-chat.html?product=' + encodeURIComponent(row.product_id || '') + '">Open buyer chat</a>' + '</div>';
   }).join('');
 }
 async function decideMarketplaceOrder(orderId, decision) {
