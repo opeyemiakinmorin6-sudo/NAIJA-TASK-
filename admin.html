@@ -3857,7 +3857,7 @@ td,th{padding:13px 11px}
   <div class="grid grid-2" style="margin-top:16px">
     <div class="card">
       <h3>Product reports</h3>
-      <div class="table-wrap"><table><thead><tr><th>Product</th><th>Reason</th><th>Reporter</th><th>Status</th><th>Date</th><th>Admin action</th></tr></thead>
+      <div class="table-wrap"><table><thead><tr><th>Product / Order</th><th>Reason &amp; details</th><th>Reporter</th><th>Status</th><th>Date</th><th>Admin action</th></tr></thead>
       <tbody id="marketplaceReportsBody"><tr><td colspan="5" class="loading-row">Loading reports…</td></tr></tbody></table></div>
     </div>
     <div class="card">
@@ -11154,8 +11154,8 @@ async function loadMarketplaceSafety() {
   Object.values(targets).forEach(el => { if (el) el.innerHTML = '<tr><td colspan="5" class="loading-row">Loading…</td></tr>'; });
   try {
     const [reports, disputes, risks, refunds, payouts, moderation] = await Promise.all([
-      withTimeout(supabaseClient.from("marketplace_reports").select("id,product_id,reporter_id,reason,status,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace reports"),
-      withTimeout(supabaseClient.from("marketplace_disputes").select("id,order_id,opened_by,reason,status,priority,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace disputes"),
+      withTimeout(supabaseClient.from("marketplace_reports").select("id,product_id,order_id,details,reporter_id,reason,status,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace reports"),
+      withTimeout(supabaseClient.from("marketplace_disputes").select("id,order_id,opened_by,reason,details,status,priority,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace disputes"),
       withTimeout(supabaseClient.from("marketplace_risk_events").select("id,signal,subject_user_id,severity,review_status,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace risk events"),
       withTimeout(supabaseClient.from("marketplace_refunds").select("id,order_id,amount,status,provider_reference,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace refunds"),
       withTimeout(supabaseClient.from("marketplace_payouts").select("id,order_id,amount,status,provider_reference,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace payouts"),
@@ -11171,7 +11171,7 @@ async function loadMarketplaceSafety() {
           '<button class="btn btn-sm btn-success" onclick="updateMarketplaceReport(\''+id+'\',\'dismissed\')">Dismiss</button> '+
           '<button class="btn btn-sm btn-warning" onclick="updateMarketplaceReport(\''+id+'\',\'upheld\')">Uphold &amp; hide</button>'
         : '<span class="muted">Reviewed</span>';
-      return '<tr><td class="mono">'+escapeHTML(x.product_id||"—")+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.reporter_id)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td><td>'+actions+'</td></tr>';
+      return '<tr><td class="mono">'+escapeHTML(x.product_id||"—")+(x.order_id?'<br><small>Order #'+escapeHTML(String(x.order_id).slice(0,8))+'</small>':'')+'</td><td><strong>'+escapeHTML(x.reason)+'</strong><br><small style="display:block;white-space:pre-wrap;max-width:340px;line-height:1.45;color:#647568">'+escapeHTML(x.details||"No details supplied")+'</small></td><td class="mono">'+escapeHTML(x.reporter_id)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td><td>'+actions+'</td></tr>';
     }).join("") : '<tr><td colspan="6" class="empty-row">No product reports.</td></tr>';
     targets.disputes.innerHTML = rows(disputes).length ? rows(disputes).map(x => {
       const id = escapeHTML(x.id);
@@ -11182,7 +11182,7 @@ async function loadMarketplaceSafety() {
           '<button class="btn btn-sm btn-warning" onclick="updateMarketplaceDispute(\''+id+'\',\'resolved_seller\')">Resolve for seller</button> '+
           '<button class="btn btn-sm btn-light" onclick="updateMarketplaceDispute(\''+id+'\',\'cancelled\')">Cancel</button>'
         : '<span class="muted">Case closed</span>';
-      return '<tr><td class="mono">'+escapeHTML(x.order_id)+'</td><td>'+escapeHTML(x.reason)+'</td><td class="mono">'+escapeHTML(x.opened_by)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td><td>'+actions+'</td></tr>';
+      return '<tr><td class="mono">'+escapeHTML(x.order_id)+'</td><td><strong>'+escapeHTML(x.reason)+'</strong><br><small style="display:block;white-space:pre-wrap;max-width:340px;line-height:1.45;color:#647568">'+escapeHTML(x.details||"No details supplied")+'</small></td><td class="mono">'+escapeHTML(x.opened_by)+'</td><td>'+badge(x.status)+'</td><td>'+formatDate(x.created_at)+'</td><td>'+actions+'</td></tr>';
     }).join("") : '<tr><td colspan="6" class="empty-row">No disputes.</td></tr>';
     targets.risks.innerHTML = rows(risks).length ? rows(risks).map(x =>
       '<tr><td>'+escapeHTML(x.signal)+'</td><td class="mono">'+escapeHTML(x.subject_user_id||"—")+'</td><td>'+badge(x.severity)+'</td><td>'+badge(x.review_status)+'</td><td>'+formatDate(x.created_at)+'</td></tr>'
