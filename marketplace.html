@@ -656,7 +656,8 @@ async function placeOrder(productId) {
   let orderId = null;
   try {
     showGlobal('Sending your order request…','info');
-    // All order creation uses the same server-side validation and stock lock.
+    // Server-side validation checks current stock and snapshots the price.
+    // This request does not reserve or decrement stock before protected checkout.
     // Never insert directly into marketplace_orders from the browser.
     const {data:order,error} = await db.rpc('marketplace_create_order_request',{
       p_product_id:product.id,
