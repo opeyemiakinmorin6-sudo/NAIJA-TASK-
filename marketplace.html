@@ -708,7 +708,7 @@ function showRows(containerId, rows, type) {
       return '<article class="order-summary-card"><div class="order-summary-top"><div><span class="order-kicker">NAIJA TASK MARKETPLACE</span><strong class="order-product-name">' + productName + '</strong><small>Order #' + escapeHTML(String(row.id).slice(0,8)) + '</small></div><span class="badge ' + badgeClass + '">' + escapeHTML(displayStatus) + '</span></div>' +
         '<div class="order-summary-grid"><div><small>Quantity</small><strong>' + escapeHTML(row.quantity) + '</strong></div><div><small>Order total</small><strong class="order-total">' + money(row.total_amount) + '</strong></div><div><small>Delivery</small><strong>' + escapeHTML(row.delivery_status || 'pending') + '</strong></div><div><small>Payment</small><strong>' + escapeHTML(row.payment_status || 'unpaid') + '</strong></div></div>' +
         decisionNote +
-        '<div class="order-summary-footer"><span>' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</span><a class="order-chat-link" href="marketplace-chat.html?product=' + encodeURIComponent(row.product_id || '') + '">Message seller <span aria-hidden="true">→</span></a></div></article>';
+        '<div class="order-summary-footer"><span>' + escapeHTML(row.created_at ? new Date(row.created_at).toLocaleString() : '') + '</span><a class="order-chat-link" href="marketplace-chat.html?order=' + encodeURIComponent(row.id) + '">Message seller <span aria-hidden="true">→</span></a></div></article>';
     }
     if (type === 'listing') {
       return '<div class="row-card"><div class="row-top"><strong>' + escapeHTML(row.title) +
@@ -745,7 +745,7 @@ function showRows(containerId, rows, type) {
         : (String(row.payment_status || '').toLowerCase() === 'paid'
           ? '<button class="btn-green" onclick="confirmMarketplaceDelivery(\'' + escapeHTML(row.id) + '\',\'seller\')">Mark delivered & add tracking</button>'
           : '<p class="muted">Delivery actions unlock only after payment is verified and held securely.</p>')) +
-        '<a class="btn-light" style="display:inline-flex;text-decoration:none;margin-top:8px" href="marketplace-chat.html?product=' + encodeURIComponent(row.product_id || '') + '">Open buyer chat</a>' + '</div>';
+        '<a class="btn-light" style="display:inline-flex;text-decoration:none;margin-top:8px" href="marketplace-chat.html?order=' + encodeURIComponent(row.id) + '">Open buyer chat</a>' + '</div>';
   }).join('');
 }
 async function decideMarketplaceOrder(orderId, decision) {
