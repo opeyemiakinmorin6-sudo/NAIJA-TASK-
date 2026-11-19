@@ -651,33 +651,33 @@ async function placeOrder(productId) {
   const unitPrice = Number(product.price);
   const total = unitPrice * quantity;
   if (!Number.isFinite(total) || unitPrice <= 0) return showGlobal('This product has an invalid price.','error');
-  if (!(await ntDialog({title:'Review your order',message:'Product: ' + product.title + '\nQuantity: ' + quantity + '\nTotal: ' + money(total) + '\n\nProtected checkout is not active yet. This creates an order request only; no payment will be taken.',confirmText:'Create order request'}))) return;
+  if (!(await ntDialog({title:'Review your order request',message:'Product: ' + product.title + '\\nQuantity: ' + quantity + '\\nTotal: ' + money(total) + '\\n\\nThe seller must confirm availability and approve this request before any payment step. No payment will be taken now.',confirmText:'Send order request'}))) return;
 
   let orderId = null;
   try {
-    showGlobal('Creating your pending order…','info');
-    const {data:order,error} = await db.from('marketplace_orders').insert({
-      buyer_id:currentUser.id,
-      product_id:product.id,
-      quantity,
-      unit_price:unitPrice,
-      total_amount:total,
-      status:'awaiting_protected_checkout',
-      delivery_status:'pending',
-      payment_status:'pending'
-    }).select('id').single();
+    showGlobal('Sending your order request…','info');
+    // All order creation uses the same server-side validation and stock lock.
+    // Never insert directly into marketplace_orders from the browser.
+    const {data:order,error} = await db.rpc('marketplace_create_order_request',{
+      p_product_id:product.id,
+      p_quantity:quantity
+    });
     if (error) throw error;
-    orderId = order.id;
-    await ntDialog({title:'Order request received',message:'Your request has been sent to the seller. No payment has been taken yet because protected seller settlement is not configured. Do not transfer money directly to the seller. You can message the seller from My Orders.',confirmText:'View my orders'});
-    await loadMyOrders();
-    openTab('orders',document.querySelector('[data-section="orders"]'));
-    return;
+    if (!order || order.success !== true || !order.order_id) {
+      throw new Error(order?.message || 'The seller order request could not be created.');
+    }
+    orderId = order.order_id;
+    const {error:chatError} = await db.rpc('create_marketplace_order_chat',{p_order_id:orderId});
+    if (chatError) {
+      console.warn('Dedicated marketplace order chat will be created when the order is opened:',chatError.message);
+    }
+    await ntDialog({title:'Order request sent',message:'Your request has been sent to the seller. The seller must approve availability and the order details. No payment has been taken. Do not transfer money directly to the seller.',confirmText:'Open order chat'});
+    location.href='marketplace-chat.html?order='+encodeURIComponent(orderId);
   } catch (error) {
     showGlobal('Order request could not be saved: ' + (error.message || 'Unknown error'),'error');
     if (orderId) await loadMyOrders();
   }
 }
-
 function showRows(containerId, rows, type) {
   const container = document.getElementById(containerId);
   if (!rows || !rows.length) {
