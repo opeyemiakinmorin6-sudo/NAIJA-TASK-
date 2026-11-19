@@ -6,7 +6,7 @@
 
 .nt-chat-modal{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(2,20,10,.78);backdrop-filter:blur(6px)}.nt-chat-modal.open{display:flex}.nt-chat-modal-card{width:min(100%,460px);max-height:90vh;overflow:auto;background:linear-gradient(155deg,#073b24,#064d25 65%,#0b6f38);color:#f4fff6;border:1px solid #b7ef4355;border-radius:20px;padding:18px;box-shadow:0 24px 70px #001b0c88}.nt-chat-modal-card h3{margin:0 0 8px;color:#fff}.nt-chat-modal-card p{color:#dcefe1}.nt-chat-modal-card label{display:block;font-size:12px;font-weight:800;margin:12px 0 6px;color:#e7f6e9}.nt-chat-modal-card select,.nt-chat-modal-card textarea{width:100%;border:1px solid #ffffff35;border-radius:11px;padding:12px;background:#f7fff8;color:#173326;font:inherit}.nt-chat-modal-actions{display:flex;gap:9px;margin-top:14px}.nt-chat-modal-actions button{flex:1}.report-btn{background:#fff0e8;color:#9c3b14}.chat-error{color:#ffb4a8!important;font-size:12px;min-height:16px}
 </style></head><body>
-<header><div><div><strong>NAIJA TASK</strong><div style="font-size:11px;margin-top:3px">Marketplace Messages · Buyer & Seller</div></div><nav style="display:flex;gap:7px;flex-wrap:wrap"><a class="light" href="marketplace.html" style="text-decoration:none">Marketplace</a></nav></div></header>
+<header><div><div><strong>NAIJA TASK</strong><div style="font-size:11px;margin-top:3px">Marketplace Messages · Buyer & Seller</div></div><nav style="display:flex;gap:7px;flex-wrap:wrap"><a class="light" href="marketplace.html" style="text-decoration:none">← Marketplace</a></nav></div></header>
 <main><div id="status" class="status" role="status"></div><div class="layout">
 <section class="panel"><h3 style="margin:0 0 8px">Your conversations</h3><p class="muted">Chat with buyers and sellers about products.</p><div id="threads" class="thread-list"><div class="empty">Loading conversations…</div></div></section>
 <section class="panel"><div id="chatHead" class="chat-head"><div><strong>Choose a conversation</strong><div class="muted">Messages stay between the buyer and seller.</div></div></div><div id="messages" class="messages"><div class="empty">Select a conversation to view messages.</div></div><form id="composer" class="composer"><textarea id="messageInput" maxlength="2000" placeholder="Write a message…" required></textarea><button class="green" id="sendBtn" type="submit">Send</button></form><p class="muted" style="margin:10px 0 0">Do not pay outside NAIJA TASK. Never share your password, PIN or OTP.</p></section>
@@ -15,14 +15,14 @@
 <script>
 'use strict';
 const db=window.supabase.createClient('https://jwakveeiynpakunwjzkj.supabase.co','sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D');
-let user=null,activeConversation=null,inbox=[],refreshHandle=null;
+let user=null,activeConversation=null,activeOrderId=null,inbox=[],refreshHandle=null;
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function ntConfirm(title,message,confirmText='Continue'){return new Promise(resolve=>{const modal=$('confirmModal');$('confirmTitle').textContent=title;$('confirmMessage').textContent=message;$('confirmOk').textContent=confirmText;modal.classList.add('open');modal.setAttribute('aria-hidden','false');const done=value=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true');$('confirmCancel').onclick=null;$('confirmOk').onclick=null;resolve(value);};$('confirmCancel').onclick=()=>done(false);$('confirmOk').onclick=()=>done(true);});}
 function closeChatReport(){const modal=$('reportModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true');$('reportFormError').textContent='';}
 function notice(msg){$('status').textContent=msg;$('status').style.display='block';}
 function time(v){try{return new Date(v).toLocaleString('en-NG',{dateStyle:'short',timeStyle:'short'});}catch(_){return '';}}
-async function loadInbox(){const {data,error}=await db.rpc('marketplace_chat_inbox');if(error)throw error;inbox=data||[];$('threads').innerHTML=inbox.length?inbox.map(c=>'<div class="thread '+(c.conversation_id===activeConversation?'active':'')+'" onclick="selectConversation(\''+esc(c.conversation_id)+'\')"><strong>'+esc(c.other_user_name)+'</strong><small>'+esc(c.product_title||'Marketplace chat')+'</small><div class="muted">'+esc(c.last_message||'Start the conversation')+'</div></div>').join(''):'<div class="empty">No messages yet. Open a product and tap Chat seller to start.</div>';}
+async function loadInbox(){const {data,error}=await db.rpc('marketplace_chat_inbox');if(error)throw error;inbox=data||[];$('threads').innerHTML=inbox.length?inbox.map(c=>'<div class="thread '+(c.conversation_id===activeConversation?'active':'')+'" onclick="selectConversation(\''+esc(c.conversation_id)+'\')"><strong>'+esc(c.other_user_name)+'</strong><small>'+esc(c.product_title||'Marketplace chat')+(c.order_id?' · Order #'+esc(String(c.order_id).slice(0,8)):' · Listing chat')+'</small><div class="muted">'+esc(c.last_message||'Start the conversation')+'</div></div>').join(''):'<div class="empty">No messages yet. Open a product and tap Chat seller to start.</div>';}
 async function loadMessages(){
  const conversationId=activeConversation;if(!conversationId)return;
  try{
@@ -35,7 +35,14 @@ async function loadMessages(){
   if(readError)console.warn('Could not update marketplace chat read status:',readError.message);
  }catch(error){notice('Messages could not load: '+(error.message||'Please refresh and try again.'));}
 }
-async function selectConversation(id){activeConversation=id;document.body.classList.add('market-chat-open');const c=inbox.find(x=>x.conversation_id===id);$('chatHead').innerHTML='<div style="display:flex;align-items:center;gap:8px;min-width:0"><button class="light mobile-thread-back" type="button" onclick="backToThreads()" aria-label="Back to conversations">←</button><div><strong>'+esc(c?.other_user_name||'Marketplace member')+'</strong><div class="muted">'+esc(c?.product_title||'Marketplace chat')+'</div></div></div><div style="display:flex;gap:6px;flex-wrap:wrap">'+(c?.product_id?'<button class="green" type="button" onclick="openOrderRequest()">Request order</button>':'')+'<button class="report-btn" type="button" onclick="openChatReport()">Report problem</button><button class="light" type="button" onclick="blockUser()">Block</button></div>';await loadInbox();await loadMessages();}
+async function selectConversation(id){
+ activeConversation=id;
+ const c=inbox.find(x=>x.conversation_id===id);
+ activeOrderId=c?.order_id||null;
+ document.body.classList.add('market-chat-open');
+ $('chatHead').innerHTML='<div style="display:flex;align-items:center;gap:8px;min-width:0"><button class="light mobile-thread-back" type="button" onclick="backToThreads()" aria-label="Back to conversations">←</button><div><strong>'+esc(c?.other_user_name||'Marketplace member')+'</strong><div class="muted">'+esc(c?.product_title||'Marketplace chat')+(c?.order_id?' · Order #'+esc(String(c.order_id).slice(0,8)):' · Listing discussion')+'</div></div></div><div style="display:flex;gap:6px;flex-wrap:wrap">'+(c?.product_id&&!c?.order_id?'<button class="green" type="button" onclick="openOrderRequest()">Request order</button>':'')+'<button class="report-btn" type="button" onclick="openChatReport()">Report problem</button><button class="light" type="button" onclick="blockUser()">Block</button></div>';
+ await loadInbox();await loadMessages();
+}
 function backToThreads(){document.body.classList.remove('market-chat-open');}\nlet activeOrderProduct=null;
 function closeOrderRequest(){const modal=$('orderModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true');$('orderError').textContent='';}
 function updateOrderTotal(){if(!activeOrderProduct)return;const qty=Number($('orderQuantity').value);const total=Number(activeOrderProduct.price)*qty;$('orderTotal').textContent='Total: '+(Number.isFinite(total)&&total>0?'₦'+total.toLocaleString('en-NG',{maximumFractionDigits:2}):'—');}
@@ -64,11 +71,11 @@ $('submitOrderRequest').addEventListener('click',async()=>{
   const {data:order,error}=await db.rpc('marketplace_create_order_request',{p_product_id:p.id,p_quantity:qty});
   if(error)throw error;
   if(!order||order.success!==true||!order.order_id)throw new Error(order?.message||'The order request could not be created.');
-  const total=Number(order.total_amount);
   closeOrderRequest();
   notice(order.message||'Order request sent. The seller must approve it. No payment has been taken.');
-  $('messages').insertAdjacentHTML('beforeend','<div class="message mine">Order request #'+esc(String(order.order_id).slice(0,8))+' sent · '+qty+' item(s) · ₦'+total.toLocaleString('en-NG')+'<time>Awaiting seller approval · No payment taken</time></div>');
-  $('messages').scrollTop=$('messages').scrollHeight;
+  const {error:chatError}=await db.rpc('create_marketplace_order_chat',{p_order_id:order.order_id});
+  if(chatError)throw new Error('Your order request was saved, but its dedicated order chat could not open: '+chatError.message);
+  location.href='marketplace-chat.html?order='+encodeURIComponent(order.order_id);
  }catch(error){$('orderError').textContent=error.message||'Order request could not be sent.';}
  finally{btn.disabled=false;btn.textContent='Send request';}
 });
@@ -80,9 +87,11 @@ async function openChatReport(){
  const orderSelect=$('reportOrder');
  orderSelect.innerHTML='<option value="">This is about the conversation/listing only</option>';
  try{
-  const {data,error}=await db.from('marketplace_orders').select('id,status,total_amount,created_at').eq('product_id',c.product_id).or('buyer_id.eq.'+user.id+',seller_id.eq.'+user.id).order('created_at',{ascending:false}).limit(30);
+  let query=db.from('marketplace_orders').select('id,status,total_amount,created_at').eq('product_id',c.product_id).or('buyer_id.eq.'+user.id+',seller_id.eq.'+user.id).order('created_at',{ascending:false}).limit(30);
+  if(c.order_id)query=db.from('marketplace_orders').select('id,status,total_amount,created_at').eq('id',c.order_id).or('buyer_id.eq.'+user.id+',seller_id.eq.'+user.id);
+  const {data,error}=await query;
   if(error)throw error;
-  (data||[]).forEach(o=>{const option=document.createElement('option');option.value=o.id;option.textContent='Order #'+String(o.id).slice(0,8)+' · '+String(o.status||'pending').replaceAll('_',' ')+' · ₦'+Number(o.total_amount||0).toLocaleString('en-NG');orderSelect.appendChild(option);});
+  (data||[]).forEach(o=>{const option=document.createElement('option');option.value=o.id;option.textContent='Order #'+String(o.id).slice(0,8)+' · '+String(o.status||'pending').replaceAll('_',' ')+' · ₦'+Number(o.total_amount||0).toLocaleString('en-NG');if(c.order_id&&o.id===c.order_id)option.selected=true;orderSelect.appendChild(option);});
  }catch(error){console.warn('Could not load related orders:',error.message);}
  $('reportDetails').value='';$('reportFormError').textContent='';
  $('reportModal').classList.add('open');$('reportModal').setAttribute('aria-hidden','false');
@@ -108,7 +117,7 @@ $('reportForm').addEventListener('submit',async e=>{
 });
 
 $('composer').addEventListener('submit',async e=>{e.preventDefault();const message=$('messageInput').value.trim();if(!message||!activeConversation)return;$('sendBtn').disabled=true;try{const {error}=await db.from('chat_messages').insert({conversation_id:activeConversation,sender_id:user.id,message});if(error)throw error;$('messageInput').value='';await loadMessages();await loadInbox();}catch(error){notice('Message not sent: '+error.message);}finally{$('sendBtn').disabled=false;}});
-(async function init(){try{const {data,error}=await db.auth.getUser();if(error)throw error;user=data.user;if(!user){location.href='index.html#account-types';return;}const product=new URLSearchParams(location.search).get('product');if(product){const {data:conversation,error:rpcError}=await db.rpc('create_marketplace_chat',{p_product_id:product});if(rpcError)throw rpcError;activeConversation=conversation;}await loadInbox();if(activeConversation)await selectConversation(activeConversation);else if(inbox.length)await selectConversation(inbox[0].conversation_id);refreshHandle=setInterval(async()=>{try{await loadInbox();await loadMessages();}catch(error){console.warn(error.message);}},15000);}catch(error){notice('Marketplace chat could not load: '+error.message);}})();
+(async function init(){try{const {data,error}=await db.auth.getUser();if(error)throw error;user=data.user;if(!user){location.href='index.html#account-types';return;}const params=new URLSearchParams(location.search),orderId=params.get('order'),product=params.get('product');if(orderId){const {data:conversation,error:rpcError}=await db.rpc('create_marketplace_order_chat',{p_order_id:orderId});if(rpcError)throw rpcError;activeConversation=conversation;activeOrderId=orderId;}else if(product){const {data:conversation,error:rpcError}=await db.rpc('create_marketplace_chat',{p_product_id:product});if(rpcError)throw rpcError;activeConversation=conversation;}await loadInbox();if(activeConversation)await selectConversation(activeConversation);else if(inbox.length)await selectConversation(inbox[0].conversation_id);refreshHandle=setInterval(async()=>{try{await loadInbox();await loadMessages();}catch(error){console.warn(error.message);}},15000);}catch(error){notice('Marketplace chat could not load: '+error.message);}})();
 window.addEventListener('beforeunload',()=>{if(refreshHandle)clearInterval(refreshHandle);});
 </script>
 <!-- NAIJA TASK Adsterra banner -->
