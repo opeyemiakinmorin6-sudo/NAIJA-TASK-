@@ -74,7 +74,10 @@ $('submitOrderRequest').addEventListener('click',async()=>{
   closeOrderRequest();
   notice(order.message||'Order request sent. The seller must approve it. No payment has been taken.');
   const {error:chatError}=await db.rpc('create_marketplace_order_chat',{p_order_id:order.order_id});
-  if(chatError)throw new Error('Your order request was saved, but its dedicated order chat could not open: '+chatError.message);
+  if(chatError){
+    notice('Your order request was saved. Open it later from My Orders to retry the dedicated order chat. '+chatError.message);
+    return;
+  }
   location.href='marketplace-chat.html?order='+encodeURIComponent(order.order_id);
  }catch(error){$('orderError').textContent=error.message||'Order request could not be sent.';}
  finally{btn.disabled=false;btn.textContent='Send request';}
