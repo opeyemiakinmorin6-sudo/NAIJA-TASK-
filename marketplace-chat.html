@@ -43,7 +43,8 @@ async function selectConversation(id){
  $('chatHead').innerHTML='<div style="display:flex;align-items:center;gap:8px;min-width:0"><button class="light mobile-thread-back" type="button" onclick="backToThreads()" aria-label="Back to conversations">←</button><div><strong>'+esc(c?.other_user_name||'Marketplace member')+'</strong><div class="muted">'+esc(c?.product_title||'Marketplace chat')+(c?.order_id?' · Order #'+esc(String(c.order_id).slice(0,8)):' · Listing discussion')+'</div></div></div><div style="display:flex;gap:6px;flex-wrap:wrap">'+(c?.product_id&&!c?.order_id?'<button class="green" type="button" onclick="openOrderRequest()">Request order</button>':'')+'<button class="report-btn" type="button" onclick="openChatReport()">Report problem</button><button class="light" type="button" onclick="blockUser()">Block</button></div>';
  await loadInbox();await loadMessages();
 }
-function backToThreads(){document.body.classList.remove('market-chat-open');}\nlet activeOrderProduct=null;
+function backToThreads(){document.body.classList.remove('market-chat-open');}
+let activeOrderProduct=null;
 function closeOrderRequest(){const modal=$('orderModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true');$('orderError').textContent='';}
 function updateOrderTotal(){if(!activeOrderProduct)return;const qty=Number($('orderQuantity').value);const total=Number(activeOrderProduct.price)*qty;$('orderTotal').textContent='Total: '+(Number.isFinite(total)&&total>0?'₦'+total.toLocaleString('en-NG',{maximumFractionDigits:2}):'—');}
 async function openOrderRequest(){
