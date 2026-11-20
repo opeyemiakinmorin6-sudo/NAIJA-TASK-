@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en">
 <head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Login — NAIJA TASK</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Login — NAIJA TASK</title><!-- Supabase SDK loads with a CDN fallback so one blocked host cannot disable admin login. --><style>
 
 *{
   box-sizing:border-box;
@@ -332,447 +332,171 @@ button:disabled{
 </a>
 
   </section></main><script>
+/* NAIJA TASK secure admin login: resilient SDK loading, bounded requests,
+   and an active-admin check before redirecting to the control center. */
+const SUPABASE_URL = "https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+let db = null;
+let dbPromise = null;
 
-/*
-  ============================================
-  SUPABASE
-  ============================================
-*/
-
-const SUPABASE_URL =
-  "https://jwakveeiynpakunwjzkj.supabase.co";
-
-
-/*
-  IMPORTANT:
-  Replace this with your CURRENT
-  Supabase publishable key.
-
-  NEVER put a service-role key here.
-*/
-
-const SUPABASE_KEY =
-       "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
-
-
-const db =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-/*
-  ============================================
-  HELPERS
-  ============================================
-*/
-
-function showMessage(
-  elementId,
-  text,
-  type
-){
-
-  const element =
-    document.getElementById(elementId);
-
-  element.textContent =
-    text;
-
-  element.className =
-    "message show " + type;
-
+function showMessage(elementId, text, type) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  element.textContent = text;
+  element.className = "message show " + type;
+}
+function hideMessage(elementId) {
+  const element = document.getElementById(elementId);
+  if (element) element.className = "message";
+}
+function withTimeout(promise, ms, label) {
+  let timer;
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise((_, reject) => {
+      timer = window.setTimeout(() => reject(new Error(label + " timed out. Check your connection and try again.")), ms);
+    })
+  ]).finally(() => window.clearTimeout(timer));
+}
+function loadSupabaseSdk(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    const timer = window.setTimeout(() => {
+      script.remove();
+      reject(new Error("The secure login library took too long to load."));
+    }, 10000);
+    script.onload = () => {
+      window.clearTimeout(timer);
+      if (window.supabase && typeof window.supabase.createClient === "function") resolve();
+      else reject(new Error("The secure login library did not initialize."));
+    };
+    script.onerror = () => {
+      window.clearTimeout(timer);
+      script.remove();
+      reject(new Error("Could not load the secure login library."));
+    };
+    document.head.appendChild(script);
+  });
+}
+async function ensureDb() {
+  if (db) return db;
+  if (!dbPromise) {
+    dbPromise = (async () => {
+      if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        try {
+          await loadSupabaseSdk("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");
+        } catch (_) {
+          await loadSupabaseSdk("https://unpkg.com/@supabase/supabase-js@2");
+        }
+      }
+      if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        throw new Error("Secure sign-in is unavailable. Refresh the page and try again.");
+      }
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      return db;
+    })();
+  }
+  try { return await dbPromise; }
+  catch (error) { dbPromise = null; throw error; }
 }
 
+document.getElementById("forgotButton")?.addEventListener("click", function () {
+  const loginEmail = document.getElementById("email")?.value.trim() || "";
+  document.getElementById("loginSection")?.classList.add("hidden");
+  document.getElementById("forgotSection")?.classList.remove("hidden");
+  if (loginEmail) document.getElementById("resetEmail").value = loginEmail;
+  hideMessage("loginMessage");
+  hideMessage("resetMessage");
+});
 
-function hideMessage(elementId){
+document.getElementById("backToLogin")?.addEventListener("click", function () {
+  document.getElementById("forgotSection")?.classList.add("hidden");
+  document.getElementById("loginSection")?.classList.remove("hidden");
+  hideMessage("resetMessage");
+});
 
-  const element =
-    document.getElementById(elementId);
+document.getElementById("adminLoginForm")?.addEventListener("submit", async function (event) {
+  event.preventDefault();
+  const button = document.getElementById("loginButton");
+  const email = (document.getElementById("email")?.value || "").trim().toLowerCase();
+  const password = document.getElementById("password")?.value || "";
+  if (!email || !password) {
+    showMessage("loginMessage", "Enter your administrator email and password.", "error");
+    return;
+  }
+  if (button) { button.disabled = true; button.textContent = "Checking admin access…"; }
+  hideMessage("loginMessage");
+  let client = null;
+  try {
+    client = await ensureDb();
+    const auth = await withTimeout(
+      client.auth.signInWithPassword({ email, password }),
+      15000,
+      "Administrator sign-in"
+    );
+    if (auth.error) throw auth.error;
+    if (!auth.data?.user?.id) throw new Error("Sign-in did not return a user account.");
 
-  element.className =
-    "message";
-
-}
-
-
-/*
-  ============================================
-  OPEN FORGOT PASSWORD
-  ============================================
-*/
-
-document
-  .getElementById("forgotButton")
-  .addEventListener(
-    "click",
-    function(){
-
-      const loginEmail =
-        document
-          .getElementById("email")
-          .value
-          .trim();
-
-
-      document
-        .getElementById("loginSection")
-        .classList
-        .add("hidden");
-
-
-      document
-        .getElementById("forgotSection")
-        .classList
-        .remove("hidden");
-
-
-      if(loginEmail){
-
-        document
-          .getElementById("resetEmail")
-          .value =
-          loginEmail;
-
-      }
-
-
-      hideMessage("loginMessage");
-
-      hideMessage("resetMessage");
-
+    const check = await withTimeout(
+      client.from("admin_users")
+        .select("user_id,active,role")
+        .eq("user_id", auth.data.user.id)
+        .eq("active", true)
+        .maybeSingle(),
+      12000,
+      "Active administrator verification"
+    );
+    if (check.error) throw new Error("Could not verify your administrator access: " + check.error.message);
+    if (!check.data) {
+      await client.auth.signOut();
+      throw new Error("This account is not an active NAIJA TASK administrator.");
     }
-  );
 
-
-/*
-  ============================================
-  BACK TO ADMIN LOGIN
-  ============================================
-*/
-
-document
-  .getElementById("backToLogin")
-  .addEventListener(
-    "click",
-    function(){
-
-      document
-        .getElementById("forgotSection")
-        .classList
-        .add("hidden");
-
-
-      document
-        .getElementById("loginSection")
-        .classList
-        .remove("hidden");
-
-
-      hideMessage("resetMessage");
-
+    showMessage("loginMessage", "Admin access confirmed. Opening the control center…", "success");
+    if (button) button.textContent = "Opening Admin…";
+    window.location.replace("admin.html");
+  } catch (error) {
+    console.error("Admin login error:", error);
+    if (client) {
+      try { await client.auth.signOut(); } catch (_) {}
     }
-  );
-
-
-/*
-  ============================================
-  ADMIN LOGIN
-  ============================================
-*/
-
-document
-  .getElementById("adminLoginForm")
-  .addEventListener(
-    "submit",
-    async function(event){
-
-      event.preventDefault();
-
-
-      const button =
-        document.getElementById(
-          "loginButton"
-        );
-
-
-      const email =
-        document
-          .getElementById("email")
-          .value
-          .trim()
-          .toLowerCase();
-
-
-      const password =
-        document
-          .getElementById("password")
-          .value;
-
-
-      button.disabled = true;
-
-      button.textContent =
-        "Checking admin access...";
-
-
-      hideMessage("loginMessage");
-
-
-      try{
-
-        const {
-          data,
-          error
-        } =
-          await db.auth.signInWithPassword({
-
-            email,
-
-            password
-
-          });
-
-
-        if(error){
-
-          throw error;
-
-        }
-
-
-        if(!data.user){
-
-          throw new Error(
-            "Login failed."
-          );
-
-        }
-
-
-        /*
-          REAL ADMIN AUTHORIZATION CHECK
-
-          The authenticated user's ID must
-          exist in admin_users.
-        */
-
-        const {
-          data: admin,
-          error: adminError
-        } =
-          await db
-            .from("admin_users")
-            .select("user_id")
-            .eq(
-              "user_id",
-              data.user.id
-            )
-            .maybeSingle();
-
-
-        if(adminError){
-
-          throw adminError;
-
-        }
-
-
-        if(!admin){
-
-          await db.auth.signOut();
-
-          throw new Error(
-            "This account is not authorized as an administrator."
-          );
-
-        }
-
-
-        showMessage(
-          "loginMessage",
-          "Admin access confirmed. Opening Admin Control Center...",
-          "success"
-        );
-
-
-        button.textContent =
-          "Opening Admin...";
-
-
-        setTimeout(
-          function(){
-
-            window.location.href =
-              "admin.html";
-
-          },
-          700
-        );
-
-
-      }catch(error){
-
-        console.error(
-          "Admin login error:",
-          error
-        );
-
-
-        showMessage(
-          "loginMessage",
-          error.message ||
-          "Admin login failed.",
-          "error"
-        );
-
-
-        button.disabled = false;
-
-        button.textContent =
-          "Admin Login";
-
-      }
-
-    }
-  );
-
-
-/*
-  ============================================
-  PASSWORD RESET REQUEST
-  ============================================
-
-  This sends the email.
-
-  The email link goes to the ONE shared:
-
-  reset-password.html
-
-  That page handles the actual
-  new-password creation.
-*/
-
-document
-  .getElementById("forgotForm")
-  .addEventListener(
-    "submit",
-    async function(event){
-
-      event.preventDefault();
-
-
-      const button =
-        document.getElementById(
-          "resetButton"
-        );
-
-
-      const email =
-        document
-          .getElementById("resetEmail")
-          .value
-          .trim()
-          .toLowerCase();
-
-
-      if(!email){
-
-        showMessage(
-          "resetMessage",
-          "Please enter your admin email.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      button.disabled = true;
-
-      button.textContent =
-        "Sending reset link...";
-
-
-      hideMessage("resetMessage");
-
-
-      try{
-
-
-        /*
-          Build the shared reset page URL.
-
-          Example:
-
-          admin-login.html
-          ↓
-          reset-password.html
-        */
-
-        const redirectUrl =
-          window.location.origin + "/reset-password.html?role=admin";
-
-
-        const {
-          error
-        } =
-          await db.auth
-            .resetPasswordForEmail(
-              email,
-              {
-                redirectTo:
-                  redirectUrl
-              }
-            );
-
-
-        if(error){
-
-          throw error;
-
-        }
-
-
-        showMessage(
-          "resetMessage",
-          "If this email belongs to an account, a password reset link has been sent. Check your email inbox and spam folder.",
-          "success"
-        );
-
-
-        button.textContent =
-          "Reset Link Sent";
-
-
-      }catch(error){
-
-        console.error(
-          "Password reset error:",
-          error
-        );
-
-
-        showMessage(
-          "resetMessage",
-          error.message ||
-          "Unable to send the reset link.",
-          "error"
-        );
-
-
-        button.disabled = false;
-
-        button.textContent =
-          "Send Reset Link";
-
-      }
-
-    }
-  );
-
+    showMessage("loginMessage", error?.message || "Admin login failed. Please try again.", "error");
+    if (button) { button.disabled = false; button.textContent = "Admin Login"; }
+  }
+});
+
+document.getElementById("forgotForm")?.addEventListener("submit", async function (event) {
+  event.preventDefault();
+  const button = document.getElementById("resetButton");
+  const email = (document.getElementById("resetEmail")?.value || "").trim().toLowerCase();
+  if (!email) {
+    showMessage("resetMessage", "Please enter your admin email.", "error");
+    return;
+  }
+  if (button) { button.disabled = true; button.textContent = "Sending reset link…"; }
+  hideMessage("resetMessage");
+  try {
+    const client = await ensureDb();
+    const result = await withTimeout(
+      client.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/reset-password.html?role=admin"
+      }),
+      15000,
+      "Password reset request"
+    );
+    if (result.error) throw result.error;
+    showMessage("resetMessage", "If this email belongs to an account, a password reset link has been sent. Check your inbox and spam folder.", "success");
+    if (button) button.textContent = "Reset Link Sent";
+  } catch (error) {
+    console.error("Admin password reset error:", error);
+    showMessage("resetMessage", error?.message || "Unable to send the reset link. Please try again.", "error");
+    if (button) { button.disabled = false; button.textContent = "Send Reset Link"; }
+  }
+});
 </script>
 <!-- NAIJA TASK Adsterra banner -->
 <div class="nt-adsterra-banner" style="width:100%;max-width:320px;min-height:50px;margin:18px auto;text-align:center;overflow:hidden"><script>atOptions={'key':'dc095c7f78341b7c3f8c3cd337d72815','format':'iframe','height':50,'width':320,'params':{}};</script><script src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script></div>
