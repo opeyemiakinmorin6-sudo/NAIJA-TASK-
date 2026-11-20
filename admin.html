@@ -5232,12 +5232,8 @@ function showAdminApp() {
 let adminLoginInFlight = false;
 
 async function login() {
-  if (adminLoginInFlight) return;
-  adminLoginInFlight = true;
-
-  const loginButton = $("loginButton");
-  if (loginButton) loginButton.disabled = true;
-
+  // Validate before locking the button. An early return here previously left
+  // the sign-in control disabled permanently when either field was empty.
   const email =
     $("loginEmail")?.value.trim() || "";
 
@@ -5246,8 +5242,19 @@ async function login() {
 
   if (!email || !password) {
     toast("Enter your admin email and password.", "warning");
+    const message = $("loginMessage");
+    if (message) {
+      message.textContent = "Enter your administrator email and password to continue.";
+      message.classList.remove("hidden");
+    }
     return;
   }
+
+  if (adminLoginInFlight) return;
+  adminLoginInFlight = true;
+
+  const loginButton = $("loginButton");
+  if (loginButton) loginButton.disabled = true;
 
   try {
     setLoading(true, "Signing in...");
