@@ -5520,186 +5520,86 @@ function closeSidebar() {
 
 
 function navigate(page) {
-  if (!page) {
-    page = "overview";
+  // Resolve a real page before changing the visible panel. A stale bookmark or
+  // outdated menu item must never leave the admin area blank.
+  if (!page || !$("page-" + page)) page = "overview";
+
+  const target = $("page-" + page);
+  if (!target) {
+    reportError("navigate", new Error("The requested admin page is not available: " + page));
+    toast("That admin section is not available. Open Overview and try again.", "warning");
+    return;
   }
 
   rememberAdminPage(page);
+  document.querySelectorAll(".page").forEach(element => element.classList.remove("active"));
+  target.classList.add("active");
 
-  document
-    .querySelectorAll(".page")
-    .forEach(element => {
-      element.classList.remove("active");
-    });
-
-  const target =
-    $("page-" + page);
-
-  if (target) {
-    target.classList.add("active");
-  }
-
-  document
-    .querySelectorAll(
-      "[data-page], .nav-item"
-    )
-    .forEach(element => {
-
-      const elementPage =
-        element.dataset.page ||
-        element.getAttribute("data-page");
-
-      if (elementPage === page) {
-        element.classList.add("active");
-      } else {
-        element.classList.remove("active");
-      }
-    });
-
-  document
-    .querySelectorAll(".bottom-nav button")
-    .forEach(button => {
-
-      if (
-        button.dataset.page === page
-      ) {
-        button.classList.add("active");
-      } else {
-        button.classList.remove("active");
-      }
-    });
-
+  document.querySelectorAll("[data-page], .nav-item").forEach(element => {
+    const elementPage = element.dataset.page || element.getAttribute("data-page");
+    element.classList.toggle("active", elementPage === page);
+  });
+  document.querySelectorAll(".bottom-nav button").forEach(button => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
   closeSidebar();
 
-  try {
-    switch (page) {
+  const loaders = {
+    overview: () => loadOverview(),
+    users: () => loadUsers(),
+    tasks: () => loadTasks(),
+    submissions: () => loadSubmissions(),
+    withdrawals: () => loadWithdrawals(),
+    wallet: () => loadWalletLedger(),
+    referrals: () => loadReferrals(),
+    posters: () => loadPosters(),
+    monetization: () => loadSettings(),
+    support: () => loadSupport(),
+    security: () => loadSecurity(),
+    settings: () => loadSettings(),
+    billboards: () => loadBillboardsAdmin(),
+    chatreports: () => loadChatReports(),
+    radio: () => loadTracksAdmin(),
+    modules: () => loadModules(),
+    arena: () => loadArenaQuestions(),
+    starlife: () => loadStarlifeEvents(),
+    ads: () => loadAds(),
+    community: () => loadCommunity(),
+    ai: () => loadAICare(),
+    "ai-care": () => loadAICare(),
+    reviews: () => loadMemberReviews(),
+    appeals: () => loadAppeals(),
+    marketplace: () => Promise.allSettled([loadMarketplace(), loadMarketplaceSafety()]),
+    notifications: () => loadAdminNotifications(),
+    seasons: () => loadMarketplaceSeasons(),
+    airtime: () => loadAirtime(),
+    "airtime-data": () => loadAirtime(),
+    integrity: () => runIntegrityChecks(),
+    activity: () => loadAdminActivity(),
+    "admin-activity": () => loadAdminActivity()
+  };
 
-      case "overview":
-        loadOverview();
-        break;
-
-      case "users":
-        loadUsers();
-        break;
-
-      case "tasks":
-        loadTasks();
-        break;
-
-      case "submissions":
-        loadSubmissions();
-        break;
-
-      case "withdrawals":
-        loadWithdrawals();
-        break;
-
-      case "wallet":
-        loadWalletLedger();
-        break;
-
-      case "referrals":
-        loadReferrals();
-        break;
-
-      case "posters":
-        loadPosters();
-        break;
-
-      case "monetization":
-        loadSettings();
-        break;
-
-      case "support":
-        loadSupport();
-        break;
-
-      case "security":
-        loadSecurity();
-        break;
-
-      case "settings":
-        loadSettings();
-        break;
-
-      case "billboards":
-        loadBillboardsAdmin();
-        break;
-
-      case "chatreports":
-        loadChatReports();
-        break;
-
-      case "radio":
-        loadTracksAdmin();
-        break;
-
-      case "modules":
-        loadModules();
-        break;
-
-      case "arena":
-        loadArenaQuestions();
-        break;
-
-      case "starlife":
-        loadStarlifeEvents();
-        break;
-
-      case "ads":
-        loadAds();
-        break;
-
-      case "community":
-        loadCommunity();
-        break;
-
-      case "ai":
-      case "ai-care":
-        loadAICare();
-        break;
-
-      case "reviews":
-        loadMemberReviews();
-        break;
-
-      case "appeals":
-        loadAppeals();
-        break;
-
-      case "marketplace":
-        loadMarketplace();
-        loadMarketplaceSafety();
-        break;
-      case "notifications":
-        loadAdminNotifications();
-        break;
-
-      case "seasons":
-        loadMarketplaceSeasons();
-        break;
-
-      case "airtime":
-      case "airtime-data":
-        loadAirtime();
-        break;
-
-      case "integrity":
-        runIntegrityChecks();
-        break;
-
-      case "activity":
-      case "admin-activity":
-        loadAdminActivity();
-        break;
-    }
-
-  } catch (error) {
-    reportError(
-      "navigate:" + page,
-      error
-    );
+  const loader = loaders[page];
+  if (!loader) {
+    reportError("navigate:" + page, new Error("No loader is registered for this admin section."));
+    toast("This admin section is not connected yet.", "warning");
+    return;
   }
+
+  // Catch asynchronous failures as well as synchronous exceptions. Previously
+  // the surrounding try/catch could not catch rejected async page loaders.
+  Promise.resolve()
+    .then(loader)
+    .catch(error => {
+      reportError("navigate:" + page, error);
+      const notice = target.querySelector(".notice");
+      if (notice) {
+        notice.textContent = errorMessage(error, "This section could not be loaded. Please retry.");
+        notice.className = "notice warning";
+      } else {
+        toast(errorMessage(error, "This section could not be loaded. Please retry."), "warning");
+      }
+    });
 }
 
 
