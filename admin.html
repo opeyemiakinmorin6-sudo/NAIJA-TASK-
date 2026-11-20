@@ -892,7 +892,7 @@ td,th{padding:13px 11px}
       id="loginButton"
       class="primary"
       style="width:100%"
-      onclick="login()">
+      type="button">
 
       Sign In
 
@@ -5229,7 +5229,15 @@ function showAdminApp() {
 }
 
 
+let adminLoginInFlight = false;
+
 async function login() {
+  if (adminLoginInFlight) return;
+  adminLoginInFlight = true;
+
+  const loginButton = $("loginButton");
+  if (loginButton) loginButton.disabled = true;
+
   const email =
     $("loginEmail")?.value.trim() || "";
 
@@ -5299,6 +5307,8 @@ async function login() {
     );
 
   } finally {
+    adminLoginInFlight = false;
+    if (loginButton) loginButton.disabled = false;
     setLoading(false);
   }
 }
