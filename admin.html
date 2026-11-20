@@ -10332,7 +10332,7 @@ async function loadAds() {
   const ar=await withTimeout(supabaseClient.from("platform_ads").select("*").order("created_at",{ascending:false}).limit(100),15000,"platform_ads read");if(ar.error)throw new Error("platform_ads: "+ar.error.message);
   const rows=safeArray(ar.data);let payments=[],pe=null,events=[],ee=null;
   const pr=await withTimeout(supabaseClient.from("ad_campaign_payments").select("*").order("created_at",{ascending:false}).limit(200),15000,"ad campaign payments read");if(pr.error)pe=pr.error;else payments=safeArray(pr.data);
-  const er=await withTimeout(supabaseClient.from("ad_events").select("*").order("created_at",{ascending:false}).limit(500),15000,"ad events read");if(er.error)ee=er.error;else events=safeArray(er.data);
+  const er=await withTimeout(supabaseClient.from("ad_campaign_events").select("*").order("created_at",{ascending:false}).limit(500),15000,"ad events read");if(er.error)ee=er.error;else events=safeArray(er.data);
   if(status){status.textContent="Campaigns readable: "+rows.length+". "+(pe?"Payment records unavailable: "+errorMessage(pe,"read failed"):"Payment records readable: "+payments.length+".")+" Activation requires a matching payment with status paid.";status.className=pe?"notice warning":"notice success";}
   if(body){if(!rows.length)body.innerHTML='<div class="empty">No campaign records found. No demo records are shown.</div>';else body.innerHTML=rows.map(row=>{
    const id=String(row.id??""),payment=payments.find(p=>String(p.ad_id)===id),paid=payments.some(p=>String(p.ad_id)===id&&String(p.status||"").toLowerCase()==="paid"),active=boolValue(row.active),valid=/^[a-f0-9-]{16,40}$/i.test(id);let action="";
@@ -11181,7 +11181,7 @@ async function loadMarketplaceSafety() {
       withTimeout(supabaseClient.from("marketplace_reports").select("id,product_id,order_id,details,reporter_id,reason,status,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace reports"),
       withTimeout(supabaseClient.from("marketplace_disputes").select("id,order_id,opened_by,reason,details,status,priority,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace disputes"),
       withTimeout(supabaseClient.from("marketplace_risk_events").select("id,signal,subject_user_id,severity,review_status,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace risk events"),
-      withTimeout(supabaseClient.from("marketplace_refunds").select("id,order_id,amount,status,provider_reference,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace refunds"),
+      withTimeout(supabaseClient.from("marketplace_refunds").select("id,order_id,amount,status,provider_reference,requested_at").order("requested_at",{ascending:false}).limit(100),15000,"Marketplace refunds"),
       withTimeout(supabaseClient.from("marketplace_payouts").select("id,order_id,amount,status,provider_reference,created_at").order("created_at",{ascending:false}).limit(100),15000,"Marketplace payouts"),
       withTimeout(supabaseClient.from("marketplace_product_moderation").select("product_id,status,risk_score,risk_level,report_count,updated_at").order("updated_at",{ascending:false}).limit(100),15000,"Marketplace moderation")
     ]);
