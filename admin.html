@@ -5057,21 +5057,17 @@ window.addEventListener("error", event => {
    AUDIT LOG
    ========================================================= */
 
-async function writeAudit(action, targetId = null, details = {}) {
+function writeAudit(action, targetId = null, details = {}) {
   try {
-    if (!currentUser) return;
+    if (!currentUser || !supabaseClient) return;
 
-    /*
-      Best-effort direct activity logging.
-      If the table has a different RLS restriction, the main
-      admin operation is NOT blocked by audit failure.
-    */
-
-    // admin_audit_logs.target_id is a uuid; other record IDs (bigint) go in details.
+    // Audit writes are best-effort and must never hold up a real admin action,
+    // logout, or dashboard navigation. Capture the verified admin ID now.
+    const adminId = currentUser.id;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
       .test(String(targetId || ""));
     const payload = {
-      admin_user_id: currentUser.id,
+      admin_user_id: adminId,
       action: String(action || "admin_action"),
       target_type: "admin_action",
       target_id: isUuid ? String(targetId) : null,
@@ -5079,16 +5075,15 @@ async function writeAudit(action, targetId = null, details = {}) {
         targetId && !isUuid ? { target_ref: String(targetId) } : {})
     };
 
-    const result = await supabaseClient
-      .from("admin_audit_logs")
-      .insert(payload);
-
-    if (result.error) {
-      console.warn(
-        "Admin activity log was not written:",
-        result.error.message
-      );
-    }
+    withTimeout(
+      supabaseClient.from("admin_audit_logs").insert(payload),
+      6000,
+      "Admin audit log"
+    ).then(result => {
+      if (result?.error) console.warn("Admin activity log was not written:", result.error.message);
+    }).catch(error => {
+      console.warn("Admin activity log failed or timed out:", error);
+    });
   } catch (error) {
     console.warn("Audit logging failed:", error);
   }
@@ -5383,27 +5378,24 @@ async function resetPassword() {
 
 
 async function logout() {
+  const adminId = currentUser?.id || null;
+  writeAudit("admin_logout", adminId, {});
+
+  // Clear this device's session; do not wait for a global token revocation.
   try {
-    await writeAudit(
-      "admin_logout",
-      currentUser?.id || null,
-      {}
+    await withTimeout(
+      supabaseClient.auth.signOut({ scope: "local" }),
+      6000,
+      "Administrator sign out"
     );
-
-    await supabaseClient.auth.signOut();
-
   } catch (error) {
     reportError("logout", error);
+  } finally {
+    currentUser = null;
+    appShownForUser = null;
+    showLogin();
+    toast("You have been signed out.", "success");
   }
-
-  currentUser = null;
-
-  showLogin();
-
-  toast(
-    "You have been signed out.",
-    "success"
-  );
 }
 
 
@@ -10346,12 +10338,62 @@ async function loadAds() {
   if(eb){if(ee)eb.textContent="Event records could not be read.";else if(!events.length)eb.textContent="No ad impressions or clicks recorded yet.";else{const im=events.filter(x=>x.event_type==="impression").length,cl=events.filter(x=>x.event_type==="click").length;eb.innerHTML='<div class="stat-strip"><div><b>'+im+'</b><span>Retrieved impressions</span></div><div><b>'+cl+'</b><span>Retrieved clicks</span></div></div>';}}
  }catch(error){reportError("loadAds",error);if(status){status.textContent="Advertising read failed: "+errorMessage(error,"unknown error")+". No campaign or payment data was changed.";status.className="notice warning";}if(body)body.innerHTML='<div class="empty">Campaigns could not be loaded. Use System Check to inspect the exact table and policies.</div>';if(pb)pb.innerHTML='<tr><td colspan="7" class="empty">Payment records could not be loaded.</td></tr>';}
 }
-async function reviewPlatformAd(id,activate){
- if(!/^[a-f0-9-]{16,40}$/i.test(String(id||""))){toast("Invalid campaign ID.","warning");return;}
- if(activate){const q=await supabaseClient.from("ad_campaign_payments").select("id,status").eq("ad_id",id).eq("status","paid").limit(1);if(q.error||!q.data?.length){toast("Cannot activate: no confirmed paid payment record found.","warning");return;}if(!confirm("Approve and activate this paid advertisement? Check its creative and destination URL first."))return;}
- else if(!confirm("Pause this advertisement? It will remain in the database."))return;
- try{setLoading(true,activate?"Activating approved ad…":"Pausing ad…");const {error}=await supabaseClient.from("platform_ads").update({active:!!activate}).eq("id",id);if(error)throw error;await writeAudit(activate?"approve_paid_ad":"pause_ad",id,{active:!!activate,reviewed_by:currentUser?.id||null});toast(activate?"Paid advertisement activated.":"Advertisement paused.","success");await loadAds();}
- catch(error){reportError("reviewPlatformAd",error);toast("Ad update failed: "+errorMessage(error,"unknown error"),"danger");}finally{setLoading(false);}
+async function reviewPlatformAd(id, activate) {
+  if (!/^[a-f0-9-]{16,40}$/i.test(String(id || ""))) {
+    toast("Invalid campaign ID.", "warning");
+    return;
+  }
+
+  if (activate) {
+    try {
+      const q = await withTimeout(
+        supabaseClient.from("ad_campaign_payments")
+          .select("id,status")
+          .eq("ad_id", id)
+          .eq("status", "paid")
+          .limit(1),
+        12000,
+        "Advertisement payment verification"
+      );
+      if (q.error || !q.data?.length) {
+        toast("Cannot activate: no confirmed paid payment record found.", "warning");
+        return;
+      }
+    } catch (error) {
+      toast("Payment verification failed: " + errorMessage(error, "Try again."), "danger");
+      return;
+    }
+    if (!confirm("Approve and activate this paid advertisement? Check its creative and destination URL first.")) return;
+  } else if (!confirm("Pause this advertisement? It will remain in the database.")) {
+    return;
+  }
+
+  try {
+    setLoading(true, activate ? "Activating approved ad…" : "Pausing ad…");
+    const result = await withTimeout(
+      supabaseClient.from("platform_ads")
+        .update({ active: !!activate })
+        .eq("id", id)
+        .select("id,active")
+        .maybeSingle(),
+      15000,
+      "Advertisement status update"
+    );
+    if (result.error) throw result.error;
+    if (!result.data) throw new Error("The database did not confirm the advertisement update.");
+
+    writeAudit(activate ? "approve_paid_ad" : "pause_ad", id, {
+      active: !!activate,
+      reviewed_by: currentUser?.id || null
+    });
+    toast(activate ? "Paid advertisement activated." : "Advertisement paused.", "success");
+    await loadAds();
+  } catch (error) {
+    reportError("reviewPlatformAd", error);
+    toast("Ad update failed: " + errorMessage(error, "unknown error"), "danger");
+  } finally {
+    setLoading(false);
+  }
 }
 
 async function loadCommunity() {
@@ -11080,7 +11122,7 @@ async function loadAdminNotifications(){
   const list=$("adminNotificationsList"),status=$("adminNotificationsStatus");
   if(!list)return;
   try{
-    const {data,error}=await supabaseClient.from("admin_notifications").select("id,type,title,message,is_read,created_at").order("created_at",{ascending:false}).limit(100);
+    const {data,error}=await withTimeout(supabaseClient.from("admin_notifications").select("id,type,title,message,is_read,created_at").order("created_at",{ascending:false}).limit(100),12000,"Admin notifications");
     if(error)throw error;
     const rows=safeArray(data),unread=rows.filter(x=>!x.is_read).length;
     ["adminNotificationCount","adminNotificationNavCount"].forEach(id=>{const el=$(id);if(el)el.textContent=unread>99?"99+":String(unread);});
@@ -11393,7 +11435,7 @@ async function runIntegrityChecks() {
       submissionsResult,
       completionsResult,
       withdrawalsResult
-    ] = await Promise.all([
+    ] = await withTimeout(Promise.all([
 
       supabaseClient
         .from("profiles")
@@ -11422,7 +11464,7 @@ async function runIntegrityChecks() {
         .select(
           "id,status"
         )
-    ]);
+    ]), 15000, "System integrity data check");
 
 
     const errors = [
