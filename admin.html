@@ -5264,10 +5264,14 @@ async function login() {
     const {
       data,
       error
-    } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+    } = await withTimeout(
+      supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      }),
+      15000,
+      "Administrator sign-in"
+    );
 
     if (error) {
       throw error;
@@ -5290,17 +5294,20 @@ async function login() {
       );
     }
 
-    await writeAudit(
-      "admin_login",
-      currentUser.id,
-      {
-        email: currentUser.email || null
-      }
-    );
-
+    // Open the verified administrator dashboard immediately. Audit logging is
+    // important but must never hold the admin outside the control center when
+    // the audit table or PostgREST is slow/unavailable.
+    const verifiedAdmin = currentUser;
     showAdminApp();
-
     toast("Administrator login successful.", "success");
+
+    Promise.resolve(writeAudit(
+      "admin_login",
+      verifiedAdmin.id,
+      { email: verifiedAdmin.email || null }
+    )).catch(auditError => {
+      console.warn("Admin login succeeded, but the audit event could not be saved:", auditError);
+    });
 
   } catch (error) {
     reportError("login", error);
