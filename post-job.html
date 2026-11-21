@@ -461,11 +461,6 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
       </div>
 
       <div class="money-row price-visible">
-        <span>Posting fee</span>
-        <strong>₦<span id="calcPosterFee">500</span></strong>
-      </div>
-
-      <div class="money-row price-visible">
         <span>Promotion charge</span>
         <strong>₦<span id="calcPromotionFee">0</span></strong>
       </div>
@@ -826,7 +821,7 @@ function updateRewardRules(){
    FUNDING
 ========================================= */
 
-let posterPricing = {minimumSlots:10,posterFee:500,fastFee:500,priorityFee:1000};
+let posterPricing = {minimumSlots:10,posterFee:0,fastFee:500,priorityFee:1000};
 let servicePricing = {social:{},business:{},commission_percent:30,tasker_share_percent:70,min_slots:10,max_price:999,fast_fee:500,priority_fee:1000};
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"app_testing",survey:"survey_task"})[category] || category;}
@@ -856,11 +851,9 @@ function calculateFunding(){
  document.getElementById("reward").value="1";
  const promotionFee=selectedPromotionFee();
  const serviceCharge=item.enabled?posterRate*slots/10:0;
- const postingFee=Math.max(0,Number(posterPricing.posterFee)||0);
- const total=item.enabled&&slots>=posterPricing.minimumSlots?serviceCharge+postingFee+promotionFee:0;
+ const total=item.enabled&&slots>=posterPricing.minimumSlots?serviceCharge+promotionFee:0;
  document.getElementById("calcSlots").textContent=slots.toLocaleString();
  document.getElementById("calcServiceCharge").textContent=serviceCharge.toLocaleString("en-NG",{maximumFractionDigits:2});
- document.getElementById("calcPosterFee").textContent=postingFee.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("calcPromotionFee").textContent=promotionFee.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("calcTotal").textContent=total.toLocaleString("en-NG",{maximumFractionDigits:2});
  document.getElementById("summaryFunding").textContent=total.toLocaleString();
@@ -1524,7 +1517,7 @@ async function loadPosterPricing(){
    fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)
   };
   posterPricing.minimumSlots=Math.max(10,Number(saved.minimum_poster_task_slots)||servicePricing.min_slots||10);
-  posterPricing.posterFee=Math.max(0,Number(saved.poster_task_fee??500));
+  posterPricing.posterFee=0;
   posterPricing.fastFee=servicePricing.fast_fee;
   posterPricing.priorityFee=servicePricing.priority_fee;
   posterPricing.businessEnabled=saved.business_job_enabled!==false;
