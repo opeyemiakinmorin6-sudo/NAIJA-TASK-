@@ -68,10 +68,6 @@ label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.field{marg
       <div class="amount-box">
         <div class="amount-label">ONE TOTAL PAYMENT REQUIRED</div>
         <div class="amount" id="totalAmount">₦0</div>
-        <div class="amount-breakdown" aria-hidden="true" style="display:none">
-          <span id="fundingAmount">₦0</span>
-          <span id="posterFee">₦0</span>
-        </div>
       </div>
 
       <div class="info">This is your complete amount to pay. NAIJA TASK calculates all internal allocations and charges automatically. Your task becomes live only after payment verification and admin approval.</div>
@@ -146,8 +142,6 @@ let currentUser = null;
 let currentTask = null;
 let existingPayment = null;
 let minimumPosterTaskSlots = 10;
-let posterTaskFee = 0;
-let taskFundingAmount = 0;
 let totalPaymentAmount = 0;
 let selectedImage = null;
 let imageScale = 1;
@@ -232,7 +226,7 @@ async function requireUser() {
 async function loadPlatformSettings() {
   const { data, error } = await db
     .from("platform_settings_public")
-    .select("minimum_poster_task_slots,poster_task_fee")
+    .select("minimum_poster_task_slots")
     .limit(1)
     .maybeSingle();
 
@@ -240,15 +234,10 @@ async function loadPlatformSettings() {
 
   if (data) {
     const min = Number(data.minimum_poster_task_slots);
-    const fee = Number(data.poster_task_fee);
-
     if (Number.isFinite(min) && min >= 1) {
       minimumPosterTaskSlots = Math.floor(min);
     }
 
-    if (Number.isFinite(fee) && fee >= 0) {
-      posterTaskFee = fee;
-    }
   }
 }
 
@@ -354,12 +343,8 @@ async function getSecurePaymentAmount() {
     throw new Error("The server returned an invalid payment amount. Please contact NAIJA TASK support.");
   }
 
-  taskFundingAmount = Math.max(0, Number(currentTask.total_funding_required) || 0);
   totalPaymentAmount = amount;
-  posterTaskFee = Math.max(0, amount - taskFundingAmount);
 
-  $("fundingAmount").textContent = money(taskFundingAmount);
-  $("posterFee").textContent = money(posterTaskFee);
   $("totalAmount").textContent = money(totalPaymentAmount);
 
   return amount;
