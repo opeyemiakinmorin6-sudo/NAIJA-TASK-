@@ -1517,7 +1517,7 @@ function rebuildPlatformTaskTypes(){
  const previous=category.value;
  category.innerHTML='<option value="">Choose a task type</option>';
  const items=Object.entries(servicePricing.social||{})
-   .filter(([key,item])=>prefixes.some(prefix=>key.startsWith(prefix))&&item&&item.enabled===true&&Number(item.poster_price)>0)
+   .filter(([key,item])=>platformSupportsService(platform,key)&&item&&item.enabled===true&&Number(item.poster_price)>0)
    .sort(([a],[b])=>a.localeCompare(b));
  items.forEach(([key])=>{
    const option=document.createElement("option");
