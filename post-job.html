@@ -1561,8 +1561,11 @@ document.getElementById("businessFields").classList.toggle("active",selectedTask
 document.getElementById("normalSocialServiceFields").style.display=selectedTaskKind()==="business_job"?"none":"block";
 updateRewardRules();
 updateSummary();
-loadPosterPricing();
-checkPoster();
+// Restore and validate the poster session before calling the protected pricing RPC.
+// Running both at once can send the pricing request before Supabase restores the saved session.
+checkPoster().then(async function(user){
+  if(user) await loadPosterPricing();
+});
 
 </script>
 
