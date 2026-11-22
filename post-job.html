@@ -825,18 +825,24 @@ let posterPricing = {minimumSlots:10,posterFee:0,fastFee:500,priorityFee:1000};
 let servicePricing = {social:{},business:{},min_slots:10,max_price:1000000,fast_fee:500,priority_fee:1000};
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"app_testing",survey:"survey_task"})[category] || category;}
-function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,enabled:false};const poster=Number(item.poster_price)||0;return {poster_price:poster,enabled:item.enabled===true&&poster>=1};}
+function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,hasPrice:false,enabled:false};const poster=Number(item.poster_price)||0;return {poster_price:poster,hasPrice:poster>=1,enabled:item.enabled===true&&poster>=1};}
 function selectedSocialItem(){return priceItem("social",socialPriceKey(document.getElementById("category").value));}
 function socialServiceIsConfigured(){const item=selectedSocialItem();return item.enabled&&item.poster_price>=1;}
 function selectedBusinessItem(){return priceItem("business",document.getElementById("businessService").value);}
 function selectedPromotionFee(){const tier=document.getElementById("promotionTier").value;return tier==="fast"?Number(servicePricing.fast_fee||0):tier==="priority"?Number(servicePricing.priority_fee||0):0;}
 function refreshServiceOptions(){
  const category=document.getElementById("category");
- // Do not let Posters select a service until Admin has saved a valid price.
+ // Hide services with no poster price so Posters never see empty/zero-price choices.
  [...category.options].forEach(option=>{
-  if(option.value)option.disabled=!priceItem("social",socialPriceKey(option.value)).enabled;
+  if(!option.value)return;
+  const item=priceItem("social",socialPriceKey(option.value));
+  if(!item.hasPrice){
+   if(option.selected)category.value="";
+   option.remove();
+   return;
+  }
+  option.disabled=!item.enabled;
  });
- if(category.selectedOptions[0]?.disabled)category.value="";
  const business=document.getElementById("businessService");
  const businessOptions=business?[...business.options]:[];
  businessOptions.forEach(option=>{if(!option.value)return;option.disabled=!priceItem("business",option.value).enabled;});
@@ -1528,7 +1534,9 @@ async function loadPosterPricing(){
   const promo=document.getElementById("promotionTier");
   promo.options[1].text="Fast Promotion — ₦"+posterPricing.fastFee.toLocaleString();
   promo.options[2].text="Priority Promotion — ₦"+posterPricing.priorityFee.toLocaleString();
-  refreshServiceOptions();
+  // Rebuild the selected platform after pricing loads, then remove every unpriced service.
+  if(document.getElementById("socialPlatform").value)rebuildPlatformTaskTypes();
+  else refreshServiceOptions();
   document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
   calculateFunding();
  }catch(error){
