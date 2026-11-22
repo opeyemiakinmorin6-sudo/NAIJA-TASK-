@@ -10288,18 +10288,49 @@ async function loadRetentionReversalQueue() {
 }
 
 async function confirmRetentionRewardReversal(checkId) {
-  const note = window.prompt("Enter the evidence you personally checked (minimum 20 characters). Include the public profile/channel URL, date/time checked, and why it confirms this specific tasker reversed the action. Do not include passwords or private data:");
-  if (note === null) return;
-  if (note.trim().length < 20 || note.trim().length > 2000) {
-    toast("Evidence note must be between 20 and 2,000 characters.", "warning");
+  const evidenceUrl = window.prompt("Paste the HTTPS public profile/post URL where you independently verified the reversal:");
+  if (evidenceUrl === null) return;
+  let safeEvidenceUrl = "";
+  try {
+    const parsed = new URL(evidenceUrl.trim());
+    if (parsed.protocol !== "https:") throw new Error("HTTPS required");
+    safeEvidenceUrl = parsed.href;
+  } catch (_) {
+    toast("Use a valid HTTPS evidence link.", "warning");
     return;
   }
-  if (!confirm("Confirm only if the evidence proves this specific approved follow/subscribe task was reversed. This will deduct the original reward from the Tasker's available wallet balance, record the reversal, and add a warning. A second verified violation restricts the account for 7 days. Continue?")) return;
+  const observedAt = window.prompt("Enter when you personally observed the reversal (ISO format, e.g. 2026-11-22T18:30:00+01:00):");
+  if (observedAt === null) return;
+  const observedDate = new Date(observedAt.trim());
+  if (!observedAt.trim() || Number.isNaN(observedDate.getTime())) {
+    toast("Enter a valid evidence date and time.", "warning");
+    return;
+  }
+  const source = window.prompt("Evidence source: type public_profile, platform_notice, or other.");
+  if (source === null) return;
+  const safeSource = source.trim().toLowerCase();
+  if (!["public_profile", "platform_notice", "other"].includes(safeSource)) {
+    toast("Choose public_profile, platform_notice, or other.", "warning");
+    return;
+  }
+  const description = window.prompt("Explain what you saw and how it proves this specific tasker's action was reversed (at least 30 characters):");
+  if (description === null) return;
+  if (description.trim().length < 30 || description.trim().length > 2000) {
+    toast("Evidence explanation must be between 30 and 2,000 characters.", "warning");
+    return;
+  }
+  if (!confirm("Confirm only if the evidence directly identifies this tasker's account and proves the action was reversed after approval. This deducts the original reward from available wallet balance, records a warning, and may restrict repeat offenders. A report or follower-count drop alone is not enough. Continue?")) return;
   try {
     const { data, error } = await withTimeout(
       supabaseClient.rpc("admin_confirm_task_retention_reversal", {
         p_check_id: Number(checkId),
-        p_evidence: { admin_review_note: note.trim(), evidence_reviewed_at: new Date().toISOString(), evidence_source: "admin_manual_verification" }
+        p_evidence: {
+          evidence_url: safeEvidenceUrl,
+          observed_at: observedDate.toISOString(),
+          source: safeSource,
+          description: description.trim(),
+          evidence_reviewed_at: new Date().toISOString()
+        }
       }),
       15000,
       "Confirm retention reward reversal"
