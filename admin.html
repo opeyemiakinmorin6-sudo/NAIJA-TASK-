@@ -1658,6 +1658,23 @@ td,th{padding:13px 11px}
     <div><strong>3. Make a decision</strong><span>Approve genuine work once, or reject it with a clear reason the Tasker can understand.</span></div>
   </div>
 
+  <div class="card" style="margin-top:14px;border-left:5px solid #b42318">
+    <div class="page-header" style="margin-bottom:10px">
+      <div>
+        <h3 style="margin:0">⚖️ Disputed task rewards</h3>
+        <p class="small" style="margin:5px 0 0">A poster has reported a possible follow or subscription reversal. Inspect the evidence before clearing a case for payout.</p>
+      </div>
+      <button class="secondary" onclick="loadTaskEscrowDisputes()">Refresh disputes</button>
+    </div>
+    <div class="table-wrap">
+      <table style="min-width:720px">
+        <thead><tr><th>Submission</th><th>Task</th><th>Tasker</th><th>Poster</th><th>Reward</th><th>Reported</th><th>Action</th></tr></thead>
+        <tbody id="taskEscrowDisputesBody"><tr><td colspan="7" class="empty-row">Loading disputed rewards...</td></tr></tbody>
+      </table>
+    </div>
+    <p class="small" style="margin:10px 0 0">Only clear a dispute when the report is not supported by the evidence. Clearing releases the held reward if no separate ban remains. Confirmed violations must use the dedicated evidence-based reversal review.</p>
+  </div>
+
   <div class="card" style="margin-top:14px;border-left:5px solid #e68a00">
     <div class="page-header" style="margin-bottom:10px">
       <div>
@@ -6761,6 +6778,67 @@ async function toggleTask(taskId) {
    SUBMISSIONS / PROOF MODERATION
    ========================================================= */
 
+async function loadTaskEscrowDisputes() {
+  const body = $("taskEscrowDisputesBody");
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="7" class="empty-row">Loading disputed rewards...</td></tr>';
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_get_task_escrow_disputes"),
+      15000,
+      "Task escrow disputes"
+    );
+    if (error) throw error;
+    const rows = safeArray(data);
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="7" class="empty-row">No task rewards are currently disputed.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(row => {
+      const amount = Number(row.amount || 0).toLocaleString("en-NG", {minimumFractionDigits:2,maximumFractionDigits:2});
+      return `<tr>
+        <td>#${escapeHTML(row.submission_id)}</td>
+        <td>${escapeHTML(row.task_title || ("Task #" + row.task_id))}</td>
+        <td title="${escapeHTML(row.tasker_id || "")}">${escapeHTML(String(row.tasker_id || "").slice(0,8))}</td>
+        <td title="${escapeHTML(row.poster_id || "")}">${escapeHTML(String(row.poster_id || "").slice(0,8))}</td>
+        <td>₦${amount}</td>
+        <td>${escapeHTML(shortDate(row.hold_until))}</td>
+        <td><button class="small-btn" onclick="resolveTaskEscrowDispute('${escapeHTML(row.escrow_id)}')">Review &amp; resolve</button></td>
+      </tr>`;
+    }).join("");
+  } catch (error) {
+    reportError("loadTaskEscrowDisputes", error);
+    body.innerHTML = '<tr><td colspan="7" class="empty-row">Unable to load disputes. Refresh and check admin access.</td></tr>';
+  }
+}
+
+async function resolveTaskEscrowDispute(escrowId) {
+  if (!escrowId) return;
+  const note = await uiPrompt("After reviewing the proof and reversal report, explain why this dispute should be cleared and the reward released. Do not clear a confirmed violation. (20–1,200 characters)");
+  if (note === null) return;
+  const cleanNote = String(note).trim();
+  if (cleanNote.length < 20 || cleanNote.length > 1200) {
+    toast("Enter a resolution note between 20 and 1,200 characters.", "warning");
+    return;
+  }
+  try {
+    setLoading(true, "Resolving task reward dispute...");
+    const { data, error } = await supabaseClient.rpc("admin_clear_task_escrow_dispute", {
+      p_escrow_id: escrowId,
+      p_resolution_note: cleanNote
+    });
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error(data?.message || "The dispute was not cleared.");
+    toast(data.message || "Dispute reviewed.", "success");
+    await Promise.all([loadTaskEscrowDisputes(), loadTaskRiskFlags()]);
+  } catch (error) {
+    reportError("resolveTaskEscrowDispute", error);
+    toast(errorMessage(error, "Unable to resolve this dispute."), "danger");
+  } finally {
+    setLoading(false);
+  }
+}
+
 async function loadTaskRiskFlags() {
   const body = $("taskRiskFlagsBody");
   if (!body) return;
@@ -6831,7 +6909,7 @@ async function loadSubmissions() {
     updateSubmissionStats(
       allSubmissions
     );
-    await loadTaskRiskFlags();
+    await Promise.all([loadTaskRiskFlags(), loadTaskEscrowDisputes()]);
 
   } catch (error) {
     reportError(
