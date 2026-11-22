@@ -1311,7 +1311,7 @@ if(
       ===================================== */
 
     const socialPlatform=socialService?document.getElementById("socialPlatform").value:"";
-    if(socialService&&(!socialPlatform||!(PLATFORM_SERVICE_TYPES[socialPlatform]||[]).includes(category))){
+    if(socialService&&(!socialPlatform||!platformSupportsService(socialPlatform,category))){
       showMessage("Choose a valid task type for the selected social platform.","error");
       return;
     }
@@ -1500,9 +1500,15 @@ const PLATFORM_PREFIXES={
  "Apple App Store":["apple_app_"],"Google":["google_"],"Website":["website_"]
 };
 const SERVICE_LABELS=Object.fromEntries(Object.values(SOCIAL_PLATFORM_TASKS).flat().map(([key,label])=>[key,label]));
+function platformSupportsService(platform,serviceKey){
+ const prefixes=PLATFORM_PREFIXES[platform]||[];
+ if(platform==="YouTube"&&serviceKey.startsWith("youtube_music_"))return false;
+ if(platform==="Google"&&serviceKey.startsWith("google_play_"))return false;
+ return prefixes.some(prefix=>serviceKey.startsWith(prefix));
+}
 function serviceLabel(key){
  if(SERVICE_LABELS[key])return SERVICE_LABELS[key];
- return key.replace(/_/g," ").replace(/\\b\\w/g,ch=>ch.toUpperCase());
+ return key.replace(/_/g," ").replace(/\b\w/g,ch=>ch.toUpperCase());
 }
 function rebuildPlatformTaskTypes(){
  const platform=document.getElementById("socialPlatform").value;
