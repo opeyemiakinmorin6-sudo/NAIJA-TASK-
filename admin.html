@@ -1658,6 +1658,23 @@ td,th{padding:13px 11px}
     <div><strong>3. Make a decision</strong><span>Approve genuine work once, or reject it with a clear reason the Tasker can understand.</span></div>
   </div>
 
+  <div class="card" style="margin-top:14px;border-left:5px solid #e68a00">
+    <div class="page-header" style="margin-bottom:10px">
+      <div>
+        <h3 style="margin:0">🛡️ Security flags awaiting review</h3>
+        <p class="small" style="margin:5px 0 0">Submissions that a poster could not approve because a credible risk signal needs an administrator decision.</p>
+      </div>
+      <button class="secondary" onclick="loadTaskRiskFlags()">Refresh flags</button>
+    </div>
+    <div class="table-wrap">
+      <table style="min-width:650px">
+        <thead><tr><th>Submission</th><th>Task</th><th>Tasker</th><th>Reason(s)</th><th>Flagged</th><th>Action</th></tr></thead>
+        <tbody id="taskRiskFlagsBody"><tr><td colspan="6" class="empty">Loading review flags...</td></tr></tbody>
+      </table>
+    </div>
+    <p class="small" style="margin:10px 0 0">Review the original task and proof. Approving after your review records the decision and clears this queue item. A flag alone is not a finding of fraud.</p>
+  </div>
+
   <div
     class="card"
     style="margin-top:14px">
@@ -6744,6 +6761,45 @@ async function toggleTask(taskId) {
    SUBMISSIONS / PROOF MODERATION
    ========================================================= */
 
+async function loadTaskRiskFlags() {
+  const body = $("taskRiskFlagsBody");
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="6" class="empty">Loading review flags...</td></tr>';
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_get_task_submission_review_flags"),
+      15000,
+      "Task risk review queue"
+    );
+    if (error) throw error;
+    const rows = safeArray(data);
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="6" class="empty">No submissions are currently waiting for risk review.</td></tr>';
+      return;
+    }
+    const labels = {
+      active_account_restriction: "Account restriction",
+      low_trust_score: "Low trust score",
+      unresolved_verification_job: "Unresolved verification",
+      unresolved_high_severity_security_event: "High-severity security alert"
+    };
+    body.innerHTML = rows.map(row => {
+      const reasons = safeArray(row.risk_reasons).map(reason => labels[String(reason)] || String(reason));
+      return `<tr>
+        <td>#${escapeHTML(row.submission_id)}</td>
+        <td>${escapeHTML(row.task_title || ("Task #" + row.task_id))}</td>
+        <td title="${escapeHTML(row.tasker_id || "")}">${escapeHTML(String(row.tasker_id || "").slice(0,8))}</td>
+        <td>${escapeHTML(reasons.join(", ") || "Manual review")}</td>
+        <td>${escapeHTML(shortDate(row.flagged_at))}</td>
+        <td><button class="small-btn" onclick="openProofModal('${escapeHTML(row.submission_id)}')">Review proof</button></td>
+      </tr>`;
+    }).join("");
+  } catch (error) {
+    reportError("loadTaskRiskFlags", error);
+    body.innerHTML = '<tr><td colspan="6" class="empty">Unable to load risk flags. Check the admin RPC permission and refresh.</td></tr>';
+  }
+}
+
 async function loadSubmissions() {
   const body = $("submissionsBody");
 
@@ -6775,6 +6831,7 @@ async function loadSubmissions() {
     updateSubmissionStats(
       allSubmissions
     );
+    await loadTaskRiskFlags();
 
   } catch (error) {
     reportError(
