@@ -256,7 +256,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 
     <div class="field">
       <label class="lab" for="proofText" style="font-size:14px">Enter your username</label>
-      <input id="proofText" name="task_proof_text" class="form-control" style="min-height:0" type="text" placeholder="Enter username" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" list="savedUsernameSuggestions" aria-label="Social media username or account handle">
+      <textarea id="proofText" name="task_proof_text" class="form-control" rows="4" style="min-height:110px;resize:vertical" placeholder="Enter username" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" list="savedUsernameSuggestions" aria-label="Social media username or private feedback"></textarea>
       <datalist id="savedUsernameSuggestions"></datalist>
       
     </div>
@@ -362,10 +362,10 @@ function getTaskReward(t){
   return Number.isFinite(p) && p >= 0 ? p : 0;
 }
 function getTaskCategory(t){
-  const s = [t.category,t.platform,t.task_type,t.title,t.description,t.requirements].filter(Boolean).join(" ").toLowerCase();
+  const s = [t.category,t.platform,t.service_key,t.task_type,t.title,t.description,t.requirements].filter(Boolean).join(" ").toLowerCase();
   if (s.includes("youtube music")) return "youtube_music";
   if (s.includes("google play")) return "playstore";
-  if (s.includes("apple app store") || s.includes("app store")) return "appstore";
+  if (s.includes("apple app store") || s.includes("app store") || s.includes("apple_app")) return "appstore";
   if (s.includes("trustpilot")) return "trustpilot";
   if (s.includes("linkedin")) return "linkedin";
   if (s.includes("whatsapp")) return "whatsapp";
@@ -383,14 +383,20 @@ function getTaskCategory(t){
   return "other";
 }
 const taskId = t => String(t.id ?? "");
-
+const PRIVATE_FEEDBACK_KEYS=new Set(["facebook_private_feedback","google_play_private_feedback","apple_app_private_feedback","google_business_private_feedback","website_trustpilot_private_feedback"]);
+function isPrivateFeedbackTask(t){
+  const key=String(t?.service_key||t?.task_type||"").trim().toLowerCase();
+  return PRIVATE_FEEDBACK_KEYS.has(key);
+}
 function needsPhotoProof(t){
+  if(isPrivateFeedbackTask(t))return false;
   const up = t.upload_required === true || String(t.upload_required).toLowerCase() === "true";
   const a = normalize(t.proof_type), b = normalize(t.required_proof);
   const requirements = Array.isArray(t.requirements) ? t.requirements.join(" ") : String(t.requirements || "");
   return up || /photo|image|screenshot/.test(a) || /photo|image|screenshot/.test(b) || /photo|image|screenshot/.test(normalize(requirements));
 }
 function proofIsRequired(t){
+  if(isPrivateFeedbackTask(t))return true;
   return t.proof_required !== false && String(t.proof_required).toLowerCase() !== "false";
 }
 
@@ -734,14 +740,23 @@ function openTask(task){
     ${submitted ? '<div class="notice show info">You already submitted this task. It cannot be submitted again.</div>' : ""}`;
 
 
-  const isBusinessTask = String(task.task_type || "").startsWith("business_");
+  const isPrivateFeedback=isPrivateFeedbackTask(task);
+  const isBusinessTask = String(task.task_type || "").startsWith("business_") || isPrivateFeedback;
   const usernameLabel = $("proofText").previousElementSibling;
   $("proofText").setAttribute("name","task_proof_text");
   $("proofText").setAttribute("autocomplete","off");
   $("proofText").setAttribute("autocapitalize","none");
   $("proofText").setAttribute("spellcheck","false");
   const usernameHint = $("usernameMemoryHint");
-  if (isBusinessTask) {
+  if (isPrivateFeedback) {
+    if (usernameLabel) usernameLabel.textContent = "Your private customer feedback";
+    $("proofText").placeholder = "Share honest feedback privately: what worked, what did not, and what could improve...";
+    $("proofText").setAttribute("autocapitalize","sentences");
+    $("proofText").removeAttribute("list");
+    if(usernameHint)usernameHint.style.display="none";
+    const uploadLabel=document.querySelector('label[for="proofPhoto"]');
+    if(uploadLabel)uploadLabel.querySelector("b").textContent="OPTIONAL SUPPORTING SCREENSHOT";
+  } else if (isBusinessTask) {
     if (usernameLabel) usernameLabel.textContent = "Your feedback, answers or completed work";
     $("proofText").placeholder = "Write your comments, test results, answers, findings or work summary...";
     $("proofText").removeAttribute("list");
@@ -916,7 +931,7 @@ async function submitProof(){
     currentSubmissionIds.add(id);
     const completedTargetKey = taskTargetKey(selectedTask);
     if (completedTargetKey) currentSubmissionTargets.add(completedTargetKey);
-    if(!String(selectedTask.task_type||"").startsWith("business_") && proofText){
+    if(!String(selectedTask.task_type||"").startsWith("business_") && !isPrivateFeedbackTask(selectedTask) && proofText){
       try{
         const memoryResult=await db.rpc("record_tasker_username",{
           p_platform_key:getTaskPlatformKey(selectedTask),
