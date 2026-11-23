@@ -1539,21 +1539,16 @@ function rebuildPlatformTaskTypes(){
  calculateFunding();
  const rule=document.getElementById("priceRule");
  if(platform&&!items.length){
-   const keyCount=Object.keys(pricing).length;
-   const prefix=prefixes[0]||"not mapped";
-   rule.textContent=keyCount
-     ?"No enabled, priced services matched "+platform+" (prefix: "+prefix+"). Check the saved service settings."
-     :"Service pricing has not loaded in this session. Refresh the page or sign in again.";
+   rule.textContent=posterPricingLoaded
+     ?"No services are currently available for this platform. Choose another platform or contact NAIJA TASK support."
+     :"Service options are being prepared. Publishing stays locked until a valid price is confirmed.";
+ }else if(platform&&!posterPricingLoaded){
+   rule.textContent="Choose your service. NAIJA TASK will confirm its current price before you can publish.";
  }else if(items.length&&!category.value){
-   rule.textContent=items.length+" active task type"+(items.length===1?" is":"s are")+" available. Choose one to continue.";
+   rule.textContent=items.length+" available task types. Choose one to continue.";
  }else if(items.length&&category.value){
    rule.textContent=serviceLabel(category.value)+" is available. The displayed price is per 10 slots.";
  }
- console.info("[NAIJA TASK] Poster service list",{
-   platform,returnedServices:Object.keys(pricing).length,
-   enabledPricedServices:Object.entries(pricing).filter(([,item])=>isPricingEnabled(item?.enabled)&&getPosterPrice(item)>=1).length,
-   matchedServices:items.length,prefixes
- });
 }
 document.getElementById("socialPlatform").addEventListener("change",rebuildPlatformTaskTypes);
 document.getElementById("category").addEventListener("change",function(){calculateFunding();updateSummary();});
@@ -1575,6 +1570,7 @@ async function loadPosterPricing(){
    max_price:Math.min(1000000,Math.max(1,Number(saved.max_price)||1000000)),
    fast_fee:Number(saved.fast_fee??500),priority_fee:Number(saved.priority_fee??1000)
   };
+  posterPricingLoaded=true;
   posterPricing.minimumSlots=Math.max(10,Number(saved.minimum_poster_task_slots)||servicePricing.min_slots||10);
   posterPricing.posterFee=0;
   posterPricing.fastFee=servicePricing.fast_fee;
@@ -1602,13 +1598,13 @@ async function loadPosterPricing(){
   document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
   calculateFunding();
  }catch(error){
-  console.warn("Poster pricing settings could not be loaded.",error);
-  const detail=String(error?.message||error?.details||"Unknown pricing error");
-  showMessage("Service prices could not load: "+detail+" Please refresh or contact support.","error");
+  console.warn("Poster pricing settings could not be loaded.");
+  showMessage("We could not confirm service prices right now. You can choose a platform and service, but publishing will remain unavailable until NAIJA TASK confirms the price. Please refresh or contact support.","error");
+  posterPricingLoaded=false;
   publishBtn.disabled=true;
-  const category=document.getElementById("category");
-  while(category.firstChild)category.removeChild(category.firstChild);
-  category.add(new Option("Pricing unavailable — refresh or contact support",""));
+  document.getElementById("socialPlatform").disabled=false;
+  document.getElementById("category").disabled=false;
+  rebuildPlatformTaskTypes();
  }
 }
 
@@ -1618,9 +1614,10 @@ async function loadPosterPricing(){
 
 const requestedMode=new URLSearchParams(window.location.search).get("mode");
 document.getElementById("normalSocialServiceFields").style.display="block";
-// Keep pricing-dependent controls locked until the authenticated price response arrives.
-document.getElementById("socialPlatform").disabled=true;
-document.getElementById("category").disabled=true;
+// Let users choose a platform and service immediately. Publishing remains
+// locked until NAIJA TASK confirms a valid server-side price.
+document.getElementById("socialPlatform").disabled=false;
+document.getElementById("category").disabled=false;
 publishBtn.disabled=true;
 if(requestedMode==="business"){
   const businessRadio=document.querySelector('input[name="taskKind"][value="business_job"]');
