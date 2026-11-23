@@ -1637,14 +1637,16 @@ checkPoster().then(async function(user){
   "Threads":["threads","111111"],"Spotify":["spotify","1DB954"],"Apple Music":["applemusic","FA243C"],
   "Audiomack":["audiomack","FFA200"],"Snapchat":["snapchat","FFFC00"],"Quora":["quora","B92B27"],
   "Boomplay":["boomplay","F5A623"],"Google":["google","4285F4"],"Google Play Store":["googleplay","34A853"],
-  "Apple App Store":["appstore","111111"],"Website":["googlechrome","4285F4"]
+  "Apple App Store":["appstore","111111"],"Website":null
  };
  function draw(){
   const name=select.value;
   if(!name){box.innerHTML='<span class="nt-selected-platform-icon"><span class="nt-platform-placeholder">◎</span></span><span><b>Choose a platform</b><small>Official platform logo appears here</small></span>';return;}
   const brand=brands[name];
-  const logo=brand?'<img src="https://cdn.simpleicons.org/'+brand[0]+'/'+brand[1]+'" alt="'+name.replace(/[&<>"]/g,"")+' logo" loading="eager" referrerpolicy="no-referrer" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'logo-fallback\');this.parentElement.textContent=\''+name.slice(0,1).toUpperCase()+'\'">' : '<span class="nt-platform-placeholder">◎</span>';
-  box.innerHTML='<span class="nt-selected-platform-icon">'+logo+'</span><span><b>'+name.replace(/[&<>"]/g,"")+'</b><small>Official platform logo · select the task action below</small></span>';
+  const logo=brand?'<img src="https://cdn.simpleicons.org/'+brand[0]+'/'+brand[1]+'" alt="'+name.replace(/[&<>"]/g,"")+' logo" loading="eager" referrerpolicy="no-referrer">' : '<span class="nt-platform-placeholder">'+(name==="Website"?"🌐":"◎")+'</span>';
+  box.innerHTML='<span class="nt-selected-platform-icon">'+logo+'</span><span><b>'+name.replace(/[&<>"]/g,"")+'</b><small>'+(brand?"Official brand logo":"Selected destination")+' · select the task action below</small></span>';
+  const img=box.querySelector("img");
+  if(img)img.addEventListener("error",function(){this.remove();const icon=box.querySelector(".nt-selected-platform-icon");if(icon){icon.classList.add("logo-fallback");icon.textContent=name.slice(0,1).toUpperCase();}},{once:true});
  }
  select.addEventListener("change",draw);draw();
 })();
