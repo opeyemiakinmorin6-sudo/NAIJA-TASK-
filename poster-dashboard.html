@@ -745,21 +745,6 @@ main{max-width:1080px;padding:22px 18px 38px}
     </article>
   </section>
 
-  <!-- ADMIN-SET SOCIAL SERVICE PRICE CATALOG -->
-  <section class="poster-price-catalog" aria-labelledby="posterPriceHeading">
-    <div class="poster-price-heading">
-      <div>
-        <span class="poster-price-kicker">TRANSPARENT PRICING</span>
-        <h2 id="posterPriceHeading">Social task prices</h2>
-        <p>See the current poster price for each enabled service before creating a task. Prices shown are per 10 slots.</p>
-      </div>
-      <span class="poster-price-shield">ADMIN SET</span>
-    </div>
-    <input id="posterPriceSearch" type="search" placeholder="Search a platform or service..." aria-label="Search social task prices">
-    <p id="posterPriceStatus" class="poster-price-status" aria-live="polite">Loading current prices…</p>
-    <div id="posterPriceGroups"></div>
-  </section>
-
   <!-- MENU -->
 
   <div class="section-title">
@@ -1457,67 +1442,6 @@ async function logout(){
    START
    ========================================================= */
 
-/* =========================================================
-   POSTER PRICE CATALOG — READ-ONLY ADMIN-SET POSTER PRICES
-   ========================================================= */
-async function loadPosterPricingCatalog(){
-  const status=document.getElementById("posterPriceStatus");
-  const groupsBox=document.getElementById("posterPriceGroups");
-  const search=document.getElementById("posterPriceSearch");
-  if(!status||!groupsBox||!search)return;
-  const platformPrefixes=[
-    ["Facebook","facebook_"],["Instagram","instagram_"],["TikTok","tiktok_"],
-    ["YouTube Music","youtube_music_"],["YouTube","youtube_"],["X / Twitter","x_twitter_"],
-    ["LinkedIn","linkedin_"],["WhatsApp","whatsapp_"],["Telegram","telegram_"],
-    ["Threads","threads_"],["Spotify","spotify_"],["Apple Music","apple_music_"],
-    ["Audiomack","audiomack_"],["Snapchat","snapchat_"],["Quora","quora_"],
-    ["Boomplay","boomplay_"],["Google Play Store","google_play_"],
-    ["Apple App Store","apple_app_"],["Google","google_"],["Website","website_"]
-  ];
-  try{
-    const {data,error}=await supabaseClient.rpc("get_poster_task_pricing");
-    if(error)throw error;
-    let saved=data||{};
-    if(typeof saved==="string")saved=JSON.parse(saved);
-    if(Array.isArray(saved))saved=saved[0]||{};
-    if(!saved||typeof saved!=="object"||!saved.social||typeof saved.social!=="object"){
-      throw new Error("The pricing service returned an invalid response.");
-    }
-    const rows=Object.entries(saved.social).map(([key,item])=>{
-      const price=Number(item?.poster_price??0);
-      const enabled=item?.enabled===true||item?.enabled===1||["true","1","yes","on","t"].includes(String(item?.enabled??"").trim().toLowerCase());
-      const match=platformPrefixes.find(([,prefix])=>String(key).toLowerCase().startsWith(prefix));
-      return {key:String(key),price,enabled,platform:match?.[0]||"Other services"};
-    }).filter(x=>x.enabled&&Number.isFinite(x.price)&&x.price>=1);
-    if(!rows.length){
-      status.textContent="No enabled, priced social services were returned. Your saved settings have not been changed.";
-      groupsBox.innerHTML="";
-      return;
-    }
-    const label=key=>key.replace(/_/g," ").replace(/\b\w/g,ch=>ch.toUpperCase());
-    const escape=value=>String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
-    const grouped={};
-    rows.forEach(row=>(grouped[row.platform]??=[]).push(row));
-    Object.values(grouped).forEach(list=>list.sort((a,b)=>a.key.localeCompare(b.key)));
-    const render=query=>{
-      const q=String(query||"").trim().toLowerCase();
-      const html=Object.entries(grouped).map(([platform,list])=>{
-        const matches=list.filter(row=>!q||platform.toLowerCase().includes(q)||label(row.key).toLowerCase().includes(q));
-        if(!matches.length)return "";
-        return '<details class="poster-price-group"'+(q?' open':'')+'><summary>'+escape(platform)+' <span class="poster-price-count">'+matches.length+' services</span></summary><div class="poster-price-rows">'+matches.map(row=>'<div class="poster-price-row"><span>'+escape(label(row.key))+'</span><strong>₦'+row.price.toLocaleString("en-NG",{maximumFractionDigits:2})+'<small>per 10 slots</small></strong></div>').join("")+'</div></details>';
-      }).join("");
-      groupsBox.innerHTML=html||'<div class="empty">No service matched that search.</div>';
-      status.textContent=q?("Showing matching services. "+rows.length+" active services are configured in total."):("Showing "+rows.length+" enabled social services. Prices are read-only here and are controlled by NAIJA TASK admin.");
-    };
-    search.addEventListener("input",()=>render(search.value));
-    render("");
-  }catch(error){
-    console.error("Poster price catalog could not load:",error);
-    status.textContent="Prices could not be loaded: "+String(error?.message||"Unknown error")+". Your account and saved pricing are unchanged.";
-    groupsBox.innerHTML="";
-  }
-}
-
 async function startDashboard(){
 
   const user =
@@ -1530,7 +1454,6 @@ async function startDashboard(){
 
   await setupPosterNotificationBadge(user);
   await loadProfile(user);
-  await loadPosterPricingCatalog();
 
   await loadJobs(user);
   await loadPosterProofs(user);
@@ -1549,13 +1472,11 @@ startDashboard();
 </script>
 
 
-<script>
+<script id="nt-brand-shortcut">
 (function(){
   const target=document.querySelector("header .brand, .topbar .brand, .navbar .brand");
   if(!target) return;
   let taps=0, reset;
-  target.setAttribute('title','Tap the NAIJA TASK logo 5 times for administrator sign-in');
-  target.setAttribute('aria-label','NAIJA TASK logo. Tap five times for administrator sign-in.');
   target.addEventListener('click',function(event){
     event.preventDefault();
     taps++;
