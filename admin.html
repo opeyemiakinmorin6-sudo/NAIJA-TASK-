@@ -2941,7 +2941,7 @@ td,th{padding:13px 11px}
 
         <div>
           <strong>Automatic Restriction</strong>
-          <small>Restrict accounts when risk rules are triggered.</small>
+          <small>Automatically hold suspicious rewards and apply temporary restrictions for confirmed repeat proof abuse.</small>
         </div>
 
         <label class="switch">
@@ -3006,12 +3006,12 @@ td,th{padding:13px 11px}
       <div class="setting">
 
         <div>
-          <strong>Automatic Ban</strong>
-          <small>Automatically restrict severe repeat abuse.</small>
+          <strong>Permanent Ban Approval</strong>
+          <small>Permanent bans remain an administrator decision. Repeat confirmed duplicate-proof abuse is automatically suspended.</small>
         </div>
 
         <label class="switch">
-          <input id="automaticBanEnabled" type="checkbox">
+          <input id="automaticBanEnabled" type="checkbox" disabled>
           <span class="slider"></span>
         </label>
 
@@ -3074,18 +3074,18 @@ td,th{padding:13px 11px}
     <div class="page-header" style="margin-bottom:8px">
       <div>
         <h3>Task Verification Profiles</h3>
-        <p>Manual/evidence review and signed callbacks from participating app/site backends are supported. Official social-platform APIs and tracking-link verification are not connected.</p>
+        <p>Manual/evidence review and signed callbacks from participating app/site backends are supported. Server-detected duplicate proof can automatically hold rewards and apply temporary account restrictions. Official social-platform APIs and tracking-link verification are not connected.</p>
       </div>
       <button class="secondary" onclick="loadTaskVerificationProfiles()">Refresh tasks</button>
     </div>
-    <div class="notice">Supported rule keys: <code>require_text</code> (true/false), <code>require_screenshot</code> (true/false), and <code>min_text_length</code> (whole number 1–5000). Each submission stores a server-side snapshot. Signed callbacks require a participating app/site backend with independent verification; keep callback keys server-side. Events are review evidence only and never auto-approve, reverse rewards or ban users. Social-platform checks still need each platform’s permitted API access.</div>
+    <div class="notice">Supported rule keys: <code>require_text</code> (true/false), <code>require_screenshot</code> (true/false), and <code>min_text_length</code> (whole number 1–5000). Each submission stores a server-side snapshot. Signed callbacks require a participating app/site backend with independent verification; keep callback keys server-side. Duplicate-proof rules can automatically hold the submission/reward and temporarily restrict repeat abuse. They never auto-approve tasks or directly debit wallet balances. Permanent bans remain administrator-reviewed. Social-platform checks still need each platform’s permitted API access.</div>
     <div id="taskVerificationStatus" class="notice">Loading task verification profiles…</div>
     <div id="taskVerificationBody"><div class="empty">Loading tasks…</div></div>
   </div>
 
   <div class="card" style="margin-top:18px">
     <div class="page-header" style="margin-bottom:8px">
-      <div><h3>App / Website Verification Events</h3><p>Signed partner-backend reports for task actions and reversals. These are evidence signals, not automatic approvals or wallet deductions.</p></div>
+      <div><h3>App / Website Verification Events</h3><p>Signed partner-backend reports for task actions and reversals. These are evidence signals; they never directly debit wallet balances.</p></div>
       <button class="secondary" onclick="loadTaskCallbackEvents()">Refresh callback events</button>
     </div>
     <div id="taskCallbackEventsStatus" class="notice">Loading callback events…</div>
@@ -3096,7 +3096,7 @@ td,th{padding:13px 11px}
     <div class="page-header" style="margin-bottom:8px">
       <div>
         <h3>Trust &amp; Safety Incident Queue</h3>
-        <p>Reports submitted by Taskers and Posters. Reports are evidence for review, not automatic proof of guilt.</p>
+        <p>Includes automatic fraud alerts and user reports. Server rules can hold suspicious rewards and temporarily restrict repeat abuse; admins can review evidence, add strikes, suspend, ban or restore accounts.</p>
       </div>
       <button class="secondary" onclick="loadSecurity()">Refresh reports</button>
     </div>
@@ -9997,7 +9997,7 @@ async function loadSecurity() {
       });
     if (queueStatus) {
       queueStatus.textContent = rows.length
-        ? rows.length + " recent incident(s). Repeat reversal reports are highlighted for investigation only; review evidence before enforcement."
+        ? rows.length + " recent incident(s). Automatic duplicate-proof alerts may already have held rewards or temporarily restricted repeat abuse. Review evidence before permanent enforcement."
         : "No incident reports have been submitted.";
       queueStatus.className = "notice success";
     }
@@ -10008,6 +10008,15 @@ async function loadSecurity() {
         const evidence = meta.evidence && typeof meta.evidence === "object"
           ? JSON.stringify(meta.evidence)
           : "No structured evidence supplied";
+        const automatedDetails = meta.automatic_action
+          ? '<div>Automatic response: ' + escapeHTML(meta.automatic_action) + '</div>' +
+            (meta.matched_submissions !== undefined
+              ? '<div>Server-matched submissions: ' + escapeHTML(meta.matched_submissions) + ' · Other accounts: ' + escapeHTML(meta.matched_accounts || 0) + '</div>'
+              : '') +
+            (meta.signal_metadata
+              ? '<div>Device/network signal: ' + escapeHTML(JSON.stringify(meta.signal_metadata)) + '</div>'
+              : '')
+          : "";
         const pattern = reversalPatterns.get(String(row.user_id || ""));
         const patternSignal = String(row.event_type || "").toUpperCase() === "TASKER_REVERSAL" && pattern
           ? '<div style="margin-top:7px;padding:8px;border-radius:8px;background:#fff7e6;color:#805900"><strong>Review signal only:</strong> ' + pattern.count + ' reversal report(s) in the latest 100 incidents from ' + pattern.reporters.size + ' distinct reporter(s). This is not proof of wrongdoing.</div>'
@@ -10020,7 +10029,7 @@ async function loadSecurity() {
           '<div>Severity: ' + escapeHTML(row.severity || "LOW") + ' · Submitted: ' + escapeHTML(formatDate(row.created_at)) + '</div>' +
           '<div>Details: ' + escapeHTML(row.description || "—") + '</div>' +
           '<div>Evidence: ' + escapeHTML(evidence) + '</div>' +
-          '</div>' + patternSignal +
+          '</div>' + automatedDetails + patternSignal +
           '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' +
           (["OPEN","UNDER_REVIEW"].includes(String(row.status||"").toUpperCase()) ?
             "<button class=\"success\" onclick=\"adminTrustSafetyAction(" + Number(row.id) + ",'VERIFY')\">Verify</button>" +
