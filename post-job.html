@@ -735,67 +735,14 @@ async function getAuthenticatedUser(){
 ========================================= */
 
 async function checkPoster(){
-
+  // Authentication is checked here. Actual poster authorization is enforced
+  // by the protected get_poster_task_pricing RPC and the server-side create flow.
   const user = await getAuthenticatedUser();
-
   if(!user){
     window.location.replace("poster-login.html");
     return null;
   }
-
-  const {data:profile,error:profileError} = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("id",user.id)
-    .maybeSingle();
-
-  if(profileError){
-    console.error("Poster profile lookup failed:",profileError);
-    showMessage("We could not verify your account role. Please refresh or sign in again.","error");
-    return null;
-  }
-
-  if(!profile){
-    console.error("Poster profile is missing for the signed-in account.");
-    showMessage("Your account profile could not be found. Please contact support.","error");
-    return null;
-  }
-
-  const role=String(profile.role||"").trim().toLowerCase();
-
-  // Poster accounts can post directly.
-  if(role==="task_poster"||role==="poster") return user;
-
-  // The protected pricing RPC authorizes an active admin_users record
-  // independently of profiles.role, so the page must use the same rule.
-  const {data:adminRecord,error:adminError}=await supabaseClient
-    .from("admin_users")
-    .select("active")
-    .eq("user_id",user.id)
-    .eq("active",true)
-    .maybeSingle();
-
-  if(adminError){
-    console.error("Admin posting access check failed:",adminError);
-    showMessage("We could not verify your admin access. Please refresh or sign in again.","error");
-    return null;
-  }
-
-  if(adminRecord?.active===true) return user;
-
-  if(role==="tasker"||role==="user"){
-    window.location.replace("dashboard.html");
-    return null;
-  }
-
-  if(role==="admin"){
-    window.location.replace("admin.html");
-    return null;
-  }
-
-  await supabaseClient.auth.signOut();
-  window.location.replace("poster-login.html");
-  return null;
+  return user;
 }
 
 
@@ -1633,6 +1580,9 @@ async function loadPosterPricing(){
   const promo=document.getElementById("promotionTier");
   promo.options[1].text="Fast Promotion — ₦"+posterPricing.fastFee.toLocaleString();
   promo.options[2].text="Priority Promotion — ₦"+posterPricing.priorityFee.toLocaleString();
+  // Only enable service selection after the protected pricing RPC succeeds.
+  document.getElementById("socialPlatform").disabled=false;
+  document.getElementById("category").disabled=false;
   // Rebuild from the authenticated Admin pricing response after it has loaded.
   const selectedPlatform=document.getElementById("socialPlatform").value;
   if(selectedPlatform)rebuildPlatformTaskTypes();
@@ -1661,7 +1611,10 @@ async function loadPosterPricing(){
 
 const requestedMode=new URLSearchParams(window.location.search).get("mode");
 document.getElementById("normalSocialServiceFields").style.display="block";
-document.getElementById("category").disabled=false;
+// Keep pricing-dependent controls locked until the authenticated price response arrives.
+document.getElementById("socialPlatform").disabled=true;
+document.getElementById("category").disabled=true;
+publishBtn.disabled=true;
 if(requestedMode==="business"){
   const businessRadio=document.querySelector('input[name="taskKind"][value="business_job"]');
   if(businessRadio)businessRadio.checked=true;
