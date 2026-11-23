@@ -790,6 +790,7 @@ function updateRewardRules(){
 
 let posterPricing = {minimumSlots:10,posterFee:0,fastFee:500,priorityFee:1000};
 let servicePricing = {social:{},business:{},min_slots:10,max_price:1000000,fast_fee:500,priority_fee:1000};
+let posterPricingLoaded = false;
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"app_testing",survey:"survey_task"})[category] || category;}
 function isPricingEnabled(value){return value===true||value===1||["true","1","yes","on","t"].includes(String(value??"").trim().toLowerCase());}
@@ -1504,27 +1505,34 @@ function rebuildPlatformTaskTypes(){
  const prefixMap=Object.entries(PLATFORM_PREFIXES).find(([name])=>name.toLowerCase().replace(/\\s+/g," ")===normalizedPlatform);
  const prefixes=(prefixMap?prefixMap[1]:[]).map(x=>String(x).toLowerCase());
  const configured=(SOCIAL_PLATFORM_TASKS[platform]||[]).map(([key])=>key);
- const items=Object.entries(pricing).filter(([rawKey,item])=>{
-   const key=String(rawKey||"").trim().toLowerCase();
-   const matches=prefixes.some(prefix=>key.startsWith(prefix));
-   const enabled=isPricingEnabled(item?.enabled);
-   const price=getPosterPrice(item);
-   if(normalizedPlatform==="youtube"&&key.startsWith("youtube_music_"))return false;
-   if(normalizedPlatform==="google"&&key.startsWith("google_play_"))return false;
-   return matches&&enabled&&Number.isFinite(price)&&price>=1;
- }).sort(([a],[b])=>{
-   const ai=configured.indexOf(a),bi=configured.indexOf(b);
-   if(ai<0&&bi<0)return a.localeCompare(b);
-   if(ai<0)return 1;
-   if(bi<0)return -1;
-   return ai-bi;
- });
- while(category.firstChild)category.removeChild(category.firstChild);
+ const items=posterPricingLoaded
+    ? Object.entries(pricing).filter(([rawKey,item])=>{
+       const key=String(rawKey||"").trim().toLowerCase();
+       const matches=prefixes.some(prefix=>key.startsWith(prefix));
+       const enabled=isPricingEnabled(item?.enabled);
+       const price=getPosterPrice(item);
+       if(normalizedPlatform==="youtube"&&key.startsWith("youtube_music_"))return false;
+       if(normalizedPlatform==="google"&&key.startsWith("google_play_"))return false;
+       return matches&&enabled&&Number.isFinite(price)&&price>=1;
+     })
+    : configured.filter(key=>{
+       if(normalizedPlatform==="youtube"&&key.startsWith("youtube_music_"))return false;
+       if(normalizedPlatform==="google"&&key.startsWith("google_play_"))return false;
+       return true;
+     }).map(key=>[key,{}]);
+   items.sort(([a],[b])=>{
+    const ai=configured.indexOf(a),bi=configured.indexOf(b);
+    if(ai<0&&bi<0)return a.localeCompare(b);
+    if(ai<0)return 1;
+    if(bi<0)return -1;
+    return ai-bi;
+   });
+   while(category.firstChild)category.removeChild(category.firstChild);
  category.add(new Option(platform?"Choose a task type":"Select a platform first",""));
  for(const [key,item] of items){
    const price=getPosterPrice(item);
-   const option=new Option(serviceLabel(key)+" — ₦"+price.toLocaleString("en-NG")+" / 10 slots",key);
-   option.dataset.posterPrice=String(price);
+   const option=new Option(serviceLabel(key)+(posterPricingLoaded&&price>=1?" — ₦"+price.toLocaleString("en-NG")+" / 10 slots":" — checking price"),key);
+   if(posterPricingLoaded)option.dataset.posterPrice=String(price);
    category.add(option);
  }
  category.disabled=false;
