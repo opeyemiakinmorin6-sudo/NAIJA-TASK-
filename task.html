@@ -871,11 +871,11 @@ function getNaijaTaskDeviceToken(){
   }
 }
 
-async function recordNaijaTaskSecuritySignal(){
+async function recordNaijaTaskSecuritySignal(submissionId=null){
   if (!currentUser) throw new Error("Sign in before security verification.");
   const token = getNaijaTaskDeviceToken();
   const { data, error } = await db.functions.invoke("record-risk-signal", {
-    body: { device_id: token }
+    body: { device_id: token, ...(submissionId ? { submission_id: Number(submissionId) } : {}) }
   });
   if (error || !data?.success || !data?.signal_recorded) {
     console.error("Security signal could not be recorded:", error || data);
@@ -964,6 +964,17 @@ async function submitProof(){
       throw new Error("Your proof could not be submitted. Check the task_submissions permissions and required fields. " + error.message);
     }
 
+    let duplicateEvidenceReview = false;
+    try {
+      const evidenceSignal = await recordNaijaTaskSecuritySignal(Number(submittedRow?.id));
+      duplicateEvidenceReview = evidenceSignal?.evidence?.duplicate === true;
+      if (duplicateEvidenceReview) {
+        console.warn("Exact duplicate proof image detected; submission is queued for administrator review.");
+      }
+    } catch (evidenceError) {
+      console.warn("Post-submission evidence fingerprint check could not finish:", evidenceError?.message || evidenceError);
+    }
+
     currentSubmissionIds.add(id);
     const completedTargetKey = taskTargetKey(selectedTask);
     if (completedTargetKey) currentSubmissionTargets.add(completedTargetKey);
@@ -984,7 +995,7 @@ async function submitProof(){
     buildFilters();
     renderTasks();
     closeTaskDetails();
-    showNotice("Proof submitted. Submission reference #" + String(submittedRow?.id || "pending") + ". Track it in Proofs. If a participating app/site asks for your NAIJA TASK reference, provide this number. Your reward is added after approval." + (usernameSaved ? " Your username is now saved for future suggestions." : ""), "success");
+    showNotice("Proof submitted. Submission reference #" + String(submittedRow?.id || "pending") + ". " + (duplicateEvidenceReview ? "The same image appears in another submission, so this proof has been sent for an additional administrator review. No automatic penalty has been applied. " : "") + "Track it in Proofs. Your reward is added after approval." + (usernameSaved ? " Your username is now saved for future suggestions." : ""), "success");
   }catch(e){
     console.error("Proof submission failed:", e);
     showNotice(e.message || "Could not submit proof. Try again.", "error");
