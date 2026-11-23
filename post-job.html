@@ -386,7 +386,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
         <option>Boomplay</option><option>Google</option><option>Google Play Store</option><option>Apple App Store</option>
       </select>
       <label for="category">Choose the task type for this platform</label>
-      <select id="category" disabled>
+      <select id="category">
         <option value="">Select a platform first</option>
       </select>
       <div class="help">Select a platform, then choose the action you want completed.</div>
@@ -1549,7 +1549,7 @@ function rebuildPlatformTaskTypes(){
    category.appendChild(option);
  });
  // Enable the selector whenever this platform has priced, active services.
- category.disabled=!platform||items.length===0;
+ category.disabled=false;
  if(previous&&items.some(([key])=>key===previous))category.value=previous;
  refreshServiceOptions();
  calculateFunding();
@@ -1596,7 +1596,7 @@ async function loadPosterPricing(){
   if(selectedPlatform)rebuildPlatformTaskTypes();
   else{
     document.getElementById("category").replaceChildren(new Option("Select a platform first",""));
-    document.getElementById("category").disabled=true;
+    document.getElementById("category").disabled=false;
   }
   document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
   calculateFunding();
