@@ -1513,7 +1513,10 @@ const PLATFORM_PREFIXES={
  "Quora":["quora_"],"Boomplay":["boomplay_"],"Google Play Store":["google_play_"],
  "Apple App Store":["apple_app_"],"Google":["google_"],"Website":["website_"]
 };
-const SERVICE_LABELS=Object.fromEntries(Object.values(SOCIAL_PLATFORM_TASKS).flat().map(([key,label])=>[key,label]));
+const SERVICE_LABELS={};
+Object.keys(SOCIAL_PLATFORM_TASKS).forEach(function(platformName){
+ (SOCIAL_PLATFORM_TASKS[platformName]||[]).forEach(function(entry){SERVICE_LABELS[entry[0]]=entry[1];});
+});
 function platformSupportsService(platform,serviceKey){
  const prefixes=PLATFORM_PREFIXES[platform]||[];
  if(platform==="YouTube"&&serviceKey.startsWith("youtube_music_"))return false;
@@ -1546,7 +1549,8 @@ function rebuildPlatformTaskTypes(){
    if(bi<0)return -1;
    return ai-bi;
  });
- category.replaceChildren(new Option(platform?"Choose a task type":"Select a platform first",""));
+ while(category.firstChild)category.removeChild(category.firstChild);
+ category.add(new Option(platform?"Choose a task type":"Select a platform first",""));
  for(const [key,item] of items){
    const price=getPosterPrice(item);
    const option=new Option(serviceLabel(key)+" — ₦"+price.toLocaleString("en-NG")+" / 10 slots",key);
@@ -1599,7 +1603,9 @@ async function loadPosterPricing(){
   const selectedPlatform=document.getElementById("socialPlatform").value;
   if(selectedPlatform)rebuildPlatformTaskTypes();
   else{
-    document.getElementById("category").replaceChildren(new Option("Select a platform first",""));
+    const category=document.getElementById("category");
+    while(category.firstChild)category.removeChild(category.firstChild);
+    category.add(new Option("Select a platform first",""));
     document.getElementById("category").disabled=false;
   }
   document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
