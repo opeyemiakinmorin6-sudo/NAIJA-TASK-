@@ -1525,39 +1525,43 @@ function serviceLabel(key){
  return key.replace(/_/g," ").replace(/\b\w/g,ch=>ch.toUpperCase());
 }
 function rebuildPlatformTaskTypes(){
- const platform=String(document.getElementById("socialPlatform").value||"").trim();
+ const platformSelect=document.getElementById("socialPlatform");
  const category=document.getElementById("category");
+ const platform=String(platformSelect?.value||"").trim();
  const previous=category.value;
- const pricing=servicePricing.social||{};
+ const pricing=(servicePricing&&servicePricing.social&&typeof servicePricing.social==="object")?servicePricing.social:{};
+ const prefixes=PLATFORM_PREFIXES[platform]||[];
  const configured=(SOCIAL_PLATFORM_TASKS[platform]||[]).map(([key])=>key);
- const items=Object.entries(pricing)
-   .filter(([key,item])=>platformSupportsService(platform,key)&&isPricingEnabled(item?.enabled)&&getPosterPrice(item)>=1)
-   .sort(([a],[b])=>{
-     const ai=configured.indexOf(a),bi=configured.indexOf(b);
-     if(ai<0&&bi<0)return a.localeCompare(b);
-     if(ai<0)return 1;
-     if(bi<0)return -1;
-     return ai-bi;
-   });
- category.replaceChildren(new Option(platform?"Choose a task type":"Select a platform first",""));
- items.forEach(([key,item])=>{
+ const items=Object.entries(pricing).filter(([key,item])=>{
+   const matches=prefixes.some(prefix=>String(key).toLowerCase().startsWith(prefix.toLowerCase()));
+   const enabled=isPricingEnabled(item?.enabled);
    const price=getPosterPrice(item);
-   const option=document.createElement("option");
-   option.value=key;
-   option.dataset.posterPrice=String(price);
-   option.textContent=serviceLabel(key)+" — ₦"+price.toLocaleString("en-NG")+" / 10 slots";
-   category.appendChild(option);
+   if(platform==="YouTube"&&String(key).startsWith("youtube_music_"))return false;
+   if(platform==="Google"&&String(key).startsWith("google_play_"))return false;
+   return matches&&enabled&&price>=1;
+ }).sort(([a],[b])=>{
+   const ai=configured.indexOf(a),bi=configured.indexOf(b);
+   if(ai<0&&bi<0)return a.localeCompare(b);
+   if(ai<0)return 1;
+   if(bi<0)return -1;
+   return ai-bi;
  });
- // Enable the selector whenever this platform has priced, active services.
+ category.replaceChildren(new Option(platform?"Choose a task type":"Select a platform first",""));
+ for(const [key,item] of items){
+   const price=getPosterPrice(item);
+   const option=new Option(serviceLabel(key)+" — ₦"+price.toLocaleString("en-NG")+" / 10 slots",key);
+   option.dataset.posterPrice=String(price);
+   category.add(option);
+ }
  category.disabled=false;
  if(previous&&items.some(([key])=>key===previous))category.value=previous;
- refreshServiceOptions();
  calculateFunding();
  if(platform&&!items.length){
-   document.getElementById("priceRule").textContent="No active, priced task types were returned for "+platform+". Ask Admin to enable a price for this platform.";
+   document.getElementById("priceRule").textContent="No active, priced task types were returned for "+platform+". Please contact support so we can check its service settings.";
  }else if(items.length&&!category.value){
    document.getElementById("priceRule").textContent=items.length+" active task type"+(items.length===1?" is":"s are")+" available. Choose one to continue.";
  }
+ console.info("[NAIJA TASK] Task types loaded", {platform, pricingKeys:Object.keys(pricing).length, matches:items.length});
 }
 document.getElementById("socialPlatform").addEventListener("change",rebuildPlatformTaskTypes);
 document.getElementById("category").addEventListener("change",function(){calculateFunding();updateSummary();});
