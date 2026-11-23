@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v11-username-placeholder-fix';
+const CACHE_NAME='naija-task-shell-v12-homepage-theme-first-paint';
 const APP_SHELL=[
   '/',
   '/index.html',
