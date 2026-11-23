@@ -324,7 +324,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
 
   <link rel="stylesheet" href="/assets/naija-design-system.css?v=2">
 
-<style id="nt-platform-picker-style">.nt-selected-platform{display:flex;align-items:center;gap:12px;margin:10px 0 13px;padding:12px;border:1px solid #dce9de;border-radius:15px;background:linear-gradient(135deg,#f5fbf5,#fff);color:#173326}.nt-selected-platform-icon{width:46px;height:46px;display:grid;place-items:center;flex:0 0 46px;border-radius:13px;background:#0b8f45;color:#fff;font-size:22px;font-weight:900;box-shadow:0 5px 14px #073b2418}.nt-selected-platform b,.nt-selected-platform small{display:block}.nt-selected-platform b{font-size:13px}.nt-selected-platform small{margin-top:3px;color:#6b7b70;font-size:10px}.nt-selected-platform-icon.play{background:#fff;color:#188b49}.nt-selected-platform-icon.apple{background:#111;color:#fff}.nt-selected-platform-icon.youtube{background:#f00}.nt-selected-platform-icon.instagram{background:linear-gradient(135deg,#ffb347,#e1306c,#5851db)}.nt-selected-platform-icon.tiktok{background:#111}.nt-selected-platform-icon.whatsapp{background:#20b95b}.nt-selected-platform-icon.facebook{background:#1877f2}.nt-selected-platform-icon.telegram{background:#229ed9}.nt-selected-platform-icon.spotify{background:#1ed760;color:#111}.nt-selected-platform-icon.snapchat{background:#fffc00;color:#111}.nt-selected-platform-icon.linkedin{background:#0a66c2}.nt-selected-platform-icon.x{background:#111}.nt-selected-platform-icon.threads{background:#111}</style>
+<style id="nt-platform-picker-style">.nt-selected-platform{display:flex;align-items:center;gap:12px;margin:10px 0 13px;padding:12px;border:1px solid #dce9de;border-radius:15px;background:linear-gradient(135deg,#f5fbf5,#fff);color:#173326}.nt-selected-platform-icon{width:48px;height:48px;display:grid;place-items:center;flex:0 0 48px;border-radius:13px;background:#fff;border:1px solid #e3ebe4;box-shadow:0 5px 14px #073b2418;overflow:hidden}.nt-selected-platform-icon img{display:block;width:29px;height:29px;object-fit:contain}.nt-selected-platform-icon.logo-fallback{font-size:22px;font-weight:900;color:#0b8f45}.nt-platform-placeholder{font-size:23px;font-weight:900;color:#0b8f45}.nt-selected-platform b,.nt-selected-platform small{display:block}.nt-selected-platform b{font-size:13px}.nt-selected-platform small{margin-top:3px;color:#6b7b70;font-size:10px}.nt-selected-platform-icon.play{background:#fff;color:#188b49}.nt-selected-platform-icon.apple{background:#111;color:#fff}.nt-selected-platform-icon.youtube{background:#f00}.nt-selected-platform-icon.instagram{background:linear-gradient(135deg,#ffb347,#e1306c,#5851db)}.nt-selected-platform-icon.tiktok{background:#111}.nt-selected-platform-icon.whatsapp{background:#20b95b}.nt-selected-platform-icon.facebook{background:#1877f2}.nt-selected-platform-icon.telegram{background:#229ed9}.nt-selected-platform-icon.spotify{background:#1ed760;color:#111}.nt-selected-platform-icon.snapchat{background:#fffc00;color:#111}.nt-selected-platform-icon.linkedin{background:#0a66c2}.nt-selected-platform-icon.x{background:#111}.nt-selected-platform-icon.threads{background:#111}</style>
 </head>
 
 <body>
@@ -1525,16 +1525,19 @@ function serviceLabel(key){
 function rebuildPlatformTaskTypes(){
  const platform=document.getElementById("socialPlatform").value;
  const category=document.getElementById("category");
- const prefixes=PLATFORM_PREFIXES[platform]||[];
  const previous=category.value;
- category.innerHTML='<option value="">Choose a task type</option>';
- const items=Object.entries(servicePricing.social||{})
-   .filter(([key,item])=>platformSupportsService(platform,key)&&item&&item.enabled===true&&Number(item.poster_price)>0)
-   .sort(([a],[b])=>a.localeCompare(b));
- items.forEach(([key])=>{
+ const pricing=servicePricing.social||{};
+ const configured=(SOCIAL_PLATFORM_TASKS[platform]||[]).map(([key])=>key);
+ const configuredSet=new Set(configured);
+ const items=Object.entries(pricing)
+   .filter(([key,item])=>platformSupportsService(platform,key)&&configuredSet.has(key)&&item&&item.enabled===true&&Number(item.poster_price)>0)
+   .sort(([a],[b])=>configured.indexOf(a)-configured.indexOf(b));
+ category.replaceChildren(new Option("Choose a task type",""));
+ items.forEach(([key,item])=>{
    const option=document.createElement("option");
    option.value=key;
-   option.textContent=serviceLabel(key);
+   option.dataset.posterPrice=String(Number(item.poster_price));
+   option.textContent=serviceLabel(key)+" — ₦"+Number(item.poster_price).toLocaleString("en-NG")+" / 10 slots";
    category.appendChild(option);
  });
  category.disabled=!platform||!items.length;
@@ -1542,9 +1545,9 @@ function rebuildPlatformTaskTypes(){
  refreshServiceOptions();
  calculateFunding();
  if(platform&&!items.length){
-   document.getElementById("priceRule").textContent="No task types are currently enabled and priced for this platform in Admin.";
- }else if(items.length){
-   document.getElementById("priceRule").textContent="Choose an enabled task type to see its Admin-set price.";
+   document.getElementById("priceRule").textContent="No active price is saved for this platform yet. Ask Admin to set its price.";
+ }else if(items.length&&!category.value){
+   document.getElementById("priceRule").textContent="Choose a task type. Its price per 10 slots will appear here and in the task-type list.";
  }
 }
 document.getElementById("socialPlatform").addEventListener("change",rebuildPlatformTaskTypes);
@@ -1555,7 +1558,12 @@ async function loadPosterPricing(){
  try{
   const {data,error}=await supabaseClient.rpc("get_poster_task_pricing");
   if(error)throw error;
-  const saved=data||{};
+  let saved=data||{};
+  if(typeof saved==="string")saved=JSON.parse(saved);
+  if(Array.isArray(saved))saved=saved[0]||{};
+  if(!saved||typeof saved!=="object"||!saved.social||typeof saved.social!=="object"){
+    throw new Error("The pricing service returned an invalid social-pricing response.");
+  }
   servicePricing={
    social:saved.social||{},business:saved.business||{},
    min_slots:Math.max(10,Number(saved.min_slots)||10),
@@ -1574,9 +1582,13 @@ async function loadPosterPricing(){
   const promo=document.getElementById("promotionTier");
   promo.options[1].text="Fast Promotion — ₦"+posterPricing.fastFee.toLocaleString();
   promo.options[2].text="Priority Promotion — ₦"+posterPricing.priorityFee.toLocaleString();
-  // Rebuild the selected platform after pricing loads, then remove every unpriced service.
-  if(document.getElementById("socialPlatform").value)rebuildPlatformTaskTypes();
-  else refreshServiceOptions();
+  // Rebuild from the authenticated Admin pricing response after it has loaded.
+  const selectedPlatform=document.getElementById("socialPlatform").value;
+  if(selectedPlatform)rebuildPlatformTaskTypes();
+  else{
+    document.getElementById("category").replaceChildren(new Option("Select a platform first",""));
+    document.getElementById("category").disabled=true;
+  }
   document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
   calculateFunding();
  }catch(error){
@@ -1614,7 +1626,28 @@ checkPoster().then(async function(user){
 <!-- NAIJA TASK Adsterra banner -->
 <div class="nt-adsterra-banner" style="width:100%;max-width:320px;min-height:50px;margin:18px auto;text-align:center;overflow:hidden"><script>atOptions={'key':'dc095c7f78341b7c3f8c3cd337d72815','format':'iframe','height':50,'width':320,'params':{}};</script><script src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script></div>
 <script>
-(function(){const select=document.getElementById("socialPlatform"),box=document.getElementById("ntSelectedPlatform");if(!select||!box)return;const brands={"Facebook":["f","facebook"],"Instagram":["◎","instagram"],"TikTok":["♪","tiktok"],"YouTube":["▶","youtube"],"YouTube Music":["♫","youtube"],"X / Twitter":["𝕏","x"],"LinkedIn":["in","linkedin"],"WhatsApp":["◔","whatsapp"],"Telegram":["➤","telegram"],"Threads":["@","threads"],"Spotify":["≋","spotify"],"Apple Music":["♫","apple"],"Audiomack":["A","audiomack"],"Snapchat":["👻","snapchat"],"Quora":["Q","quora"],"Boomplay":["▶","boomplay"],"Google":["G","google"],"Google Play Store":["▷","play"],"Apple App Store":["A","apple"]};function draw(){const name=select.value;if(!name){box.innerHTML='<span class="nt-selected-platform-icon">◎</span><span><b>Choose a platform</b><small>Its app icon will appear here</small></span>';return;}const item=brands[name]||[name.slice(0,1).toUpperCase(),""];box.innerHTML='<span class="nt-selected-platform-icon '+item[1]+'">'+item[0]+'</span><span><b>'+name.replace(/[&<>"]/g,'')+'</b><small>Selected platform · choose the task action below</small></span>';}select.addEventListener("change",draw);draw();})();
+(function(){
+ const select=document.getElementById("socialPlatform");
+ const box=document.getElementById("ntSelectedPlatform");
+ if(!select||!box)return;
+ const brands={
+  "Facebook":["facebook","1877F2"],"Instagram":["instagram","E4405F"],"TikTok":["tiktok","111111"],
+  "YouTube":["youtube","FF0000"],"YouTube Music":["youtubemusic","FF0000"],"X / Twitter":["x","111111"],
+  "LinkedIn":["linkedin","0A66C2"],"WhatsApp":["whatsapp","25D366"],"Telegram":["telegram","26A5E4"],
+  "Threads":["threads","111111"],"Spotify":["spotify","1DB954"],"Apple Music":["applemusic","FA243C"],
+  "Audiomack":["audiomack","FFA200"],"Snapchat":["snapchat","FFFC00"],"Quora":["quora","B92B27"],
+  "Boomplay":["boomplay","F5A623"],"Google":["google","4285F4"],"Google Play Store":["googleplay","34A853"],
+  "Apple App Store":["appstore","111111"],"Website":["googlechrome","4285F4"]
+ };
+ function draw(){
+  const name=select.value;
+  if(!name){box.innerHTML='<span class="nt-selected-platform-icon"><span class="nt-platform-placeholder">◎</span></span><span><b>Choose a platform</b><small>Official platform logo appears here</small></span>';return;}
+  const brand=brands[name];
+  const logo=brand?'<img src="https://cdn.simpleicons.org/'+brand[0]+'/'+brand[1]+'" alt="'+name.replace(/[&<>"]/g,"")+' logo" loading="eager" referrerpolicy="no-referrer" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'logo-fallback\');this.parentElement.textContent=\''+name.slice(0,1).toUpperCase()+'\'">' : '<span class="nt-platform-placeholder">◎</span>';
+  box.innerHTML='<span class="nt-selected-platform-icon">'+logo+'</span><span><b>'+name.replace(/[&<>"]/g,"")+'</b><small>Official platform logo · select the task action below</small></span>';
+ }
+ select.addEventListener("change",draw);draw();
+})();
 </script>
 
 <script defer src="nt-back-navigation.js?v=20261118-1"></script>
