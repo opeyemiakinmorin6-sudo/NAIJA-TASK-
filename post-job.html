@@ -826,7 +826,8 @@ let servicePricing = {social:{},business:{},min_slots:10,max_price:1000000,fast_
 function selectedTaskKind(){return document.querySelector('input[name="taskKind"]:checked')?.value || "normal_task";}
 function socialPriceKey(category){return ({website:"website_blog",app_download:"app_testing",survey:"survey_task"})[category] || category;}
 function isPricingEnabled(value){return value===true||value===1||["true","1","yes","on","t"].includes(String(value??"").trim().toLowerCase());}
-function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,hasPrice:false,enabled:false};const poster=Number(item.poster_price)||0;return {poster_price:poster,hasPrice:poster>=1,enabled:isPricingEnabled(item.enabled)&&poster>=1};}
+function getPosterPrice(item){return Number(item?.poster_price??item?.posterPrice??item?.price??0)||0;}
+function priceItem(group,key){const item=(servicePricing[group]||{})[key];if(!item)return {poster_price:0,hasPrice:false,enabled:false};const poster=getPosterPrice(item);return {poster_price:poster,hasPrice:poster>=1,enabled:isPricingEnabled(item.enabled)&&poster>=1};}
 function selectedSocialItem(){return priceItem("social",socialPriceKey(document.getElementById("category").value));}
 function socialServiceIsConfigured(){const item=selectedSocialItem();return item.enabled&&item.poster_price>=1;}
 function selectedBusinessItem(){return priceItem("business",document.getElementById("businessService").value);}
@@ -1524,16 +1525,13 @@ function serviceLabel(key){
  return key.replace(/_/g," ").replace(/\b\w/g,ch=>ch.toUpperCase());
 }
 function rebuildPlatformTaskTypes(){
- const platform=document.getElementById("socialPlatform").value;
+ const platform=String(document.getElementById("socialPlatform").value||"").trim();
  const category=document.getElementById("category");
  const previous=category.value;
  const pricing=servicePricing.social||{};
  const configured=(SOCIAL_PLATFORM_TASKS[platform]||[]).map(([key])=>key);
  const items=Object.entries(pricing)
-   .filter(([key,item])=>{
-     const enabled=item&&(item.enabled===true||String(item.enabled).toLowerCase()==="true");
-     return platformSupportsService(platform,key)&&enabled&&Number(item.poster_price)>0;
-   })
+   .filter(([key,item])=>platformSupportsService(platform,key)&&isPricingEnabled(item?.enabled)&&getPosterPrice(item)>=1)
    .sort(([a],[b])=>{
      const ai=configured.indexOf(a),bi=configured.indexOf(b);
      if(ai<0&&bi<0)return a.localeCompare(b);
@@ -1541,22 +1539,24 @@ function rebuildPlatformTaskTypes(){
      if(bi<0)return -1;
      return ai-bi;
    });
- category.replaceChildren(new Option("Choose a task type",""));
+ category.replaceChildren(new Option(platform?"Choose a task type":"Select a platform first",""));
  items.forEach(([key,item])=>{
+   const price=getPosterPrice(item);
    const option=document.createElement("option");
    option.value=key;
-   option.dataset.posterPrice=String(Number(item.poster_price));
-   option.textContent=serviceLabel(key)+" — ₦"+Number(item.poster_price).toLocaleString("en-NG")+" / 10 slots";
+   option.dataset.posterPrice=String(price);
+   option.textContent=serviceLabel(key)+" — ₦"+price.toLocaleString("en-NG")+" / 10 slots";
    category.appendChild(option);
  });
- category.disabled=!platform||!items.length;
+ // Enable the selector whenever this platform has priced, active services.
+ category.disabled=!platform||items.length===0;
  if(previous&&items.some(([key])=>key===previous))category.value=previous;
  refreshServiceOptions();
  calculateFunding();
  if(platform&&!items.length){
-   document.getElementById("priceRule").textContent="No active price is saved for this platform yet. Ask Admin to set its price.";
+   document.getElementById("priceRule").textContent="No active, priced task types were returned for "+platform+". Ask Admin to enable a price for this platform.";
  }else if(items.length&&!category.value){
-   document.getElementById("priceRule").textContent="Choose a task type. Its price per 10 slots will appear here and in the task-type list.";
+   document.getElementById("priceRule").textContent=items.length+" active task type"+(items.length===1?" is":"s are")+" available. Choose one to continue.";
  }
 }
 document.getElementById("socialPlatform").addEventListener("change",rebuildPlatformTaskTypes);
