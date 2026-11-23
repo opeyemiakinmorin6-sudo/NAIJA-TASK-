@@ -1528,10 +1528,18 @@ function rebuildPlatformTaskTypes(){
  const previous=category.value;
  const pricing=servicePricing.social||{};
  const configured=(SOCIAL_PLATFORM_TASKS[platform]||[]).map(([key])=>key);
- const configuredSet=new Set(configured);
  const items=Object.entries(pricing)
-   .filter(([key,item])=>platformSupportsService(platform,key)&&configuredSet.has(key)&&item&&item.enabled===true&&Number(item.poster_price)>0)
-   .sort(([a],[b])=>configured.indexOf(a)-configured.indexOf(b));
+   .filter(([key,item])=>{
+     const enabled=item&&(item.enabled===true||String(item.enabled).toLowerCase()==="true");
+     return platformSupportsService(platform,key)&&enabled&&Number(item.poster_price)>0;
+   })
+   .sort(([a],[b])=>{
+     const ai=configured.indexOf(a),bi=configured.indexOf(b);
+     if(ai<0&&bi<0)return a.localeCompare(b);
+     if(ai<0)return 1;
+     if(bi<0)return -1;
+     return ai-bi;
+   });
  category.replaceChildren(new Option("Choose a task type",""));
  items.forEach(([key,item])=>{
    const option=document.createElement("option");
