@@ -855,6 +855,35 @@ async function uploadProofImage(file, userId, task){
   return { path: data.path, bucket: PROOF_BUCKET, url: null };
 }
 
+function getNaijaTaskDeviceToken(){
+  const key = "nt_security_device_v1";
+  try {
+    let token = localStorage.getItem(key);
+    if (!token) {
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      token = Array.from(bytes, b => b.toString(16).padStart(2,"0")).join("");
+      localStorage.setItem(key, token);
+    }
+    return token;
+  } catch (_) {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    return Array.from(bytes, b => b.toString(16).padStart(2,"0")).join("");
+  }
+}
+
+async function recordNaijaTaskSecuritySignal(){
+  if (!currentUser) throw new Error("Sign in before security verification.");
+  const token = getNaijaTaskDeviceToken();
+  const { data, error } = await db.functions.invoke("record-risk-signal", {
+    body: { device_id: token }
+  });
+  if (error || !data?.success || !data?.signal_recorded) {
+    console.error("Security signal could not be recorded:", error || data);
+    throw new Error("We could not complete the security check for this submission. Please retry in a moment. Your account and task are safe; no penalty has been applied.");
+  }
+  return data;
+}
+
 async function submitProof(){
   if (isSubmitting) return;
   if (!selectedTask){ showNotice("Select a task first.", "error"); return; }
@@ -900,6 +929,13 @@ async function submitProof(){
     if (!velocityCheck.data || velocityCheck.data.allowed !== true) {
       showNotice(velocityCheck.data?.message || "Task submission is temporarily rate-limited. Please wait and try again.", "error");
       return;
+    }
+
+    // Record a server-observed device/IP signal before accepting proof.
+    // Shared signals trigger review, never an automatic ban.
+    const securitySignal = await recordNaijaTaskSecuritySignal();
+    if (securitySignal.review_recommended) {
+      console.warn("Submission will receive additional administrator review:", securitySignal.signal_type);
     }
 
     if (proofFile) uploaded = await uploadProofImage(proofFile, currentUser.id, selectedTask);
