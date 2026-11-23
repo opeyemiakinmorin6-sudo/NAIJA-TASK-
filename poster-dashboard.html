@@ -568,6 +568,30 @@ main{max-width:1080px;padding:22px 18px 38px}
 #posterProofList .poster-action-escalate{background:#fff8e6;color:#775300;border-color:#ecdba9}
 #posterProofList button:disabled{opacity:.55}
 </style>  <link rel="stylesheet" href="/assets/naija-design-system.css?v=2">
+<style id="poster-price-catalog-style">
+.poster-price-catalog{margin:22px 0;padding:19px;border:1px solid #dce9de;border-radius:19px;background:#fff;box-shadow:0 8px 22px rgba(8,55,29,.05)}
+.poster-price-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.poster-price-kicker{font-size:9px;font-weight:950;letter-spacing:1.2px;color:#087f36}
+.poster-price-heading h2{margin:5px 0;color:#063c20;font-size:19px}
+.poster-price-heading p{max-width:580px;color:#68796e;font-size:12px;line-height:1.55}
+.poster-price-shield{flex:none;padding:7px 9px;border-radius:9px;background:#eff8e9;color:#17652e;font-size:9px;font-weight:950}
+#posterPriceSearch{width:100%;height:44px;margin:5px 0 10px;padding:0 12px;border:1px solid #dce9de;border-radius:11px;background:#fbfdf9;font:inherit;font-size:13px;outline:none}
+#posterPriceSearch:focus{border-color:#087f36;box-shadow:0 0 0 3px #087f3615}
+.poster-price-status{margin:7px 0 11px;color:#68796e;font-size:11px;line-height:1.5}
+.poster-price-group{margin:9px 0;border:1px solid #e2ebe3;border-radius:12px;overflow:hidden}
+.poster-price-group summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px;background:#f7fbf5;color:#123e24;font-size:13px;font-weight:850;cursor:pointer;list-style:none}
+.poster-price-group summary::-webkit-details-marker{display:none}
+.poster-price-group summary:after{content:"＋";color:#087f36;font-size:17px}
+.poster-price-group[open] summary:after{content:"−"}
+.poster-price-count{margin-left:auto;color:#708073;font-size:10px;font-weight:700}
+.poster-price-rows{padding:3px 12px 8px}
+.poster-price-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid #edf2ed;font-size:12px}
+.poster-price-row:last-child{border-bottom:0}
+.poster-price-row span{color:#344d3b;overflow-wrap:anywhere}
+.poster-price-row strong{flex:none;color:#087f36;font-size:13px;text-align:right}
+.poster-price-row small{display:block;margin-top:2px;color:#819084;font-size:9px;font-weight:650}
+@media(max-width:480px){.poster-price-catalog{padding:15px}.poster-price-heading h2{font-size:17px}.poster-price-row{font-size:11px}}
+</style>
 </head>
 
 <body>
@@ -719,6 +743,21 @@ main{max-width:1080px;padding:22px 18px 38px}
       <p>Get a specific social action completed on a platform such as TikTok, Instagram, YouTube or WhatsApp.</p>
       <a class="primary-btn" href="post-job.html">Create Social Task <span aria-hidden="true">→</span></a>
     </article>
+  </section>
+
+  <!-- ADMIN-SET SOCIAL SERVICE PRICE CATALOG -->
+  <section class="poster-price-catalog" aria-labelledby="posterPriceHeading">
+    <div class="poster-price-heading">
+      <div>
+        <span class="poster-price-kicker">TRANSPARENT PRICING</span>
+        <h2 id="posterPriceHeading">Social task prices</h2>
+        <p>See the current poster price for each enabled service before creating a task. Prices shown are per 10 slots.</p>
+      </div>
+      <span class="poster-price-shield">ADMIN SET</span>
+    </div>
+    <input id="posterPriceSearch" type="search" placeholder="Search a platform or service..." aria-label="Search social task prices">
+    <p id="posterPriceStatus" class="poster-price-status" aria-live="polite">Loading current prices…</p>
+    <div id="posterPriceGroups"></div>
   </section>
 
   <!-- MENU -->
@@ -1418,6 +1457,67 @@ async function logout(){
    START
    ========================================================= */
 
+/* =========================================================
+   POSTER PRICE CATALOG — READ-ONLY ADMIN-SET POSTER PRICES
+   ========================================================= */
+async function loadPosterPricingCatalog(){
+  const status=document.getElementById("posterPriceStatus");
+  const groupsBox=document.getElementById("posterPriceGroups");
+  const search=document.getElementById("posterPriceSearch");
+  if(!status||!groupsBox||!search)return;
+  const platformPrefixes=[
+    ["Facebook","facebook_"],["Instagram","instagram_"],["TikTok","tiktok_"],
+    ["YouTube Music","youtube_music_"],["YouTube","youtube_"],["X / Twitter","x_twitter_"],
+    ["LinkedIn","linkedin_"],["WhatsApp","whatsapp_"],["Telegram","telegram_"],
+    ["Threads","threads_"],["Spotify","spotify_"],["Apple Music","apple_music_"],
+    ["Audiomack","audiomack_"],["Snapchat","snapchat_"],["Quora","quora_"],
+    ["Boomplay","boomplay_"],["Google Play Store","google_play_"],
+    ["Apple App Store","apple_app_"],["Google","google_"],["Website","website_"]
+  ];
+  try{
+    const {data,error}=await supabaseClient.rpc("get_poster_task_pricing");
+    if(error)throw error;
+    let saved=data||{};
+    if(typeof saved==="string")saved=JSON.parse(saved);
+    if(Array.isArray(saved))saved=saved[0]||{};
+    if(!saved||typeof saved!=="object"||!saved.social||typeof saved.social!=="object"){
+      throw new Error("The pricing service returned an invalid response.");
+    }
+    const rows=Object.entries(saved.social).map(([key,item])=>{
+      const price=Number(item?.poster_price??0);
+      const enabled=item?.enabled===true||item?.enabled===1||["true","1","yes","on","t"].includes(String(item?.enabled??"").trim().toLowerCase());
+      const match=platformPrefixes.find(([,prefix])=>String(key).toLowerCase().startsWith(prefix));
+      return {key:String(key),price,enabled,platform:match?.[0]||"Other services"};
+    }).filter(x=>x.enabled&&Number.isFinite(x.price)&&x.price>=1);
+    if(!rows.length){
+      status.textContent="No enabled, priced social services were returned. Your saved settings have not been changed.";
+      groupsBox.innerHTML="";
+      return;
+    }
+    const label=key=>key.replace(/_/g," ").replace(/\b\w/g,ch=>ch.toUpperCase());
+    const escape=value=>String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
+    const grouped={};
+    rows.forEach(row=>(grouped[row.platform]??=[]).push(row));
+    Object.values(grouped).forEach(list=>list.sort((a,b)=>a.key.localeCompare(b.key)));
+    const render=query=>{
+      const q=String(query||"").trim().toLowerCase();
+      const html=Object.entries(grouped).map(([platform,list])=>{
+        const matches=list.filter(row=>!q||platform.toLowerCase().includes(q)||label(row.key).toLowerCase().includes(q));
+        if(!matches.length)return "";
+        return '<details class="poster-price-group"'+(q?' open':'')+'><summary>'+escape(platform)+' <span class="poster-price-count">'+matches.length+' services</span></summary><div class="poster-price-rows">'+matches.map(row=>'<div class="poster-price-row"><span>'+escape(label(row.key))+'</span><strong>₦'+row.price.toLocaleString("en-NG",{maximumFractionDigits:2})+'<small>per 10 slots</small></strong></div>').join("")+'</div></details>';
+      }).join("");
+      groupsBox.innerHTML=html||'<div class="empty">No service matched that search.</div>';
+      status.textContent=q?("Showing matching services. "+rows.length+" active services are configured in total."):("Showing "+rows.length+" enabled social services. Prices are read-only here and are controlled by NAIJA TASK admin.");
+    };
+    search.addEventListener("input",()=>render(search.value));
+    render("");
+  }catch(error){
+    console.error("Poster price catalog could not load:",error);
+    status.textContent="Prices could not be loaded: "+String(error?.message||"Unknown error")+". Your account and saved pricing are unchanged.";
+    groupsBox.innerHTML="";
+  }
+}
+
 async function startDashboard(){
 
   const user =
@@ -1430,6 +1530,7 @@ async function startDashboard(){
 
   await setupPosterNotificationBadge(user);
   await loadProfile(user);
+  await loadPosterPricingCatalog();
 
   await loadJobs(user);
   await loadPosterProofs(user);
