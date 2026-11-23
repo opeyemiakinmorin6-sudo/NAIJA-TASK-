@@ -751,39 +751,45 @@ async function checkPoster(){
 
   if(profileError){
     console.error("Poster profile lookup failed:",profileError);
+    showMessage("We could not verify your account role. Please refresh or sign in again.","error");
     return null;
   }
 
   if(!profile){
     console.error("Poster profile is missing for the signed-in account.");
+    showMessage("Your account profile could not be found. Please contact support.","error");
     return null;
   }
 
   const role=String(profile.role||"").trim().toLowerCase();
 
+  // Poster accounts can post directly.
   if(role==="task_poster"||role==="poster") return user;
 
-  // Active admins may also open the poster form to test and manage task posting.
-  // The pricing and task-creation RPCs independently verify admin_users.active.
-  if(role==="admin"){
-    const {data:adminRecord,error:adminError}=await supabaseClient
-      .from("admin_users")
-      .select("active")
-      .eq("user_id",user.id)
-      .eq("active",true)
-      .maybeSingle();
-    if(adminError){
-      console.error("Admin posting access check failed:",adminError);
-      showMessage("We could not verify your admin access. Please refresh or sign in again.","error");
-      return null;
-    }
-    if(adminRecord?.active===true) return user;
-    window.location.replace("admin.html");
+  // The protected pricing RPC authorizes an active admin_users record
+  // independently of profiles.role, so the page must use the same rule.
+  const {data:adminRecord,error:adminError}=await supabaseClient
+    .from("admin_users")
+    .select("active")
+    .eq("user_id",user.id)
+    .eq("active",true)
+    .maybeSingle();
+
+  if(adminError){
+    console.error("Admin posting access check failed:",adminError);
+    showMessage("We could not verify your admin access. Please refresh or sign in again.","error");
     return null;
   }
 
+  if(adminRecord?.active===true) return user;
+
   if(role==="tasker"||role==="user"){
     window.location.replace("dashboard.html");
+    return null;
+  }
+
+  if(role==="admin"){
+    window.location.replace("admin.html");
     return null;
   }
 
