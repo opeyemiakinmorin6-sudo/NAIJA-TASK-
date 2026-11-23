@@ -763,13 +763,27 @@ async function checkPoster(){
 
   if(role==="task_poster"||role==="poster") return user;
 
-  if(role==="tasker"||role==="user"){
-    window.location.replace("dashboard.html");
+  // Active admins may also open the poster form to test and manage task posting.
+  // The pricing and task-creation RPCs independently verify admin_users.active.
+  if(role==="admin"){
+    const {data:adminRecord,error:adminError}=await supabaseClient
+      .from("admin_users")
+      .select("active")
+      .eq("user_id",user.id)
+      .eq("active",true)
+      .maybeSingle();
+    if(adminError){
+      console.error("Admin posting access check failed:",adminError);
+      showMessage("We could not verify your admin access. Please refresh or sign in again.","error");
+      return null;
+    }
+    if(adminRecord?.active===true) return user;
+    window.location.replace("admin.html");
     return null;
   }
 
-  if(role==="admin"){
-    window.location.replace("admin.html");
+  if(role==="tasker"||role==="user"){
+    window.location.replace("dashboard.html");
     return null;
   }
 
@@ -1612,8 +1626,12 @@ async function loadPosterPricing(){
   calculateFunding();
  }catch(error){
   console.warn("Poster pricing settings could not be loaded.",error);
-  showMessage("Service prices could not load. Refresh before creating a job.","error");
+  const detail=String(error?.message||error?.details||"Unknown pricing error");
+  showMessage("Service prices could not load: "+detail+" Please refresh or contact support.","error");
   publishBtn.disabled=true;
+  const category=document.getElementById("category");
+  while(category.firstChild)category.removeChild(category.firstChild);
+  category.add(new Option("Pricing unavailable — refresh or contact support",""));
  }
 }
 
