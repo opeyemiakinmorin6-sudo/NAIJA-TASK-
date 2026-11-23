@@ -199,9 +199,8 @@ textarea{
 .money-row:last-child{
   border-bottom:none;
 }
-/* Internal commission, tasker allocation and fee components are never shown to posters. */
+/* Only the poster-facing amount is displayed. */
 .money-row:not(.money-total){display:none;}.money-row.price-visible{display:flex!important;}
-/* Keep internal per-slot rates and worker rewards private from posters. */
 label[for="reward"],#reward,#rewardHelp{display:none!important;}
 #summaryReward{display:none!important;}
 
@@ -393,7 +392,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
     </div>
 
     <div id="priceRule" class="price-rule">
-      Select a service to load its Admin-set price automatically.
+      Choose a service to see its current NAIJA TASK price.
     </div>
 
     <label for="description">Instructions for Taskers</label>
@@ -586,7 +585,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
 
       <div>
         <strong>Initial Status:</strong>
-        <span>PAYMENT_REQUIRED — not live until payment is verified and admin approves the task.</span>
+        <span>PAYMENT_REQUIRED — your task goes live after payment verification and NAIJA TASK review.</span>
       </div>
 
     </div>
@@ -847,7 +846,7 @@ function calculateFunding(){
    rule.textContent=(isWhatsApp?serviceName+" price: ":"Poster price: ")+"₦"+perTen+" for every 10 slots. 10 slots = ₦"+perTen+". "+totalText;
    rule.classList.add("price-ready");
   }else{
-   rule.textContent="This service does not have an active Admin price yet. Choose another service or contact support.";
+   rule.textContent="This service is not currently available. Choose another service or contact NAIJA TASK support.";
    rule.classList.remove("price-ready");
   }
  }
@@ -1288,7 +1287,7 @@ if(
       return;
     }
     if(socialService&&!socialServiceIsConfigured()){
-      showMessage("This social task is selectable, but its price is not active yet. Ask Admin to configure both the Poster price and Tasker reward.","error");
+      showMessage("This service is temporarily unavailable. Please choose another service or contact NAIJA TASK support.","error");
       return;
     }
     const isPrivateFeedbackService=PRIVATE_FEEDBACK_KEYS.has(category);
@@ -1591,7 +1590,7 @@ async function loadPosterPricing(){
   // Only enable service selection after the protected pricing RPC succeeds.
   document.getElementById("socialPlatform").disabled=false;
   document.getElementById("category").disabled=false;
-  // Rebuild from the authenticated Admin pricing response after it has loaded.
+  // Refresh the available services after the protected pricing response is confirmed.
   const selectedPlatform=document.getElementById("socialPlatform").value;
   if(selectedPlatform)rebuildPlatformTaskTypes();
   else{
