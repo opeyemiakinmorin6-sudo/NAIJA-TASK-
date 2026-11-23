@@ -927,16 +927,12 @@ async function submitProof(){
     const velocityCheck = await db.rpc("check_task_submission_velocity");
     if (velocityCheck.error) throw velocityCheck.error;
     if (!velocityCheck.data || velocityCheck.data.allowed !== true) {
-      showNotice(velocityCheck.data?.message || "Task submission is temporarily rate-limited. Please wait and try again.", "error");
+      showNotice("You cannot submit this task right now. Please wait a little and try again, or contact NAIJA TASK support if the problem continues.", "error");
       return;
     }
 
-    // Record a server-observed device/IP signal before accepting proof.
-    // Shared signals trigger review, never an automatic ban.
-    const securitySignal = await recordNaijaTaskSecuritySignal();
-    if (securitySignal.review_recommended) {
-      console.warn("Submission will receive additional administrator review:", securitySignal.signal_type);
-    }
+    // Complete private platform checks before accepting proof.
+    await recordNaijaTaskSecuritySignal();
 
     if (proofFile) uploaded = await uploadProofImage(proofFile, currentUser.id, selectedTask);
 
@@ -954,23 +950,19 @@ async function submitProof(){
         if (duplicateTargetKey) currentSubmissionTargets.add(duplicateTargetKey);
         button.textContent = "Already submitted";
         const duplicateTarget = /DUPLICATE_TASK_TARGET/i.test(error.message || "");
-        showNotice(duplicateTarget
-          ? "You already submitted this same action for this target under another task listing. You can only earn once."
-          : "A submission for this task already exists on your account.", "error");
+        showNotice("This task action has already been submitted on your account and cannot be submitted again.", "error");
         renderTasks();
         return;
       }
-      console.error("Proof submission error:", error);
-      throw new Error("Your proof could not be submitted. Check the task_submissions permissions and required fields. " + error.message);
+      console.error("Proof submission failed.");
+      throw new Error("Your proof could not be submitted. Please check your entry and try again. Contact NAIJA TASK support if the problem continues.");
     }
 
     let duplicateEvidenceReview = false;
     try {
       const evidenceSignal = await recordNaijaTaskSecuritySignal(Number(submittedRow?.id));
       duplicateEvidenceReview = evidenceSignal?.evidence?.duplicate === true;
-      if (duplicateEvidenceReview) {
-        console.warn("Exact duplicate proof image detected; submission is queued for administrator review.");
-      }
+      // Additional evidence checks are handled privately by NAIJA TASK.
     } catch (evidenceError) {
       console.warn("Post-submission evidence fingerprint check could not finish:", evidenceError?.message || evidenceError);
     }
@@ -995,7 +987,7 @@ async function submitProof(){
     buildFilters();
     renderTasks();
     closeTaskDetails();
-    showNotice("Proof submitted. Submission reference #" + String(submittedRow?.id || "pending") + ". " + (duplicateEvidenceReview ? "The same image appears in another submission, so this proof has been sent for an additional administrator review. No automatic penalty has been applied. " : "") + "Track it in Proofs. Your reward is added after approval." + (usernameSaved ? " Your username is now saved for future suggestions." : ""), "success");
+    showNotice("Your proof has been submitted successfully. You can track its status in Proofs. Any reward due will be credited after the review is complete." + (usernameSaved ? " Your username is saved for future suggestions." : ""), "success");
   }catch(e){
     console.error("Proof submission failed:", e);
     showNotice(e.message || "Could not submit proof. Try again.", "error");
