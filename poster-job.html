@@ -229,7 +229,7 @@ dialog::backdrop{background:#09201299}
   <section class="panel">
     <h2>Important information</h2>
     <div class="notice info">Poster task payments use Flutterwave only. The server verifies the transaction; then the job still needs administrator approval before it can go live.</div>
-    <div class="notice warning">For fairness and fraud prevention, posters cannot approve their own payments, approve tasker submissions, or change tasker wallet balances from this page.</div>
+    <div class="notice warning">Payments and task submissions are checked by NAIJA TASK to help protect posters and taskers.</div>
     <div class="notice info">If checkout fails or you were charged without seeing confirmation, do not pay again immediately. Contact support with your Flutterwave transaction reference.</div>
     <div class="notice warning">Cancelling a live or paused task stops new work. Your genuine reason is sent to Taskers who started or submitted it. Existing submissions remain in your review queue; cancellation does not automatically reject proof or issue a refund.</div>
   </section>
@@ -419,14 +419,14 @@ function renderSection(items,title,emptyText){
         const pay=paymentFor(job.id);
         const paymentVerified=pay&&String(pay.payment_status||"").trim().toLowerCase()==="paid";
         const paymentApproved=pay&&normalized(pay.status)==="APPROVED";
-        const payStatus=pay?(paymentVerified?(paymentApproved?"Approved":"Verified — awaiting admin review"):displayStatus(pay.status)):"No payment record found";
+        const payStatus=pay?(paymentVerified?(paymentApproved?"Approved":"Verified — awaiting NAIJA TASK review"):displayStatus(pay.status)):"No payment record found";
         const count=countFor(job);
         const slots=slotsFor(job);
         const remaining=slots?Math.max(0,slots-count):"—";
         const payBadge=pay?(paymentVerified?(paymentApproved?"good":"wait"):badgeClass(pay.status)):"neutral";
         const paymentHint=pay?
-          (paymentVerified&&!paymentApproved?"Flutterwave has verified your payment. Admin payment review and task moderation are still required before publication.":
-           paymentApproved?"Payment has been approved. The task still needs separate admin moderation before it can go live.":
+          (paymentVerified&&!paymentApproved?"Flutterwave has verified your payment. NAIJA TASK must complete its review before publication.":
+           paymentApproved?"Payment has been approved. NAIJA TASK will review the task before it goes live.":
            normalized(pay.status)==="REJECTED"?"Payment was rejected. Review the payment centre for next steps.":
            "Payment has not yet been confirmed by Flutterwave.")
           :"No matching payment record was returned. Check the payment centre or contact support.";
@@ -705,7 +705,7 @@ async function viewSubmissions(jobId){
         }else{
           const note=document.createElement("div");
           note.className="notice warning";
-          note.textContent="Proof image is not available to this account. Storage access may need to be configured by the administrator.";
+          note.textContent="Proof image is not available to this account. Please contact NAIJA TASK support for help accessing this proof.";
           slot.appendChild(note);
         }
       }catch(error){
