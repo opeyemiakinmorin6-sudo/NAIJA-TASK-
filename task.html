@@ -263,6 +263,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 
     <button id="submitProofBtn" class="btn p" style="width:100%" type="button">Submit Proof</button>
     <button id="closeDetailsBtn" class="btn cancel" style="width:100%;margin-top:9px" type="button">Close</button>
+    <button id="cancelTaskAttemptBtn" class="btn cancel" style="width:100%;margin-top:9px;border:1px solid #b42318;color:#a32121;background:#fff" type="button">Cancel this task attempt</button>
     <p class="note">Reward will be added to your wallet after successful verification.</p>
   </div>
 </div>
@@ -705,6 +706,30 @@ async function recordTaskStarted(task){
     if(inserted.error)console.warn("Task start activity could not be saved:",inserted.error.message);
   }catch(error){console.warn("Task start activity was not recorded:",error?.message||error);}
 }
+
+async function cancelTaskAttempt(){
+  if(!selectedTask)return;
+  const id=taskId(selectedTask);
+  if(!id){showNotice("This task has no valid reference. Refresh and try again.","error");return;}
+  const reason=window.prompt("Why are you cancelling this task attempt? (10–500 characters)");
+  if(reason===null)return;
+  const clean=String(reason).trim();
+  if(clean.length<10||clean.length>500){showNotice("Please enter a reason between 10 and 500 characters.","error");return;}
+  if(!window.confirm("Record this cancellation? It will be visible to the security team. A cancellation by itself does not create an automatic penalty."))return;
+  const button=$("cancelTaskAttemptBtn");
+  if(button){button.disabled=true;button.textContent="Recording…";}
+  try{
+    const {data,error}=await db.rpc("cancel_my_task_attempt",{p_task_id:Number(id),p_reason:clean});
+    if(error)throw error;
+    if(!data?.success)throw new Error("The cancellation was not confirmed.");
+    closeTaskDetails();
+    showNotice("Your task cancellation was recorded. No automatic penalty was applied.","success");
+  }catch(error){
+    showNotice(error?.message||"Unable to record this cancellation. Please try again.","error");
+  }finally{
+    if(button){button.disabled=false;button.textContent="Cancel this task attempt";}
+  }
+}
 function resetProofForm(){
   $("proofText").value = "";
   $("proofPhoto").value = "";
@@ -815,6 +840,7 @@ function closeTaskDetails(){
 }
 
 $("closeDetailsBtn").addEventListener("click", closeTaskDetails);
+$("cancelTaskAttemptBtn").addEventListener("click", cancelTaskAttempt);
 $("closeX").addEventListener("click", closeTaskDetails);
 $("overlay").addEventListener("click", e => { if (e.target === $("overlay")) closeTaskDetails(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape"){ closeConfirm(); closeTaskDetails(); } });
