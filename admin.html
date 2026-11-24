@@ -3887,6 +3887,18 @@ td,th{padding:13px 11px}
       <tbody id="memberReviewsBody"><tr><td colspan="6" class="loading-row">Loading member reviews…</td></tr></tbody>
     </table></div>
   </div>
+
+  <div class="card" style="margin-top:18px">
+    <div class="page-header" style="margin-bottom:12px">
+      <div><h3>Verified Task Reviews</h3><p>Only participants in an approved task completion can submit these reviews. Approve genuine feedback before it appears publicly.</p></div>
+      <button class="primary" onclick="loadTaskReviews()">Refresh task reviews</button>
+    </div>
+    <div class="notice">Each completed task permits one review from its Tasker and one from its Poster. Reviews are linked to approved completion records; self-reviews and duplicate reviews are blocked by the database.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Task</th><th>Reviewer</th><th>Reviewed member</th><th>Rating</th><th>Review</th><th>Status</th><th>Submitted</th><th>Action</th></tr></thead>
+      <tbody id="verifiedTaskReviewsBody"><tr><td colspan="8" class="loading-row">Tap refresh to load verified task reviews.</td></tr></tbody>
+    </table></div>
+  </div>
 </section>
 
 <section id="page-notifications" class="page">
@@ -10919,6 +10931,69 @@ async function resolveSupport(id) {
 /* =========================================================
    APPEALS
    ========================================================= */
+
+
+async function loadTaskReviews() {
+  const body = $("verifiedTaskReviewsBody");
+  if (!body) return;
+  body.innerHTML = '<tr><td colspan="8" class="loading-row">Loading verified task reviews…</td></tr>';
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_get_task_reviews"),
+      15000,
+      "Verified task reviews"
+    );
+    if (error) throw error;
+    const rows = safeArray(data);
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="8" class="empty-row">No verified task reviews have been submitted yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map(row => {
+      const stars = "★".repeat(Number(row.rating) || 0) + "☆".repeat(5 - (Number(row.rating) || 0));
+      const direction = row.reviewer_role === "tasker" ? "Tasker → Poster" : "Poster → Tasker";
+      const actions = row.status === "pending"
+        ? '<button class="primary" onclick="moderateTaskReview(\'' + escapeHTML(row.id) + '\',\'approved\')">Approve</button> <button class="danger" onclick="moderateTaskReview(\'' + escapeHTML(row.id) + '\',\'rejected\')">Reject</button>'
+        : '<span class="muted">Moderated</span>';
+      return '<tr>' +
+        '<td>' + escapeHTML(row.task_title || ("Task #" + row.task_id)) + '<small>#' + escapeHTML(row.task_id) + '</small></td>' +
+        '<td>' + escapeHTML(row.reviewer_name || "Member") + '<small>' + direction + '</small></td>' +
+        '<td>' + escapeHTML(row.reviewed_name || "Member") + '</td>' +
+        '<td><strong>' + stars + '</strong></td>' +
+        '<td style="min-width:220px;white-space:normal">' + escapeHTML(row.review_text || "") + '</td>' +
+        '<td>' + escapeHTML(row.status || "pending") + '</td>' +
+        '<td>' + escapeHTML(shortDate(row.created_at)) + '</td>' +
+        '<td>' + actions + '</td></tr>';
+    }).join("");
+  } catch (error) {
+    reportError("loadTaskReviews", error);
+    body.innerHTML = '<tr><td colspan="8" class="empty-row">' + escapeHTML(errorMessage(error, "Unable to load verified task reviews.")) + '</td></tr>';
+  }
+}
+
+async function moderateTaskReview(id, status) {
+  if (!id || !["approved", "rejected"].includes(status)) return;
+  const action = status === "approved" ? "approve" : "reject";
+  if (!confirm("Are you sure you want to " + action + " this verified task review?")) return;
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient.rpc("admin_moderate_task_review", {
+        p_review_id: id,
+        p_status: status,
+        p_note: null
+      }),
+      15000,
+      "Verified task review moderation"
+    );
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error("The review moderation was not confirmed.");
+    toast(status === "approved" ? "Verified task review approved." : "Verified task review rejected.", "success");
+    await loadTaskReviews();
+  } catch (error) {
+    reportError("moderateTaskReview", error);
+    toast(errorMessage(error, "Unable to moderate this task review."), "danger");
+  }
+}
 
 async function loadMemberReviews() {
   const body = $("memberReviewsBody");
