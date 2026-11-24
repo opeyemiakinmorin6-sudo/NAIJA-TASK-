@@ -1463,7 +1463,7 @@ if(
 
 document.querySelectorAll('input[name="taskKind"]').forEach(function(radio){
   radio.addEventListener("change",function(){
-    document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
+    document.getElementById("businessFields")?.classList.toggle("active",selectedTaskKind()==="business_job");
     document.getElementById("normalSocialServiceFields").style.display=selectedTaskKind()==="business_job"?"none":"block";
     updateSummary();
   });
@@ -1592,7 +1592,7 @@ async function loadPosterPricing(){
     document.getElementById("category").disabled=false;
     document.getElementById("priceRule").textContent="Approved prices loaded. Choose a platform to view available services.";
   }
-  document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
+  document.getElementById("businessFields")?.classList.toggle("active",selectedTaskKind()==="business_job");
   calculateFunding();
  }catch(error){
   console.error("Poster pricing settings could not be loaded:",error);
@@ -1621,16 +1621,15 @@ async function loadPosterPricing(){
 
 const requestedMode=new URLSearchParams(window.location.search).get("mode");
 document.getElementById("normalSocialServiceFields").style.display="block";
-// Let users choose a platform and service immediately. Publishing remains
-// locked until NAIJA TASK confirms a valid server-side price.
-document.getElementById("socialPlatform").disabled=false;
-document.getElementById("category").disabled=false;
+// Keep both selectors locked until the authenticated pricing RPC succeeds.
+document.getElementById("socialPlatform").disabled=true;
+document.getElementById("category").disabled=true;
 publishBtn.disabled=true;
 if(requestedMode==="business"){
   const businessRadio=document.querySelector('input[name="taskKind"][value="business_job"]');
   if(businessRadio)businessRadio.checked=true;
 }
-document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
+document.getElementById("businessFields")?.classList.toggle("active",selectedTaskKind()==="business_job");
 document.getElementById("normalSocialServiceFields").style.display=selectedTaskKind()==="business_job"?"none":"block";
 updateRewardRules();
 updateSummary();
