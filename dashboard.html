@@ -1063,6 +1063,20 @@ html,body{background:#fff!important;line-height:1.5!important}body{overflow-x:hi
     <div><span class="nt-eyebrow">MEMBERSHIP</span><h3>Explore VIP membership</h3><p>Review the benefits and current membership terms. VIP is applied only after verified payment or authorised approval.</p></div>
     <a href="vip.html" class="btn">View membership</a>
   </section><div class="nt-logout-row"><button type="button" id="logoutBtn" class="btn btn-outline">Log out</button></div></section>
+<section class="section nt-section" id="taskerLeaderboardSection" data-cat="earn" style="display:none">
+  <div class="section-heading">
+    <div><span class="nt-eyebrow">TASKER CHALLENGE</span><h2>🏆 Tasker Leaderboard</h2><p class="nt-section-copy">Build your reputation through genuine approved work and climb the rankings.</p></div>
+  </div>
+  <div class="panel" style="padding:14px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button type="button" id="leaderboardWeeklyBtn" class="btn btn-green" aria-pressed="true" onclick="loadTaskerPointsLeaderboard('weekly')">This week</button>
+      <button type="button" id="leaderboardAllTimeBtn" class="btn btn-outline" aria-pressed="false" onclick="loadTaskerPointsLeaderboard('all_time')">All time</button>
+    </div>
+    <p id="leaderboardPeriodNote" class="nt-section-copy" style="margin:0 0 12px">Weekly points from approved tasks. Rankings reset every Monday.</p>
+    <div id="taskerLeaderboardList" aria-live="polite"><div class="loading">Loading leaderboard…</div></div>
+    <p style="font-size:11px;color:var(--muted);margin:12px 0 0">Points are reputation only. Activation, VIP payments and withdrawals do not add points or improve rankings.</p>
+  </div>
+</section>
 <section class="section nt-section" id="walletActivity" data-cat="pay">
     <div class="section-heading"><div><span class="nt-eyebrow">MONEY RECORDS</span><h2>Recent Wallet Activity</h2><p class="nt-section-copy">A record of recent wallet activity.</p></div><a href="transactions.html">Full history →</a></div>
     <div class="panel"><div id="transactionsList" class="transaction-list"><div class="loading">Loading wallet activity…</div></div></div>
@@ -1255,11 +1269,11 @@ async function loadProfile(){
   dashboardProfile = null;
   hideMembershipOffers();
 
-  let res = await withTimeout(supabaseClient.from("profiles").select("id, full_name, balance, is_activated, is_vip").eq("id", currentUser.id).maybeSingle());
+  let res = await withTimeout(supabaseClient.from("profiles").select("id, full_name, balance, is_activated, is_vip, role").eq("id", currentUser.id).maybeSingle());
 
   /* If the is_vip column does not exist, retry without it so the wallet and name still load. */
   if (res.error && (res.error.code === "42703" || /is_vip/i.test(res.error.message || ""))){
-    res = await withTimeout(supabaseClient.from("profiles").select("id, full_name, balance, is_activated").eq("id", currentUser.id).maybeSingle());
+    res = await withTimeout(supabaseClient.from("profiles").select("id, full_name, balance, is_activated, role").eq("id", currentUser.id).maybeSingle());
   }
   if (res.error) throw res.error;
 
@@ -1554,6 +1568,61 @@ async function loadWalletTransactions(){
   }).join("");
 }
 
+/* ---------- Tasker reputation leaderboard ---------- */
+async function loadTaskerPointsLeaderboard(period = "weekly"){
+  const section = $("taskerLeaderboardSection");
+  const list = $("taskerLeaderboardList");
+  if (!section || !list) return;
+  if (dashboardProfile && dashboardProfile.role !== "tasker"){
+    section.style.display = "none";
+    return;
+  }
+  section.style.display = "block";
+  const weekly = period === "weekly";
+  const weeklyBtn = $("leaderboardWeeklyBtn");
+  const allTimeBtn = $("leaderboardAllTimeBtn");
+  if (weeklyBtn){
+    weeklyBtn.className = weekly ? "btn btn-green" : "btn btn-outline";
+    weeklyBtn.setAttribute("aria-pressed", String(weekly));
+  }
+  if (allTimeBtn){
+    allTimeBtn.className = weekly ? "btn btn-outline" : "btn btn-green";
+    allTimeBtn.setAttribute("aria-pressed", String(!weekly));
+  }
+  setText("leaderboardPeriodNote", weekly
+    ? "Points earned this week from approved genuine tasks. The weekly ranking resets every Monday."
+    : "Lifetime reputation points from approved genuine tasks.");
+  list.innerHTML = '<div class="loading">Loading leaderboard…</div>';
+  try{
+    const {data, error} = await withTimeout(supabaseClient.rpc("get_tasker_points_leaderboard", {
+      p_period: weekly ? "weekly" : "all_time",
+      p_limit: 10
+    }));
+    if (error) throw error;
+    const rows = Array.isArray(data) ? data : [];
+    if (!rows.length){
+      list.innerHTML = '<div class="empty-state">The leaderboard is ready. Complete genuine tasks and get them approved to earn your first points.</div>';
+      return;
+    }
+    list.innerHTML = rows.map(row => {
+      const rank = Number(row.rank) || 0;
+      const points = Math.max(0, Number(row.points) || 0);
+      const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : String(rank);
+      const isYou = row.is_you === true;
+      const name = escapeHTML(row.display_name || "Tasker");
+      const level = escapeHTML(row.level_name || "Starter");
+      return '<div style="display:flex;align-items:center;gap:10px;padding:11px 9px;border-bottom:1px solid #e8eee9;border-radius:10px;' + (isYou ? 'background:#effaf1;border:1px solid #a9d9b4;' : '') + '">' +
+        '<div style="min-width:30px;text-align:center;font-size:16px;font-weight:900">' + medal + '</div>' +
+        '<div style="min-width:0;flex:1"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><strong style="font-size:13px">' + name + '</strong>' + (isYou ? '<span style="font-size:9px;font-weight:900;background:#087f36;color:#fff;border-radius:99px;padding:2px 6px">YOU</span>' : '') + '</div>' +
+        '<small style="color:var(--muted)">' + level + ' · ' + (Number(row.approved_tasks) || 0).toLocaleString("en-NG") + ' approved tasks</small></div>' +
+        '<div style="text-align:right;white-space:nowrap"><strong style="font-size:14px;color:#087f36">' + points.toLocaleString("en-NG") + '</strong><small style="display:block;color:var(--muted)">points</small></div></div>';
+    }).join("");
+  }catch(error){
+    console.warn("Tasker leaderboard unavailable:", error);
+    list.innerHTML = '<div class="empty-state">Leaderboard could not load. <button type="button" class="retry" onclick="loadTaskerPointsLeaderboard(\'' + (weekly ? "weekly" : "all_time") + '\')">Try again</button></div>';
+  }
+}
+
 /* ---------- Refresh ---------- */
 async function refreshDashboard(){
   if (refreshRunning || !currentUser) return;
@@ -1573,6 +1642,12 @@ async function refreshDashboard(){
     ]);
 
     const profileResult = results[0];
+    if (profileResult.status === "fulfilled" && dashboardProfile?.role === "tasker") {
+      await loadTaskerPointsLeaderboard("weekly");
+    } else {
+      const leaderboardSection = $("taskerLeaderboardSection");
+      if (leaderboardSection) leaderboardSection.style.display = "none";
+    }
     if (profileResult.status === "rejected"){
       console.error("Profile loading error:", profileResult.reason);
       showNotice(profileResult.reason?.message || "Your account details could not be loaded. Please refresh.", true);
