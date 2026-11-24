@@ -441,6 +441,27 @@ input[readonly]{
 
     </section>
 
+    <!-- TASKER REPUTATION -->
+    <section class="card" id="taskerReputationCard" style="display:none;border:1px solid #cfe8d5;background:linear-gradient(135deg,#f2fff5,#fff);">
+      <h2 class="section-title">🏆 Tasker Reputation</h2>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div id="reputationBadge" style="width:58px;height:58px;border-radius:17px;background:#e5f7e9;display:grid;place-items:center;font-size:30px">🌱</div>
+        <div style="flex:1;min-width:130px">
+          <div id="reputationLevel" style="font-size:19px;font-weight:900;color:#075d2a">Starter</div>
+          <div id="reputationPoints" style="font-size:13px;color:#627168;margin-top:4px">0 points</div>
+        </div>
+        <div style="text-align:right">
+          <strong id="reputationTasks" style="font-size:19px">0</strong>
+          <div style="font-size:10px;color:#718078">Approved tasks</div>
+        </div>
+      </div>
+      <div style="height:9px;background:#e6eee8;border-radius:99px;overflow:hidden;margin-top:16px">
+        <div id="reputationProgress" style="height:100%;width:0;background:linear-gradient(90deg,#087f36,#b7ef43);border-radius:99px"></div>
+      </div>
+      <p id="reputationNext" class="hint" style="margin-top:8px">Complete genuine tasks to build your reputation.</p>
+      <p class="hint" style="margin-top:8px">Points are reputation progress only. They are not cash and cannot be withdrawn. Only approved tasks count.</p>
+    </section>
+
     <!-- PERSONAL INFORMATION -->
     <section class="card">
 
@@ -1062,6 +1083,37 @@ function renderProfile(){
 }
 
 
+async function loadTaskerReputation(){
+  const card = $("taskerReputationCard");
+  if (!card || !currentUser) return;
+  try {
+    const { data, error } = await supabaseClient.rpc("get_my_tasker_reputation");
+    if (error) throw error;
+    const r = data || {};
+    const points = Math.max(0, Number(r.points) || 0);
+    const tasks = Math.max(0, Number(r.approved_tasks) || 0);
+    $("reputationBadge").textContent = r.badge_emoji || "🌱";
+    $("reputationLevel").textContent = r.level_name || "Starter";
+    $("reputationPoints").textContent = points.toLocaleString("en-NG") + " points";
+    $("reputationTasks").textContent = tasks.toLocaleString("en-NG");
+    if (r.next_level && Number(r.next_level.min_points) > points) {
+      const target = Number(r.next_level.min_points);
+      const previous = r.level_key === "starter" ? 0 : Math.max(0, target - (target - points));
+      const progress = target > 0 ? Math.max(0, Math.min(100, (points / target) * 100)) : 100;
+      $("reputationProgress").style.width = progress + "%";
+      $("reputationNext").textContent = (target - points).toLocaleString("en-NG") + " more points to reach " + r.next_level.name + ".";
+    } else {
+      $("reputationProgress").style.width = "100%";
+      $("reputationNext").textContent = "You have reached the highest available level. Keep completing genuine tasks.";
+    }
+    card.style.display = "block";
+  } catch (error) {
+    console.warn("Tasker reputation unavailable:", error);
+    card.style.display = "none";
+  }
+}
+
+
 /* =========================
    SAVE PROFILE
 ========================= */
@@ -1446,6 +1498,9 @@ async function init(){
     await loadProfile();
 
     renderProfile();
+    if (!["task_poster","poster","admin"].includes(verifiedProfileRole)) {
+      await loadTaskerReputation();
+    }
 
     $("loadingBox").style.display =
       "none";
