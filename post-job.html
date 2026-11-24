@@ -375,7 +375,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
     <div id="normalSocialServiceFields">
       <label for="socialPlatform">Choose Social Platform</label>
       <div id="ntSelectedPlatform" class="nt-selected-platform" aria-live="polite"><span class="nt-selected-platform-icon">◎</span><span><b>Choose a platform</b><small>Its app icon will appear here</small></span></div>
-      <select id="socialPlatform">
+      <select id="socialPlatform" disabled>
         <option value="">Select the platform you want to use</option>
         <option>Facebook</option><option>Instagram</option><option>TikTok</option>
         <option>YouTube</option><option>YouTube Music</option><option>X / Twitter</option>
@@ -385,14 +385,14 @@ input:focus,textarea:focus,select:focus{border-color:var(--nt-green);box-shadow:
         <option>Boomplay</option><option>Google</option><option>Google Play Store</option><option>Apple App Store</option>
       </select>
       <label for="category">Choose the task type for this platform</label>
-      <select id="category">
+      <select id="category" disabled>
         <option value="">Select a platform first</option>
       </select>
       <div class="help">Select a platform, then choose the action you want completed.</div>
     </div>
 
     <div id="priceRule" class="price-rule">
-      Choose a service to see its current NAIJA TASK price.
+      Loading approved service prices. Please wait a moment.
     </div>
 
     <label for="description">Instructions for Taskers</label>
@@ -1537,7 +1537,7 @@ function rebuildPlatformTaskTypes(){
  if(platform&&!items.length){
    rule.textContent=posterPricingLoaded
      ?"No services are currently available for this platform. Choose another platform or contact NAIJA TASK support."
-     :"Service options are being prepared. Publishing stays locked until a valid price is confirmed.";
+      :"Approved prices are still loading. Please wait a moment.";
  }else if(platform&&!posterPricingLoaded){
    rule.textContent="Choose your service. NAIJA TASK will confirm its current price before you can publish.";
  }else if(items.length&&!category.value){
@@ -1590,20 +1590,28 @@ async function loadPosterPricing(){
     while(category.firstChild)category.removeChild(category.firstChild);
     category.add(new Option("Select a platform first",""));
     document.getElementById("category").disabled=false;
+    document.getElementById("priceRule").textContent="Approved prices loaded. Choose a platform to view available services.";
   }
   document.getElementById("businessFields").classList.toggle("active",selectedTaskKind()==="business_job");
   calculateFunding();
  }catch(error){
-  console.warn("Poster pricing settings could not be loaded.");
+  console.error("Poster pricing settings could not be loaded:",error);
   showMessage("We could not confirm service prices right now. You can choose a platform and service, but publishing will remain unavailable until NAIJA TASK confirms the price. Please refresh or contact support.","error");
   posterPricingLoaded=false;
   publishBtn.disabled=true;
-  document.getElementById("socialPlatform").disabled=false;
+  document.getElementById("socialPlatform").disabled=true;
   const category=document.getElementById("category");
   while(category.firstChild)category.removeChild(category.firstChild);
   category.add(new Option("Prices unavailable — refresh to retry",""));
   category.disabled=true;
-  document.getElementById("priceRule").textContent="Approved prices could not be loaded. Refresh the page before choosing a service.";
+  const rule=document.getElementById("priceRule");
+  rule.textContent="Approved prices could not be loaded. Check your connection and try again. ";
+  const retry=document.createElement("button");
+  retry.type="button";
+  retry.textContent="Try again";
+  retry.style.cssText="margin-left:8px;padding:7px 12px;border:0;border-radius:8px;background:#0b8f3c;color:#fff;font-weight:bold;";
+  retry.addEventListener("click",function(){retry.disabled=true;retry.textContent="Retrying…";loadPosterPricing();},{once:true});
+  rule.appendChild(retry);
  }
 }
 
