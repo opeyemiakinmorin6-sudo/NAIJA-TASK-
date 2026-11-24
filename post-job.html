@@ -837,13 +837,10 @@ function calculateFunding(){
  const rule=document.getElementById("priceRule");
  if(rule){
   if(item.enabled){
-   const perTen=posterRate.toLocaleString("en-NG",{maximumFractionDigits:2});
-   const selectedKey=socialPriceKey(document.getElementById("category").value);
-   const isWhatsApp=selectedTaskKind()==="normal_task"&&selectedKey.startsWith("whatsapp_");
    const serviceName=document.getElementById("category").selectedOptions[0]?.textContent?.trim()||"Selected service";
    const totalText=total>0?"Total for "+slots.toLocaleString()+" slots: ₦"+total.toLocaleString("en-NG",{maximumFractionDigits:2}):
     "Enter at least "+posterPricing.minimumSlots+" slots to calculate your total.";
-   rule.textContent=(isWhatsApp?serviceName+" price: ":"Poster price: ")+"₦"+perTen+" for every 10 slots. 10 slots = ₦"+perTen+". "+totalText;
+   rule.textContent=serviceName+" selected. Approved pricing is applied automatically. "+totalText;
    rule.classList.add("price-ready");
   }else{
    rule.textContent="This service is not currently available. Choose another service or contact NAIJA TASK support.";
@@ -1526,7 +1523,7 @@ function rebuildPlatformTaskTypes(){
  category.add(new Option(platform?"Choose a task type":"Select a platform first",""));
  for(const [key,item] of items){
    const price=getPosterPrice(item);
-   const option=new Option(serviceLabel(key)+" — ₦"+price.toLocaleString("en-NG")+" / 10 slots",key);
+   const option=new Option(serviceLabel(key),key);
    if(posterPricingLoaded)option.dataset.posterPrice=String(price);
    category.add(option);
  }
