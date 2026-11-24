@@ -963,6 +963,13 @@ td,th{padding:13px 11px}
 
   <button
     class="nav-btn"
+    data-page="tasker-reputation"
+    onclick="navigate('tasker-reputation')">
+    🏆 Tasker Reputation
+  </button>
+
+  <button
+    class="nav-btn"
     data-page="tasks"
     onclick="navigate('tasks')">
     📋 Tasks
@@ -1455,6 +1462,55 @@ td,th{padding:13px 11px}
 
 </section>
 
+
+<!-- =====================================================
+     TASKER REPUTATION
+     ===================================================== -->
+<section id="page-tasker-reputation" class="page">
+  <div class="page-header">
+    <div>
+      <h2>Tasker Reputation & Levels</h2>
+      <p>Review points, approved work and level progress. Points are not cash.</p>
+    </div>
+    <button class="primary" onclick="loadTaskerReputationAdmin()">Refresh</button>
+  </div>
+
+  <div id="taskerReputationAdminNotice" class="notice">Loading reputation settings...</div>
+
+  <div class="grid grid-2" style="margin-bottom:14px">
+    <div class="card">
+      <h3>Points Rules</h3>
+      <div class="field">
+        <label for="taskerPointsEnabled">Reputation system</label>
+        <select id="taskerPointsEnabled">
+          <option value="true">Enabled</option>
+          <option value="false">Paused</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="taskerPointsPerTask">Points per approved task</label>
+        <input id="taskerPointsPerTask" type="number" min="0" max="10000" step="1" value="10">
+      </div>
+      <button class="primary" onclick="saveTaskerReputationSettings()">Save Points Rules</button>
+      <p class="small" style="margin-top:10px">Changing this value affects future approvals. Existing points are not recalculated.</p>
+    </div>
+    <div class="card">
+      <h3>Level Requirements</h3>
+      <div id="taskerLevelRequirements" class="small">Loading levels...</div>
+      <p class="small" style="margin-top:10px">Levels recognise experience. They do not increase cash rewards or bypass fraud checks.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Tasker Points Register</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tasker</th><th>Level</th><th>Points</th><th>Approved tasks</th><th>Last updated</th><th>Admin action</th></tr></thead>
+        <tbody id="taskerReputationTableBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <!-- =====================================================
      TASKS
@@ -5564,6 +5620,7 @@ function navigate(page) {
   const loaders = {
     overview: () => loadOverview(),
     users: () => loadUsers(),
+    "tasker-reputation": () => loadTaskerReputationAdmin(),
     tasks: () => loadTasks(),
     submissions: () => loadSubmissions(),
     withdrawals: () => loadWithdrawals(),
@@ -5715,6 +5772,93 @@ function updateModeIndicators(settings) {
   );
   setText("activationModeStatus", activation ? "ON" : "OFF");
   setText("vipModeStatus", vip ? "ON" : "OFF");
+}
+
+
+/* =========================================================
+   TASKER REPUTATION
+   ========================================================= */
+
+let taskerReputationAdminData = null;
+
+async function loadTaskerReputationAdmin() {
+  const body = $("taskerReputationTableBody");
+  const notice = $("taskerReputationAdminNotice");
+  if (body) body.innerHTML = '<tr><td colspan="6" class="empty">Loading tasker reputation...</td></tr>';
+  if (notice) { notice.textContent = "Loading points rules and tasker records..."; notice.className = "notice"; }
+  const { data, error } = await supabaseClient.rpc("admin_tasker_reputation_overview");
+  if (error) throw error;
+  const result = data || {};
+  taskerReputationAdminData = result;
+  const config = result.config || {};
+  $("taskerPointsEnabled").value = config.enabled === false ? "false" : "true";
+  $("taskerPointsPerTask").value = Number.isFinite(Number(config.points_per_approved_task)) ? Number(config.points_per_approved_task) : 10;
+
+  const levels = Array.isArray(result.levels) ? result.levels : [];
+  $("taskerLevelRequirements").innerHTML = levels
+    .filter(level => level.active !== false)
+    .sort((a,b) => Number(a.sort_order)-Number(b.sort_order))
+    .map(level => '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #edf3ee"><strong>' +
+      escapeHTML(level.badge_emoji || "⭐") + " " + escapeHTML(level.level_name) +
+      '</strong><span>' + Number(level.min_points).toLocaleString("en-NG") + ' points</span></div>').join("") || "No levels configured.";
+
+  const taskers = Array.isArray(result.taskers) ? result.taskers : [];
+  if (!body) return;
+  if (!taskers.length) {
+    body.innerHTML = '<tr><td colspan="6" class="empty">No taskers have earned reputation points yet. New approved tasks will appear here.</td></tr>';
+  } else {
+    body.innerHTML = taskers.map(tasker => '<tr>' +
+      '<td><strong>' + escapeHTML(tasker.full_name || "Tasker") + '</strong><small style="display:block">' + escapeHTML(String(tasker.user_id || "").slice(0,12)) + '</small></td>' +
+      '<td>' + escapeHTML(tasker.badge_emoji || "🌱") + ' ' + escapeHTML(tasker.level_name || "Starter") + '</td>' +
+      '<td><strong>' + Number(tasker.points || 0).toLocaleString("en-NG") + '</strong></td>' +
+      '<td>' + Number(tasker.approved_tasks || 0).toLocaleString("en-NG") + '</td>' +
+      '<td>' + formatDate(tasker.updated_at) + '</td>' +
+      '<td><button class="secondary" onclick="adjustTaskerReputation(\'' + escapeHTML(tasker.user_id) + '\')">Adjust points</button></td>' +
+      '</tr>').join("");
+  }
+  if (notice) { notice.textContent = "Reputation system loaded. " + taskers.length + " tasker record(s) shown."; notice.className = "notice"; }
+}
+
+async function saveTaskerReputationSettings() {
+  const enabled = $("taskerPointsEnabled").value === "true";
+  const points = Number($("taskerPointsPerTask").value);
+  if (!Number.isInteger(points) || points < 0 || points > 10000) {
+    toast("Points per approved task must be a whole number from 0 to 10,000.", "warning");
+    return;
+  }
+  const { data, error } = await supabaseClient.rpc("admin_update_tasker_reputation_config", {
+    p_enabled: enabled,
+    p_points_per_approved_task: points
+  });
+  if (error) throw error;
+  if (!data || data.success !== true) throw new Error(data?.message || "The points rules were not saved.");
+  toast("Tasker reputation settings saved.", "success");
+  await loadTaskerReputationAdmin();
+}
+
+async function adjustTaskerReputation(userId) {
+  const amountText = await uiPrompt("Enter points to add or remove. Use a negative number to remove points:");
+  if (amountText === null) return;
+  const amount = Number(String(amountText).trim());
+  if (!Number.isInteger(amount) || amount === 0 || amount < -100000 || amount > 100000) {
+    toast("Enter a whole number between -100,000 and 100,000, excluding zero.", "warning");
+    return;
+  }
+  const reason = await uiPrompt("Give the reason for this adjustment (at least 10 characters):");
+  if (reason === null) return;
+  if (String(reason).trim().length < 10) {
+    toast("Please provide a clear reason of at least 10 characters.", "warning");
+    return;
+  }
+  const { data, error } = await supabaseClient.rpc("admin_adjust_tasker_points", {
+    p_user_id: userId,
+    p_points_change: amount,
+    p_reason: String(reason).trim()
+  });
+  if (error) throw error;
+  if (!data || data.success !== true) throw new Error(data?.message || "Points adjustment failed.");
+  toast("Tasker points adjusted and recorded in the audit ledger.", "success");
+  await loadTaskerReputationAdmin();
 }
 
 
