@@ -1514,11 +1514,7 @@ function rebuildPlatformTaskTypes(){
        if(normalizedPlatform==="google"&&key.startsWith("google_play_"))return false;
        return matches&&enabled&&Number.isFinite(price)&&price>=1;
      })
-    : configured.filter(key=>{
-       if(normalizedPlatform==="youtube"&&key.startsWith("youtube_music_"))return false;
-       if(normalizedPlatform==="google"&&key.startsWith("google_play_"))return false;
-       return true;
-     }).map(key=>[key,{}]);
+    : [];
    items.sort(([a],[b])=>{
     const ai=configured.indexOf(a),bi=configured.indexOf(b);
     if(ai<0&&bi<0)return a.localeCompare(b);
@@ -1603,8 +1599,11 @@ async function loadPosterPricing(){
   posterPricingLoaded=false;
   publishBtn.disabled=true;
   document.getElementById("socialPlatform").disabled=false;
-  document.getElementById("category").disabled=false;
-  rebuildPlatformTaskTypes();
+  const category=document.getElementById("category");
+  while(category.firstChild)category.removeChild(category.firstChild);
+  category.add(new Option("Prices unavailable — refresh to retry",""));
+  category.disabled=true;
+  document.getElementById("priceRule").textContent="Approved prices could not be loaded. Refresh the page before choosing a service.";
  }
 }
 
