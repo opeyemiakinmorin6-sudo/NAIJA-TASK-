@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#087f36">
+<title>NAIJA TASK — Verified Reviews</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--green:#087f36;--deep:#063d20;--lime:#b7ef43;--ink:#17251c;--muted:#647368;--line:#e1eae2;--bg:#f4f8f4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 Arial,sans-serif}
+header{background:linear-gradient(120deg,var(--deep),var(--green));color:#fff;padding:22px 16px 26px}
+header .inner,main{max-width:760px;margin:auto}header a{color:#e9ffd7;text-decoration:none;font-weight:800;font-size:12px}
+h1{font-size:23px;margin:12px 0 5px}header p{margin:0;color:#e0f2e4;font-size:12px}
+main{padding:16px 13px 50px}.notice{background:#e9f6eb;border:1px solid #cce8d1;color:#285638;border-radius:13px;padding:12px;margin-bottom:14px;font-size:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;margin:12px 0;box-shadow:0 4px 14px #123d1b08}
+.card h2{font-size:16px;margin:0 0 8px}.muted{color:var(--muted);font-size:12px}
+.task-title{font-weight:800;font-size:14px}.meta{font-size:11px;color:var(--muted);margin:3px 0 10px}
+label{display:block;font-size:12px;font-weight:800;margin:10px 0 5px}
+select,textarea{width:100%;border:1px solid #d7e3d9;border-radius:10px;padding:11px;font:14px Arial;background:#fff;color:var(--ink)}
+textarea{min-height:85px;resize:vertical}
+button{border:0;border-radius:10px;background:var(--green);color:#fff;font-weight:800;padding:12px 15px;margin-top:10px;width:100%;font-size:13px}
+button:disabled{opacity:.55}.stars{color:#d49b00;font-weight:900;letter-spacing:1px}
+.review{border-top:1px solid var(--line);padding:11px 0}.review:first-of-type{border-top:0}
+.empty{padding:18px;text-align:center;color:var(--muted);font-size:12px}
+.status{display:inline-block;border-radius:30px;padding:4px 8px;font-size:10px;font-weight:800;background:#edf2ee;color:#536157;text-transform:capitalize}
+.status.approved{background:#e4f5e7;color:#17672e}.status.pending{background:#fff4d9;color:#795700}
+.error{color:#a32121;background:#fff0f0;padding:10px;border-radius:10px;font-size:12px;margin:10px 0}
+</style>
+</head>
+<body>
+<header><div class="inner"><a id="backLink" href="dashboard.html">← Back to NAIJA TASK</a><h1>Verified Reviews ⭐</h1><p>Trust built from real, approved task completions — not fake ratings.</p></div></header>
+<main>
+<div class="notice">Only the Tasker or Poster who participated in an approved completion can review the other person. One review per person per completed task. Reviews are checked before publication.</div>
+<section class="card"><h2>Completed tasks you can review</h2><div id="reviewableList" class="muted">Loading your completed tasks…</div></section>
+<section class="card"><h2>Reviews about you</h2><div id="receivedReviews" class="muted">Loading approved reviews…</div></section>
+<div id="pageError"></div>
+</main>
+<script>
+"use strict";
+const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const $=id=>document.getElementById(id);
+const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const date=value=>{try{return new Date(value).toLocaleDateString("en-NG",{day:"numeric",month:"short",year:"numeric"})}catch{return ""}};
+let user=null;
+async function load(){
+  $("pageError").innerHTML="";
+  const {data:auth,error:authError}=await db.auth.getUser();
+  if(authError)throw authError;
+  if(!auth.user){location.href="login.html";return;}
+  user=auth.user;
+  const {data:profile,error:profileError}=await db.from("profiles").select("role").eq("id",user.id).maybeSingle();
+  if(profileError)throw profileError;
+  const role=String(profile?.role||"").toLowerCase();
+  if(!["tasker","user","poster","task_poster"].includes(role)){location.replace("admin.html");return;}
+  $("backLink").href=["poster","task_poster"].includes(role)?"poster-dashboard.html":"dashboard.html";
+  const [activity,reviews]=await Promise.all([
+    db.rpc("get_my_task_review_activity"),
+    db.from("task_reviews").select("reviewer_role,rating,review_text,status,created_at").eq("reviewed_user_id",user.id).eq("status","approved").order("created_at",{ascending:false}).limit(30)
+  ]);
+  if(activity.error)throw activity.error;
+  if(reviews.error)throw reviews.error;
+  renderActivity(activity.data||[]);
+  renderReceived(reviews.data||[]);
+}
+function renderActivity(rows){
+  const el=$("reviewableList");
+  if(!rows.length){el.innerHTML='<div class="empty">Your approved task completions will appear here. Once a task is approved, you can review the other participant.</div>';return;}
+  el.innerHTML=rows.map(row=>{
+    const submitted=Boolean(row.already_reviewed);
+    return '<article class="review"><div class="task-title">'+esc(row.task_title)+'</div><div class="meta">Completed '+esc(date(row.completed_at))+' · You are the '+esc(row.reviewer_role)+'</div><div class="muted">Reviewing: <strong>'+esc(row.reviewed_member_name)+'</strong></div>'+
+      (submitted?'<p><span class="status '+esc(row.review_status||"pending")+'">Review '+esc(row.review_status||"pending")+'</span></p>':'<label for="rating-'+esc(row.completion_id)+'">Your rating</label><select id="rating-'+esc(row.completion_id)+'"><option value="5">★★★★★ — Excellent</option><option value="4">★★★★☆ — Good</option><option value="3">★★★☆☆ — Fair</option><option value="2">★★☆☆☆ — Poor</option><option value="1">★☆☆☆☆ — Very poor</option></select><label for="text-'+esc(row.completion_id)+'">Your experience (20–600 characters)</label><textarea id="text-'+esc(row.completion_id)+'" minlength="20" maxlength="600" placeholder="Describe your genuine experience with this participant."></textarea><button id="send-'+esc(row.completion_id)+'" onclick="sendReview('+Number(row.completion_id)+')">Submit verified review</button>')+
+      '</article>';
+  }).join("");
+}
+function renderReceived(rows){
+  const el=$("receivedReviews");
+  if(!rows.length){el.innerHTML='<div class="empty">No approved reviews about your account yet. Reviews will appear here after moderation.</div>';return;}
+  el.innerHTML=rows.map(r=>'<article class="review"><div class="stars">'+("★".repeat(Number(r.rating)||0))+("☆".repeat(5-(Number(r.rating)||0)))+'</div><div class="muted">From a verified '+esc(r.reviewer_role)+' · '+esc(date(r.created_at))+'</div><p>'+esc(r.review_text)+'</p></article>').join("");
+}
+async function sendReview(completionId){
+  const rating=Number($("rating-"+completionId)?.value);
+  const reviewText=String($("text-"+completionId)?.value||"").trim();
+  if(!Number.isInteger(rating)||rating<1||rating>5){alert("Choose a rating from 1 to 5.");return;}
+  if(reviewText.length<20||reviewText.length>600){alert("Your review must be 20 to 600 characters.");return;}
+  const button=$("send-"+completionId);if(button)button.disabled=true;
+  try{
+    const {error}=await db.rpc("submit_verified_task_review",{p_completion_id:completionId,p_rating:rating,p_review_text:reviewText});
+    if(error)throw error;
+    alert("Your review has been submitted for moderation. Thank you.");
+    await load();
+  }catch(error){
+    alert(error?.message||"We could not submit your review. Please try again.");
+    if(button)button.disabled=false;
+  }
+}
+load().catch(error=>{$("pageError").innerHTML='<div class="error">'+esc(error?.message||"Unable to load reviews.")+'</div>';$("reviewableList").textContent="Reviews are temporarily unavailable.";});
+</script>
+</body>
+</html>
