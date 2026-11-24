@@ -20,6 +20,52 @@ using (
   or exists(select 1 from public.admin_users a where a.user_id=(select auth.uid()) and a.active is true)
 );
 
+-- A cancelled attempt is terminal for that user/task pair; it cannot be submitted afterward.
+create or replace function public.task_is_available_for_user(p_task_id bigint)
+returns boolean language sql stable security definer
+set search_path=pg_catalog,public
+as $function$
+  select exists (
+    select 1 from public.tasks t
+    join public.profiles p on p.id=auth.uid()
+    where t.id=p_task_id
+      and p.role in ('tasker','user')
+      and not exists(select 1 from public.admin_users a where a.user_id=auth.uid() and a.active is true)
+      and t.created_by<>auth.uid()
+      and coalesce(t.active,false)=true
+      and coalesce(t.reward,0)>0
+      and upper(coalesce(t.status,'')) in ('LIVE','ACTIVE','PUBLISHED','APPROVED','OPEN')
+      and (t.start_date is null or t.start_date<=now())
+      and (t.expiry_date is null or t.expiry_date>now())
+      and upper(coalesce(t.moderation_status,'APPROVED')) in ('APPROVED','LIVE','PUBLISHED','OPEN')
+      and (
+        exists(select 1 from public.admin_users a where a.user_id=t.created_by and a.active is true)
+        or (
+          upper(coalesce(t.payment_status,'')) in ('PAID','APPROVED','COMPLETED','SUCCESSFUL')
+          and coalesce(t.funded_amount,0)>=coalesce(t.total_funding_required,0)
+          and exists(select 1 from public.poster_payments pp where pp.task_id=t.id and upper(coalesce(pp.status,'')) in ('APPROVED','PAID','COMPLETED','SUCCESSFUL'))
+        )
+      )
+      and not exists(select 1 from public.task_submissions s where s.task_id=t.id and s.user_id=auth.uid())
+      and not exists(select 1 from public.task_completions tc where tc.task_id=t.id and tc.user_id=auth.uid())
+      and not exists(select 1 from public.tasker_attempt_cancellations c where c.task_id=t.id and c.user_id=auth.uid())
+      and (
+        case lower(coalesce(t.task_audience,'normal'))
+          when 'activation' then coalesce(p.is_activated,false)=false
+          when 'vip' then coalesce(p.is_vip,false)=true or upper(coalesce(to_jsonb(p)->>'vip_status','')) in ('VIP','ACTIVE','APPROVED','ENABLED')
+          else true
+        end
+      )
+      and (
+        case when exists(select 1 from public.admin_users a where a.user_id=t.created_by and a.active is true)
+          then nullif(t.max_total_completions,0) else t.slots end is null
+        or (select count(*) from public.task_completions tc where tc.task_id=t.id) <
+          case when exists(select 1 from public.admin_users a where a.user_id=t.created_by and a.active is true)
+            then nullif(t.max_total_completions,0) else t.slots end
+      )
+  );
+$function$;
+
 create or replace function public.cancel_my_task_attempt(p_task_id bigint,p_reason text)
 returns jsonb language plpgsql security definer set search_path=pg_catalog,public
 as $function$
