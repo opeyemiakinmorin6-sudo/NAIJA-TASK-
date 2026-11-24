@@ -1617,8 +1617,8 @@ td,th{padding:13px 11px}
     </div>
     <div class="notice">Cancellations are recorded as investigation evidence. A cancellation alone does not prove misconduct and does not automatically punish a Poster.</div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Task</th><th>Poster</th><th>Reason</th><th>Started</th><th>Submitted</th><th>Completed</th><th>Affected</th><th>Date</th></tr></thead>
-      <tbody id="taskSecurityEventsBody"><tr><td colspan="8" class="loading-row">Tap refresh to load cancellation audit.</td></tr></tbody>
+      <thead><tr><th>Task</th><th>Member</th><th>Event</th><th>Reason</th><th>Started</th><th>Submitted</th><th>Completed</th><th>Affected</th><th>Date</th></tr></thead>
+      <tbody id="taskSecurityEventsBody"><tr><td colspan="9" class="loading-row">Tap refresh to load cancellation audit.</td></tr></tbody>
     </table></div>
   </div>
 </section>
@@ -10949,7 +10949,7 @@ async function resolveSupport(id) {
 async function loadTaskSecurityEvents() {
   const body = $("taskSecurityEventsBody");
   if (!body) return;
-  body.innerHTML = '<tr><td colspan="8" class="loading-row">Loading task cancellation audit…</td></tr>';
+  body.innerHTML = '<tr><td colspan="9" class="loading-row">Loading task cancellation audit…</td></tr>';
   try {
     const { data, error } = await withTimeout(
       supabaseClient.rpc("admin_get_task_security_events"),
@@ -10959,13 +10959,14 @@ async function loadTaskSecurityEvents() {
     if (error) throw error;
     const rows = safeArray(data);
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="8" class="empty-row">No Poster task cancellations have been recorded yet.</td></tr>';
+      body.innerHTML = '<tr><td colspan="9" class="empty-row">No Poster task cancellations have been recorded yet.</td></tr>';
       return;
     }
     body.innerHTML = rows.map(row =>
       '<tr>' +
       '<td>' + escapeHTML(row.task_title || ("Task #" + row.task_id)) + '<small>#' + escapeHTML(row.task_id) + '</small></td>' +
-      '<td>' + escapeHTML(row.poster_name || "Poster") + '</td>' +
+      '<td>' + escapeHTML(row.poster_name || "Member") + '</td>' +
+      '<td>' + escapeHTML(row.event_type || "TASK_EVENT") + '</td>' +
       '<td style="min-width:220px;white-space:normal">' + escapeHTML(row.reason || "No reason recorded") + '</td>' +
       '<td>' + Number(row.started_taskers || 0) + '</td>' +
       '<td>' + Number(row.submitted_taskers || 0) + '</td>' +
@@ -10976,7 +10977,7 @@ async function loadTaskSecurityEvents() {
     ).join("");
   } catch (error) {
     reportError("loadTaskSecurityEvents", error);
-    body.innerHTML = '<tr><td colspan="8" class="empty-row">' + escapeHTML(errorMessage(error, "Unable to load task cancellation audit.")) + '</td></tr>';
+    body.innerHTML = '<tr><td colspan="9" class="empty-row">' + escapeHTML(errorMessage(error, "Unable to load task cancellation audit.")) + '</td></tr>';
   }
 }
 
