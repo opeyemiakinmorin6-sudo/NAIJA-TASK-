@@ -187,16 +187,26 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
     const txRef = params.get("tx_ref");
     const status = params.get("status");
 
-    if (!transactionId || !txRef) return;
+    if (!transactionId && !txRef && !status) return;
 
     history.replaceState({}, "", location.pathname);
     payButton.disabled = true;
-    payButton.textContent = "Verifying payment…";
+    payButton.textContent = "Checking payment result…";
 
     if (status && status.toLowerCase() !== "successful") {
-      showMessage("Flutterwave did not report a successful payment. Your account has not been activated.");
+      const cancelled = status.toLowerCase() === "cancelled";
+      showMessage(cancelled
+        ? "Payment was cancelled. Your account has not been activated."
+        : "Flutterwave did not confirm a successful payment. Your account has not been activated. If you were charged, contact support before trying again.");
       payButton.disabled = false;
       payButton.textContent = "Try payment again";
+      return;
+    }
+
+    if (!transactionId || !txRef) {
+      showMessage("Flutterwave returned incomplete payment details. Your account has not been activated. If money was deducted, do not pay again; contact support with your payment receipt.");
+      payButton.disabled = true;
+      payButton.textContent = "Payment check required";
       return;
     }
 
