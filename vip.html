@@ -455,10 +455,13 @@ footer a {
 
     if (!transactionId && !txRef && !status) return false;
 
-    if (status && status.toLowerCase() === "cancelled") {
+    if (status && status.toLowerCase() !== "successful") {
+      const cancelled = status.toLowerCase() === "cancelled";
       showMessage(
-        "Payment was cancelled. Your VIP membership has not been activated.",
-        "info"
+        cancelled
+          ? "Payment was cancelled. Your VIP membership has not been activated."
+          : "Flutterwave did not confirm a successful payment. Your VIP membership has not been activated. If you were charged, contact support before trying again.",
+        cancelled ? "info" : "error"
       );
       cleanPaymentUrl();
       return true;
