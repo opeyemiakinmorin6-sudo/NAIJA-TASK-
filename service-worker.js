@@ -1,12 +1,10 @@
-const CACHE_NAME='naija-task-shell-v14-official-nt-logo';
+const CACHE_NAME='naija-task-shell-v15-official-nt-logo';
 const APP_SHELL=[
   '/',
   '/index.html',
   '/manifest.json',
   '/manifest.webmanifest',
   '/assets/naija-task-logo.svg',
-  '/assets/naija-task-icon-192.png',
-  '/assets/naija-task-icon-512.png',
   '/assets/naija-task-share.png',
   '/brain-battle.html',
   '/naija-games.html',
