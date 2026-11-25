@@ -182,6 +182,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 #submitProofBtn:focus-visible{outline:4px solid #b7ef43;outline-offset:3px}
 #submitProofBtn:disabled{opacity:.65;box-shadow:none}
 .username-hint{margin:7px 2px 0;color:#617468;font-size:11px;line-height:1.5}
+.form-control.username-entry{display:block;width:100%;height:48px;min-height:48px;padding:11px 13px;resize:none;overflow:hidden;border:1px solid #cbd9ce;border-radius:10px;line-height:24px;background:#fff}
 .drop.has-preview{align-items:stretch;justify-content:flex-start;min-height:0;padding:10px;gap:10px;overflow:hidden}
 .drop.has-preview .preview.show{display:block;width:100%;height:min(62vh,480px);min-height:240px;max-height:480px;object-fit:contain;margin:0;border:3px solid var(--green);border-radius:14px;background:#07190d;box-shadow:0 8px 22px rgba(6,77,37,.18)}
 .drop.has-preview b{font-size:15px;letter-spacing:.2px}
@@ -256,14 +257,14 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 
     <div class="field">
       <label class="lab" for="proofText" style="font-size:14px">Enter your username</label>
-      <textarea id="proofText" name="task_proof_text" class="form-control" rows="4" style="min-height:110px;resize:vertical" placeholder="Enter username" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" list="savedUsernameSuggestions" aria-label="Social media username or private feedback"></textarea>
+      <textarea id="proofText" name="task_proof_text" class="form-control username-entry" rows="1" style="height:48px;min-height:48px;resize:none" placeholder="Enter username" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" list="savedUsernameSuggestions" aria-label="Social media username or private feedback"></textarea>
       <datalist id="savedUsernameSuggestions"></datalist>
       
     </div>
 
     <button id="submitProofBtn" class="btn p" style="width:100%" type="button">Submit Proof</button>
     <button id="closeDetailsBtn" class="btn cancel" style="width:100%;margin-top:9px" type="button">Close</button>
-    <button id="cancelTaskAttemptBtn" class="btn cancel" style="width:100%;margin-top:9px;border:1px solid #b42318;color:#a32121;background:#fff" type="button">Cancel this task attempt</button>
+    <button id="cancelTaskAttemptBtn" class="btn cancel" style="width:100%;margin-top:9px" type="button">Cancel task</button>
     <p class="note">Reward will be added to your wallet after successful verification.</p>
   </div>
 </div>
@@ -711,23 +712,20 @@ async function cancelTaskAttempt(){
   if(!selectedTask)return;
   const id=taskId(selectedTask);
   if(!id){showNotice("This task has no valid reference. Refresh and try again.","error");return;}
-  const reason=window.prompt("Why are you cancelling this task attempt? (10–500 characters)");
-  if(reason===null)return;
-  const clean=String(reason).trim();
-  if(clean.length<10||clean.length>500){showNotice("Please enter a reason between 10 and 500 characters.","error");return;}
-  if(!window.confirm("Record this cancellation? It will be visible to the security team. A cancellation by itself does not create an automatic penalty."))return;
+  const clean="User cancelled the task.";
+  if(!window.confirm("Cancel task?"))return;
   const button=$("cancelTaskAttemptBtn");
-  if(button){button.disabled=true;button.textContent="Recording…";}
+  if(button){button.disabled=true;button.textContent="Cancelling…";}
   try{
     const {data,error}=await db.rpc("cancel_my_task_attempt",{p_task_id:Number(id),p_reason:clean});
     if(error)throw error;
     if(!data?.success)throw new Error("The cancellation was not confirmed.");
     closeTaskDetails();
-    showNotice("Your task cancellation was recorded. No automatic penalty was applied.","success");
+    showNotice("Task cancelled.","success");
   }catch(error){
     showNotice(error?.message||"Unable to record this cancellation. Please try again.","error");
   }finally{
-    if(button){button.disabled=false;button.textContent="Cancel this task attempt";}
+    if(button){button.disabled=false;button.textContent="Cancel task";}
   }
 }
 function resetProofForm(){
@@ -774,6 +772,9 @@ function openTask(task){
   $("proofText").setAttribute("spellcheck","false");
   const usernameHint = $("usernameMemoryHint");
   if (isPrivateFeedback) {
+    $("proofText").classList.remove("username-entry");
+    $("proofText").rows=4;
+    $("proofText").style.height="auto";$("proofText").style.minHeight="84px";$("proofText").style.resize="vertical";
     if (usernameLabel) usernameLabel.textContent = "Your private customer feedback";
     $("proofText").placeholder = "Share honest feedback privately: what worked, what did not, and what could improve...";
     $("proofText").setAttribute("autocapitalize","sentences");
@@ -782,6 +783,9 @@ function openTask(task){
     const uploadLabel=document.querySelector('label[for="proofPhoto"]');
     if(uploadLabel)uploadLabel.querySelector("b").textContent="OPTIONAL SUPPORTING SCREENSHOT";
   } else if (isBusinessTask) {
+    $("proofText").classList.remove("username-entry");
+    $("proofText").rows=4;
+    $("proofText").style.height="auto";$("proofText").style.minHeight="84px";$("proofText").style.resize="vertical";
     if (usernameLabel) usernameLabel.textContent = "Your feedback, answers or completed work";
     $("proofText").placeholder = "Write your comments, test results, answers, findings or work summary...";
     $("proofText").removeAttribute("list");
@@ -789,6 +793,9 @@ function openTask(task){
     const uploadLabel = document.querySelector('label[for="proofPhoto"]');
     if (uploadLabel) uploadLabel.querySelector("b").textContent = "UPLOAD SCREENSHOT / PHOTO";
   } else {
+    $("proofText").classList.add("username-entry");
+    $("proofText").rows=1;
+    $("proofText").style.height="48px";$("proofText").style.minHeight="48px";$("proofText").style.resize="none";
     if (usernameLabel) usernameLabel.textContent = "Enter your username";
     $("proofText").placeholder = "Enter username";
     $("proofText").setAttribute("list","savedUsernameSuggestions");
