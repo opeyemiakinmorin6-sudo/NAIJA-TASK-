@@ -910,6 +910,33 @@ async function recordNaijaTaskSecuritySignal(submissionId=null){
   return data;
 }
 
+function getRequiredSocialAccountPlatform(task){
+  if(String(task?.task_kind||"").startsWith("business_"))return null;
+  const s=[task?.platform,task?.service_key,task?.task_type,task?.title,task?.description].filter(Boolean).join(" ").toLowerCase();
+  if(/youtube\s*music/.test(s))return "youtube_music";
+  if(/whatsapp/.test(s))return "whatsapp";
+  if(/tiktok|tik\s*tok/.test(s))return "tiktok";
+  if(/instagram/.test(s))return "instagram";
+  if(/facebook/.test(s))return "facebook";
+  if(/telegram/.test(s))return "telegram";
+  if(/threads/.test(s))return "threads";
+  if(/spotify/.test(s))return "spotify";
+  if(/snapchat/.test(s))return "snapchat";
+  if(/trustpilot/.test(s))return "trustpilot";
+  if(/google\s*play|google_play/.test(s))return "google_play";
+  if(/apple\s*app|apple app store/.test(s))return "apple_app_store";
+  if(/apple\s*music|apple_music/.test(s))return "apple_music";
+  if(/audiomack/.test(s))return "audiomack";
+  if(/boomplay/.test(s))return "boomplay";
+  if(/linkedin/.test(s))return "linkedin";
+  if(/(^|\W)(x|twitter)(\W|$)/.test(s))return "x";
+  if(/quora/.test(s))return "quora";
+  if(/google_business|google business/.test(s))return "google_business";
+  if(/google/.test(s))return "google";
+  if(/website|web\s*traffic|site\s*visit|blog|online_store/.test(s))return "website";
+  return null;
+}
+
 async function submitProof(){
   if (isSubmitting) return;
   if (!selectedTask){ showNotice("Select a task first.", "error"); return; }
@@ -941,6 +968,26 @@ async function submitProof(){
   }
   if (needsPhotoProof(selectedTask) && !proofFile){
     showNotice("This task needs a screenshot. Upload your proof image.", "error"); return;
+  }
+
+  const requiredPlatform = getRequiredSocialAccountPlatform(selectedTask);
+  if (requiredPlatform) {
+    const { data: ownedAccounts, error: accountError } = await db.from("social_accounts")
+      .select("id")
+      .eq("user_id", currentUser.id)
+      .eq("platform", requiredPlatform)
+      .eq("verification_status", "verified")
+      .eq("reverify_required", false)
+      .not("ownership_verified_at", "is", null)
+      .limit(1);
+    if (accountError) {
+      showNotice("We could not check your verified account. Please refresh and try again.", "error");
+      return;
+    }
+    if (!ownedAccounts || !ownedAccounts.length) {
+      showNotice("Verify your " + requiredPlatform.replaceAll("_", " ") + " account first. Open Profile → My Social Accounts, complete ownership verification, then return to this task.", "error");
+      return;
+    }
   }
 
   isSubmitting = true;
