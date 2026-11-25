@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v13-fresh-theme-assets';
+const CACHE_NAME='naija-task-shell-v14-official-nt-logo';
 const APP_SHELL=[
   '/',
   '/index.html',
