@@ -84,13 +84,19 @@ async function loadSdk(){
       await db.auth.signOut();
       throw new Error(isPoster?"This Google account belongs to a Poster account. Please use Poster Login.":"This Google account belongs to a Tasker account. Please use Tasker Login.");
     }
-    const destination=isPoster?"poster-dashboard.html":"dashboard.html";
+    const destination=flow==="google"
+      ? (isPoster?"poster-dashboard.html":"dashboard.html")
+      : (isPoster?"poster-login.html":"login.html");
     title.textContent=flow==="google"?"Google sign-in successful":"Email verified successfully";
-    status.textContent="Your "+(isPoster?"Poster":"Tasker")+" account is ready. Opening your workspace.";
+    status.textContent=flow==="google"
+      ? "Your "+(isPoster?"Poster":"Tasker")+" account is ready. Opening your workspace."
+      : "Your email is confirmed. Continue to your "+(isPoster?"Poster":"Tasker")+" login.";
     spinner.hidden=true;
     link.href=destination;
     link.hidden=false;
-    link.textContent="Continue to "+(isPoster?"Poster":"Tasker")+" workspace";
+    link.textContent=flow==="google"
+      ? "Continue to "+(isPoster?"Poster":"Tasker")+" workspace"
+      : "Continue to "+(isPoster?"Poster":"Tasker")+" Login";
     setTimeout(()=>location.replace(destination),900);
   }catch(error){
     console.error("NAIJA TASK verification:",error);
