@@ -6326,6 +6326,9 @@ function renderTasks(tasks) {
       task.moderation_status || task.status || "PENDING"
     ).trim().toUpperCase();
     const canReview = !["APPROVED", "LIVE", "REJECTED", "COMPLETED", "DELETED"].includes(reviewStatus);
+    const riskScore = Number(task.risk_score || 0);
+    const riskLevel = String(task.risk_level || "not assessed").toUpperCase();
+    const riskReasons = Array.isArray(task.risk_reasons) ? task.risk_reasons : [];
 
     return `
       <tr>
@@ -6342,6 +6345,8 @@ function renderTasks(tasks) {
           ${badge(task.payment_status || "—")}
           <small style="display:block">Moderation: ${escapeHTML(task.moderation_status || "—")}</small>
           <small style="display:block">Funded ${money(task.funded_amount || 0)} / ${money(task.total_funding_required || 0)}</small>
+          <small style="display:block;font-weight:800;color:${riskScore >= 60 ? '#b42318' : riskScore >= 35 ? '#a15c00' : '#287443'}">Automatic risk: ${riskScore}/100 · ${escapeHTML(riskLevel)}</small>
+          ${riskReasons.length ? '<small style="display:block;max-width:260px;white-space:normal;color:#a15c00">Flags: '+escapeHTML(riskReasons.join(' · '))+'</small>' : ''}
         </td>
         <td>${active ? badge("Active") : badge("Inactive")}</td>
         <td>${shortDate(task.expiry_date)}</td>
@@ -6368,76 +6373,30 @@ async function approveTask(taskId) {
     toast("Task not found. Refresh the task list and try again.", "warning");
     return;
   }
-
   const currentStatus = String(task.moderation_status || task.status || "").toUpperCase();
   if (["APPROVED", "LIVE"].includes(currentStatus)) {
     toast("This task is already approved or live.", "warning");
     return;
   }
-  if (!await uiConfirm(`Approve and publish this task?\n\n${task.title || "Untitled task"}`)) return;
-
+  const riskScore = Number(task.risk_score || 0);
+  const riskReasons = Array.isArray(task.risk_reasons) ? task.risk_reasons.join("\n• ") : "";
+  if (riskScore >= 35) {
+    toast("Automatic screening has held this task. Review the risk flags and edit the task before attempting approval.", "danger");
+    return;
+  }
+  if (!await uiConfirm("Approve and publish this task?\n\n" + (task.title || "Untitled task") + "\n\nAutomatic risk: " + riskScore + "/100\n" + (riskReasons ? "Flags: " + riskReasons : "No automatic content flags."))) return;
   try {
-    setLoading(true, "Checking task funding and approving...");
-
-    // A task created by an administrator may be free to post. Poster tasks
-    // must have approved payment and sufficient funding before publication.
-    let isAdminCreated = false;
-    if (task.created_by && currentUser && String(task.created_by) === String(currentUser.id)) {
-      isAdminCreated = true;
-    } else if (task.created_by) {
-      const { data: creatorAdmin, error: adminCheckError } = await supabaseClient
-        .from("admin_users")
-        .select("user_id,active")
-        .eq("user_id", task.created_by)
-        .limit(1);
-      if (adminCheckError) throw adminCheckError;
-      isAdminCreated = Array.isArray(creatorAdmin) && creatorAdmin.some(row => row.active !== false);
-    }
-
-    if (!isAdminCreated) {
-      const { data: payments, error: paymentError } = await supabaseClient
-        .from("poster_payments")
-        .select("id,status")
-        .eq("task_id", taskId);
-      if (paymentError) throw paymentError;
-
-      const hasApprovedPayment = Array.isArray(payments) && payments.some(payment =>
-        ["APPROVED", "PAID", "COMPLETED", "SUCCESSFUL"].includes(String(payment.status || "").trim().toUpperCase())
-      );
-      const paymentStatus = String(task.payment_status || "").trim().toUpperCase();
-      const required = Number(task.total_funding_required || 0);
-      const funded = Number(task.funded_amount || 0);
-      const paymentMarkedPaid = ["PAID", "APPROVED", "COMPLETED", "SUCCESSFUL"].includes(paymentStatus);
-
-      if (!hasApprovedPayment || !paymentMarkedPaid || !Number.isFinite(required) || !Number.isFinite(funded) || funded < required) {
-        throw new Error("This task cannot be published yet. Confirm poster payment approval and full task funding first.");
-      }
-    }
-
-    if (isAdminCreated) {
-      const { data, error } = await supabaseClient
-        .from("tasks")
-        .update({ active: true, status: "LIVE", moderation_status: "APPROVED" })
-        .eq("id", taskId)
-        .select("id");
-      if (error) throw error;
-      if (!data || data.length === 0) {
-        throw new Error("No task was updated. Check administrator permissions or database policies.");
-      }
-    } else {
-      // Poster tasks are published by the database function, which verifies the
-      // administrator and the approved payment itself (not just this page).
-      if (!/^\d+$/.test(String(taskId))) throw new Error(`Invalid task id "${taskId}".`);
-      const { error } = await supabaseClient.rpc("admin_moderate_poster_task", {
-        p_task_id: Number(taskId),
-        p_decision: "APPROVED"
-      });
-      if (error) throw error;
-    }
-
-    try { await writeAudit("task_approved", taskId, { title: task.title || "Untitled task" }); }
+    setLoading(true, "Running final server-side safety and funding checks...");
+    if (!/^\\d+$/.test(String(taskId))) throw new Error("Invalid task ID.");
+    const { data, error } = await supabaseClient.rpc("admin_moderate_poster_task", {
+      p_task_id: Number(taskId),
+      p_decision: "APPROVED"
+    });
+    if (error) throw error;
+    if (!data || data.success !== true) throw new Error("The database did not confirm task approval.");
+    try { await writeAudit("task_approved", taskId, { title: task.title || "Untitled task", risk_score: data.risk_score, risk_level: data.risk_level }); }
     catch (auditError) { console.warn("Approval succeeded but audit logging failed:", auditError); }
-    toast("Task approved and published.", "success");
+    toast("Task passed server-side checks and was published.", "success");
     await loadTasks();
     await loadOverview();
   } catch (error) {
