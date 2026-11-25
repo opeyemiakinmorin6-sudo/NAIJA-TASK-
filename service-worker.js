@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v12-homepage-theme-first-paint';
+const CACHE_NAME='naija-task-shell-v13-fresh-theme-assets';
 const APP_SHELL=[
   '/',
   '/index.html',
