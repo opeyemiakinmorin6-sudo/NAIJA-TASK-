@@ -36,37 +36,62 @@ async function loadSdk(){
 }
 (async()=>{
   try{
-    if(params.get("flow")!=="signup")throw new Error("This is not a signup verification link. Please use the latest email sent by NAIJA TASK.");
+    const flow=params.get("flow")||"signup";
+    if(flow!=="signup"&&flow!=="google")throw new Error("This is not a supported NAIJA TASK authentication link.");
     const callbackError=params.get("error_description")||params.get("error");
     if(callbackError)throw new Error(callbackError);
     await loadSdk();
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}});
     let data=null,error=null;
-    const tokenHash=params.get("token_hash");
-    const tokenType=params.get("type");
-    if(tokenHash&&(tokenType==="email"||tokenType==="signup")){
-      const result=await db.auth.verifyOtp({token_hash:tokenHash,type:tokenType==="signup"?"email":tokenType});
-      data=result.data;error=result.error;
-    }else{
+    if(flow==="google"){
       const code=params.get("code");
-      if(!code)throw new Error("This verification link is incomplete or expired. Request a fresh verification email from signup.");
+      if(!code)throw new Error("Google sign-in was not completed. Please return and try again.");
       const result=await db.auth.exchangeCodeForSession(code);
       data=result.data;error=result.error;
+    }else{
+      const tokenHash=params.get("token_hash");
+      const tokenType=params.get("type");
+      if(tokenHash&&(tokenType==="email"||tokenType==="signup")){
+        const result=await db.auth.verifyOtp({token_hash:tokenHash,type:tokenType==="signup"?"email":tokenType});
+        data=result.data;error=result.error;
+      }else{
+        const code=params.get("code");
+        if(!code)throw new Error("This verification link is incomplete or expired. Request a fresh verification email from signup.");
+        const result=await db.auth.exchangeCodeForSession(code);
+        data=result.data;error=result.error;
+      }
     }
     if(error)throw error;
-    if(!data?.user)throw new Error("We could not confirm your account. Request a fresh verification email.");
-    let actualRole=roleHint;
+    if(!data?.user)throw new Error("We could not confirm your account. Please try again.");
+    if(flow==="google"){
+      const {data:roleData,error:roleError}=await db.rpc("set_google_signup_role",{p_role:roleHint});
+      if(roleError)throw new Error("Google sign-in worked, but NAIJA TASK could not finish setting up your account type. Please contact support.");
+    }
+    let actualRole="";
     const profileResult=await db.from("profiles").select("role").eq("id",data.user.id).maybeSingle();
-    if(!profileResult.error&&profileResult.data?.role)actualRole=String(profileResult.data.role).trim().toLowerCase();
+    if(profileResult.error||!profileResult.data?.role)throw new Error("Your NAIJA TASK account profile is not ready. Please contact support.");
+    actualRole=String(profileResult.data.role).trim().toLowerCase();
     const isPoster=actualRole==="poster"||actualRole==="task_poster";
-    const destination=isPoster?"poster-login.html":"login.html";
-    title.textContent="Email verified successfully";
-    status.textContent="Your email is confirmed. Continue to your "+(isPoster?"Poster":"Tasker")+" login.";
+    const isTasker=actualRole==="tasker"||actualRole==="user";
+    if(actualRole==="admin"){
+      title.textContent=flow==="google"?"Google sign-in successful":"Email verified successfully";
+      status.textContent="Opening your administrator workspace.";
+      spinner.hidden=true;
+      setTimeout(()=>location.replace("admin.html"),700);
+      return;
+    }
+    if((roleHint==="poster"&&!isPoster)||(roleHint!=="poster"&&!isTasker)){
+      await db.auth.signOut();
+      throw new Error(isPoster?"This Google account belongs to a Poster account. Please use Poster Login.":"This Google account belongs to a Tasker account. Please use Tasker Login.");
+    }
+    const destination=isPoster?"poster-dashboard.html":"dashboard.html";
+    title.textContent=flow==="google"?"Google sign-in successful":"Email verified successfully";
+    status.textContent="Your "+(isPoster?"Poster":"Tasker")+" account is ready. Opening your workspace.";
     spinner.hidden=true;
     link.href=destination;
     link.hidden=false;
-    link.textContent="Continue to "+(isPoster?"Poster":"Tasker")+" Login";
-    setTimeout(()=>location.replace(destination),1200);
+    link.textContent="Continue to "+(isPoster?"Poster":"Tasker")+" workspace";
+    setTimeout(()=>location.replace(destination),900);
   }catch(error){
     console.error("NAIJA TASK verification:",error);
     fail(error?.message||"Verification could not be completed. Request a new email and try again.");
