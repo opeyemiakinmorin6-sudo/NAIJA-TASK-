@@ -2069,5 +2069,114 @@ body{color:var(--nt-ink)!important}
 
 
 <script defer src="nt-back-navigation.js?v=20261118-1"></script>
+<style id="nt-dashboard-service-widgets">
+/* Compact service hub: existing dashboard sections are grouped, not removed. */
+.nt-widget-hub{display:grid;gap:13px;margin:22px 0 8px}
+.nt-widget-group{min-width:0;overflow:hidden;border:1px solid #d8e8d8;border-radius:20px;background:linear-gradient(145deg,#fff 0%,#f4faf1 100%);box-shadow:0 8px 22px #164c260c}
+.nt-widget-group>summary{list-style:none;display:flex;align-items:center;gap:12px;min-height:76px;padding:14px 15px;cursor:pointer;position:relative}
+.nt-widget-group>summary::-webkit-details-marker{display:none}
+.nt-widget-group>summary:after{content:"＋";display:grid;place-items:center;width:30px;height:30px;flex:0 0 30px;margin-left:auto;border-radius:10px;background:#e8f4e3;color:#087b37;font-size:19px;font-weight:800;transition:transform .2s,background .2s}
+.nt-widget-group[open]>summary:after{content:"−";background:#0b8f3c;color:#fff}
+.nt-widget-symbol{display:grid;place-items:center;width:45px;height:45px;flex:0 0 45px;border-radius:14px;background:linear-gradient(145deg,#dff2d7,#c4e8b6);font-size:22px}
+.nt-widget-group:nth-child(2) .nt-widget-symbol{background:linear-gradient(145deg,#fff0c5,#ffdf83)}
+.nt-widget-group:nth-child(3) .nt-widget-symbol{background:linear-gradient(145deg,#e1edff,#c9dcf8)}
+.nt-widget-group:nth-child(4) .nt-widget-symbol{background:linear-gradient(145deg,#eee5ff,#d9c9ff)}
+.nt-widget-group:nth-child(5) .nt-widget-symbol{background:linear-gradient(145deg,#e2f1ed,#c4e6dc)}
+.nt-widget-title{display:block;color:#143b27;font-size:14px;font-weight:900;line-height:1.35}
+.nt-widget-description{display:block;margin-top:4px;color:#68796e;font-size:11px;line-height:1.45;font-weight:500}
+.nt-widget-count{display:inline-flex;align-items:center;justify-content:center;min-width:23px;height:22px;margin-left:5px;padding:0 7px;border-radius:99px;background:#e8f4e3;color:#176d35;font-size:10px;font-weight:900}
+.nt-widget-content{padding:0 14px 14px;border-top:1px solid #e6efe4}
+.nt-widget-content>.section:first-child{margin-top:15px!important}
+.nt-widget-content>.section{margin-top:20px!important}
+.nt-widget-content>.section:first-child .section-heading{margin-top:0}
+.nt-widget-content .nt-link-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+.nt-widget-group[open]{border-color:#b9d9b8;box-shadow:0 12px 28px #164c2612}
+.nt-widget-group>summary:focus-visible{outline:3px solid #b7ef43;outline-offset:-3px;border-radius:18px}
+.nt-widget-group[hidden]{display:none!important}
+@media(max-width:390px){.nt-widget-group>summary{padding:12px}.nt-widget-content{padding:0 10px 12px}.nt-widget-content .nt-link-list{grid-template-columns:1fr}}
+@media(min-width:700px){.nt-widget-hub{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.nt-widget-group{height:max-content}.nt-widget-group:first-child{grid-column:1/-1}}
+</style>
+<script id="nt-dashboard-service-widget-builder">
+(function(){
+  "use strict";
+  const main=document.querySelector("main.nt-dashboard");
+  const anchor=document.getElementById("featureSearch")?.closest(".finder")||document.querySelector(".nt-finder");
+  if(!main||!anchor||document.getElementById("ntServiceWidgetHub"))return;
+
+  const groups=[
+    {id:"ntWidgetEarning",title:"Earning & task activity",description:"Submissions, approvals, task updates, referrals and earning tools.",icon:"💼",sections:["activitySection","activityCentre","taskerRetentionHistory","trustSafetyDiscussion","recentTaskUpdates","earningFeatures","taskerLeaderboardSection"]},
+    {id:"ntWidgetPayments",title:"Airtime, data & payments",description:"Top-up services, available bill options and your wallet transaction records.",icon:"📱",sections:["payServices","walletActivity"]},
+    {id:"ntWidgetGames",title:"Games & entertainment",description:"Open the games, challenges and entertainment experiences separately from task work.",icon:"🎮",sections:["arenaSection","gamesSection","starlifeSection"]},
+    {id:"ntWidgetCommunity",title:"Community & AI tools",description:"Notifications, announcements, messages, support, promotions and AI features.",icon:"🌍",sections:["communityFeatures","aiFeatures","dashboardAdsSection"]},
+    {id:"ntWidgetAccount",title:"Account & security",description:"Your profile, account protection, appeals and other account services.",icon:"🔐",sections:["accountFeatures"]}
+  ];
+
+  const hub=document.createElement("section");
+  hub.id="ntServiceWidgetHub";
+  hub.className="nt-widget-hub";
+  hub.setAttribute("aria-label","Dashboard service categories");
+
+  groups.forEach((group,index)=>{
+    const details=document.createElement("details");
+    details.className="nt-widget-group";
+    details.id=group.id;
+    const summary=document.createElement("summary");
+    const symbol=document.createElement("span");
+    symbol.className="nt-widget-symbol";
+    symbol.setAttribute("aria-hidden","true");
+    symbol.textContent=group.icon;
+    const copy=document.createElement("span");
+    copy.style.minWidth="0";
+    const title=document.createElement("span");
+    title.className="nt-widget-title";
+    title.textContent=group.title;
+    const description=document.createElement("span");
+    description.className="nt-widget-description";
+    description.textContent=group.description;
+    copy.append(title,description);
+    summary.append(symbol,copy);
+    const content=document.createElement("div");
+    content.className="nt-widget-content";
+    content.id=group.id+"Content";
+
+    let moved=0;
+    group.sections.forEach(sectionId=>{
+      const section=document.getElementById(sectionId);
+      if(section){content.appendChild(section);moved++;}
+    });
+    if(!moved)return;
+    const count=document.createElement("span");
+    count.className="nt-widget-count";
+    count.textContent=String(moved);
+    count.setAttribute("aria-label",moved+" sections");
+    copy.appendChild(count);
+    details.append(summary,content);
+    hub.appendChild(details);
+  });
+
+  anchor.insertAdjacentElement("afterend",hub);
+
+  /* Keep category/search filtering working after sections move into widgets. */
+  if(typeof window.applyFilters==="function"){
+    const originalApplyFilters=window.applyFilters;
+    window.applyFilters=function(){
+      originalApplyFilters();
+      hub.querySelectorAll(".nt-widget-group").forEach(group=>{
+        const childSections=[...group.querySelectorAll(".nt-widget-content > section")];
+        const hasVisible=childSections.some(section=>!section.classList.contains("filtered-out")&&section.style.display!=="none");
+        group.hidden=childSections.length>0&&!hasVisible;
+      });
+    };
+  }
+
+  /* Make the widgets easier to discover from the existing dashboard search. */
+  const search=document.getElementById("featureSearch");
+  if(search){
+    search.setAttribute("aria-label","Search dashboard services");
+    search.placeholder="Search tasks, games, airtime, bills, wallet and more…";
+  }
+})();
+</script>
+
 </body>
 </html>
