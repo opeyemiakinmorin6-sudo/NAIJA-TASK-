@@ -2120,64 +2120,73 @@ body{color:var(--nt-ink)!important}
 
   const hub=document.createElement("section");
   hub.id="ntServiceWidgetHub";
-  hub.className="nt-widget-hub";
-  hub.setAttribute("aria-label","Dashboard service categories");
+  hub.className="nt-widget-hub nt-widget-navigation";
+  hub.setAttribute("aria-label","Dashboard service navigation");
+
+  const tabs=document.createElement("nav");
+  tabs.className="nt-widget-tabs";
+  tabs.setAttribute("aria-label","Dashboard categories");
+  const panels=document.createElement("div");
+  panels.className="nt-widget-panels";
+  let firstPanel=null;
 
   groups.forEach((group,index)=>{
-    const details=document.createElement("details");
-    details.className="nt-widget-group";
-    details.open = group.id==="ntWidgetSocialVerify";
-    details.id=group.id;
-    const summary=document.createElement("summary");
-    const symbol=document.createElement("span");
-    symbol.className="nt-widget-symbol";
-    symbol.setAttribute("aria-hidden","true");
-    symbol.textContent=group.icon;
-    const copy=document.createElement("div");
-    copy.className="nt-widget-copy";
-    copy.style.cssText="display:block;min-width:0;width:auto;max-width:100%;flex:none;grid-column:2;";
-    const title=document.createElement("span");
-    title.className="nt-widget-title";
-    title.textContent=group.title;
-    const description=document.createElement("span");
-    description.className="nt-widget-description";
-    description.textContent=group.description;
-    copy.append(title,description);
-    summary.style.cssText="display:grid!important;grid-template-columns:45px minmax(0,1fr) 30px!important;align-items:center!important;column-gap:11px!important;width:100%!important;min-width:0!important;";
-    symbol.style.cssText="grid-column:1;grid-row:1;min-width:45px;width:45px;flex:none;";
-    copy.style.cssText+="grid-row:1;";
-    summary.append(symbol,copy);
-    const content=document.createElement("div");
-    content.className="nt-widget-content";
-    content.id=group.id+"Content";
-
+    const panel=document.createElement("section");
+    panel.className="nt-widget-panel";
+    panel.id=group.id+"Content";
+    panel.setAttribute("role","region");
+    panel.setAttribute("aria-label",group.title);
+    panel.hidden=true;
     let moved=0;
     group.sections.forEach(sectionId=>{
       const section=document.getElementById(sectionId);
-      if(section){content.appendChild(section);moved++;}
+      if(section){panel.appendChild(section);moved++;}
     });
     if(!moved)return;
-    const count=document.createElement("span");
-    count.className="nt-widget-count";
-    count.textContent=String(moved);
-    count.setAttribute("aria-label",moved+" sections");
-    copy.appendChild(count);
-    details.append(summary,content);
-    hub.appendChild(details);
+
+    const tab=document.createElement("button");
+    tab.type="button";
+    tab.className="nt-widget-tab";
+    tab.setAttribute("aria-controls",panel.id);
+    tab.setAttribute("aria-selected","false");
+    tab.innerHTML='<span class="nt-widget-tab-icon" aria-hidden="true"></span><span class="nt-widget-tab-label"></span><span class="nt-widget-count"></span>';
+    tab.querySelector(".nt-widget-tab-icon").textContent=group.icon;
+    tab.querySelector(".nt-widget-tab-label").textContent=group.title;
+    tab.querySelector(".nt-widget-count").textContent=String(moved);
+    tab.addEventListener("click",()=>activate(group.id));
+    tabs.appendChild(tab);
+    panels.appendChild(panel);
+    if(!firstPanel)firstPanel=group.id;
   });
 
-  anchor.insertAdjacentElement("afterend",hub);
-
-  /* Keep category/search filtering working after sections move into widgets. */
-  function syncWidgetVisibility(){
-    hub.querySelectorAll(".nt-widget-group").forEach(group=>{
-      const childSections=[...group.querySelectorAll(".nt-widget-content > section")];
-      const hasVisible=childSections.some(section=>!section.classList.contains("filtered-out")&&section.style.display!=="none");
-      group.hidden=childSections.length>0&&!hasVisible;
+  function activate(id){
+    tabs.querySelectorAll(".nt-widget-tab").forEach(tab=>{
+      const active=tab.getAttribute("aria-controls")===id+"Content";
+      tab.classList.toggle("active",active);
+      tab.setAttribute("aria-selected",active?"true":"false");
+    });
+    panels.querySelectorAll(".nt-widget-panel").forEach(panel=>{
+      panel.hidden=panel.id!==id+"Content";
     });
   }
 
-  /* Make the widgets easier to discover from the existing dashboard search. */
+  hub.append(tabs,panels);
+  anchor.insertAdjacentElement("afterend",hub);
+  if(firstPanel)activate(firstPanel);
+
+  function syncWidgetVisibility(){
+    hub.querySelectorAll(".nt-widget-tab").forEach(tab=>{
+      const panel=document.getElementById(tab.getAttribute("aria-controls"));
+      const sections=[...panel.querySelectorAll(":scope > section")];
+      const visible=sections.some(section=>!section.classList.contains("filtered-out")&&section.style.display!=="none");
+      tab.hidden=sections.length>0&&!visible;
+      if(tab.classList.contains("active")&&tab.hidden){
+        const next=[...tabs.querySelectorAll(".nt-widget-tab")].find(item=>!item.hidden);
+        if(next)activate(next.getAttribute("aria-controls").replace("Content",""));
+      }
+    });
+  }
+
   const search=document.getElementById("featureSearch");
   if(search){
     search.setAttribute("aria-label","Search dashboard services");
@@ -2244,5 +2253,24 @@ body{color:var(--nt-ink)!important}
 #ntServiceWidgetHub .nt-widget-content .nt-link-list>a>b{grid-column:3!important;white-space:nowrap!important}
 @media(max-width:390px){#ntServiceWidgetHub .nt-widget-group>summary{grid-template-columns:40px minmax(0,1fr) 28px!important;column-gap:9px!important;padding:13px!important}#ntServiceWidgetHub .nt-widget-group>summary>.nt-widget-symbol{width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important}#ntServiceWidgetHub .nt-widget-group>summary:after{width:28px!important;min-width:28px!important}}
 </style>
+
+<style id="nt-dashboard-category-navigation-20261126">
+.nt-widget-navigation{display:block!important;margin:20px 0 8px!important;min-width:0!important}
+.nt-widget-tabs{display:flex!important;gap:8px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:3px 2px 12px!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important}
+.nt-widget-tabs::-webkit-scrollbar{display:none!important}
+.nt-widget-tab{flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:7px!important;min-height:43px!important;max-width:245px!important;padding:9px 12px!important;border:1px solid #dbe8dc!important;border-radius:13px!important;background:#fff!important;color:#355342!important;font:800 12px/1.2 Inter,system-ui,Arial,sans-serif!important;white-space:nowrap!important;box-shadow:0 3px 10px #164c2608!important}
+.nt-widget-tab-icon{font-size:16px!important;line-height:1!important}
+.nt-widget-tab-label{display:block!important}
+.nt-widget-count{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:20px!important;height:20px!important;padding:0 6px!important;border-radius:99px!important;background:#edf3ed!important;color:#53695a!important;font-size:10px!important;font-weight:900!important}
+.nt-widget-tab.active{background:linear-gradient(120deg,#064d25,#0b8f3c)!important;border-color:#087f36!important;color:#fff!important;box-shadow:0 6px 16px #087f3628!important}
+.nt-widget-tab.active .nt-widget-count{background:#c7f36b!important;color:#174b27!important}
+.nt-widget-panel{min-width:0!important;padding:15px!important;border:1px solid #dce9dd!important;border-radius:18px!important;background:linear-gradient(145deg,#fff,#f7fbf6)!important;box-shadow:0 7px 20px #164c2609!important}
+.nt-widget-panel[hidden],.nt-widget-tab[hidden]{display:none!important}
+.nt-widget-panel>.section:first-child{margin-top:0!important}
+.nt-widget-panel>.section{margin-top:18px!important}
+.nt-widget-panel .nt-link-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(max-width:390px){.nt-widget-tab{min-height:41px!important;padding:9px 10px!important;font-size:11px!important}.nt-widget-panel{padding:11px!important}.nt-widget-panel .nt-link-list{grid-template-columns:1fr!important}}
+</style>
+
 </body>
 </html>
