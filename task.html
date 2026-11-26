@@ -690,7 +690,7 @@ async function renderSavedUsernameSuggestions(task){
       const key=value.toLowerCase().replace(/^@+/,"");
       if(value&&!seen.has(key)){seen.add(key);options.push(value);}
     }
-    list.innerHTML=options.map(value=>"<option value=\\""+escapeHtml(value)+"\\"></option>").join("");
+    list.innerHTML=options.map(value=>'<option value="'+escapeHtml(value)+'"></option>').join("");
   }catch(error){
     console.warn("Verified username suggestions could not be loaded:",error?.message||error);
   }
@@ -984,7 +984,7 @@ async function submitProof(){
       .eq("verification_status", "verified")
       .eq("reverify_required", false)
       .not("ownership_verified_at", "is", null)
-      .limit(1);
+      .limit(20);
     if (accountError) {
       showNotice("We could not check your verified account. Please refresh and try again.", "error");
       return;
