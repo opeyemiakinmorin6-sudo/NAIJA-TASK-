@@ -1045,6 +1045,10 @@ async function submitProof(){
         return;
       }
       const submissionError=String(error.message||"");
+      if(/SOCIAL_PLATFORM_UNCLEAR/i.test(submissionError)){
+        showNotice("This social task has no clear supported platform in its title or instructions. It has been blocked from accepting proof until the task details are corrected.", "error");
+        return;
+      }
       if(/SOCIAL_USERNAME_(?:MISMATCH|REQUIRED)/i.test(submissionError)){
         const friendly=submissionError.includes("SOCIAL_USERNAME_MISMATCH")
           ? "Username mismatch. Your submitted username must exactly match the verified social account on your NAIJA TASK profile. Random usernames are rejected."
