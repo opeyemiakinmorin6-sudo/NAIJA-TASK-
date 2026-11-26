@@ -259,7 +259,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
       <label class="lab" for="proofText" style="font-size:14px">Enter your username</label>
       <textarea id="proofText" name="task_proof_text" class="form-control username-entry" rows="1" style="height:48px;min-height:48px;resize:none" placeholder="Enter username" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="text" list="savedUsernameSuggestions" aria-label="Social media username or private feedback"></textarea>
       <datalist id="savedUsernameSuggestions"></datalist>
-      <p class="username-hint" id="usernameMemoryHint">Only the exact username on your verified social account is accepted. Random usernames are rejected.</p>
+      <p class="username-hint" id="usernameMemoryHint">Enter the username of the social account you used to complete this task.</p>
     </div>
 
     <button id="submitProofBtn" class="btn p" style="width:100%" type="button">Submit Proof</button>
@@ -804,13 +804,6 @@ function openTask(task, verifiedSocialAccount=null){
   }
 
   resetProofForm();
-  if(verifiedSocialAccount && !isBusinessTask){
-    const savedUsername=String(verifiedSocialAccount.username||verifiedSocialAccount.normalized_identifier||"").trim();
-    if(savedUsername) $("proofText").value=savedUsername;
-    if(usernameHint) usernameHint.style.display="none";
-    if(usernameLabel) usernameLabel.textContent="Your social username";
-    $("proofText").placeholder="Your linked social username";
-  }
   $("photoReq").textContent = photo ? "REQUIRED" : "OPTIONAL";
   $("submitProofBtn").disabled = submitted;
   $("submitProofBtn").textContent = submitted ? "Already submitted" : "Submit proof";
@@ -825,55 +818,20 @@ function openTask(task, verifiedSocialAccount=null){
 }
 
 let pendingTask = null;
-let pendingVerifiedSocialAccount = null;
-let confirmRequiresSocialVerification = false;
-async function askStart(task){
+function askStart(task){
   if (currentSubmissionIds.has(taskId(task))){ openTask(task); return; }
   pendingTask = task;
-  pendingVerifiedSocialAccount = null;
-  confirmRequiresSocialVerification = false;
-
-  const requiredPlatform=getRequiredSocialAccountPlatform(task);
-  if(requiredPlatform){
-    const {data:accounts,error}=await db.from("social_accounts")
-      .select("id,username,normalized_identifier,profile_url")
-      .eq("user_id",currentUser.id)
-      .eq("platform",requiredPlatform)
-      .eq("verification_status","verified")
-      .eq("reverify_required",false)
-      .not("ownership_verified_at","is",null)
-      .order("updated_at",{ascending:false})
-      .limit(1);
-    if(error){
-      pendingTask=null;
-      showNotice("We could not check your social account status. Please refresh and try again. This task has not been opened.", "error");
-      return;
-    }
-    if(!accounts || !accounts.length){
-      confirmRequiresSocialVerification=true;
-      $("confirmText").textContent="Social account not verified. Verify your "+requiredPlatform.replaceAll("_"," ")+" account once to continue with this task. After approval, you can use it for future tasks without repeating verification.";
-      $("confirmSafety").classList.add("hidden");
-      $("confirmGo").textContent="Verify account";
-    }else{
-      pendingVerifiedSocialAccount=accounts[0];
-    }
-  }
-
-  if(!confirmRequiresSocialVerification){
-    const cat = getTaskCategory(task);
-    $("confirmText").innerHTML = cat === "other"
-      ? "Only continue if the task link works for you and you can follow the instructions."
-      : "Only continue if you have an active <b>" + NAMES[cat] + "</b> account and the task link works for you.";
-    $("confirmSafety").classList.remove("hidden");
-    $("confirmGo").textContent="I understand, continue";
-  }
+  const cat = getTaskCategory(task);
+  $("confirmText").innerHTML = cat === "other"
+    ? "Only continue if the task link works for you and you can follow the instructions."
+    : "Only continue if you have an active <b>" + NAMES[cat] + "</b> account and the task link works for you.";
+  $("confirmSafety").classList.remove("hidden");
+  $("confirmGo").textContent="I understand, continue";
   $("confirmOverlay").classList.add("show");
   document.body.classList.add("lock");
 }
 function closeConfirm(){
   pendingTask = null;
-  pendingVerifiedSocialAccount = null;
-  confirmRequiresSocialVerification = false;
   $("confirmOverlay").classList.remove("show");
   $("confirmSafety").classList.remove("hidden");
   $("confirmGo").textContent="I understand, continue";
@@ -881,11 +839,8 @@ function closeConfirm(){
 }
 $("confirmGo").addEventListener("click", () => {
   const t = pendingTask;
-  const account = pendingVerifiedSocialAccount;
-  const needsVerification = confirmRequiresSocialVerification;
   closeConfirm();
-  if(needsVerification){ window.location.href="social-accounts.html"; return; }
-  if(t) openTask(t,account);
+  if(t) openTask(t);
 });
 $("confirmCancel").addEventListener("click", closeConfirm);
 $("confirmOverlay").addEventListener("click", e => { if (e.target === $("confirmOverlay")) closeConfirm(); });
@@ -1022,13 +977,6 @@ async function submitProof(){
   const proofText = $("proofText").value.trim();
   const proofFile = $("proofPhoto").files?.[0];
 
-  if (proofIsRequired(selectedTask) && !proofText && !proofFile){
-    showNotice("Add your written proof or upload a screenshot.", "error"); return;
-  }
-  if (needsPhotoProof(selectedTask) && !proofFile){
-    showNotice("This task needs a screenshot. Upload your proof image.", "error"); return;
-  }
-
   const requiredPlatform = getRequiredSocialAccountPlatform(selectedTask);
   if (requiredPlatform) {
     const { data: ownedAccounts, error: accountError } = await db.from("social_accounts")
@@ -1040,11 +988,18 @@ async function submitProof(){
       .not("ownership_verified_at", "is", null)
       .limit(20);
     if (accountError) {
-      showNotice("We could not check your verified account. Please refresh and try again.", "error");
+      showNotice("We could not check your social username verification. Please try again.", "error");
       return;
     }
     if (!ownedAccounts || !ownedAccounts.length) {
-      showNotice("Verify your " + requiredPlatform.replaceAll("_", " ") + " account first. Open Profile → My Social Accounts, complete ownership verification, then return to this task.", "error");
+      showNotice("USERNAME NOT VERIFIED — Verify your " + requiredPlatform.replaceAll("_", " ") + " username before submitting this task.", "error");
+      const notice=$("sheetNotice");
+      const link=document.createElement("a");
+      link.href="social-accounts.html";
+      link.textContent="Go to Social Account Verification →";
+      link.style.cssText="display:inline-flex;margin:8px 0 0;color:#991b1b;font-weight:900;text-decoration:underline";
+      notice.appendChild(document.createElement("br"));
+      notice.appendChild(link);
       return;
     }
     const submittedHandle=proofText.toLowerCase().replace(/^@+/,"").trim();
@@ -1054,10 +1009,23 @@ async function submitProof(){
       return submittedHandle && (submittedHandle===saved || submittedHandle===username);
     });
     if(!matchingAccount){
-      const verifiedNames=ownedAccounts.map(a=>"@"+String(a.username||a.normalized_identifier||"").replace(/^@+/,"")).filter(Boolean);
-      showNotice("Username mismatch. Enter the exact username from your verified " + requiredPlatform.replaceAll("_"," ") + " account: " + verifiedNames.join(", ") + ". Random or unverified usernames are not accepted.", "error");
+      showNotice("USERNAME DOES NOT MATCH — Enter the exact username you have verified for " + requiredPlatform.replaceAll("_", " ") + ".", "error");
+      const notice=$("sheetNotice");
+      const link=document.createElement("a");
+      link.href="social-accounts.html";
+      link.textContent="Review or change your verified username →";
+      link.style.cssText="display:inline-flex;margin:8px 0 0;color:#991b1b;font-weight:900;text-decoration:underline";
+      notice.appendChild(document.createElement("br"));
+      notice.appendChild(link);
       return;
     }
+  }
+
+  if (proofIsRequired(selectedTask) && !proofText && !proofFile){
+    showNotice("Add your written proof or upload a screenshot.", "error"); return;
+  }
+  if (needsPhotoProof(selectedTask) && !proofFile){
+    showNotice("This task needs a screenshot. Upload your proof image.", "error"); return;
   }
 
   isSubmitting = true;
