@@ -181,55 +181,36 @@ async function initiateMembership(user: {
             throw new Error("Your account already has VIP.");
         }
     }
-    // Re-open the existing pending payment instead of locking the user out.
-    // Reusing its reference keeps one payment record and avoids silently creating
-    // a second independent activation/VIP charge.
+    // A pending Flutterwave reference may already have been charged even if
+    // the browser never returned its transaction ID. Never reopen or reuse it:
+    // doing so can create a second real charge. Require reconciliation first.
     const { data: pendingRows, error: pendingError } = await db
         .from("membership_payments")
-        .select("id, amount, tx_ref, status")
+        .select("id, tx_ref, status")
         .eq("user_id", user.id)
         .eq("purpose", purpose)
         .in("status", ["pending", "PENDING"])
-        .order("created_at", { ascending: false })
-        .limit(2);
+        .limit(1);
     if (pendingError) {
-        throw new Error("Could not refresh your previous membership payment.");
+        throw new Error("Could not check your previous membership payment. No new charge was started.");
     }
-    // Older releases may have left multiple pending references for one user.
-    // We cannot know whether any of them were charged without reconciling
-    // each reference with Flutterwave, so block a new checkout instead of
-    // risking a duplicate charge.
-    if ((pendingRows || []).length > 1) {
-        throw new Error("More than one pending membership payment exists on your account. Do not pay again. Contact support so the existing Flutterwave references can be reconciled first.");
+    if ((pendingRows || []).length > 0) {
+        throw new Error("A previous membership payment is still awaiting confirmation. Do not pay again. Contact support so the existing Flutterwave reference can be reconciled first.");
     }
-    const pending = pendingRows?.[0] || null;
-    let txRef: string;
-    if (pending) {
-        const oldAmount = Number(pending.amount);
-        const oldRef = String(pending.tx_ref || "").trim();
-        if (!oldRef ||
-            !Number.isFinite(oldAmount) ||
-            Math.round(oldAmount * 100) !== Math.round(fee * 100)) {
-            throw new Error("Your previous payment needs a support check because its reference or amount does not match the current price. Please contact support before paying again.");
-        }
-        txRef = oldRef;
-    }
-    else {
-        txRef = newReference();
-        const { error: insertError } = await db
-            .from("membership_payments")
-            .insert({
-            user_id: user.id,
-            purpose,
-            amount: fee,
-            currency: "NGN",
-            tx_ref: txRef,
-            status: "pending",
-        });
-        if (insertError) {
-            console.error("Membership insert error:", insertError);
-            throw new Error("Could not create the membership payment record.");
-        }
+    const txRef = newReference();
+    const { error: insertError } = await db
+        .from("membership_payments")
+        .insert({
+        user_id: user.id,
+        purpose,
+        amount: fee,
+        currency: "NGN",
+        tx_ref: txRef,
+        status: "pending",
+    });
+    if (insertError) {
+        console.error("Membership insert error:", insertError);
+        throw new Error("Could not create the membership payment record. No checkout was started.");
     }
     return await checkout(user.id, user.email || "", purpose, txRef, fee, redirectUrl);
 }
