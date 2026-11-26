@@ -448,7 +448,31 @@ async function initiateAdCampaign(user: {
             .eq("created_by", user.id);
         throw new Error("Could not create the ad payment record.");
     }
-    const result = await checkout(user.id, user.email || "", "advertisement", txRef, total, redirectUrl, { ad_id: ad.id });
+    let result: { success: boolean; payment_url: string; tx_ref: string };
+    try {
+        result = await checkout(user.id, user.email || "", "advertisement", txRef, total, redirectUrl, { ad_id: ad.id });
+    }
+    catch (checkoutError) {
+        // Do not leave a misleading unpaid campaign/payment row when checkout
+        // could not be created. No payment can be verified against these rows.
+        const { error: cleanupPaymentError } = await db
+            .from("ad_campaign_payments")
+            .delete()
+            .eq("payment_reference", txRef)
+            .eq("payer_user_id", user.id)
+            .eq("status", "pending")
+            .is("flw_transaction_id", null);
+        const { error: cleanupAdError } = await db
+            .from("platform_ads")
+            .delete()
+            .eq("id", ad.id)
+            .eq("created_by", user.id)
+            .eq("active", false);
+        if (cleanupPaymentError || cleanupAdError) {
+            console.error("Pending ad checkout cleanup needs review:", cleanupPaymentError || cleanupAdError);
+        }
+        throw checkoutError;
+    }
     return {
         ...result,
         ad_id: ad.id,
