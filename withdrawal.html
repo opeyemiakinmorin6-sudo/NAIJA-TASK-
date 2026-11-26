@@ -535,7 +535,7 @@
       } = await supabaseClient
         .from("withdrawals")
         .select(
-          "id, amount, bank_name, account_name, account_number, status, created_at"
+          "id, amount, fee_amount, payout_amount, payout_reference, payout_confirmed_at, bank_name, account_name, account_number, status, created_at"
         )
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
@@ -560,7 +560,11 @@
         div.className = "withdrawal";
 
         const amount = document.createElement("strong");
-        amount.textContent = "₦" + Number(withdrawal.amount || 0).toLocaleString("en-NG");
+        amount.textContent = "Wallet debit: ₦" + Number(withdrawal.amount || 0).toLocaleString("en-NG");
+
+        const payout = document.createElement("p");
+        payout.textContent = "Bank payout: ₦" + Number(withdrawal.payout_amount || 0).toLocaleString("en-NG") +
+          " (fee: ₦" + Number(withdrawal.fee_amount || 0).toLocaleString("en-NG") + ")";
 
         const bank = document.createElement("p");
         bank.textContent = withdrawal.bank_name || "";
@@ -571,12 +575,26 @@
           "Account ending " + (rawAccount.length >= 4 ? rawAccount.slice(-4) : "****");
 
         const status = document.createElement("small");
-        status.textContent = "Status: " + (withdrawal.status || "PENDING");
+        const rawStatus = String(withdrawal.status || "PENDING").toLowerCase();
+        const statusLabels = {
+          pending: "Pending review — wallet not deducted",
+          approved: "Approved — bank transfer still pending",
+          paid: "Paid — bank transfer confirmed",
+          rejected: "Rejected — wallet not deducted",
+          failed: "Failed/cancelled — check wallet refund history"
+        };
+        status.textContent = "Status: " + (statusLabels[rawStatus] || rawStatus.toUpperCase());
 
         div.appendChild(amount);
+        div.appendChild(payout);
         div.appendChild(bank);
         div.appendChild(account);
         div.appendChild(status);
+        if (withdrawal.payout_reference) {
+          const reference = document.createElement("small");
+          reference.textContent = "Bank transfer reference: " + withdrawal.payout_reference;
+          div.appendChild(reference);
+        }
 
         box.appendChild(div);
       });
