@@ -1855,7 +1855,7 @@ function applyFilters(){
   let anyVisible = false;
   document.querySelectorAll("section[data-cat]").forEach(sec => {
     let show = activeCat === "all" || sec.dataset.cat === activeCat;
-    const cards = sec.querySelectorAll(".feature-card, .pay-tile");
+    const cards = sec.querySelectorAll(".feature-card, .pay-tile, .nt-link-list>a, .nt-feature-row");
     cards.forEach(c => c.classList.remove("filtered-out"));
     if (show && q){
       let hits = 0;
@@ -2157,16 +2157,12 @@ body{color:var(--nt-ink)!important}
   anchor.insertAdjacentElement("afterend",hub);
 
   /* Keep category/search filtering working after sections move into widgets. */
-  if(typeof window.applyFilters==="function"){
-    const originalApplyFilters=window.applyFilters;
-    window.applyFilters=function(){
-      originalApplyFilters();
-      hub.querySelectorAll(".nt-widget-group").forEach(group=>{
-        const childSections=[...group.querySelectorAll(".nt-widget-content > section")];
-        const hasVisible=childSections.some(section=>!section.classList.contains("filtered-out")&&section.style.display!=="none");
-        group.hidden=childSections.length>0&&!hasVisible;
-      });
-    };
+  function syncWidgetVisibility(){
+    hub.querySelectorAll(".nt-widget-group").forEach(group=>{
+      const childSections=[...group.querySelectorAll(".nt-widget-content > section")];
+      const hasVisible=childSections.some(section=>!section.classList.contains("filtered-out")&&section.style.display!=="none");
+      group.hidden=childSections.length>0&&!hasVisible;
+    });
   }
 
   /* Make the widgets easier to discover from the existing dashboard search. */
@@ -2174,7 +2170,10 @@ body{color:var(--nt-ink)!important}
   if(search){
     search.setAttribute("aria-label","Search dashboard services");
     search.placeholder="Search tasks, games, airtime, bills, wallet and more…";
+    search.addEventListener("input",syncWidgetVisibility);
   }
+  document.getElementById("catChips")?.addEventListener("click",syncWidgetVisibility);
+  syncWidgetVisibility();
 })();
 </script>
 
