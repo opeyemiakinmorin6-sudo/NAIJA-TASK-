@@ -736,6 +736,77 @@ function resetProofForm(){
   $("proofDrop")?.classList.remove("has-preview");
 }
 
+async function applyTaskUsernameGate(task){
+  const platform=getRequiredSocialAccountPlatform(task);
+  if(!platform){
+    
+    return;
+  }
+
+  const submitButton=$("submitProofBtn");
+  const targetLink=document.querySelector("#selectedTaskDetails .linkrow a.btn.p");
+  if(submitButton){
+    submitButton.disabled=true;
+    submitButton.textContent="Checking username verification…";
+  }
+  if(targetLink){
+    targetLink.dataset.originalHref=targetLink.getAttribute("href")||"";
+    targetLink.removeAttribute("href");
+    targetLink.setAttribute("aria-disabled","true");
+    targetLink.style.pointerEvents="none";
+    targetLink.style.opacity=".55";
+  }
+  showNotice("Checking your "+platform.replaceAll("_"," ")+" username verification…","info");
+
+  try{
+    const {data,error}=await db.from("social_accounts")
+      .select("id")
+      .eq("user_id",currentUser.id)
+      .eq("platform",platform)
+      .eq("verification_status","verified")
+      .eq("reverify_required",false)
+      .not("ownership_verified_at","is",null)
+      .limit(1);
+    if(error)throw error;
+    if(selectedTask!==task)return;
+
+    if(!data||!data.length){
+      showNotice("USERNAME VERIFICATION REQUIRED — Verify your "+platform.replaceAll("_"," ")+" username before starting or submitting this task.","error");
+      const notice=$("sheetNotice");
+      const link=document.createElement("a");
+      link.href="social-accounts.html";
+      link.textContent="Open Username Verification →";
+      link.style.cssText="display:inline-flex;margin:9px 0 0;color:#991b1b;font-weight:900;text-decoration:underline";
+      notice.appendChild(document.createElement("br"));
+      notice.appendChild(link);
+      if(submitButton){submitButton.disabled=true;submitButton.textContent="Verify username first";}
+      return;
+    }
+
+    if(targetLink){
+      targetLink.href=targetLink.dataset.originalHref||"";
+      targetLink.removeAttribute("aria-disabled");
+      targetLink.style.pointerEvents="";
+      targetLink.style.opacity="";
+    }
+    if(submitButton){submitButton.disabled=false;submitButton.textContent="Submit proof";}
+    hideNotice();
+    void recordTaskStarted(task);
+  }catch(error){
+    if(selectedTask!==task)return;
+    showNotice("We couldn't check your username verification. Your task is paused for safety. Please retry or open Username Verification.","error");
+    const notice=$("sheetNotice");
+    const link=document.createElement("a");
+    link.href="social-accounts.html";
+    link.textContent="Open Username Verification →";
+    link.style.cssText="display:inline-flex;margin:9px 0 0;color:#991b1b;font-weight:900;text-decoration:underline";
+    notice.appendChild(document.createElement("br"));
+    notice.appendChild(link);
+    if(submitButton){submitButton.disabled=true;submitButton.textContent="Verification check needed";}
+    console.warn("Task username verification check failed:",error?.message||error);
+  }
+}
+
 function openTask(task, verifiedSocialAccount=null){
   selectedTask = task;
   hideNotice();
@@ -809,6 +880,7 @@ function openTask(task, verifiedSocialAccount=null){
   $("submitProofBtn").textContent = submitted ? "Already submitted" : "Submit proof";
   $("overlay").classList.add("show");
   document.body.classList.add("lock");
+  void applyTaskUsernameGate(task);
 
   const cb = $("copyTaskTextBtn");
   if (cb) cb.addEventListener("click", async () => {
