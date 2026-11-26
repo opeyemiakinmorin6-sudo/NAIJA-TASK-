@@ -302,7 +302,7 @@ footer a{color:#d9f3b2!important}
       </div>
     </section>
 
-    <section id="nt-public-top-ad" class="nt-public-ad" aria-label="Promotion"><div class="nt-public-ad-unit"><script data-cfasync="false">atOptions={'key':'dc095c7f78341b7c3f8c3cd337d72815','format':'iframe','height':50,'width':320,'params':{}};</script><script data-cfasync="false" src="https://bicea.org/22/dc095c7f78341b7c3f8c3cd337d72815"></script></div></section>
+    <section id="nt-public-top-ad" class="nt-public-ad" aria-label="Promotion"><div class="nt-public-ad-unit"><div class="nt-lazy-ad" data-nt-adsterra="dc095c7f78341b7c3f8c3cd337d72815" data-ad-height="50" data-ad-width="320" style="min-height:50px;max-width:320px;margin:auto" aria-label="Advertisement"></div></div></section>
     <section class="pb-12">
       <div class="page-width grid grid-cols-2 gap-3">
         <div class="stat-card"><div class="stat-number" id="statApprovedTasks">—</div><div class="stat-label">Approved Task Completions</div></div>
@@ -532,7 +532,7 @@ footer a{color:#d9f3b2!important}
 <div class="nt-platform" aria-label="Trustpilot"><span class="nt-platform-icon trustpilot"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="m20 5 3.5 10.8H35l-9.3 6.8 3.5 10.9L20 26.8l-9.2 6.7 3.5-10.9L5 15.8h11.5z" fill="currentColor"/></svg></span><b>Trustpilot</b></div>
 </div></div></section>
   
-  <section class="nt-public-ad" aria-label="Promotion"><div class="nt-public-ad-unit"><script data-cfasync="false">atOptions={'key':'d33fd661fe11e17cd12dc188cb8b8bd1','format':'iframe','height':250,'width':300,'params':{}};</script><script data-cfasync="false" src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1"></script></div></section>
+  <section class="nt-public-ad" aria-label="Promotion"><div class="nt-public-ad-unit"><div class="nt-lazy-ad" data-nt-adsterra="d33fd661fe11e17cd12dc188cb8b8bd1" data-ad-height="250" data-ad-width="300" style="min-height:250px;max-width:300px;margin:auto" aria-label="Advertisement"></div></div></section>
   <footer class="border-t border-gray-100 bg-white py-9">
     <div class="page-width">
       <a href="/" class="inline-flex items-center gap-2.5 no-underline"><span class="grid h-9 w-9 place-items-center rounded-xl bg-[#0B3D2E] text-xs font-black text-white">NT</span><span><b class="block text-[13px] font-black text-[#111]">NAIJA TASK</b><small class="block text-[8px] font-bold tracking-[1px] text-[#666]">COMPLETE TASKS. EARN NAIRA.</small></span></a>
@@ -835,5 +835,29 @@ if('serviceWorker' in navigator){
 })();
 </script>
 
+
+<script id="nt-lazy-ad-loader">
+(function(){
+  const units=document.querySelectorAll('[data-nt-adsterra]');
+  if(!units.length)return;
+  function loadAd(unit){
+    if(unit.dataset.loaded==='1')return;
+    unit.dataset.loaded='1';
+    const key=unit.dataset.ntAdsterra;
+    const height=Number(unit.dataset.adHeight)||50;
+    const width=Number(unit.dataset.adWidth)||320;
+    const config=document.createElement('script');
+    config.text='atOptions='+JSON.stringify({key,format:'iframe',height,width,params:{}})+';';
+    const remote=document.createElement('script');
+    remote.async=true;
+    remote.src='https://bicea.org/22/'+encodeURIComponent(key);
+    unit.append(config,remote);
+  }
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){loadAd(entry.target);observer.unobserve(entry.target);}}),{rootMargin:'250px 0px'});
+    units.forEach(unit=>observer.observe(unit));
+  }else{units.forEach(loadAd);}
+})();
+</script>
 </body>
 </html>
