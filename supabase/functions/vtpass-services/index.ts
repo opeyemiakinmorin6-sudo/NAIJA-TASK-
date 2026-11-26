@@ -43,7 +43,10 @@ function providerStatus(payload: any) {
   const code = String(payload?.code ?? payload?.response_code ?? "");
   const state = String(payload?.content?.transactions?.status ?? payload?.status ?? "").toLowerCase();
   if (code === "000" && ["delivered", "successful", "success", "completed"].includes(state)) return "successful";
-  if (["016", "010", "011", "012", "013", "017", "018", "023", "027"].includes(code)) return "failed";
+  // VTpass documents 040 as a transaction reversal and 091 as not processed
+  // (the provider will not charge its wallet). Since NAIJA TASK has already
+  // reserved the member's wallet, both must trigger the idempotent local refund.
+  if (["040", "091", "016", "010", "011", "012", "013", "017", "018", "023", "027"].includes(code)) return "failed";
   if (/fail|error|rejected/.test(state)) return "failed";
   return "pending";
 }
