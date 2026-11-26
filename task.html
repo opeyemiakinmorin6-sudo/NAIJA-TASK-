@@ -274,7 +274,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
     <div class="cico">🛡️</div>
     <h3>Before you start this task</h3>
     <p id="confirmText"></p>
-    <p><b>Doing a task without an account on the platform, or sending proof for a broken link, can get your account banned and your earnings withheld.</b></p>
+    <p id="confirmSafety"><b>Doing a task without an account on the platform, or sending proof for a broken link, can get your account banned and your earnings withheld.</b></p>
     <button id="confirmGo" class="btn p" type="button">I understand, continue</button>
     <button id="confirmCancel" class="btn s" type="button">Cancel</button>
   </div>
@@ -736,7 +736,7 @@ function resetProofForm(){
   $("proofDrop")?.classList.remove("has-preview");
 }
 
-function openTask(task){
+function openTask(task, verifiedSocialAccount=null){
   selectedTask = task;
   hideNotice();
   void recordTaskStarted(task);
@@ -804,6 +804,13 @@ function openTask(task){
   }
 
   resetProofForm();
+  if(verifiedSocialAccount && !isBusinessTask){
+    const savedUsername=String(verifiedSocialAccount.username||verifiedSocialAccount.normalized_identifier||"").trim();
+    if(savedUsername) $("proofText").value=savedUsername;
+    if(usernameHint) usernameHint.style.display="none";
+    if(usernameLabel) usernameLabel.textContent="Your social username";
+    $("proofText").placeholder="Your linked social username";
+  }
   $("photoReq").textContent = photo ? "REQUIRED" : "OPTIONAL";
   $("submitProofBtn").disabled = submitted;
   $("submitProofBtn").textContent = submitted ? "Already submitted" : "Submit proof";
@@ -818,22 +825,68 @@ function openTask(task){
 }
 
 let pendingTask = null;
-function askStart(task){
+let pendingVerifiedSocialAccount = null;
+let confirmRequiresSocialVerification = false;
+async function askStart(task){
   if (currentSubmissionIds.has(taskId(task))){ openTask(task); return; }
   pendingTask = task;
-  const cat = getTaskCategory(task);
-  $("confirmText").innerHTML = cat === "other"
-    ? "Only continue if the task link works for you and you can follow the instructions."
-    : "Only continue if you have an active <b>" + NAMES[cat] + "</b> account and the task link works for you.";
+  pendingVerifiedSocialAccount = null;
+  confirmRequiresSocialVerification = false;
+
+  const requiredPlatform=getRequiredSocialAccountPlatform(task);
+  if(requiredPlatform){
+    const {data:accounts,error}=await db.from("social_accounts")
+      .select("id,username,normalized_identifier,profile_url")
+      .eq("user_id",currentUser.id)
+      .eq("platform",requiredPlatform)
+      .eq("verification_status","verified")
+      .eq("reverify_required",false)
+      .not("ownership_verified_at","is",null)
+      .order("updated_at",{ascending:false})
+      .limit(1);
+    if(error){
+      pendingTask=null;
+      showNotice("We could not check your social account status. Please refresh and try again. This task has not been opened.", "error");
+      return;
+    }
+    if(!accounts || !accounts.length){
+      confirmRequiresSocialVerification=true;
+      $("confirmText").textContent="Social account not verified. Verify your "+requiredPlatform.replaceAll("_"," ")+" account once to continue with this task. After approval, you can use it for future tasks without repeating verification.";
+      $("confirmSafety").classList.add("hidden");
+      $("confirmGo").textContent="Verify account";
+    }else{
+      pendingVerifiedSocialAccount=accounts[0];
+    }
+  }
+
+  if(!confirmRequiresSocialVerification){
+    const cat = getTaskCategory(task);
+    $("confirmText").innerHTML = cat === "other"
+      ? "Only continue if the task link works for you and you can follow the instructions."
+      : "Only continue if you have an active <b>" + NAMES[cat] + "</b> account and the task link works for you.";
+    $("confirmSafety").classList.remove("hidden");
+    $("confirmGo").textContent="I understand, continue";
+  }
   $("confirmOverlay").classList.add("show");
   document.body.classList.add("lock");
 }
 function closeConfirm(){
   pendingTask = null;
+  pendingVerifiedSocialAccount = null;
+  confirmRequiresSocialVerification = false;
   $("confirmOverlay").classList.remove("show");
+  $("confirmSafety").classList.remove("hidden");
+  $("confirmGo").textContent="I understand, continue";
   if (!$("overlay").classList.contains("show")) document.body.classList.remove("lock");
 }
-$("confirmGo").addEventListener("click", () => { const t = pendingTask; closeConfirm(); if (t) openTask(t); });
+$("confirmGo").addEventListener("click", () => {
+  const t = pendingTask;
+  const account = pendingVerifiedSocialAccount;
+  const needsVerification = confirmRequiresSocialVerification;
+  closeConfirm();
+  if(needsVerification){ window.location.href="social-accounts.html"; return; }
+  if(t) openTask(t,account);
+});
 $("confirmCancel").addEventListener("click", closeConfirm);
 $("confirmOverlay").addEventListener("click", e => { if (e.target === $("confirmOverlay")) closeConfirm(); });
 
