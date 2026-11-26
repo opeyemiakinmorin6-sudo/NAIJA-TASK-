@@ -670,31 +670,29 @@ async function renderSavedUsernameSuggestions(task){
   const list=$("savedUsernameSuggestions");
   if(!list)return;
   list.innerHTML="";
-  if(!currentUser||!task||String(task.task_type||"").startsWith("business_"))return;
+  if(!currentUser||!task||String(task.task_kind||"").startsWith("business_")||String(task.task_type||"").startsWith("business_"))return;
   const platformKey=getTaskPlatformKey(task);
-  const actionKey=getTaskActionKey(task);
-  const requestId=++usernameSuggestionRequest;
   try{
-    const {data,error}=await db.from("tasker_saved_usernames")
-      .select("username,scope_key,is_saved,updated_at")
-      .eq("platform_key",platformKey)
-      .eq("is_saved",true)
+    const {data,error}=await db.from("social_accounts")
+      .select("username,normalized_identifier")
+      .eq("user_id",currentUser.id)
+      .eq("platform",platformKey)
+      .eq("verification_status","verified")
+      .eq("reverify_required",false)
+      .not("ownership_verified_at","is",null)
       .order("updated_at",{ascending:false})
-      .limit(30);
+      .limit(20);
     if(error)throw error;
-    if(requestId!==usernameSuggestionRequest||selectedTask!==task)return;
-    const eligible=(data||[]).filter(row=>row.scope_key==="platform"||row.scope_key==="action:"+actionKey);
     const seen=new Set();
     const options=[];
-    for(const row of eligible){
-      const value=String(row.username||"").trim();
+    for(const row of data||[]){
+      const value=String(row.username||row.normalized_identifier||"").trim();
       const key=value.toLowerCase().replace(/^@+/,"");
       if(value&&!seen.has(key)){seen.add(key);options.push(value);}
-      if(options.length>=12)break;
     }
-    list.innerHTML=options.map(value=>"<option value=\""+escapeHtml(value)+"\"></option>").join("");
+    list.innerHTML=options.map(value=>"<option value=\\""+escapeHtml(value)+"\\"></option>").join("");
   }catch(error){
-    console.warn("Saved username suggestions could not be loaded:",error?.message||error);
+    console.warn("Verified username suggestions could not be loaded:",error?.message||error);
   }
 }
 async function recordTaskStarted(task){
@@ -796,8 +794,8 @@ function openTask(task){
     $("proofText").classList.add("username-entry");
     $("proofText").rows=1;
     $("proofText").style.height="48px";$("proofText").style.minHeight="48px";$("proofText").style.resize="none";
-    if (usernameLabel) usernameLabel.textContent = "Enter your username";
-    $("proofText").placeholder = "Enter username";
+    if (usernameLabel) usernameLabel.textContent = "Enter your verified social username";
+    $("proofText").placeholder = "Exact verified username (for example, @yourhandle)";
     $("proofText").setAttribute("list","savedUsernameSuggestions");
     if(usernameHint)usernameHint.style.display="block";
     void renderSavedUsernameSuggestions(task);
@@ -918,7 +916,7 @@ async function recordNaijaTaskSecuritySignal(submissionId=null){
 }
 
 function getRequiredSocialAccountPlatform(task){
-  if(String(task?.task_kind||"").startsWith("business_"))return null;
+  if(String(task?.task_kind||"").startsWith("business_")||String(task?.task_type||"").startsWith("business_"))return null;
   const s=[task?.platform,task?.service_key,task?.task_type,task?.title,task?.description].filter(Boolean).join(" ").toLowerCase();
   if(/youtube\s*music/.test(s))return "youtube_music";
   if(/whatsapp/.test(s))return "whatsapp";
@@ -980,7 +978,7 @@ async function submitProof(){
   const requiredPlatform = getRequiredSocialAccountPlatform(selectedTask);
   if (requiredPlatform) {
     const { data: ownedAccounts, error: accountError } = await db.from("social_accounts")
-      .select("id")
+      .select("id,username,normalized_identifier")
       .eq("user_id", currentUser.id)
       .eq("platform", requiredPlatform)
       .eq("verification_status", "verified")
@@ -993,6 +991,17 @@ async function submitProof(){
     }
     if (!ownedAccounts || !ownedAccounts.length) {
       showNotice("Verify your " + requiredPlatform.replaceAll("_", " ") + " account first. Open Profile → My Social Accounts, complete ownership verification, then return to this task.", "error");
+      return;
+    }
+    const submittedHandle=proofText.toLowerCase().replace(/^@+/,"").trim();
+    const matchingAccount=ownedAccounts.some(account=>{
+      const saved=String(account.normalized_identifier||account.username||"").toLowerCase().replace(/^@+/,"").trim();
+      const username=String(account.username||"").toLowerCase().replace(/^@+/,"").trim();
+      return submittedHandle && (submittedHandle===saved || submittedHandle===username);
+    });
+    if(!matchingAccount){
+      const verifiedNames=ownedAccounts.map(a=>"@"+String(a.username||a.normalized_identifier||"").replace(/^@+/,"")).filter(Boolean);
+      showNotice("Username mismatch. Enter the exact username from your verified " + requiredPlatform.replaceAll("_"," ") + " account: " + verifiedNames.join(", ") + ". Random or unverified usernames are not accepted.", "error");
       return;
     }
   }
