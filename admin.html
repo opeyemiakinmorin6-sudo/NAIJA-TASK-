@@ -1888,9 +1888,9 @@ td,th{padding:13px 11px}
 
   <div class="notice">
 
-    Approving a withdrawal uses the secure
-    <strong>admin_approve_withdrawal</strong> RPC.
-    The browser does not directly deduct wallet funds.
+    Approval reserves and deducts the requested wallet amount. It does NOT mean the bank transfer was sent.
+    Use “Mark bank transfer paid” only after the transfer succeeds and you have its real bank reference.
+    If the transfer was not sent and must be cancelled, use “Refund to wallet”.
 
   </div>
 
@@ -1906,11 +1906,13 @@ td,th{padding:13px 11px}
           <tr>
 
             <th>User</th>
-            <th>Amount</th>
+            <th>Wallet debit</th>
             <th>Fee</th>
+            <th>Bank payout</th>
             <th>Method</th>
             <th>Account</th>
-            <th>Status</th>
+            <th>Status / reference</th>
+            <th>Requested</th>
             <th>Action</th>
 
           </tr>
@@ -7896,111 +7898,37 @@ async function loadWithdrawals() {
 
 
 function renderWithdrawals(rows) {
-  const body =
-    $("withdrawalsBody");
-
+  const body = $("withdrawalsBody");
   if (!body) return;
-
   if (!rows.length) {
-    body.innerHTML = `
-      <tr>
-        <td colspan="9" class="empty-row">
-          No withdrawal requests found.
-        </td>
-      </tr>
-    `;
+    body.innerHTML = '<tr><td colspan="9" class="empty-row">No withdrawal requests found.</td></tr>';
     return;
   }
-
   body.innerHTML = rows.map(row => {
-
-    const method =
-      row.method ||
-      row.payment_method ||
-      "—";
-
-    const account =
-      [row.account_name, row.bank_name, row.account_number]
-        .filter(Boolean)
-        .join(" · ") || row.account_details || "—";
-
-    const status =
-      row.status ||
-      "pending";
-
-    return `
-      <tr>
-
-        <td>
-          ${escapeHTML(
-            row.user_id || "—"
-          )}
-        </td>
-
-        <td>
-          ${money(row.amount)}
-        </td>
-
-        <td>
-          ${money(row.fee)}
-        </td>
-
-        <td>
-          ${money(
-            numberValue(row.amount) +
-            numberValue(row.fee)
-          )}
-        </td>
-
-        <td>
-          ${escapeHTML(method)}
-        </td>
-
-        <td>
-          ${escapeHTML(account)}
-        </td>
-
-        <td>
-          ${badge(status)}
-        </td>
-
-        <td>
-          ${shortDate(
-            row.created_at
-          )}
-        </td>
-
-        <td>
-          ${
-            String(status).toLowerCase() ===
-            "pending"
-              ? `
-                <div class="row-actions">
-
-                  <button
-                    class="small-btn success-btn"
-                    onclick="approveWithdrawal('${escapeHTML(
-                      row.id
-                    )}')">
-                    Approve
-                  </button>
-
-                  <button
-                    class="small-btn danger-btn"
-                    onclick="rejectWithdrawal('${escapeHTML(
-                      row.id
-                    )}')">
-                    Reject
-                  </button>
-
-                </div>
-              `
-              : "—"
-          }
-        </td>
-
-      </tr>
-    `;
+    const method = row.method || row.payment_method || "Bank transfer";
+    const account = [row.account_name, row.bank_name, row.account_number]
+      .filter(Boolean).join(" · ") || row.account_details || "—";
+    const status = String(row.status || "pending").toLowerCase();
+    const id = escapeHTML(String(row.id ?? ""));
+    let actions = "—";
+    if (status === "pending") {
+      actions = '<div class="row-actions"><button class="small-btn success-btn" onclick="approveWithdrawal(\''+id+'\')">Approve</button><button class="small-btn danger-btn" onclick="rejectWithdrawal(\''+id+'\')">Reject</button></div>';
+    } else if (status === "approved") {
+      actions = '<div class="row-actions"><button class="small-btn success-btn" onclick="markWithdrawalPaid(\''+id+'\')">Mark bank transfer paid</button><button class="small-btn danger-btn" onclick="refundWithdrawal(\''+id+'\')">Refund to wallet</button></div>';
+    }
+    const payoutReference = row.payout_reference
+      ? '<small>Bank ref: '+escapeHTML(row.payout_reference)+'</small>' : '';
+    return '<tr>'+
+      '<td>'+escapeHTML(row.user_id || "—")+'</td>'+
+      '<td>'+money(row.amount)+'</td>'+
+      '<td>'+money(row.fee_amount)+'</td>'+
+      '<td>'+money(row.payout_amount)+'</td>'+
+      '<td>'+escapeHTML(method)+'</td>'+
+      '<td>'+escapeHTML(account)+'</td>'+
+      '<td>'+badge(status)+payoutReference+'</td>'+
+      '<td>'+shortDate(row.created_at)+'</td>'+
+      '<td>'+actions+'</td>'+
+    '</tr>';
   }).join("");
 }
 
@@ -8116,6 +8044,70 @@ async function approveWithdrawal(id) {
       "danger"
     );
 
+  } finally {
+    setLoading(false);
+  }
+}
+
+
+async function markWithdrawalPaid(id) {
+  if (!id) return;
+  const payoutReference = window.prompt("Enter the real bank transfer reference. Only continue after the bank transfer has succeeded.");
+  if (!payoutReference || payoutReference.trim().length < 3) {
+    toast("A real bank transfer reference is required. The withdrawal remains approved, not paid.", "warning");
+    return;
+  }
+  const confirmed = await uiConfirm("Confirm that the bank transfer has successfully reached the user's account? This records the payout as PAID.");
+  if (!confirmed) return;
+  try {
+    setLoading(true, "Recording verified bank payout...");
+    const { data, error } = await supabaseClient.rpc("admin_mark_withdrawal_paid_safe", {
+      p_withdrawal_id: id,
+      p_payout_reference: payoutReference.trim()
+    });
+    if (error) throw error;
+    if (!data || data.success !== true || data.status !== "paid") {
+      throw new Error("The server did not confirm the bank payout.");
+    }
+    await writeAudit("withdrawal_marked_paid", id, { payout_reference: payoutReference.trim(), result: data });
+    toast("Bank payout recorded as paid.", "success");
+    await loadWithdrawals();
+    await loadOverview();
+  } catch (error) {
+    reportError("markWithdrawalPaid", error);
+    toast(errorMessage(error, "Could not record the bank payout."), "danger");
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function refundWithdrawal(id) {
+  if (!id) return;
+  const reason = window.prompt("Why is this approved withdrawal being cancelled and refunded? Confirm the bank transfer was NOT sent.");
+  if (!reason || reason.trim().length < 3) {
+    toast("A clear refund reason is required. No refund was made.", "warning");
+    return;
+  }
+  const confirmed = await uiConfirm("Refund the full wallet debit to the user? Use this only if the bank transfer was not sent.");
+  if (!confirmed) return;
+  try {
+    setLoading(true, "Refunding unpaid withdrawal to wallet...");
+    const { data, error } = await supabaseClient.rpc("admin_refund_withdrawal_safe", {
+      p_withdrawal_id: id,
+      p_reason: reason.trim()
+    });
+    if (error) throw error;
+    if (!data || data.success !== true || data.status !== "failed") {
+      throw new Error("The server did not confirm the wallet refund.");
+    }
+    await writeAudit("withdrawal_refunded", id, { reason: reason.trim(), result: data });
+    toast("Withdrawal cancelled and wallet refunded.", "success");
+    await loadWithdrawals();
+    await loadWalletLedger();
+    await loadOverview();
+  } catch (error) {
+    reportError("refundWithdrawal", error);
+    toast(errorMessage(error, "Could not refund the withdrawal."), "danger");
   } finally {
     setLoading(false);
   }
@@ -12409,6 +12401,8 @@ window.NAIJA_TASK_ADMIN = {
   rejectCurrentProof,
   approveWithdrawal,
   rejectWithdrawal,
+  markWithdrawalPaid,
+  refundWithdrawal,
   approvePosterPayment,
   rejectPosterPayment,
   openUserModal,
