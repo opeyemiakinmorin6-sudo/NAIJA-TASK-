@@ -184,18 +184,25 @@ async function initiateMembership(user: {
     // Re-open the existing pending payment instead of locking the user out.
     // Reusing its reference keeps one payment record and avoids silently creating
     // a second independent activation/VIP charge.
-    const { data: pending, error: pendingError } = await db
+    const { data: pendingRows, error: pendingError } = await db
         .from("membership_payments")
         .select("id, amount, tx_ref, status")
         .eq("user_id", user.id)
         .eq("purpose", purpose)
         .in("status", ["pending", "PENDING"])
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(2);
     if (pendingError) {
         throw new Error("Could not refresh your previous membership payment.");
     }
+    // Older releases may have left multiple pending references for one user.
+    // We cannot know whether any of them were charged without reconciling
+    // each reference with Flutterwave, so block a new checkout instead of
+    // risking a duplicate charge.
+    if ((pendingRows || []).length > 1) {
+        throw new Error("More than one pending membership payment exists on your account. Do not pay again. Contact support so the existing Flutterwave references can be reconciled first.");
+    }
+    const pending = pendingRows?.[0] || null;
     let txRef: string;
     if (pending) {
         const oldAmount = Number(pending.amount);
