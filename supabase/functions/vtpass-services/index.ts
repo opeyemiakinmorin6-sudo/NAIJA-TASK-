@@ -250,7 +250,10 @@ Deno.serve(async (req: Request) => {
         signal: AbortSignal.timeout(25000),
       });
       providerResponse = await response.json();
-      if (!response.ok && !providerResponse) throw new Error("VTpass returned HTTP " + response.status);
+      // Never treat a provider error HTTP response as a successful purchase,
+      // even if its JSON body contains a success-looking status. Keep the debit
+      // reserved as pending and require a later provider requery.
+      if (!response.ok) throw new Error("VTpass returned HTTP " + response.status);
     } catch {
       await admin.from("airtime_data_orders").update({
         status: "pending",
@@ -298,13 +301,26 @@ Deno.serve(async (req: Request) => {
       return reply(200, { ok: true, status: "successful", message: "This purchase is already confirmed." });
     }
 
-    const response = await fetch(base + "/requery", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "api-key": apiKey, "secret-key": secretKey, "Accept": "application/json" },
-      body: JSON.stringify({ request_id: order.request_id }),
-      signal: AbortSignal.timeout(20000),
-    });
-    const provider = await response.json();
+    let response: Response;
+    try {
+      response = await fetch(base + "/requery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "api-key": apiKey, "secret-key": secretKey, "Accept": "application/json" },
+        body: JSON.stringify({ request_id: order.request_id }),
+        signal: AbortSignal.timeout(20000),
+      });
+    } catch {
+      return reply(202, { ok: true, status: "pending", message: "The provider could not be reached. No refund or success was recorded; your order remains reserved for another status check." });
+    }
+    if (!response.ok) {
+      return reply(202, { ok: true, status: "pending", message: "The provider status check returned an error. No refund or success was recorded; check again later." });
+    }
+    let provider: any;
+    try {
+      provider = await response.json();
+    } catch {
+      return reply(202, { ok: true, status: "pending", message: "The provider returned an unreadable status. No refund or success was recorded; check again later." });
+    }
     const state = providerStatus(provider);
     await admin.from("airtime_data_orders").update({
       status: state,
