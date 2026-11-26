@@ -739,7 +739,7 @@ function resetProofForm(){
 async function applyTaskUsernameGate(task){
   const platform=getRequiredSocialAccountPlatform(task);
   if(!platform){
-    
+    void recordTaskStarted(task);
     return;
   }
 
@@ -789,7 +789,12 @@ async function applyTaskUsernameGate(task){
       targetLink.style.pointerEvents="";
       targetLink.style.opacity="";
     }
-    if(submitButton){submitButton.disabled=false;submitButton.textContent="Submit proof";}
+    const taskTarget=taskTargetKey(task);
+    const alreadySubmitted=currentSubmissionIds.has(taskId(task))||!!(taskTarget&&currentSubmissionTargets.has(taskTarget));
+    if(submitButton){
+      submitButton.disabled=alreadySubmitted;
+      submitButton.textContent=alreadySubmitted?"Already submitted":"Submit proof";
+    }
     hideNotice();
     void recordTaskStarted(task);
   }catch(error){
