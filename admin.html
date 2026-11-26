@@ -1974,6 +1974,12 @@ td,th{padding:13px 11px}
 
   </div>
 
+  <div class="card">
+    <h3>Activation & VIP payment reconciliation</h3>
+    <p class="small">Checks existing pending transaction references directly with Flutterwave. It does not start another checkout or charge. Confirmed successful payments are applied once; confirmed failures are made retryable; unresolved and duplicate successful charges are flagged for review.</p>
+    <button class="primary" type="button" onclick="reconcileMembershipPayments()">Reconcile pending Flutterwave references</button>
+    <div id="membershipReconcileResult" class="notice" style="margin-top:12px">No reconciliation has been run in this session.</div>
+  </div>
 
   <div class="card">
 
@@ -8207,6 +8213,60 @@ async function rejectWithdrawal(id) {
 }
 
 
+async function reconcileMembershipPayments() {
+  const box = $("membershipReconcileResult");
+  const confirmed = await uiConfirm(
+    "Check all pending activation and VIP references with Flutterwave? This will not initiate a payment or debit anyone. Only provider-confirmed results will change membership records."
+  );
+  if (!confirmed) return;
+  if (box) {
+    box.className = "notice";
+    box.textContent = "Checking pending references with Flutterwave. Do not refresh this page...";
+  }
+  try {
+    setLoading(true, "Reconciling pending membership payments...");
+    const { data, error } = await supabaseClient.functions.invoke("flutterwave-payments", {
+      body: { action: "admin_reconcile_pending_membership" }
+    });
+    if (error) throw error;
+    if (!data || data.success !== true) {
+      throw new Error(data?.error || "The server did not complete payment reconciliation.");
+    }
+    const summary = "Checked: " + Number(data.checked || 0) +
+      " · Verified: " + Number(data.verified || 0) +
+      " · Failed: " + Number(data.failed || 0) +
+      " · Duplicate successful charges flagged: " + Number(data.duplicate_success_review || 0) +
+      " · Still pending: " + Number(data.still_pending || 0) +
+      " · Unresolved: " + Number(data.unresolved || 0);
+    const details = (Array.isArray(data.results) ? data.results : []).map(item =>
+      '<div style="padding:8px 0;border-top:1px solid var(--border,#ddd)"><strong>' +
+      escapeHTML(item.status || "unknown") + '</strong> · ' +
+      escapeHTML(item.tx_ref || item.payment_id || "Payment reference unavailable") +
+      '<small style="display:block">' + escapeHTML(item.message || "") + '</small></div>'
+    ).join("");
+    if (box) {
+      box.className = "notice " + (Number(data.unresolved || 0) || Number(data.duplicate_success_review || 0) ? "warning" : "success");
+      box.innerHTML = '<strong>' + escapeHTML(summary) + '</strong>' + (details || '<p>No pending membership payments were found.</p>');
+    }
+    await writeAudit("membership_payment_reconciliation", "pending_batch", {
+      checked: data.checked, verified: data.verified, failed: data.failed,
+      duplicate_success_review: data.duplicate_success_review,
+      still_pending: data.still_pending, unresolved: data.unresolved
+    });
+    await loadWalletLedger();
+    await loadOverview();
+  } catch (error) {
+    reportError("reconcileMembershipPayments", error);
+    if (box) {
+      box.className = "notice warning";
+      box.textContent = errorMessage(error, "Membership payment reconciliation failed. Existing records were not cleared.");
+    }
+    toast(errorMessage(error, "Payment reconciliation failed."), "danger");
+  } finally {
+    setLoading(false);
+  }
+}
+
 /* =========================================================
    WALLET LEDGER
    ========================================================= */
@@ -12403,6 +12463,7 @@ window.NAIJA_TASK_ADMIN = {
   rejectWithdrawal,
   markWithdrawalPaid,
   refundWithdrawal,
+  reconcileMembershipPayments,
   approvePosterPayment,
   rejectPosterPayment,
   openUserModal,
