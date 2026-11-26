@@ -38,6 +38,16 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 .stats-title{margin:0 0 8px}.ref-list{margin-top:12px}.ref-row{padding:12px 0;border-top:1px solid #edf1eb;display:flex;justify-content:space-between;gap:10px;font-size:11px}.ref-row:first-child{border-top:0}.ref-row strong{display:block;color:#244532}.ref-row small{display:block;color:#7b887e;margin-top:4px}.pill{font-size:9px;font-weight:900;color:#24623b;background:#e8f4e5;border-radius:99px;padding:5px 8px;height:max-content}
 .notice{padding:12px;border-radius:12px;background:#f5f8f2;color:#637267;font-size:10px;line-height:1.6;margin-top:12px}
 #message{font-size:12px;color:#7b4e00;margin-top:9px}
+
+.nt-xmas-ref-banner{position:relative;overflow:hidden;margin:0 0 14px;padding:17px;border:1px solid #e7d39b;border-radius:17px;background:radial-gradient(circle at 95% 5%,#ffffff50,transparent 26%),linear-gradient(120deg,#063d25,#0b7139 60%,#a51f2d);color:#fff}
+.nt-xmas-ref-banner:after{content:"✦  ✧  ✦";position:absolute;right:9px;bottom:7px;color:#ffe49b;letter-spacing:10px;opacity:.65;pointer-events:none}
+.nt-xmas-ref-banner strong{display:block;color:#ffe49b;font-size:9px;letter-spacing:1.5px;text-transform:uppercase}
+.nt-xmas-ref-banner h2{margin:6px 0;font-size:19px;line-height:1.2;font-weight:950;color:#fff}
+.nt-xmas-ref-banner p{max-width:580px;margin:0;color:#eff8ef;font-size:11px;line-height:1.6}
+.nt-xmas-ref-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+.nt-xmas-ref-actions button{min-height:37px;padding:0 12px;border:1px solid #fff8;border-radius:9px;background:#fff;color:#07552d;font-size:10px;font-weight:900;cursor:pointer}
+.nt-xmas-ref-actions button.alt{background:#ffffff18;color:#fff}
+
 @media(max-width:560px){.rewards{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.card{padding:15px}.reward-amount{font-size:23px}}
 </style>
 </head>
@@ -45,6 +55,17 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 <header><div class="top"><div class="brand">🇳🇬 NAIJA TASK</div><a href="dashboard.html" id="backLink">← Dashboard</a></div>
 <div class="hero"><span class="eyebrow">Your network can earn with you</span><h1>Invite. Grow. Earn.</h1><p>Share your personal referral links with people who want to complete tasks or promote their businesses. Your rewards are tracked here and credited only after qualifying activity is verified.</p></div></header>
 <main class="container">
+
+<section class="nt-xmas-ref-banner" aria-label="NAIJA TASK Christmas referral banner">
+<strong>🎄 Christmas starts now · NAIJA TASK</strong>
+<h2>Share the season. Grow your network. Earn together. 🎅🏽</h2>
+<p>Invite Taskers and Posters with your personal links below. Let more people discover NAIJA TASK this Christmas.</p>
+<div class="nt-xmas-ref-actions">
+<button type="button" onclick="copyWebsiteLink()">📋 Copy website link</button>
+<button type="button" class="alt" onclick="shareWebsiteLink()">↗ Share website</button>
+</div>
+</section>
+
 <section class="card"><h2>Two ways to earn referral rewards</h2><p class="muted">Choose the right link for the person you are inviting. Each referral is attached to your account when they register through your link.</p>
 <div class="rewards">
 <article class="reward-card"><div class="reward-icon">🧑🏽‍💻</div><h3>Refer an Earner / Tasker</h3><div class="reward-amount">₦200 bonus</div><p>Earn ₦200 when the person you refer successfully activates their Tasker account. You also keep the existing 5% lifetime commission on their approved task rewards.</p></article>
@@ -72,6 +93,19 @@ function money(value){return "₦"+Number(value||0).toLocaleString("en-NG",{mini
 function setMessage(message){byId("message").textContent=message||"";}
 async function copyLink(id){const value=byId(id).value;if(!value){setMessage("Your referral link is still loading.");return;}try{await navigator.clipboard.writeText(value);setMessage("Referral link copied. Share it with someone now.");}catch(e){byId(id).focus();byId(id).select();try{document.execCommand("copy");setMessage("Referral link copied. Share it with someone now.");}catch(_){setMessage("Select and copy the link above.");}}}
 async function shareLink(id,title){const url=byId(id).value;if(!url){setMessage("Your referral link is still loading.");return;}const text=title+" — "+url;if(navigator.share){try{await navigator.share({title:"NAIJA TASK referral",text:text,url:url});}catch(e){if(e&&e.name!=="AbortError")setMessage("You can copy the link and share it manually.");}}else{await copyLink(id);}}
+
+async function copyWebsiteLink(){
+ const value='https://naijatask.com.ng/';
+ try{await navigator.clipboard.writeText(value);setMessage('NAIJA TASK website link copied. Share it this Christmas!');}
+ catch(e){setMessage('Copy this website link: '+value);}
+}
+async function shareWebsiteLink(){
+ const value='https://naijatask.com.ng/';
+ if(navigator.share){try{await navigator.share({title:'NAIJA TASK',text:'Complete Tasks. Earn Naira. Join NAIJA TASK this Christmas!',url:value});}
+ catch(e){if(e&&e.name!=='AbortError')setMessage('You can copy and share: '+value);}}
+ else{await copyWebsiteLink();}
+}
+
 async function loadReferralCentre(){
  const {data:{user},error:userError}=await db.auth.getUser();
  if(userError||!user){location.replace("login.html?next="+encodeURIComponent("referrals.html"));return;}
