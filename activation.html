@@ -189,11 +189,12 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
 
     if (!transactionId && !txRef && !status) return;
 
-    history.replaceState({}, "", location.pathname);
+    const clearPaymentReturn = () => history.replaceState({}, "", location.pathname);
     payButton.disabled = true;
     payButton.textContent = "Checking payment result…";
 
     if (status && status.toLowerCase() !== "successful") {
+      clearPaymentReturn();
       const cancelled = status.toLowerCase() === "cancelled";
       showMessage(cancelled
         ? "Payment was cancelled. Your account has not been activated."
@@ -239,6 +240,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:15px}
         throw new Error(result.error || result.message || "Payment verification is pending.");
       }
 
+      clearPaymentReturn();
       showMessage("Payment verified. Your account activation is complete!", true);
       payButton.textContent = "Activation successful";
       payButton.disabled = true;
