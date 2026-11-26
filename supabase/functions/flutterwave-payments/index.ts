@@ -258,44 +258,39 @@ async function initiatePosterPayment(user: {
     if (existing) {
         const oldStatus = String(existing.status || "").toUpperCase();
         const oldPaymentStatus = String(existing.payment_status || "").toLowerCase();
-        if (oldStatus === "APPROVED" ||
-            oldPaymentStatus === "paid" ||
+        if (oldStatus === "APPROVED" || oldPaymentStatus === "paid" ||
             String(existing.flw_transaction_id || "").trim() !== "") {
             throw new Error("This task already has a paid or approved payment record.");
         }
-        const oldRef = String(existing.tx_ref || "").trim();
-        const oldAmount = Number(existing.amount);
-        const sameAmount = Number.isFinite(oldAmount) &&
-            Math.round(oldAmount * 100) === Math.round(fee * 100);
-        const alreadyFlutterwave = String(existing.payment_method || "").toLowerCase() === "flutterwave";
-        // Reuse a pending Flutterwave reference only when its amount is still exact.
-        // Legacy manual-transfer references and stale-price references are rotated
-        // into a fresh Flutterwave reference instead of permanently blocking checkout.
-        if (oldRef && alreadyFlutterwave && sameAmount) {
-            txRef = oldRef;
+        // Never reopen a pending payment reference or silently replace a legacy
+        // manual-transfer reference. Either may already represent money received.
+        // Only an explicitly rejected record can start a fresh checkout.
+        if (oldStatus !== "REJECTED") {
+            throw new Error("A previous poster payment is still awaiting review or confirmation. Do not pay again. Contact support so the existing reference can be reconciled first.");
         }
-        else {
-            txRef = newReference();
-            const { data: updatedPayment, error: updateError } = await db
-                .from("poster_payments")
-                .update({
-                amount: fee,
-                payment_method: "FLUTTERWAVE",
-                payment_reference: txRef,
-                proof_url: null,
-                status: "PENDING",
-                payment_status: "pending",
-                tx_ref: txRef,
-            })
-                .eq("id", existing.id)
-                .eq("poster_id", user.id)
-                .is("flw_transaction_id", null)
-                .neq("payment_status", "paid")
-                .select("id")
-                .maybeSingle();
-            if (updateError || !updatedPayment) {
-                throw new Error("Could not safely prepare this pending payment for Flutterwave. Refresh the page or contact support before trying again.");
-            }
+        txRef = newReference();
+        const { data: updatedPayment, error: updateError } = await db
+            .from("poster_payments")
+            .update({
+            amount: fee,
+            payment_method: "FLUTTERWAVE",
+            payment_reference: txRef,
+            proof_url: null,
+            status: "PENDING",
+            payment_status: "pending",
+            tx_ref: txRef,
+            rejection_reason: null,
+            reviewed_by: null,
+            reviewed_at: null,
+        })
+            .eq("id", existing.id)
+            .eq("poster_id", user.id)
+            .eq("status", "REJECTED")
+            .is("flw_transaction_id", null)
+            .select("id")
+            .maybeSingle();
+        if (updateError || !updatedPayment) {
+            throw new Error("Could not safely prepare a new payment after rejection. Refresh the page or contact support before trying again.");
         }
         paymentId = String(existing.id);
     }
