@@ -689,18 +689,22 @@ async function verifyPosterFlutterwaveReturn() {
   const transactionId = params.get("transaction_id");
   const status = (params.get("status") || "").toLowerCase();
   const taskId = params.get("task_id");
-  const clean = new URL(location.href);
-  clean.searchParams.delete("nt_poster_return");
-  clean.searchParams.delete("nt_poster_payment_id");
-  clean.searchParams.delete("tx_ref");
-  clean.searchParams.delete("transaction_id");
-  clean.searchParams.delete("status");
-  history.replaceState({}, document.title, clean.pathname + clean.search);
+  const clearPaymentReturn = () => {
+    const clean = new URL(location.href);
+    clean.searchParams.delete("nt_poster_return");
+    clean.searchParams.delete("nt_poster_payment_id");
+    clean.searchParams.delete("tx_ref");
+    clean.searchParams.delete("transaction_id");
+    clean.searchParams.delete("status");
+    history.replaceState({}, document.title, clean.pathname + clean.search);
+  };
   if (status && status !== "successful") {
+    clearPaymentReturn();
     showFormMessage("Flutterwave did not report a successful payment. Your task has not been marked paid. If money was deducted, contact support before retrying.", "error");
     return;
   }
   if (!paymentId || !txRef || !transactionId) {
+    clearPaymentReturn();
     showFormMessage("Payment return details are incomplete. If you were charged, do not pay again; contact support with your transaction reference.", "error");
     return;
   }
@@ -714,12 +718,13 @@ async function verifyPosterFlutterwaveReturn() {
       metadata:{payment_id:paymentId,task_id:String(taskId || currentTask?.id || "")}
     });
     if (!result.success) throw new Error(result.error || "Payment verification is pending.");
+    clearPaymentReturn();
     await loadExistingPayment();
     renderPaymentStatus();
     showFormMessage("Payment verified. Your task is still subject to admin review before it can go live.", "success");
   } catch (error) {
     showFormMessage((error.message || "Payment verification failed.") +
-      " If you were charged, do not pay again; contact support with your transaction reference.", "error");
+      " Your payment details have been kept so you can refresh this page to retry verification. If you were charged, do not pay again; contact support with your transaction reference.", "error");
   }
 }
 $("flutterwaveBtn")?.addEventListener("click", startPosterFlutterwavePayment);
