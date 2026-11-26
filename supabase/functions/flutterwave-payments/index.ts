@@ -607,6 +607,162 @@ async function verifyMembership(userId: string, purpose: string, txRef: string, 
     };
 }
 /* =========================================================
+ADMIN RECONCILIATION OF PENDING MEMBERSHIP PAYMENTS
+========================================================= */
+async function adminReconcilePendingMembershipPayments(adminUserId: string) {
+    if (!adminUserId) throw new Error("Administrator sign-in is required.");
+    const { data: admin, error: adminError } = await db
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", adminUserId)
+        .eq("active", true)
+        .maybeSingle();
+    if (adminError || !admin) throw new Error("Active administrator access required.");
+
+    const { data: pendingRows, error: pendingError } = await db
+        .from("membership_payments")
+        .select("id,user_id,purpose,amount,currency,tx_ref,status,flw_transaction_id")
+        .eq("status", "pending")
+        .order("created_at", { ascending: true })
+        .limit(50);
+    if (pendingError) throw new Error("Could not load pending membership payments.");
+
+    const results: Array<Record<string, unknown>> = [];
+    let verified = 0;
+    let failed = 0;
+    let duplicateSuccess = 0;
+    let stillPending = 0;
+    let unresolved = 0;
+
+    for (const payment of pendingRows || []) {
+        const txRef = String(payment.tx_ref || "").trim();
+        const paymentId = String(payment.id);
+        try {
+            if (!txRef || !payment.user_id || !["activation", "vip"].includes(String(payment.purpose))) {
+                unresolved++;
+                results.push({ payment_id: paymentId, status: "review_required", message: "Payment record is missing a valid reference, owner or membership type." });
+                continue;
+            }
+            const providerResult = await flutterwave(
+                "/transactions/verify_by_reference?tx_ref=" + encodeURIComponent(txRef)
+            );
+            const transaction = providerResult?.data;
+            if (providerResult?.status !== "success" || !transaction ||
+                String(transaction.tx_ref || "") !== txRef) {
+                unresolved++;
+                results.push({ payment_id: paymentId, tx_ref: txRef, status: "unresolved", message: "Flutterwave did not return a matching transaction. Record left unchanged." });
+                continue;
+            }
+            const providerStatus = String(transaction.status || "").toLowerCase();
+            const providerTransactionId = String(transaction.id || "");
+            const providerCheckedAt = new Date().toISOString();
+            const amountMatches = Math.round(Number(transaction.amount) * 100) === Math.round(Number(payment.amount) * 100);
+            const currencyMatches = String(transaction.currency || "").toUpperCase() === "NGN";
+
+            if (!amountMatches || !currencyMatches || !providerTransactionId) {
+                await db.from("membership_payments").update({
+                    provider_status: "review_required",
+                    provider_transaction_id: providerTransactionId || null,
+                    provider_checked_at: providerCheckedAt,
+                }).eq("id", paymentId).eq("status", "pending");
+                unresolved++;
+                results.push({ payment_id: paymentId, tx_ref: txRef, status: "review_required", message: "Provider record found, but amount, currency or transaction ID did not match. No membership was granted." });
+                continue;
+            }
+
+            if (providerStatus === "successful") {
+                const { data: priorPaid, error: priorError } = await db
+                    .from("membership_payments")
+                    .select("id,flw_transaction_id")
+                    .eq("user_id", payment.user_id)
+                    .eq("purpose", payment.purpose)
+                    .in("status", ["successful", "verified"])
+                    .neq("id", paymentId)
+                    .limit(1)
+                    .maybeSingle();
+                if (priorError) throw new Error("Could not check for an earlier successful membership payment.");
+
+                if (priorPaid) {
+                    await claimFlutterwaveTransaction(providerTransactionId, "membership_payments", paymentId, txRef, payment.user_id, payment.amount);
+                    const { error: duplicateUpdateError } = await db
+                        .from("membership_payments")
+                        .update({
+                            status: "duplicate_success_review",
+                            flw_transaction_id: providerTransactionId,
+                            verified_at: providerCheckedAt,
+                            provider_status: providerStatus,
+                            provider_transaction_id: providerTransactionId,
+                            provider_checked_at: providerCheckedAt,
+                        })
+                        .eq("id", paymentId)
+                        .eq("status", "pending")
+                        .is("flw_transaction_id", null);
+                    if (duplicateUpdateError) throw new Error("Duplicate successful charge was verified but could not be flagged for refund review.");
+                    duplicateSuccess++;
+                    results.push({ payment_id: paymentId, tx_ref: txRef, status: "duplicate_success_review", transaction_id: providerTransactionId, message: "A second successful payment was found. It was not applied twice; refund review is required." });
+                    continue;
+                }
+
+                await verifyMembership(payment.user_id, String(payment.purpose), txRef, providerTransactionId);
+                await db.from("membership_payments").update({
+                    provider_status: providerStatus,
+                    provider_transaction_id: providerTransactionId,
+                    provider_checked_at: providerCheckedAt,
+                }).eq("id", paymentId);
+                verified++;
+                results.push({ payment_id: paymentId, tx_ref: txRef, status: "successful", transaction_id: providerTransactionId, message: "Flutterwave verified the payment and membership was applied." });
+                continue;
+            }
+
+            if (providerStatus === "failed") {
+                const { error: failedUpdateError } = await db
+                    .from("membership_payments")
+                    .update({
+                        status: "failed",
+                        provider_status: providerStatus,
+                        provider_transaction_id: providerTransactionId,
+                        provider_checked_at: providerCheckedAt,
+                    })
+                    .eq("id", paymentId)
+                    .eq("status", "pending")
+                    .is("flw_transaction_id", null);
+                if (failedUpdateError) throw new Error("Flutterwave reported failure, but the local payment record could not be updated.");
+                failed++;
+                results.push({ payment_id: paymentId, tx_ref: txRef, status: "failed", transaction_id: providerTransactionId, message: "Flutterwave confirmed failure. A new payment attempt may now be started." });
+                continue;
+            }
+
+            await db.from("membership_payments").update({
+                provider_status: providerStatus || "unknown",
+                provider_transaction_id: providerTransactionId,
+                provider_checked_at: providerCheckedAt,
+            }).eq("id", paymentId).eq("status", "pending");
+            stillPending++;
+            results.push({ payment_id: paymentId, tx_ref: txRef, status: "pending", transaction_id: providerTransactionId, message: "Flutterwave has not reported a final result. No new charge or membership change was made." });
+        }
+        catch (error) {
+            unresolved++;
+            results.push({
+                payment_id: paymentId,
+                tx_ref: txRef,
+                status: "unresolved",
+                message: error instanceof Error ? error.message : "Provider reconciliation could not be completed. Record left for review.",
+            });
+        }
+    }
+
+    return {
+        success: true,
+        checked: (pendingRows || []).length,
+        verified,
+        failed,
+        duplicate_success_review: duplicateSuccess,
+        still_pending: stillPending,
+        unresolved,
+        results,
+    };
+}
+/* =========================================================
 VERIFY POSTER PAYMENT
 ========================================================= */
 async function verifyPosterPayment(userId: string, txRef: string, transactionId: string, paymentId: string, userClient: ReturnType<typeof createClient>) {
@@ -915,6 +1071,9 @@ Deno.serve(async (req: Request) => {
         }
         if (action === "request_withdrawal") {
             return response(req, await createVerifiedWithdrawal(user.id, body));
+        }
+        if (action === "admin_reconcile_pending_membership") {
+            return response(req, await adminReconcilePendingMembershipPayments(user.id));
         }
         if (action === "initiate") {
             if (purpose === "activation" || purpose === "vip") {
