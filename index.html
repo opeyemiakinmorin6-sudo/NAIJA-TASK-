@@ -1,879 +1,1133 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="msvalidate.01" content="AFE6BC648D9379D1BB6387994CDFCD55" />
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script>
-/* Route password-recovery callbacks back to the dedicated reset screen.
-   Some Supabase email templates redirect to the project Site URL (the homepage)
-   instead of the per-request redirectTo URL. Preserve the one-time code/tokens. */
-(function(){
-  try{
-    const query=new URLSearchParams(window.location.search);
-    const hash=new URLSearchParams(window.location.hash.replace(/^#/,""));
-    if(query.get("flow")==="signup" && query.has("code")){
-      window.location.replace(window.location.origin+"/auth-callback.html"+window.location.search+window.location.hash);
-      return;
-    }
-    const isRecovery=query.has("code") || hash.get("type")==="recovery";
-    if(!isRecovery) return;
-    const roleValue=(query.get("role")||"tasker").toLowerCase();
-    const role=["tasker","poster","admin"].includes(roleValue)?roleValue:"tasker";
-    query.set("role",role);
-    const target=window.location.origin+"/reset-password.html"+(query.toString()?"?"+query.toString():"")+window.location.hash;
-    window.location.replace(target);
-  }catch(error){
-    console.error("Password recovery redirect could not be completed:",error);
-  }
-})();
-</script>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4990178064824381" crossorigin="anonymous"></script>
-  <meta name="theme-color" content="#0B3D2E">
-  <title>NAIJA TASK — Connect. Discover. Grow.</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = { theme: { extend: { colors: { ntgreen: '#0B3D2E', ntcream: '#F6F5EF', ntink: '#111111', ntgrey: '#666666' }, fontFamily: { sans: ['Inter', 'sans-serif'] } } } };
-  </script>
-  <style>
-    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:84px}body{margin:0;background:#fff;color:#111;font-family:Inter,Arial,sans-serif}.page-width{width:min(100% - 32px,420px);margin-inline:auto}.section-space{padding-block:60px}.section-copy{font-size:14px;line-height:1.6;color:#666}.headline{font-weight:900;line-height:1.2;letter-spacing:-1.5px}.soft-card{background:#F6F5EF;border:1px solid #ecebe4;border-radius:20px}.solid-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:12px;background:#0B3D2E;color:#fff;text-decoration:none;font-size:13px;font-weight:800;transition:transform .2s,background .2s}.solid-btn:hover{background:#145440;transform:translateY(-1px)}.outline-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1px solid #d9ded8;border-radius:12px;color:#0B3D2E;background:#fff;text-decoration:none;font-size:13px;font-weight:800}.section-label{font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#47725f}.section-title{font-size:30px;line-height:1.2;letter-spacing:-1.3px;font-weight:900;color:#111}.menu-backdrop{position:fixed;inset:0;background:#101b16a8;z-index:70;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}.menu-backdrop.open{opacity:1;visibility:visible}.slide-menu{position:fixed;z-index:80;right:0;top:0;height:100dvh;width:min(300px,84vw);padding:26px;background:#fff;transform:translateX(105%);transition:transform .28s ease;box-shadow:-20px 0 50px #0000001a}.slide-menu.open{transform:translateX(0)}.menu-link{display:block;padding:15px 4px;border-bottom:1px solid #eceee9;color:#111;text-decoration:none;font-size:14px;font-weight:750}.menu-link:hover{color:#0B3D2E}.menu-role-group{padding:13px 0;border-bottom:1px solid #eceee9}.menu-role-group>strong{display:block;margin-bottom:9px;color:#526158;font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase}.menu-role-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.menu-role-btn{display:flex;align-items:center;justify-content:center;min-height:40px;padding:7px 5px;border:1px solid #dce5dc;border-radius:10px;background:#fff;color:#17452d;text-decoration:none;font-size:10px;font-weight:850}.menu-role-btn.tasker-role{background:#0B3D2E;border-color:#0B3D2E;color:#fff}.menu-role-btn.poster-role{background:#8b6415;border-color:#8b6415;color:#fff}.menu-link-preview{cursor:default;color:#526158}.menu-link-preview small{display:block;margin-top:4px;color:#879187;font-size:9px;font-weight:600}.hamburger{width:42px;height:42px;border:1px solid #e5e7e2;border-radius:12px;background:#fff;color:#0B3D2E;font-size:22px}.stat-card{padding:18px 14px;border-radius:16px;background:#F6F5EF}.stat-number{font-size:25px;font-weight:900;letter-spacing:-1px;color:#0B3D2E;line-height:1.2}.stat-label{margin-top:7px;color:#666;font-size:10px;line-height:1.45;font-weight:650}.mock-window{border:1px solid #e4e8e2;border-radius:16px;background:#fff;box-shadow:0 18px 45px #0b3d2e12;overflow:hidden}.mock-top{display:flex;gap:5px;padding:11px 13px;border-bottom:1px solid #edf0eb}.mock-top i{width:7px;height:7px;border-radius:50%;background:#d7ded6}.mock-body{padding:14px}.mock-field{padding:10px 11px;margin-top:6px;margin-bottom:10px;border:1px solid #e5e9e2;border-radius:9px;background:#fff;color:#687269;font-size:9px}.mock-field.large{min-height:48px;line-height:1.5}.mock-small-label{font-size:9px;font-weight:800;color:#56645a}.mock-green{padding:14px;border-radius:12px;background:#0B3D2E;color:#fff}.mock-task{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 0;border-bottom:1px solid #edf0eb}.mock-task:last-child{border:0}.live-task-row{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:11px 0}.live-task-copy{min-width:0;flex:1}.live-task-copy b{display:block;font-size:10px;color:#1d3026;line-height:1.4;overflow-wrap:anywhere}.live-task-copy small{display:block;margin-top:4px;color:#777;font-size:8px;line-height:1.4}.live-task-reward{font-size:11px;font-weight:900;color:#0B3D2E;white-space:nowrap}.live-task-view{padding:7px 9px;border-radius:8px;background:#e9f0eb;color:#0B3D2E;font-size:8px;font-weight:850;white-space:nowrap;text-decoration:none}.leader-row{display:flex;align-items:center;gap:10px;padding:11px 0}.leader-rank{width:25px;height:25px;flex:0 0 25px;display:grid;place-items:center;border-radius:8px;background:#e9f0eb;color:#0B3D2E;font-size:10px;font-weight:900}.leader-name{min-width:0;flex:1;font-size:10px;font-weight:850;color:#1d3026}.leader-meta{display:block;margin-top:3px;color:#777;font-size:8px;font-weight:500}.leader-amount{font-size:10px;font-weight:900;color:#0B3D2E;white-space:nowrap}.mock-task b{font-size:10px;color:#1d3026}.mock-task small{display:block;margin-top:3px;color:#777;font-size:8px}.mock-task strong{font-size:11px;color:#0B3D2E;white-space:nowrap}.mock-action{padding:7px 9px;border-radius:8px;background:#e9f0eb;color:#0B3D2E;font-size:8px;font-weight:850;white-space:nowrap}.float-pill{position:absolute;padding:10px 12px;border:1px solid #e8ebe5;border-radius:999px;background:#fff;box-shadow:0 8px 24px #0b3d2e14;color:#0B3D2E;font-size:9px;font-weight:800;white-space:nowrap}.step-number{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:#e6eee8;color:#0B3D2E;font-size:12px;font-weight:900}.mini-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#e6eee8;color:#0B3D2E;font-size:17px}.feature-card{padding:18px;border-radius:18px;background:#F6F5EF}.feature-card h3{font-size:15px;font-weight:850;color:#0B3D2E}.feature-card p{margin-top:5px;font-size:11px;line-height:1.6;color:#666}.feature-mock{margin-top:15px;padding:13px;border:1px solid #e5e8e1;border-radius:13px;background:#fff}.why-card{padding:18px;border:1px solid #e9ebe6;border-radius:16px;background:#fff}.why-card h3{margin-top:13px;font-size:13px;font-weight:850;color:#0B3D2E}.why-card p{margin-top:6px;color:#666;font-size:10px;line-height:1.6}.dashboard-screen{display:grid;grid-template-columns:75px 1fr;gap:9px;padding:10px;background:#f7f8f5}.dashboard-sidebar{padding:10px 7px;border-radius:8px;background:#0B3D2E;color:#fff;font-size:8px}.dashboard-sidebar span{display:block;margin-top:15px;color:#d5e3d9}.dashboard-main{min-width:0}.dashboard-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0}.dashboard-metrics div{padding:9px 7px;border:1px solid #e8ece6;border-radius:8px;background:#fff}.dashboard-metrics small{display:block;color:#777;font-size:7px}.dashboard-metrics b{display:block;margin-top:4px;color:#0B3D2E;font-size:12px}.chart-bars{height:72px;display:flex;align-items:end;gap:6px;padding:8px;border:1px solid #e8ece6;border-radius:8px;background:#fff}.chart-bars i{flex:1;border-radius:4px 4px 0 0;background:#8aab98}.review-viewport{overflow:hidden}.review-track{display:flex;transition:transform .35s ease}.review-card{flex:0 0 100%;padding:20px;border:1px solid #e8ebe5;border-radius:17px;background:#F6F5EF}.review-card blockquote{margin:13px 0 17px;color:#17281f;font-size:15px;line-height:1.55;font-weight:750}.review-card small{font-size:10px;color:#666}.review-controls button{width:37px;height:37px;border:1px solid #e0e5de;border-radius:50%;background:#fff;color:#0B3D2E;font-size:18px}.faq-item{border-bottom:1px solid #e7eae5}.faq-question{width:100%;padding:17px 0;display:flex;justify-content:space-between;gap:14px;text-align:left;border:0;background:none;color:#111;font-size:13px;font-weight:800}.faq-answer{display:none;padding:0 20px 16px 0;color:#666;font-size:11px;line-height:1.7}.faq-item.active .faq-answer{display:block}.faq-item.active .faq-plus{transform:rotate(45deg)}.faq-plus{color:#0B3D2E;font-size:20px;transition:transform .2s}.footer-link{color:#666;text-decoration:none;font-size:10px}.footer-link:hover{color:#0B3D2E}.phone-frame{width:160px;padding:9px;border:5px solid #17231c;border-radius:27px;background:#fff;box-shadow:0 18px 35px #00190c35;transform:rotate(4deg)}.phone-notch{width:50px;height:8px;margin:0 auto 12px;border-radius:0 0 8px 8px;background:#17231c}.phone-balance{padding:15px 11px;border-radius:12px;background:#0B3D2E;color:white}.phone-balance small{font-size:8px;color:#dce8df}.phone-balance strong{display:block;margin-top:6px;font-size:20px}.phone-row{margin-top:8px;padding:10px 8px;border-radius:8px;background:#F6F5EF;color:#0B3D2E;font-size:8px;font-weight:800}.toast{position:fixed;bottom:18px;left:50%;z-index:100;transform:translate(-50%,15px);opacity:0;padding:10px 14px;border-radius:10px;background:#0B3D2E;color:#fff;font-size:11px;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}@media(min-width:700px){.page-width{width:min(100% - 48px,920px)}.section-title{font-size:36px}.review-card{flex-basis:calc(50% - 8px)}.review-track{gap:16px}}@media(min-width:1000px){.page-width{width:min(100% - 64px,1050px)}.review-card{flex-basis:calc(50% - 8px)}}@media(max-width:380px){.stat-number{font-size:22px}.page-width{width:calc(100% - 26px)}.hero-actions{flex-direction:column}.hero-actions a{width:100%}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
-
-    :root{--nt-forest:#073b2b;--nt-green:#0b8f3c;--nt-lime:#b8e62e;--nt-leaf:#e9f5df;--nt-cream:#f7f8f1;--nt-ink:#12251b}
-    body{color:var(--nt-ink);background:linear-gradient(180deg,#fff 0%,#fbfdf9 55%,#fff 100%)}
-    header{border-color:#e5eee3!important;box-shadow:0 5px 24px #123b2010}
-    .solid-btn{background:linear-gradient(115deg,var(--nt-forest),var(--nt-green));box-shadow:0 8px 18px #0b8f3c24}
-    .solid-btn:hover{background:linear-gradient(115deg,#052d21,#087631)}
-    .outline-btn{border-color:#b8d7bc;background:#f8fff5}
-    .section-label{color:#16823c}
-    .section-title{color:var(--nt-ink)}
-    .stat-card,.soft-card{background:linear-gradient(145deg,#f7faef,#edf6e9);border-color:#e2eddb;box-shadow:0 8px 22px #1c5b2b08}
-    .stat-number{color:#087b37}
-    .feature-card{position:relative;overflow:hidden;border:1px solid #e1ebdc;background:linear-gradient(145deg,#f7faef 0%,#eef7eb 100%);box-shadow:0 10px 28px #123b200b;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
-    .feature-card:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,#0b8f3c,#b8e62e)}
-    .feature-card:hover{transform:translateY(-2px);border-color:#b8d7bc;box-shadow:0 15px 32px #123b2015}
-    .feature-mock{border-color:#dce9d8;box-shadow:0 5px 16px #123b2008}
-    .mini-icon,.step-number{background:linear-gradient(145deg,#dff1d9,#c6e9bc);color:#075d2b}
-    .mock-green{background:linear-gradient(130deg,#073b2b,#0b8f3c 75%,#5eaa36)}
-    .leader-rank{background:#e4f2d9;color:#075d2b}
-    .leader-amount,.live-task-reward{color:#087b37}
-    .live-task-view{background:#eaf5e4;color:#075d2b}
-    .faq-item{border-color:#e1ebdc}
-    .faq-plus{color:#0b8f3c}
-    .phone-balance{background:linear-gradient(135deg,#073b2b,#0b8f3c)}
-    .toast{background:#073b2b}
-    a:focus-visible,button:focus-visible{outline:3px solid #b8e62e;outline-offset:3px}
-    .referral-leader-card .leader-rank{background:#f1f7d7;color:#466b00}
-    @media(min-width:700px){.section-space{padding-block:76px}.feature-card{border-radius:22px}}
-  /* NAIJA TASK: mobile-first Add to Home Screen bottom sheet */
-  .nt-install-choice{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;justify-content:center;padding:0;background:#071b12a8;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s,visibility .22s}
-  .nt-install-choice.open{opacity:1;visibility:visible;pointer-events:auto}
-  .nt-install-panel{position:relative;width:min(100%,420px);max-height:min(88dvh,680px);overflow-y:auto;padding:16px 16px calc(20px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;background:#fff;color:#111;box-shadow:0 -12px 45px #0002;transform:translateY(105%);transition:transform .28s ease;line-height:1.5}
-  .nt-install-choice.open .nt-install-panel{transform:translateY(0)}
-  .nt-install-handle{width:38px;height:4px;margin:0 auto 17px;border-radius:99px;background:#c9ceca}
-  .nt-install-close{position:absolute;top:13px;right:16px;width:34px;height:34px;border:0;border-radius:50%;background:#f3f5f3;color:#333;font-size:22px;line-height:1}
-  .nt-install-panel h2{margin:0 42px 17px 0;font-size:20px;font-weight:850;letter-spacing:-.4px;color:#111}
-  .nt-install-rows{display:grid;gap:12px}
-  .nt-install-row{width:100%;min-height:68px;display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #e1e5e1;border-radius:12px;background:#fff;color:#111;text-align:left}
-  .nt-install-row:active{background:#f7faf7}
-  .nt-install-icon{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;position:relative;border-radius:10px;background:#0B3D2E;color:#fff}
-  .nt-install-icon img{width:40px;height:40px;border-radius:10px}
-  .nt-install-icon svg{width:23px;height:23px}
-  .nt-install-copy{min-width:0;flex:1}
-  .nt-install-copy strong{display:block;font-size:14px;line-height:1.5;font-weight:850;color:#111}
-  .nt-install-copy small{display:block;margin-top:1px;color:#777;font-size:11px;line-height:1.5}
-  .nt-install-arrow{flex:0 0 auto;color:#68736b;font-size:23px;line-height:1}
-  .nt-install-help{margin-top:13px;padding:12px;border:1px solid #e5eae5;border-radius:12px;background:#f7f9f7;color:#424d45;font-size:12px;line-height:1.5}
-  .nt-install-actions{display:flex;gap:10px;margin-top:12px}
-  .nt-install-actions button{min-height:44px;flex:1;border-radius:10px;font-size:13px;font-weight:800}
-  .nt-install-add{border:0;background:#0B3D2E;color:#fff}
-  .nt-install-cancel{border:1px solid #d9ded9;background:#fff;color:#222}
-  #homepageInstallApp{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 12px;border:0;border-radius:11px;background:#0B3D2E;color:#fff;font-size:11px;font-weight:850;white-space:nowrap}
-  @media(max-width:360px){#homepageInstallApp{padding:0 9px;font-size:10px}.nt-install-copy small{font-size:10px}}\n  .nt-platform-section{padding:42px 16px;background:linear-gradient(180deg,#f5f9f2,#fff);border-top:1px solid #e9efe7;border-bottom:1px solid #e9efe7}.nt-platform-inner{max-width:1000px;margin:auto}.nt-platform-heading{text-align:center;margin:0 auto 22px}.nt-platform-heading>span{font-size:9px;font-weight:950;letter-spacing:1.8px;color:#43844b}.nt-platform-heading h2{margin:8px 0;color:#073b2b;font-size:clamp(22px,4vw,30px);font-weight:900;letter-spacing:-.8px}.nt-platform-heading p{margin:0;color:#68796e;font-size:12px}.nt-platform-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.nt-platform{min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;background:#fff;border:1px solid #e2ebe2;border-radius:15px;color:#243b2b;text-decoration:none;box-shadow:0 5px 16px rgba(7,59,43,.045);transition:transform .18s,border-color .18s}.nt-platform:hover{transform:translateY(-3px);border-color:#b7d6b9}.nt-platform-icon{width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:#f0f5ef}.nt-platform-icon svg{width:31px;height:31px}.nt-platform b{font-size:11px;font-weight:850}.nt-platform-icon.youtube{color:#f00}.nt-platform-icon.tiktok{color:#111}.nt-platform-icon.instagram{color:#d63384}.nt-platform-icon.facebook{color:#0866ff}.nt-platform-icon.xbrand{color:#111}.nt-platform-icon.whatsapp{color:#20b95b}.nt-platform-icon.telegram{color:#229ed9}.nt-platform-icon.threads{color:#111}.nt-platform-icon.linkedin{color:#0a66c2}.nt-platform-icon.snapchat{color:#fffc00}.nt-platform-icon.spotify{color:#1ed760}.nt-platform-icon.ytmusic{color:#ff0033}.nt-platform-icon.apple{color:#111}.nt-platform-icon.audiomack{color:#f9a602}.nt-platform-icon.boomplay{color:#f15a24}.nt-platform-icon.playstore{color:#168b48}.nt-platform-icon.appstore{color:#111}.nt-platform-icon.google{color:#4285f4}.nt-platform-icon.quora{color:#b92b27}.nt-platform-icon.trustpilot{color:#00b67a}@media(max-width:520px){.nt-platform-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.nt-platform{min-height:82px}}</style>
-
-  <meta name="description" content="Discover more with NAIJA TASK — a Nigerian digital platform for opportunities, business promotion, online tasks, marketplace services, community and more. Connect. Discover. Grow.">
-  <meta name="application-name" content="NAIJA TASK">
-  <meta name="apple-mobile-web-app-title" content="NAIJA TASK">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="canonical" href="https://naijatask.com.ng/">
-  <link rel="icon" type="image/svg+xml" href="/assets/naija-task-logo.svg?v=20261125">
-  <link rel="apple-touch-icon" sizes="192x192" href="/assets/naija-task-logo.svg?v=20261125">
-  <link rel="icon" type="image/svg+xml" href="/assets/naija-task-logo.svg?v=20261125">
-  <link rel="manifest" href="/manifest.webmanifest?v=20261125">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="NAIJA TASK">
-  <meta property="og:title" content="NAIJA TASK — Complete Tasks. Earn Naira. Promote Your Business.">
-  <meta property="og:description" content="Nigeria’s platform to complete tasks, earn Naira, discover opportunities and promote your business. Connect. Discover. Grow.">
-  <meta property="og:url" content="https://naijatask.com.ng/">
-  <meta property="og:image" content="https://naijatask.com.ng/assets/naija-task-share-christmas.jpg?v=20261127-xmas">
-  <meta property="og:image:secure_url" content="https://naijatask.com.ng/assets/naija-task-share-christmas.jpg?v=20261127-xmas">
-  <meta property="og:image:type" content="image/jpeg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="NAIJA TASK — Complete Tasks. Earn Naira. Promote Your Business.">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="NAIJA TASK — Complete Tasks. Earn Naira. Promote Your Business.">
-  <meta name="twitter:description" content="Nigeria’s platform to complete tasks, earn Naira, discover opportunities and promote your business. Connect. Discover. Grow.">
-  <meta name="twitter:image" content="https://naijatask.com.ng/assets/naija-task-share-christmas.jpg?v=20261127-xmas">
-
-
-  <link rel="stylesheet" href="/assets/naija-design-system.css?v=4">
-<!-- Intrusive Monetag popup/vignette formats are intentionally disabled on this page. Banner placements remain below. -->
-<style id="nt-global-root-palette">:root{--nt-forest:#064E2B;--nt-deep:#073B24;--nt-dark-green:#073B24;--nt-green:#0B8F45;--nt-bright:#16A34A;--nt-bright-green:#16A34A;--nt-lime:#B7F34A;--nt-white:#FFFFFF;--nt-surface:#FFFFFF;--nt-card:#FFFFFF;--nt-soft-white:#F7FBF7;--nt-bg:#F1F8F2;--nt-pale:#EAF5EC;--nt-leaf:#EAF5EC;--nt-cream:#F7FBF7;--nt-ink:#173326;--nt-muted:#647568;--nt-line:#DCE9DE;--nt-border:#DCE9DE;--nt-success:#168443}</style>
-
-<style id="nt-public-home-widget-layout-20261118">
-:root{--nt-forest:#063d25;--nt-deep:#052f20;--nt-green:#0b8f3c;--nt-lime:#b7ef43;--nt-gold:#f4c542;--nt-ink:#143526}
-body{background:linear-gradient(160deg,#f0f8ed 0%,#fff 38%,#f2f7e9 100%)!important;color:var(--nt-ink)!important}
-header.sticky{background:linear-gradient(105deg,#073b26,#0b6d38 70%,#0b8f3c)!important;border:0!important;box-shadow:0 8px 24px #063d2524!important}
-header.sticky a,header.sticky strong,header.sticky small{color:#fff!important}
-header.sticky img{background:#c4ed65!important;box-shadow:0 4px 14px #0002}
-header.sticky .hamburger,header.sticky #homepageInstallApp{border:1px solid #ffffff55!important;border-radius:12px!important;background:#ffffff16!important;color:#fff!important;padding:9px 12px!important;font-weight:800!important;font-size:12px!important}
-.page-width{width:min(100% - 32px,1050px)!important}
-.section-space{padding-block:54px!important}
-.section-label{display:inline-flex;padding:7px 11px;border-radius:999px;background:#e6f4dc;color:#0b7536!important;letter-spacing:1.3px}
-.section-title{color:#123d27!important;font-size:clamp(27px,4vw,39px)!important}
-.section-copy{color:#607468!important}
-main>section:first-child{position:relative;overflow:hidden;background:radial-gradient(circle at 90% 8%,#c6ee7638,transparent 30%),linear-gradient(140deg,#eaf5e4 0%,#f9fbeF 55%,#e7f4e8 100%);padding-block:55px!important}
-main>section:first-child .page-width{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:0 36px;align-items:center}
-main>section:first-child .page-width>div:first-child{grid-column:1}
-main>section:first-child .page-width>h1{grid-column:1}
-main>section:first-child .page-width>p:nth-of-type(1){grid-column:1}
-main>section:first-child .page-width>.hero-actions{grid-column:1}
-main>section:first-child .page-width>p:nth-of-type(2){grid-column:1}
-main>section:first-child .page-width>.relative{grid-column:1}
-main>section:first-child h1{color:#123d27!important;font-size:clamp(38px,6vw,60px)!important;line-height:1.08!important;letter-spacing:-2px!important}
-main>section:first-child h1 span{color:#0b8f3c!important}
-main>section:first-child .section-copy{max-width:480px;font-size:15px!important}
-main>section:first-child .solid-btn{background:linear-gradient(110deg,#075b31,#0b8f3c)!important;box-shadow:0 9px 20px #0b8f3c2b}
-main>section:first-child .outline-btn{border-color:#9ac99c!important;background:#ffffffb8!important;color:#075b31!important}
-main>section:first-child .relative>div.absolute{background:linear-gradient(140deg,#cfe9b6,#f7e7a8)!important}
-.mock-window{border-color:#cfe2ce!important;box-shadow:0 22px 55px #123b2022!important;border-radius:22px!important}
-.mock-top{background:#f5f9f1}
-.mock-green{background:radial-gradient(circle at 90% 0,#b7ef4340,transparent 35%),linear-gradient(130deg,#073b2b,#0b8f3c 75%,#5eaa36)!important}
-.float-pill{border-color:#d8e8d4!important;background:#fff!important;box-shadow:0 9px 24px #123b2018!important}
-.stat-card{border:1px solid #dbe9d5!important;border-radius:18px!important;background:linear-gradient(145deg,#fff,#edf7e8)!important;box-shadow:0 9px 24px #123b2010!important}
-.stat-card:nth-child(2){background:linear-gradient(145deg,#fff,#edf4ff)!important;border-color:#dbe5f2!important}
-.stat-card:nth-child(3){background:linear-gradient(145deg,#fff,#fff7df)!important;border-color:#eee3bd!important}
-.stat-card:nth-child(4){background:linear-gradient(145deg,#fff,#f0eaff)!important;border-color:#e3daf4!important}
-.feature-card,.why-card,.soft-card{border:1px solid #dbe9d5!important;border-radius:20px!important;background:linear-gradient(145deg,#fff,#eff7e9)!important;box-shadow:0 10px 26px #123b2010!important}
-.feature-card{padding:20px!important}
-.feature-card:nth-child(3n+2){background:linear-gradient(145deg,#fff,#edf4ff)!important;border-color:#dbe5f2!important}
-.feature-card:nth-child(3n){background:linear-gradient(145deg,#fff,#fff7df)!important;border-color:#eee3bd!important}
-.feature-card h3,.why-card h3{color:#0b6332!important}
-.feature-mock{border-color:#d8e7d5!important;background:#ffffffd9!important;border-radius:15px!important}
-.mini-icon,.step-number{background:linear-gradient(145deg,#dff2d6,#c1e8b3)!important;color:#075b2c!important}
-#how-it-works .mt-7.space-y-4{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:13px!important}
-#features .mt-7.space-y-4{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:15px!important}
-#features .mt-7.space-y-4>.feature-card{margin:0!important;min-width:0}
-#features .mt-7.space-y-4>.feature-card:nth-child(3n+2) .mini-icon{background:linear-gradient(145deg,#e0edff,#c9dcf8)!important;color:#24538a!important}
-#features .mt-7.space-y-4>.feature-card:nth-child(3n) .mini-icon{background:linear-gradient(145deg,#fff0bf,#ffdf83)!important;color:#74520a!important}
-#how-it-works .soft-card{margin:0!important}
-#testimonials .review-card{background:linear-gradient(145deg,#fff,#f0f7e9)!important;border-color:#dbe9d5!important;box-shadow:0 8px 20px #123b200b}
-.faq-item{border-color:#dbe8d6!important}
-.faq-question{color:#173d29!important}
-.faq-plus{color:#0b8f3c!important}
-.nt-public-ad{border:1px solid #f0df9d!important;border-radius:16px!important;background:linear-gradient(110deg,#fff9df,#fff)!important;box-shadow:0 5px 18px #735a1010!important}
-footer{background:linear-gradient(130deg,#052f20,#075b32)!important;color:#e8f5e8!important}
-footer a{color:#d9f3b2!important}
-@media(min-width:640px){
- .page-width{width:min(100% - 48px,1050px)!important}
- main>section:first-child .page-width{grid-template-columns:minmax(0,1.03fr) minmax(360px,.97fr)!important}
- main>section:first-child .page-width>.relative{grid-column:2!important;grid-row:1/7!important;margin-top:0!important}
- main>section:first-child .page-width>h1{align-self:end}
- #how-it-works .mt-7.space-y-4{grid-template-columns:repeat(3,minmax(0,1fr))!important}
- #features .mt-7.space-y-4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
- .section-space{padding-block:72px!important}
-}
-@media(min-width:1050px){
- #features .mt-7.space-y-4{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-}
-@media(max-width:420px){
- main>section:first-child h1{font-size:clamp(36px,11vw,46px)!important}
- main>section:first-child .relative{margin-top:34px!important}
- .float-pill{font-size:8px!important;padding:8px 10px!important}
-}
-@media(prefers-reduced-motion:reduce){.feature-card,.solid-btn{transition:none!important}}
-</style>
-
-<style id="nt-home-platform-entrance-20261118">
-#features{background:linear-gradient(155deg,#edf7e9 0%,#f8fbf5 52%,#f1f7e9 100%)!important}
-#features .section-label{background:#dff2ce!important;color:#075b31!important}
-#features .feature-card{position:relative;display:flex;flex-direction:column;gap:12px;min-height:100%;overflow:hidden}
-#features .feature-card:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#0b8f3c,#b7ef43)}
-#features .feature-card:nth-child(3n+2):before{background:linear-gradient(90deg,#3477c5,#9cc7ff)}
-#features .feature-card:nth-child(3n):before{background:linear-gradient(90deg,#d49b18,#f6d86d)}
-#features .feature-card .feature-mock{width:100%;flex:1}
-/* Homepage feature cards are display-only previews; no feature-route links are injected. */
-#features .nt-feature-open:after{content:"→";font-size:17px;line-height:1}
-#features .feature-card:nth-child(3n+2) .nt-feature-open{background:#eaf2ff;color:#23548e;border-color:#d4e2f8}
-#features .feature-card:nth-child(3n) .nt-feature-open{background:#fff5d8;color:#785509;border-color:#f1e2ae}
-#features .nt-feature-open:active{transform:scale(.985)}
-.nt-home-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:24px auto 0;max-width:1050px}
-.nt-feature-access-note{margin-top:14px;padding:9px 11px;border:1px dashed #cbd9ca;border-radius:10px;background:#f7faf5;color:#66776a;font-size:9px;font-weight:750;letter-spacing:.15px}.nt-home-shortcut{cursor:default;user-select:none}.nt-home-shortcut{display:flex;align-items:center;gap:10px;min-height:62px;padding:12px;border:1px solid #dbe9d5;border-radius:15px;background:linear-gradient(145deg,#fff,#eff7e9);color:#17452d;text-decoration:none;box-shadow:0 7px 18px #123b2010;font-size:12px;font-weight:850}
-.nt-home-shortcut:nth-child(3n+2){background:linear-gradient(145deg,#fff,#edf4ff);border-color:#dbe5f2;color:#24538a}
-.nt-home-shortcut:nth-child(3n){background:linear-gradient(145deg,#fff,#fff7df);border-color:#eee3bd;color:#79570c}
-.nt-home-shortcut span:first-child{display:grid;place-items:center;width:35px;height:35px;flex:0 0 35px;border-radius:11px;background:#e1f1d8;font-size:18px}
-.nt-home-shortcut span:last-child{min-width:0}
-.nt-home-shortcut small{display:block;margin-top:2px;color:#6b7d70;font-size:9px;font-weight:650}
-@media(min-width:640px){.nt-home-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}
-@media(min-width:1050px){.nt-home-shortcuts{grid-template-columns:repeat(4,minmax(0,1fr))}}
-
-/* Responsive ad fit: keep every banner inside its page content on phones and desktop */
-.nt-public-ad,.nt-auto-ad,.game-ad,.nt-market-ad,.poster-ad-wrap,
-.adsterra-panel{box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow:hidden}
-.nt-public-ad-unit,.nt-auto-ad-slot,.game-ad-unit,.nt-market-ad-frame,.poster-ad-unit,
-.adsterra-unit{box-sizing:border-box;width:100%;max-width:100%;min-width:0;margin-left:auto;margin-right:auto;display:flex;justify-content:center;align-items:center;overflow:hidden}
-.nt-public-ad iframe,.nt-auto-ad iframe,.nt-auto-ad-slot iframe,.game-ad iframe,
-.nt-market-ad iframe,.nt-market-ad-frame iframe,.poster-ad-wrap iframe,.poster-ad-unit iframe,
-.adsterra-unit iframe{display:block;max-width:100%!important;border:0!important}
-@media(max-width:360px){
- .nt-public-ad,.nt-auto-ad,.game-ad,.nt-market-ad,.poster-ad-wrap,.adsterra-panel{padding-left:6px!important;padding-right:6px!important}
- .nt-public-ad-unit,.nt-auto-ad-slot,.game-ad-unit,.nt-market-ad-frame,.poster-ad-unit,.adsterra-unit{max-width:100%!important}
-}
-
-</style>
-
-
-
-\n/* Combined homepage preview: original green-and-white structure with current homepage features retained. */
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#064d25">
+<meta name="description" content="NAIJA TASK connects Nigerian taskers with digital jobs and businesses with people ready to complete them. Complete Tasks. Earn Naira.">
+<meta name="monetag" content="81f4999791feba18ebe068819cffdcf6">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4990178064824381" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>NAIJA TASK — Complete Tasks. Earn Naira.</title>
 <style>
-:root{--nt-forest:#064d25;--nt-green:#087f36;--nt-lime:#b7ef43;--nt-leaf:#edf7e9;--nt-cream:#f5faf5;--nt-ink:#132b1d}
-body{background:#fafffa;color:var(--nt-ink)}
-.nt-legacy-hero{padding-top:48px;padding-bottom:56px;background:linear-gradient(135deg,#f3faef 0%,#fff 58%,#f7fff3 100%)}
-.nt-legacy-grid{display:grid;grid-template-columns:1fr;gap:28px;align-items:center}
-.nt-legacy-eyebrow{display:inline-block;padding:8px 12px;border:1px solid #d8ead8;border-radius:999px;background:#fff;color:#087f36;font-size:9px;font-weight:900;letter-spacing:1.2px}
-.nt-legacy-title{margin-top:18px;font-size:clamp(36px,8vw,58px);font-weight:900;line-height:1.08;letter-spacing:-2px;color:#132b1d}
-.nt-legacy-title em{color:#087f36;font-style:normal}
-.nt-legacy-copy{max-width:560px;margin-top:16px;color:#5f7064;font-size:14px;line-height:1.8}
-.nt-legacy-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-.nt-legacy-note{margin-top:18px;color:#68796e;font-size:10px;font-weight:700}
-.nt-legacy-panel{padding:22px;border:1px solid #dfebdf;border-radius:22px;background:#fff;box-shadow:0 18px 50px #064d2510}
-.nt-legacy-step{display:flex;align-items:center;gap:13px;padding:17px 0;border-bottom:1px solid #edf2ec}
-.nt-legacy-step:last-child{border:0;padding-bottom:2px}
-.nt-legacy-step>b{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:#eaf5e6;color:#087f36;font-size:12px}
-.nt-legacy-step strong{display:block;color:#173522;font-size:12px}
-.nt-legacy-step small{display:block;margin-top:4px;color:#718075;font-size:10px}
-@media(min-width:760px){.nt-legacy-grid{grid-template-columns:1.15fr .85fr;gap:48px}.nt-legacy-hero{padding-top:72px;padding-bottom:78px}}
+:root{--green:#087f36;--deep:#064d25;--lime:#b7ef43;--ink:#132b1d;--muted:#68796e;--bg:#f4f8f5;--line:#e2ebe4;--white:#fff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}a{color:inherit}button,input{font:inherit}
+.site-header{position:sticky;top:0;z-index:100;background:#ffffffed;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.nav{max-width:1160px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:950;letter-spacing:-.5px;color:var(--deep);font-size:19px}.brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--deep);color:var(--lime);font-size:13px}.nav-links{display:flex;align-items:center;gap:21px}.nav-links a{text-decoration:none;color:#53645a;font-size:13px;font-weight:750}.nav-actions{display:flex;gap:8px}.nav-btn{padding:10px 15px;border-radius:10px;text-decoration:none;font-size:12px;font-weight:850;border:1px solid var(--line)}.nav-btn.login{color:var(--deep);background:white}.nav-btn.join{background:var(--green);color:white;border-color:var(--green)}
+main{overflow:hidden}.wrap{max-width:1160px;margin:auto;padding-left:22px;padding-right:22px}.hero{padding:64px 0 45px;background:radial-gradient(circle at 80% 10%,#dff3c7 0,transparent 30%),linear-gradient(130deg,#f4f8f5,#edf6ee)}.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:48px}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:30px;background:#e5f3e7;color:var(--deep);font-size:10px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase}.eyebrow i{width:7px;height:7px;background:#25a34a;border-radius:50%}.hero h1{font-size:clamp(38px,6vw,64px);line-height:1.02;letter-spacing:-2.7px;margin:19px 0 17px;max-width:650px;color:#102c1b}.hero h1 span{color:var(--green)}.hero-copy{font-size:16px;line-height:1.75;color:#607166;max-width:560px}.hero-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:26px}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border-radius:12px;padding:14px 19px;font-size:13px;font-weight:900}.primary{background:var(--green);color:white;box-shadow:0 8px 20px #087f3624}.secondary{background:white;border:1px solid #dbe8dd;color:var(--deep)}.hero-foot{display:flex;gap:18px;flex-wrap:wrap;margin-top:25px;color:#68796e;font-size:11px;font-weight:700}.hero-foot span{display:flex;align-items:center;gap:6px}.hero-art{min-height:350px;border-radius:30px;background:linear-gradient(145deg,#064d25,#087f36 65%,#0b9b45);padding:25px;position:relative;overflow:hidden;box-shadow:0 25px 55px #064d2529;color:white}.hero-art:before,.hero-art:after{content:"";position:absolute;border:1px solid #ffffff25;border-radius:50%;width:270px;height:270px;right:-100px;top:-95px}.hero-art:after{width:190px;height:190px;right:-55px;top:-55px}.art-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}.art-label{font-size:10px;letter-spacing:1.5px;color:#d5f1d8;font-weight:900}.live{font-size:10px;background:#ffffff20;padding:7px 10px;border-radius:20px}.art-main{position:relative;z-index:1;margin-top:45px}.art-main small{color:#d4efc7;font-weight:800;letter-spacing:1px}.art-main strong{display:block;font-size:34px;line-height:1.1;margin:9px 0}.art-main p{color:#e1f2e4;font-size:13px;line-height:1.6;max-width:280px}.art-task{position:relative;z-index:1;background:#ffffffed;color:var(--ink);border-radius:16px;padding:14px;margin-top:27px;display:flex;justify-content:space-between;gap:10px;align-items:center}.art-task b{display:block;font-size:12px}.art-task small{color:#718077;font-size:10px}.art-task em{font-style:normal;color:var(--green);font-weight:950;font-size:17px}.section{padding:55px 0}.section-head{text-align:center;max-width:650px;margin:0 auto 27px}.kicker{font-size:10px;letter-spacing:1.5px;font-weight:900;color:var(--green)}.section-head h2{font-size:clamp(25px,4vw,36px);letter-spacing:-1px;margin:9px 0;color:#163522}.section-head p{color:var(--muted);font-size:14px;line-height:1.7;margin:0}.roles{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.role-card{background:white;border:1px solid var(--line);border-radius:20px;padding:25px;box-shadow:0 10px 30px #102c1b08}.role-head{display:flex;align-items:center;gap:13px}.role-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:#e8f5e9;font-size:23px}.role-card h3{margin:0;font-size:19px}.role-card .sub{font-size:12px;color:var(--muted);margin-top:4px}.role-card p{font-size:13px;color:#637268;line-height:1.7;margin:17px 0}.role-actions{display:flex;gap:9px;flex-wrap:wrap}.role-actions a{flex:1;min-width:125px}.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.how-card{background:white;border:1px solid var(--line);border-radius:17px;padding:20px}.how-num{width:30px;height:30px;border-radius:10px;background:#e7f5e9;color:var(--green);display:grid;place-items:center;font-weight:950;font-size:12px}.how-card h3{font-size:15px;margin:13px 0 6px}.how-card p{font-size:12px;line-height:1.65;color:var(--muted);margin:0}.feature-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.feature{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px}.feature b{display:block;font-size:12px;margin:8px 0 4px}.feature p{font-size:11px;color:var(--muted);line-height:1.5;margin:0}.about-band{background:#073e22;color:white;border-radius:24px;padding:31px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px}.about-band h2{font-size:25px;margin:0 0 8px}.about-band p{color:#d2e7d7;font-size:13px;line-height:1.7;max-width:670px;margin:0}.about-band a{background:var(--lime);color:var(--deep);padding:13px 16px;border-radius:11px;text-decoration:none;font-size:12px;font-weight:950;white-space:nowrap}.faq{max-width:780px;margin:auto}.faq details{background:white;border:1px solid var(--line);border-radius:13px;padding:15px 17px;margin:9px 0}.faq summary{font-size:13px;font-weight:850;cursor:pointer}.faq details p{font-size:12px;color:var(--muted);line-height:1.65;margin:10px 0 0}.adsterra-slot{display:flex;justify-content:center;align-items:center;width:100%;margin:22px auto;overflow:hidden;clear:both}.adsterra-300x250{max-width:300px;min-height:250px}.adsterra-320x50{max-width:320px;min-height:50px}
+.auth-area{max-width:520px;margin:20px auto 45px;padding:0 15px}.auth-shell{background:white;border:1px solid var(--line);border-radius:22px;padding:23px;box-shadow:0 18px 45px #102c1b10}.auth-switch{display:flex;background:#edf5ef;padding:5px;border-radius:12px;margin-bottom:18px}.auth-switch button{flex:1;border:0;padding:12px;border-radius:9px;background:transparent;font-weight:850;color:#66756b;cursor:pointer}.auth-switch button.active{background:white;color:var(--green);box-shadow:0 2px 8px #102c1b12}.card{background:white}.auth-shell h2{font-size:22px;margin:0 0 6px}.subtitle{font-size:13px;color:var(--muted);line-height:1.55;margin:0 0 19px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;font-weight:850;margin-bottom:7px}.field input{width:100%;padding:13px;border:1px solid #d8e4db;border-radius:11px;background:#fbfdfb;outline:none}.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px #087f3614}.ref-note,.password-note,.location-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:6px}.password-strength{font-size:11px;font-weight:800;margin-top:6px}.main-btn,.secondary-btn{width:100%;padding:14px;border:0;border-radius:11px;background:var(--green);color:white;font-weight:900;cursor:pointer;margin-top:7px}.secondary-btn{background:#edf6ef;color:var(--deep);border:1px solid #d5e7d9}.forgot{display:block;text-align:right;font-size:12px;font-weight:800;color:var(--green);text-decoration:none;margin:0 0 13px}.message{display:none;margin-top:12px;padding:11px;border-radius:10px;font-size:12px;line-height:1.5}.message.show{display:block}.message.error{background:#fff0f0;color:#a32323}.message.success{background:#edf9f0;color:#08752e}.hidden{display:none!important}.auth-back{text-align:center;margin-top:16px;font-size:12px}.auth-back a{color:var(--green);font-weight:850;text-decoration:none}.footer{background:#062f1b;color:#cfe1d3;padding:30px 20px;text-align:center;font-size:12px}.footer strong{color:white}.footer a{color:#d8f0d9;text-decoration:none;margin:0 7px}.footer p{margin:7px 0}.footer .footbrand{font-weight:950;letter-spacing:.6px;font-size:16px;color:white}
+@media(max-width:760px){.nav{padding:11px 15px}.nav-links{display:none}.hero{padding:42px 0 30px}.hero-grid{grid-template-columns:1fr;gap:27px}.hero h1{letter-spacing:-1.7px}.hero-art{min-height:300px}.roles{grid-template-columns:1fr}.how-grid{grid-template-columns:1fr}.feature-strip{grid-template-columns:repeat(2,1fr)}.about-band{grid-template-columns:1fr;padding:24px}.about-band a{justify-self:start}.section{padding:40px 0}.wrap{padding-left:16px;padding-right:16px}}
+@media(max-width:390px){.nav-btn{padding:9px 10px;font-size:11px}.hero-actions{display:grid}.hero-actions a{width:100%}.feature-strip{grid-template-columns:1fr}.auth-shell{padding:18px}}
+</style>
+
+<style id="naija-modern-brand-refresh">
+:root{--green:#087f36;--deep:#062f1b;--lime:#c7f36a;--ink:#14271c;--muted:#64756a;--bg:#f5f7f3;--line:#e2e9e1}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+.site-header{background:rgba(250,252,248,.92);border-bottom-color:#e4ebe2;box-shadow:0 4px 22px #102b1b08}
+.brand{letter-spacing:-.7px}.brand-mark{width:40px;height:40px;border-radius:14px;background:linear-gradient(145deg,#062f1b,#087f36);color:#c7f36a;box-shadow:0 6px 16px #062f1b25}
+.nav-links a{color:#52675a}.nav-btn{border-radius:12px}.nav-btn.join,.primary,.main-btn{background:linear-gradient(135deg,#087f36,#0b9b45);box-shadow:0 8px 18px #087f3620}
+.hero{background:radial-gradient(ellipse at 83% 8%,#e1f4c6 0,transparent 32%),linear-gradient(135deg,#f8faf6,#edf4ec)}
+.hero h1{letter-spacing:-2.9px;color:#0d2818}.hero-art{border-radius:28px;background:linear-gradient(145deg,#052f1b,#087f36 68%,#0b9b45);box-shadow:0 24px 60px #062f1b27}
+.eyebrow{background:#e8f3df;color:#174b2a}.primary,.secondary{border-radius:13px}
+.section-head h2{letter-spacing:-1.2px}.role-card,.how-card,.feature,.faq details,.auth-shell{border-color:#e3ebe2;box-shadow:0 10px 30px rgba(15,45,25,.045);border-radius:19px}
+.role-card{padding:27px}.role-icon{background:#edf5e6;border-radius:16px}
+.how-card{padding:22px}.how-num{background:#e8f4dc;color:#1b6b34}
+.feature{padding:17px}.about-band{background:linear-gradient(115deg,#052f1b,#075b2e);border-radius:26px}
+.auth-shell{border-radius:23px;padding:25px}.auth-switch{background:#eff4eb}.auth-switch button.active{color:#075b2e}
+.field input{border-radius:13px;background:#fbfdf9}.field input:focus{border-color:#0b9b45;box-shadow:0 0 0 3px #0b9b4518}
+.footer{background:#052719}
+@media(max-width:760px){.hero{padding-top:38px}.hero h1{letter-spacing:-1.8px}.hero-art{border-radius:23px}.role-card{padding:21px}.section{padding:42px 0}}
+</style>
+
+<style id="naija-oldest-home-structure">
+.preview-grid{display:grid;grid-template-columns:.85fr 1.15fr;align-items:center;gap:38px}
+.preview-grid h2,.referral-band h2{font-size:clamp(25px,4vw,36px);line-height:1.12;letter-spacing:-1px;margin:10px 0}
+.preview-copy{font-size:14px;line-height:1.8;color:var(--muted);max-width:440px}
+.text-link{display:inline-block;margin-top:12px;color:var(--green);font-size:13px;font-weight:900;text-decoration:none}
+.dashboard-preview{background:#fff;border:1px solid var(--line);border-radius:21px;padding:18px;box-shadow:0 18px 45px #102c1b0d}
+.preview-top{display:flex;align-items:center;justify-content:space-between;padding-bottom:13px;border-bottom:1px solid var(--line);font-size:11px}
+.preview-brand{font-weight:900;color:var(--deep);display:flex;align-items:center;gap:8px}
+.preview-brand b{display:grid;place-items:center;width:27px;height:27px;border-radius:9px;background:var(--deep);color:var(--lime)}
+.preview-status{color:#6c7b70;background:#f0f5ef;padding:6px 9px;border-radius:20px;font-size:9px}
+.preview-welcome{padding:20px 3px 14px;display:flex;flex-direction:column;gap:5px}
+.preview-welcome small{font-size:9px;letter-spacing:1px;color:var(--green);font-weight:900}
+.preview-welcome b{font-size:21px;color:var(--deep)}
+.preview-welcome span,.preview-tiles small,.preview-update small{font-size:10px;color:var(--muted)}
+.preview-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.preview-tiles>div{background:#f5f8f3;border:1px solid #e8eee5;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:7px}
+.preview-tiles span{font-size:18px;color:var(--green);font-weight:900}
+.preview-tiles b{font-size:11px}
+.preview-update{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;gap:9px}
+.preview-update i{width:8px;height:8px;background:#8dbf49;border-radius:50%}
+.preview-update div{display:flex;flex:1;flex-direction:column;gap:4px}
+.preview-update b{font-size:11px}
+.preview-update>span{font-size:10px;font-weight:900;color:var(--green)}
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.category-card{display:flex;align-items:flex-start;gap:12px;padding:17px;background:white;border:1px solid var(--line);border-radius:15px}
+.category-card>span{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;background:#eaf4e5;color:var(--green);border-radius:11px;font-size:19px;font-weight:900}
+.category-card b{font-size:13px}.category-card p{font-size:11px;line-height:1.55;color:var(--muted);margin:5px 0 0}
+.referral-band{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:30px;border-radius:23px;background:linear-gradient(120deg,#07351e,#087f36);color:white}
+.referral-band .kicker{color:#c7f36a}.referral-band h2{color:white}.referral-band p{font-size:13px;line-height:1.7;color:#d7eadb;max-width:650px;margin:0}
+.referral-band a{flex:0 0 auto;text-decoration:none;background:var(--lime);color:var(--deep);padding:13px 17px;border-radius:11px;font-size:12px;font-weight:950}
+.get-started-section{background:#edf5ef}
+@media(max-width:760px){.preview-grid{grid-template-columns:1fr;gap:23px}.category-grid{grid-template-columns:1fr 1fr}.referral-band{display:block;padding:24px}.referral-band a{display:inline-block;margin-top:17px}.preview-tiles{grid-template-columns:1fr 1fr}.preview-tiles>div:last-child{grid-column:1/-1}}
+@media(max-width:390px){.category-grid{grid-template-columns:1fr}.preview-tiles{grid-template-columns:1fr}.preview-tiles>div:last-child{grid-column:auto}}
+</style>
+
+<style id="naija-original-home-layout">
+.old-home-hero{padding:72px 18px 58px;text-align:center;background:#fff}
+.old-home-inner{width:min(920px,100%);margin:0 auto}
+.old-home-hero h1{font-size:clamp(32px,6vw,48px);font-weight:900;letter-spacing:-1.5px;color:#087f36;margin:0 0 12px}
+.old-home-hero h2{font-size:clamp(21px,4vw,29px);color:#193b25;margin:0 0 14px;letter-spacing:-.5px}
+.old-home-hero p{max-width:610px;margin:0 auto;color:#64756a;font-size:15px;line-height:1.75}
+.old-home-actions{display:flex;justify-content:center;gap:10px;margin-top:23px;flex-wrap:wrap}
+.old-home-actions button{border:0;border-radius:7px;background:#087f36;color:white;padding:12px 23px;font-weight:800;cursor:pointer}
+.old-home-actions button.old-login{background:#eaf3eb;color:#075b2e;border:1px solid #d5e5d7}
+.old-how{padding:35px 18px 45px;text-align:center;background:#f4f8f5}
+.old-how h2{font-size:25px;color:#173b24;margin:0 0 22px}
+.old-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.old-steps>div{background:white;border:1px solid #e2ebe4;border-radius:8px;padding:20px 14px}
+.old-steps b{font-size:15px;color:#087f36}
+.old-steps p{font-size:12px;line-height:1.6;color:#68796e;margin:8px 0 0}
+.old-account-links{padding:20px 18px;text-align:center;background:#fff}
+.old-account-links p{font-size:13px;color:#68796e}
+.old-account-links a{display:inline-block;margin:5px;padding:9px 13px;border:1px solid #dce8dd;border-radius:7px;color:#075b2e;text-decoration:none;font-size:12px;font-weight:800}
+.site-header .nav-links{display:none}
+.site-header .nav{justify-content:space-between}
+@media(max-width:600px){.old-home-hero{padding:52px 16px 43px}.old-steps{grid-template-columns:1fr}.old-steps>div{padding:16px}}
+</style>
+<style id="nt-wide-brand-styles">
+/* NAIJA TASK wide national identity lockup */
+.nt-wide-brand{display:flex;align-items:center;gap:11px;min-width:0}
+.nt-wide-mark{position:relative;isolation:isolate;display:grid;place-items:center;width:48px;height:43px;flex:0 0 48px;border-radius:13px;background:linear-gradient(145deg,#07351f,#0a8f3c);color:#d8ff70;font-size:16px;font-weight:1000;letter-spacing:-1px;box-shadow:0 7px 18px #062f1b35;overflow:hidden}
+.nt-wide-mark:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:linear-gradient(#b8f34b 0 50%,#f4d34f 50%);z-index:-1}
+.nt-wide-copy{display:flex;flex-direction:column;gap:3px;min-width:0;line-height:1}
+.nt-wide-copy strong{font-size:17px;font-weight:1000;letter-spacing:.55px;white-space:nowrap;color:inherit}
+.nt-wide-copy small{font-size:8px;font-weight:900;letter-spacing:1.05px;white-space:nowrap;color:inherit;opacity:.72}
+@media(max-width:420px){.nt-wide-mark{width:42px;height:40px;flex-basis:42px}.nt-wide-copy strong{font-size:15px}.nt-wide-copy small{font-size:7px;letter-spacing:.75px}}
+
+.brand.nt-wide-brand{gap:11px;text-decoration:none;padding:8px 15px 8px 9px;border:1px solid #dce9df;border-radius:16px;background:#fff;box-shadow:0 7px 22px #103b1d0d;min-width:220px}
+.brand.nt-wide-brand .brand-mark{width:48px;height:43px;border-radius:13px;background:linear-gradient(145deg,#07351f,#0a8f3c);color:#d8ff70;box-shadow:0 7px 18px #062f1b35;font-size:16px;position:relative;overflow:hidden}
+.brand.nt-wide-brand .brand-mark:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:linear-gradient(#b8f34b 0 50%,#f4d34f 50%)}
+.brand.nt-wide-brand .nt-wide-copy{display:flex;flex-direction:column;gap:4px;line-height:1}
+.brand.nt-wide-brand .nt-wide-copy strong{font-size:17px;font-weight:1000;letter-spacing:.55px;color:var(--deep)}
+.brand.nt-wide-brand .nt-wide-copy small{font-size:8px;font-weight:900;letter-spacing:1.05px;color:#66806c}
+@media(max-width:420px){.brand.nt-wide-brand .brand-mark{width:42px;height:40px}.brand.nt-wide-brand .nt-wide-copy strong{font-size:15px}.brand.nt-wide-brand .nt-wide-copy small{font-size:7px;letter-spacing:.75px}}
+</style><style id="nt-clear-public-layout">
+:root{--nt-green:#087f36;--nt-deep:#064d25;--nt-lime:#b7ef43;--nt-ink:#173522;--nt-muted:#68796e;--nt-line:#e1ebe3;--nt-bg:#f4f8f5}
+.site-header .nav-links{display:flex!important;gap:18px}.site-header .nav{justify-content:space-between;max-width:1160px}
+.nt-wrap{width:min(1100px,calc(100% - 36px));margin:0 auto}.nt-hero{padding:58px 0;background:linear-gradient(125deg,#063f22,#087f36 75%,#0b9b45);color:#fff}.nt-hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:35px;align-items:center}.nt-eyebrow{display:inline-block;font-size:10px;letter-spacing:1.6px;font-weight:950;color:#5d9b65}.nt-hero .nt-eyebrow{color:#d7f1a1}.nt-hero h1{font-size:clamp(34px,5vw,58px);line-height:1.06;letter-spacing:-1.8px;margin:15px 0;max-width:680px}.nt-hero h1 em{color:var(--nt-lime);font-style:normal}.nt-hero p{max-width:660px;color:#e4f2e7;line-height:1.8;font-size:15px}.nt-actions{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 12px}.nt-actions button,.nt-actions>a{border:0;border-radius:10px;background:var(--nt-lime);color:var(--nt-deep);font-weight:900;text-decoration:none;padding:13px 18px;cursor:pointer}.nt-actions>a{background:#ffffff18;border:1px solid #ffffff70;color:white}.nt-small{font-size:11px!important;color:#d0e8d5!important}.nt-hero-panel{background:#ffffff12;border:1px solid #ffffff30;border-radius:20px;padding:20px}.nt-panel-label{font-size:10px;letter-spacing:1.5px;font-weight:900;color:var(--nt-lime)}.nt-flow{display:flex;gap:13px;align-items:center;padding:16px 0;border-bottom:1px solid #ffffff25}.nt-flow:last-child{border:0}.nt-flow>b{display:grid;place-items:center;width:35px;height:35px;border-radius:11px;background:var(--nt-lime);color:var(--nt-deep);font-size:12px}.nt-flow strong,.nt-flow small{display:block}.nt-flow strong{font-size:13px}.nt-flow small{font-size:11px;color:#d7e9dc;margin-top:4px}.nt-section{padding:48px 0}.nt-tint{background:#edf5ef}.nt-heading{max-width:700px;margin-bottom:22px}.nt-heading h2,.nt-about-inner h2{font-size:clamp(24px,4vw,34px);letter-spacing:-.8px;margin:8px 0;color:var(--nt-ink)}.nt-heading p,.nt-about-inner p{font-size:14px;line-height:1.8;color:var(--nt-muted);margin:0}.nt-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.nt-card,.nt-role{background:#fff;border:1px solid var(--nt-line);border-radius:17px;padding:22px}.nt-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#e8f4e9;font-size:21px;margin-bottom:12px}.nt-card h3,.nt-role h3{font-size:17px;margin:0 0 10px}.nt-card ol{padding-left:19px;margin:0 0 14px;color:#53675a;font-size:13px;line-height:1.8}.nt-card a,.nt-text-link{color:var(--nt-green);font-size:12px;font-weight:900;text-decoration:none}.nt-note{font-size:12px;line-height:1.7;color:#506b57;background:#e9f4eb;border-left:3px solid var(--nt-green);border-radius:8px;padding:12px 14px;margin:16px 0 0}.nt-categories{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.nt-categories>div,.nt-features>a{background:white;border:1px solid var(--nt-line);border-radius:14px;padding:17px}.nt-categories b{display:block;color:var(--nt-green);font-size:23px;margin-bottom:8px}.nt-categories strong,.nt-categories small{display:block}.nt-categories strong{font-size:13px}.nt-categories small{font-size:11px;color:var(--nt-muted);line-height:1.6;margin-top:5px}.nt-features{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.nt-features a{text-decoration:none;color:var(--nt-ink)}.nt-features b,.nt-features small{display:block}.nt-features b{font-size:12px}.nt-features small{font-size:11px;line-height:1.6;color:var(--nt-muted);margin-top:6px}.nt-role p{font-size:13px;line-height:1.7;color:var(--nt-muted);min-height:66px}.nt-role button,.nt-role-button{display:inline-block;border:0;border-radius:10px;background:var(--nt-green);color:white;padding:12px 15px;font-size:12px;font-weight:900;text-decoration:none;cursor:pointer}.nt-role>a:not(.nt-role-button){display:block;color:var(--nt-green);font-size:11px;font-weight:800;margin-top:13px;text-decoration:none}.nt-faq{max-width:800px}.nt-faq details{background:white;border:1px solid var(--nt-line);border-radius:12px;padding:14px 16px;margin:9px 0}.nt-faq summary{font-size:13px;font-weight:850;cursor:pointer}.nt-faq details p{font-size:12px;line-height:1.7;color:var(--nt-muted);margin:10px 0 0}.nt-about-strip{background:#073e22;color:white}.nt-about-inner{display:flex;align-items:center;justify-content:space-between;gap:25px}.nt-about-inner h2{color:white}.nt-about-inner p{color:#d6e7d9;max-width:680px}.nt-about-inner>a{white-space:nowrap;padding:13px 16px;border-radius:10px;background:var(--nt-lime);color:var(--nt-deep);text-decoration:none;font-size:12px;font-weight:900}
+@media(max-width:760px){.nt-hero{padding:42px 0}.nt-hero-grid{grid-template-columns:1fr;gap:22px}.nt-features{grid-template-columns:repeat(2,1fr)}.nt-categories{grid-template-columns:repeat(2,1fr)}.site-header .nav-links{display:none!important}.nt-about-inner{display:block}.nt-about-inner>a{display:inline-block;margin-top:16px}}
+@media(max-width:520px){.nt-two{grid-template-columns:1fr}.nt-section{padding:37px 0}.nt-categories,.nt-features{grid-template-columns:1fr 1fr}.nt-wrap{width:min(100% - 26px,1100px)}.nt-role p{min-height:0}}
+
+/* Distinct entry colours: Tasker blue, Poster violet */
+.nt-actions a:first-child,.nt-role:first-child .nt-role-button{
+ background:linear-gradient(135deg,#124b8d,#1769c2)!important;
+ color:#fff!important;border:1px solid #124b8d!important;
+ box-shadow:0 9px 20px #1769c226!important
+}
+.nt-actions a:nth-child(2),.nt-role:nth-child(2) .nt-role-button{
+ background:linear-gradient(135deg,#4e2c98,#7044c8)!important;
+ color:#fff!important;border:1px solid #4e2c98!important;
+ box-shadow:0 9px 20px #7044c826!important
+}
+.nt-role:first-child{border-top:4px solid #1769c2}
+.nt-role:nth-child(2){border-top:4px solid #7044c8}
+.nt-role:first-child .nt-icon{background:#eaf3ff;color:#124b8d}
+.nt-role:nth-child(2) .nt-icon{background:#f1ebff;color:#4e2c98}
+.nt-role-button{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:13px 15px;font-weight:900;margin:14px 0 10px}
+.nt-role>a:not(.nt-role-button){display:block;margin-top:9px;font-size:12px;font-weight:800}
+.nt-role:first-child>a:not(.nt-role-button){color:#1769c2}
+.nt-role:nth-child(2)>a:not(.nt-role-button){color:#7044c8}
+.nt-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:13px 20px;border-radius:12px;text-decoration:none;font-weight:900}
+.nt-actions a:nth-child(2){background:linear-gradient(135deg,#4e2c98,#7044c8)!important}
 </style></head>
 <body>
-  <header class="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
-    <div class="page-width flex h-[68px] items-center justify-between">
-      <a href="/" class="flex items-center gap-2.5 no-underline" aria-label="NAIJA TASK home">
-        <img src="/assets/naija-task-logo.svg?v=20261125" alt="NAIJA TASK logo" class="h-10 w-10 rounded-xl object-cover">
-        <span><strong class="block text-[15px] font-black tracking-tight text-[#111]">NAIJA TASK</strong><small class="block text-[8px] font-bold tracking-[1.1px] text-[#666]">CONNECT. DISCOVER. GROW.</small></span>
-      </a>
-      <div class="flex items-center gap-2"><button id="homepageInstallApp" type="button">Install App</button><button id="menuOpen" class="hamburger" aria-label="Open navigation menu" aria-expanded="false">☰</button></div>
-    </div>
-  </header>
-  <div id="menuBackdrop" class="menu-backdrop"></div>
-  <nav id="slideMenu" class="slide-menu" aria-label="Main navigation" aria-hidden="true">
-    <div class="mb-8 flex items-center justify-between"><strong class="text-lg font-black text-[#0B3D2E]">NAIJA TASK</strong><button id="menuClose" class="hamburger" aria-label="Close menu">×</button></div>
-    <div class="menu-role-group">
-      <strong>Tasker account</strong>
-      <div class="menu-role-actions"><a class="menu-role-btn tasker-role" href="signup.html">Tasker Sign Up</a><a class="menu-role-btn" href="login.html">Tasker Log In</a></div>
-    </div>
-    <div class="menu-role-group">
-      <strong>Poster account</strong>
-      <div class="menu-role-actions"><a class="menu-role-btn poster-role" href="poster-signup.html">Poster Sign Up</a><a class="menu-role-btn" href="poster-login.html">Poster Log In</a></div>
-    </div>
-    <div class="menu-link menu-link-preview">Browse Tasks <small>Dashboard preview · Sign in to access</small></div>
-    <div class="menu-link menu-link-preview">Marketplace <small>Dashboard preview · Sign in to access</small></div>
-    <div class="menu-link menu-link-preview">Community <small>Dashboard preview · Sign in to access</small></div>
-    <div class="menu-link menu-link-preview">NAIJA Games <small>Dashboard preview · Sign in to access</small></div>
-    <div class="menu-link menu-link-preview">Airtime & Data <small>Dashboard preview · Sign in to access</small></div>
-    <a class="menu-link" href="support.html">Contact Us</a>
-    <button class="menu-link w-full text-left" type="button" id="openInstallChoices">Install / Add to Home Screen</button>
-    <p class="mt-8 text-[10px] leading-6 text-[#666]">Connect. Discover. Grow.</p>
-  </nav>
+<header class="site-header">
+ <nav class="nav">
+  <a class="brand nt-wide-brand" href="index.html" aria-label="NAIJA TASK home"><span class="brand-mark nt-wide-mark">NT</span><span class="nt-wide-copy"><strong>NAIJA TASK</strong><small>COMPLETE TASKS · EARN NAIRA</small></span></a>
+  <div class="nav-links"><a href="#how-it-works">How it works</a><a href="#task-categories">Tasks</a><a href="#services">Features</a><a href="#faq">FAQ</a></div>
+  <div class="nav-actions"><a class="nav-btn login" href="login.html">Log in</a><a class="nav-btn join" href="#account-types">Get started</a></div>
+ </nav>
+</header>
+<main>
 
-  <main>
-    <section class="nt-legacy-hero section-space">
-  <div class="page-width nt-legacy-grid">
-    <div>
-      <span class="nt-legacy-eyebrow">A DIGITAL TASK MARKETPLACE BUILT FOR NIGERIA</span>
-      <h1 class="nt-legacy-title">Turn completed tasks into <em>real progress.</em></h1>
-      <p class="nt-legacy-copy">NAIJA TASK brings Taskers and Posters together. Taskers find digital jobs, complete the instructions and submit proof. Posters publish tasks and review the work they receive.</p>
-      <div class="nt-legacy-actions">
-        <a class="solid-btn" href="signup.html">Start as a Tasker</a>
-        <a class="outline-btn" href="poster-signup.html">Post a Task</a>
-      </div>
-      <p class="nt-legacy-note">Clear task details · Naira rewards · One organised workspace</p>
-    </div>
-    <aside class="nt-legacy-panel">
-      <span class="section-label">HOW IT WORKS</span>
-      <div class="nt-legacy-step"><b>01</b><span><strong>Choose your side</strong><small>Complete tasks or publish work</small></span></div>
-      <div class="nt-legacy-step"><b>02</b><span><strong>Follow clear instructions</strong><small>Know what is expected before you begin</small></span></div>
-      <div class="nt-legacy-step"><b>03</b><span><strong>Track the outcome</strong><small>Follow submissions, reviews and account activity</small></span></div>
-    </aside>
+<section class="nt-hero">
+ <div class="nt-wrap nt-hero-grid">
+  <div><span class="nt-eyebrow">A DIGITAL TASK MARKETPLACE BUILT FOR NIGERIA</span>
+   <h1>Turn completed tasks into <em>real progress.</em></h1>
+   <p>NAIJA TASK brings Taskers and Posters together. Taskers find digital jobs, complete the instructions and submit proof. Posters publish tasks and review the work they receive.</p>
+   <div class="nt-actions"><a href="signup.html">Start as a Tasker</a><a href="poster-signup.html">Post a Task</a></div>
+   <p class="nt-small">Clear task details · Naira rewards · One organised workspace</p>
   </div>
+  <aside class="nt-hero-panel"><span class="nt-panel-label">HOW IT WORKS</span><div class="nt-flow"><b>01</b><span><strong>Choose your side</strong><small>Complete tasks or publish work</small></span></div><div class="nt-flow"><b>02</b><span><strong>Follow clear instructions</strong><small>Know what is expected before you begin</small></span></div><div class="nt-flow"><b>03</b><span><strong>Track the outcome</strong><small>Follow submissions, reviews and account activity</small></span></div></aside>
+ </div>
 </section>
-
-
-    <section id="naija-task-main-banner" class="page-width" style="padding:14px 16px 8px;">
-      <a href="https://naijatask.com.ng/" aria-label="Visit NAIJA TASK" style="display:block;overflow:hidden;border-radius:20px;">
-        <img src="/assets/naija-task-share-christmas.jpg" alt="NAIJA TASK — Complete Tasks. Earn Naira." width="1200" height="630" loading="eager" decoding="async" style="display:block;width:100%;height:auto;">
-      </a>
-    </section>    <section id="nt-public-top-ad" class="nt-public-ad" aria-label="Promotion"><div class="nt-public-ad-unit"><div class="nt-lazy-ad" data-nt-adsterra="dc095c7f78341b7c3f8c3cd337d72815" data-ad-height="50" data-ad-width="320" style="min-height:50px;max-width:320px;margin:auto" aria-label="Advertisement"></div></div></section>
-    <section class="pb-12">
-      <div class="page-width grid grid-cols-2 gap-3">
-        <div class="stat-card"><div class="stat-number" id="statApprovedTasks">—</div><div class="stat-label">Approved Task Completions</div></div>
-        <div class="stat-card"><div class="stat-number" id="statApprovedRewards">—</div><div class="stat-label">Approved Task Rewards</div></div>
-        <div class="stat-card"><div class="stat-number" id="statRegisteredUsers">—</div><div class="stat-label">Registered Members</div></div>
-        <div class="stat-card"><div class="stat-number" id="statActiveTaskers">—</div><div class="stat-label">Active Taskers · 30 days</div></div>
-      </div>
-    </section>
-
-    <section id="how-it-works" class="section-space bg-white">
-      <div class="page-width">
-        <span class="section-label">Simple steps</span>
-        <h2 class="section-title mt-3">How It Works</h2>
-        <p class="section-copy mt-3">Getting started is simple. Choose your role and follow the steps.</p>
-        <div class="mt-7 space-y-4">
-          <article class="soft-card p-5"><div class="step-number">01</div><h3 class="mt-4 text-[15px] font-extrabold text-[#0B3D2E]">Create an Account</h3><p class="section-copy mt-2">Sign up as a Tasker to complete tasks and earn, or as a Poster to promote your business.</p></article>
-          <article class="soft-card p-5"><div class="step-number">02</div><h3 class="mt-4 text-[15px] font-extrabold text-[#0B3D2E]">Post or Complete Tasks</h3><p class="section-copy mt-2">Posters share clear instructions and rewards. Taskers choose available tasks and complete the required steps.</p></article>
-          <article class="soft-card p-5"><div class="step-number">03</div><h3 class="mt-4 text-[15px] font-extrabold text-[#0B3D2E]">Submit Proof and Track Rewards</h3><p class="section-copy mt-2">Taskers submit proof for review. Approved rewards and task activity can be followed in the account wallet.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section id="features" class="section-space">
-      <div class="page-width">
-        <span class="section-label">Platform tools</span>
-        <h2 class="section-title mt-3">Everything You Need in One Place</h2>
-        <p class="section-copy mt-3">Explore the tools that help members discover tasks, track progress, verify submissions and get support.</p>
-        <div class="mt-7 space-y-4">
-          <article class="feature-card">
-            <div class="flex items-center gap-3"><span class="mini-icon">▤</span><div><h3>Task Marketplace</h3><p>Browse opportunities and view the reward.</p></div></div>
-            <div class="feature-mock">
-              <div class="flex items-center justify-between gap-2 mb-3"><span class="text-[9px] font-extrabold uppercase tracking-[1px] text-[#47725f]">Live funded tasks</span><span id="taskPreviewStatus" class="text-[9px] font-semibold text-[#777]" aria-live="polite">Loading opportunities…</span></div>
-              <div id="homepageTaskPreviews" class="divide-y divide-[#edf0eb]" aria-live="polite">
-                <div class="py-3 text-[11px] text-[#777]">Checking available tasks…</div>
-              </div>
-              <p class="mt-2 text-[9px] leading-5 text-[#777]">Only active, approved and funded opportunities are shown.</p>
-            </div>
-          </article>
-
-          <article class="feature-card">
-            <div class="flex items-center gap-3"><span class="mini-icon">🏆</span><div><h3>Top Taskers</h3><p>Recognising members with the highest approved task rewards.</p></div></div>
-            <div class="feature-mock">
-              <div class="flex items-center justify-between gap-2 mb-3"><span class="text-[9px] font-extrabold uppercase tracking-[1px] text-[#47725f]">Verified leaderboard</span><span id="leaderboardStatus" class="text-[9px] font-semibold text-[#777]" aria-live="polite">Loading rankings…</span></div>
-              <div id="homepageLeaderboard" class="divide-y divide-[#edf0eb]" aria-live="polite">
-                <div class="py-3 text-[11px] text-[#777]">Loading approved earnings…</div>
-              </div>
-              <p class="mt-2 text-[9px] leading-5 text-[#777]">Rankings use approved task rewards, not pending submissions or wallet balances.</p>
-            </div>
-          </article>
-
-          <article class="feature-card referral-leader-card">
-            <div class="flex items-center gap-3"><span class="mini-icon">🤝</span><div><h3>Top Referrers</h3><p>Celebrating members who bring new people to NAIJA TASK.</p></div></div>
-            <div class="feature-mock">
-              <div class="flex items-center justify-between gap-2 mb-3"><span class="text-[9px] font-extrabold uppercase tracking-[1px] text-[#47725f]">Referral leaderboard</span><span id="referralLeaderboardStatus" class="text-[9px] font-semibold text-[#777]" aria-live="polite">Loading referrals…</span></div>
-              <div id="homepageReferralLeaderboard" class="divide-y divide-[#edf0eb]" aria-live="polite">
-                <div class="py-3 text-[11px] text-[#777]">Checking referral records…</div>
-              </div>
-              <p class="mt-2 text-[9px] leading-5 text-[#777]">Ranked by real registered referrals. Referral rewards shown are recorded rewards only.</p>
-            </div>
-          </article>
-
-          <article class="feature-card">
-            <div class="flex items-center gap-3"><span class="mini-icon">▣</span><div><h3>Wallet System</h3><p>Keep track of your account balance and activity.</p></div></div>
-            <div class="feature-mock">
-              <div class="mock-green"><small class="text-[9px] text-white/75">Available balance</small><strong class="mt-1 block text-[23px] font-black">₦0.00</strong><div class="mt-3 grid grid-cols-2 gap-2"><span class="rounded-lg bg-white/10 p-2 text-[8px]">Pending<br><b class="mt-1 block text-[11px]">₦0.00</b></span><span class="rounded-lg bg-white/10 p-2 text-[8px]">Withdrawn<br><b class="mt-1 block text-[11px]">₦0.00</b></span></div></div>
-            </div>
-          </article>
-
-          <article class="feature-card">
-            <div class="flex items-center gap-3"><span class="mini-icon">🤝</span><div><h3>Refer &amp; Earn</h3><p>Invite earners and advertisers. Get paid when their referral milestones are verified.</p></div></div>
-            <div class="feature-mock">
-              <div class="rounded-xl bg-[#F6F5EF] p-3">
-                <div class="flex items-center justify-between gap-2"><b class="text-[13px] text-[#0B3D2E]">₦200 Earner bonus</b><b class="text-[13px] text-[#806018]">0.5% Poster</b></div>
-                <p class="mt-2 text-[9px] leading-5 text-[#666]">Plus 5% lifetime commission on approved task rewards from referred earners.</p>
-                <a href="referrals.html" class="solid-btn mt-3 w-full">Open Referral Centre →</a>
-              </div>
-            </div>
-          </article>
-
-          <article class="feature-card">
-            <div class="flex items-center gap-3"><span class="mini-icon">▣</span><div><h3>Task Tracking & History</h3><p>Keep up with task progress, submitted work and review decisions.</p></div></div>
-            <div class="feature-mock">
-              <div class="mock-task"><span><b>Submitted work</b><small>Check your submission status</small></span><strong>Track</strong></div>
-              <div class="mock-task"><span><b>Completed tasks</b><small>Review your task history</small></span><strong>History</strong></div>
-              <div class="mock-task"><span><b>Review updates</b><small>See approval or rejection notes</small></span><strong>Status</strong></div>
-            </div>
-          </article>
-
-          <article class="feature-card">
-            <div class="flex items-center gap-3"><span class="mini-icon">?</span><div><h3>Help & Appeals Centre</h3><p>Find answers, contact support and raise an appeal when a task decision needs another review.</p></div></div>
-            <div class="feature-mock">
-              <div class="mock-task"><span><b>Help Centre</b><small>Find guidance about using the platform</small></span><strong>Help</strong></div>
-              <div class="mock-task"><span><b>Contact Support</b><small>Get help with account or payment issues</small></span><strong>Support</strong></div>
-              <div class="mock-task"><span><b>Appeals</b><small>Request a review where available</small></span><strong>Appeal</strong></div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-space bg-white">
-      <div class="page-width">
-        <span class="section-label">Why choose us</span>
-        <h2 class="section-title mt-3">Why NAIJA TASK?</h2>
-        <p class="section-copy mt-3">A practical platform designed to make task activity easier to manage.</p>
-        <div class="mt-7 grid grid-cols-2 gap-3">
-          <article class="why-card"><span class="mini-icon">◎</span><h3>Real People</h3><p>Connect your task with people who can complete the requested work.</p></article>
-          <article class="why-card"><span class="mini-icon">↗</span><h3>Easy to Use</h3><p>Clear steps help Posters and Taskers find the tools they need.</p></article>
-          <article class="why-card"><span class="mini-icon">₦</span><h3>Clear Rewards</h3><p>See task rewards and follow approved earnings in your wallet.</p></article>
-          <article class="why-card"><span class="mini-icon">✓</span><h3>Proof Verification</h3><p>Task submissions can be reviewed against the task instructions.</p></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-space">
-      <div class="page-width">
-        <span class="section-label">Your workspace</span>
-        <h2 class="section-title mt-3">Manage Your Activity From One Dashboard</h2>
-        <p class="section-copy mt-3">Keep your tasks, submissions and wallet activity together in one place.</p>
-        <div class="mt-7 rounded-2xl bg-[#F6F5EF] p-3">
-          <div class="overflow-hidden rounded-xl border border-[#e5e9e2] bg-white">
-            <div class="mock-top"><i></i><i></i><i></i><span class="ml-auto text-[8px] font-bold text-[#777]">MEMBER DASHBOARD</span></div>
-            <div class="dashboard-screen">
-              <aside class="dashboard-sidebar"><b>NT MENU</b><span>Overview</span><span>My Tasks</span><span>Submissions</span><span>Wallet</span><span>Profile</span></aside>
-              <div class="dashboard-main">
-                <b class="text-[10px] font-extrabold text-[#0B3D2E]">Account overview</b>
-                <div class="dashboard-metrics"><div><small>Wallet balance</small><b>₦0.00</b></div><div><small>My tasks</small><b>0</b></div><div><small>Completed</small><b>0</b></div><div><small>In review</small><b>0</b></div></div>
-                <b class="text-[8px] text-[#405448]">Recent activity</b>
-                <div class="chart-bars"><i style="height:28%"></i><i style="height:48%"></i><i style="height:37%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:88%"></i><i style="height:63%"></i></div>
-              </div>
-            </div>
-          </div>
-          <p class="mt-3 text-center text-[9px] text-[#666]">A simple view of your task and wallet activity</p>
-        </div>
-        <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div class="rounded-xl border border-[#dce9dc] bg-white p-4">
-            <span class="text-[9px] font-extrabold uppercase tracking-[1px] text-[#47725f]">For Taskers</span>
-            <h3 class="mt-1 text-[14px] font-black text-[#0B3D2E]">Complete tasks & earn</h3>
-            <div class="mt-3 grid grid-cols-2 gap-2"><a href="signup.html" class="solid-btn !min-h-[42px] !px-2 !text-[11px]">Sign Up</a><a href="login.html" class="outline-btn !min-h-[42px] !px-2 !text-[11px]">Log In</a></div>
-          </div>
-          <div class="rounded-xl border border-[#f0e3c4] bg-white p-4">
-            <span class="text-[9px] font-extrabold uppercase tracking-[1px] text-[#98701b]">For Posters</span>
-            <h3 class="mt-1 text-[14px] font-black text-[#76530d]">Promote your business</h3>
-            <div class="mt-3 grid grid-cols-2 gap-2"><a href="poster-signup.html" class="solid-btn !min-h-[42px] !px-2 !text-[11px]" style="background:#8b6415">Sign Up</a><a href="poster-login.html" class="outline-btn !min-h-[42px] !px-2 !text-[11px]" style="border-color:#e8d8b2;color:#76530d">Log In</a></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section-space bg-white" id="testimonials">
-      <div class="page-width">
-        <span class="section-label">Member experiences</span>
-        <h2 class="section-title mt-3">What People Are Saying</h2>
-        <p class="section-copy mt-3">A few words shared by people about their experience with NAIJA TASK.</p>
-        <div class="mt-6 flex items-center justify-between">
-          <span id="reviewCount" class="text-[10px] font-bold text-[#666]">01 / 04</span>
-          <div class="review-controls flex gap-2"><button id="reviewPrev" aria-label="Previous testimonial">‹</button><button id="reviewNext" aria-label="Next testimonial">›</button></div>
-        </div>
-        <div class="review-viewport mt-3">
-          <div id="reviewTrack" class="review-track">
-            <article class="review-card"><div class="text-[12px] tracking-[3px] text-[#8b9b8d]">★★★★★</div><blockquote>“Posting tasks and tracking people is very smooth.”</blockquote><small>Business Owner</small></article>
-            <article class="review-card"><div class="text-[12px] tracking-[3px] text-[#8b9b8d]">★★★★★</div><blockquote>“I'm a student and NaijaTask helps me with my daily needs.”</blockquote><small>Chiamaka, Student</small></article>
-            <article class="review-card"><div class="text-[12px] tracking-[3px] text-[#8b9b8d]">★★★★★</div><blockquote>“If you want your daily 2k, I recommend NaijaTask.”</blockquote><small>Musa, Tasker</small></article>
-            <article class="review-card"><div class="text-[12px] tracking-[3px] text-[#8b9b8d]">★★★★★</div><blockquote>“Verification is done in about 24 hours, very fast.”</blockquote><small>Ada, Tasker</small></article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="faq" class="section-space">
-      <div class="page-width">
-        <span class="section-label">Need to know</span>
-        <h2 class="section-title mt-3">Frequently Asked Questions</h2>
-        <div class="mt-6">
-          <div class="faq-item"><button class="faq-question" aria-expanded="false">How do I start earning on NAIJA TASK?<span class="faq-plus">+</span></button><p class="faq-answer">Create a Tasker account, browse available tasks, read the instructions carefully and submit the required proof after completing a task.</p></div>
-          <div class="faq-item"><button class="faq-question" aria-expanded="false">How can I post a task?<span class="faq-plus">+</span></button><p class="faq-answer">Create a Poster account, provide the task details, set the reward and participant slots, then follow the funding and publishing steps shown on the platform.</p></div>
-          <div class="faq-item"><button class="faq-question" aria-expanded="false">When will my task reward be credited?<span class="faq-plus">+</span></button><p class="faq-answer">A reward is credited after the submitted proof has been reviewed and approved according to the task requirements.</p></div>
-          <div class="faq-item"><button class="faq-question" aria-expanded="false">How do withdrawals work?<span class="faq-plus">+</span></button><p class="faq-answer">Eligible approved earnings appear in your wallet. You can request a withdrawal when you meet the current account and minimum withdrawal requirements displayed in your wallet.</p></div>
-          <div class="faq-item"><button class="faq-question" aria-expanded="false">How can I contact support?<span class="faq-plus">+</span></button><p class="faq-answer">Visit the Contact Us page or email naijataskofficia@gmail.com for help with your account or platform activity.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pb-16 pt-5">
-      <div class="page-width">
-        <div class="overflow-hidden rounded-[24px] bg-[#0B3D2E] p-6 text-white">
-          <span class="text-[9px] font-extrabold uppercase tracking-[1.4px] text-[#c9dfce]">Your next step starts here</span>
-          <h2 class="headline mt-3 text-[31px]">Ready to Grow or Earn?</h2>
-          <p class="mt-3 text-[12px] leading-[1.7] text-white/75">Join NAIJA TASK. Post a task for real people or start completing tasks and tracking your rewards.</p>
-          <a href="poster-signup.html" class="mt-5 inline-flex min-h-[45px] items-center rounded-xl bg-white px-5 text-[12px] font-extrabold text-[#0B3D2E] no-underline">Post a Task <span class="ml-2">→</span></a>
-          <div class="mt-8 flex items-end justify-between gap-4">
-            <div class="max-w-[155px]">
-              <p class="text-[10px] leading-5 text-white/70">One account to keep your task activity and wallet in view.</p>
-              <a href="signup.html" class="mt-3 inline-block text-[11px] font-bold text-white underline underline-offset-4">Start Earning</a>
-            </div>
-            <div class="phone-frame">
-              <div class="phone-notch"></div>
-              <div class="px-1 pb-1"><b class="block text-[9px] font-black text-[#0B3D2E]">NAIJA TASK</b><div class="phone-balance mt-3"><small>Wallet preview</small><strong>₦0.00</strong></div><div class="phone-row">Wallet overview　→</div><div class="phone-row">Recent activity　→</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  
-  <section class="nt-platform-section" aria-label="Social and digital platforms"><div class="nt-platform-inner"><div class="nt-platform-heading"><span>THE DIGITAL SPACE</span><h2>Tasks across familiar platforms</h2><p>Platform icons help you recognise the type of task before you begin.</p></div><div class="nt-platform-grid">
-<div class="nt-platform" href="javascript:void(0)" aria-label="YouTube"><span class="nt-platform-icon youtube"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="9" width="32" height="22" rx="7" fill="currentColor"/><path d="M17 14.5 27 20l-10 5.5z" fill="#fff"/></svg></span><b>YouTube</b></div>
-<div class="nt-platform" href="javascript:void(0)" aria-label="TikTok"><span class="nt-platform-icon tiktok"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M23 6v18.1a7.2 7.2 0 1 1-6-7.1v5.3a2.2 2.2 0 1 0 1.5 2.1V6h4.5c.4 3.5 2.3 5.5 6 6.2v4.7c-2.5-.2-4.5-1.1-6-2.6V6z" fill="currentColor"/></svg></span><b>TikTok</b></div>
-<div class="nt-platform" href="javascript:void(0)" aria-label="Instagram"><span class="nt-platform-icon instagram"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="7" width="26" height="26" rx="8" fill="none" stroke="currentColor" stroke-width="3.5"/><circle cx="20" cy="20" r="6" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="28" cy="12" r="2" fill="currentColor"/></svg></span><b>Instagram</b></div>
-<div class="nt-platform" href="javascript:void(0)" aria-label="Facebook"><span class="nt-platform-icon facebook"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M23 34V22h4l.7-5H23v-3.2c0-1.5.5-2.5 2.6-2.5H28V7a27 27 0 0 0-3.5-.2c-3.5 0-6 2.1-6 6.1V17h-4v5h4v12z" fill="currentColor"/></svg></span><b>Facebook</b></div>
-<div class="nt-platform" href="javascript:void(0)" aria-label="X"><span class="nt-platform-icon xbrand"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M9 8h7.2l6.2 8.3L29.5 8H33L24 18.5 34 32h-7.2l-6.8-9.1L12 32H8.5l9.7-11.3zM14 11l14.8 18h1.7L15.7 11z" fill="currentColor"/></svg></span><b>X</b></div>
-<div class="nt-platform" href="javascript:void(0)" aria-label="WhatsApp"><span class="nt-platform-icon whatsapp"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6a13 13 0 0 0-11.2 19.6L7 34l8.6-1.7A13 13 0 1 0 20 6zm0 23.2a10.2 10.2 0 0 1-5.2-1.4l-.6-.3-5.1 1 1-5-.4-.6A10.2 10.2 0 1 1 20 29.2zm5.6-7.6c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.3 8.3 0 0 1-2.5-1.5 9.3 9.3 0 0 1-1.7-2.1c-.2-.3 0-.5.1-.7l.5-.5.3-.6c.1-.2 0-.4 0-.6l-1-2.3c-.3-.6-.6-.5-.8-.5h-.7c-.2 0-.6.1-.9.4s-1.2 1.2-1.2 2.8 1.2 3.2 1.4 3.4a13.6 13.6 0 0 0 5.2 4.6c.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2.1-1.4s.3-1.3.2-1.4-.2-.2-.5-.3z" fill="currentColor"/></svg></span><b>WhatsApp</b></div>
-<div class="nt-platform" href="javascript:void(0)" aria-label="Telegram"><span class="nt-platform-icon telegram"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="currentColor"/><path d="m10 19 19-7-4 18-7-5-4 3 1-6 10-8-12 6z" fill="#fff"/></svg></span><b>Telegram</b></div>
-<div class="nt-platform" href="javascript:void(0)" aria-label="Threads"><span class="nt-platform-icon threads"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M28.8 17.3c-.5-5.2-3.7-8.1-8.8-8.1-6.1 0-10 4.3-10 11s4 11 10.3 11c5.3 0 8.7-2.7 8.7-7 0-3.6-2.4-5.8-6.5-5.8-3.4 0-5.6 1.7-5.6 4.3 0 2.2 1.6 3.7 4 3.7 2.9 0 4.8-2 4.8-5.3 0-4.3-2.3-7-6.3-7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></span><b>Threads</b></div>
-<div class="nt-platform" aria-label="LinkedIn"><span class="nt-platform-icon linkedin"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="5" width="30" height="30" rx="5" fill="currentColor"/><path d="M12 16h4v13h-4zm2-6a2.2 2.2 0 1 1 0 4.4A2.2 2.2 0 0 1 14 10zm7 6h4v2c1-1.6 2.3-2.4 4.2-2.4 3.5 0 4.8 2.2 4.8 5.8V29h-4v-6.8c0-1.9-.5-3.1-2.2-3.1-1.9 0-2.8 1.3-2.8 3.5V29h-4z" fill="#fff"/></svg></span><b>LinkedIn</b></div>
-<div class="nt-platform" aria-label="Snapchat"><span class="nt-platform-icon snapchat"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="4" width="32" height="32" rx="10" fill="currentColor"/><path d="M20 10c-4 0-6 3-6 7v5c0 2-2 3-4 4 2 1 4 1 5 2 1 2 3 3 5 3s4-1 5-3c1-1 3-1 5-2-2-1-4-2-4-4v-5c0-4-2-7-6-7z" fill="#fff"/></svg></span><b>Snapchat</b></div>
-<div class="nt-platform" aria-label="Spotify"><span class="nt-platform-icon spotify"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="currentColor"/><path d="M10 16c7-2 14-1 20 2M12 21c6-2 12-1 17 2M14 26c5-1 9 0 13 2" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round"/></svg></span><b>Spotify</b></div>
-<div class="nt-platform" aria-label="YouTube Music"><span class="nt-platform-icon ytmusic"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="currentColor"/><path d="M17 13v14l11-7z" fill="#fff"/></svg></span><b>YouTube Music</b></div>
-<div class="nt-platform" aria-label="Apple Music"><span class="nt-platform-icon apple"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M25 9v18a5 5 0 1 1-3-4.6V14l-9 2v13a5 5 0 1 1-3-4.6V13z" fill="currentColor"/></svg></span><b>Apple Music</b></div>
-<div class="nt-platform" aria-label="Audiomack"><span class="nt-platform-icon audiomack"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M6 29 13 12l5 11 5-15 11 21z" fill="currentColor"/></svg></span><b>Audiomack</b></div>
-<div class="nt-platform" aria-label="Boomplay"><span class="nt-platform-icon boomplay"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="currentColor"/><path d="M16 12v16l13-8z" fill="#fff"/></svg></span><b>Boomplay</b></div>
-<div class="nt-platform" aria-label="Google Play Store"><span class="nt-platform-icon playstore"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M9 6v28l15-14z" fill="#34a853"/><path d="m9 6 20 11-5 3z" fill="#4285f4"/><path d="m9 34 20-11-5-3z" fill="#fbbc04"/><path d="m24 20 7-4 4 4-4 4z" fill="#ea4335"/></svg></span><b>Google Play Store</b></div>
-<div class="nt-platform" aria-label="Apple App Store"><span class="nt-platform-icon appstore"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M18 9 8 27m14-18 10 18M11 22h18M16 31l4-7 4 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>Apple App Store</b></div>
-<div class="nt-platform" aria-label="Google"><span class="nt-platform-icon google"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M34 20c0-1-.1-2-.3-3H20v6h8a8 8 0 1 1-2-9l4-4a14 14 0 1 0 4 10z" fill="currentColor"/></svg></span><b>Google</b></div>
-<div class="nt-platform" aria-label="Quora"><span class="nt-platform-icon quora"><b style="font-family:Georgia,serif;font-size:28px">Q</b></span><b>Quora</b></div>
-<div class="nt-platform" aria-label="Trustpilot"><span class="nt-platform-icon trustpilot"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="m20 5 3.5 10.8H35l-9.3 6.8 3.5 10.9L20 26.8l-9.2 6.7 3.5-10.9L5 15.8h11.5z" fill="currentColor"/></svg></span><b>Trustpilot</b></div>
-</div></div></section>
-  
-  <section class="nt-public-ad" aria-label="Promotion"><div class="nt-public-ad-unit"><div class="nt-lazy-ad" data-nt-adsterra="d33fd661fe11e17cd12dc188cb8b8bd1" data-ad-height="250" data-ad-width="300" style="min-height:250px;max-width:300px;margin:auto" aria-label="Advertisement"></div></div></section>
-  <footer class="border-t border-gray-100 bg-white py-9">
-    <div class="page-width">
-      <a href="/" class="inline-flex items-center gap-2.5 no-underline"><span class="grid h-9 w-9 place-items-center rounded-xl bg-[#0B3D2E] text-xs font-black text-white">NT</span><span><b class="block text-[13px] font-black text-[#111]">NAIJA TASK</b><small class="block text-[8px] font-bold tracking-[1px] text-[#666]">COMPLETE TASKS. EARN NAIRA.</small></span></a>
-      <p class="mt-4 max-w-[330px] text-[10px] leading-6 text-[#666]">A digital community for opportunities, business growth, online tasks, services and connections.</p>
-      <div class="mt-5 flex flex-wrap gap-x-5 gap-y-3"><a class="footer-link" href="about-us.html">About Us</a><a class="footer-link" href="#how-it-works">How It Works</a><a class="footer-link" href="#faq">FAQs</a><a class="footer-link" href="privacy-policy.html">Privacy Policy</a><a class="footer-link" href="terms-and-conditions.html">Terms</a><a class="footer-link" href="support.html">Contact Us</a><a class="footer-link" href="earn-money-online-nigeria.html">Online Tasks in Nigeria</a><a class="footer-link" href="post-social-media-tasks.html">Post Tasks &amp; Promote Business</a><a class="footer-link font-extrabold" href="login.html">Tasker Log In</a><a class="footer-link font-extrabold" href="poster-login.html">Poster Log In</a></div>
-      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="rounded-2xl border border-[#dce9de] bg-[#f2f8ef] p-4">
-          <b class="block text-[11px] font-black text-[#075b31]">TASKER ACCOUNT</b>
-          <p class="mt-1 text-[10px] text-[#647568]">Complete tasks and earn rewards.</p>
-          <div class="mt-3 flex flex-wrap gap-3"><a class="footer-link font-extrabold text-[#075b31]" href="signup.html">Tasker Sign Up</a><a class="footer-link font-extrabold text-[#075b31]" href="login.html">Tasker Log In</a></div>
-        </div>
-        <div class="rounded-2xl border border-[#eee3bd] bg-[#fff9e8] p-4">
-          <b class="block text-[11px] font-black text-[#79570c]">POSTER ACCOUNT</b>
-          <p class="mt-1 text-[10px] text-[#786b4b]">Post tasks and promote your business.</p>
-          <div class="mt-3 flex flex-wrap gap-3"><a class="footer-link font-extrabold text-[#79570c]" href="poster-signup.html">Poster Sign Up</a><a class="footer-link font-extrabold text-[#79570c]" href="poster-login.html">Poster Log In</a></div>
-        </div>
-      </div>
-      <div class="mt-7 border-t border-gray-100 pt-4 text-[9px] text-[#888]">© 2026 NAIJA TASK. All rights reserved.</div>
-    </div>
-  </footer>
-
-  <div id="ntInstallChoices" class="nt-install-choice" role="dialog" aria-modal="true" aria-labelledby="ntInstallTitle" aria-hidden="true">
-    <div class="nt-install-panel">
-      <div class="nt-install-handle" aria-hidden="true"></div>
-      <button type="button" class="nt-install-close" id="closeInstallChoices" aria-label="Close">×</button>
-      <h2 id="ntInstallTitle">Add to home screen</h2>
-      <div class="nt-install-rows">
-        <button type="button" class="nt-install-row" id="ntInstallApp">
-          <span class="nt-install-icon"><img src="/assets/naija-task-logo.svg?v=20261125" alt=""><svg viewBox="0 0 24 24" style="position:absolute;right:-5px;bottom:-5px;width:19px;height:19px;padding:3px;border:2px solid #fff;border-radius:50%;background:#0B3D2E" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m-4-4 4 4 4-4M5 19h14"/></svg></span>
-          <span class="nt-install-copy"><strong>Install</strong><small>Install NAIJA TASK as an app</small></span><span class="nt-install-arrow">›</span>
-        </button>
-        <button type="button" class="nt-install-row" id="ntAddHomeScreen">
-          <span class="nt-install-icon"><img src="/assets/naija-task-logo.svg?v=20261125" alt=""><svg viewBox="0 0 24 24" style="position:absolute;right:-5px;bottom:-5px;width:19px;height:19px;padding:2px;border:2px solid #fff;border-radius:50%;background:#fff"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M12 3a9 9 0 0 0-7.8 4.5l4 6.9h7.6l4-6.9A9 9 0 0 0 12 3" fill="#ea4335"/><path d="M4.2 7.5A9 9 0 0 0 12 21l4-6.6-3.8-6.9z" fill="#34a853"/><path d="M12 21a9 9 0 0 0 7.8-13.5h-8l-3.8 6.9z" fill="#4285f4"/></svg></span>
-          <span class="nt-install-copy"><strong>Create shortcut</strong><small>Shortcuts open in Chrome</small></span><span class="nt-install-arrow">›</span>
-        </button>
-      </div>
-      <div id="ntInstallHelp" class="nt-install-help" hidden></div>
-      <div id="ntInstallActions" class="nt-install-actions" hidden><button type="button" class="nt-install-add" id="ntShortcutAdd">Add</button><button type="button" class="nt-install-cancel" id="ntShortcutCancel">Cancel</button></div>
-    </div>
-  </div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script>
-    (function () {
-      const openButton = document.getElementById('menuOpen');
-      const closeButton = document.getElementById('menuClose');
-      const menu = document.getElementById('slideMenu');
-      const backdrop = document.getElementById('menuBackdrop');
-      function openMenu() {
-        menu.classList.add('open'); backdrop.classList.add('open');
-        menu.setAttribute('aria-hidden', 'false'); openButton.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
-      }
-      function closeMenu() {
-        menu.classList.remove('open'); backdrop.classList.remove('open');
-        menu.setAttribute('aria-hidden', 'true'); openButton.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      }
-      openButton.addEventListener('click', openMenu);
-      closeButton.addEventListener('click', closeMenu);
-      backdrop.addEventListener('click', closeMenu);
-      menu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-      document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
-
-      document.querySelectorAll('.faq-question').forEach(button => {
-        button.addEventListener('click', () => {
-          const item = button.closest('.faq-item');
-          const willOpen = !item.classList.contains('active');
-          document.querySelectorAll('.faq-item').forEach(row => {
-            row.classList.remove('active');
-            row.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
-          });
-          if (willOpen) {
-            item.classList.add('active');
-            button.setAttribute('aria-expanded', 'true');
-          }
-        });
-      });
-
-      const track = document.getElementById('reviewTrack');
-      const cards = Array.from(track.children);
-      const count = document.getElementById('reviewCount');
-      let current = 0;
-      let timer;
-      function visibleCards() { return window.innerWidth >= 700 ? 2 : 1; }
-      function updateReviews() {
-        const visible = visibleCards();
-        const max = Math.max(0, cards.length - visible);
-        if (current > max) current = 0;
-        const cardWidth = cards[0].getBoundingClientRect().width;
-        const gap = visible > 1 ? 16 : 0;
-        track.style.transform = 'translateX(-' + (current * (cardWidth + gap)) + 'px)';
-        count.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(cards.length).padStart(2, '0');
-      }
-      function nextReview() { current = (current + 1) % Math.max(1, cards.length - visibleCards() + 1); updateReviews(); }
-      function previousReview() { current = (current - 1 + Math.max(1, cards.length - visibleCards() + 1)) % Math.max(1, cards.length - visibleCards() + 1); updateReviews(); }
-      document.getElementById('reviewNext').addEventListener('click', () => { nextReview(); restartTimer(); });
-      document.getElementById('reviewPrev').addEventListener('click', () => { previousReview(); restartTimer(); });
-      function restartTimer() { window.clearInterval(timer); timer = window.setInterval(nextReview, 4500); }
-      window.addEventListener('resize', updateReviews);
-      updateReviews(); restartTimer();
-    })();
-  </script>
-
+<section class="nt-section" id="how-it-works"><div class="nt-wrap"><div class="nt-heading"><span class="nt-eyebrow">A SIMPLE WORKFLOW</span><h2>How NAIJA TASK works</h2><p>Different goals, one straightforward process.</p></div><div class="nt-two">
+ <article class="nt-card"><span class="nt-icon">👤</span><h3>For Taskers — complete tasks</h3><ol><li>Create a Tasker account and sign in.</li><li>Browse available tasks and check the reward, slots and requirements.</li><li>Complete the task exactly as described.</li><li>Submit the requested proof and follow its review status.</li><li>When approved, check your wallet and use the withdrawal options available to your account.</li></ol><a href="how-it-works.html#taskers">See the Tasker guide →</a></article>
+ <article class="nt-card"><span class="nt-icon">🏢</span><h3>For Posters — publish work</h3><ol><li>Create a Poster account and open your dashboard.</li><li>Choose a social task or business task form.</li><li>Set the instructions, reward, quantity and proof requirements.</li><li>Review the displayed price and complete the required payment.</li><li>Track submissions and review the proof received.</li></ol><a href="how-it-works.html#posters">See the Poster guide →</a></article>
+ </div><p class="nt-note">Task availability, approval times, fees and withdrawal processing depend on the task rules and the current account settings shown on the platform. Completing a task does not guarantee approval if the instructions are not met.</p></div></section>
+<div class="wrap"><div class="adsterra-slot adsterra-300x250" aria-label="Advertisement"><script>atOptions={'key':'d33fd661fe11e17cd12dc188cb8b8bd1','format':'iframe','height':250,'width':300,'params':{}};</script><script src="https://bicea.org/22/d33fd661fe11e17cd12dc188cb8b8bd1"></script></div></div>
+<section class="nt-section nt-tint" id="task-categories"><div class="nt-wrap"><div class="nt-heading"><span class="nt-eyebrow">TASK DISCOVERY</span><h2>Explore the kinds of work</h2><p>Task types and available slots change as Posters publish new jobs. Always check the live task description before starting.</p></div><div class="nt-categories">
+ <div><b>◎</b><strong>Social media</strong><small>Follow, like, share and other permitted social actions</small></div><div><b>▶</b><strong>Video & music</strong><small>Eligible viewing, streaming and channel tasks</small></div><div><b>▣</b><strong>Apps & websites</strong><small>App discovery, website visits and testing tasks</small></div><div><b>✎</b><strong>Reviews & feedback</strong><small>Genuine feedback and review assignments</small></div><div><b>✉</b><strong>Messaging communities</strong><small>Eligible WhatsApp and Telegram tasks</small></div><div><b>＋</b><strong>Custom digital jobs</strong><small>Other clearly described jobs posted on the platform</small></div>
+ </div><a class="nt-text-link" href="login.html">Log in to browse available tasks →</a></div></section>
+<section class="nt-section" id="services"><div class="nt-wrap"><div class="nt-heading"><span class="nt-eyebrow">MORE IN ONE PLACE</span><h2>Your NAIJA TASK workspace</h2><p>Alongside task activity, your account brings together useful tools and services. Some services may depend on availability or an active integration.</p></div><div class="nt-features">
+ <div><b>👛 Wallet & transactions</b><small>Private member area. Sign in to view your balance and account records.</small></div><div><b>🏦 Bank withdrawals</b><small>Members only. Sign in to manage withdrawal requests.</small></div><div><b>🤝 Referrals</b><small>Private referral activity available after signing in.</small></div><div><b>🛍️ Marketplace</b><small>Member marketplace for listings and orders.</small></div><div><b>📣 Ads & promotions</b><small>Sign in to manage a campaign.</small></div><div><b>🎮 Games</b><small>Member entertainment area.</small></div><div><b>💬 Community</b><small>Member community and chat tools.</small></div><div><b>🎧 Support centre</b><small>Sign in to submit and follow account support requests.</small></div>
+ </div><p class="nt-text-link" style="margin-top:16px">Already a member? <a href="login.html">Tasker login</a> · <a href="poster-login.html">Poster login</a></p><p class="nt-note">Airtime/data purchases and AI care responses are not described here as active services unless the live service is connected and available. Check the relevant page for its current status.</p></div></section>
+<section class="nt-section nt-tint" id="account-types"><div class="nt-wrap"><div class="nt-heading"><span class="nt-eyebrow">GET STARTED</span><h2>Choose how you want to use NAIJA TASK</h2><p>You can use the platform to complete work or organise work for others.</p></div><div class="nt-two">
+ <article class="nt-role"><span class="nt-icon">👤</span><h3>I want to complete tasks</h3><p>Find available jobs, follow the instructions, submit proof and track approved rewards.</p><a class="nt-role-button" href="signup.html">Create Tasker account</a><a href="login.html">Already have a Tasker account? Log in</a></article>
+ <article class="nt-role"><span class="nt-icon">🏢</span><h3>I want to post tasks</h3><p>Publish social or business tasks, set the requirements and manage submissions.</p><a class="nt-role-button" href="poster-signup.html">Create Poster account</a><a href="poster-login.html">Already a Poster? Log in</a></article>
+ </div></div></section>
+<section class="nt-section" id="faq"><div class="nt-wrap"><div class="nt-heading"><span class="nt-eyebrow">QUICK ANSWERS</span><h2>Questions people ask</h2><p>Understand the basics before you create an account.</p></div><div class="nt-faq">
+ <details><summary>What is NAIJA TASK?</summary><p>It is a digital task marketplace connecting Taskers who complete jobs with Posters who publish them.</p></details>
+ <details><summary>How do I receive a task reward?</summary><p>Complete the task as described and submit the required proof. Rewards are credited according to the review outcome and the applicable task rules.</p></details>
+ <details><summary>Can I post a task for my business?</summary><p>Yes. Create a Poster account and choose the social task or business task option. Review the task details and displayed charges before payment.</p></details>
+ <details><summary>Are all tasks always available?</summary><p>No. Available tasks and slots change as jobs are published, filled, paused or completed.</p></details>
+ <details><summary>What if my proof is rejected?</summary><p>Read the reason shown with the submission. If you believe the decision is wrong, use the Appeals Centre or contact Support where available.</p></details>
+ <details><summary>Where can I get help?</summary><p>Visit the Support Centre or read the full FAQ and step-by-step guide.</p></details>
+ </div><a class="nt-text-link" href="faq.html">Read all frequently asked questions →</a></div></section>
+<section class="nt-section nt-about-strip"><div class="nt-wrap nt-about-inner"><div><span class="nt-eyebrow">ABOUT NAIJA TASK</span><h2>Digital work should be easy to understand.</h2><p>We are building a clearer place for Nigerian Taskers and Posters to organise digital jobs, proof and account activity.</p></div><a href="about-us.html">Learn about us →</a></div></section>
+<section id="joinArea" class="section" style="display:none"><div class="wrap"><div class="section-head"><span class="kicker">ACCOUNT ACCESS</span><h2>Choose your account type above</h2></div></div></section>
+<section id="taskerAuth" class="auth-area hidden">
+ <div class="auth-shell">
+  <div class="auth-switch"><button id="loginTab" class="active" type="button">Log in</button><button id="signupTab" type="button">Create account</button></div>
+  <section id="loginCard" class="card"><h2>Welcome back</h2><p class="subtitle">Log in to your Tasker account and continue where you left off.</p><form id="loginForm"><div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" required></div><div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password" required></div><a href="#" class="forgot" onclick="showForgotPassword();return false">Forgot password?</a><button id="loginButton" class="main-btn" type="submit">Log in to Tasker account</button><div id="loginMessage" class="message"></div></form></section>
+  <section id="forgotCard" class="card hidden"><h2>Reset your password</h2><p class="subtitle">Enter your account email and we'll send a secure reset link.</p><form id="forgotForm"><div class="field"><label for="forgotEmail">Email address</label><input id="forgotEmail" type="email" placeholder="you@example.com" autocomplete="email" required></div><button id="forgotButton" class="main-btn" type="submit">Send reset link</button><div id="forgotMessage" class="message"></div></form><button class="secondary-btn" type="button" onclick="showLogin()">← Back to login</button></section>
+  <section id="signupCard" class="card hidden"><h2>Create your Tasker account</h2><p class="subtitle">Enter your details to get started. Use a real email address you can access.</p><form id="signupForm">
+   <div class="field"><label for="fullName">Full name</label><input id="fullName" type="text" placeholder="Your full name" autocomplete="name" required></div>
+   <div class="field"><label for="phone">Phone number</label><input id="phone" type="tel" placeholder="08012345678" autocomplete="tel" required></div>
+   <div class="field"><label for="state">State</label><input id="state" type="text" placeholder="e.g. Lagos" autocomplete="address-level1" required></div>
+   <div class="field"><label for="city">City / town</label><input id="city" type="text" placeholder="e.g. Ikorodu" autocomplete="address-level2" required><div class="location-note">Do not enter your house number or exact home address.</div></div>
+   <div class="field"><label for="signupEmail">Email address</label><input id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email" required></div>
+   <div class="field"><label for="signupPassword">Create password</label><input id="signupPassword" type="password" minlength="10" placeholder="At least 10 characters" autocomplete="new-password" required><div class="password-note">Use uppercase, lowercase, a number and a special character.</div><div id="passwordStrength" class="password-strength"></div></div>
+   <div class="field"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" type="password" minlength="10" placeholder="Enter it again" autocomplete="new-password" required></div>
+   <div class="field"><label for="referralCode">Referral code <span style="font-weight:500;color:#758078">(optional)</span></label><input id="referralCode" type="text" placeholder="Enter referral code if you have one"><div class="ref-note">If you joined through a referral link, this may be filled automatically.</div></div>
+   <button id="signupButton" class="main-btn" type="submit">Create Tasker account</button><div id="signupMessage" class="message"></div>
+  </form></section>
+  <div class="auth-back"><a href="#account-types" onclick="backToRoles();return false">← Back to homepage</a></div>
+ </div>
+</section>
+</main>
+<footer class="footer"><p class="footbrand">NAIJA TASK</p><p>Complete Tasks. Earn Naira.</p><p><a href="about-us.html">About us</a><a href="how-it-works.html">How it works</a><a href="faq.html">FAQ</a><a href="privacy-policy.html">Privacy</a><a href="terms-and-conditions.html">Terms</a><a href="login.html">Log in</a></p><p>© 2026 NAIJA TASK. All rights reserved.</p></footer>
 <script>
-/* Brand navigation interaction. Restricted destinations enforce their own access checks. */
-(function(){
-  const target=document.querySelector("header a[aria-label='NAIJA TASK home']");
-  if(!target) return;
-  let taps=0, reset=null;
-  target.setAttribute('aria-label','NAIJA TASK home');
-  target.addEventListener('click',function(event){
-    event.preventDefault();
-    taps++;
-    if(reset) window.clearTimeout(reset);
-    if(taps>=5){
-      taps=0;
-      window.location.assign('/admin.html');
-      return;
-    }
-    reset=window.setTimeout(function(){taps=0;},3000);
-  });
-})();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(function(){
-  const url='https://jwakveeiynpakunwjzkj.supabase.co';
-  const key='sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D';
-  const taskBox=document.getElementById('homepageTaskPreviews');
-  const taskStatus=document.getElementById('taskPreviewStatus');
-  const rankBox=document.getElementById('homepageLeaderboard');
-  const rankStatus=document.getElementById('leaderboardStatus');
 
-  const referralBox=document.getElementById('homepageReferralLeaderboard');
-  const referralStatus=document.getElementById('referralLeaderboardStatus');
-  const statIds={approvedTasks:'statApprovedTasks',approvedRewards:'statApprovedRewards',registeredUsers:'statRegisteredUsers',activeTaskers:'statActiveTaskers'};
-  if(!taskBox || !rankBox) return;
-  const money=value=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',maximumFractionDigits:0}).format(Number(value)||0);
-  const safeText=(value,fallback)=>String(value??fallback).replace(/[\\u0000-\\u001f]/g,' ').trim() || fallback;
-  function state(box,message){box.replaceChildren();const p=document.createElement('p');p.className='py-3 text-[11px] leading-5 text-[#777]';p.textContent=message;box.appendChild(p);}
-  function taskRow(task){
-    const row=document.createElement('div');row.className='live-task-row';
-    const copy=document.createElement('div');copy.className='live-task-copy';
-    const title=document.createElement('b');title.textContent=safeText(task.title,'Available task');
-    const desc=document.createElement('small');desc.textContent=safeText(task.description,'Open the task to view its instructions.');
-    copy.append(title,desc);
-    const reward=document.createElement('strong');reward.className='live-task-reward';reward.textContent=money(task.reward);
-    const link=document.createElement('a');link.className='live-task-view';link.href='task.html';link.textContent='View';link.setAttribute('aria-label','View '+safeText(task.title,'task'));
-    row.append(copy,reward,link);return row;
-  }
-  function leaderRow(person){
-    const row=document.createElement('div');row.className='leader-row';
-    const rank=document.createElement('span');rank.className='leader-rank';rank.textContent='#'+person.rank;
-    const name=document.createElement('div');name.className='leader-name';name.textContent=safeText(person.display_name,'Tasker');
-    const meta=document.createElement('small');meta.className='leader-meta';meta.textContent=(Number(person.approved_tasks)||0)+' approved task'+(Number(person.approved_tasks)===1?'':'s');name.appendChild(meta);
-    const amount=document.createElement('strong');amount.className='leader-amount';amount.textContent=money(person.total_earned);
-    row.append(rank,name,amount);return row;
-  }
-  function referralRow(person){
-    const row=document.createElement('div');row.className='leader-row';
-    const rank=document.createElement('span');rank.className='leader-rank';rank.textContent='#'+person.rank;
-    const name=document.createElement('div');name.className='leader-name';name.textContent=safeText(person.display_name,'Member');
-    const meta=document.createElement('small');meta.className='leader-meta';meta.textContent=(Number(person.referral_count)||0)+' registered referral'+(Number(person.referral_count)===1?'':'s');name.appendChild(meta);
-    const amount=document.createElement('strong');amount.className='leader-amount';amount.textContent=money(person.total_earned);
-    row.append(rank,name,amount);return row;
-  }
-  async function load(){
-    if(!window.supabase?.createClient){state(taskBox,'Task listings are temporarily unavailable. Please visit the Task Marketplace.');state(rankBox,'The leaderboard is temporarily unavailable.');taskStatus.textContent='Unavailable';rankStatus.textContent='Unavailable';return;}
-    const db=window.supabase.createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
-    const results=await Promise.allSettled([
-      db.rpc('get_public_task_previews',{p_limit:3}),
-      db.rpc('get_tasker_leaderboard',{p_limit:5}),
-      db.rpc('get_public_referral_leaderboard',{p_limit:5}),
-      db.rpc('get_public_platform_totals')
-    ]);
-    const tasks=results[0];
-    if(tasks.status==='fulfilled'&&!tasks.value.error&&Array.isArray(tasks.value.data)){
-      taskBox.replaceChildren();
-      if(tasks.value.data.length){tasks.value.data.forEach(task=>taskBox.appendChild(taskRow(task)));taskStatus.textContent=tasks.value.data.length+' available';}
-      else{state(taskBox,'No live funded tasks are available right now. Please check back soon.');taskStatus.textContent='No open tasks';}
-    }else{state(taskBox,'Live task listings could not be loaded. Please open the Task Marketplace to try again.');taskStatus.textContent='Could not load';}
-    const leaders=results[1];
-    if(leaders.status==='fulfilled'&&!leaders.value.error&&Array.isArray(leaders.value.data)){
-      rankBox.replaceChildren();
-      if(leaders.value.data.length){leaders.value.data.forEach(person=>rankBox.appendChild(leaderRow(person)));rankStatus.textContent='Updated rankings';}
-      else{state(rankBox,'No approved task rewards have been recorded yet. Complete tasks and get approved to appear here.');rankStatus.textContent='Awaiting results';}
-    }else{state(rankBox,'The verified leaderboard could not be loaded right now.');rankStatus.textContent='Could not load';}
-    const referrals=results[2];
-    if(referrals.status==='fulfilled'&&!referrals.value.error&&Array.isArray(referrals.value.data)){
-      referralBox.replaceChildren();
-      if(referrals.value.data.length){referrals.value.data.forEach(person=>referralBox.appendChild(referralRow(person)));referralStatus.textContent='Updated rankings';}
-      else{state(referralBox,'No registered referrals yet. Invite friends and help grow the NAIJA TASK community.');referralStatus.textContent='Awaiting referrals';}
-    }else{state(referralBox,'Referral rankings could not be loaded right now.');referralStatus.textContent='Could not load';}
-    const totals=results[3];
-    if(totals.status==='fulfilled'&&!totals.value.error&&Array.isArray(totals.value.data)&&totals.value.data[0]){
-      const data=totals.value.data[0];
-      const values={approvedTasks:Number(data.approved_completions)||0,approvedRewards:money(data.approved_reward_total),registeredUsers:Number(data.registered_users)||0,activeTaskers:Number(data.active_taskers_30d)||0};
-      Object.entries(statIds).forEach(([key,id])=>{const el=document.getElementById(id);if(el)el.textContent=values[key];});
-    }else{
-      Object.values(statIds).forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
-    }
-  }
-  load();
-})();
-</script>
+/* =================================
+   SUPABASE
+================================= */
 
-<script>
-/* NAIJA TASK two-choice home-screen sheet. Browser-owned menus cannot be intercepted by websites. */
-(function(){
-  let installPrompt=null;
-  const modal=document.getElementById('ntInstallChoices'),help=document.getElementById('ntInstallHelp');
-  const menuOpen=document.getElementById('openInstallChoices'),homeOpen=document.getElementById('homepageInstallApp');
-  const close=document.getElementById('closeInstallChoices'),install=document.getElementById('ntInstallApp');
-  const shortcut=document.getElementById('ntAddHomeScreen'),actions=document.getElementById('ntInstallActions');
-  const addConfirm=document.getElementById('ntShortcutAdd'),cancel=document.getElementById('ntShortcutCancel');
-  if(!modal||!close||!install||!shortcut||!help||!actions)return;
-  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;});
-  window.addEventListener('appinstalled',()=>{installPrompt=null;showHelp('NAIJA TASK has been installed on your device.');});
-  function resetSheet(){help.hidden=true;help.textContent='';actions.hidden=true;}
-  function openSheet(){resetSheet();modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
-  function closeSheet(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow='';}
-  function showHelp(message){help.hidden=false;help.textContent=message;}
-  if(menuOpen)menuOpen.addEventListener('click',openSheet);
-  if(homeOpen)homeOpen.addEventListener('click',openSheet);
-  close.addEventListener('click',closeSheet);
-  modal.addEventListener('click',event=>{if(event.target===modal)closeSheet();});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&modal.classList.contains('open'))closeSheet();});
-  install.addEventListener('click',async()=>{
-    if(installPrompt){
-      const promptEvent=installPrompt;installPrompt=null;
-      try{await promptEvent.prompt();const choice=await promptEvent.userChoice;
-        if(choice&&choice.outcome==='accepted')showHelp('NAIJA TASK installation was accepted. Follow the confirmation on your phone.');
-        else showHelp('Installation was cancelled. You can still choose Create shortcut.');
-      }catch(error){showHelp('The browser could not open its install prompt. Use Create shortcut to add a home-screen shortcut.');}
-    }else{
-      const ua=navigator.userAgent||'';
-      if(/iphone|ipad|ipod/i.test(ua))showHelp('Install is not available in this browser right now. In Safari, use Share → Add to Home Screen.');
-      else showHelp('Chrome has not made its Install prompt available yet. You can still use Create shortcut, or open Chrome’s ⋮ menu and choose Install app if shown.');
-    }
-  });
-  shortcut.addEventListener('click',()=>{
-    const ua=navigator.userAgent||'';actions.hidden=false;
-    if(/iphone|ipad|ipod/i.test(ua))showHelp('Tap Add to add the NAIJA TASK shortcut to your home screen. If prompted, use Safari’s Share menu → Add to Home Screen.');
-    else showHelp('Tap Add to add the NAIJA TASK shortcut to your home screen. If Chrome asks, confirm Add. If no browser prompt appears, open Chrome’s ⋮ menu → Add to Home screen.');
-  });
-  addConfirm.addEventListener('click',()=>{
-    const ua=navigator.userAgent||'';
-    if(/iphone|ipad|ipod/i.test(ua))showHelp('Now open Safari’s Share button, choose Add to Home Screen, then confirm Add.');
-    else showHelp('Now open Chrome’s ⋮ menu and choose Add to Home screen, then confirm Add. A website cannot open Chrome’s private menu automatically.');
-  });
-  cancel.addEventListener('click',()=>{actions.hidden=true;help.hidden=true;help.textContent='';});
-})();
-/* Register the service worker so Chrome can offer its native install option. */
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(error=>console.warn('NAIJA TASK offline setup unavailable:',error)));
+const SUPABASE_URL =
+  "https://jwakveeiynpakunwjzkj.supabase.co";
+
+
+/*
+ IMPORTANT:
+ Put your CURRENT Supabase
+ PUBLISHABLE KEY below.
+
+ Do NOT use a service-role key.
+*/
+
+const SUPABASE_KEY =
+     "sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
+
+
+let supabaseClient = null;
+
+
+try{
+
+  if(typeof supabase === "undefined"){
+
+    throw new Error(
+      "Supabase library did not load."
+    );
+
+  }
+
+
+  if(
+    !SUPABASE_KEY ||
+    SUPABASE_KEY ===
+    "YOUR_CURRENT_SUPABASE_PUBLISHABLE_KEY"
+  ){
+
+    throw new Error(
+      "Supabase publishable key is missing."
+    );
+
+  }
+
+
+  supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+}catch(error){
+
+  console.error(
+    "Supabase initialization error:",
+    error
+  );
+
 }
-</script>
 
-<script id="nt-home-feature-navigation-20261118">
-(function(){
- const start=()=>{
-  const featureSection=[...document.querySelectorAll('main section')].find(section=>(section.querySelector('h2')?.textContent||'').includes('Everything You Need in One Place'));
-  if(!featureSection)return;
-  const accessNote=document.createElement('div');
-  accessNote.className='nt-feature-access-note';
-  accessNote.textContent='Preview only · Sign in to use platform features';
-  featureSection.querySelectorAll('.feature-card').forEach(card=>{
-   if(!card.querySelector('.nt-feature-access-note'))card.appendChild(accessNote.cloneNode(true));
-  });
-  if(!featureSection.querySelector('.nt-home-shortcuts')){
-   const shortcuts=[
-    ['▤','Browse Tasks','Discover available opportunities'],
-    ['🛍','Marketplace','Buy and sell products'],
-    ['👥','Community & Chat','Connect with other members'],
-    ['▣','Wallet','View balances and transactions'],
-    ['↗','Withdrawals','Request eligible payouts'],
-    ['📱','Airtime & Data','Explore digital services'],
-    ['🎮','NAIJA Games','Explore the games hub'],
-    ['🤝','Referrals','Invite and track referrals'],
-    ['🧑','Tasker Dashboard','Manage tasks and submissions'],
-    ['▣','Poster Dashboard','Manage campaigns and orders']
-   ];
-   const grid=document.createElement('div');
-   grid.className='nt-home-shortcuts';
-   grid.setAttribute('aria-label','NAIJA TASK dashboard feature previews');
-   shortcuts.forEach(([icon,title,desc])=>{
-    const item=document.createElement('div');
-    item.className='nt-home-shortcut';
-    item.setAttribute('aria-label',title+' preview; sign in required');
-    const symbol=document.createElement('span');symbol.textContent=icon;
-    const copy=document.createElement('span');copy.append(document.createTextNode(title));
-    const small=document.createElement('small');small.textContent=desc+' · Sign in to access';
-    copy.appendChild(small);item.append(symbol,copy);grid.appendChild(item);
-   });
-   const pageWidth=featureSection.querySelector('.page-width');
-   if(pageWidth)pageWidth.appendChild(grid);
+
+/* Admin access is handled by the single five-tap listener at the end of this page. */
+
+/* =================================
+   TASKER AUTH
+================================= */
+
+function openTaskerAuth(mode){
+
+  document
+    .getElementById("joinArea")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("taskerAuth")
+    .classList.remove("hidden");
+
+
+  if(mode === "signup"){
+
+    showSignup();
+
+  }else{
+
+    showLogin();
+
   }
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
-</script>
+
+}
 
 
-<script id="nt-lazy-ad-loader">
-(function(){
-  const units=document.querySelectorAll('[data-nt-adsterra]');
-  if(!units.length)return;
-  function loadAd(unit){
-    if(unit.dataset.loaded==='1')return;
-    unit.dataset.loaded='1';
-    const key=unit.dataset.ntAdsterra;
-    const height=Number(unit.dataset.adHeight)||50;
-    const width=Number(unit.dataset.adWidth)||320;
-    const config=document.createElement('script');
-    config.text='atOptions='+JSON.stringify({key,format:'iframe',height,width,params:{}})+';';
-    const remote=document.createElement('script');
-    remote.async=true;
-    remote.src='https://bicea.org/22/'+encodeURIComponent(key);
-    unit.append(config,remote);
+function backToRoles(){
+  document.getElementById("taskerAuth").classList.add("hidden");
+  document.getElementById("account-types").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+
+function showLogin(){
+
+  document
+    .getElementById("loginCard")
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById("signupCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("forgotCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("loginTab")
+    .classList.add("active");
+
+
+  document
+    .getElementById("signupTab")
+    .classList.remove("active");
+
+}
+
+
+function showSignup(){
+
+  document
+    .getElementById("signupCard")
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById("loginCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("forgotCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("signupTab")
+    .classList.add("active");
+
+
+  document
+    .getElementById("loginTab")
+    .classList.remove("active");
+
+}
+
+
+/* =================================
+   FORGOT PASSWORD SCREEN
+================================= */
+
+function showForgotPassword(){
+
+  document
+    .getElementById("loginCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("signupCard")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("forgotCard")
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById("loginTab")
+    .classList.add("active");
+
+
+  document
+    .getElementById("signupTab")
+    .classList.remove("active");
+
+
+  document
+    .getElementById("forgotEmail")
+    .focus();
+
+}
+
+
+/* =================================
+   TABS
+================================= */
+
+document
+  .getElementById("loginTab")
+  .addEventListener(
+    "click",
+    showLogin
+  );
+
+
+document
+  .getElementById("signupTab")
+  .addEventListener(
+    "click",
+    showSignup
+  );
+
+
+/* =================================
+   MESSAGES
+================================= */
+
+function showMessage(
+  element,
+  text,
+  type
+){
+
+  element.textContent =
+    text;
+
+  element.className =
+    "message show " + type;
+
+}
+
+
+/* =================================
+   REFERRAL LINK
+================================= */
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+
+const referral =
+  params.get("ref");
+
+
+if(referral){
+  window.location.replace("signup.html?ref="+encodeURIComponent(referral));
+} else {
+  const requestedAuth = params.get("auth");
+  if(requestedAuth === "signup") window.location.replace("signup.html");
+  if(requestedAuth === "login") window.location.replace("login.html");
+}
+
+
+/* =================================
+   PASSWORD VALIDATION
+================================= */
+
+function isStrongPassword(password){
+
+  return (
+    password.length >= 10 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[^A-Za-z0-9]/.test(password)
+  );
+
+}
+
+
+function updatePasswordStrength(){
+
+  const password =
+    document
+      .getElementById("signupPassword")
+      .value;
+
+
+  const display =
+    document
+      .getElementById("passwordStrength");
+
+
+  if(!password){
+
+    display.textContent = "";
+
+    return;
+
   }
-  if('IntersectionObserver' in window){
-    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){loadAd(entry.target);observer.unobserve(entry.target);}}),{rootMargin:'250px 0px'});
-    units.forEach(unit=>observer.observe(unit));
-  }else{units.forEach(loadAd);}
-})();
+
+
+  if(isStrongPassword(password)){
+
+    display.textContent =
+      "Strong password ✓";
+
+    display.style.color =
+      "#08752e";
+
+  }else{
+
+    display.textContent =
+      "Password must contain 10+ characters, uppercase, lowercase, number and special character.";
+
+    display.style.color =
+      "#a32323";
+
+  }
+
+}
+
+
+document
+  .getElementById("signupPassword")
+  .addEventListener(
+    "input",
+    updatePasswordStrength
+  );
+
+
+/* =================================
+   PASSWORD RESET EMAIL
+================================= */
+
+document
+  .getElementById("forgotForm")
+  .addEventListener(
+    "submit",
+    async function(event){
+
+      event.preventDefault();
+
+
+      const button =
+        document.getElementById(
+          "forgotButton"
+        );
+
+
+      const message =
+        document.getElementById(
+          "forgotMessage"
+        );
+
+
+      const email =
+        document
+          .getElementById("forgotEmail")
+          .value
+          .trim();
+
+
+      if(!supabaseClient){
+
+        showMessage(
+          message,
+          "Supabase is not connected. Check your publishable key.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Sending Reset Link...";
+
+      message.className =
+        "message";
+
+      message.textContent =
+        "";
+
+
+      try{
+
+        /*
+          IMPORTANT:
+          This URL is the page that receives
+          the recovery session from Supabase.
+        */
+
+        const resetURL =
+          new URL(
+            "reset-password.html",
+            window.location.href
+          ).href;
+
+
+        const {
+          error
+        } =
+          await supabaseClient.auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  resetURL
+              }
+            );
+
+
+        if(error){
+
+          throw error;
+
+        }
+
+
+        showMessage(
+          message,
+          "Reset link sent. Check your email and open the newest reset email.",
+          "success"
+        );
+
+
+        button.textContent =
+          "Reset Link Sent";
+
+
+      }catch(error){
+
+        console.error(
+          "Password reset error:",
+          error
+        );
+
+
+        showMessage(
+          message,
+          error.message ||
+          "Unable to send reset link. Please try again.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Send Reset Link";
+
+      }
+
+    }
+  );
+
+
+/* =================================
+   TASKER LOGIN
+================================= */
+
+document
+  .getElementById("loginForm")
+  .addEventListener(
+    "submit",
+    async function(event){
+
+      event.preventDefault();
+
+
+      const button =
+        document.getElementById(
+          "loginButton"
+        );
+
+
+      const message =
+        document.getElementById(
+          "loginMessage"
+        );
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Logging in...";
+
+
+      message.className =
+        "message";
+
+      message.textContent =
+        "";
+
+
+      if(!supabaseClient){
+
+        showMessage(
+          message,
+          "Supabase is not connected. Check your publishable key.",
+          "error"
+        );
+
+        button.disabled = false;
+
+        button.textContent =
+          "Login";
+
+        return;
+
+      }
+
+
+      const email =
+        document
+          .getElementById("loginEmail")
+          .value
+          .trim();
+
+
+      const password =
+        document
+          .getElementById("loginPassword")
+          .value;
+
+
+      try{
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient.auth
+            .signInWithPassword({
+
+              email,
+              password
+
+            });
+
+
+        if(error){
+
+          throw error;
+
+        }
+
+
+        if(!data.session){
+
+          throw new Error(
+            "Login succeeded, but no active session was created."
+          );
+
+        }
+
+
+        const metadata =
+          data.user.user_metadata || {};
+
+
+        const role =
+          metadata.role ||
+          metadata.user_type ||
+          "";
+
+
+        if(
+          role === "task_poster" ||
+          role === "poster"
+        ){
+
+          await supabaseClient.auth.signOut();
+
+
+          throw new Error(
+            "This is a Poster account. Please use Poster Login."
+          );
+
+        }
+
+
+        button.textContent =
+          "Opening account...";
+
+
+        window.location.href =
+          "dashboard.html";
+
+
+      }catch(error){
+
+        console.error(
+          "Login error:",
+          error
+        );
+
+
+        showMessage(
+          message,
+          error.message ||
+          "Invalid email or password.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Login";
+
+      }
+
+    }
+  );
+
+
+/* =================================
+   TASKER SIGNUP
+================================= */
+
+document
+  .getElementById("signupForm")
+  .addEventListener(
+    "submit",
+    async function(event){
+
+      event.preventDefault();
+
+
+      const button =
+        document.getElementById(
+          "signupButton"
+        );
+
+
+      const message =
+        document.getElementById(
+          "signupMessage"
+        );
+
+
+      button.disabled = true;
+
+      button.textContent =
+        "Creating account...";
+
+
+      message.className =
+        "message";
+
+      message.textContent =
+        "";
+
+
+      if(!supabaseClient){
+
+        showMessage(
+          message,
+          "Supabase is not connected. Check your publishable key.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Create Account";
+
+        return;
+
+      }
+
+
+      const fullName =
+        document
+          .getElementById("fullName")
+          .value
+          .trim();
+
+
+      const phone =
+        document
+          .getElementById("phone")
+          .value
+          .trim();
+
+
+      const state =
+        document
+          .getElementById("state")
+          .value
+          .trim();
+
+
+      const city =
+        document
+          .getElementById("city")
+          .value
+          .trim();
+
+
+      const email =
+        document
+          .getElementById("signupEmail")
+          .value
+          .trim();
+
+
+      const password =
+        document
+          .getElementById("signupPassword")
+          .value;
+
+
+      const confirmPassword =
+        document
+          .getElementById("confirmPassword")
+          .value;
+
+
+      const referralCode =
+        document
+          .getElementById("referralCode")
+          .value
+          .trim();
+
+
+      if(!isStrongPassword(password)){
+
+        showMessage(
+          message,
+          "Password must contain at least 10 characters, including uppercase, lowercase, a number and a special character.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Create Account";
+
+        return;
+
+      }
+
+
+      if(password !== confirmPassword){
+
+        showMessage(
+          message,
+          "Passwords do not match.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Create Account";
+
+        return;
+
+      }
+
+
+      try{
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient.auth
+            .signUp({
+
+              email:email,
+
+              password:password,
+
+              options:{
+
+                data:{
+
+                  full_name:fullName,
+                  phone:phone,
+                  state:state,
+                  city:city,
+                  location:city,
+                  referral_code:referralCode,
+                  user_type:"tasker",
+                  role:"tasker"
+
+                }
+
+              }
+
+            });
+
+
+        if(error){
+
+          throw error;
+
+        }
+
+
+        if(
+          data.user &&
+          data.session
+        ){
+
+          showMessage(
+            message,
+            "Account created successfully. Opening your account...",
+            "success"
+          );
+
+
+          button.textContent =
+            "Account created!";
+
+
+          setTimeout(
+            function(){
+
+              window.location.href =
+                "dashboard.html";
+
+            },
+            800
+          );
+
+
+          return;
+
+        }
+
+
+        if(data.user){
+
+          showMessage(
+            message,
+            "Account created successfully. Please check your email to confirm your account before logging in.",
+            "success"
+          );
+
+
+          button.disabled = false;
+
+          button.textContent =
+            "Create Account";
+
+
+          return;
+
+        }
+
+
+        throw new Error(
+          "Account could not be created. Please try again."
+        );
+
+
+      }catch(error){
+
+        console.error(
+          "Signup error:",
+          error
+        );
+
+
+        showMessage(
+          message,
+          error.message ||
+          "Unable to create account. Please try again.",
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Create Account";
+
+      }
+
+    }
+  );
+
 </script>
+
 
 </body>
-</html>
+  </html>
+
+
+<script id="NAIJA_TASK_FIVE_TAP_ADMIN_ACCESS">
+/* Discreet admin entry: tap the NT brand mark five times quickly.
+   Admin credentials and admin_users authorization are still required. */
+(function(){
+  const mark=document.querySelector('.nt-wide-brand');
+  if(!mark)return;
+  let taps=0,resetTimer=null;
+  mark.style.cursor='pointer';
+  mark.setAttribute('title','');
+  mark.addEventListener('click',function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    taps++;
+    if(resetTimer)clearTimeout(resetTimer);
+    if(taps>=5){
+      taps=0;
+      window.location.href='admin-login.html';
+      return;
+    }
+    resetTimer=setTimeout(function(){taps=0;},1800);
+  },true);
+})();
+</script>
+
+</body></html>
