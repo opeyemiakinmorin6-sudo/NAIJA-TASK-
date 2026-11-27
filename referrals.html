@@ -96,12 +96,15 @@ async function shareLink(id,role){
  const url=byId(id).value;
  if(!url){setMessage("Your referral link is still loading.");return;}
  const roleName=role==="tasker"?"complete tasks and earn Naira":"promote a business";
- const invitation="Join NAIJA TASK — Nigeria's task and business promotion platform. Create your account to "+roleName+".\n\nOfficial website: https://naijatask.com.ng/\nYour personal invitation: "+url;
+ const invitation="Join NAIJA TASK — Nigeria's task and business promotion platform. Create your account to "+roleName+".\n\nOfficial website: https://naijatask.com.ng/";
  if(navigator.share){
-  try{await navigator.share({title:"Join NAIJA TASK",text:invitation});}
-  catch(e){if(e&&e.name!=="AbortError")setMessage("Sharing was not available. Copy your invitation link instead.");}
+  try{
+   await navigator.share({title:"NAIJA TASK — Complete Tasks. Earn Naira.",text:invitation,url:url});
+   setMessage("Your NAIJA TASK invitation is ready to share.");
+  }
+  catch(e){if(e&&e.name!=="AbortError")setMessage("Sharing was not available. Copy your personal NAIJA TASK link instead.");}
  }else{
-  try{await navigator.clipboard.writeText(invitation);setMessage("NAIJA TASK invitation copied. Paste it into WhatsApp or Facebook.");}
+  try{await navigator.clipboard.writeText(invitation+"\nYour personal invitation: "+url);setMessage("NAIJA TASK invitation copied. Paste it into WhatsApp or Facebook.");}
   catch(e){byId(id).focus();byId(id).select();setMessage("Copy your personal NAIJA TASK link above.");}
  }
 }
