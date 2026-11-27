@@ -116,6 +116,11 @@ async function loadReferralCentre(){
  if(profileError||!profile||!profile.referral_code){document.body.style.visibility="visible";setMessage("We could not load your referral code. Refresh the page or contact support.");return;}
  const code=encodeURIComponent(profile.referral_code);
  const isPoster=["task_poster","poster"].includes(String(profile.role||"").trim().toLowerCase());
+ const referralWalletLink=byId("referralWalletLink");
+ if(referralWalletLink){
+  referralWalletLink.href=isPoster?"poster-job.html?filter=PAYMENT":"wallet.html";
+  referralWalletLink.textContent=isPoster?"View Poster Payments":"Open my wallet";
+ }
 
  if(isPoster){
   // Poster referrals must not show Tasker signup rewards or the Tasker wallet.
@@ -144,6 +149,7 @@ async function loadReferralCentre(){
   }
  }
 
+ document.body.style.visibility="visible";
  byId("posterLink").value="https://naijatask.com.ng/poster-signup.html?ref="+code;
  if(!isPoster)byId("taskerLink").value="https://naijatask.com.ng/signup.html?ref="+code;
  const [refResult,eventResult]=await Promise.all([
