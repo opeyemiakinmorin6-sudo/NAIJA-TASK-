@@ -48,6 +48,20 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 .nt-xmas-ref-actions button{min-height:37px;padding:0 12px;border:1px solid #fff8;border-radius:9px;background:#fff;color:#07552d;font-size:10px;font-weight:900;cursor:pointer}
 .nt-xmas-ref-actions button.alt{background:#ffffff18;color:#fff}
 
+
+.nt-xmas-website-card{position:relative;overflow:hidden;margin:0 0 14px;padding:18px;border:1px solid #e8d49b;border-radius:18px;background:radial-gradient(circle at 94% 4%,#ffffff55,transparent 25%),linear-gradient(125deg,#063d25,#0b7139 62%,#a51f2d);color:#fff;box-shadow:0 10px 24px #073b2418}
+.nt-xmas-website-card .xmas-kicker,.nt-xmas-poster-banner .xmas-kicker{display:block;color:#ffe59a;font-size:9px;font-weight:950;letter-spacing:1.5px;text-transform:uppercase}
+.nt-xmas-website-card h2{margin:7px 0 5px;color:#fff;font-size:20px;font-weight:950;line-height:1.2}
+.nt-xmas-website-card p,.nt-xmas-poster-banner p{margin:0;color:#eff8ef;font-size:11px;line-height:1.6}
+.nt-xmas-website-card .link-input{border-color:#ffffff88;background:#fff;color:#173326;font-size:11px}
+.nt-xmas-poster-banner{position:relative;overflow:hidden;margin:14px 0 0;padding:15px;border:1px solid #e8d49b;border-radius:15px;background:linear-gradient(125deg,#073b26,#0b7139 65%,#a51f2d);color:#fff}
+.nt-xmas-poster-banner h3{margin:6px 0;color:#fff;font-size:16px;font-weight:950;line-height:1.25}
+.nt-xmas-poster-banner .xmas-pill{display:inline-block;margin-top:9px;padding:5px 9px;border:1px solid #ffe59a88;border-radius:99px;color:#ffe59a;font-size:9px;font-weight:900}
+.nt-xmas-poster-banner:after{content:"🎄 ✦";position:absolute;right:12px;top:12px;font-size:17px;opacity:.85}
+.nt-xmas-copy-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.nt-xmas-copy-actions button{min-height:39px;padding:0 13px;border:1px solid #fff8;border-radius:10px;background:#fff;color:#07552d;font-size:10px;font-weight:900;cursor:pointer}
+.nt-xmas-copy-actions button.alt{background:#ffffff18;color:#fff}
+
 @media(max-width:560px){.rewards{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.card{padding:15px}.reward-amount{font-size:23px}}
 </style>
 </head>
@@ -56,12 +70,13 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 <div class="hero"><span class="eyebrow">Your network can earn with you</span><h1>Invite. Grow. Earn.</h1><p>Share your personal referral links with people who want to complete tasks or promote their businesses. Your rewards are tracked here and credited only after qualifying activity is verified.</p></div></header>
 <main class="container">
 
-<section class="nt-xmas-ref-banner" aria-label="NAIJA TASK Christmas referral banner">
-<strong>🎄 Christmas starts now · NAIJA TASK</strong>
-<h2>Share the season. Grow your network. Earn together. 🎅🏽</h2>
-<p>Invite Taskers and Posters with your personal links below. Let more people discover NAIJA TASK this Christmas.</p>
-<div class="nt-xmas-ref-actions">
-<button type="button" onclick="copyWebsiteLink()">📋 Copy website link</button>
+<section class="nt-xmas-website-card" aria-label="Copy and share NAIJA TASK website">
+<span class="xmas-kicker">🎄 Christmas starts now · 2026</span>
+<h2>Share NAIJA TASK this Christmas! 🎅🏽</h2>
+<p>Invite friends, family and businesses to discover a smarter way to complete tasks and earn Naira.</p>
+<input class="link-input" id="websiteLink" value="https://naijatask.com.ng/" readonly aria-label="NAIJA TASK website address">
+<div class="nt-xmas-copy-actions">
+<button type="button" onclick="copyWebsiteLink()">📋 Copy NAIJA TASK link</button>
 <button type="button" class="alt" onclick="shareWebsiteLink()">↗ Share website</button>
 </div>
 </section>
@@ -75,6 +90,12 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 </section>
 <section class="card"><h2>Your personal referral links</h2><p class="muted">Both links use your unique referral code. Send the Tasker link to earners and the Poster link to advertisers.</p>
 <div class="link-card"><div class="link-head"><strong>🧑🏽‍💻 Tasker / Earner signup</strong><span class="pill">₦200 + 5%</span></div><input class="link-input" id="taskerLink" readonly placeholder="Loading your referral link…"><div class="actions"><button class="btn" type="button" onclick="copyLink('taskerLink')">Copy Tasker link</button><button class="btn alt" type="button" onclick="shareLink('taskerLink','Join NAIJA TASK as an Earner')">Share</button></div></div>
+<div class="nt-xmas-poster-banner" aria-label="Christmas Poster referral invitation">
+<span class="xmas-kicker">🎄 Festive business invitation</span>
+<h3>Invite a business to promote with NAIJA TASK</h3>
+<p>Share your personal Poster referral link below and help businesses reach more people this Christmas.</p>
+<span class="xmas-pill">Poster referral link · 0.5%</span>
+</div>
 <div class="link-card"><div class="link-head"><strong>🏢 Poster / Advertiser signup</strong><span class="pill">0.5% first payment</span></div><input class="link-input" id="posterLink" readonly placeholder="Loading your referral link…"><div class="actions"><button class="btn" type="button" onclick="copyLink('posterLink')">Copy Poster link</button><button class="btn alt" type="button" onclick="shareLink('posterLink','Join NAIJA TASK as a Poster')">Share</button></div></div>
 <div id="message" role="status" aria-live="polite"></div></section>
 <section class="card"><h2 class="stats-title">Your referral performance</h2><p class="muted">Your figures update from recorded referral and reward events.</p>
