@@ -7,9 +7,9 @@
 <meta name="description" content="Invite Taskers and Posters to NAIJA TASK. Earn referral rewards when they qualify.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="NAIJA TASK">
-<meta property="og:title" content="NAIJA TASK — Complete Tasks. Earn Naira. | Christmas 2026">
-<meta property="og:description" content="Join NAIJA TASK this Christmas. Complete tasks, earn Naira, or promote your business. Christmas starts now · 2026.">
-<meta property="og:url" content="https://naijatask.com.ng/referrals.html?share=xmas20261128">
+<meta property="og:title" content="NAIJA TASK — Complete Tasks. Earn Naira. | Nigeria’s Task & Business Promotion Platform">
+<meta property="og:description" content="Complete tasks and earn Naira, or promote your business on the official NAIJA TASK platform.">
+<meta property="og:url" content="https://naijatask.com.ng/">
 <meta property="og:image" content="https://naijatask.com.ng/assets/naija-task-share.jpg?v=20261128-final">
 <meta property="og:image:secure_url" content="https://naijatask.com.ng/assets/naija-task-share.jpg?v=20261128-final">
 <meta property="og:image:type" content="image/jpeg">
@@ -74,9 +74,9 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 </div>
 <div class="notice">No reward for self-referrals, fake accounts, duplicate accounts, unpaid campaigns or unverified payments. Referral rewards are added to your NAIJA TASK wallet after the qualifying event is confirmed.</div>
 </section>
-<section class="card"><h2>Your Christmas referral links 🎄</h2><p class="muted">Choose the right NAIJA TASK link: Tasker for people who want to earn, or Poster for businesses that want to promote.</p>
-<div class="link-card"><div class="link-head"><strong>🧑🏽‍💻 Tasker / Earner signup</strong><span class="pill">₦200 + 5%</span></div><input class="link-input" id="taskerLink" readonly placeholder="Loading your referral link…"><div class="actions"><button class="btn" type="button" onclick="copyLink('taskerLink')">Copy Tasker link</button><button class="btn alt" type="button" onclick="shareLink('taskerLink','Join NAIJA TASK as an Earner')">Share</button></div></div>
-<div class="link-card"><div class="link-head"><strong>🏢 Poster / Advertiser signup</strong><span class="pill">0.5% first payment</span></div><input class="link-input" id="posterLink" readonly placeholder="Loading your referral link…"><div class="actions"><button class="btn" type="button" onclick="copyLink('posterLink')">Copy Poster link</button><button class="btn alt" type="button" onclick="shareLink('posterLink','Join NAIJA TASK as a Poster')">Share</button></div></div>
+<section class="card"><h2>Your NAIJA TASK invitation links</h2><p class="muted">Invite people to the NAIJA TASK platform: Tasker for people who want to earn, or Poster for businesses that want to promote.</p>
+<div class="link-card"><div class="link-head"><strong>🧑🏽‍💻 Tasker / Earner signup</strong><span class="pill">₦200 + 5%</span></div><input class="link-input" id="taskerLink" readonly placeholder="Loading your referral link…"><div class="actions"><button class="btn" type="button" onclick="copyLink('taskerLink')">Copy Tasker link</button><button class="btn alt" type="button" onclick="shareLink('taskerLink','tasker')">Share</button></div></div>
+<div class="link-card"><div class="link-head"><strong>🏢 Poster / Advertiser signup</strong><span class="pill">0.5% first payment</span></div><input class="link-input" id="posterLink" readonly placeholder="Loading your referral link…"><div class="actions"><button class="btn" type="button" onclick="copyLink('posterLink')">Copy Poster link</button><button class="btn alt" type="button" onclick="shareLink('posterLink','poster')">Share</button></div></div>
 <div id="message" role="status" aria-live="polite"></div></section>
 <section class="card"><h2 class="stats-title">Your referral performance</h2><p class="muted">Your figures update from recorded referral and reward events.</p>
 <div class="stats"><div class="stat"><strong id="totalReferrals">—</strong><span>People invited</span></div><div class="stat"><strong id="qualifiedReferrals">—</strong><span>Qualified</span></div><div class="stat"><strong id="totalRewards">₦—</strong><span>Rewards earned</span></div></div>
@@ -89,11 +89,22 @@ const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
 const SUPABASE_KEY="sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const byId=id=>document.getElementById(id);
-let referralShareText="Invite someone to NAIJA TASK.";
 function money(value){return "₦"+Number(value||0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});}
 function setMessage(message){byId("message").textContent=message||"";}
 async function copyLink(id){const value=byId(id).value;if(!value){setMessage("Your referral link is still loading.");return;}try{await navigator.clipboard.writeText(value);setMessage("Referral link copied. Share it with someone now.");}catch(e){byId(id).focus();byId(id).select();try{document.execCommand("copy");setMessage("Referral link copied. Share it with someone now.");}catch(_){setMessage("Select and copy the link above.");}}}
-async function shareLink(id,title){const url=byId(id).value;if(!url){setMessage("Your referral link is still loading.");return;}const text=title+" — "+url;if(navigator.share){try{await navigator.share({title:"NAIJA TASK referral",text:text,url:url});}catch(e){if(e&&e.name!=="AbortError")setMessage("You can copy the link and share it manually.");}}else{await copyLink(id);}}
+async function shareLink(id,role){
+ const url=byId(id).value;
+ if(!url){setMessage("Your referral link is still loading.");return;}
+ const roleName=role==="tasker"?"complete tasks and earn Naira":"promote a business";
+ const invitation="Join NAIJA TASK — Nigeria's task and business promotion platform. Create your account to "+roleName+".\n\nOfficial website: https://naijatask.com.ng/\nYour personal invitation: "+url;
+ if(navigator.share){
+  try{await navigator.share({title:"Join NAIJA TASK",text:invitation});}
+  catch(e){if(e&&e.name!=="AbortError")setMessage("Sharing was not available. Copy your invitation link instead.");}
+ }else{
+  try{await navigator.clipboard.writeText(invitation);setMessage("NAIJA TASK invitation copied. Paste it into WhatsApp or Facebook.");}
+  catch(e){byId(id).focus();byId(id).select();setMessage("Copy your personal NAIJA TASK link above.");}
+ }
+}
 
 async function loadReferralCentre(){
  const {data:{user},error:userError}=await db.auth.getUser();
@@ -101,8 +112,8 @@ async function loadReferralCentre(){
  const {data:profile,error:profileError}=await db.from("profiles").select("referral_code,role").eq("id",user.id).single();
  if(profileError||!profile||!profile.referral_code){setMessage("We could not load your referral code. Refresh the page or contact support.");return;}
  const code=encodeURIComponent(profile.referral_code);
- byId("taskerLink").value=location.origin+"/signup.html?ref="+code+"&v=20261128&share=xmas20261128";
- byId("posterLink").value=location.origin+"/poster-signup.html?ref="+code+"&v=20261128&share=xmas20261128";
+ byId("taskerLink").value="https://naijatask.com.ng/signup.html?ref="+code;
+ byId("posterLink").value="https://naijatask.com.ng/poster-signup.html?ref="+code;
  if(["task_poster","poster"].includes(String(profile.role||"").toLowerCase()))byId("backLink").href="poster-dashboard.html";
  const [refResult,eventResult]=await Promise.all([
   db.from("referrals").select("id,referred_user_id,reward,status,created_at").eq("referrer_id",user.id).order("created_at",{ascending:false}).limit(100),
