@@ -978,6 +978,17 @@ async function loadProfile(){
 
   verifiedProfileRole = String(profileData.role || "user").trim().toLowerCase();
 
+  // Poster accounts use Poster Payments, not the Tasker wallet or withdrawals.
+  if(["poster","task_poster"].includes(verifiedProfileRole)){
+    document.querySelectorAll('.action-grid button').forEach(button => {
+      const action = button.getAttribute("onclick") || "";
+      if(action.includes("wallet.html")) button.textContent = "Poster Payments";
+      if(action.includes("withdrawal.html") || action.includes("task.html")) button.hidden = true;
+    });
+    const backButton = document.getElementById("backBtn");
+    if(backButton) backButton.textContent = "← Back to Poster Dashboard";
+  }
+
   return profileData;
 }
 
@@ -1428,8 +1439,23 @@ async function logout(){
 
 function goTo(page){
 
-  window.location.href =
-    page;
+  const role = String(verifiedProfileRole || profileData?.role || "").trim().toLowerCase();
+  const isPoster = ["poster","task_poster"].includes(role);
+
+  // Keep Poster navigation out of the Tasker earnings wallet.
+  if(isPoster && page === "wallet.html"){
+    window.location.href = "poster-job.html?filter=PAYMENT";
+    return;
+  }
+  if(isPoster && page === "withdrawal.html"){
+    showMessage("Poster payments are managed separately from Tasker withdrawals.", "error");
+    return;
+  }
+  if(isPoster && page === "task.html"){
+    window.location.href = "poster-dashboard.html";
+    return;
+  }
+  window.location.href = page;
 }
 
 
