@@ -86,8 +86,8 @@ async function loadReferralCentre(){
  const {data:profile,error:profileError}=await db.from("profiles").select("referral_code,role").eq("id",user.id).single();
  if(profileError||!profile||!profile.referral_code){setMessage("We could not load your referral code. Refresh the page or contact support.");return;}
  const code=encodeURIComponent(profile.referral_code);
- byId("taskerLink").value=location.origin+"/signup.html?ref="+code;
- byId("posterLink").value=location.origin+"/poster-signup.html?ref="+code;
+ byId("taskerLink").value=location.origin+"/signup.html?ref="+code+"&v=20261127";
+ byId("posterLink").value=location.origin+"/poster-signup.html?ref="+code+"&v=20261127";
  if(["task_poster","poster"].includes(String(profile.role||"").toLowerCase()))byId("backLink").href="poster-dashboard.html";
  const [refResult,eventResult]=await Promise.all([
   db.from("referrals").select("id,referred_user_id,reward,status,created_at").eq("referrer_id",user.id).order("created_at",{ascending:false}).limit(100),
