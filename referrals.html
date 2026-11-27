@@ -62,7 +62,7 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 @media(max-width:560px){.rewards{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}.card{padding:15px}.reward-amount{font-size:23px}}
 </style>
 </head>
-<body>
+<body style="visibility:hidden">
 <header><div class="top"><div class="brand">🇳🇬 NAIJA TASK</div><a href="dashboard.html" id="backLink">← Dashboard</a></div>
 <div class="hero"><span class="eyebrow">Your network can earn with you</span><h1>Invite. Grow. Earn.</h1><p>Share your personal referral links with people who want to complete tasks or promote their businesses. Your rewards are tracked here and credited only after qualifying activity is verified.</p></div></header>
 <main class="container">
@@ -82,7 +82,7 @@ h1{font-size:clamp(30px,7vw,46px);line-height:1.04;letter-spacing:-1.7px;margin:
 <div class="stats"><div class="stat"><strong id="totalReferrals">—</strong><span>People invited</span></div><div class="stat"><strong id="qualifiedReferrals">—</strong><span>Qualified</span></div><div class="stat"><strong id="totalRewards">₦—</strong><span>Rewards earned</span></div></div>
 <div class="ref-list" id="referralList"><p class="muted">Loading your referral activity…</p></div>
 </section>
-<section class="card"><h2>How to get started</h2><p class="muted">1. Copy the correct link. 2. Share it on WhatsApp, Facebook or with people you know. 3. They register using your link. 4. Their qualifying activation or first verified deposit is tracked. 5. Your eligible reward appears in your wallet.</p><div class="actions"><a class="btn" style="display:grid;place-items:center;text-decoration:none" href="wallet.html">Open my wallet</a><a class="btn alt" style="display:grid;place-items:center;text-decoration:none" href="support.html">Get help</a></div></section>
+<section class="card"><h2>How to get started</h2><p class="muted">1. Copy the correct link. 2. Share it on WhatsApp, Facebook or with people you know. 3. They register using your link. 4. Their qualifying activation or first verified deposit is tracked. 5. Your eligible reward appears in your wallet.</p><div class="actions"><a class="btn" style="display:grid;place-items:center;text-decoration:none" href="#" id="referralWalletLink">Open my wallet</a><a class="btn alt" style="display:grid;place-items:center;text-decoration:none" href="support.html">Get help</a></div></section>
 </main>
 <script>
 const SUPABASE_URL="https://jwakveeiynpakunwjzkj.supabase.co";
@@ -113,7 +113,7 @@ async function loadReferralCentre(){
  const {data:{user},error:userError}=await db.auth.getUser();
  if(userError||!user){location.replace("login.html?next="+encodeURIComponent("referrals.html"));return;}
  const {data:profile,error:profileError}=await db.from("profiles").select("referral_code,role").eq("id",user.id).single();
- if(profileError||!profile||!profile.referral_code){setMessage("We could not load your referral code. Refresh the page or contact support.");return;}
+ if(profileError||!profile||!profile.referral_code){document.body.style.visibility="visible";setMessage("We could not load your referral code. Refresh the page or contact support.");return;}
  const code=encodeURIComponent(profile.referral_code);
  const isPoster=["task_poster","poster"].includes(String(profile.role||"").trim().toLowerCase());
 
@@ -178,7 +178,7 @@ async function loadReferralCentre(){
   return '<div class="ref-row"><div><strong>Referred member</strong><small>Joined '+date+' · '+status+'</small></div><span class="pill">'+money(amount)+'</span></div>';
  }).join("");
 }
-loadReferralCentre().catch(error=>{console.error(error);setMessage("Something went wrong loading your referral centre. Refresh and try again.");});
+loadReferralCentre().catch(error=>{console.error(error);document.body.style.visibility="visible";setMessage("Something went wrong loading your referral centre. Refresh and try again.");});
 </script>
 <script defer src="nt-back-navigation.js?v=20261118-1"></script>
 </body></html>
