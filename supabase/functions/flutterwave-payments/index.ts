@@ -969,6 +969,24 @@ async function resolveNigerianAccount(bankCode: string, accountNumber: string) {
     return { bank_code: code, bank_name: bank.name, account_number: number, account_name: accountName };
 }
 async function createVerifiedWithdrawal(userId: string, body: Record<string, unknown>) {
+    // Enforce the account boundary on the server as well as in the browser.
+    // The Edge Function uses the service-role client, so it must explicitly
+    // verify the authenticated user's database role before creating a payout.
+    const { data: accountProfile, error: accountProfileError } = await db
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .maybeSingle();
+
+    if (accountProfileError || !accountProfile) {
+        throw new Error("Your account type could not be verified. No withdrawal was created.");
+    }
+
+    const accountRole = String(accountProfile.role || "").trim().toLowerCase();
+    if (!["tasker", "user"].includes(accountRole)) {
+        throw new Error("Withdrawals are available only to Tasker accounts. Poster payments are managed separately in the Poster workspace.");
+    }
+
     const amount = Number(body.amount);
     if (!Number.isFinite(amount) || amount <= 0 || amount > 100000000) {
         throw new Error("Enter a valid withdrawal amount.");
