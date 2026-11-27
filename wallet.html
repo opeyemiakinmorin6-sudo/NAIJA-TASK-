@@ -1280,6 +1280,30 @@ async function loadWallet(){
     const userId =
       authData.user.id;
 
+    // This page is exclusively the Tasker earnings wallet.
+    // Poster accounts must never read Tasker balance, transactions or withdrawals.
+    const { data: accountProfile, error: accountProfileError } = await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (accountProfileError || !accountProfile) {
+      throw new Error("We could not verify your account type. Please sign in again.");
+    }
+
+    const accountRole = String(accountProfile.role || "").trim().toLowerCase();
+    if (["poster", "task_poster"].includes(accountRole)) {
+      window.location.replace("poster-dashboard.html");
+      return;
+    }
+    if (accountRole === "admin") {
+      window.location.replace("admin.html");
+      return;
+    }
+    if (!["tasker", "user"].includes(accountRole)) {
+      throw new Error("This wallet is only available to Tasker accounts.");
+    }
 
     /*
       Load all wallet information.
