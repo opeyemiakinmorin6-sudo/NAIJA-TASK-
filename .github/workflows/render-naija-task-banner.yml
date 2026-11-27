@@ -1,0 +1,47 @@
+name: Render NAIJA TASK sharing banner
+on:
+  push:
+    paths:
+      - "assets/naija-task-share-christmas.svg"
+      - ".github/workflows/render-naija-task-banner.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Render optimized JPEG
+        run: |
+          python -m pip install --quiet cairosvg pillow
+          python - <<'PY'
+          import io, os
+          import cairosvg
+          from PIL import Image
+          png = cairosvg.svg2png(url="assets/naija-task-share-christmas.svg", output_width=1200, output_height=630)
+          image = Image.open(io.BytesIO(png)).convert("RGB")
+          for quality in (88, 84, 80, 76, 72, 68):
+              out = io.BytesIO()
+              image.save(out, format="JPEG", quality=quality, optimize=True, progressive=True)
+              data = out.getvalue()
+              if len(data) < 300 * 1024:
+                  with open("assets/naija-task-share-christmas.jpg", "wb") as f:
+                      f.write(data)
+                  print(f"JPEG created: {len(data)} bytes at quality {quality}")
+                  break
+          else:
+              raise SystemExit("Could not compress banner below 300 KB")
+          PY
+      - name: Commit rendered JPEG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/naija-task-share-christmas.jpg
+          if ! git diff --cached --quiet; then
+            git commit -m "Render optimized Christmas sharing banner JPEG"
+            git push
+          fi
