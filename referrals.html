@@ -172,7 +172,13 @@ async function loadReferralCentre(){
  byId("totalReferrals").textContent=String(referrals.length);
  byId("qualifiedReferrals").textContent=String(qualified);
  byId("totalRewards").textContent=money(earned);
- if(!referrals.length){byId("referralList").innerHTML='<p class="muted">No one has joined through your link yet. Share either link above to start building your referral network.</p>';return;}
+ if(!referrals.length){
+  const emptyMessage=isPoster
+   ?"No businesses have joined through your Poster invitation link yet. Share it with a business that wants to promote."
+   :"No one has joined through your referral links yet. Share your invitation links to start building your network.";
+  byId("referralList").innerHTML='<p class="muted">'+emptyMessage+'</p>';
+  return;
+ }
  const eventByUser=new Map();
  events.forEach(e=>{const key=e.referred_user_id;eventByUser.set(key,(eventByUser.get(key)||0)+Number(e.amount||0));});
  byId("referralList").innerHTML=referrals.map(r=>{
