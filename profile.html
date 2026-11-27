@@ -1046,14 +1046,22 @@ function renderProfile(){
   $("accountId").value =
     currentUser.id;
 
-  $("balance").textContent =
-    formatMoney(profile.balance);
+  const isPoster = ["task_poster","poster"].includes(verifiedProfileRole);
+
+  // A Poster profile must not display the Tasker earnings balance.
+  const balanceBox = $("balance")?.closest(".info-box");
+  if (isPoster) {
+    if (balanceBox) balanceBox.hidden = true;
+    $("balance").textContent = "Not applicable";
+  } else {
+    if (balanceBox) balanceBox.hidden = false;
+    $("balance").textContent = formatMoney(profile.balance);
+  }
 
   updateAgeDisplay();
 
 
   /* Account role is shown here; profile access is not tied to an activation form. */
-  const isPoster = ["task_poster","poster"].includes(verifiedProfileRole);
   $("accountType").textContent = isPoster ? "Poster" : (verifiedProfileRole === "admin" ? "Admin" : "Tasker");
 
   const activationCard = $("activationCard");
@@ -1466,11 +1474,14 @@ function goTo(page){
 $("backBtn").addEventListener(
   "click",
   ()=>{
+    if(["poster","task_poster"].includes(verifiedProfileRole)){
+      window.location.href = "poster-dashboard.html";
+      return;
+    }
     if(document.referrer){
       history.back();
     }else{
-      window.location.href =
-        "dashboard.html";
+      window.location.href = "dashboard.html";
     }
   }
 );
