@@ -529,6 +529,34 @@
         return;
       }
 
+      // Withdrawal history is a Tasker-only feature, not a Poster payment feature.
+      const { data: accountProfile, error: accountProfileError } = await supabaseClient
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (accountProfileError || !accountProfile) {
+        document.getElementById("withdrawals").textContent =
+          "We could not verify your account type. Please sign in again.";
+        return;
+      }
+
+      const accountRole = String(accountProfile.role || "").trim().toLowerCase();
+      if (["poster", "task_poster"].includes(accountRole)) {
+        window.location.replace("poster-dashboard.html");
+        return;
+      }
+      if (accountRole === "admin") {
+        window.location.replace("admin.html");
+        return;
+      }
+      if (!["tasker", "user"].includes(accountRole)) {
+        document.getElementById("withdrawals").textContent =
+          "Withdrawals are available only to Tasker accounts.";
+        return;
+      }
+
       const {
         data,
         error
