@@ -888,6 +888,12 @@ td,th{padding:13px 11px}
 
     </div>
 
+    <div class="field" style="margin:4px 0 16px">
+      <label>Security verification</label>
+      <div id="nt-admin-turnstile" style="min-height:65px;display:flex;align-items:center;justify-content:flex-start"></div>
+      <div id="nt-admin-captcha-status" class="small" role="status" aria-live="polite"></div>
+    </div>
+
     <button
       id="loginButton"
       class="primary"
@@ -4655,6 +4661,95 @@ const SUPABASE_PUBLISHABLE_KEY =
 let supabaseClient = null;
 let supabaseClientPromise = null;
 
+/* Supabase Auth CAPTCHA is enabled for this project. Reuse the public
+   Cloudflare Turnstile site key already used by the NAIJA TASK login pages. */
+const NT_ADMIN_TURNSTILE_SITE_KEY = "0x4AAAAAAGTKGcv_i0KmI7MS";
+let ntAdminTurnstileToken = "";
+let ntAdminTurnstileWidgetId = null;
+let ntAdminTurnstilePromise = null;
+
+function setAdminCaptchaStatus(message, isError = false) {
+  const status = $("nt-admin-captcha-status");
+  if (!status) return;
+  status.textContent = message || "";
+  status.style.color = isError ? "#b52222" : "#647568";
+}
+
+function resetAdminTurnstile() {
+  ntAdminTurnstileToken = "";
+  if (window.turnstile && ntAdminTurnstileWidgetId !== null) {
+    try { window.turnstile.reset(ntAdminTurnstileWidgetId); } catch (_) {}
+  }
+}
+
+function initAdminTurnstile() {
+  if (ntAdminTurnstileWidgetId !== null && window.turnstile) return Promise.resolve();
+  if (ntAdminTurnstilePromise) return ntAdminTurnstilePromise;
+
+  ntAdminTurnstilePromise = new Promise((resolve, reject) => {
+    const renderWidget = () => {
+      const target = $("nt-admin-turnstile");
+      if (!target) {
+        reject(new Error("The admin security-check area is missing. Refresh the page."));
+        return;
+      }
+      if (ntAdminTurnstileWidgetId !== null) {
+        resolve();
+        return;
+      }
+      try {
+        ntAdminTurnstileWidgetId = window.turnstile.render(target, {
+          sitekey: NT_ADMIN_TURNSTILE_SITE_KEY,
+          theme: "light",
+          callback: (token) => {
+            ntAdminTurnstileToken = token || "";
+            setAdminCaptchaStatus(ntAdminTurnstileToken ? "Security check completed." : "");
+          },
+          "expired-callback": () => {
+            ntAdminTurnstileToken = "";
+            setAdminCaptchaStatus("The security check expired. Please complete it again.", true);
+          },
+          "error-callback": () => {
+            ntAdminTurnstileToken = "";
+            setAdminCaptchaStatus("Security verification could not complete. Refresh and try again.", true);
+          }
+        });
+        setAdminCaptchaStatus("Complete the security check before signing in.");
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    if (window.turnstile) {
+      renderWidget();
+      return;
+    }
+
+    const existing = document.querySelector('script[data-nt-admin-turnstile="1"]');
+    if (existing) {
+      existing.addEventListener("load", renderWidget, { once: true });
+      existing.addEventListener("error", () => reject(new Error("Cloudflare security verification could not load.")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.dataset.ntAdminTurnstile = "1";
+    script.onload = renderWidget;
+    script.onerror = () => reject(new Error("Cloudflare security verification could not load. Check your connection and refresh."));
+    document.head.appendChild(script);
+  }).catch((error) => {
+    ntAdminTurnstilePromise = null;
+    setAdminCaptchaStatus(error.message || "Security verification could not load.", true);
+    throw error;
+  });
+
+  return ntAdminTurnstilePromise;
+}
+
 function loadAdminSdkScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
@@ -5352,6 +5447,19 @@ async function login() {
     return;
   }
 
+  try {
+    await initAdminTurnstile();
+  } catch (captchaLoadError) {
+    toast(captchaLoadError.message || "Security verification could not load.", "danger");
+    return;
+  }
+
+  if (!ntAdminTurnstileToken) {
+    setAdminCaptchaStatus("Please complete the security check before signing in.", true);
+    toast("Complete the security check first.", "warning");
+    return;
+  }
+
   if (adminLoginInFlight) return;
   adminLoginInFlight = true;
 
@@ -5369,7 +5477,8 @@ async function login() {
     } = await withTimeout(
       supabaseClient.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: { captchaToken: ntAdminTurnstileToken }
       }),
       15000,
       "Administrator sign-in"
@@ -5423,6 +5532,8 @@ async function login() {
     );
 
   } finally {
+    // Turnstile tokens are single-use. A fresh challenge is required for the next attempt.
+    resetAdminTurnstile();
     adminLoginInFlight = false;
     if (loginButton) loginButton.disabled = false;
     setLoading(false);
@@ -13392,6 +13503,12 @@ async function saveServicePricing(){
           }
         });
       }
+    });
+
+    // Start the CAPTCHA challenge immediately so it is ready before credentials are submitted.
+    initAdminTurnstile().catch((error) => {
+      console.error("Admin security verification initialization failed:", error);
+      setAdminCaptchaStatus(error.message || "Security verification could not load.", true);
     });
 
     init();
