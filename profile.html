@@ -957,7 +957,6 @@ async function loadProfile(){
         id,
         full_name,
         phone,
-        balance,
         date_of_birth,
         address,
         city,
@@ -977,6 +976,20 @@ async function loadProfile(){
     data || {};
 
   verifiedProfileRole = String(profileData.role || "user").trim().toLowerCase();
+
+  // Only Tasker accounts load the Tasker earnings balance. Poster/Admin
+  // profiles do not request or display that wallet field.
+  if (["tasker", "user"].includes(verifiedProfileRole)) {
+    const { data: taskerWallet, error: taskerWalletError } = await supabaseClient
+      .from("profiles")
+      .select("balance")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+    if (taskerWalletError) throw taskerWalletError;
+    profileData.balance = taskerWallet?.balance ?? 0;
+  } else {
+    profileData.balance = null;
+  }
 
   // Poster accounts use Poster Payments, not the Tasker wallet or withdrawals.
   if(["poster","task_poster"].includes(verifiedProfileRole)){
@@ -1050,7 +1063,7 @@ function renderProfile(){
 
   // A Poster profile must not display the Tasker earnings balance.
   const balanceBox = $("balance")?.closest(".info-box");
-  if (isPoster) {
+  if (!["tasker", "user"].includes(verifiedProfileRole)) {
     if (balanceBox) balanceBox.hidden = true;
     $("balance").textContent = "Not applicable";
   } else {
