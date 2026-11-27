@@ -1242,7 +1242,6 @@ async function saveProfile(){
           id,
           full_name,
           phone,
-          balance,
           is_activated,
           date_of_birth,
           address,
@@ -1258,8 +1257,11 @@ async function saveProfile(){
     }
 
 
-    profileData =
-      data;
+    const existingTaskerBalance = profileData?.balance ?? 0;
+    profileData = data || {};
+    if (["tasker", "user"].includes(verifiedProfileRole)) {
+      profileData.balance = existingTaskerBalance;
+    }
 
     renderProfile();
 
