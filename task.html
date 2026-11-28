@@ -299,6 +299,7 @@ const $ = id => document.getElementById(id);
 let currentUser = null, allTasks = [], currentFilter = "all", selectedTask = null, isSubmitting = false;
 let currentSubmissionIds = new Set();
 let currentSubmissionTargets = new Set();
+let verifiedSocialUsername = null;
 
 /* Brand logos (inline SVG, no external images) */
 const LOGOS = {
@@ -391,11 +392,8 @@ function isPrivateFeedbackTask(t){
   return PRIVATE_FEEDBACK_KEYS.has(key);
 }
 function needsPhotoProof(t){
-  if(isPrivateFeedbackTask(t))return false;
-  const up = t.upload_required === true || String(t.upload_required).toLowerCase() === "true";
-  const a = normalize(t.proof_type), b = normalize(t.required_proof);
-  const requirements = Array.isArray(t.requirements) ? t.requirements.join(" ") : String(t.requirements || "");
-  return up || /photo|image|screenshot/.test(a) || /photo|image|screenshot/.test(b) || /photo|image|screenshot/.test(normalize(requirements));
+  // NAIJA TASK requires screenshot/photo evidence for every task type.
+  return true;
 }
 function proofIsRequired(t){
   if(isPrivateFeedbackTask(t))return true;
@@ -727,6 +725,8 @@ async function cancelTaskAttempt(){
   }
 }
 function resetProofForm(){
+  verifiedSocialUsername = null;
+  $("proofText").readOnly = false;
   $("proofText").value = "";
   $("proofPhoto").value = "";
   const pv=$("proofPreview");
@@ -760,7 +760,7 @@ async function applyTaskUsernameGate(task){
 
   try{
     const {data,error}=await db.from("social_accounts")
-      .select("id")
+      .select("id,username,normalized_identifier")
       .eq("user_id",currentUser.id)
       .eq("platform",platform)
       .eq("verification_status","verified")
@@ -789,6 +789,16 @@ async function applyTaskUsernameGate(task){
       targetLink.style.pointerEvents="";
       targetLink.style.opacity="";
     }
+    const savedAccount=data[0];
+    verifiedSocialUsername=String(savedAccount.username||savedAccount.normalized_identifier||"").replace(/^@+/,"").trim();
+    if(!verifiedSocialUsername)throw new Error("Your verified username record is incomplete. Reverify your account.");
+    $("proofText").value="@"+verifiedSocialUsername;
+    $("proofText").readOnly=true;
+    $("proofText").setAttribute("aria-readonly","true");
+    const usernameLabel=$("proofText").previousElementSibling;
+    if(usernameLabel)usernameLabel.textContent="Verified username (filled automatically)";
+    const usernameHint=$("usernameMemoryHint");
+    if(usernameHint)usernameHint.textContent="Your one-time verified username is attached automatically. You do not need to enter it again.";
     const taskTarget=taskTargetKey(task);
     const alreadySubmitted=currentSubmissionIds.has(taskId(task))||!!(taskTarget&&currentSubmissionTargets.has(taskTarget));
     if(submitButton){
@@ -855,7 +865,7 @@ function openTask(task, verifiedSocialAccount=null){
     $("proofText").removeAttribute("list");
     if(usernameHint)usernameHint.style.display="none";
     const uploadLabel=document.querySelector('label[for="proofPhoto"]');
-    if(uploadLabel)uploadLabel.querySelector("b").textContent="OPTIONAL SUPPORTING SCREENSHOT";
+    if(uploadLabel)uploadLabel.querySelector("b").textContent="UPLOAD REQUIRED SCREENSHOT";
   } else if (isBusinessTask) {
     $("proofText").classList.remove("username-entry");
     $("proofText").rows=4;
@@ -880,7 +890,7 @@ function openTask(task, verifiedSocialAccount=null){
   }
 
   resetProofForm();
-  $("photoReq").textContent = photo ? "REQUIRED" : "OPTIONAL";
+  $("photoReq").textContent = "REQUIRED";
   $("submitProofBtn").disabled = submitted;
   $("submitProofBtn").textContent = submitted ? "Already submitted" : "Submit proof";
   $("overlay").classList.add("show");
@@ -1101,8 +1111,8 @@ async function submitProof(){
   if (proofIsRequired(selectedTask) && !proofText && !proofFile){
     showNotice("Add your written proof or upload a screenshot.", "error"); return;
   }
-  if (needsPhotoProof(selectedTask) && !proofFile){
-    showNotice("This task needs a screenshot. Upload your proof image.", "error"); return;
+  if (!proofFile){
+    showNotice("SCREENSHOT REQUIRED — Upload a screenshot/photo for every task before submitting.", "error"); return;
   }
 
   isSubmitting = true;
