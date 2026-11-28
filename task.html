@@ -833,7 +833,7 @@ async function applyTaskUsernameGate(task){
       showNotice("USERNAME VERIFICATION REQUIRED — Verify your "+platform.replaceAll("_"," ")+" username before starting or submitting this task.","error");
       const notice=$("sheetNotice");
       const link=document.createElement("a");
-      link.href="social-accounts.html";
+      link.href="social-accounts.html?platform="+encodeURIComponent(platform)+"&task_id="+encodeURIComponent(String(task?.id||""));
       link.textContent="Open Username Verification →";
       link.style.cssText="display:inline-flex;margin:9px 0 0;color:#991b1b;font-weight:900;text-decoration:underline";
       notice.appendChild(document.createElement("br"));
@@ -871,7 +871,7 @@ async function applyTaskUsernameGate(task){
     showNotice("We couldn't check your username verification. Your task is paused for safety. Please retry or open Username Verification.","error");
     const notice=$("sheetNotice");
     const link=document.createElement("a");
-    link.href="social-accounts.html";
+    link.href="social-accounts.html?platform="+encodeURIComponent(requiredPlatform)+"&task_id="+encodeURIComponent(String(selectedTask?.id||""));
     link.textContent="Open Username Verification →";
     link.style.cssText="display:inline-flex;margin:9px 0 0;color:#991b1b;font-weight:900;text-decoration:underline";
     notice.appendChild(document.createElement("br"));
