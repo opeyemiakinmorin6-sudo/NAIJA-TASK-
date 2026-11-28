@@ -7,7 +7,7 @@
 
   const SUPABASE_URL = 'https://jwakveeiynpakunwjzkj.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D';
-  const EXCLUDED = /^(admin(?:-.*)?|login|poster-login|signup|poster-signup|forgot-password|reset-password|auth-callback|wallet|withdrawal|transactions|poster-payment|proof|proofs|task|activation|retry|approved|cancelled)\.html$/i;
+  const EXCLUDED = /^(admin(?:-.*)?|forgot-password|reset-password|auth-callback|wallet|withdrawal|transactions|poster-payment|proof|proofs|task|activation|retry|approved|cancelled)\.html$/i;
   const page = location.pathname.split('/').pop() || 'index.html';
   if (EXCLUDED.test(page)) return;
 
@@ -40,6 +40,7 @@
   function render(campaign, endAt) {
     if (document.getElementById('nt-seasonal-campaign')) return;
     const isHome = page === 'index.html';
+    document.body.classList.add('nt-season-active');
     const style = document.createElement('style');
     style.id = 'nt-seasonal-campaign-style';
     style.textContent = `
@@ -62,6 +63,22 @@
       #nt-seasonal-campaign.nt-campaign-compact .nt-campaign-countdown{margin-top:5px;font-size:8px}
       #nt-seasonal-campaign.nt-campaign-compact .nt-campaign-art{max-width:170px}
       @media(max-width:650px){#nt-seasonal-campaign{grid-template-columns:1fr;gap:2px;min-height:0;padding:22px 15px 15px;text-align:center}#nt-seasonal-campaign .nt-campaign-copy{margin:auto}#nt-seasonal-campaign .nt-campaign-title{margin:auto;font-size:clamp(26px,7vw,36px)}#nt-seasonal-campaign .nt-campaign-copytext{margin:8px auto 11px;font-size:11px}#nt-seasonal-campaign .nt-campaign-actions{justify-content:center}#nt-seasonal-campaign .nt-campaign-btn{min-height:39px;font-size:9px}#nt-seasonal-campaign .nt-campaign-art{width:min(100%,340px);justify-self:center;margin-top:-3px}#nt-seasonal-campaign.nt-campaign-compact{grid-template-columns:minmax(0,1fr) 95px;gap:5px;padding:10px 12px;text-align:left}#nt-seasonal-campaign.nt-campaign-compact .nt-campaign-title{font-size:15px}#nt-seasonal-campaign.nt-campaign-compact .nt-campaign-copytext{font-size:9px;margin:4px 0}#nt-seasonal-campaign.nt-campaign-compact .nt-campaign-actions{justify-content:flex-start;gap:5px}#nt-seasonal-campaign.nt-campaign-compact .nt-campaign-btn{min-height:28px;padding:0 7px;font-size:7px}#nt-seasonal-campaign.nt-campaign-compact .nt-campaign-art{width:95px;margin:0}}
+      /* Shared seasonal skin: only applied while the saved campaign is active. */
+      body.nt-season-active{background:radial-gradient(circle at 8% 0%,#ffe9e2 0,transparent 28%),radial-gradient(circle at 95% 8%,#f7e6b4 0,transparent 24%),linear-gradient(145deg,#fff9e9 0%,#f2f8ed 52%,#fff1ed 100%)!important}
+      body.nt-season-active header,body.nt-season-active .topbar,body.nt-season-active header.top,body.nt-season-active .header-row{background:linear-gradient(105deg,#073b24 0%,#08783c 58%,#9d1830 100%)!important;color:#fff!important;border-bottom:3px solid #d6b45b!important}
+      body.nt-season-active header a,body.nt-season-active .topbar a,body.nt-season-active .header-row a{color:#fff!important}
+      body.nt-season-active .dashboard-hero,body.nt-season-active .wallet-card,body.nt-season-active .balance-card,body.nt-season-active .nt-balance-card{background:linear-gradient(115deg,#073b24 0%,#08783c 66%,#9d1830 100%)!important;color:#fff!important;border:2px solid #d6b45b!important;box-shadow:0 12px 28px #5b251b22!important}
+      body.nt-season-active .dashboard-hero h1,body.nt-season-active .dashboard-hero p,body.nt-season-active .wallet-card *,body.nt-season-active .balance-card *{color:#fff}
+      body.nt-season-active .nt-quick-card,body.nt-season-active .stat-card,body.nt-season-active .panel,body.nt-season-active .nt-task-panel,body.nt-season-active .nt-feature-row,body.nt-season-active .task-item,body.nt-season-active .transaction-item,body.nt-season-active .poster-create-card,body.nt-season-active .job,body.nt-season-active main .card{background:linear-gradient(145deg,#fffdf5,#fff6e5)!important;border-color:#d6b45b!important;box-shadow:0 8px 22px #6b431312!important}
+      body.nt-season-active .poster-create-card.business-create{background:linear-gradient(135deg,#073b24,#08783c 62%,#9d1830)!important;color:#fff!important}
+      body.nt-season-active .bottom-nav{background:linear-gradient(100deg,#073b24,#075b35 65%,#8d1830)!important;border-top:3px solid #d6b45b!important;box-shadow:0 -7px 22px #45201622!important}
+      body.nt-season-active .bottom-nav a,body.nt-season-active .bottom-nav .nav-item{color:#fff!important}
+      body.nt-season-active .bottom-nav a.active,body.nt-season-active .bottom-nav .nav-item.active{background:#f3d77c!important;color:#173b24!important;border-radius:10px!important}
+      body.nt-season-active .card{border:1px solid #d6b45b!important;box-shadow:0 18px 44px #5b32151c!important}
+      body.nt-season-active .top .brand,body.nt-season-active .top .top-link{color:#fff!important}
+      body.nt-season-active .footer{background:#073b24!important;color:#f9edc8!important;border-top:3px solid #d6b45b}
+      #nt-seasonal-campaign{grid-column:1/-1}
+
     `;
     const section = document.createElement('section');
     section.id = 'nt-seasonal-campaign';
