@@ -1148,7 +1148,7 @@ async function submitProof(){
   const requiredPlatform = getRequiredSocialAccountPlatform(selectedTask);
   if (requiredPlatform) {
     const { data: ownedAccounts, error: accountError } = await db.from("social_accounts")
-      .select("id,username,normalized_identifier")
+      .select("id,username,normalized_identifier,profile_url,verification_details")
       .eq("user_id", currentUser.id)
       .eq("platform", requiredPlatform)
       .eq("verification_status", "verified")
@@ -1159,7 +1159,9 @@ async function submitProof(){
       showNotice("We could not check your social username verification. Please try again.", "error");
       return;
     }
-    if (!ownedAccounts || !ownedAccounts.length) {
+    const requiredWebsiteType=requiredPlatform==="website"?getRequiredWebsiteType(selectedTask):null;
+    const eligibleOwnedAccounts=(ownedAccounts||[]).filter(account=>requiredPlatform!=="website"||!requiredWebsiteType||account.verification_details?.website_type===requiredWebsiteType);
+    if (!eligibleOwnedAccounts.length) {
       showNotice("USERNAME NOT VERIFIED — Verify your " + requiredPlatform.replaceAll("_", " ") + " username before submitting this task.", "error");
       const notice=$("sheetNotice");
       const link=document.createElement("a");
@@ -1170,11 +1172,13 @@ async function submitProof(){
       notice.appendChild(link);
       return;
     }
-    const submittedHandle=proofText.toLowerCase().replace(/^@+/,"").trim();
-    const matchingAccount=ownedAccounts.some(account=>{
+    const isWebsiteTask=requiredPlatform==="website";
+    const submittedHandle=proofText.toLowerCase().trim().replace(/\/+$/,"");
+    const matchingAccount=eligibleOwnedAccounts.some(account=>{
+      if(isWebsiteTask){const savedUrl=String(account.profile_url||"").toLowerCase().trim().replace(/\/+$/,"");return submittedHandle&&submittedHandle===savedUrl;}
       const saved=String(account.normalized_identifier||account.username||"").toLowerCase().replace(/^@+/,"").trim();
       const username=String(account.username||"").toLowerCase().replace(/^@+/,"").trim();
-      return submittedHandle && (submittedHandle===saved || submittedHandle===username);
+      return submittedHandle && (submittedHandle.replace(/^@+/,"")===saved || submittedHandle.replace(/^@+/,"")===username);
     });
     if(!matchingAccount){
       showNotice("USERNAME DOES NOT MATCH — Enter the exact username you have verified for " + requiredPlatform.replaceAll("_", " ") + ".", "error");
