@@ -1265,7 +1265,10 @@ const LOGOS = {
 const PLATFORM_NAMES = {youtube:"YouTube",youtube_music:"YouTube Music",facebook:"Facebook",tiktok:"TikTok",instagram:"Instagram",telegram:"Telegram",whatsapp:"WhatsApp",x:"X",threads:"Threads",spotify:"Spotify",snapchat:"Snapchat",linkedin:"LinkedIn",playstore:"Google Play Store",appstore:"Apple App Store",google:"Google",trustpilot:"Trustpilot",website:"Website",other:"General task"};
 
 function taskCategory(t){
-  const s = [t.category, t.platform, t.task_type, t.title, t.description].filter(Boolean).join(" ").toLowerCase();
+  // Include the actual destination URL: many Telegram tasks use t.me links
+  // while their generic task_type is only "social".
+  const s = [t.category, t.platform, t.task_type, t.title, t.description, t.task_link, t.post_link, t.url].filter(Boolean).join(" ").toLowerCase();
+  if (s.includes("telegram") || /(^|[/:.])t\\.me([/:?]|$)/i.test(s)) return "telegram";
   if (s.includes("youtube music")) return "youtube_music";
   if (s.includes("google play")) return "playstore";
   if (s.includes("apple app store") || s.includes("app store")) return "appstore";
