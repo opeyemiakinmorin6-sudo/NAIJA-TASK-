@@ -126,6 +126,12 @@
       #nt-seasonal-campaign{grid-column:1/-1}
 
     `;
+    /* Authentication pages receive the festive visual skin and logo only.
+       Keep the promotional campaign banner off login and signup screens. */
+    if (/^(login|signup|poster-login|poster-signup)\.html$/i.test(page)) {
+      document.head.append(style);
+      return;
+    }
     const section = document.createElement('section');
     section.id = 'nt-seasonal-campaign';
     if (!isHome) section.classList.add('nt-campaign-compact');
