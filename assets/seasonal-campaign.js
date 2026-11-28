@@ -103,11 +103,14 @@
     copy.append(kicker,title,desc,actions,countdown);
     section.append(copy,art);
     const place = () => {
+      const main = document.querySelector('body > main, body > #app main, body > .main-content, main');
       const header = document.querySelector('body > header, body > .topbar, body > nav');
-      const main = document.querySelector('body > main, body > #app main, body > .main-content');
-      if (header) header.insertAdjacentElement('afterend',section);
-      else if (main) main.insertAdjacentElement('beforebegin',section);
-      else document.body.insertBefore(section,document.body.firstChild);
+      /* Put the campaign INSIDE the page's main content as its first block.
+         This guarantees it appears at the very top of the homepage content,
+         ahead of the existing hero and every other homepage section. */
+      if (main) main.insertBefore(section, main.firstChild);
+      else if (header) header.insertAdjacentElement('afterend', section);
+      else document.body.insertBefore(section, document.body.firstChild);
       document.head.append(style);
     };
     if (document.body) place();
