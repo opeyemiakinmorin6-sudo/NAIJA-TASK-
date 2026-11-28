@@ -829,13 +829,12 @@ async function applyTaskUsernameGate(task){
     if(error)throw error;
     if(selectedTask!==task)return;
 
-    const requiredWebsiteType=platform==="website"?getRequiredWebsiteType(task):null;
-    const verifiedAccount=(data||[]).find(row=>!requiredWebsiteType||row.verification_details?.website_type===requiredWebsiteType);
+    const verifiedAccount=(data||[])[0];
     if(!verifiedAccount){
       showNotice((platform==="website"?"WEBSITE VERIFICATION REQUIRED — Verify the matching website/profile before starting or submitting this task.":"USERNAME VERIFICATION REQUIRED — Verify your "+platform.replaceAll("_"," ")+" username before starting or submitting this task."),"error");
       const notice=$("sheetNotice");
       const link=document.createElement("a");
-      link.href="social-accounts.html?platform="+encodeURIComponent(platform)+(platform==="website"&&getRequiredWebsiteType(task)?"&website_type="+encodeURIComponent(getRequiredWebsiteType(task)):"")+"&task_id="+encodeURIComponent(String(task?.id||""));
+      link.href="social-accounts.html?platform="+encodeURIComponent(platform)+"&task_id="+encodeURIComponent(String(task?.id||""));
       link.textContent="Open Username Verification →";
       link.style.cssText="display:inline-flex;margin:9px 0 0;color:#991b1b;font-weight:900;text-decoration:underline";
       notice.appendChild(document.createElement("br"));
@@ -1159,8 +1158,7 @@ async function submitProof(){
       showNotice("We could not check your social username verification. Please try again.", "error");
       return;
     }
-    const requiredWebsiteType=requiredPlatform==="website"?getRequiredWebsiteType(selectedTask):null;
-    const eligibleOwnedAccounts=(ownedAccounts||[]).filter(account=>requiredPlatform!=="website"||!requiredWebsiteType||account.verification_details?.website_type===requiredWebsiteType);
+    const eligibleOwnedAccounts=(ownedAccounts||[]);
     if (!eligibleOwnedAccounts.length) {
       showNotice(requiredPlatform==="website"?"WEBSITE NOT VERIFIED — Verify the required website/profile before submitting this task.":"USERNAME NOT VERIFIED — Verify your " + requiredPlatform.replaceAll("_", " ") + " username before submitting this task.", "error");
       const notice=$("sheetNotice");
