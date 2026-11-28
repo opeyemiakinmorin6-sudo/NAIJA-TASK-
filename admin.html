@@ -3440,6 +3440,34 @@ td,th{padding:13px 11px}
     <div id="adminDiagnosticsResults" style="display:grid;gap:8px;margin-top:10px"></div>
   </div>
 
+  <div class="card" style="margin:0 0 16px;border:1px solid #d5e8c9;background:linear-gradient(135deg,#f6fff0,#fff)">
+    <div class="page-header" style="margin-bottom:10px">
+      <div>
+        <h3>🎄 Seasonal Campaign Manager</h3>
+        <p>Manage festive banners across the public website. Campaigns are saved in Supabase for reuse in future seasons.</p>
+      </div>
+      <span class="badge green">Reusable</span>
+    </div>
+    <div class="setting">
+      <div><strong>Seasonal campaign ON/OFF</strong><small>Turn it off immediately, or let the end date switch it off automatically.</small></div>
+      <label class="switch"><input id="seasonalCampaignEnabled" type="checkbox"><span class="slider"></span></label>
+    </div>
+    <div class="form-grid" style="margin-top:12px">
+      <div class="field"><label for="seasonalCampaignKey">Campaign key</label><input id="seasonalCampaignKey" type="text" value="christmas-2026" maxlength="80"></div>
+      <div class="field"><label for="seasonalCampaignName">Campaign name</label><input id="seasonalCampaignName" type="text" value="Christmas & New Year 2026/27" maxlength="120"></div>
+      <div class="field"><label for="seasonalCampaignStart">Start date and time</label><input id="seasonalCampaignStart" type="datetime-local" value="2026-11-28T00:00"></div>
+      <div class="field"><label for="seasonalCampaignEnd">End date and time</label><input id="seasonalCampaignEnd" type="datetime-local" value="2027-01-03T00:00"></div>
+      <div class="field full"><label for="seasonalCampaignHeadline">Main headline</label><input id="seasonalCampaignHeadline" type="text" value="THIS CHRISTMAS, LET OPPORTUNITY FIND YOU!" maxlength="180"></div>
+      <div class="field full"><label for="seasonalCampaignDescription">Supporting message</label><textarea id="seasonalCampaignDescription" maxlength="500">Complete tasks. Earn Naira. Promote your business. Join the NAIJA TASK community and make this festive season count.</textarea></div>
+    </div>
+    <div id="seasonalCampaignStatus" class="notice" style="margin-top:8px">Loading saved seasonal campaign settings…</div>
+    <div class="actions">
+      <button class="primary" type="button" onclick="saveSeasonalCampaign()">Save Campaign</button>
+      <button class="secondary" type="button" onclick="loadSeasonalCampaignSettings()">Reload</button>
+    </div>
+    <small style="display:block;margin-top:10px;color:#728078;line-height:1.5">To preserve an older season, change the Campaign key before saving a new one. The previous campaign remains stored in the campaign history. Dates use Nigeria time (WAT).</small>
+  </div>
+
   <div class="grid grid-2">
 
     <div class="card">
@@ -4847,6 +4875,7 @@ let currentWithdrawal = null;
 let currentPosterPayment = null;
 
 let platformSettings = null;
+let seasonalCampaignId = null;
 
 
 /* =========================================================
@@ -9509,6 +9538,7 @@ async function loadSettings() {
     }
     applySettingsToUI(settings);
     await loadServicePricing();
+    await loadSeasonalCampaignSettings();
     if (status) {
       status.textContent = "Settings loaded from Supabase. Activation: " +
         (boolValue(settings.activation_enabled) ? "ON" : "OFF") +
@@ -10194,6 +10224,123 @@ async function saveSettings() {
   }
 }
 
+
+/* =========================================================
+   REUSABLE SEASONAL CAMPAIGN MANAGER
+   ========================================================= */
+function setSeasonalCampaignStatus(message, kind) {
+  const el = $("seasonalCampaignStatus");
+  if (el) {
+    el.textContent = message;
+    el.className = "notice" + (kind ? " " + kind : "");
+  }
+}
+
+function toWATDateTimeInput(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Lagos", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return values.year + "-" + values.month + "-" + values.day + "T" + values.hour + ":" + values.minute;
+}
+
+async function loadSeasonalCampaignSettings() {
+  try {
+    setSeasonalCampaignStatus("Loading saved campaign settings…");
+    const result = await withTimeout(
+      supabaseClient.from("seasonal_campaigns").select("*").order("starts_at", { ascending: false }).limit(1).maybeSingle(),
+      15000, "Load seasonal campaign settings"
+    );
+    if (result.error) throw result.error;
+    const row = result.data;
+    if (!row) {
+      seasonalCampaignId = null;
+      setSeasonalCampaignStatus("No saved campaign yet. Fill in the details and save your first season.");
+      return;
+    }
+    seasonalCampaignId = row.id;
+    $("seasonalCampaignEnabled").checked = row.enabled === true;
+    $("seasonalCampaignKey").value = row.campaign_key || "";
+    $("seasonalCampaignName").value = row.name || "";
+    $("seasonalCampaignStart").value = toWATDateTimeInput(row.starts_at);
+    $("seasonalCampaignEnd").value = toWATDateTimeInput(row.ends_at);
+    $("seasonalCampaignHeadline").value = row.headline || "";
+    $("seasonalCampaignDescription").value = row.description || "";
+    const now = Date.now(), end = Date.parse(row.ends_at);
+    const expired = Number.isFinite(end) && now >= end;
+    setSeasonalCampaignStatus(
+      "Saved campaign: " + row.name + " · " + (row.enabled && !expired ? "Enabled" : expired ? "Expired automatically by date" : "Disabled") + ".",
+      row.enabled && !expired ? "success" : "warning"
+    );
+  } catch (error) {
+    reportError("loadSeasonalCampaignSettings", error);
+    setSeasonalCampaignStatus(errorMessage(error, "Could not load seasonal campaign settings."), "warning");
+  }
+}
+
+async function saveSeasonalCampaign() {
+  try {
+    if (!currentUser || !currentUser.id) throw new Error("Administrator session expired. Sign in again.");
+    const key = String($("seasonalCampaignKey").value || "").trim().toLowerCase();
+    const name = String($("seasonalCampaignName").value || "").trim();
+    const startRaw = $("seasonalCampaignStart").value;
+    const endRaw = $("seasonalCampaignEnd").value;
+    const start = new Date(startRaw);
+    const end = new Date(endRaw);
+    const headline = String($("seasonalCampaignHeadline").value || "").trim();
+    const description = String($("seasonalCampaignDescription").value || "").trim();
+    if (!/^[a-z0-9][a-z0-9-]{2,79}$/.test(key)) throw new Error("Campaign key must use 3–80 lowercase letters, numbers or hyphens.");
+    if (!name || !headline || !description) throw new Error("Campaign name, headline and supporting message are required.");
+    if (!startRaw || !endRaw || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) throw new Error("Choose a valid end date and time later than the start date.");
+    const payload = {
+      campaign_key: key, name,
+      enabled: $("seasonalCampaignEnabled").checked,
+      starts_at: start.toISOString(), ends_at: end.toISOString(),
+      headline, description,
+      artwork_path: "/assets/naija-task-christmas-2026.svg",
+      tasker_cta_label: "JOIN AS TASKER", tasker_cta_url: "/signup.html",
+      poster_cta_label: "POST A TASK", poster_cta_url: "/poster-signup.html",
+      updated_by: currentUser.id, updated_at: new Date().toISOString()
+    };
+    setLoading(true, "Saving seasonal campaign…");
+    setSeasonalCampaignStatus("Saving campaign settings…");
+    let result;
+    if (seasonalCampaignId) {
+      const existing = await withTimeout(
+        supabaseClient.from("seasonal_campaigns").select("id,campaign_key").eq("id", seasonalCampaignId).maybeSingle(),
+        12000, "Check saved campaign"
+      );
+      if (existing.error) throw existing.error;
+      if (existing.data && existing.data.campaign_key === key) {
+        result = await withTimeout(supabaseClient.from("seasonal_campaigns").update(payload).eq("id", seasonalCampaignId).select("id").single(), 15000, "Update seasonal campaign");
+      } else {
+        result = await withTimeout(supabaseClient.from("seasonal_campaigns").insert(payload).select("id").single(), 15000, "Create seasonal campaign");
+        if (!result.error && existing.data && payload.enabled) {
+          const disableOld = await withTimeout(supabaseClient.from("seasonal_campaigns").update({enabled:false,updated_at:new Date().toISOString()}).eq("id",seasonalCampaignId), 12000, "Disable previous season");
+          if (disableOld.error) console.warn("New campaign saved, but previous campaign could not be disabled:", disableOld.error);
+        }
+      }
+    } else {
+      result = await withTimeout(supabaseClient.from("seasonal_campaigns").insert(payload).select("id").single(), 15000, "Create seasonal campaign");
+    }
+    if (result.error) throw result.error;
+    if (!result.data || !result.data.id) throw new Error("Supabase did not confirm the saved campaign.");
+    seasonalCampaignId = result.data.id;
+    setSeasonalCampaignStatus("Campaign saved successfully. Website banners will follow this switch and the dates you selected.", "success");
+    toast("Seasonal campaign saved.", "success");
+    await loadSeasonalCampaignSettings();
+  } catch (error) {
+    reportError("saveSeasonalCampaign", error);
+    setSeasonalCampaignStatus(errorMessage(error, "Could not save seasonal campaign."), "danger-box");
+    toast(errorMessage(error, "Could not save seasonal campaign."), "danger");
+  } finally {
+    setLoading(false);
+  }
+}
 
 /* =========================================================
    SECURITY PAGE
