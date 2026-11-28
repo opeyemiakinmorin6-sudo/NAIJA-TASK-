@@ -815,7 +815,7 @@ async function applyTaskUsernameGate(task){
     targetLink.style.pointerEvents="none";
     targetLink.style.opacity=".55";
   }
-  showNotice("Checking your "+platform.replaceAll("_"," ")+" username verification…","info");
+  showNotice(platform==="website"?"Checking your website ownership verification…":"Checking your "+platform.replaceAll("_"," ")+" username verification…","info");
 
   try{
     const {data,error}=await db.from("social_accounts")
@@ -1162,7 +1162,7 @@ async function submitProof(){
     const requiredWebsiteType=requiredPlatform==="website"?getRequiredWebsiteType(selectedTask):null;
     const eligibleOwnedAccounts=(ownedAccounts||[]).filter(account=>requiredPlatform!=="website"||!requiredWebsiteType||account.verification_details?.website_type===requiredWebsiteType);
     if (!eligibleOwnedAccounts.length) {
-      showNotice("USERNAME NOT VERIFIED — Verify your " + requiredPlatform.replaceAll("_", " ") + " username before submitting this task.", "error");
+      showNotice(requiredPlatform==="website"?"WEBSITE NOT VERIFIED — Verify the required website/profile before submitting this task.":"USERNAME NOT VERIFIED — Verify your " + requiredPlatform.replaceAll("_", " ") + " username before submitting this task.", "error");
       const notice=$("sheetNotice");
       const link=document.createElement("a");
       link.href="social-accounts.html";
@@ -1181,7 +1181,7 @@ async function submitProof(){
       return submittedHandle && (submittedHandle.replace(/^@+/,"")===saved || submittedHandle.replace(/^@+/,"")===username);
     });
     if(!matchingAccount){
-      showNotice("USERNAME DOES NOT MATCH — Enter the exact username you have verified for " + requiredPlatform.replaceAll("_", " ") + ".", "error");
+      showNotice(requiredPlatform==="website"?"WEBSITE DOES NOT MATCH — Submit the exact verified website/profile URL.":"USERNAME DOES NOT MATCH — Enter the exact username you have verified for " + requiredPlatform.replaceAll("_", " ") + ".", "error");
       const notice=$("sheetNotice");
       const link=document.createElement("a");
       link.href="social-accounts.html";
