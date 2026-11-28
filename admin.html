@@ -10263,6 +10263,15 @@ async function loadSeasonalCampaignSettings() {
       return;
     }
     seasonalCampaignId = row.id;
+    const campaignExpired = Number.isFinite(Date.parse(row.ends_at)) && Date.now() >= Date.parse(row.ends_at);
+    if (campaignExpired && row.enabled === true) {
+      const autoOff = await withTimeout(
+        supabaseClient.from("seasonal_campaigns").update({ enabled: false, updated_at: new Date().toISOString() }).eq("id", row.id).select("id").maybeSingle(),
+        12000, "Automatically switch off expired seasonal campaign"
+      );
+      if (autoOff.error) console.warn("Campaign has expired and is hidden on the website; admin auto-disable could not be persisted:", autoOff.error);
+      else row.enabled = false;
+    }
     $("seasonalCampaignEnabled").checked = row.enabled === true;
     $("seasonalCampaignKey").value = row.campaign_key || "";
     $("seasonalCampaignName").value = row.name || "";
