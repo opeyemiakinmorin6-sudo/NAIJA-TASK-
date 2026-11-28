@@ -141,6 +141,100 @@ async function checkout(userId: string, email: string, purpose: string, txRef: s
 /* =========================================================
 MEMBERSHIP: ACTIVATION AND VIP
 ========================================================= */
+async function reconcileStaleMembershipPayment(payment: {
+    id: string;
+    user_id: string;
+    purpose: string;
+    amount: number | string;
+    tx_ref: string;
+    created_at: string;
+}) {
+    const txRef = String(payment.tx_ref || "").trim();
+    if (!txRef) return { status: "unresolved" as const };
+    const ageMs = Date.now() - new Date(payment.created_at).getTime();
+    if (!Number.isFinite(ageMs) || ageMs < 90 * 60 * 1000) {
+        return { status: "pending" as const };
+    }
+
+    // Never release an old pending lock based only on elapsed time. Ask
+    // Flutterwave first, because a delayed bank transfer may still settle.
+    const response = await fetch(
+        "https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=" + encodeURIComponent(txRef),
+        { method: "GET", headers: { Authorization: "Bearer " + FLW_SECRET_KEY, "Content-Type": "application/json" } }
+    );
+    let providerResult: any = null;
+    try { providerResult = await response.json(); } catch { /* keep the payment locked */ }
+
+    const transaction = providerResult?.data;
+    const now = new Date().toISOString();
+
+    if (response.ok && providerResult?.status === "success" && transaction &&
+        String(transaction.tx_ref || "") === txRef) {
+        const providerStatus = String(transaction.status || "").toLowerCase();
+        const transactionId = String(transaction.id || "");
+        const amountMatches = Math.round(Number(transaction.amount) * 100) === Math.round(Number(payment.amount) * 100);
+        const currencyMatches = String(transaction.currency || "").toUpperCase() === "NGN";
+
+        if (providerStatus === "successful") {
+            if (!transactionId || !amountMatches || !currencyMatches) {
+                await db.from("membership_payments").update({
+                    provider_status: "review_required",
+                    provider_transaction_id: transactionId || null,
+                    provider_checked_at: now,
+                }).eq("id", payment.id).eq("status", "pending");
+                return { status: "unresolved" as const };
+            }
+            await verifyMembership(payment.user_id, payment.purpose, txRef, transactionId);
+            await db.from("membership_payments").update({
+                provider_status: providerStatus,
+                provider_transaction_id: transactionId,
+                provider_checked_at: now,
+            }).eq("id", payment.id);
+            return { status: "successful" as const };
+        }
+
+        if (["failed", "cancelled", "canceled", "expired", "declined"].includes(providerStatus)) {
+            const { error } = await db.from("membership_payments").update({
+                status: "failed",
+                provider_status: providerStatus,
+                provider_transaction_id: transactionId || null,
+                provider_checked_at: now,
+            }).eq("id", payment.id).eq("status", "pending");
+            if (error) throw new Error("Flutterwave confirmed the payment failed, but the pending record could not be reset.");
+            return { status: "failed" as const };
+        }
+
+        await db.from("membership_payments").update({
+            provider_status: providerStatus || "pending",
+            provider_transaction_id: transactionId || null,
+            provider_checked_at: now,
+        }).eq("id", payment.id).eq("status", "pending");
+        return { status: "pending" as const };
+    }
+
+    // A 400 response explicitly saying that no transaction exists for this
+    // merchant reference means checkout never created a charge. Only then,
+    // and only after the 90-minute safety window, release the pending lock.
+    const providerMessage = String(providerResult?.message || providerResult?.error || "").toLowerCase();
+    const definitelyNotFound = response.status === 400 &&
+        /(not found|no transaction|transaction does not exist|invalid tx_ref)/i.test(providerMessage);
+    if (definitelyNotFound) {
+        const { error } = await db.from("membership_payments").update({
+            status: "failed",
+            provider_status: "not_found",
+            provider_checked_at: now,
+        }).eq("id", payment.id).eq("status", "pending").is("flw_transaction_id", null);
+        if (error) throw new Error("Flutterwave found no charge, but the pending record could not be reset.");
+        return { status: "failed" as const };
+    }
+
+    await db.from("membership_payments").update({
+        provider_status: "reconciliation_unavailable",
+        provider_checked_at: now,
+    }).eq("id", payment.id).eq("status", "pending");
+    return { status: "unresolved" as const };
+}
+
 async function initiateMembership(user: {
     id: string;
     email?: string;
@@ -186,16 +280,25 @@ async function initiateMembership(user: {
     // doing so can create a second real charge. Require reconciliation first.
     const { data: pendingRows, error: pendingError } = await db
         .from("membership_payments")
-        .select("id, tx_ref, status")
+        .select("id,user_id,purpose,amount,tx_ref,status,created_at")
         .eq("user_id", user.id)
         .eq("purpose", purpose)
         .in("status", ["pending", "PENDING"])
-        .limit(1);
+        .order("created_at", { ascending: true })
+        .limit(10);
     if (pendingError) {
         throw new Error("Could not check your previous membership payment. No new charge was started.");
     }
-    if ((pendingRows || []).length > 0) {
-        throw new Error("A previous membership payment is still awaiting confirmation. Do not pay again. Contact support so the existing Flutterwave reference can be reconciled first.");
+    for (const pending of pendingRows || []) {
+        const reconciliation = await reconcileStaleMembershipPayment(pending as any);
+        if (reconciliation.status === "successful") {
+            throw new Error(purpose === "activation"
+                ? "Your previous payment was confirmed successfully. Your account is now activated."
+                : "Your previous payment was confirmed successfully. Your VIP membership is now active.");
+        }
+        if (reconciliation.status !== "failed") {
+            throw new Error("Your previous payment is still being checked with Flutterwave. Do not pay again. You can retry this check later; the system will release the payment automatically only after Flutterwave confirms that no charge succeeded.");
+        }
     }
     const txRef = newReference();
     const { error: insertError } = await db
