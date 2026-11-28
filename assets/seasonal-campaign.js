@@ -78,7 +78,7 @@
       #nt-seasonal-snow{position:fixed;inset:0;z-index:9998;overflow:hidden;pointer-events:none;contain:strict}
       #nt-seasonal-snow span{position:absolute;top:-12px;left:var(--x);width:var(--size);height:var(--size);border-radius:50%;background:#fff;opacity:var(--opacity);filter:drop-shadow(0 0 3px #b9dfff);animation:nt-snow-fall var(--duration) linear var(--delay) infinite}
       @keyframes nt-snow-fall{0%{transform:translate3d(0,-12px,0)}50%{transform:translate3d(var(--drift),52vh,0)}100%{transform:translate3d(calc(var(--drift)*-.45),105vh,0)}}
-      @media(prefers-reduced-motion:reduce){#nt-seasonal-snow{display:none!important}#nt-seasonal-campaign .nt-campaign-sound{display:none!important}}
+      @media(prefers-reduced-motion:reduce){#nt-seasonal-snow span{animation-duration:30s!important;filter:none!important}}
       #nt-seasonal-campaign .nt-campaign-countdown{display:block;margin-top:11px;color:#f7e9bd;font-size:10px;font-weight:800;letter-spacing:.2px}
       #nt-seasonal-campaign .nt-campaign-art{width:100%;max-width:440px;justify-self:end;filter:drop-shadow(0 14px 22px #0004)}
       #nt-seasonal-campaign .nt-campaign-art img{display:block;width:100%;height:auto}
