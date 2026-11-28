@@ -74,6 +74,11 @@
       #nt-seasonal-campaign .nt-campaign-actions{display:flex;flex-wrap:wrap;gap:8px}
       #nt-seasonal-campaign .nt-campaign-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid #d7ef8a;border-radius:10px;background:linear-gradient(120deg,#d6f078,#b8df42);color:#153b20;text-decoration:none;font-size:10px;font-weight:950}
       #nt-seasonal-campaign .nt-campaign-btn.secondary{border-color:#ffffff77;background:#ffffff16;color:#fff}
+      #nt-seasonal-campaign .nt-campaign-sound{font:inherit;cursor:pointer;border-color:#ffe59a;background:#ffffff16;color:#fff}
+      #nt-seasonal-snow{position:fixed;inset:0;z-index:9998;overflow:hidden;pointer-events:none;contain:strict}
+      #nt-seasonal-snow span{position:absolute;top:-12px;left:var(--x);width:var(--size);height:var(--size);border-radius:50%;background:#fff;opacity:var(--opacity);filter:drop-shadow(0 0 3px #b9dfff);animation:nt-snow-fall var(--duration) linear var(--delay) infinite}
+      @keyframes nt-snow-fall{0%{transform:translate3d(0,-12px,0)}50%{transform:translate3d(var(--drift),52vh,0)}100%{transform:translate3d(calc(var(--drift)*-.45),105vh,0)}}
+      @media(prefers-reduced-motion:reduce){#nt-seasonal-snow{display:none!important}#nt-seasonal-campaign .nt-campaign-sound{display:none!important}}
       #nt-seasonal-campaign .nt-campaign-countdown{display:block;margin-top:11px;color:#f7e9bd;font-size:10px;font-weight:800;letter-spacing:.2px}
       #nt-seasonal-campaign .nt-campaign-art{width:100%;max-width:440px;justify-self:end;filter:drop-shadow(0 14px 22px #0004)}
       #nt-seasonal-campaign .nt-campaign-art img{display:block;width:100%;height:auto}
@@ -154,6 +159,57 @@
         : (campaign.description || 'Complete tasks, earn Naira and promote your business.');
     const actions = document.createElement('div');
     actions.className = 'nt-campaign-actions';
+    const soundButton = document.createElement('button');
+    soundButton.type = 'button';
+    soundButton.className = 'nt-campaign-btn nt-campaign-sound';
+    soundButton.textContent = '🔔 Play festive bells';
+    soundButton.setAttribute('aria-label','Play a short festive jingle bell sound');
+    soundButton.addEventListener('click', async () => {
+      if (soundButton.dataset.playing === '1') return;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        soundButton.textContent = 'Sound unavailable';
+        return;
+      }
+      soundButton.dataset.playing = '1';
+      soundButton.disabled = true;
+      soundButton.textContent = '🔔 Playing bells…';
+      try {
+        const context = window.__ntSeasonalAudioContext || (window.__ntSeasonalAudioContext = new AudioCtx());
+        if (context.state === 'suspended') await context.resume();
+        const master = context.createGain();
+        master.gain.setValueAtTime(0.0001, context.currentTime);
+        master.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.035);
+        master.connect(context.destination);
+        const notes = [659.25,783.99,987.77,1318.51,1174.66,987.77,783.99,659.25];
+        notes.forEach((frequency,index) => {
+          const start = context.currentTime + index * 0.19;
+          [1,2.72].forEach((ratio,partial) => {
+            const oscillator = context.createOscillator();
+            const envelope = context.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency * ratio,start);
+            envelope.gain.setValueAtTime(0.0001,start);
+            envelope.gain.exponentialRampToValueAtTime(partial ? 0.13 : 0.42,start + 0.012);
+            envelope.gain.exponentialRampToValueAtTime(0.0001,start + (partial ? 0.28 : 0.48));
+            oscillator.connect(envelope);
+            envelope.connect(master);
+            oscillator.start(start);
+            oscillator.stop(start + 0.5);
+          });
+        });
+        window.setTimeout(() => {
+          master.gain.setTargetAtTime(0.0001,context.currentTime,0.04);
+          soundButton.dataset.playing = '0';
+          soundButton.disabled = false;
+          soundButton.textContent = '🔔 Play again';
+        },1900);
+      } catch (error) {
+        soundButton.dataset.playing = '0';
+        soundButton.disabled = false;
+        soundButton.textContent = '🔔 Tap to play bells';
+      }
+    });
     const poster = document.createElement('a');
     poster.className = 'nt-campaign-btn';
     poster.href = validLocalPath(campaign.poster_cta_url);
@@ -168,6 +224,21 @@
     const countdown = document.createElement('span');
     countdown.className = 'nt-campaign-countdown';
     countdown.setAttribute('aria-live','off');
+    actions.append(soundButton);
+    const snow = document.createElement('div');
+    snow.id = 'nt-seasonal-snow';
+    snow.setAttribute('aria-hidden','true');
+    const flakeCount = window.matchMedia && window.matchMedia('(max-width: 600px)').matches ? 18 : 30;
+    for (let i = 0; i < flakeCount; i++) {
+      const flake = document.createElement('span');
+      flake.style.setProperty('--x', (Math.random() * 100) + 'vw');
+      flake.style.setProperty('--size', (2 + Math.random() * 4) + 'px');
+      flake.style.setProperty('--opacity', (0.35 + Math.random() * 0.55).toFixed(2));
+      flake.style.setProperty('--duration', (9 + Math.random() * 12) + 's');
+      flake.style.setProperty('--delay', (-Math.random() * 18) + 's');
+      flake.style.setProperty('--drift', ((Math.random() * 70) - 35) + 'px');
+      snow.append(flake);
+    }
     const art = document.createElement('div');
     art.className = 'nt-campaign-art';
     const img = document.createElement('img');
@@ -178,6 +249,7 @@
     art.append(img);
     copy.append(kicker,title,desc,actions,countdown);
     section.append(copy,art);
+    document.body.append(snow);
     const place = () => {
       const main = document.querySelector('body > main, body > #app main, body > .main-content, main');
       const header = document.querySelector('body > header, body > .topbar, body > nav');
