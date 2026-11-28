@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v18-seasonal-snow-bells';
+const CACHE_NAME='naija-task-shell-v19-seasonal-script-refresh';
 const APP_SHELL=[
   '/',
   '/index.html',
@@ -32,6 +32,11 @@ self.addEventListener('fetch',event=>{
   if(request.method!=='GET') return;
   const url=new URL(request.url);
   if(url.origin!==self.location.origin) return;
+  /* Always refresh the seasonal renderer so new campaign effects are not trapped behind an old cache entry. */
+  if(url.pathname==='/assets/seasonal-campaign.js'){
+    event.respondWith(fetch(request,{cache:'no-store'}));
+    return;
+  }
   if(request.mode==='navigate'){
     event.respondWith(
       fetch(request,{cache:'no-store'}).then(response=>{
