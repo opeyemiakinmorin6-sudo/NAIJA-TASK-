@@ -4299,6 +4299,25 @@ td,th{padding:13px 11px}
       </div>
 
 
+      <div class="field full" id="adminSocialPlatformFields" style="display:none">
+        <label for="adminTaskPlatform">Social Platform</label>
+        <select id="adminTaskPlatform" onchange="renderAdminTaskServiceOptions()">
+          <option value="">Choose a platform</option>
+          <option>Facebook</option><option>Instagram</option><option>TikTok</option>
+          <option>YouTube</option><option>YouTube Music</option><option>X (Twitter)</option>
+          <option>LinkedIn</option><option>WhatsApp</option><option>Telegram</option>
+          <option>Threads</option><option>Spotify</option><option>Apple Music</option>
+          <option>Audiomack</option><option>Boomplay</option><option>Snapchat</option>
+          <option>Quora</option><option>Google</option><option>Google Play Store</option>
+          <option>Apple App Store</option><option>Website</option>
+        </select>
+        <small class="small">Choose the platform first. Its available task actions will appear below.</small>
+      </div>
+      <div class="field full" id="adminSocialServiceField" style="display:none">
+        <label for="adminTaskService">Task Action / Service</label>
+        <select id="adminTaskService"><option value="">Choose a platform first</option></select>
+      </div>
+
       <div class="field">
 
         <label>
@@ -6645,6 +6664,29 @@ function filterTasks() {
 }
 
 
+function renderAdminTaskServiceOptions(selectedKey = "") {
+  const platform = $("adminTaskPlatform")?.value || "";
+  const select = $("adminTaskService");
+  if (!select) return;
+  const items = Array.isArray(NT_SOCIAL_PRICE_ITEMS) ? NT_SOCIAL_PRICE_ITEMS : [];
+  const matches = items.filter(([key]) => ntSocialPlatformForKey(key) === platform);
+  select.innerHTML = '<option value="">Choose a task action</option>' + matches.map(([key,label]) =>
+    '<option value="' + escapeHTML(key) + '">' + escapeHTML(label.replace(/^.*? — /, "")) + '</option>'
+  ).join("");
+  if (selectedKey && matches.some(([key]) => key === selectedKey)) select.value = selectedKey;
+}
+function syncAdminTaskPlatformFields(platform = "", serviceKey = "") {
+  const type = $("taskType")?.value || "social";
+  const visible = type === "social";
+  const platformFields = $("adminSocialPlatformFields");
+  const serviceField = $("adminSocialServiceField");
+  if (platformFields) platformFields.style.display = visible ? "" : "none";
+  if (serviceField) serviceField.style.display = visible ? "" : "none";
+  if (!visible) return;
+  if ($("adminTaskPlatform")) $("adminTaskPlatform").value = platform || "";
+  renderAdminTaskServiceOptions(serviceKey);
+}
+
 function openTaskModal(taskId = null) {
   currentTask = null;
 
@@ -6670,6 +6712,16 @@ function openTaskModal(taskId = null) {
     "taskType",
     currentTask?.task_type || "social"
   );
+
+  const savedRequirements = Array.isArray(currentTask?.requirements) ? currentTask.requirements : [];
+  const savedPlatform = String(currentTask?.task_platform || savedRequirements.find(v => /^Platform: /.test(String(v)))?.replace(/^Platform: /, "") || "");
+  const savedService = String(currentTask?.task_service_key || "");
+  syncAdminTaskPlatformFields(savedPlatform, savedService);
+  const taskTypeControl = $("taskType");
+  if (taskTypeControl && !taskTypeControl.dataset.ntPlatformBound) {
+    taskTypeControl.dataset.ntPlatformBound = "1";
+    taskTypeControl.addEventListener("change", () => syncAdminTaskPlatformFields());
+  }
 
   setValue(
     "taskReward",
@@ -6854,7 +6906,19 @@ async function saveTask() {
       $("taskActive")?.value === "true";
 
     const requirements =
-      collectTaskRequirements();
+      collectTaskRequirements().filter(value => !/^Platform: /.test(String(value)) && !/^Task action: /.test(String(value)));
+    const selectedPlatform = taskType === "social" ? String($("adminTaskPlatform")?.value || "").trim() : "";
+    const selectedServiceKey = taskType === "social" ? String($("adminTaskService")?.value || "").trim() : "";
+    const selectedService = taskType === "social"
+      ? (NT_SOCIAL_PRICE_ITEMS.find(([key]) => key === selectedServiceKey)?.[1] || "")
+      : "";
+    if (taskType === "social" && (!selectedPlatform || !selectedServiceKey || !selectedService)) {
+      toast("Choose a social platform and its task action before saving.", "warning");
+      return;
+    }
+    if (taskType === "social") {
+      requirements.push("Platform: " + selectedPlatform, "Task action: " + selectedService);
+    }
 
     if (!title) {
       toast(
