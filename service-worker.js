@@ -1,4 +1,4 @@
-const CACHE_NAME='naija-task-shell-v17-seasonal-role-themes';
+const CACHE_NAME='naija-task-shell-v18-seasonal-snow-bells';
 const APP_SHELL=[
   '/',
   '/index.html',
