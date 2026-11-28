@@ -189,6 +189,19 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit;
 .drop.has-preview span:not(.cam){font-size:12px}
 </style>
   <link rel="stylesheet" href="/assets/naija-design-system.css?v=2">
+
+<style id="nt-comment-helper-styles">
+.nt-comment-helper{margin:12px 0 16px;padding:14px;border:1px solid #cfe5d3;border-radius:16px;background:linear-gradient(145deg,#f4fbf5,#fff)}
+.nt-comment-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;color:#075b2c}
+.nt-comment-head>span{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#e2f4e5;font-size:20px}
+.nt-comment-head b,.nt-comment-head small{display:block}.nt-comment-head b{font-size:14px}.nt-comment-head small{font-size:11px;color:#637568;margin-top:2px}
+.nt-comment-helper textarea{width:100%;min-height:76px;resize:vertical}
+.nt-comment-ideas{display:grid;gap:8px;margin-top:10px}
+.nt-comment-idea{padding:10px;border:1px solid #e1ebe3;border-radius:12px;background:#fff}
+.nt-comment-idea p{margin:0 0 8px;font-size:12px;line-height:1.55;color:#233c2b;overflow-wrap:anywhere}
+.nt-comment-idea button{min-height:34px;padding:6px 11px;border:1px solid #cfe5d3;border-radius:9px;background:#f3faf4;color:#075b2c;font-size:11px;font-weight:800}
+.nt-comment-note{margin:9px 0 0;color:#68796e;font-size:10px;line-height:1.5}
+</style>
 </head>
 <body>
 
@@ -664,7 +677,51 @@ function getTaskActionKey(task){
   const fallback=normalize(task?.task_type||"general").replace(/[^a-z0-9]/g,"").slice(0,60);
   return fallback||"general";
 }
-async function renderSavedUsernameSuggestions(task){
+async 
+function buildCommentIdeas(postText){
+  const source=String(postText||"").replace(/https?:\\/\\/\\S+/g,"").replace(/\\s+/g," ").trim();
+  if(source.length<12)throw new Error("Paste a little more of the post so the suggestions can be relevant.");
+  const focus=source.slice(0,125).replace(/[“”"]/g,"").replace(/[.!?]+$/,"");
+  const endings=[
+    "What made you focus on this point?",
+    "It gives people something useful to think about.",
+    "I’d be interested to hear more about your perspective.",
+    "That is an interesting angle on the topic.",
+    "Which part of this has mattered most in your experience?"
+  ];
+  const starts=[
+    "The point about",
+    "One thing that stands out in",
+    "I noticed the part about",
+    "This perspective on",
+    "The discussion around"
+  ];
+  const shuffle=a=>a.map(v=>({v,r:Math.random()})).sort((x,y)=>x.r-y.r).map(x=>x.v);
+  const chosenStarts=shuffle(starts),chosenEndings=shuffle(endings);
+  return [
+    chosenStarts[0]+" “"+focus+"” — "+chosenEndings[0],
+    "Thanks for sharing this. "+chosenStarts[1].toLowerCase()+" “"+focus+"” feels worth discussing.",
+    chosenStarts[2]+" “"+focus+"”. "+chosenEndings[1]
+  ];
+}
+function attachCommentHelper(){
+  const button=$("ntGenerateComments"),source=$("ntCommentSource"),output=$("ntCommentIdeas");
+  if(!button||!source||!output)return;
+  button.addEventListener("click",()=>{
+    try{
+      const ideas=buildCommentIdeas(source.value);
+      output.innerHTML=ideas.map((idea,index)=>'<div class="nt-comment-idea"><p>'+escapeHtml(idea)+'</p><button type="button" data-comment-index="'+index+'">Copy suggestion</button></div>').join("");
+      output.querySelectorAll("[data-comment-index]").forEach((copyButton,index)=>{
+        copyButton.addEventListener("click",async()=>{
+          try{await navigator.clipboard.writeText(ideas[index]);copyButton.textContent="Copied";setTimeout(()=>copyButton.textContent="Copy suggestion",1400);}
+          catch{copyButton.textContent="Select and copy";source.focus();}
+        });
+      });
+    }catch(error){output.innerHTML='<p class="nt-comment-note" role="alert">'+escapeHtml(error.message)+'</p>';}
+  });
+}
+
+function renderSavedUsernameSuggestions(task){
   const list=$("savedUsernameSuggestions");
   if(!list)return;
   list.innerHTML="";
@@ -840,6 +897,15 @@ function openTask(task, verifiedSocialAccount=null){
 
     <div class="field"><div class="lab" style="font-size:14px">Task instructions</div>
       <div class="box">${escapeHtml(task.description || "Open the task link, complete the task, then upload your screenshot.")}</div></div>
+    ${!isPrivateFeedbackTask(task) && getTaskActionKey(task)==="comment" ? `
+    <section class="nt-comment-helper" aria-label="Comment idea helper">
+      <div class="nt-comment-head"><span>✍️</span><div><b>Comment idea helper</b><small>Draft suggestions from the actual post</small></div></div>
+      <label class="lab" for="ntCommentSource">Paste the post text or describe its main point</label>
+      <textarea id="ntCommentSource" class="form-control" rows="3" maxlength="600" placeholder="Paste the post text here so the suggestions stay relevant..."></textarea>
+      <button type="button" class="btn s" id="ntGenerateComments" style="width:100%;margin-top:8px">Generate comment ideas</button>
+      <div id="ntCommentIdeas" class="nt-comment-ideas" aria-live="polite"></div>
+      <p class="nt-comment-note">Suggestions only. Read the post and edit a comment so it reflects your genuine opinion. Nothing is posted automatically.</p>
+    </section>` : ""}
     ${task.uploader_username ? `<div class="field"><div class="lab">Account to use</div><div class="box">${escapeHtml(task.uploader_username)}</div></div>` : ""}
     ${task.copy_text ? `<div class="field"><div class="lab">Text to use</div><div class="box">${escapeHtml(task.copy_text)}</div><button type="button" class="btn s sm" style="margin-top:8px" id="copyTaskTextBtn">Copy text</button></div>` : ""}
     ${safeUrl ? `<div class="field"><div class="lab" style="font-size:14px">Target link</div>
@@ -896,6 +962,8 @@ function openTask(task, verifiedSocialAccount=null){
   $("overlay").classList.add("show");
   document.body.classList.add("lock");
   void applyTaskUsernameGate(task);
+
+  attachCommentHelper();
 
   const cb = $("copyTaskTextBtn");
   if (cb) cb.addEventListener("click", async () => {
