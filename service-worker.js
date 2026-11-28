@@ -1,10 +1,13 @@
-const CACHE_NAME='naija-task-shell-v16-xmas-preview-logo';
+const CACHE_NAME='naija-task-shell-v17-seasonal-role-themes';
 const APP_SHELL=[
   '/',
   '/index.html',
   '/manifest.json',
   '/manifest.webmanifest',
   '/assets/naija-task-logo.svg',
+  '/assets/naija-task-logo-seasonal.svg',
+  '/assets/naija-task-tasker.svg',
+  '/assets/naija-task-tasker-seasonal.svg',
   '/assets/naija-task-share.jpg',
   '/brain-battle.html',
   '/naija-games.html',
