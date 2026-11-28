@@ -425,7 +425,7 @@ body{background:var(--nt-bg);color:var(--nt-ink);font-family:Inter,system-ui,-ap
 .nt-section .section-heading h2{font-size:18px;letter-spacing:-.35px;color:var(--nt-ink)}
 .nt-section .section-heading a{background:transparent;padding:0;color:var(--nt-green);font-size:11px;white-space:nowrap}
 .nt-section-copy{margin:5px 0 0;color:var(--nt-muted);font-size:11px;line-height:1.5}
-.nt-count{font-size:11px;color:var(--nt-muted);font-weight:650}
+.nt-count{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:25px;padding:0 8px;margin-left:3px;border-radius:8px;background:#e7f5e9;color:#075f2d;font-size:14px;font-weight:950;font-variant-numeric:tabular-nums;vertical-align:middle}.nt-live-indicator{display:inline-flex;align-items:center;gap:5px;margin-left:4px;padding:5px 8px;border:1px solid #ccebd4;border-radius:999px;background:#f0faf2;color:#13743b;font-size:9px;font-weight:900;letter-spacing:.65px;vertical-align:middle;white-space:nowrap}.nt-live-indicator i{display:block;width:7px;height:7px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 0 #16a34a66;animation:ntLivePulse 1.7s infinite}@keyframes ntLivePulse{0%{box-shadow:0 0 0 0 #16a34a66;opacity:1}70%{box-shadow:0 0 0 6px #16a34a00;opacity:.85}100%{box-shadow:0 0 0 0 #16a34a00;opacity:1}}
 .nt-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .nt-stats .stat-card{border-radius:14px;padding:14px 15px;box-shadow:none;border:1px solid var(--nt-line)}
 .nt-stats .stat-icon{display:none}
@@ -1020,7 +1020,7 @@ html,body{background:#f5fff7!important;color:#173326!important}
     </div>
   </section>
 <section class="section nt-section nt-work-section" id="availableTasksSection" data-cat="earn">
-    <div class="section-heading"><div><span class="nt-eyebrow">OPPORTUNITIES</span><h2>Tasks available to you <span id="tasksCount" class="nt-count"></span></h2><p class="nt-section-copy">Choose a task, follow its instructions and submit your proof.</p></div><a href="task.html">Browse all →</a></div>
+    <div class="section-heading"><div><span class="nt-eyebrow">OPPORTUNITIES</span><h2>Tasks available to you <span id="tasksCount" class="nt-count" aria-label="Available task count">0</span> <span class="nt-live-indicator" role="status"><i aria-hidden="true"></i> LIVE</span></h2><p class="nt-section-copy">Choose a task, follow its instructions and submit your proof.</p></div><a href="task.html">Browse all →</a></div>
     <div class="panel nt-task-panel"><div id="tasksList" class="task-list"><div class="loading">Loading available tasks…</div></div></div>
   </section>
 <section class="section nt-section" id="quickActions">
@@ -1446,7 +1446,7 @@ async function loadAvailableTasks(){
 
   /* Tasks already submitted by this worker are not available again. */
   const tasks = result.rows.filter(t => !submittedTaskIds.has(String(t.id)));
-  setText("tasksCount", tasks.length ? "(" + tasks.length + ")" : "");
+  setText("tasksCount", String(tasks.length));
 
   if (!tasks.length){
     container.innerHTML = `<div class="empty-state">No tasks are available for you right now.<br>New tasks appear here as soon as they are approved.<br><br><a href="task.html" style="color:#087f36;font-weight:800">Open the Tasks page →</a></div>`;
