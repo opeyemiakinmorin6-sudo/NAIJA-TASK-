@@ -2,9 +2,33 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b8f3c"><title>Social Account Reviews | NAIJA TASK Admin</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>body{margin:0;background:#f2f8f3;color:#173326;font:15px system-ui}.wrap{max-width:1000px;margin:auto;padding:20px}.card{background:white;border:1px solid #dce9de;border-radius:16px;padding:16px;margin:14px 0}.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}.yes{background:#0b8f3c;color:white}.no{background:#ffebe8;color:#a32920}.muted{color:#65776a;font-size:13px}.item{border:1px solid #dce9de;border-radius:12px;padding:14px;margin:10px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}input{padding:10px;border:1px solid #ccd8ce;border-radius:9px;width:min(100%,480px)}a{color:#0b8f3c}</style></head>
 <body><main class="wrap"><p><a href="admin.html">← Admin dashboard</a></p><h1>Social & Website Ownership Reviews</h1><p class="muted">Approve only after independently confirming that the user controls the exact profile or website. Approval unlocks matching platform tasks.</p><div id="msg" class="card">Loading review queue…</div><div id="list"></div></main>
-<script>
-const sb=window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co","sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");const $=id=>document.getElementById(id);function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-async function load(){const {data:s}=await sb.auth.getSession();if(!s.session){location.href="admin.html";return;}const {data,error}=await sb.rpc("admin_get_social_accounts");if(error){$("msg").textContent="Admin access required or review queue unavailable: "+error.message;return;}const rows=data||[];$("msg").textContent=rows.length+" account record(s). Pending accounts appear first.";if(!rows.length){$("list").innerHTML='<div class="card">No account review requests.</div>';return;}$("list").innerHTML=rows.map(a=>'<article class="item"><h3>'+esc(a.platform.replaceAll("_"," "))+' · '+esc(a.username||"")+'</h3><p class="muted">User: '+esc(a.full_name||a.user_id)+' · Status: '+esc(a.verification_status)+' · Method: '+esc(a.verification_method)+'</p><p><a href="'+esc(a.profile_url||"#")+'" target="_blank" rel="noopener">Open claimed profile / website</a></p><p class="muted">Challenge code to confirm on the public profile: <strong>'+esc(a.challenge_token||"No active challenge")+'</strong></p><label>Review note <input id="note-'+esc(a.id)+'" placeholder="Evidence checked / reason"></label><div class="actions"><button class="btn yes" onclick="review(\''+esc(a.id)+'\',true)">Approve ownership</button><button class="btn no" onclick="review(\''+esc(a.id)+'\',false)">Reject</button></div></article>').join("");}
-async function review(id,approve){const reason=$("note-"+id)?.value||"";if(!confirm(approve?"Confirm you independently verified this user's ownership?":"Reject this ownership request?"))return;const {data,error}=await sb.rpc("admin_review_social_account",{p_account_id:id,p_approve:approve,p_reason:reason});if(error){alert("Review failed: "+error.message);return;}alert("Account "+data.verification_status+".");load();}
-load();
-</script></body></html>
+<script>const sb=window.supabase.createClient("https://jwakveeiynpakunwjzkj.supabase.co","sb_publishable_iT-y7ZOr_7g_SOx6ZPzR2A_ZjjnLZ6D");
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+async function load(){
+ const {data:s}=await sb.auth.getSession();
+ if(!s.session){location.href="admin.html";return;}
+ const {data,error}=await sb.rpc("admin_get_social_accounts_detailed");
+ if(error){$("msg").textContent="Admin access required or review queue unavailable: "+error.message;return;}
+ const rows=data||[];
+ $("msg").textContent=rows.length+" account record(s). Pending accounts appear first.";
+ if(!rows.length){$("list").innerHTML='<div class="card">No account review requests.</div>';return;}
+ $("list").innerHTML=rows.map(a=>{
+  const d=a.verification_details||{};
+  const isWebsite=a.platform==="website";
+  const type=String(d.website_type||"").replaceAll("_"," ");
+  const title=isWebsite?"Website"+(type?" · "+type:""):String(a.platform||"").replaceAll("_"," ");
+  const contact=[d.website_email?"Email: "+d.website_email:"",d.website_phone?"Phone: "+d.website_phone:"",d.website_username?"Username / business: "+d.website_username:""].filter(Boolean).join(" · ");
+  const challengeLabel=isWebsite?(a.verification_method==="dns_txt"?"DNS TXT token":"Internal review reference"):"Code to confirm on the public profile";
+  const challengeHelp=isWebsite&&a.verification_method!=="dns_txt"?"Do not ask the user to publish this reference code. Verify the claimed URL and supplied account details independently.":(isWebsite?"Check the DNS TXT record at _naijatask-verification."+esc(a.profile_url||""):"Confirm the challenge code is visible on the claimed public profile.");
+  return '<article class="item"><h3>'+esc(title)+' · '+esc(a.username||"")+'</h3><p class="muted">User: '+esc(a.full_name||a.user_id)+' · Status: '+esc(a.verification_status)+' · Method: '+esc(a.verification_method)+'</p>'+(contact?'<p class="muted">'+esc(contact)+'</p>':'')+'<p><a href="'+esc(a.profile_url||"#")+'" target="_blank" rel="noopener">Open claimed profile / website</a></p><p class="muted">'+esc(challengeLabel)+': <strong>'+esc(a.challenge_token||"No active challenge")+'</strong></p><p class="muted">'+challengeHelp+'</p><label>Review note <input id="note-'+esc(a.id)+'" placeholder="Evidence checked / reason"></label><div class="actions"><button class="btn yes" onclick="review(\''+esc(a.id)+'\',true)">Approve ownership</button><button class="btn no" onclick="review(\''+esc(a.id)+'\',false)">Reject</button></div></article>';
+ }).join("");
+}
+async function review(id,approve){
+ const reason=$("note-"+id)?.value||"";
+ if(!confirm(approve?"Confirm you independently verified this user's ownership?":"Reject this ownership request?"))return;
+ const {data,error}=await sb.rpc("admin_review_social_account",{p_account_id:id,p_approve:approve,p_reason:reason});
+ if(error){alert("Review failed: "+error.message);return;}
+ alert("Account "+data.verification_status+".");load();
+}
+load();</script></body></html>
