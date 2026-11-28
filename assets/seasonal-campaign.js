@@ -73,7 +73,14 @@
       #nt-seasonal-campaign .nt-campaign-copytext{max-width:500px;margin:11px 0 13px;color:#e7f4e9;font-size:clamp(11px,1.4vw,13px);line-height:1.6}
       #nt-seasonal-campaign .nt-campaign-actions{display:flex;flex-wrap:wrap;gap:8px}
       #nt-seasonal-campaign .nt-campaign-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid #d7ef8a;border-radius:10px;background:linear-gradient(120deg,#d6f078,#b8df42);color:#153b20;text-decoration:none;font-size:10px;font-weight:950}
-      #nt-seasonal-campaign .nt-campaign-btn.secondary{border-color:#ffffff77;background:#ffffff16;color:#fff}50%{transform:translate3d(var(--drift),52vh,0)}100%{transform:translate3d(calc(var(--drift)*-.45),105vh,0)}}
+      #nt-seasonal-campaign .nt-campaign-btn.secondary{border-color:#ffffff77;background:#ffffff16;color:#fff}
+      #nt-seasonal-snow{position:fixed;inset:-12vh 0 0;z-index:40;overflow:hidden;pointer-events:none;contain:strict}
+      #nt-seasonal-snow .nt-snowflake{position:absolute;top:-12vh;left:var(--x);width:var(--size);height:var(--size);border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0 32%,#f5fbff 55%,#d8e8f3 100%);opacity:var(--opacity);filter:blur(var(--blur));box-shadow:0 0 5px #fff9;animation:nt-snowfall var(--duration) linear var(--delay) infinite}
+      @keyframes nt-snowfall{0%{transform:translate3d(0,-8vh,0)}25%{transform:translate3d(var(--sway),25vh,0)}50%{transform:translate3d(calc(var(--sway)*-.7),53vh,0)}75%{transform:translate3d(var(--sway),79vh,0)}100%{transform:translate3d(calc(var(--sway)*-.35),112vh,0)}}
+      #nt-home-snowman{position:absolute;right:clamp(8px,3vw,28px);bottom:4px;width:clamp(76px,13vw,122px);height:auto;z-index:6;pointer-events:none;filter:drop-shadow(0 7px 8px #062d2233);transform-origin:50% 100%;animation:nt-snowman-bob 3.8s ease-in-out infinite}
+      @keyframes nt-snowman-bob{0%,100%{transform:rotate(-1deg) translateY(0)}50%{transform:rotate(1deg) translateY(-5px)}}
+      @media(prefers-reduced-motion:reduce){#nt-seasonal-snow .nt-snowflake{animation-duration:35s}#nt-home-snowman{animation:none}}
+
       
       #nt-home-santa-flight{position:absolute;top:0;left:0;width:100%;height:clamp(88px,18vw,150px);overflow:hidden;pointer-events:none;z-index:5;contain:layout paint}
       #nt-home-santa-flight img{position:absolute;top:0;left:0;width:clamp(250px,48vw,470px);height:auto;max-height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px #0004);animation:nt-santa-flight 9s cubic-bezier(.35,.05,.65,.95) 1 both}
@@ -198,6 +205,36 @@
         flight.append(sleigh);
         homeHero.insertBefore(flight, homeHero.firstChild);
         window.setTimeout(() => flight.remove(), 9500);
+      }
+      if (homeHero && !document.getElementById('nt-home-snowman')) {
+        const snowman = document.createElement('img');
+        snowman.id = 'nt-home-snowman';
+        snowman.src = '/assets/christmas-snowman.svg?v=20261128';
+        snowman.alt = '';
+        snowman.setAttribute('aria-hidden','true');
+        snowman.loading = 'eager';
+        snowman.decoding = 'async';
+        homeHero.append(snowman);
+      }
+      if (!document.getElementById('nt-seasonal-snow')) {
+        const snow = document.createElement('div');
+        snow.id = 'nt-seasonal-snow';
+        snow.setAttribute('aria-hidden','true');
+        const flakeCount = window.matchMedia('(max-width: 600px)').matches ? 38 : 68;
+        for (let i = 0; i < flakeCount; i++) {
+          const flake = document.createElement('i');
+          flake.className = 'nt-snowflake';
+          const size = (i % 9 === 0 ? 5 + Math.random() * 3 : 1.5 + Math.random() * 3.5);
+          flake.style.setProperty('--x', (Math.random() * 100) + 'vw');
+          flake.style.setProperty('--size', size + 'px');
+          flake.style.setProperty('--opacity', (0.35 + Math.random() * 0.6).toFixed(2));
+          flake.style.setProperty('--blur', (size > 5 ? 1.1 : Math.random() * .45) + 'px');
+          flake.style.setProperty('--duration', (9 + Math.random() * 13) + 's');
+          flake.style.setProperty('--delay', (-Math.random() * 20) + 's');
+          flake.style.setProperty('--sway', (12 + Math.random() * 35) + 'px');
+          snow.append(flake);
+        }
+        document.body.append(snow);
       }
     }
     const place = () => {
