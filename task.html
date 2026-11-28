@@ -1098,7 +1098,7 @@ function getRequiredSocialAccountPlatform(task){
   if(/threads/.test(s))return "threads";
   if(/spotify/.test(s))return "spotify";
   if(/snapchat/.test(s))return "snapchat";
-  if(/trustpilot/.test(s))return "website";
+  if(/trustpilot|google_business|google business|google_maps|google maps|website|web\s*traffic|site\s*visit|blog|online_store|online store/.test(s))return "website";
   if(/google\s*play|google_play/.test(s))return "google_play";
   if(/apple\s*app|apple app store/.test(s))return "apple_app_store";
   if(/apple\s*music|apple_music/.test(s))return "apple_music";
@@ -1107,17 +1107,15 @@ function getRequiredSocialAccountPlatform(task){
   if(/linkedin/.test(s))return "linkedin";
   if(/(^|\W)(x|twitter)(\W|$)/.test(s))return "x";
   if(/quora/.test(s))return "quora";
-  if(/google_business|google business|google_maps|google maps/.test(s))return "website";
   if(/google/.test(s))return "google";
-  if(/website|web\s*traffic|site\s*visit|blog|online_store/.test(s))return "website";
+  return null;
+}
 function getRequiredWebsiteType(task){
   const s=[task?.platform,task?.service_key,task?.task_type,task?.title,task?.description].filter(Boolean).join(" ").toLowerCase();
   if(/trustpilot/.test(s))return "trustpilot";
   if(/google_business|google business|google_maps|google maps/.test(s))return "google_business";
   if(/online_store|online store|e-?commerce|shopify store/.test(s))return "online_store";
   if(/\bblog\b/.test(s))return "blog";
-  return null;
-}
   return null;
 }
 
