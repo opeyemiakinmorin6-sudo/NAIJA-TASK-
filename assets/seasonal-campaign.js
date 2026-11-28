@@ -37,8 +37,30 @@
     render(campaign, end);
   }
 
+  function swapBrandAssets(seasonal) {
+    const assets = [
+      ['naija-task-logo.svg', 'naija-task-logo-seasonal.svg'],
+      ['naija-task-tasker.svg', 'naija-task-tasker-seasonal.svg']
+    ];
+    document.querySelectorAll('img[src],link[rel="icon"],link[rel="apple-touch-icon"]').forEach(element => {
+      const attribute = element.tagName === 'LINK' ? 'href' : 'src';
+      const current = element.getAttribute(attribute);
+      if (!current) return;
+      const path = current.split('?')[0];
+      for (const pair of assets) {
+        const base = pair[0], festive = pair[1];
+        if (path.endsWith('/' + base) || path === base || path.endsWith('/' + festive)) {
+          const filename = seasonal ? festive : base;
+          element.setAttribute(attribute, '/assets/' + filename + '?v=20261128-seasonal');
+          break;
+        }
+      }
+    });
+  }
+
   function render(campaign, endAt) {
     if (document.getElementById('nt-seasonal-campaign')) return;
+    swapBrandAssets(true);
     const isHome = page === 'index.html';
     document.body.classList.add('nt-season-active');
     const style = document.createElement('style');
@@ -137,6 +159,8 @@
       if (remaining <= 0) {
         section.remove();
         style.remove();
+        document.body.classList.remove('nt-season-active');
+        swapBrandAssets(false);
         return;
       }
       countdown.textContent = '⏳ CAMPAIGN ENDS IN ' + formatCountdown(remaining);
