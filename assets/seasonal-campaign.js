@@ -99,6 +99,30 @@
       body.nt-season-active .card{border:1px solid #d6b45b!important;box-shadow:0 18px 44px #5b32151c!important}
       body.nt-season-active .top .brand,body.nt-season-active .top .top-link{color:#fff!important}
       body.nt-season-active .footer{background:#073b24!important;color:#f9edc8!important;border-top:3px solid #d6b45b}
+      /* Seasonal treatment for both Tasker and Poster authentication screens. */
+      body.nt-season-active .layout{position:relative}
+      body.nt-season-active .intro .eyebrow{display:inline-flex;padding:8px 12px;border:1px solid #d6b45b;border-radius:999px;background:linear-gradient(100deg,#fff1c7,#ffe5df);color:#8b2430!important;letter-spacing:1.2px}
+      body.nt-season-active .intro h1{color:#073b24!important;text-shadow:0 2px 0 #fff5d6}
+      body.nt-season-active .intro p{color:#465d4b!important}
+      body.nt-season-active .benefit{color:#244b31!important}
+      body.nt-season-active .benefit .tick{background:linear-gradient(145deg,#f6df91,#d8edaa)!important;color:#7c202c!important;border:1px solid #d6b45b}
+      body.nt-season-active .layout>.card{background:linear-gradient(145deg,#fffdf5 0%,#fff5e4 58%,#f8eee5 100%)!important;border:2px solid #d6b45b!important;box-shadow:0 22px 55px #4d271b24!important}
+      body.nt-season-active .card-brand{border-bottom-color:#e4cf9a!important}
+      body.nt-season-active .card-brand strong,body.nt-season-active .card h2{color:#073b24!important}
+      body.nt-season-active .card-brand small{color:#8b2430!important}
+      body.nt-season-active .role{background:linear-gradient(110deg,#073b24,#08783c 68%,#8f1d32)!important;border:1px solid #d6b45b!important}
+      body.nt-season-active .role strong,body.nt-season-active .role span{color:#fff!important}
+      body.nt-season-active .layout input{background:#fffefa!important;border-color:#d9cda9!important;color:#183b28!important}
+      body.nt-season-active .layout input:focus{border-color:#0b8f3c!important;box-shadow:0 0 0 3px #0b8f3c20!important}
+      body.nt-season-active .layout label{color:#294b34!important}
+      body.nt-season-active .primary{background:linear-gradient(105deg,#073b24 0%,#08783c 62%,#941d32 100%)!important;border:1px solid #d6b45b!important;box-shadow:0 9px 20px #5b251b22!important}
+      body.nt-season-active .show,body.nt-season-active .forgot,body.nt-season-active .layout .secondary{background:linear-gradient(110deg,#fff0c8,#f9e5df)!important;border:1px solid #d6b45b!important;color:#17452a!important}
+      body.nt-season-active .switch{color:#526455!important}
+      body.nt-season-active .switch a,body.nt-season-active .nt-other-account a{color:#8b2430!important}
+      body.nt-season-active .nt-other-account{border-top-color:#e4cf9a!important}
+      body.nt-season-active .nt-google-btn{background:#fffefa!important;border-color:#d6b45b!important}
+      body.nt-season-active .nt-turnstile-area{background:#fffaf0!important;border-color:#d6b45b!important}
+      body.nt-season-active .footer{color:#f9edc8!important}
       #nt-seasonal-campaign{grid-column:1/-1}
 
     `;
