@@ -677,48 +677,50 @@ function getTaskActionKey(task){
   const fallback=normalize(task?.task_type||"general").replace(/[^a-z0-9]/g,"").slice(0,60);
   return fallback||"general";
 }
-async 
-function buildCommentIdeas(postText){
-  const source=String(postText||"").replace(/https?:\/\/\S+/g,"").replace(/\s+/g," ").trim();
-  if(source.length<12)throw new Error("Paste a little more of the post so the suggestions can be relevant.");
-  const focus=source.slice(0,125).replace(/[“”"]/g,"").replace(/[.!?]+$/,"");
-  const endings=[
-    "What made you focus on this point?",
-    "It gives people something useful to think about.",
-    "I’d be interested to hear more about your perspective.",
-    "That is an interesting angle on the topic.",
-    "Which part of this has mattered most in your experience?"
-  ];
-  const starts=[
-    "The point about",
-    "One thing that stands out in",
-    "I noticed the part about",
-    "This perspective on",
-    "The discussion around"
-  ];
-  const shuffle=a=>a.map(v=>({v,r:Math.random()})).sort((x,y)=>x.r-y.r).map(x=>x.v);
-  const chosenStarts=shuffle(starts),chosenEndings=shuffle(endings);
-  return [
-    chosenStarts[0]+" “"+focus+"” — "+chosenEndings[0],
-    "Thanks for sharing this. "+chosenStarts[1].toLowerCase()+" “"+focus+"” feels worth discussing.",
-    chosenStarts[2]+" “"+focus+"”. "+chosenEndings[1]
-  ];
+function classifyCommentTopic(text){
+ const t=String(text||"").toLowerCase();
+ if(/\b(congratulat|congrats|birthday|anniversary|graduat|promotion|achievement|celebrat|wedding|milestone|award)\b/.test(t))return "celebration";
+ if(/\b(comedy|comedian|funny|joke|humou?r|meme|laugh|skit|parody|prank)\b/.test(t))return "comedy";
+ if(/\b(advert|promotion|promo|discount|sale|offer|shop|product|service|brand|business|price|deal)\b/.test(t))return "advert";
+ if(/\b(platform|app|website|community|social media|feature|launch|register|sign up|download)\b/.test(t))return "platform";
+ if(/\b(event|conference|webinar|concert|meetup|workshop|ticket)\b/.test(t))return "event";
+ if(/\b(tip|guide|learn|lesson|tutorial|education|explain)\b/.test(t))return "educational";
+ return "general";
+}
+function buildCommentIdeas(postText,count=5){
+ const taskContext=[selectedTask?.title,selectedTask?.description,selectedTask?.copy_text,selectedTask?.requirements].filter(Boolean).join(" ");
+ const source=String(postText||"").replace(/https?:\/\/\S+/g,"").replace(/\s+/g," ").trim();
+ const context=(source+" "+taskContext).trim();
+ if(context.length<12)throw new Error("Add the post text or task details so suggestions match the topic.");
+ const category=classifyCommentTopic(context);
+ const sets={
+ celebration:["Congratulations on this wonderful milestone! Wishing you more success ahead.","This is lovely news. Thanks for sharing such a happy moment.","A moment worth celebrating. All the best for what comes next.","Big congratulations! This achievement deserves recognition.","Such an exciting update. Hope there are many more wins ahead.","Wonderful to see this progress. Keep moving forward!","This deserves a celebration. Congratulations to everyone involved.","A beautiful milestone. Wishing you continued success.","So good to see good news like this. Congratulations!","What a special moment. May the next chapter be even better."],
+ comedy:["That caught me off guard 😂 The timing makes it even funnier.","This is the kind of moment that makes the day better.","The delivery is what makes this one 😂","I did not expect that ending. Nicely done!","The little details make this even more hilarious.","That twist was too good 😂","A proper laugh. The creativity here is impressive.","The expression says everything 😂","This is funny because it feels so relatable.","That ending deserves a replay."],
+ advert:["The details are clear. Where can people find out more about this offer?","Thanks for sharing the information. It is helpful to know what is available.","The offer looks interesting. People can check the details to see if it suits them.","A clear presentation makes it easier to understand what is being offered.","Good to see the key details included. Is there a page with more information?","This could be useful to people looking for this type of product or service.","The information is straightforward. What options are available?","Thanks for explaining the features. The details help people compare options.","An interesting offer. It is worth reading the full terms before deciding.","Nice presentation. More details about availability would be useful."],
+ platform:["The idea behind this platform is interesting. What features are available?","Thanks for introducing this. It helps to understand what the platform is designed for.","A clear explanation of how it works would help new users get started.","Interesting concept. I would like to learn more about the features.","The platform's purpose comes across clearly in this post.","Good to see another option being introduced. What makes it different?","This could be useful for people looking for this kind of service.","The information is helpful for anyone considering the platform.","A simple onboarding experience would make this even more accessible.","Thanks for the update. Where can people read more?"],
+ event:["This sounds like an interesting event. Thanks for sharing the details.","The programme looks worth checking out. Who is the event designed for?","Great to see the event details shared early. Best wishes to the organisers.","This could be a good opportunity for people interested in the topic.","The event theme sounds engaging. Looking forward to seeing how it goes.","Thanks for the information. Are registration details available?","A useful event to have on the calendar. Best wishes to everyone involved.","The topic should bring some interesting conversations.","Good initiative. Hope attendees have a valuable experience.","The details are helpful. Is there a schedule available?"],
+ educational:["This is a useful point to understand. Thanks for breaking it down.","The explanation makes the topic easier to follow.","A helpful reminder, especially for people learning about this.","I like how the main idea is presented clearly.","This gives readers something practical to think about.","Thanks for sharing the knowledge. More examples would be useful.","A clear explanation can make a big difference for beginners.","This is worth saving and revisiting.","The key takeaway is useful. Thanks for putting it together.","An informative post. The practical details are appreciated."],
+ general:["Thanks for sharing this update. The main point is worth discussing.","Interesting perspective. The details make the topic clearer.","This is a useful point to bring into the conversation.","The message is clear. Thanks for taking the time to share it.","There is a good point here that people can think about.","A thoughtful post. It would be interesting to hear more details.","This adds something useful to the discussion.","Appreciate the explanation. The context helps.","An interesting update. Thanks for sharing it with everyone.","The topic raises a useful question for the community."]
+ };
+ const pool=sets[category]||sets.general;
+ const shuffled=pool.map(v=>({v,r:Math.random()})).sort((x,y)=>x.r-y.r).map(x=>x.v);
+ return {category,ideas:shuffled.slice(0,Math.max(5,Math.min(10,Number(count)||5)))};
 }
 function attachCommentHelper(){
-  const button=$("ntGenerateComments"),source=$("ntCommentSource"),output=$("ntCommentIdeas");
-  if(!button||!source||!output)return;
-  button.addEventListener("click",()=>{
-    try{
-      const ideas=buildCommentIdeas(source.value);
-      output.innerHTML=ideas.map((idea,index)=>'<div class="nt-comment-idea"><p>'+escapeHtml(idea)+'</p><button type="button" data-comment-index="'+index+'">Copy suggestion</button></div>').join("");
-      output.querySelectorAll("[data-comment-index]").forEach((copyButton,index)=>{
-        copyButton.addEventListener("click",async()=>{
-          try{await navigator.clipboard.writeText(ideas[index]);copyButton.textContent="Copied";setTimeout(()=>copyButton.textContent="Copy suggestion",1400);}
-          catch{copyButton.textContent="Select and copy";source.focus();}
-        });
-      });
-    }catch(error){output.innerHTML='<p class="nt-comment-note" role="alert">'+escapeHtml(error.message)+'</p>';}
-  });
+ const button=$("ntGenerateComments"),source=$("ntCommentSource"),output=$("ntCommentIdeas"),count=$("ntCommentCount"),label=$("ntCommentCategory");
+ if(!button||!source||!output)return;
+ button.addEventListener("click",()=>{
+  try{
+   const result=buildCommentIdeas(source.value,count?.value||5);
+   const names={celebration:"Celebration",comedy:"Comedy",advert:"Advertisement",platform:"Platform promotion",event:"Event",educational:"Educational",general:"General"};
+   if(label)label.textContent="Detected topic: "+(names[result.category]||"General");
+   output.innerHTML=result.ideas.map((idea,index)=>'<div class="nt-comment-idea"><p>'+escapeHtml(idea)+'</p><button type="button" data-comment-index="'+index+'">Copy suggestion</button></div>').join("");
+   output.querySelectorAll("[data-comment-index]").forEach((copyButton,index)=>copyButton.addEventListener("click",async()=>{
+    try{await navigator.clipboard.writeText(result.ideas[index]);copyButton.textContent="Copied";}
+    catch{copyButton.textContent="Select and copy";source.focus();}
+   }));
+  }catch(error){output.innerHTML='<p class="nt-comment-note" role="alert">'+escapeHtml(error.message)+'</p>';}
+ });
 }
 
 function renderSavedUsernameSuggestions(task){
@@ -899,12 +901,14 @@ function openTask(task, verifiedSocialAccount=null){
       <div class="box">${escapeHtml(task.description || "Open the task link, complete the task, then upload your screenshot.")}</div></div>
     ${!isPrivateFeedbackTask(task) && getTaskActionKey(task)==="comment" ? `
     <section class="nt-comment-helper" aria-label="Comment idea helper">
-      <div class="nt-comment-head"><span>✍️</span><div><b>Comment idea helper</b><small>Draft suggestions from the actual post</small></div></div>
-      <label class="lab" for="ntCommentSource">Paste the post text or describe its main point</label>
-      <textarea id="ntCommentSource" class="form-control" rows="3" maxlength="600" placeholder="Paste the post text here so the suggestions stay relevant..."></textarea>
-      <button type="button" class="btn s" id="ntGenerateComments" style="width:100%;margin-top:8px">Generate comment ideas</button>
+      <div class="nt-comment-head"><span>✍️</span><div><b>Smart comment suggestions</b><small>Detects the topic and drafts relevant options</small></div></div>
+      <label class="lab" for="ntCommentSource">Post text (optional if task details explain it)</label>
+      <textarea id="ntCommentSource" class="form-control" rows="3" maxlength="1200" placeholder="Paste the actual post text for more accurate suggestions..."></textarea>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><label class="lab" for="ntCommentCount" style="margin:0;flex:1">Number of suggestions</label><select id="ntCommentCount" class="sort" style="min-height:40px"><option value="5">5 comments</option><option value="10">10 comments</option></select></div>
+      <div id="ntCommentCategory" class="nt-comment-note" aria-live="polite">Topic will be detected from the post and task details.</div>
+      <button type="button" class="btn s" id="ntGenerateComments" style="width:100%;margin-top:8px">Generate comments</button>
       <div id="ntCommentIdeas" class="nt-comment-ideas" aria-live="polite"></div>
-      <p class="nt-comment-note">Suggestions only. Read the post and edit a comment so it reflects your genuine opinion. Nothing is posted automatically.</p>
+      <p class="nt-comment-note">Review each suggestion and post only comments that reflect your genuine response. Nothing is posted automatically.</p>
     </section>` : ""}
     ${task.uploader_username ? `<div class="field"><div class="lab">Account to use</div><div class="box">${escapeHtml(task.uploader_username)}</div></div>` : ""}
     ${task.copy_text ? `<div class="field"><div class="lab">Text to use</div><div class="box">${escapeHtml(task.copy_text)}</div><button type="button" class="btn s sm" style="margin-top:8px" id="copyTaskTextBtn">Copy text</button></div>` : ""}
