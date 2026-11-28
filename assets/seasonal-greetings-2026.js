@@ -1,59 +1,54 @@
-/* NAIJA TASK seasonal greetings — isolated, temporary presentation only.
-   Does not alter platform branding, colours, layout, data, or application logic. */
+/* NAIJA TASK seasonal banner — temporary decorative artwork only.
+   Normal page-flow banner; no popup, overlay, sticky panel, or application logic changes. */
 (function () {
   'use strict';
   const now = new Date();
   const start = new Date('2026-11-28T00:00:00');
   const end = new Date('2027-01-03T00:00:00');
-  if (now < start || now >= end || document.getElementById('nt-seasonal-greeting')) return;
+  if (now < start || now >= end || document.getElementById('nt-seasonal-banner')) return;
 
   const isNewYear = now >= new Date('2026-12-26T00:00:00');
   const style = document.createElement('style');
-  style.id = 'nt-seasonal-greeting-style';
+  style.id = 'nt-seasonal-banner-style';
   style.textContent = `
-    #nt-seasonal-greeting{position:fixed;z-index:65;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min( calc(100% - 24px),440px);padding:13px 44px 14px 15px;border:1px solid #dcebdc;border-radius:18px;background:linear-gradient(145deg,#fff 0%,#f5fbf2 100%);box-shadow:0 12px 34px rgba(7,59,43,.17);color:#173b29;font-family:inherit;animation:ntSeasonalIn .35s ease both;overflow:hidden}
-    #nt-seasonal-greeting:before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,#0b8f3c 0 38%,#fff 38% 62%,#d52b36 62% 100%)}
-    #nt-seasonal-greeting .nt-seasonal-art{display:flex;align-items:center;justify-content:center;gap:17px;margin:2px 0 9px;padding:7px 10px;border:1px solid #e5efe1;border-radius:13px;background:linear-gradient(100deg,#f0f8eb,#fff 50%,#f7f1e8);font-size:27px;line-height:1.1}
-    #nt-seasonal-greeting .nt-seasonal-art span{display:inline-block;filter:drop-shadow(0 3px 2px #173b2920)}
-    #nt-seasonal-greeting .nt-seasonal-art .nt-seasonal-star{font-size:13px;color:#c69b2d}
-    #nt-seasonal-greeting .nt-seasonal-kicker{display:block;margin-bottom:3px;color:#16823c;font-size:9px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase}
-    #nt-seasonal-greeting .nt-seasonal-title{display:block;font-size:14px;font-weight:900;line-height:1.35}
-    #nt-seasonal-greeting .nt-seasonal-copy{display:block;margin-top:3px;color:#58685d;font-size:11px;line-height:1.5}
-    #nt-seasonal-greeting .nt-seasonal-close{position:absolute;top:9px;right:9px;width:29px;height:29px;border:0;border-radius:50%;background:#f0f5ef;color:#244b32;font-size:19px;line-height:1;cursor:pointer}
-    @keyframes ntSeasonalIn{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
-    @media(prefers-reduced-motion:reduce){#nt-seasonal-greeting{animation:none}}
+    #nt-seasonal-banner{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;box-sizing:border-box;min-height:132px;margin:0;padding:20px clamp(16px,4vw,42px);overflow:hidden;border-bottom:3px solid #d7b75b;background:radial-gradient(ellipse at 82% 10%,rgba(173,218,116,.23),transparent 36%),linear-gradient(112deg,#073b29 0%,#0b6339 52%,#123e2b 100%);color:#fff;font-family:inherit}
+    #nt-seasonal-banner:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.23;background-image:radial-gradient(circle at 12% 25%,#fff 0 1px,transparent 1.8px),radial-gradient(circle at 68% 75%,#fff 0 1px,transparent 1.8px),radial-gradient(circle at 91% 22%,#fff 0 1.5px,transparent 2px);background-size:47px 39px,63px 51px,71px 57px}
+    #nt-seasonal-banner .nt-seasonal-message{min-width:0;max-width:610px}
+    #nt-seasonal-banner .nt-seasonal-kicker{display:block;margin-bottom:5px;color:#f6d77c;font-size:10px;font-weight:900;letter-spacing:1.7px;text-transform:uppercase}
+    #nt-seasonal-banner .nt-seasonal-title{display:block;color:#fff;font-size:clamp(19px,3vw,29px);font-weight:950;line-height:1.15;text-shadow:0 2px 12px #001c12}
+    #nt-seasonal-banner .nt-seasonal-copy{display:block;margin-top:7px;color:#e7f4e9;font-size:clamp(11px,1.5vw,13px);line-height:1.5}
+    #nt-seasonal-banner .nt-seasonal-art{display:flex;align-items:center;justify-content:center;gap:clamp(7px,1.8vw,20px);flex:0 0 auto;padding:8px 16px;border:1px solid rgba(255,255,255,.22);border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:inset 0 1px rgba(255,255,255,.14),0 10px 24px rgba(0,0,0,.12)}
+    #nt-seasonal-banner .nt-seasonal-art span{display:inline-block;font-size:clamp(27px,5vw,48px);line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.2))}
+    #nt-seasonal-banner .nt-seasonal-art .nt-seasonal-star{color:#f6d77c;font-size:15px;filter:none}
+    @media(max-width:560px){#nt-seasonal-banner{min-height:116px;gap:8px;padding:15px 13px}#nt-seasonal-banner .nt-seasonal-art{gap:5px;padding:9px 8px;border-radius:14px}#nt-seasonal-banner .nt-seasonal-art span{font-size:clamp(23px,7vw,34px)}#nt-seasonal-banner .nt-seasonal-art .nt-seasonal-star{font-size:10px}#nt-seasonal-banner .nt-seasonal-copy{max-width:260px}}
+    @media(prefers-reduced-motion:no-preference){#nt-seasonal-banner .nt-seasonal-art{animation:ntSeasonalGlow 5s ease-in-out infinite alternate}@keyframes ntSeasonalGlow{from{box-shadow:inset 0 1px rgba(255,255,255,.12),0 8px 18px rgba(0,0,0,.1)}to{box-shadow:inset 0 1px rgba(255,255,255,.2),0 10px 26px rgba(214,183,91,.2)}}}
   `;
-  const panel = document.createElement('aside');
-  panel.id = 'nt-seasonal-greeting';
-  panel.setAttribute('role', 'status');
-  panel.setAttribute('aria-label', 'NAIJA TASK seasonal greeting');
+
+  const banner = document.createElement('section');
+  banner.id = 'nt-seasonal-banner';
+  banner.setAttribute('aria-label', 'NAIJA TASK seasonal banner');
+  const message = document.createElement('div');
+  message.className = 'nt-seasonal-message';
+  const kicker = document.createElement('span');
+  kicker.className = 'nt-seasonal-kicker';
+  kicker.textContent = isNewYear ? 'A fresh chapter begins' : 'Season’s greetings from NAIJA TASK';
+  const title = document.createElement('strong');
+  title.className = 'nt-seasonal-title';
+  title.textContent = isNewYear ? 'Happy New Year 2027!' : 'Merry Christmas!';
+  const copy = document.createElement('span');
+  copy.className = 'nt-seasonal-copy';
+  copy.textContent = isNewYear
+    ? 'Wishing our taskers and posters fresh opportunities, progress and success.'
+    : 'Wishing our taskers and posters joy, peace and a wonderful festive season.';
+  message.append(kicker, title, copy);
+
   const art = document.createElement('div');
   art.className = 'nt-seasonal-art';
   art.setAttribute('aria-hidden', 'true');
   art.innerHTML = isNewYear
     ? '<span>🎆</span><span class="nt-seasonal-star">✦</span><span>✨</span><span class="nt-seasonal-star">✦</span><span>🎉</span>'
     : '<span>🎅🏻</span><span class="nt-seasonal-star">✦</span><span>🦌</span><span class="nt-seasonal-star">✦</span><span>🎁</span>';
-  const kicker = document.createElement('span');
-  kicker.className = 'nt-seasonal-kicker';
-  kicker.textContent = isNewYear ? '✨ A new year, new possibilities' : '🎄 Season’s greetings from NAIJA TASK';
-  const title = document.createElement('strong');
-  title.className = 'nt-seasonal-title';
-  title.textContent = isNewYear ? 'Happy New Year 2027! 🥳' : 'Merry Christmas! 🎁';
-  const copy = document.createElement('span');
-  copy.className = 'nt-seasonal-copy';
-  copy.textContent = isNewYear
-    ? 'Wishing you progress, fresh opportunities and greater success. Thank you for growing with us.'
-    : 'Wishing our taskers, posters and the whole NAIJA TASK community joy, peace and a wonderful festive season.';
-  const close = document.createElement('button');
-  close.className = 'nt-seasonal-close';
-  close.type = 'button';
-  close.setAttribute('aria-label', 'Dismiss seasonal greeting');
-  close.textContent = '×';
-  close.addEventListener('click', function () {
-    panel.remove();
-    style.remove();
-  });
-  panel.append(art, kicker, title, copy, close);
+  banner.append(message, art);
   document.head.appendChild(style);
-  document.body.appendChild(panel);
+  document.body.insertBefore(banner, document.body.firstChild);
 })();
