@@ -6425,6 +6425,13 @@ async function loadTasks() {
 }
 
 
+function isAdminCreatedTask(task) {
+  const payment = String(task?.payment_status || "").trim().toUpperCase();
+  const required = Number(task?.total_funding_required || 0);
+  const funded = Number(task?.funded_amount || 0);
+  return payment === "NOT_REQUIRED" && required === 0 && funded === 0;
+}
+
 function renderTasks(tasks) {
   const body = $("tasksBody");
   if (!body) return;
@@ -6445,6 +6452,7 @@ function renderTasks(tasks) {
       task.moderation_status || task.status || "PENDING"
     ).trim().toUpperCase();
     const canReview = !["APPROVED", "LIVE", "REJECTED", "COMPLETED", "DELETED"].includes(reviewStatus);
+    const adminCreated = isAdminCreatedTask(task);
     const riskScore = Number(task.risk_score || 0);
     const riskLevel = String(task.risk_level || "not assessed").toUpperCase();
     const riskReasons = Array.isArray(task.risk_reasons) ? task.risk_reasons : [];
@@ -6462,10 +6470,10 @@ function renderTasks(tasks) {
         <td>${badge(task.status || (active ? "LIVE" : "DISABLED"))}</td>
         <td>
           ${badge(task.payment_status || "—")}
-          <small style="display:block">Moderation: ${escapeHTML(task.moderation_status || "—")}</small>
-          <small style="display:block">Funded ${money(task.funded_amount || 0)} / ${money(task.total_funding_required || 0)}</small>
-          <small style="display:block;font-weight:800;color:${riskScore >= 60 ? '#b42318' : riskScore >= 35 ? '#a15c00' : '#287443'}">Automatic risk: ${riskScore}/100 · ${escapeHTML(riskLevel)}</small>
-          ${riskReasons.length ? '<small style="display:block;max-width:260px;white-space:normal;color:#a15c00">Flags: '+escapeHTML(riskReasons.join(' · '))+'</small>' : ''}
+          <small style="display:block">${adminCreated ? "Moderation: NOT REQUIRED (ADMIN TASK)" : "Moderation: " + escapeHTML(task.moderation_status || "—")}</small>
+          <small style="display:block">${adminCreated ? "Admin-created task · no poster funding required" : "Funded " + money(task.funded_amount || 0) + " / " + money(task.total_funding_required || 0)}</small>
+          ${adminCreated ? "" : '<small style="display:block;font-weight:800;color:'+ (riskScore >= 60 ? '#b42318' : riskScore >= 35 ? '#a15c00' : '#287443') +'">Automatic risk: '+riskScore+'/100 · '+escapeHTML(riskLevel)+'</small>'}
+          ${!adminCreated && riskReasons.length ? '<small style="display:block;max-width:260px;white-space:normal;color:#a15c00">Flags: '+escapeHTML(riskReasons.join(' · '))+'</small>' : ''}
         </td>
         <td>${active ? badge("Active") : badge("Inactive")}</td>
         <td>${shortDate(task.expiry_date)}</td>
@@ -6497,25 +6505,40 @@ async function approveTask(taskId) {
     toast("This task is already approved or live.", "warning");
     return;
   }
+  const adminCreated = isAdminCreatedTask(task);
   const riskScore = Number(task.risk_score || 0);
   const riskReasons = Array.isArray(task.risk_reasons) ? task.risk_reasons.join("\n• ") : "";
-  if (riskScore >= 35) {
-    toast("Automatic screening has held this task. Review the risk flags and edit the task before attempting approval.", "danger");
+  if (!adminCreated && riskScore >= 35) {
+    toast("Automatic screening has held this poster-funded task. Review its risk flags and edit it before attempting approval.", "danger");
     return;
   }
-  if (!await uiConfirm("Approve and publish this task?\n\n" + (task.title || "Untitled task") + "\n\nAutomatic risk: " + riskScore + "/100\n" + (riskReasons ? "Flags: " + riskReasons : "No automatic content flags."))) return;
+  const confirmText = adminCreated
+    ? "Publish this admin-created task?\\n\\n" + (task.title || "Untitled task") + "\\n\\nAdmin-created tasks do not require poster funding or poster-task moderation."
+    : "Approve and publish this poster-funded task?\\n\\n" + (task.title || "Untitled task") + "\\n\\nAutomatic risk: " + riskScore + "/100\\n" + (riskReasons ? "Flags: " + riskReasons : "No automatic content flags.");
+  if (!await uiConfirm(confirmText)) return;
   try {
-    setLoading(true, "Running final server-side safety and funding checks...");
+    setLoading(true, adminCreated ? "Publishing admin-created task..." : "Running final server-side safety and funding checks...");
     if (!/^\\d+$/.test(String(taskId))) throw new Error("Invalid task ID.");
-    const { data, error } = await supabaseClient.rpc("admin_moderate_poster_task", {
-      p_task_id: Number(taskId),
-      p_decision: "APPROVED"
-    });
-    if (error) throw error;
-    if (!data || data.success !== true) throw new Error("The database did not confirm task approval.");
-    try { await writeAudit("task_approved", taskId, { title: task.title || "Untitled task", risk_score: data.risk_score, risk_level: data.risk_level }); }
-    catch (auditError) { console.warn("Approval succeeded but audit logging failed:", auditError); }
-    toast("Task passed server-side checks and was published.", "success");
+    if (adminCreated) {
+      const { error } = await supabaseClient.from("tasks").update({
+        active: true,
+        status: "LIVE",
+        moderation_status: "APPROVED"
+      }).eq("id", Number(taskId));
+      if (error) throw error;
+      try { await writeAudit("admin_task_published", taskId, { title: task.title || "Untitled task" }); }
+      catch (auditError) { console.warn("Task published but audit logging failed:", auditError); }
+    } else {
+      const { data, error } = await supabaseClient.rpc("admin_moderate_poster_task", {
+        p_task_id: Number(taskId),
+        p_decision: "APPROVED"
+      });
+      if (error) throw error;
+      if (!data || data.success !== true) throw new Error("The database did not confirm task approval.");
+      try { await writeAudit("task_approved", taskId, { title: task.title || "Untitled task", risk_score: data.risk_score, risk_level: data.risk_level }); }
+      catch (auditError) { console.warn("Approval succeeded but audit logging failed:", auditError); }
+    }
+    toast(adminCreated ? "Admin task published successfully." : "Task passed server-side checks and was published.", "success");
     await loadTasks();
     await loadOverview();
   } catch (error) {
@@ -6900,7 +6923,7 @@ async function saveTask() {
       // Admin-created tasks are free to post; worker rewards still apply.
       payload.status = active ? "LIVE" : "PENDING";
       payload.created_by = currentUser.id;
-      payload.moderation_status = active ? "APPROVED" : "PENDING";
+      payload.moderation_status = "APPROVED";
       payload.payment_status = "NOT_REQUIRED";
       payload.total_funding_required = 0;
       payload.funded_amount = 0;
