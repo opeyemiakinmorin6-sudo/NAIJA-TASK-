@@ -75,6 +75,7 @@
       #nt-seasonal-campaign .nt-campaign-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid #d7ef8a;border-radius:10px;background:linear-gradient(120deg,#d6f078,#b8df42);color:#153b20;text-decoration:none;font-size:10px;font-weight:950}
       #nt-seasonal-campaign .nt-campaign-btn.secondary{border-color:#ffffff77;background:#ffffff16;color:#fff}
       #nt-seasonal-campaign .nt-campaign-sound{font:inherit;cursor:pointer;border-color:#ffe59a;background:#ffffff16;color:#fff}
+      #nt-home-seasonal-sound{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin-top:10px;padding:0 14px;border:1px solid #f2cc70;border-radius:10px;background:#ffffff18;color:#fff;font:800 11px Arial,sans-serif;cursor:pointer;position:relative;z-index:2}#nt-home-seasonal-sound:focus-visible{outline:3px solid #fff;outline-offset:3px}
       #nt-seasonal-snow{position:fixed;inset:0;z-index:9998;overflow:hidden;pointer-events:none;contain:strict}
       #nt-seasonal-snow span{position:absolute;top:-12px;left:var(--x);width:var(--size);height:var(--size);border-radius:50%;background:#fff;opacity:var(--opacity);filter:drop-shadow(0 0 3px #b9dfff);animation:nt-snow-fall var(--duration) linear var(--delay) infinite}
       @keyframes nt-snow-fall{0%{transform:translate3d(0,-12px,0)}50%{transform:translate3d(var(--drift),52vh,0)}100%{transform:translate3d(calc(var(--drift)*-.45),105vh,0)}}
@@ -224,7 +225,7 @@
     const countdown = document.createElement('span');
     countdown.className = 'nt-campaign-countdown';
     countdown.setAttribute('aria-live','off');
-    actions.append(soundButton);
+    if (!isHome) actions.append(soundButton);
     const snow = document.createElement('div');
     snow.id = 'nt-seasonal-snow';
     snow.setAttribute('aria-hidden','true');
@@ -250,6 +251,15 @@
     copy.append(kicker,title,desc,actions,countdown);
     section.append(copy,art);
     document.body.append(snow);
+    if (isHome) {
+      const homeHero = document.querySelector('.nt-legacy-hero');
+      if (homeHero) {
+        soundButton.id = 'nt-home-seasonal-sound';
+        const heroActions = homeHero.querySelector('.nt-legacy-actions');
+        if (heroActions) heroActions.insertAdjacentElement('afterend', soundButton);
+        else homeHero.append(soundButton);
+      }
+    }
     const place = () => {
       const main = document.querySelector('body > main, body > #app main, body > .main-content, main');
       const header = document.querySelector('body > header, body > .topbar, body > nav');
