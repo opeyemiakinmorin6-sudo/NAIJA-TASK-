@@ -126,15 +126,15 @@
       #nt-seasonal-campaign{grid-column:1/-1}
 
     `;
-    /* Authentication pages receive the festive visual skin and logo only.
-       Keep the promotional campaign banner off login and signup screens. */
-    if (/^(login|signup|poster-login|poster-signup)\.html$/i.test(page)) {
-      document.head.append(style);
-      return;
-    }
+    /* Keep the seasonal campaign, but make authentication-page actions role-specific.
+       A Poster screen must never promote the Tasker signup action, or vice versa. */
+    const isPosterAuth = /^(poster-login|poster-signup)\.html$/i.test(page);
+    const isTaskerAuth = /^(login|signup)\.html$/i.test(page);
+    const isAuth = isPosterAuth || isTaskerAuth;
     const section = document.createElement('section');
     section.id = 'nt-seasonal-campaign';
     if (!isHome) section.classList.add('nt-campaign-compact');
+    if (isAuth) section.classList.add('nt-campaign-auth', isPosterAuth ? 'nt-campaign-poster' : 'nt-campaign-tasker');
     section.setAttribute('aria-label', campaign.name || 'NAIJA TASK seasonal campaign');
     const copy = document.createElement('div');
     copy.className = 'nt-campaign-copy';
@@ -146,7 +146,11 @@
     title.textContent = campaign.headline || 'Seasonal opportunities with NAIJA TASK';
     const desc = document.createElement('p');
     desc.className = 'nt-campaign-copytext';
-    desc.textContent = campaign.description || 'Complete tasks, earn Naira and promote your business.';
+    desc.textContent = isPosterAuth
+      ? 'Promote your business, publish tasks and reach real taskers this festive season.'
+      : isTaskerAuth
+        ? 'Discover available tasks, complete them and earn rewards this festive season.'
+        : (campaign.description || 'Complete tasks, earn Naira and promote your business.');
     const actions = document.createElement('div');
     actions.className = 'nt-campaign-actions';
     const poster = document.createElement('a');
@@ -157,7 +161,9 @@
     tasker.className = 'nt-campaign-btn secondary';
     tasker.href = validLocalPath(campaign.tasker_cta_url);
     tasker.textContent = '🎁 ' + (campaign.tasker_cta_label || 'JOIN AS TASKER');
-    actions.append(poster, tasker);
+    if (isPosterAuth) actions.append(poster);
+    else if (isTaskerAuth) actions.append(tasker);
+    else actions.append(poster, tasker);
     const countdown = document.createElement('span');
     countdown.className = 'nt-campaign-countdown';
     countdown.setAttribute('aria-live','off');
